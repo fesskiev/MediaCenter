@@ -1,0 +1,22 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.fesskiev.player.ui.MusicFoldersFragment">
+
+    <GridView
+        android:id="@+id/foldersGridView"
+        style="@style/FolderGridView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:drawSelectorOnTop="true"
+        android:layout_marginTop="@dimen/grid_spacing"
+        android:columnWidth="@dimen/grid_folder_size"
+        android:horizontalSpacing="@dimen/grid_spacing"
+        android:padding="@dimen/grid_spacing"
+        android:numColumns="auto_fit"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="@dimen/grid_spacing"/>
+
+</RelativeLayout>

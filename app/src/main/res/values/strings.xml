@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">MusicPlayer</string>
+
+    <string name="permission_read_external_storage">Read external stotage are needed to access</string>
+    <string name="button_ok">OK</string>
+
+    <string name="snack_exit_text">Do you want exit from app?</string>
+    <string name="snack_exit_action">EXIT</string>
+
+    <string name="title_tracklist_activity">Tracklist</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+</resources>
