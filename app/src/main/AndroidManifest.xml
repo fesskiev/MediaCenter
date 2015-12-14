@@ -43,11 +43,21 @@
         <activity
             android:name=".ui.player.PlayerActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
+            android:launchMode="singleTask"
             android:parentActivityName=".ui.tracklist.TrackListActivity"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.tracklist.TrackListActivity" />
+        </activity>
+        <activity
+            android:name=".ui.equalizer.EqualizerActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:parentActivityName=".ui.player.PlayerActivity"
+            android:screenOrientation="landscape">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.player.PlayerActivity" />
         </activity>
 
         <service
@@ -58,7 +68,8 @@
             android:exported="false" />
         <service
             android:name=".services.FetchMp3InfoIntentService"
-            android:exported="false"/>
+            android:exported="false" />
+
     </application>
 
 </manifest>

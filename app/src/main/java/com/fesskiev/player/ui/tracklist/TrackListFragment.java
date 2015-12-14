@@ -35,21 +35,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MusicTrackListFragment extends Fragment {
+public class TrackListFragment extends Fragment {
 
-    private static final String TAG = MusicTrackListFragment.class.getSimpleName();
-    public static final String MUSIC_FILE_PATH = "music_file_path";
-    public static final String COVER_IMAGE_PATH = "cover_image_path";
+    private static final String TAG = TrackListFragment.class.getSimpleName();
+    public static final String FILE_POSITION = "file_position";
 
     private MusicFolder musicFolder;
-    private RecyclerView recyclerView;
     private Bitmap coverImageBitmap;
     private List<MusicFile> musicFiles;
     private MusicFilesAdapter musicFilesAdapter;
-    private int position;
+    private int folderPosition;
 
-    public static MusicTrackListFragment newInstance(int position) {
-        MusicTrackListFragment fragment = new MusicTrackListFragment();
+    public static TrackListFragment newInstance(int position) {
+        TrackListFragment fragment = new TrackListFragment();
         Bundle args = new Bundle();
         args.putInt(MusicFoldersFragment.FOLDER_POSITION, position);
         fragment.setArguments(args);
@@ -60,9 +58,9 @@ public class MusicTrackListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            position = getArguments().getInt(MusicFoldersFragment.FOLDER_POSITION);
+            folderPosition = getArguments().getInt(MusicFoldersFragment.FOLDER_POSITION);
             musicFolder =
-                    ((MusicApplication) getActivity().getApplication()).getMusicFolders().get(position);
+                    ((MusicApplication) getActivity().getApplication()).getMusicFolders().get(folderPosition);
             List<File> folderImages = musicFolder.folderImages;
             if (folderImages != null && folderImages.size() > 0) {
                 coverImageBitmap = Utils.getResizedBitmap(100, 100,
@@ -83,7 +81,7 @@ public class MusicTrackListFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        recyclerView = (RecyclerView) view.findViewById(R.id.recycleView);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false, 1000));
         musicFilesAdapter = new MusicFilesAdapter(musicFiles);
@@ -93,17 +91,14 @@ public class MusicTrackListFragment extends Fragment {
             @Override
             public void onItemClick(View view, int position) {
 
-                File musicFile = musicFolder.musicFiles.get(position);
-                if (musicFile != null) {
-                    Intent intent = new Intent(getActivity(), PlayerActivity.class);
-                    intent.putExtra(COVER_IMAGE_PATH,
-                            musicFolder.folderImages.get(0).getAbsolutePath());
-                    intent.putExtra(MUSIC_FILE_PATH, musicFile.getAbsolutePath());
-                    startActivity(intent);
-                }
+                Intent intent = new Intent(getActivity(), PlayerActivity.class);
+                intent.putExtra(MusicFoldersFragment.FOLDER_POSITION, folderPosition);
+                intent.putExtra(FILE_POSITION, position);
+                startActivity(intent);
+
             }
         }));
-        FetchMp3InfoIntentService.startFetchMp3Info(getActivity(), position);
+        FetchMp3InfoIntentService.startFetchMp3Info(getActivity(), folderPosition);
     }
 
     @Override
@@ -139,8 +134,8 @@ public class MusicTrackListFragment extends Fragment {
 
                     List<MusicFile> receiverMusicFiles = ((MusicApplication) getActivity().
                             getApplication()).getMusicFolders().
-                            get(position).musicFilesDescription;
-                    if(receiverMusicFiles != null){
+                            get(folderPosition).musicFilesDescription;
+                    if (receiverMusicFiles != null) {
                         musicFiles.clear();
                         musicFiles.addAll(receiverMusicFiles);
                         musicFilesAdapter.notifyDataSetChanged();

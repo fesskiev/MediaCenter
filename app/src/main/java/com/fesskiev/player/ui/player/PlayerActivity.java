@@ -1,6 +1,7 @@
 package com.fesskiev.player.ui.player;
 
 
+import android.animation.Animator;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -12,17 +13,22 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.IntentCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.fesskiev.player.MusicApplication;
 import com.fesskiev.player.R;
+import com.fesskiev.player.model.MusicFile;
+import com.fesskiev.player.model.MusicFolder;
 import com.fesskiev.player.services.PlaybackService;
-import com.fesskiev.player.ui.tracklist.MusicTrackListFragment;
+import com.fesskiev.player.ui.MusicFoldersFragment;
+import com.fesskiev.player.ui.equalizer.EqualizerActivity;
 import com.fesskiev.player.ui.tracklist.TrackListActivity;
+import com.fesskiev.player.ui.tracklist.TrackListFragment;
 import com.fesskiev.player.utils.Utils;
 
 public class PlayerActivity extends AppCompatActivity {
@@ -30,11 +36,24 @@ public class PlayerActivity extends AppCompatActivity {
     private static final String TAG = PlayerActivity.class.getSimpleName();
 
     private FloatingActionButton playStopButton;
+    private CardView cardDescription;
     private ImageView volumeLevel;
+    private ImageView previousTrack;
+    private ImageView nextTrack;
     private TextView trackTimeCount;
     private TextView trackTimeTotal;
+    private TextView artist;
+    private TextView title;
+    private TextView genre;
+    private TextView album;
+    private TextView trackDescription;
     private SeekBar trackSeek;
+    private MusicFolder musicFolder;
+    private MusicFile currentMusicFile;
     private boolean isPlaying;
+    private int folderPosition;
+    private int filePosition;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,17 +74,65 @@ public class PlayerActivity extends AppCompatActivity {
             }
         }
 
-        String musicFilePath =
-                getIntent().getExtras().getString(MusicTrackListFragment.MUSIC_FILE_PATH);
-        String coverFilePath =
-                getIntent().getExtras().getString(MusicTrackListFragment.COVER_IMAGE_PATH);
+        folderPosition = getIntent().getExtras().getInt(MusicFoldersFragment.FOLDER_POSITION);
+        filePosition = getIntent().getExtras().getInt(TrackListFragment.FILE_POSITION);
 
+        musicFolder =
+                ((MusicApplication)getApplication()).getMusicFolders().get(folderPosition);
+        currentMusicFile = musicFolder.musicFilesDescription.get(filePosition);
+
+        cardDescription = (CardView) findViewById(R.id.cardDescription);
         volumeLevel = (ImageView) findViewById(R.id.volumeLevel);
+        previousTrack = (ImageView) findViewById(R.id.previousTrack);
+        nextTrack = (ImageView) findViewById(R.id.nextTrack);
         trackTimeTotal = (TextView) findViewById(R.id.trackTimeTotal);
         trackTimeCount = (TextView) findViewById(R.id.trackTimeCount);
+        artist = (TextView) findViewById(R.id.trackArtist);
+        title = (TextView) findViewById(R.id.trackTitle);
+        trackDescription = (TextView) findViewById(R.id.trackDescription);
+        genre = (TextView) findViewById(R.id.genre);
+        album = (TextView) findViewById(R.id.album);
 
-        ImageView backdrop = (ImageView) findViewById(R.id.backdrop);
-        backdrop.setImageBitmap(Utils.getResizedBitmap(1024, 1024, coverFilePath));
+        ((ImageView) findViewById(R.id.backdrop)).
+                setImageBitmap(Utils.getResizedBitmap(1024, 1024,
+                musicFolder.folderImages.get(0).getAbsolutePath()));
+
+        findViewById(R.id.equalizer).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(PlayerActivity.this, EqualizerActivity.class));
+            }
+        });
+
+        previousTrack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(filePosition > 0) {
+                    filePosition--;
+                }
+                currentMusicFile = musicFolder.musicFilesDescription.get(filePosition);
+
+                animateCardDescription(false);
+                resetTimers();
+                createPlayer();
+            }
+        });
+
+        nextTrack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(filePosition < musicFolder.musicFilesDescription.size() - 1) {
+                    filePosition++;
+                }
+
+                currentMusicFile = musicFolder.musicFilesDescription.get(filePosition);
+
+                animateCardDescription(true);
+                resetTimers();
+                createPlayer();
+            }
+        });
+
 
         playStopButton =
                 (FloatingActionButton) findViewById(R.id.playStopFAB);
@@ -119,7 +186,6 @@ public class PlayerActivity extends AppCompatActivity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 PlaybackService.volumePlayback(PlayerActivity.this, lastProgress);
-
                 if (lastProgress <= 45) {
                     volumeLevel.setImageResource(R.drawable.low_volume_icon);
                 } else {
@@ -129,19 +195,105 @@ public class PlayerActivity extends AppCompatActivity {
         });
 
 
-        if (musicFilePath != null) {
-            PlaybackService.createPlayer(this, musicFilePath);
-        }
+        resetTimers();
+        setTrackInformation();
+        createPlayer();
 
         registerPlaybackBroadcastReceiver();
     }
 
+    private void animateCardDescription(boolean next){
+        float value = next ? cardDescription.getWidth() +
+                getResources().getDimension(R.dimen.activity_horizontal_margin) :
+                -(cardDescription.getWidth() -
+                getResources().getDimension(R.dimen.activity_horizontal_margin));
+
+        cardDescription.
+                animate().
+                x(value).
+                setDuration(500).
+                setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        cardDescription.animate().
+                                x(getResources().
+                                        getDimension(R.dimen.activity_horizontal_margin)).
+                                setListener(new Animator.AnimatorListener() {
+                                    @Override
+                                    public void onAnimationStart(Animator animation) {
+
+                                    }
+
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        setTrackInformation();
+                                    }
+
+                                    @Override
+                                    public void onAnimationCancel(Animator animation) {
+
+                                    }
+
+                                    @Override
+                                    public void onAnimationRepeat(Animator animation) {
+
+                                    }
+                                });
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
+    }
+
+
+
+    private void resetTimers(){
+        trackTimeTotal.setText("0:00");
+        trackTimeCount.setText("0:00");
+    }
+
+
+    private void createPlayer(){
+        if (currentMusicFile != null) {
+            PlaybackService.createPlayer(this, currentMusicFile.filePath);
+        }
+    }
+
+    private void setTrackInformation(){
+        if(currentMusicFile != null){
+            artist.setText(currentMusicFile.artist);
+            title.setText(currentMusicFile.title);
+            album.setText(currentMusicFile.album);
+            genre.setText(currentMusicFile.genre);
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("MP3::");
+            sb.append(currentMusicFile.sampleRate);
+            sb.append("::");
+            sb.append(currentMusicFile.bitrate);
+            trackDescription.setText(sb.toString());
+        }
+    }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onDestroy() {
+        super.onDestroy();
         unregisterPlaybackBroadcastReceiver();
     }
+
 
     private void registerPlaybackBroadcastReceiver() {
         IntentFilter filter = new IntentFilter();

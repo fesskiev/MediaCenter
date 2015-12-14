@@ -44,20 +44,4 @@ public class MusicFolder {
         }
         return sb.toString();
     }
-
-//    public List<MusicFile> getMusicFilesDescription() {
-//        if (musicFilesDescription == null) {
-//            musicFilesDescription = new ArrayList<>();
-//            for (File file : musicFiles) {
-//                final MusicFile musicFile = new MusicFile(file.getAbsolutePath());
-//                musicFile.setOnMp3TagListener(new MusicFile.OnMp3TagListener() {
-//                    @Override
-//                    public void onFetchCompleted() {
-//                        musicFilesDescription.add(musicFile);
-//                    }
-//                });
-//            }
-//        }
-//        return musicFilesDescription;
-//    }
 }

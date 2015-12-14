@@ -30,8 +30,8 @@ public class PlaybackService extends Service {
             "com.fesskiev.player.action.ACTION_PLAYBACK_VOLUME";
     public static final String ACTION_PLAYBACK_PLAYING_STATE =
             "com.fesskiev.player.action.ACTION_PLAYBACK_PLAYING_STATE";
-    public static final String ACTION_PLAYBACK_RELEASE_PLAYER =
-            "com.fesskiev.player.action.ACTION_PLAYBACK_RELEASE_PLAYER";
+
+
 
 
     public static final String PLAYBACK_EXTRA_MUSIC_FILE_PATH
@@ -48,6 +48,7 @@ public class PlaybackService extends Service {
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_VOLUME";
     public static final String PLAYBACK_EXTRA_PLAYING
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_PLAYING";
+
 
     private Timer timer;
     private int durationScale;
@@ -95,6 +96,7 @@ public class PlaybackService extends Service {
     }
 
 
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -126,6 +128,7 @@ public class PlaybackService extends Service {
                     int volumeValue = intent.getIntExtra(PLAYBACK_EXTRA_VOLUME, 0);
                     volume(volumeValue);
                     break;
+
             }
         }
 
@@ -180,6 +183,7 @@ public class PlaybackService extends Service {
         }
     }
 
+
     private void startUpdateTimer() {
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
@@ -193,6 +197,8 @@ public class PlaybackService extends Service {
     private void stopUpdateTimer() {
         timer.cancel();
     }
+
+
 
     private void sendBroadcastPlayerValues(int duration, int progress, int progressScale) {
         Intent intent = new Intent();
@@ -219,7 +225,6 @@ public class PlaybackService extends Service {
         MusicApplication.releaseUriAudioPlayer();
         MusicApplication.releaseEngine();
     }
-
 
 
     @Override

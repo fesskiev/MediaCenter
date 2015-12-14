@@ -22,7 +22,7 @@ public class MusicApplication extends Application {
 
     public static native void setPlayingUriAudioPlayer(boolean isPlaying);
 
-    public static native void setVolumeUriAudioPlayer(int millibel);
+    public static native void setVolumeUriAudioPlayer(int milliBel);
 
     public static native void setSeekUriAudioPlayer(long milliseconds);
 
@@ -35,6 +35,34 @@ public class MusicApplication extends Application {
     public static native int getPosition();
 
     public static native boolean isPlaying();
+
+    /***
+     * EQ methods
+     */
+
+    public static native void setEnableEQ(boolean isEnable);
+
+    public static native void usePreset(int presetValue);
+
+    public static native int getNumberOfBands();
+
+    public static native int getNumberOfPresets();
+
+    public static native int getCurrentPreset();
+
+    public static native int [] getBandLevelRange();
+
+    public static native void setBandLevel(int bandNumber, int milliBel);
+
+    public static native int getBandLevel(int bandNumber);
+
+    public static native int [] getBandFrequencyRange(int bandNumber);
+
+    public static native int getCenterFrequency(int bandNumber);
+
+    public static native int getNumberOfPreset();
+
+    public static native String getPresetName(int presetNumber);
 
 
     @Override

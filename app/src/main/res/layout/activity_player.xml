@@ -60,6 +60,79 @@
             android:orientation="vertical"
             android:paddingTop="36dp">
 
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/card_margin"
+                android:id="@+id/cardDescription"
+                android:layout_marginLeft="@dimen/card_margin"
+                android:layout_marginRight="@dimen/card_margin">
+
+                <RelativeLayout
+                    style="@style/Widget.CardContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/album"
+                        style="@style/DescriptionTextAppearance"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="start"
+                        android:singleLine="true"
+                        tools:text="Changes"/>
+
+                    <TextView
+                        android:id="@+id/genre"
+                        style="@style/DescriptionTextAppearance"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="end"
+                        android:singleLine="true"
+                        tools:text="Drum and Bass"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/album"
+                        android:id="@+id/mainInfoContainer"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/trackArtist"
+                            style="@style/ArtistTextAppearance"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:singleLine="true"
+                            tools:text="Synkro" />
+
+                        <TextView
+                            android:id="@+id/trackTitle"
+                            style="@style/DescriptionTextAppearance"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:singleLine="true"
+                            tools:text="Overture" />
+
+                    </LinearLayout>
+
+
+                    <TextView
+                        android:id="@+id/trackDescription"
+                        style="@style/DescriptionTextAppearance"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/mainInfoContainer"
+                        android:gravity="start"
+                        android:layout_marginTop="10dp"
+                        android:singleLine="true"
+                        tools:text="MP3::44Khz::320kbps" />
+
+                </RelativeLayout>
+
+            </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
@@ -73,30 +146,35 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <TextView
-                        android:id="@+id/trackArtist"
-                        style="@style/ArtistTextAppearance"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:singleLine="true"
-                        android:text="Naibu" />
+                    <ImageView
+                        android:id="@+id/previousTrack"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_alignParentStart="true"
+                        android:contentDescription="@string/app_name"
+                        android:src="@drawable/previous_track_icon" />
 
+                    <ImageView
+                        android:id="@+id/equalizer"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_centerHorizontal="true"
+                        android:contentDescription="@string/app_name"
+                        android:src="@drawable/equalizer_icon" />
 
-                    <TextView
-                        android:id="@+id/trackName"
-                        style="@style/DescriptionTextAppearance"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@+id/trackArtist"
-                        android:gravity="center"
-                        android:singleLine="true"
-                        android:text="Astray" />
+                    <ImageView
+                        android:id="@+id/nextTrack"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_alignParentEnd="true"
+                        android:contentDescription="@string/app_name"
+                        android:src="@drawable/next_track_icon" />
+
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_below="@id/trackName"
+                        android:layout_below="@id/nextTrack"
                         android:layout_marginTop="15dp"
                         android:orientation="vertical">
 
@@ -133,7 +211,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="0.5"
                                 android:gravity="start"
-                                android:text="0:00" />
+                                tools:text="0:00" />
 
 
                             <SeekBar
@@ -150,43 +228,11 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="0.5"
                                 android:gravity="end"
-                                android:text="0:00" />
+                                tools:text="0:00" />
 
                         </LinearLayout>
 
                     </LinearLayout>
-
-                </RelativeLayout>
-
-            </android.support.v7.widget.CardView>
-
-            <android.support.v7.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/card_margin"
-                android:layout_marginLeft="@dimen/card_margin"
-                android:layout_marginRight="@dimen/card_margin">
-
-                <RelativeLayout
-                    style="@style/Widget.CardContent"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:id="@+id/previousTrack"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_alignParentStart="true"
-                        android:contentDescription="@string/app_name"
-                        android:src="@drawable/previous_track_icon" />
-
-                    <ImageView
-                        android:id="@+id/nextTrack"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_alignParentEnd="true"
-                        android:contentDescription="@string/app_name"
-                        android:src="@drawable/next_track_icon" />
 
                 </RelativeLayout>
 

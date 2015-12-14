@@ -8,8 +8,11 @@
     <string name="snack_exit_action">EXIT</string>
 
     <string name="title_tracklist_activity">Tracklist</string>
+    <string name="title_eq_activity">Equalizer</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="title_activity_equalizer">EqualizerActivity</string>
+
 
 </resources>

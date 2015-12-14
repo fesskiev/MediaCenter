@@ -4,7 +4,6 @@ import android.content.ComponentName;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.IntentCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
@@ -20,7 +19,6 @@ public class TrackListActivity extends PlaybackActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_song_list);
         if (savedInstanceState == null) {
-
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             if (toolbar != null) {
                 toolbar.setTitle(getString(R.string.title_tracklist_activity));
@@ -40,8 +38,8 @@ public class TrackListActivity extends PlaybackActivity {
             if (position != -1) {
 
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.content, MusicTrackListFragment.newInstance(position),
-                        MusicTrackListFragment.class.getName());
+                transaction.replace(R.id.content, TrackListFragment.newInstance(position),
+                        TrackListFragment.class.getName());
                 transaction.commit();
 
             }
