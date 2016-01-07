@@ -78,8 +78,8 @@ public class PlayerActivity extends AppCompatActivity {
         filePosition = getIntent().getExtras().getInt(TrackListFragment.FILE_POSITION);
 
         musicFolder =
-                ((MusicApplication)getApplication()).getMusicFolders().get(folderPosition);
-        currentMusicFile = musicFolder.musicFilesDescription.get(filePosition);
+                ((MusicApplication) getApplication()).getMusicFolders().get(folderPosition);
+        setCurrentMusicFile(filePosition);
 
         cardDescription = (CardView) findViewById(R.id.cardDescription);
         volumeLevel = (ImageView) findViewById(R.id.volumeLevel);
@@ -95,7 +95,7 @@ public class PlayerActivity extends AppCompatActivity {
 
         ((ImageView) findViewById(R.id.backdrop)).
                 setImageBitmap(Utils.getResizedBitmap(1024, 1024,
-                musicFolder.folderImages.get(0).getAbsolutePath()));
+                        musicFolder.folderImages.get(0).getAbsolutePath()));
 
         findViewById(R.id.equalizer).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,10 +107,10 @@ public class PlayerActivity extends AppCompatActivity {
         previousTrack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(filePosition > 0) {
+                if (filePosition > 0) {
                     filePosition--;
                 }
-                currentMusicFile = musicFolder.musicFilesDescription.get(filePosition);
+                setCurrentMusicFile(filePosition);
 
                 animateCardDescription(false);
                 resetTimers();
@@ -121,11 +121,11 @@ public class PlayerActivity extends AppCompatActivity {
         nextTrack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(filePosition < musicFolder.musicFilesDescription.size() - 1) {
+                if (filePosition < musicFolder.musicFilesDescription.size() - 1) {
                     filePosition++;
                 }
 
-                currentMusicFile = musicFolder.musicFilesDescription.get(filePosition);
+                setCurrentMusicFile(filePosition);
 
                 animateCardDescription(true);
                 resetTimers();
@@ -175,7 +175,7 @@ public class PlayerActivity extends AppCompatActivity {
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    lastProgress = progress;
+                lastProgress = progress;
             }
 
             @Override
@@ -202,11 +202,16 @@ public class PlayerActivity extends AppCompatActivity {
         registerPlaybackBroadcastReceiver();
     }
 
-    private void animateCardDescription(boolean next){
+    private void setCurrentMusicFile(int filePosition) {
+        currentMusicFile = musicFolder.musicFilesDescription.get(filePosition);
+        ((MusicApplication) getApplication()).setCurrentMusicFile(currentMusicFile);
+    }
+
+    private void animateCardDescription(boolean next) {
         float value = next ? cardDescription.getWidth() +
                 getResources().getDimension(R.dimen.activity_horizontal_margin) :
                 -(cardDescription.getWidth() -
-                getResources().getDimension(R.dimen.activity_horizontal_margin));
+                        getResources().getDimension(R.dimen.activity_horizontal_margin));
 
         cardDescription.
                 animate().
@@ -259,21 +264,20 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
 
-
-    private void resetTimers(){
+    private void resetTimers() {
         trackTimeTotal.setText("0:00");
         trackTimeCount.setText("0:00");
     }
 
 
-    private void createPlayer(){
+    private void createPlayer() {
         if (currentMusicFile != null) {
             PlaybackService.createPlayer(this, currentMusicFile.filePath);
         }
     }
 
-    private void setTrackInformation(){
-        if(currentMusicFile != null){
+    private void setTrackInformation() {
+        if (currentMusicFile != null) {
             artist.setText(currentMusicFile.artist);
             title.setText(currentMusicFile.title);
             album.setText(currentMusicFile.album);

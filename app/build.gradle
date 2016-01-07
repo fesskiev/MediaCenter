@@ -71,6 +71,8 @@ model {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile files('libs/mp3agic-0.8.1.jar')
+    compile files('libs/volley.jar')
+    compile 'com.vk:androidsdk:+'
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:recyclerview-v7:23.1.1'
     compile 'com.android.support:cardview-v7:23.1.1'

@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fesskiev.player.R;
+import com.fesskiev.player.model.MusicFile;
 import com.fesskiev.player.services.PlaybackService;
 
 
@@ -50,5 +51,10 @@ public class PlaybackControlFragment extends Fragment {
         this.isPlaying = isPlaying;
         int resource = isPlaying ? R.drawable.pause_icon : R.drawable.play_icon;
         playPause.setImageDrawable(ContextCompat.getDrawable(getActivity(), resource));
+    }
+
+    public void setMusicFileInfo(MusicFile musicFile) {
+        track.setText(musicFile.title);
+        artist.setText(musicFile.artist);
     }
 }

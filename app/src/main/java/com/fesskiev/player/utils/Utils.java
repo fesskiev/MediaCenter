@@ -1,14 +1,21 @@
 package com.fesskiev.player.utils;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
+import com.vk.sdk.util.VKUtil;
+
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 
 public class Utils {
 
-    public static String getTimeString(int millis){
+    private static final String TAG = Utils.class.getName();
+
+    public static String getTimeString(int millis) {
         return String.format("%02d:%02d",
                 TimeUnit.MILLISECONDS.toMinutes(millis),
                 TimeUnit.MILLISECONDS.toSeconds(millis) -
@@ -17,8 +24,7 @@ public class Utils {
     }
 
 
-
-    public static Bitmap getResizedBitmap(int targetW, int targetH,  String imagePath) {
+    public static Bitmap getResizedBitmap(int targetW, int targetH, String imagePath) {
 
         // Get the dimensions of the bitmap
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
@@ -29,7 +35,7 @@ public class Utils {
         int photoH = bmOptions.outHeight;
 
         // Determine how much to scale down the image
-        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+        int scaleFactor = Math.min(photoW / targetW, photoH / targetH);
 
         // Decode the image file into a Bitmap sized to fill the View
         bmOptions.inJustDecodeBounds = false;
@@ -37,5 +43,12 @@ public class Utils {
         bmOptions.inPurgeable = true;
 
         return BitmapFactory.decodeFile(imagePath, bmOptions);
+    }
+
+
+    public static void getCertificateFingerprint(Context context) {
+        String[] fingerprints =
+                VKUtil.getCertificateFingerprint(context, context.getPackageName());
+        Log.d(TAG, "fingerprint: " + Arrays.toString(fingerprints));
     }
 }

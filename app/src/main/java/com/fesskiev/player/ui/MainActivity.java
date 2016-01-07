@@ -2,37 +2,54 @@ package com.fesskiev.player.ui;
 
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.fesskiev.player.R;
 
+import com.fesskiev.player.model.User;
 import com.fesskiev.player.services.FileTreeIntentService;
 import com.fesskiev.player.services.PlaybackService;
+import com.fesskiev.player.services.RESTService;
+import com.fesskiev.player.ui.vk.MusicVKActivity;
+import com.squareup.picasso.Picasso;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int PERMISSION_REQ = 0;
+    private Handler handler;
+    private ImageView userPhoto;
+    private TextView firstName;
+    private TextView lastName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        handler = new Handler();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -47,6 +64,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setItemIconTintList(null);
 
+        View headerLayout =
+                navigationView.inflateHeaderView(R.layout.nav_header_main);
+
+        userPhoto = (ImageView)headerLayout.findViewById(R.id.photo);
+        firstName = (TextView)headerLayout.findViewById(R.id.firstName);
+        lastName = (TextView)headerLayout.findViewById(R.id.lastName);
 
 
         if(savedInstanceState == null) {
@@ -58,11 +81,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             transaction.commit();
         }
 
+        registerBroadcastReceiver();
         checkPermission();
     }
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.vk_music:
+                startActivity(new Intent(this, MusicVKActivity.class));
+                break;
+            case R.id.settings:
+                break;
+        }
+
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                drawer.closeDrawer(GravityCompat.START);
+            }
+        }, 1000);
+
         return true;
     }
 
@@ -87,11 +128,46 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+
+    private void registerBroadcastReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(RESTService.ACTION_USER_PROFILE_RESULT);
+        LocalBroadcastManager.getInstance(this).registerReceiver(userProfileReceiver,
+                filter);
+    }
+
+    private void unregisterBroadcastReceiver() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(userProfileReceiver);
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unregisterBroadcastReceiver();
         PlaybackService.destroyPlayer(this);
     }
+
+    private BroadcastReceiver userProfileReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (intent.getAction()) {
+                case RESTService.ACTION_USER_PROFILE_RESULT:
+
+                    User user = intent.getParcelableExtra(RESTService.EXTRA_USER_PROFILE_RESULT);
+                    if(user != null){
+                        firstName.setText(user.firstName);
+                        lastName.setText(user.lastName);
+
+                        Picasso.with(getApplicationContext()).
+                                load(user.photoUrl).
+                                resize(128, 128).
+                                into(userPhoto);
+                    }
+                    break;
+            }
+        }
+    };
 
     private void checkPermission() {
         if (!checkPermissions()) {

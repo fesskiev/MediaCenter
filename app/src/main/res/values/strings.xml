@@ -9,10 +9,19 @@
 
     <string name="title_tracklist_activity">Tracklist</string>
     <string name="title_eq_activity">Equalizer</string>
+    <string name="title_music_vk_activity">VK Music</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="title_activity_equalizer">EqualizerActivity</string>
+    <string name="title_activity_music_vk">MusicVKActivity</string>
+
+    <string name="drawer_item_vk_music">VK Music</string>
+    <string name="drawer_item_settings">Settings</string>
+
+    <integer name="com_vk_sdk_AppId">5217689</integer>
+
+
 
 
 </resources>

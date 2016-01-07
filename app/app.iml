@@ -96,6 +96,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/design/23.1.1/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.1.1/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/support-v4/23.1.1/jars" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.vk/androidsdk/1.6.3/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/manifests" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/objectFiles" />
@@ -116,6 +117,8 @@
     <orderEntry type="library" exported="" name="appcompat-v7-23.1.1" level="project" />
     <orderEntry type="library" exported="" name="picasso-2.5.2" level="project" />
     <orderEntry type="library" exported="" name="cardview-v7-23.1.1" level="project" />
+    <orderEntry type="library" exported="" name="volley" level="project" />
     <orderEntry type="library" exported="" name="mp3agic-0.8.1" level="project" />
+    <orderEntry type="library" exported="" name="androidsdk-1.6.3" level="project" />
   </component>
 </module>

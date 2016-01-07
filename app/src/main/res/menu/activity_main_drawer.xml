@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
+    <group >
         <item
-            android:id="@+id/equalizer"
-            android:icon="@drawable/ic_launcher"
-            android:title="EQ" />
+            android:id="@+id/vk_music"
+            android:icon="@drawable/vk_logo_icon"
+            android:title="@string/drawer_item_vk_music" />
         <item
             android:id="@+id/settings"
-            android:icon="@drawable/ic_launcher"
-            android:title="Settings" />
+            android:icon="@drawable/settings_icon"
+            android:title="@string/drawer_item_settings" />
 
     </group>
 

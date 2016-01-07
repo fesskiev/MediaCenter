@@ -102,7 +102,7 @@ public class MusicFoldersFragment extends Fragment {
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
                 case FileTreeIntentService.ACTION_MUSIC_FOLDER:
-                    Log.d(TAG, "receive music folders!");
+//                    Log.d(TAG, "receive music folders!");
                     List<MusicFolder> receiverMusicFolders =
                             ((MusicApplication) getActivity().getApplication()).getMusicFolders();
                     if (receiverMusicFolders != null) {

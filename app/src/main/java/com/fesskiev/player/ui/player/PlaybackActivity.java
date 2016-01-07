@@ -5,11 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
+import android.os.Handler;
+import android.os.PersistableBundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.fesskiev.player.MusicApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.services.PlaybackService;
 
@@ -19,45 +21,55 @@ public class PlaybackActivity extends AppCompatActivity {
 
     private PlaybackControlFragment controlFragment;
     private boolean playBackControlShow;
+    private Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        handler = new Handler();
+
         registerPlaybackBroadcastReceiver();
+
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
         controlFragment = (PlaybackControlFragment) getFragmentManager()
                 .findFragmentById(R.id.fragmentPlaybackControl);
         playBackControlShow = true;
         hidePlaybackControl();
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        showPlaybackControl();
     }
 
     protected void showPlaybackControl() {
-        if(!playBackControlShow) {
-            getFragmentManager().beginTransaction()
-                    .setCustomAnimations(
-                            R.animator.slide_in_from_bottom, R.animator.slide_out_to_bottom,
-                            R.animator.slide_in_from_bottom, R.animator.slide_out_to_bottom)
-                    .show(controlFragment)
-                    .commit();
-            playBackControlShow = true;
+        if (!playBackControlShow) {
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    getFragmentManager().beginTransaction()
+                            .setCustomAnimations(
+                                    R.animator.slide_in_from_bottom, R.animator.slide_out_to_bottom,
+                                    R.animator.slide_in_from_bottom, R.animator.slide_out_to_bottom)
+                            .show(controlFragment)
+                            .commitAllowingStateLoss();
+                    playBackControlShow = true;
+                }
+            }, 1000);
         }
     }
 
     protected void hidePlaybackControl() {
-        if(playBackControlShow) {
-            getFragmentManager().beginTransaction()
-                    .hide(controlFragment)
-                    .commit();
+        if (playBackControlShow) {
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    getFragmentManager().beginTransaction()
+                            .hide(controlFragment)
+                            .commitAllowingStateLoss();
+                }
+            }, 1000);
             playBackControlShow = false;
         }
     }
@@ -95,11 +107,16 @@ public class PlaybackActivity extends AppCompatActivity {
                     boolean isPlaying = intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_PLAYING, false);
                     Log.w(TAG, "playback activity is plying: " + isPlaying);
                     if (isPlaying) {
-                        playBackControlShow = true;
                         controlFragment.setPlyingStateButton(true);
+                        controlFragment.
+                                setMusicFileInfo(((MusicApplication) getApplication()).
+                                        getCurrentMusicFile());
+                        showPlaybackControl();
                     } else {
                         controlFragment.setPlyingStateButton(false);
+                        hidePlaybackControl();
                     }
+
                     break;
             }
         }

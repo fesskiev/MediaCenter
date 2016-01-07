@@ -15,7 +15,7 @@ import android.widget.Spinner;
 
 import com.fesskiev.player.MusicApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.widgets.seekbar.VerticalSeekBar;
+import com.fesskiev.player.widgets.VerticalSeekBar;
 
 import java.util.ArrayList;
 import java.util.Arrays;

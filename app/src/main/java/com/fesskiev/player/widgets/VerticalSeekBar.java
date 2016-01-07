@@ -1,4 +1,4 @@
-package com.fesskiev.player.widgets.seekbar;
+package com.fesskiev.player.widgets;
 
 
 import android.content.Context;
