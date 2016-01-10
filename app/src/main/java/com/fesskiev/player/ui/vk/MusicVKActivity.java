@@ -3,12 +3,14 @@ package com.fesskiev.player.ui.vk;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.IntentCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 
 import com.fesskiev.player.R;
 import com.fesskiev.player.services.RESTService;
@@ -54,23 +56,19 @@ public class MusicVKActivity extends AppCompatActivity {
             transaction.commit();
 
         }
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if(settingsManager.isAuthTokenEmpty()){
-            String[] vkScope = new String[]{VKScope.DIRECT, VKScope.AUDIO};
-            VKSdk.login(this, vkScope);
-        } else {
-            makeRequestMusicFiles();
-            makeRequestUserProfile();
-        }
-    }
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (settingsManager.isAuthTokenEmpty()) {
+                    String[] vkScope = new String[]{VKScope.DIRECT, VKScope.AUDIO};
+                    VKSdk.login(MusicVKActivity.this, vkScope);
+                } else {
+                    makeRequestMusicFiles();
+                }
+            }
+        }, 1000);
 
-    private void makeRequestUserProfile(){
-        AppSettingsManager manager = new AppSettingsManager(this);
-        RESTService.fetchUserProfile(this, URLHelper.getUserProfileURL(manager.getUserId()));
     }
 
     private void makeRequestMusicFiles(){
@@ -79,6 +77,10 @@ public class MusicVKActivity extends AppCompatActivity {
         if(musicVKFragment != null) {
             musicVKFragment.fetchUserAudio();
         }
+    }
+
+    private void makeRequestUserProfile() {
+        RESTService.fetchUserProfile(this, URLHelper.getUserProfileURL(settingsManager.getUserId()));
     }
 
     @Override
@@ -100,6 +102,7 @@ public class MusicVKActivity extends AppCompatActivity {
             @Override
             public void onError(VKError error) {
                 Log.d(TAG, "auth fail: " + error.errorMessage);
+                finish();
             }
         })) {
             super.onActivityResult(requestCode, resultCode, data);

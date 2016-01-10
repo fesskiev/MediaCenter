@@ -10,6 +10,8 @@
     <string name="title_tracklist_activity">Tracklist</string>
     <string name="title_eq_activity">Equalizer</string>
     <string name="title_music_vk_activity">VK Music</string>
+    <string name="title_player_vk_activity">VK Player</string>
+    <string name="title_settings_activity">Settings</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -20,8 +22,11 @@
     <string name="drawer_item_settings">Settings</string>
 
     <integer name="com_vk_sdk_AppId">5217689</integer>
+    <string name="title_activity_vkplayer">VKPlayerActivity</string>
+    <string name="title_activity_settings">SettingsActivity</string>
 
-
+    <string name="empty_first_name">Sign in</string>
+    <string name="empty_last_name">Vkontakte</string>
 
 
 </resources>

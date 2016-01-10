@@ -132,7 +132,6 @@ public class RESTService extends Service {
     }
 
     private void sendBroadcastAudio(ArrayList<VKMusicFile> vkMusicFiles) {
-        Log.d(TAG, "sendBroadcastAudio");
         Intent intent = new Intent();
         intent.setAction(ACTION_AUDIO_RESULT);
         intent.putExtra(EXTRA_AUDIO_RESULT, vkMusicFiles);

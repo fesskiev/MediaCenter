@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
@@ -20,26 +22,30 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fesskiev.player.R;
-
 import com.fesskiev.player.model.User;
 import com.fesskiev.player.services.FileTreeIntentService;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.services.RESTService;
+import com.fesskiev.player.ui.settings.SettingsActivity;
 import com.fesskiev.player.ui.vk.MusicVKActivity;
+import com.fesskiev.player.utils.AppSettingsManager;
+import com.fesskiev.player.utils.http.URLHelper;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+
     private static final int PERMISSION_REQ = 0;
+    private AppSettingsManager appSettingsManager;
     private Handler handler;
     private ImageView userPhoto;
     private TextView firstName;
@@ -50,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         handler = new Handler();
+        appSettingsManager = new AppSettingsManager(MainActivity.this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -67,12 +74,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         View headerLayout =
                 navigationView.inflateHeaderView(R.layout.nav_header_main);
 
-        userPhoto = (ImageView)headerLayout.findViewById(R.id.photo);
-        firstName = (TextView)headerLayout.findViewById(R.id.firstName);
-        lastName = (TextView)headerLayout.findViewById(R.id.lastName);
+        userPhoto = (ImageView) headerLayout.findViewById(R.id.photo);
+        firstName = (TextView) headerLayout.findViewById(R.id.firstName);
+        lastName = (TextView) headerLayout.findViewById(R.id.lastName);
 
 
-        if(savedInstanceState == null) {
+        if (savedInstanceState == null) {
             FragmentTransaction transaction =
                     getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.content, MusicFoldersFragment.newInstance(),
@@ -82,7 +89,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         registerBroadcastReceiver();
+        if (!appSettingsManager.isAuthTokenEmpty()) {
+            setUserInfo();
+        }else {
+            setEmptyUserInfo();
+        }
         checkPermission();
+    }
+
+    private void setUserInfo(){
+        userPhoto.setImageBitmap(appSettingsManager.getUserPhoto());
+        firstName.setText(appSettingsManager.getUserFirstName());
+        lastName.setText(appSettingsManager.getUserLastName());
+    }
+
+    private void setEmptyUserInfo(){
+        userPhoto.setImageResource(R.drawable.no_cover_icon);
+        firstName.setText(getString(R.string.empty_first_name));
+        lastName.setText(getString(R.string.empty_last_name));
     }
 
     @Override
@@ -92,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startActivity(new Intent(this, MusicVKActivity.class));
                 break;
             case R.id.settings:
+                startActivity(new Intent(this, SettingsActivity.class));
                 break;
         }
 
@@ -102,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
                 drawer.closeDrawer(GravityCompat.START);
             }
-        }, 1000);
+        }, 500);
 
         return true;
     }
@@ -155,14 +180,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 case RESTService.ACTION_USER_PROFILE_RESULT:
 
                     User user = intent.getParcelableExtra(RESTService.EXTRA_USER_PROFILE_RESULT);
-                    if(user != null){
+                    if (user != null) {
+
                         firstName.setText(user.firstName);
                         lastName.setText(user.lastName);
+
+
+                        appSettingsManager.setUserFirstName(user.firstName);
+                        appSettingsManager.setUserLastName(user.lastName);
 
                         Picasso.with(getApplicationContext()).
                                 load(user.photoUrl).
                                 resize(128, 128).
-                                into(userPhoto);
+                                into(new Target() {
+                                    @Override
+                                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                                        userPhoto.setImageBitmap(bitmap);
+                                        appSettingsManager.saveUserPhoto(bitmap);
+                                    }
+
+                                    @Override
+                                    public void onBitmapFailed(Drawable errorDrawable) {
+
+                                    }
+
+                                    @Override
+                                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                                    }
+                                });
                     }
                     break;
             }
@@ -182,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(
                 this, Manifest.permission.WRITE_EXTERNAL_STORAGE) &&
                 PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(
-                this, Manifest.permission.MODIFY_AUDIO_SETTINGS) &&
+                        this, Manifest.permission.MODIFY_AUDIO_SETTINGS) &&
                 PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(
                         this, Manifest.permission.RECORD_AUDIO);
     }

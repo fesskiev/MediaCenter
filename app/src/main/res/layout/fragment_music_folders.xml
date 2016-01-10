@@ -11,6 +11,7 @@
         android:layout_height="match_parent"
         android:clipToPadding="false"
         android:drawSelectorOnTop="true"
+        android:scrollbars="none"
         android:layout_marginTop="@dimen/grid_spacing"
         android:columnWidth="@dimen/grid_folder_size"
         android:horizontalSpacing="@dimen/grid_spacing"

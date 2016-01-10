@@ -19,14 +19,17 @@ public class FileTreeIntentService extends IntentService {
 
     private static final String TAG = FileTreeIntentService.class.getSimpleName();
     private static final String ACTION_START_FILE_TREE_SERVICE =
-            "com.fesskiev.player.action.START_FILE_TREE_SERVICE ";
-    public static final String ACTION_MUSIC_FOLDER = "com.fesskiev.player.action.MUSIC_FOLDER";
-    public static final String EXTRA_MUSIC_FOLDER = "com.fesskiev.player.extra.MUSIC_FOLDER";
+            "com.fesskiev.player.action.START_FILE_TREE_SERVICE";
 
+    public static final String ACTION_MUSIC_FOLDER
+            = "com.fesskiev.player.action.MUSIC_FOLDER";
+
+    private ArrayList<MusicFolder> musicFolders;
 
     public FileTreeIntentService() {
         super(FileTreeIntentService.class.getName());
     }
+
 
     public static void startFileTreeService(Context context) {
         Intent intent = new Intent(context, FileTreeIntentService.class);
@@ -37,18 +40,19 @@ public class FileTreeIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-//        Log.d(TAG, "onHandleIntent");
         if (intent != null) {
             final String action = intent.getAction();
+            Log.d(TAG, "HANDLE INTENT: "  + action);
             if (ACTION_START_FILE_TREE_SERVICE.equals(action)) {
-                getMusicFolder();
+                getMusicFolders();
             }
         }
     }
 
-    private ArrayList<MusicFolder> musicFolders;
 
-    private void getMusicFolder() {
+
+
+    private void getMusicFolders() {
         musicFolders = new ArrayList<>();
         String sdCardState = Environment.getExternalStorageState();
         if (!sdCardState.equals(Environment.MEDIA_MOUNTED)) {
@@ -84,7 +88,7 @@ public class FileTreeIntentService extends IntentService {
                 MusicFolder musicFolder = new MusicFolder();
                 musicFolder.folderName = directoryFile.getName();
                 for (File file : filterFiles) {
-//                    Log.wtf(TAG, "sound file: " + file);
+                    Log.wtf(TAG, "sound file: " + file);
                     musicFolder.musicFiles.add(file);
                 }
 

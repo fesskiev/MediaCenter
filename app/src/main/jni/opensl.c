@@ -187,8 +187,6 @@ Java_com_fesskiev_player_MusicApplication_releaseEngine(JNIEnv *env, jclass type
         engineObject = NULL;
         engineEngine = NULL;
     }
-
-
 }
 
 JNIEXPORT void JNICALL
@@ -530,3 +528,5 @@ Java_com_fesskiev_player_MusicApplication_getPresetName(JNIEnv *env, jclass type
 
     return (*env)->NewStringUTF(env, namePreset);
 }
+
+

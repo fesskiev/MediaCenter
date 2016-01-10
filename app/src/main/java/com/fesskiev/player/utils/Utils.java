@@ -51,4 +51,5 @@ public class Utils {
                 VKUtil.getCertificateFingerprint(context, context.getPackageName());
         Log.d(TAG, "fingerprint: " + Arrays.toString(fingerprints));
     }
+
 }

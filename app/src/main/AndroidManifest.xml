@@ -33,7 +33,7 @@
         <activity
             android:name=".ui.tracklist.TrackListActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait">
             <meta-data
@@ -43,7 +43,7 @@
         <activity
             android:name=".ui.player.PlayerActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
             android:parentActivityName=".ui.tracklist.TrackListActivity"
             android:screenOrientation="portrait">
             <meta-data
@@ -61,6 +61,26 @@
         </activity>
         <activity
             android:name=".ui.vk.MusicVKActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:parentActivityName=".ui.MainActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.MainActivity" />
+        </activity>
+        <activity
+            android:name=".ui.vk.VKPlayerActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:parentActivityName=".ui.vk.MusicVKActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.vk.MusicVKActivity" />
+        </activity>
+
+        <activity
+            android:name=".ui.settings.SettingsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait">
@@ -80,13 +100,12 @@
             android:exported="false" />
         <service
             android:name=".services.RESTService"
-            android:exported="false"/>
+            android:exported="false" />
 
         <activity
             android:name="com.vk.sdk.VKServiceActivity"
             android:label="ServiceActivity"
             android:theme="@style/VK.Transparent" />
-
 
     </application>
 
