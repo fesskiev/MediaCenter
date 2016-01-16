@@ -5,11 +5,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-
-import com.fesskiev.player.MusicApplication;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -96,15 +95,74 @@ public class PlaybackService extends Service {
     }
 
     static {
-
+        System.loadLibrary("player");
     }
+
+    public native void unregisterCallback();
+
+    public native void registerCallback();
+
+    public native void createEngine();
+
+    public native boolean createUriAudioPlayer(String uri);
+
+    public native void setPlayingUriAudioPlayer(boolean isPlaying);
+
+    public native void setVolumeUriAudioPlayer(int milliBel);
+
+    public native void setSeekUriAudioPlayer(long milliseconds);
+
+    public native void releaseUriAudioPlayer();
+
+    public native void releaseEngine();
+
+    public native int getDuration();
+
+    public native int getPosition();
+
+    public native boolean isPlaying();
+
+    /***
+     * EQ methods
+     */
+
+    public native void setEnableEQ(boolean isEnable);
+
+    public native void usePreset(int presetValue);
+
+    public native int getNumberOfBands();
+
+    public native int getNumberOfPresets();
+
+    public native int getCurrentPreset();
+
+    public native int [] getBandLevelRange();
+
+    public native void setBandLevel(int bandNumber, int milliBel);
+
+    public native int getBandLevel(int bandNumber);
+
+    public native int [] getBandFrequencyRange(int bandNumber);
+
+    public native int getCenterFrequency(int bandNumber);
+
+    public native int getNumberOfPreset();
+
+    public native String getPresetName(int presetNumber);
+
+    public void playStatusCallback(int status) {
+        Log.d(TAG, "play java called status: " + status);
+    }
+
+
 
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "Create playback service!");
-        MusicApplication.createEngine();
+        createEngine();
         registerHeadsetReceiver();
+        registerCallback();
     }
 
     @Override
@@ -167,37 +225,37 @@ public class PlaybackService extends Service {
     };
 
     private void createPlayer(String path) {
-        if (MusicApplication.isPlaying()) {
+        if (isPlaying()) {
             stop();
-            MusicApplication.releaseUriAudioPlayer();
+            releaseUriAudioPlayer();
         }
-        MusicApplication.createUriAudioPlayer(path);
+        createUriAudioPlayer(path);
     }
 
     private void volume(int volumeValue) {
         int attenuation = 100 - volumeValue;
         int millibel = attenuation * -50;
         Log.d(TAG, "volume millibel: " + millibel);
-        MusicApplication.setVolumeUriAudioPlayer(millibel);
+        setVolumeUriAudioPlayer(millibel);
 
     }
 
     private void seek(int seekValue) {
-        MusicApplication.setSeekUriAudioPlayer(seekValue * durationScale);
+        setSeekUriAudioPlayer(seekValue * durationScale);
     }
 
     private void play() {
-        if (!MusicApplication.isPlaying()) {
+        if (!isPlaying()) {
             Log.d(TAG, "start playback");
-            MusicApplication.setPlayingUriAudioPlayer(true);
+            setPlayingUriAudioPlayer(true);
             startUpdateTimer();
             sendBroadcastPlayingState(true);
         }
     }
 
     private void createValuesScale() {
-        int duration = MusicApplication.getDuration();
-        int progress = MusicApplication.getPosition();
+        int duration = getDuration();
+        int progress = getPosition();
         if (duration > 0) {
             durationScale = duration / 100;
             int progressScale = progress / durationScale;
@@ -206,9 +264,9 @@ public class PlaybackService extends Service {
     }
 
     private void stop() {
-        if (MusicApplication.isPlaying()) {
+        if (isPlaying()) {
             Log.d(TAG, "stop playback");
-            MusicApplication.setPlayingUriAudioPlayer(false);
+            setPlayingUriAudioPlayer(false);
             stopUpdateTimer();
             sendBroadcastPlayingState(false);
         }
@@ -252,14 +310,23 @@ public class PlaybackService extends Service {
         super.onDestroy();
         Log.d(TAG, "Destroy playback service");
         stop();
-        MusicApplication.releaseUriAudioPlayer();
-        MusicApplication.releaseEngine();
+        releaseUriAudioPlayer();
+        releaseEngine();
         unregisterHeadsetReceiver();
+        unregisterCallback();
     }
 
 
+    private final IBinder binder = new PlaybackServiceBinder();
+
+    public class PlaybackServiceBinder extends Binder {
+        public PlaybackService getService() {
+            return PlaybackService.this;
+        }
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        return binder;
     }
 }

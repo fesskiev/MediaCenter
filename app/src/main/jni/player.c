@@ -4,6 +4,7 @@
 #include <SLES/OpenSLES.h>
 #include<android/log.h>
 
+
 // engine interfaces
 static SLObjectItf engineObject = NULL;
 static SLEngineItf engineEngine;
@@ -19,21 +20,31 @@ static SLSeekItf uriPlayerSeek;
 static SLMuteSoloItf uriPlayerMuteSolo;
 static SLVolumeItf uriPlayerVolume;
 
-static JavaVM *jvm;
-static jclass gCallbackObject = NULL;
+static JavaVM *gJavaVM;
+static jobject gCallbackObject = NULL;
 
-JNIEXPORT void JNICALL
-Java_com_fesskiev_player_MusicApplication_initCallback(JNIEnv *env, jobject instance) {
-
-    gCallbackObject = (*env)->NewGlobalRef(env, instance);
-    jint rs = (*env)->GetJavaVM(env, &jvm);
-    assert (rs == JNI_OK);
-
+JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
+    __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native", "JNI_OnLoad");
+    gJavaVM = vm;
+    return JNI_VERSION_1_6;
 }
 
+JNIEXPORT void JNICALL
+Java_com_fesskiev_player_services_PlaybackService_registerCallback(JNIEnv *env, jobject instance) {
+    __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native", "register callback");
+    gCallbackObject = (*env)->NewGlobalRef(env, instance);
+}
 
 JNIEXPORT void JNICALL
-Java_com_fesskiev_player_MusicApplication_createEngine(JNIEnv *env, jclass type) {
+Java_com_fesskiev_player_services_PlaybackService_unregisterCallback(JNIEnv *env,
+                                                                     jobject instance) {
+    __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native", "unregister callback");
+    (*env)->DeleteGlobalRef(env, gCallbackObject);
+    gCallbackObject = NULL;
+}
+
+JNIEXPORT void JNICALL
+Java_com_fesskiev_player_services_PlaybackService_createEngine(JNIEnv *env, jobject instance) {
 
     SLresult result;
 
@@ -73,44 +84,51 @@ Java_com_fesskiev_player_MusicApplication_createEngine(JNIEnv *env, jclass type)
 
 }
 
-void playStatusCallback(SLPlayItf play, void *context, SLuint32 event) {
-    __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native", "The value is %d", event);
 
-//    int status;
-//    JNIEnv *env;
-//    int isAttached = 0;
-//
-//    if (!gCallbackObject) return;
-//
-//    if ((status = (*jvm)->GetEnv(jvm, (void**)&env, JNI_VERSION_1_6)) < 0) {
-//        if ((status = (*jvm)->AttachCurrentThread(jvm, &env, NULL)) < 0) {
-//            return;
-//        }
-//        isAttached = 1;
-//    }
-//
-//    jclass cls = (*env)->GetObjectClass(env, gCallbackObject);
-//    if (!cls) {
-//        if (isAttached) (*jvm)->DetachCurrentThread(jvm);
-//        return;
-//    }
-//
-//    jmethodID method = (*env)->GetMethodID(env, cls, "playStatusCallback", "()V");
-//    if (!method) {
-//        if (isAttached) (*jvm)->DetachCurrentThread(jvm);
-//        return;
-//    }
-//
-//
-//    (*env)->CallVoidMethod(env, gCallbackObject, method, event);
-//
-//    if (isAttached) (*jvm)->DetachCurrentThread(jvm);
+void callbackCalled(int event) {
+    int status;
+    JNIEnv *env;
+    int isAttached = 0;
+
+    if (!gCallbackObject) return;
+
+    if ((status = (*gJavaVM)->GetEnv(gJavaVM, (void**)&env, JNI_VERSION_1_6)) < 0) {
+        if ((status = (*gJavaVM)->AttachCurrentThread(gJavaVM, &env, NULL)) < 0) {
+            return;
+        }
+        isAttached = 1;
+    }
+
+    jclass cls = (*env)->GetObjectClass(env, gCallbackObject);
+    if (!cls) {
+        if (isAttached) (*gJavaVM)->DetachCurrentThread(gJavaVM);
+        return;
+    }
+
+
+    jmethodID method = (*env)->GetMethodID(env, cls, "playStatusCallback", "(I)V");
+    if (!method) {
+        if (isAttached) (*gJavaVM)->DetachCurrentThread(gJavaVM);
+        return;
+    }
+
+    (*env)->CallVoidMethod(env, gCallbackObject, method, event);
+
+    if (isAttached) (*gJavaVM)->DetachCurrentThread(gJavaVM);
 }
 
 
+
+void playStatusCallback(SLPlayItf play, void *context, SLuint32 event) {
+    __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native", "The value is %d", event);
+    callbackCalled(event);
+
+}
+
 JNIEXPORT jboolean JNICALL
-Java_com_fesskiev_player_MusicApplication_createUriAudioPlayer(JNIEnv *env, jclass type,
-                                                               jstring uri) {
+Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *env,
+                                                                       jobject instance,
+                                                                       jstring uri) {
     SLresult result;
 
     // convert Java string to UTF-8
@@ -181,8 +199,9 @@ Java_com_fesskiev_player_MusicApplication_createUriAudioPlayer(JNIEnv *env, jcla
 }
 
 JNIEXPORT void JNICALL
-Java_com_fesskiev_player_MusicApplication_setPlayingUriAudioPlayer(JNIEnv *env, jclass type,
-                                                                   jboolean isPlaying) {
+Java_com_fesskiev_player_services_PlaybackService_setPlayingUriAudioPlayer(JNIEnv *env,
+                                                                           jobject instance,
+                                                                           jboolean isPlaying) {
 
     SLresult result;
 
@@ -197,15 +216,17 @@ Java_com_fesskiev_player_MusicApplication_setPlayingUriAudioPlayer(JNIEnv *env, 
         (void) result;
     }
 
+
 }
 
-
 JNIEXPORT void JNICALL
-Java_com_fesskiev_player_MusicApplication_setVolumeUriAudioPlayer(JNIEnv *env, jclass type,
-                                                                  jint millibel) {
+Java_com_fesskiev_player_services_PlaybackService_setVolumeUriAudioPlayer(JNIEnv *env,
+                                                                          jobject instance,
+                                                                          jint milliBel) {
+
     SLresult result;
     if (NULL != uriPlayerVolume) {
-        result = (*uriPlayerVolume)->SetVolumeLevel(uriPlayerVolume, millibel);
+        result = (*uriPlayerVolume)->SetVolumeLevel(uriPlayerVolume, milliBel);
         assert(SL_RESULT_SUCCESS == result);
         (void) result;
     }
@@ -213,8 +234,39 @@ Java_com_fesskiev_player_MusicApplication_setVolumeUriAudioPlayer(JNIEnv *env, j
 }
 
 JNIEXPORT void JNICALL
-Java_com_fesskiev_player_MusicApplication_releaseEngine(JNIEnv *env, jclass type) {
+Java_com_fesskiev_player_services_PlaybackService_setSeekUriAudioPlayer(JNIEnv *env,
+                                                                        jobject instance,
+                                                                        jlong milliseconds) {
+    SLresult result;
 
+    if (NULL != uriPlayerSeek) {
+
+        result = (*uriPlayerSeek)->SetPosition(uriPlayerSeek, milliseconds, SL_SEEKMODE_FAST);
+
+        assert(SL_RESULT_SUCCESS == result);
+        (void) result;
+    }
+
+}
+
+JNIEXPORT void JNICALL
+Java_com_fesskiev_player_services_PlaybackService_releaseUriAudioPlayer(JNIEnv *env,
+                                                                        jobject instance) {
+
+    // destroy URI audio player object, and invalidate all associated interfaces
+    if (uriPlayerObject != NULL) {
+        (*uriPlayerObject)->Destroy(uriPlayerObject);
+        uriPlayerObject = NULL;
+        uriPlayerPlay = NULL;
+        uriPlayerSeek = NULL;
+        uriPlayerMuteSolo = NULL;
+        uriPlayerVolume = NULL;
+    }
+
+}
+
+JNIEXPORT void JNICALL
+Java_com_fesskiev_player_services_PlaybackService_releaseEngine(JNIEnv *env, jobject instance) {
 
     // destroy output mix object, and invalidate all associated interfaces
     if (outputMixObject != NULL) {
@@ -229,26 +281,11 @@ Java_com_fesskiev_player_MusicApplication_releaseEngine(JNIEnv *env, jclass type
         engineObject = NULL;
         engineEngine = NULL;
     }
-}
-
-JNIEXPORT void JNICALL
-Java_com_fesskiev_player_MusicApplication_setSeekUriAudioPlayer(JNIEnv *env, jclass type,
-                                                                jlong milliseconds) {
-    SLresult result;
-
-    if (NULL != uriPlayerSeek) {
-
-        result = (*uriPlayerSeek)->SetPosition(uriPlayerSeek, milliseconds, SL_SEEKMODE_FAST);
-
-        assert(SL_RESULT_SUCCESS == result);
-        (void) result;
-    }
 
 }
-
 
 JNIEXPORT jint JNICALL
-Java_com_fesskiev_player_MusicApplication_getDuration(JNIEnv *env, jclass type) {
+Java_com_fesskiev_player_services_PlaybackService_getDuration(JNIEnv *env, jobject instance) {
 
     if (NULL != uriPlayerPlay) {
 
@@ -261,10 +298,11 @@ Java_com_fesskiev_player_MusicApplication_getDuration(JNIEnv *env, jclass type) 
 
     return 0;
 
+
 }
 
 JNIEXPORT jint JNICALL
-Java_com_fesskiev_player_MusicApplication_getPosition(JNIEnv *env, jclass type) {
+Java_com_fesskiev_player_services_PlaybackService_getPosition(JNIEnv *env, jobject instance) {
 
     if (NULL != uriPlayerPlay) {
 
@@ -276,19 +314,6 @@ Java_com_fesskiev_player_MusicApplication_getPosition(JNIEnv *env, jclass type) 
 
     return 0;
 
-}
-
-JNIEXPORT void JNICALL
-Java_com_fesskiev_player_MusicApplication_releaseUriAudioPlayer(JNIEnv *env, jclass type) {
-    // destroy URI audio player object, and invalidate all associated interfaces
-    if (uriPlayerObject != NULL) {
-        (*uriPlayerObject)->Destroy(uriPlayerObject);
-        uriPlayerObject = NULL;
-        uriPlayerPlay = NULL;
-        uriPlayerSeek = NULL;
-        uriPlayerMuteSolo = NULL;
-        uriPlayerVolume = NULL;
-    }
 }
 
 SLuint32 getPlayState() {
@@ -310,97 +335,14 @@ SLuint32 getPlayState() {
 }
 
 JNIEXPORT jboolean JNICALL
-Java_com_fesskiev_player_MusicApplication_isPlaying(JNIEnv *env, jclass type) {
+Java_com_fesskiev_player_services_PlaybackService_isPlaying(JNIEnv *env, jobject instance) {
 
     return getPlayState() == SL_PLAYSTATE_PLAYING;
 }
 
 JNIEXPORT void JNICALL
-Java_com_fesskiev_player_MusicApplication_testEQ(JNIEnv *env, jclass type) {
-    SLresult result;
-    /* Configure EQ */
-    SLuint16 nbPresets, preset, nbBands = 0;
-    result = (*eqOutputItf)->GetNumberOfBands(eqOutputItf, &nbBands);
-    assert(SL_RESULT_SUCCESS == result);
-
-    result = (*eqOutputItf)->GetNumberOfPresets(eqOutputItf, &nbPresets);
-    assert(SL_RESULT_SUCCESS == result);
-    /*    Start from a preset  */
-    preset = nbPresets > 2 ? 2 : 0;
-    result = (*eqOutputItf)->UsePreset(eqOutputItf, preset);
-
-    preset = 1977;
-    result = (*eqOutputItf)->GetCurrentPreset(eqOutputItf, &preset);
-    assert(SL_RESULT_SUCCESS == result);
-
-    if (SL_EQUALIZER_UNDEFINED == preset) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native",
-                            "Using SL_EQUALIZER_UNDEFINED preset, unexpected here!\n");
-    } else {
-        __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native",
-                            "Using preset %d\n", preset);
-    }
-
-    /*    Tweak it so it's obvious it gets turned on/off later */
-    SLmillibel minLevel, maxLevel = 0;
-    result = (*eqOutputItf)->GetBandLevelRange(eqOutputItf, &minLevel, &maxLevel);
-    assert(SL_RESULT_SUCCESS == result);
-
-    __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native",
-                        "Band level range = %dmB to %dmB\n", minLevel, maxLevel);
-
-
-    SLuint16 b = 0;
-    for (b = 0; b < nbBands / 2; b++) {
-        result = (*eqOutputItf)->SetBandLevel(eqOutputItf, b, minLevel);
-        assert(SL_RESULT_SUCCESS == result);
-    }
-    for (b = nbBands / 2; b < nbBands; b++) {
-        result = (*eqOutputItf)->SetBandLevel(eqOutputItf, b, maxLevel);
-        assert(SL_RESULT_SUCCESS == result);
-    }
-
-    SLmillibel level = 0;
-    for (b = 0; b < nbBands; b++) {
-        result = (*eqOutputItf)->GetBandLevel(eqOutputItf, b, &level);
-        assert(SL_RESULT_SUCCESS == result);
-        __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native",
-                            "Band %d level = %dmB\n", b, level);
-    }
-
-    SLmilliHertz minFreg;
-    SLmilliHertz maxFreg;
-    SLmilliHertz centerFreg;
-    for (b = 0; b < nbBands; b++) {
-        (*eqOutputItf)->GetBandFreqRange(eqOutputItf, b, &minFreg, &maxFreg);
-
-        (*eqOutputItf)->GetCenterFreq(eqOutputItf, b, &centerFreg);
-
-        __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native",
-                            "cnterCeBand %d freg = %dHz", b, centerFreg / 1000);
-
-        __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native",
-                            "Band %d freg = %dHz to %dHz\n", b, minFreg / 1000, maxFreg / 1000);
-    }
-
-    SLuint16 numberPreset;
-    const SLchar *namePreset;
-    (*eqOutputItf)->GetNumberOfPresets(eqOutputItf, &numberPreset);
-    for (b = 0; b < numberPreset; b++) {
-        (*eqOutputItf)->GetPresetName(eqOutputItf, b, &namePreset);
-
-        __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native",
-                            "preset %d name %s", b, namePreset);
-    }
-
-    /* Switch EQ on/off every TIME_S_BETWEEN_EQ_ON_OFF seconds */
-    SLboolean enabled = SL_BOOLEAN_TRUE;
-    result = (*eqOutputItf)->SetEnabled(eqOutputItf, enabled);
-
-}
-
-JNIEXPORT void JNICALL
-Java_com_fesskiev_player_MusicApplication_setEnableEQ(JNIEnv *env, jclass type, jboolean isEnable) {
+Java_com_fesskiev_player_services_PlaybackService_setEnableEQ(JNIEnv *env, jobject instance,
+                                                              jboolean isEnable) {
 
     SLresult result;
     if (NULL != eqOutputItf) {
@@ -411,11 +353,23 @@ Java_com_fesskiev_player_MusicApplication_setEnableEQ(JNIEnv *env, jclass type, 
         (void) result;
     }
 
+
 }
 
+JNIEXPORT void JNICALL
+Java_com_fesskiev_player_services_PlaybackService_usePreset(JNIEnv *env, jobject instance,
+                                                            jint presetValue) {
+
+    if (NULL != eqOutputItf) {
+        SLresult result = (*eqOutputItf)->UsePreset(eqOutputItf, (SLuint16) presetValue);
+        assert(SL_RESULT_SUCCESS == result);
+    }
+
+}
 
 JNIEXPORT jint JNICALL
-Java_com_fesskiev_player_MusicApplication_getNumberOfBands(JNIEnv *env, jclass type) {
+Java_com_fesskiev_player_services_PlaybackService_getNumberOfBands(JNIEnv *env, jobject instance) {
+
     SLuint16 numberBands = 0;
 
     if (NULL != eqOutputItf) {
@@ -424,10 +378,12 @@ Java_com_fesskiev_player_MusicApplication_getNumberOfBands(JNIEnv *env, jclass t
     }
 
     return numberBands;
+
 }
 
 JNIEXPORT jint JNICALL
-Java_com_fesskiev_player_MusicApplication_getNumberOfPresets(JNIEnv *env, jclass type) {
+Java_com_fesskiev_player_services_PlaybackService_getNumberOfPresets(JNIEnv *env,
+                                                                     jobject instance) {
 
     SLuint16 numberPresets = 0;
     if (NULL != eqOutputItf) {
@@ -435,19 +391,11 @@ Java_com_fesskiev_player_MusicApplication_getNumberOfPresets(JNIEnv *env, jclass
         assert(SL_RESULT_SUCCESS == result);
     }
     return numberPresets;
-}
 
-JNIEXPORT void JNICALL
-Java_com_fesskiev_player_MusicApplication_usePreset(JNIEnv *env, jclass type, jint presetValue) {
-
-    if (NULL != eqOutputItf) {
-        SLresult result = (*eqOutputItf)->UsePreset(eqOutputItf, (SLuint16) presetValue);
-        assert(SL_RESULT_SUCCESS == result);
-    }
 }
 
 JNIEXPORT jint JNICALL
-Java_com_fesskiev_player_MusicApplication_getCurrentPreset(JNIEnv *env, jclass type) {
+Java_com_fesskiev_player_services_PlaybackService_getCurrentPreset(JNIEnv *env, jobject instance) {
 
     SLuint16 preset = 0;
     if (NULL != eqOutputItf) {
@@ -455,10 +403,12 @@ Java_com_fesskiev_player_MusicApplication_getCurrentPreset(JNIEnv *env, jclass t
         assert(SL_RESULT_SUCCESS == result);
     }
     return preset;
+
 }
 
 JNIEXPORT jintArray JNICALL
-Java_com_fesskiev_player_MusicApplication_getBandLevelRange(JNIEnv *env, jclass type) {
+Java_com_fesskiev_player_services_PlaybackService_getBandLevelRange(JNIEnv *env, jobject instance) {
+
     int size = 2;
     jintArray result;
     result = (*env)->NewIntArray(env, size);
@@ -480,33 +430,37 @@ Java_com_fesskiev_player_MusicApplication_getBandLevelRange(JNIEnv *env, jclass 
 
     (*env)->SetIntArrayRegion(env, result, 0, size, fill);
     return result;
+
 }
 
 JNIEXPORT void JNICALL
-Java_com_fesskiev_player_MusicApplication_setBandLevel(JNIEnv *env, jclass type, jint bandNumber,
-                                                       jint milliBel) {
+Java_com_fesskiev_player_services_PlaybackService_setBandLevel(JNIEnv *env, jobject instance,
+                                                               jint bandNumber, jint milliBel) {
 
     if (NULL != eqOutputItf) {
         SLresult result = (*eqOutputItf)->SetBandLevel(eqOutputItf, (SLuint16) bandNumber,
                                                        (SLmillibel) milliBel);
         assert(SL_RESULT_SUCCESS == result);
     }
+
 }
 
 JNIEXPORT jint JNICALL
-Java_com_fesskiev_player_MusicApplication_getBandLevel(JNIEnv *env, jclass type, jint bandNumber) {
-
+Java_com_fesskiev_player_services_PlaybackService_getBandLevel(JNIEnv *env, jobject instance,
+                                                               jint bandNumber) {
     SLmillibel level;
     if (NULL != eqOutputItf) {
         SLresult result = (*eqOutputItf)->GetBandLevel(eqOutputItf, (SLuint16) bandNumber, &level);
         assert(SL_RESULT_SUCCESS == result);
     }
     return level;
+
 }
 
 JNIEXPORT jintArray JNICALL
-Java_com_fesskiev_player_MusicApplication_getBandFrequencyRange(JNIEnv *env, jclass type,
-                                                                jint bandNumber) {
+Java_com_fesskiev_player_services_PlaybackService_getBandFrequencyRange(JNIEnv *env,
+                                                                        jobject instance,
+                                                                        jint bandNumber) {
     int size = 2;
     jintArray result;
     result = (*env)->NewIntArray(env, size);
@@ -536,8 +490,8 @@ Java_com_fesskiev_player_MusicApplication_getBandFrequencyRange(JNIEnv *env, jcl
 }
 
 JNIEXPORT jint JNICALL
-Java_com_fesskiev_player_MusicApplication_getCenterFrequency(JNIEnv *env, jclass type,
-                                                             jint bandNumber) {
+Java_com_fesskiev_player_services_PlaybackService_getCenterFrequency(JNIEnv *env, jobject instance,
+                                                                     jint bandNumber) {
     SLmilliHertz centerFreq;
     if (NULL != eqOutputItf) {
         SLresult result =
@@ -545,10 +499,11 @@ Java_com_fesskiev_player_MusicApplication_getCenterFrequency(JNIEnv *env, jclass
         assert(SL_RESULT_SUCCESS == result);
     }
     return centerFreq;
+
 }
 
 JNIEXPORT jint JNICALL
-Java_com_fesskiev_player_MusicApplication_getNumberOfPreset(JNIEnv *env, jclass type) {
+Java_com_fesskiev_player_services_PlaybackService_getNumberOfPreset(JNIEnv *env, jobject instance) {
 
     SLuint16 numberPreset = 0;
     if (NULL != eqOutputItf) {
@@ -556,11 +511,13 @@ Java_com_fesskiev_player_MusicApplication_getNumberOfPreset(JNIEnv *env, jclass 
         assert(SL_RESULT_SUCCESS == result);
     }
     return numberPreset;
+
 }
 
 JNIEXPORT jstring JNICALL
-Java_com_fesskiev_player_MusicApplication_getPresetName(JNIEnv *env, jclass type,
-                                                        jint presetNumber) {
+Java_com_fesskiev_player_services_PlaybackService_getPresetName(JNIEnv *env, jobject instance,
+                                                                jint presetNumber) {
+
     const SLchar *namePreset = NULL;
     if (NULL != eqOutputItf) {
         SLresult result = (*eqOutputItf)->GetPresetName(eqOutputItf, (SLuint16) presetNumber,
@@ -570,5 +527,4 @@ Java_com_fesskiev_player_MusicApplication_getPresetName(JNIEnv *env, jclass type
 
     return (*env)->NewStringUTF(env, namePreset);
 }
-
 
