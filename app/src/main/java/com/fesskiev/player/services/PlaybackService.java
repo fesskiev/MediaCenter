@@ -1,8 +1,10 @@
 package com.fesskiev.player.services;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -30,8 +32,6 @@ public class PlaybackService extends Service {
             "com.fesskiev.player.action.ACTION_PLAYBACK_VOLUME";
     public static final String ACTION_PLAYBACK_PLAYING_STATE =
             "com.fesskiev.player.action.ACTION_PLAYBACK_PLAYING_STATE";
-
-
 
 
     public static final String PLAYBACK_EXTRA_MUSIC_FILE_PATH
@@ -95,13 +95,16 @@ public class PlaybackService extends Service {
         context.stopService(new Intent(context, PlaybackService.class));
     }
 
+    static {
 
+    }
 
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "Create playback service!");
         MusicApplication.createEngine();
+        registerHeadsetReceiver();
     }
 
     @Override
@@ -134,6 +137,34 @@ public class PlaybackService extends Service {
 
         return START_NOT_STICKY;
     }
+
+    private void registerHeadsetReceiver() {
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_HEADSET_PLUG);
+        registerReceiver(headsetReceiver,
+                intentFilter);
+    }
+
+    private void unregisterHeadsetReceiver() {
+        unregisterReceiver(headsetReceiver);
+    }
+
+    private BroadcastReceiver headsetReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (intent.getAction()) {
+                case Intent.ACTION_HEADSET_PLUG:
+                    int state = intent.getIntExtra("state", -1);
+                    if (state == 1) {
+                        // 1- plug in,
+                    } else {
+                        //  0 - plug out
+                    }
+                    break;
+            }
+        }
+    };
 
     private void createPlayer(String path) {
         if (MusicApplication.isPlaying()) {
@@ -199,7 +230,6 @@ public class PlaybackService extends Service {
     }
 
 
-
     private void sendBroadcastPlayerValues(int duration, int progress, int progressScale) {
         Intent intent = new Intent();
         intent.setAction(ACTION_PLAYBACK_VALUES);
@@ -220,10 +250,11 @@ public class PlaybackService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "Destroy playback service!");
+        Log.d(TAG, "Destroy playback service");
         stop();
         MusicApplication.releaseUriAudioPlayer();
         MusicApplication.releaseEngine();
+        unregisterHeadsetReceiver();
     }
 
 

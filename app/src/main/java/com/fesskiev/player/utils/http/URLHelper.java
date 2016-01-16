@@ -8,6 +8,18 @@ public class URLHelper {
     private static final String BASE_URL = "https://api.vk.com/method/";
     private static final String GET_AUDIO = BASE_URL + "audio.get";
     private static final String GET_USER_PROFILE = BASE_URL + "users.get";
+    private static final String GET_USER_GROUP = BASE_URL + "groups.get";
+
+    public static String getUserGroupsURL(String token, String userId){
+        StringBuilder sb = new StringBuilder();
+        sb.append(GET_USER_GROUP);
+        sb.append("?user_id=");
+        sb.append(userId);
+        sb.append("&access_token=");
+        sb.append(token);
+        sb.append("&extended=1");
+        return sb.toString();
+    }
 
     public static String getUserProfileURL(String userId){
         StringBuilder sb = new StringBuilder();

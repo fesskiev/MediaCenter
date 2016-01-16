@@ -9,7 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.VKMusicFile;
+import com.fesskiev.player.model.vk.VKMusicFile;
 
 public class VKPlayerActivity extends AppCompatActivity {
 

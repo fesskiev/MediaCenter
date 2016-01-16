@@ -19,6 +19,18 @@ static SLSeekItf uriPlayerSeek;
 static SLMuteSoloItf uriPlayerMuteSolo;
 static SLVolumeItf uriPlayerVolume;
 
+static JavaVM *jvm;
+static jclass gCallbackObject = NULL;
+
+JNIEXPORT void JNICALL
+Java_com_fesskiev_player_MusicApplication_initCallback(JNIEnv *env, jobject instance) {
+
+    gCallbackObject = (*env)->NewGlobalRef(env, instance);
+    jint rs = (*env)->GetJavaVM(env, &jvm);
+    assert (rs == JNI_OK);
+
+}
+
 
 JNIEXPORT void JNICALL
 Java_com_fesskiev_player_MusicApplication_createEngine(JNIEnv *env, jclass type) {
@@ -62,7 +74,37 @@ Java_com_fesskiev_player_MusicApplication_createEngine(JNIEnv *env, jclass type)
 }
 
 void playStatusCallback(SLPlayItf play, void *context, SLuint32 event) {
-    __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native", "The value o is %d", event);
+    __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native", "The value is %d", event);
+
+//    int status;
+//    JNIEnv *env;
+//    int isAttached = 0;
+//
+//    if (!gCallbackObject) return;
+//
+//    if ((status = (*jvm)->GetEnv(jvm, (void**)&env, JNI_VERSION_1_6)) < 0) {
+//        if ((status = (*jvm)->AttachCurrentThread(jvm, &env, NULL)) < 0) {
+//            return;
+//        }
+//        isAttached = 1;
+//    }
+//
+//    jclass cls = (*env)->GetObjectClass(env, gCallbackObject);
+//    if (!cls) {
+//        if (isAttached) (*jvm)->DetachCurrentThread(jvm);
+//        return;
+//    }
+//
+//    jmethodID method = (*env)->GetMethodID(env, cls, "playStatusCallback", "()V");
+//    if (!method) {
+//        if (isAttached) (*jvm)->DetachCurrentThread(jvm);
+//        return;
+//    }
+//
+//
+//    (*env)->CallVoidMethod(env, gCallbackObject, method, event);
+//
+//    if (isAttached) (*jvm)->DetachCurrentThread(jvm);
 }
 
 

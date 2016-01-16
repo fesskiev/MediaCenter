@@ -7,26 +7,27 @@ import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.fesskiev.player.MusicApplication;
 import com.fesskiev.player.model.User;
-import com.fesskiev.player.model.VKMusicFile;
+import com.fesskiev.player.model.vk.Group;
+import com.fesskiev.player.model.vk.VKMusicFile;
 import com.fesskiev.player.utils.http.JSONHelper;
 import com.fesskiev.player.utils.http.JSONUTF8Request;
 
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 public class RESTService extends Service {
 
     private static final String TAG = RESTService.class.getSimpleName();
 
+    public static final String ACTION_GET_GROUPS =
+            "com.fesskiev.player.ACTION_GET_GROUPS";
     public static final String ACTION_GET_AUDIO =
             "com.fesskiev.player.ACTION_GET_AUDIO";
     public static final String ACTION_USER_PROFILE =
@@ -35,6 +36,8 @@ public class RESTService extends Service {
             "com.fesskiev.player.ACTION_USER_PROFILE_RESULT";
     public static final String ACTION_AUDIO_RESULT =
             "com.fesskiev.player.ACTION_AUDIO_RESULT";
+    public static final String ACTION_GROUPS_RESULT =
+            "com.fesskiev.player.ACTION_GROUPS_RESULT";
 
     public static final String EXTRA_REQUEST_URL
             = "com.fesskiev.player.EXTRA_REQUEST_URL";
@@ -42,6 +45,15 @@ public class RESTService extends Service {
             = "ua.com.minfin.action.EXTRA_USER_PROFILE_RESULT";
     public static final String EXTRA_AUDIO_RESULT
             = "ua.com.minfin.action.EXTRA_AUDIO_RESULT";
+    public static final String EXTRA_GROUPS_RESULT
+            = "ua.com.minfin.action.EXTRA_GROUPS_RESULT";
+
+    public static void fetchGroups(Context context, String url){
+        Intent intent = new Intent(context, RESTService.class);
+        intent.setAction(ACTION_GET_GROUPS);
+        intent.putExtra(EXTRA_REQUEST_URL, url);
+        context.startService(intent);
+    }
 
     public static void fetchUserProfile(Context context, String url) {
         Intent intent = new Intent(context, RESTService.class);
@@ -68,6 +80,9 @@ public class RESTService extends Service {
                 doGET(url, action);
                 break;
             case ACTION_USER_PROFILE:
+                doGET(url, action);
+                break;
+            case ACTION_GET_GROUPS:
                 doGET(url, action);
                 break;
         }
@@ -128,7 +143,17 @@ public class RESTService extends Service {
             case ACTION_USER_PROFILE:
                 sendBroadcastUserProfile(JSONHelper.getUserProfile(response));
                 break;
+            case ACTION_GET_GROUPS:
+                sendBroadcastGroups(JSONHelper.getGroups(response));
+                break;
         }
+    }
+
+    private void sendBroadcastGroups(ArrayList<Group> groups) {
+        Intent intent = new Intent();
+        intent.setAction(ACTION_GROUPS_RESULT);
+        intent.putExtra(EXTRA_GROUPS_RESULT, groups);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
     }
 
     private void sendBroadcastAudio(ArrayList<VKMusicFile> vkMusicFiles) {

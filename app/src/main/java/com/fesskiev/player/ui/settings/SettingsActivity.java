@@ -2,8 +2,6 @@ package com.fesskiev.player.ui.settings;
 
 import android.content.ComponentName;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.IntentCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -11,11 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.VKMusicFile;
 import com.fesskiev.player.ui.MainActivity;
-import com.fesskiev.player.ui.vk.MusicVKActivity;
-import com.fesskiev.player.ui.vk.MusicVKFragment;
-import com.fesskiev.player.ui.vk.VKPlayerFragment;
 
 public class SettingsActivity extends AppCompatActivity {
 

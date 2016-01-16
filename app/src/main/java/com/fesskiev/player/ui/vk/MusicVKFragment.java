@@ -11,7 +11,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,8 +22,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.VKMusicFile;
-import com.fesskiev.player.services.FileTreeIntentService;
+import com.fesskiev.player.model.vk.VKMusicFile;
 import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.DownloadFileHelper;
@@ -122,6 +120,8 @@ public class MusicVKFragment extends Fragment {
         progressBar = (MaterialProgressBar) view.findViewById(R.id.progressBar);
         showProgressBar();
 
+//        RESTService.fetchGroups(this, URLHelper.getUserGroupsURL(appSettingsManager.getAuthToken(),
+//                appSettingsManager.getUserId()));
     }
 
     private void hideViews() {

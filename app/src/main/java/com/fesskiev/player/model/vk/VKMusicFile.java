@@ -1,4 +1,4 @@
-package com.fesskiev.player.model;
+package com.fesskiev.player.model.vk;
 
 
 import android.os.Parcel;

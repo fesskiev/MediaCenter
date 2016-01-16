@@ -1,6 +1,8 @@
 package com.fesskiev.player;
 
 import android.app.Application;
+import android.util.Log;
+
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -20,9 +22,16 @@ public class MusicApplication extends Application {
     private List<MusicFolder> musicFolders;
     private MusicFile currentMusicFile;
 
+    public static void playStatusCallback(int status) {
+        Log.d("test_", "play java called status: " + status);
+    }
+
+
     static {
         System.loadLibrary("player");
     }
+
+    public native void initCallback();
 
     public static native void createEngine();
 
@@ -76,6 +85,8 @@ public class MusicApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        initCallback();
+
         application = this;
 
         VKSdk.initialize(this);

@@ -4,7 +4,8 @@ package com.fesskiev.player.utils.http;
 import android.util.Log;
 
 import com.fesskiev.player.model.User;
-import com.fesskiev.player.model.VKMusicFile;
+import com.fesskiev.player.model.vk.Group;
+import com.fesskiev.player.model.vk.VKMusicFile;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -70,5 +71,37 @@ public class JSONHelper {
         }
 
         return user;
+    }
+
+    public static ArrayList<Group> getGroups(JSONObject response){
+        ArrayList<Group> groups = new ArrayList<>();
+
+        try {
+
+            JSONArray jsonArray = response.getJSONArray("response");
+            for (int i = 1; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                Group group = new Group();
+
+                group.gid = jsonObject.getInt("gid");
+                group.name = jsonObject.getString("name");
+                group.screenName = jsonObject.getString("screen_name");
+                group.isClosed = jsonObject.getInt("is_closed");
+                group.type = jsonObject.getString("type");
+                group.photoURL = jsonObject.getString("photo");
+                group.photoMediumURL = jsonObject.getString("photo_medium");
+                group.photoBigURL= jsonObject.getString("photo_big");
+
+
+                Log.d(TAG, "group: " + group.toString());
+
+                groups.add(group);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return groups;
     }
 }

@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.VKMusicFile;
+import com.fesskiev.player.model.vk.VKMusicFile;
 
 
 public class VKPlayerFragment extends Fragment {

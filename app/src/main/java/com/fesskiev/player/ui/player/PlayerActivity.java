@@ -31,6 +31,8 @@ import com.fesskiev.player.ui.tracklist.TrackListActivity;
 import com.fesskiev.player.ui.tracklist.TrackListFragment;
 import com.fesskiev.player.utils.Utils;
 
+import java.io.File;
+
 public class PlayerActivity extends AppCompatActivity {
 
     private static final String TAG = PlayerActivity.class.getSimpleName();
@@ -93,9 +95,15 @@ public class PlayerActivity extends AppCompatActivity {
         genre = (TextView) findViewById(R.id.genre);
         album = (TextView) findViewById(R.id.album);
 
-        ((ImageView) findViewById(R.id.backdrop)).
-                setImageBitmap(Utils.getResizedBitmap(1024, 1024,
-                        musicFolder.folderImages.get(0).getAbsolutePath()));
+        ImageView backdrop = (ImageView) findViewById(R.id.backdrop);
+        if(!musicFolder.folderImages.isEmpty()) {
+            File albumImagePath = musicFolder.folderImages.get(0);
+            if (albumImagePath != null) {
+                backdrop.setImageBitmap(Utils.getResizedBitmap(1024, 1024,
+                        albumImagePath.getAbsolutePath()));
+            }
+        }
+
 
         findViewById(R.id.equalizer).setOnClickListener(new View.OnClickListener() {
             @Override
