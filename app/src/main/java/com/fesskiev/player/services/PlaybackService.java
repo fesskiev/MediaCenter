@@ -17,6 +17,15 @@ public class PlaybackService extends Service {
 
     private static final String TAG = PlaybackService.class.getSimpleName();
 
+    private static final int END_SONG = 1;
+
+    public static final String ACTION_HEADSET_PLUG_IN =
+            "com.fesskiev.player.action.ACTION_HEADSET_PLUG_IN";
+    public static final String ACTION_HEADSET_PLUG_OUT =
+            "com.fesskiev.player.action.ACTION_HEADSET_PLUG_OUT";
+    public static final String ACTION_SONG_END =
+            "com.fesskiev.player.action.ACTION_SONG_END";
+
     public static final String ACTION_CREATE_PLAYER =
             "com.fesskiev.player.action.ACTION_CREATE_PLAYER";
     public static final String ACTION_START_PLAYBACK =
@@ -136,13 +145,13 @@ public class PlaybackService extends Service {
 
     public native int getCurrentPreset();
 
-    public native int [] getBandLevelRange();
+    public native int[] getBandLevelRange();
 
     public native void setBandLevel(int bandNumber, int milliBel);
 
     public native int getBandLevel(int bandNumber);
 
-    public native int [] getBandFrequencyRange(int bandNumber);
+    public native int[] getBandFrequencyRange(int bandNumber);
 
     public native int getCenterFrequency(int bandNumber);
 
@@ -150,10 +159,15 @@ public class PlaybackService extends Service {
 
     public native String getPresetName(int presetNumber);
 
+    /**
+     * Callback method from C to Java
+     **/
     public void playStatusCallback(int status) {
-        Log.d(TAG, "play java called status: " + status);
+        if (status == END_SONG) {
+            sendBroadcastPlayingState(true);
+            sendBroadcastSongEnd();
+        }
     }
-
 
 
     @Override
@@ -215,9 +229,9 @@ public class PlaybackService extends Service {
                 case Intent.ACTION_HEADSET_PLUG:
                     int state = intent.getIntExtra("state", -1);
                     if (state == 1) {
-                        // 1- plug in,
+                        sendBroadcastHeadsetPlugIn();
                     } else {
-                        //  0 - plug out
+                        sendBroadcastHeadsetPlugOut();
                     }
                     break;
             }
@@ -287,6 +301,21 @@ public class PlaybackService extends Service {
         timer.cancel();
     }
 
+    private void sendBroadcastHeadsetPlugIn(){
+        LocalBroadcastManager.getInstance(getApplicationContext()).
+                sendBroadcast(new Intent(ACTION_HEADSET_PLUG_IN));
+    }
+
+    private void sendBroadcastHeadsetPlugOut(){
+        LocalBroadcastManager.getInstance(getApplicationContext()).
+                sendBroadcast(new Intent(ACTION_HEADSET_PLUG_OUT));
+    }
+
+    private void sendBroadcastSongEnd(){
+        LocalBroadcastManager.getInstance(getApplicationContext()).
+                sendBroadcast(new Intent(ACTION_SONG_END));
+    }
+
 
     private void sendBroadcastPlayerValues(int duration, int progress, int progressScale) {
         Intent intent = new Intent();
@@ -298,7 +327,6 @@ public class PlaybackService extends Service {
     }
 
     private void sendBroadcastPlayingState(boolean isPlaying) {
-        Log.d(TAG, "send broadcast playing state: " + isPlaying);
         Intent intent = new Intent();
         intent.setAction(ACTION_PLAYBACK_PLAYING_STATE);
         intent.putExtra(PLAYBACK_EXTRA_PLAYING, isPlaying);

@@ -10,7 +10,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.DecelerateInterpolator;
 
 import com.fesskiev.player.R;
 import com.fesskiev.player.services.RESTService;
@@ -71,11 +70,13 @@ public class MusicVKActivity extends AppCompatActivity {
 
     }
 
-    private void makeRequestMusicFiles(){
-        MusicVKFragment musicVKFragment = (MusicVKFragment)getSupportFragmentManager().
+    private void makeRequestMusicFiles() {
+        MusicVKFragment musicVKFragment = (MusicVKFragment) getSupportFragmentManager().
                 findFragmentByTag(MusicVKFragment.class.getName());
-        if(musicVKFragment != null) {
-            musicVKFragment.fetchUserAudio();
+        if (musicVKFragment != null) {
+            UserAudioFragment userAudioFragment =
+                    musicVKFragment.getUserAudioFragment();
+            userAudioFragment.fetchUserAudio();
         }
     }
 

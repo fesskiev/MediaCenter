@@ -25,6 +25,7 @@ import com.fesskiev.player.model.MusicFolder;
 import com.fesskiev.player.services.FetchMp3InfoIntentService;
 import com.fesskiev.player.ui.MusicFoldersFragment;
 import com.fesskiev.player.ui.player.PlayerActivity;
+import com.fesskiev.player.utils.Constants;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.recycleview.OnItemClickListener;
 import com.fesskiev.player.widgets.recycleview.RecycleItemClickListener;
@@ -38,7 +39,6 @@ import java.util.List;
 public class TrackListFragment extends Fragment {
 
     private static final String TAG = TrackListFragment.class.getSimpleName();
-    public static final String FILE_POSITION = "file_position";
 
     private MusicFolder musicFolder;
     private Bitmap coverImageBitmap;
@@ -49,7 +49,7 @@ public class TrackListFragment extends Fragment {
     public static TrackListFragment newInstance(int position) {
         TrackListFragment fragment = new TrackListFragment();
         Bundle args = new Bundle();
-        args.putInt(MusicFoldersFragment.FOLDER_POSITION, position);
+        args.putInt(Constants.EXTRA_FOLDER_POSITION, position);
         fragment.setArguments(args);
         return fragment;
     }
@@ -58,7 +58,7 @@ public class TrackListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            folderPosition = getArguments().getInt(MusicFoldersFragment.FOLDER_POSITION);
+            folderPosition = getArguments().getInt(Constants.EXTRA_FOLDER_POSITION);
             musicFolder =
                     ((MusicApplication) getActivity().getApplication()).getMusicFolders().get(folderPosition);
             List<File> folderImages = musicFolder.folderImages;
@@ -92,8 +92,8 @@ public class TrackListFragment extends Fragment {
             public void onItemClick(View view, int position) {
 
                 Intent intent = new Intent(getActivity(), PlayerActivity.class);
-                intent.putExtra(MusicFoldersFragment.FOLDER_POSITION, folderPosition);
-                intent.putExtra(FILE_POSITION, position);
+                intent.putExtra(Constants.EXTRA_FOLDER_POSITION, folderPosition);
+                intent.putExtra(Constants.EXTRA_FILE_POSITION, position);
                 startActivity(intent);
 
             }

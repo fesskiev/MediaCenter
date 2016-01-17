@@ -31,14 +31,12 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 
 JNIEXPORT void JNICALL
 Java_com_fesskiev_player_services_PlaybackService_registerCallback(JNIEnv *env, jobject instance) {
-    __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native", "register callback");
     gCallbackObject = (*env)->NewGlobalRef(env, instance);
 }
 
 JNIEXPORT void JNICALL
 Java_com_fesskiev_player_services_PlaybackService_unregisterCallback(JNIEnv *env,
                                                                      jobject instance) {
-    __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native", "unregister callback");
     (*env)->DeleteGlobalRef(env, gCallbackObject);
     gCallbackObject = NULL;
 }
@@ -85,14 +83,14 @@ Java_com_fesskiev_player_services_PlaybackService_createEngine(JNIEnv *env, jobj
 }
 
 
-void callbackCalled(int event) {
+void handlingCallback(int event) {
     int status;
     JNIEnv *env;
     int isAttached = 0;
 
     if (!gCallbackObject) return;
 
-    if ((status = (*gJavaVM)->GetEnv(gJavaVM, (void**)&env, JNI_VERSION_1_6)) < 0) {
+    if ((status = (*gJavaVM)->GetEnv(gJavaVM, (void **) &env, JNI_VERSION_1_6)) < 0) {
         if ((status = (*gJavaVM)->AttachCurrentThread(gJavaVM, &env, NULL)) < 0) {
             return;
         }
@@ -118,11 +116,9 @@ void callbackCalled(int event) {
 }
 
 
-
 void playStatusCallback(SLPlayItf play, void *context, SLuint32 event) {
-    __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native", "The value is %d", event);
-    callbackCalled(event);
-
+//    __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native", "The value is %d", event);
+    handlingCallback(event);
 }
 
 JNIEXPORT jboolean JNICALL

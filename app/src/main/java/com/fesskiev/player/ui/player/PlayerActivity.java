@@ -29,11 +29,12 @@ import com.fesskiev.player.ui.MusicFoldersFragment;
 import com.fesskiev.player.ui.equalizer.EqualizerActivity;
 import com.fesskiev.player.ui.tracklist.TrackListActivity;
 import com.fesskiev.player.ui.tracklist.TrackListFragment;
+import com.fesskiev.player.utils.Constants;
 import com.fesskiev.player.utils.Utils;
 
 import java.io.File;
 
-public class PlayerActivity extends AppCompatActivity {
+public class PlayerActivity extends AppCompatActivity implements Playable {
 
     private static final String TAG = PlayerActivity.class.getSimpleName();
 
@@ -76,8 +77,8 @@ public class PlayerActivity extends AppCompatActivity {
             }
         }
 
-        folderPosition = getIntent().getExtras().getInt(MusicFoldersFragment.FOLDER_POSITION);
-        filePosition = getIntent().getExtras().getInt(TrackListFragment.FILE_POSITION);
+        folderPosition = getIntent().getExtras().getInt(Constants.EXTRA_FOLDER_POSITION);
+        filePosition = getIntent().getExtras().getInt(Constants.EXTRA_FILE_POSITION);
 
         musicFolder =
                 ((MusicApplication) getApplication()).getMusicFolders().get(folderPosition);
@@ -96,7 +97,7 @@ public class PlayerActivity extends AppCompatActivity {
         album = (TextView) findViewById(R.id.album);
 
         ImageView backdrop = (ImageView) findViewById(R.id.backdrop);
-        if(!musicFolder.folderImages.isEmpty()) {
+        if (!musicFolder.folderImages.isEmpty()) {
             File albumImagePath = musicFolder.folderImages.get(0);
             if (albumImagePath != null) {
                 backdrop.setImageBitmap(Utils.getResizedBitmap(1024, 1024,
@@ -115,29 +116,14 @@ public class PlayerActivity extends AppCompatActivity {
         previousTrack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (filePosition > 0) {
-                    filePosition--;
-                }
-                setCurrentMusicFile(filePosition);
-
-                animateCardDescription(false);
-                resetTimers();
-                createPlayer();
+                previous();
             }
         });
 
         nextTrack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (filePosition < musicFolder.musicFilesDescription.size() - 1) {
-                    filePosition++;
-                }
-
-                setCurrentMusicFile(filePosition);
-
-                animateCardDescription(true);
-                resetTimers();
-                createPlayer();
+                next();
             }
         });
 
@@ -148,9 +134,9 @@ public class PlayerActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (isPlaying) {
-                    PlaybackService.stopPlayback(PlayerActivity.this);
+                    pause();
                 } else {
-                    PlaybackService.startPlayback(PlayerActivity.this);
+                    play();
                 }
             }
         });
@@ -203,12 +189,56 @@ public class PlayerActivity extends AppCompatActivity {
         });
 
 
-        resetTimers();
+        resetIndicators();
         setTrackInformation();
         createPlayer();
+        play();
 
         registerPlaybackBroadcastReceiver();
     }
+
+    @Override
+    public void play() {
+        PlaybackService.startPlayback(PlayerActivity.this);
+    }
+
+    @Override
+    public void pause() {
+        PlaybackService.stopPlayback(PlayerActivity.this);
+    }
+
+    @Override
+    public void next() {
+        if (filePosition < musicFolder.musicFilesDescription.size() - 1) {
+            filePosition++;
+        }
+
+        setCurrentMusicFile(filePosition);
+
+        animateCardDescription(true);
+        resetIndicators();
+        createPlayer();
+    }
+
+    @Override
+    public void previous() {
+        if (filePosition > 0) {
+            filePosition--;
+        }
+        setCurrentMusicFile(filePosition);
+
+        animateCardDescription(false);
+        resetIndicators();
+        createPlayer();
+    }
+
+    @Override
+    public void createPlayer() {
+        if (currentMusicFile != null) {
+            PlaybackService.createPlayer(this, currentMusicFile.filePath);
+        }
+    }
+
 
     private void setCurrentMusicFile(int filePosition) {
         currentMusicFile = musicFolder.musicFilesDescription.get(filePosition);
@@ -272,17 +302,12 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
 
-    private void resetTimers() {
+    private void resetIndicators() {
         trackTimeTotal.setText("0:00");
         trackTimeCount.setText("0:00");
+        trackSeek.setProgress(0);
     }
 
-
-    private void createPlayer() {
-        if (currentMusicFile != null) {
-            PlaybackService.createPlayer(this, currentMusicFile.filePath);
-        }
-    }
 
     private void setTrackInformation() {
         if (currentMusicFile != null) {
@@ -311,6 +336,9 @@ public class PlayerActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter();
         filter.addAction(PlaybackService.ACTION_PLAYBACK_VALUES);
         filter.addAction(PlaybackService.ACTION_PLAYBACK_PLAYING_STATE);
+        filter.addAction(PlaybackService.ACTION_SONG_END);
+        filter.addAction(PlaybackService.ACTION_HEADSET_PLUG_IN);
+        filter.addAction(PlaybackService.ACTION_HEADSET_PLUG_OUT);
         LocalBroadcastManager.getInstance(this).registerReceiver(playbackReceiver, filter);
     }
 
@@ -346,6 +374,15 @@ public class PlayerActivity extends AppCompatActivity {
                                 setImageDrawable(ContextCompat.getDrawable(PlayerActivity.this,
                                         R.drawable.play_icon));
                     }
+                    break;
+                case PlaybackService.ACTION_SONG_END:
+                    next();
+                    play();
+                    break;
+                case PlaybackService.ACTION_HEADSET_PLUG_IN:
+                    break;
+                case PlaybackService.ACTION_HEADSET_PLUG_OUT:
+                    pause();
                     break;
             }
         }

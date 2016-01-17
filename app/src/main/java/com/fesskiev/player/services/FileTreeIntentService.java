@@ -42,7 +42,7 @@ public class FileTreeIntentService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
             final String action = intent.getAction();
-            Log.d(TAG, "HANDLE INTENT: "  + action);
+            Log.d(TAG, "HANDLE INTENT: " + action);
             if (ACTION_START_FILE_TREE_SERVICE.equals(action)) {
                 getMusicFolders();
             }
@@ -87,8 +87,13 @@ public class FileTreeIntentService extends IntentService {
             if (filterFiles != null && filterFiles.length > 0) {
                 MusicFolder musicFolder = new MusicFolder();
                 musicFolder.folderName = directoryFile.getName();
+
+//                if(musicFolder.folderName.equals("Downloads")){
+//                    Log.wtf(TAG, "downloads contain files");
+//                }
+
                 for (File file : filterFiles) {
-                    Log.wtf(TAG, "sound file: " + file);
+//                    Log.wtf(TAG, "sound file: " + file);
                     musicFolder.musicFiles.add(file);
                 }
 

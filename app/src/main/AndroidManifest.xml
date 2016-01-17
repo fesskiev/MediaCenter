@@ -69,15 +69,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity" />
         </activity>
-        <activity
-            android:name=".ui.vk.VKPlayerActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:parentActivityName=".ui.vk.MusicVKActivity"
-            android:screenOrientation="portrait">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.vk.MusicVKActivity" />
-        </activity>
 
         <activity
             android:name=".ui.settings.SettingsActivity"

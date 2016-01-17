@@ -11,6 +11,7 @@ import com.fesskiev.player.R;
 import com.fesskiev.player.ui.MainActivity;
 import com.fesskiev.player.ui.MusicFoldersFragment;
 import com.fesskiev.player.ui.player.PlaybackActivity;
+import com.fesskiev.player.utils.Constants;
 
 public class TrackListActivity extends PlaybackActivity {
 
@@ -34,7 +35,7 @@ public class TrackListActivity extends PlaybackActivity {
             }
 
             int position =
-                    getIntent().getExtras().getInt(MusicFoldersFragment.FOLDER_POSITION, -1);
+                    getIntent().getExtras().getInt(Constants.EXTRA_FOLDER_POSITION, -1);
             if (position != -1) {
 
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();

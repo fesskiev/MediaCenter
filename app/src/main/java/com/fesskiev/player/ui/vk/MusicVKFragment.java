@@ -1,37 +1,20 @@
 package com.fesskiev.player.ui.vk;
 
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.vk.VKMusicFile;
-import com.fesskiev.player.services.RESTService;
-import com.fesskiev.player.utils.AppSettingsManager;
-import com.fesskiev.player.utils.DownloadFileHelper;
-import com.fesskiev.player.utils.http.URLHelper;
-import com.fesskiev.player.widgets.MaterialProgressBar;
-import com.fesskiev.player.widgets.recycleview.OnItemClickListener;
-import com.fesskiev.player.widgets.recycleview.RecycleItemClickListener;
-import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
-import com.fesskiev.player.widgets.utils.HidingScrollListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,27 +22,30 @@ import java.util.List;
 
 public class MusicVKFragment extends Fragment {
 
-    private static final String TAG = MusicVKFragment.class.getSimpleName();
-    public static final String DOWNLOAD_FILE_PATH =
-            "com.fesskiev.player.EXTRA_DOWNLOAD_FILE_PATH";
-    public static final String SELECTED_MUSIC_FILE =
-            "com.fesskiev.player.SELECTED_MUSIC_FILE";
-
-
     public static MusicVKFragment newInstance() {
         return new MusicVKFragment();
     }
 
-    private AudioAdapter audioAdapter;
-    private MaterialProgressBar progressBar;
-    private List<DownloadVkMusicFile> downloadVkMusicFiles;
-    private FloatingActionButton playPauseButton;
+    private String[] tabTitles;
+    private int[] imageResId;
 
+    private ViewPagerAdapter adapter;
+    private TabLayout tabLayout;
+    private int currentPosition;
+    private int prevPosition;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        registerBroadcastReceiver();
+
+        tabTitles = new String[]{
+                getString(R.string.vk_tab_title_user_music),
+                getString(R.string.vk_tab_title_groups)
+        };
+        imageResId = new int[]{
+                R.drawable.tab_wall_icon,
+                R.drawable.tab_groups_icon
+        };
     }
 
     @Override
@@ -70,247 +56,147 @@ public class MusicVKFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycleView);
-        recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(getActivity(),
-                LinearLayoutManager.VERTICAL, false, 1000));
-        audioAdapter = new AudioAdapter();
-        recyclerView.setAdapter(audioAdapter);
-        recyclerView.addOnItemTouchListener(new RecycleItemClickListener(getActivity(),
-                new OnItemClickListener() {
 
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        if (downloadVkMusicFiles != null) {
-                            DownloadVkMusicFile downloadVkMusicFile = downloadVkMusicFiles.get(position);
-                            if (downloadVkMusicFile != null) {
-                                if (!downloadVkMusicFile.isComplete()) {
-                                    downloadVkMusicFile.downloadMusicFile(position);
-                                } else {
-                                    Intent intent = new Intent(getActivity(), VKPlayerActivity.class);
-                                    intent.putExtra(DOWNLOAD_FILE_PATH, downloadVkMusicFile.filePath);
-                                    intent.putExtra(SELECTED_MUSIC_FILE, downloadVkMusicFile.vkMusicFile);
-                                    startActivity(intent);
-                                }
+        ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+        viewPager.setOffscreenPageLimit(2);
+        setupViewPager(viewPager);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                currentPosition = position;
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                if (ViewPager.SCROLL_STATE_IDLE == state) {
+                    if (currentPosition != prevPosition) {
+                        List<TextView> titleTexts = adapter.getTitleTextViews();
+                        for (TextView textView : titleTexts) {
+                            if (textView.getCurrentTextColor() == ContextCompat.getColor(getActivity(), R.color.accent)) {
+                                textView.setTextColor(ContextCompat.getColor(getActivity(), R.color.white_text));
+                            } else {
+                                textView.setTextColor(ContextCompat.getColor(getActivity(), R.color.accent));
                             }
                         }
+                        prevPosition = currentPosition;
                     }
-                }));
-
-        recyclerView.addOnScrollListener(new HidingScrollListener() {
-            @Override
-            public void onHide() {
-                hideViews();
-            }
-
-            @Override
-            public void onShow() {
-                showViews();
+                }
             }
         });
 
-        playPauseButton = (FloatingActionButton) view.findViewById(R.id.playPauseButton);
-        playPauseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        tabLayout = (TabLayout) view.findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
 
-            }
-        });
+        createTabs();
 
-
-        progressBar = (MaterialProgressBar) view.findViewById(R.id.progressBar);
-        showProgressBar();
-
-//        RESTService.fetchGroups(this, URLHelper.getUserGroupsURL(appSettingsManager.getAuthToken(),
-//                appSettingsManager.getUserId()));
     }
 
-    private void hideViews() {
-        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) playPauseButton.getLayoutParams();
-        int fabBottomMargin = lp.bottomMargin;
-        playPauseButton.animate().translationY(playPauseButton.getHeight()
-                + fabBottomMargin).setInterpolator(new AccelerateInterpolator(2)).start();
-    }
 
-    private void showViews() {
-        playPauseButton.animate().translationY(0).setInterpolator(new DecelerateInterpolator(2)).start();
-    }
-
-    public void showProgressBar() {
-        progressBar.setVisibility(View.VISIBLE);
-    }
-
-    public void hideProgressBar() {
-        progressBar.setVisibility(View.INVISIBLE);
-    }
-
-    public void fetchUserAudio() {
-        AppSettingsManager manager = new AppSettingsManager(getActivity());
-        RESTService.fetchAudio(getActivity(),
-                URLHelper.getAudioURL(manager.getAuthToken(), manager.getUserId(), 20, 0));
-    }
-
-    private void registerBroadcastReceiver() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(RESTService.ACTION_AUDIO_RESULT);
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(audioReceiver,
-                filter);
-    }
-
-    private void unregisterBroadcastReceiver() {
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(audioReceiver);
-    }
-
-    private BroadcastReceiver audioReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case RESTService.ACTION_AUDIO_RESULT:
-                    List<VKMusicFile> vkMusicFiles =
-                            intent.getParcelableArrayListExtra(RESTService.EXTRA_AUDIO_RESULT);
-                    if (vkMusicFiles != null) {
-                        hideProgressBar();
-                        downloadVkMusicFiles = getDownloadVKMusicFiles(vkMusicFiles);
-                        audioAdapter.refresh(downloadVkMusicFiles);
-                    }
-                    break;
-            }
-        }
-    };
-
-    private List<DownloadVkMusicFile> getDownloadVKMusicFiles(List<VKMusicFile> vkMusicFiles) {
-        List<DownloadVkMusicFile> downloadVkMusicFiles = new ArrayList<>();
-        for (VKMusicFile vkMusicFile : vkMusicFiles) {
-            DownloadVkMusicFile downloadVkMusicFile = new DownloadVkMusicFile();
-            downloadVkMusicFile.vkMusicFile = vkMusicFile;
-            downloadVkMusicFiles.add(downloadVkMusicFile);
-        }
-        return downloadVkMusicFiles;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        unregisterBroadcastReceiver();
-    }
-
-    private class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.ViewHolder> {
-
-        private List<DownloadVkMusicFile> downloadVkMusicFiles;
-
-        public AudioAdapter() {
-            this.downloadVkMusicFiles = new ArrayList<>();
-        }
-
-        public class ViewHolder extends RecyclerView.ViewHolder {
-
-            TextView artist;
-            TextView title;
-            ImageView downloadCompleteIcon;
-            ProgressBar downloadProgress;
-            TextView progressValue;
-
-            public ViewHolder(View v) {
-                super(v);
-
-                artist = (TextView) v.findViewById(R.id.itemArtist);
-                title = (TextView) v.findViewById(R.id.itemTitle);
-                downloadCompleteIcon = (ImageView) v.findViewById(R.id.itemDownloadComplete);
-                downloadProgress = (ProgressBar) v.findViewById(R.id.downloadProgressBar);
-                progressValue = (TextView) v.findViewById(R.id.progressValue);
-
-            }
-        }
-
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_audio, parent, false);
-            return new ViewHolder(v);
-        }
-
-        @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
-
-            DownloadVkMusicFile downloadVkMusicFile = downloadVkMusicFiles.get(position);
-            if (downloadVkMusicFile != null) {
-
-                holder.artist.setText(downloadVkMusicFile.vkMusicFile.artist);
-                holder.title.setText(downloadVkMusicFile.vkMusicFile.title);
+//    private void updateTabsText() {
+//        List<TextView> titleTexts = adapter.getTitleTextViews();
+//        for (int j = 0; j < tabTitles.length; j++) {
+//            TextView tv = titleTexts.get(j);
+//            tv.setText(tabTitles[j]);
+//        }
+//    }
 
 
-                if (downloadVkMusicFile.downloadStart) {
-                    holder.downloadProgress.setVisibility(View.VISIBLE);
-                    holder.downloadProgress.setProgress((int) downloadVkMusicFile.progress);
-                    holder.progressValue.setVisibility(View.VISIBLE);
-                    holder.progressValue.setText(String.valueOf((int) downloadVkMusicFile.progress) + "%");
+    private void createTabs() {
+        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+            TabLayout.Tab tab = tabLayout.getTabAt(i);
+            if (tab != null) {
+                if (currentPosition == i) {
+                    tab.setCustomView(adapter.getTabView(imageResId[i], tabTitles[i],
+                            ContextCompat.getColor(getActivity(), R.color.accent)));
                 } else {
-                    holder.downloadProgress.setVisibility(View.INVISIBLE);
-                    holder.progressValue.setVisibility(View.GONE);
+                    tab.setCustomView(adapter.getTabView(imageResId[i], tabTitles[i],
+                            ContextCompat.getColor(getActivity(), R.color.white_text)));
                 }
 
-                if (downloadVkMusicFile.isComplete()) {
-                    holder.downloadCompleteIcon.setVisibility(View.VISIBLE);
-                } else {
-                    holder.downloadCompleteIcon.setVisibility(View.INVISIBLE);
-                }
             }
-        }
-
-        public void refresh(List<DownloadVkMusicFile> downloadVkMusicFiles) {
-            this.downloadVkMusicFiles.clear();
-            this.downloadVkMusicFiles.addAll(downloadVkMusicFiles);
-            notifyDataSetChanged();
-        }
-
-        @Override
-        public int getItemCount() {
-            return downloadVkMusicFiles.size();
         }
     }
 
-    private class DownloadVkMusicFile implements DownloadFileHelper.OnFileDownloadListener {
 
-        public VKMusicFile vkMusicFile;
-        public String filePath;
-        public int position;
-        public double progress;
-        public boolean downloadStart;
+    private void setupViewPager(ViewPager viewPager) {
+        adapter = new ViewPagerAdapter(getFragmentManager());
+        adapter.addFragment(UserAudioFragment.newInstance());
+        adapter.addFragment(GroupsFragment.newInstance());
+        viewPager.setAdapter(adapter);
+    }
 
-        public boolean isComplete() {
-            return progress == 100;
+    private class ViewPagerAdapter extends FragmentStatePagerAdapter {
+        private List<Fragment> fragmentList = new ArrayList<>();
+        private List<Fragment> registeredFragments = new ArrayList<>();
+        private List<TextView> titleTextViews = new ArrayList<>();
+
+        public ViewPagerAdapter(FragmentManager manager) {
+            super(manager);
         }
 
         @Override
-        public void fileDownloadComplete(String filePath) {
-            this.filePath = filePath;
-            downloadStart = false;
+        public Fragment getItem(int position) {
+            return fragmentList.get(position);
         }
 
         @Override
-        public void fileDownloadFailed() {
+        public int getCount() {
+            return fragmentList.size();
+        }
 
+        public void addFragment(Fragment fragment) {
+            fragmentList.add(fragment);
         }
 
         @Override
-        public void fileDownloadProgress(final double progress) {
-            this.progress = progress;
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (((int) progress) % 10 == 0) {
-                        audioAdapter.notifyItemChanged(position);
-                    }
-                }
-            });
+        public Object instantiateItem(ViewGroup container, int position) {
+            Fragment fragment = (Fragment) super.instantiateItem(container, position);
+            registeredFragments.add(position, fragment);
+            return fragment;
         }
 
-        public void downloadMusicFile(int position) {
-            this.position = position;
-            downloadStart = true;
-
-            String fileName = vkMusicFile.artist + "-" + vkMusicFile.title;
-            new DownloadFileHelper(vkMusicFile.url, fileName).setOnFileDownloadListener(this);
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            registeredFragments.remove(position);
+            super.destroyItem(container, position, object);
         }
+
+        public List<Fragment> getRegisteredFragments() {
+            return registeredFragments;
+        }
+
+
+        public List<TextView> getTitleTextViews() {
+            return titleTextViews;
+        }
+
+        public View getTabView(int imageResId, String textTitle, int tabTextColor) {
+            View v = LayoutInflater.from(getActivity()).inflate(R.layout.custom_tab, null);
+            TextView tv = (TextView) v.findViewById(R.id.titleTab);
+            tv.setText(textTitle);
+            tv.setTextColor(tabTextColor);
+            titleTextViews.add(tv);
+            ImageView img = (ImageView) v.findViewById(R.id.imageTab);
+            img.setImageResource(imageResId);
+            return v;
+        }
+    }
+
+
+    public UserAudioFragment getUserAudioFragment() {
+        List<Fragment> fragments = adapter.getRegisteredFragments();
+        for (Fragment fragment : fragments) {
+            if (fragment instanceof UserAudioFragment) {
+                return (UserAudioFragment) fragment;
+            }
+        }
+        return null;
     }
 }

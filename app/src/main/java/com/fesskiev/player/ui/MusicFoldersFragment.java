@@ -23,6 +23,7 @@ import com.fesskiev.player.R;
 import com.fesskiev.player.model.MusicFolder;
 import com.fesskiev.player.services.FileTreeIntentService;
 import com.fesskiev.player.ui.tracklist.TrackListActivity;
+import com.fesskiev.player.utils.Constants;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -33,7 +34,6 @@ import java.util.List;
 public class MusicFoldersFragment extends Fragment {
 
     private static final String TAG = MusicFoldersFragment.class.getSimpleName();
-    public static String FOLDER_POSITION = "folder_position";
     private GridViewAdapter adapter;
     private List<MusicFolder> musicFolders;
 
@@ -66,7 +66,7 @@ public class MusicFoldersFragment extends Fragment {
                 MusicFolder musicFolder = musicFolders.get(position);
                 if (musicFolder != null) {
                     Intent intent = new Intent(getActivity(), TrackListActivity.class);
-                    intent.putExtra(FOLDER_POSITION, position);
+                    intent.putExtra(Constants.EXTRA_FOLDER_POSITION, position);
                     startActivity(intent);
                 }
             }
