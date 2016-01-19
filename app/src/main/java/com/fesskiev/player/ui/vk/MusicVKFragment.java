@@ -31,8 +31,6 @@ public class MusicVKFragment extends Fragment {
 
     private ViewPagerAdapter adapter;
     private TabLayout tabLayout;
-    private int currentPosition;
-    private int prevPosition;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,11 +38,13 @@ public class MusicVKFragment extends Fragment {
 
         tabTitles = new String[]{
                 getString(R.string.vk_tab_title_user_music),
-                getString(R.string.vk_tab_title_groups)
+                getString(R.string.vk_tab_title_groups),
+                getString(R.string.vk_tab_title_search)
         };
         imageResId = new int[]{
                 R.drawable.tab_wall_icon,
-                R.drawable.tab_groups_icon
+                R.drawable.tab_groups_icon,
+                R.drawable.tab_search_icon
         };
     }
 
@@ -62,6 +62,7 @@ public class MusicVKFragment extends Fragment {
         setupViewPager(viewPager);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
+            int currentPosition;
 
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -70,22 +71,23 @@ public class MusicVKFragment extends Fragment {
 
             @Override
             public void onPageSelected(int position) {
+
                 currentPosition = position;
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
                 if (ViewPager.SCROLL_STATE_IDLE == state) {
-                    if (currentPosition != prevPosition) {
-                        List<TextView> titleTexts = adapter.getTitleTextViews();
-                        for (TextView textView : titleTexts) {
-                            if (textView.getCurrentTextColor() == ContextCompat.getColor(getActivity(), R.color.accent)) {
-                                textView.setTextColor(ContextCompat.getColor(getActivity(), R.color.white_text));
-                            } else {
-                                textView.setTextColor(ContextCompat.getColor(getActivity(), R.color.accent));
-                            }
+                    List<TextView> titleTexts = adapter.getTitleTextViews();
+                    for (int i = 0; i < titleTexts.size(); i++) {
+                        TextView textView = titleTexts.get(i);
+                        if (currentPosition == i) {
+                            textView.setTextColor(ContextCompat.
+                                    getColor(getActivity(), R.color.accent));
+                        } else {
+                            textView.setTextColor(ContextCompat.
+                                    getColor(getActivity(), R.color.white_text));
                         }
-                        prevPosition = currentPosition;
                     }
                 }
             }
@@ -99,20 +101,11 @@ public class MusicVKFragment extends Fragment {
     }
 
 
-//    private void updateTabsText() {
-//        List<TextView> titleTexts = adapter.getTitleTextViews();
-//        for (int j = 0; j < tabTitles.length; j++) {
-//            TextView tv = titleTexts.get(j);
-//            tv.setText(tabTitles[j]);
-//        }
-//    }
-
-
     private void createTabs() {
         for (int i = 0; i < tabLayout.getTabCount(); i++) {
             TabLayout.Tab tab = tabLayout.getTabAt(i);
             if (tab != null) {
-                if (currentPosition == i) {
+                if (i == 0) {
                     tab.setCustomView(adapter.getTabView(imageResId[i], tabTitles[i],
                             ContextCompat.getColor(getActivity(), R.color.accent)));
                 } else {
@@ -129,6 +122,7 @@ public class MusicVKFragment extends Fragment {
         adapter = new ViewPagerAdapter(getFragmentManager());
         adapter.addFragment(UserAudioFragment.newInstance());
         adapter.addFragment(GroupsFragment.newInstance());
+        adapter.addFragment(SearchAudioFragment.newInstance());
         viewPager.setAdapter(adapter);
     }
 

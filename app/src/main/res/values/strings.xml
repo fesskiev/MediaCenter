@@ -29,5 +29,6 @@
 
     <string name="vk_tab_title_user_music">Wall</string>
     <string name="vk_tab_title_groups">Groups</string>
+    <string name="vk_tab_title_search">Search</string>
 
 </resources>

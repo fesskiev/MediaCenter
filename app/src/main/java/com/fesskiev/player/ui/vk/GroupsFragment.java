@@ -38,13 +38,15 @@ public class GroupsFragment extends Fragment {
     }
 
     private GroupsAdapter groupsAdapter;
+    private List<Group> groups;
+    private AppSettingsManager appSettingsManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         registerBroadcastReceiver();
 
-        AppSettingsManager appSettingsManager = new AppSettingsManager(getActivity());
+        appSettingsManager = new AppSettingsManager(getActivity());
         RESTService.fetchGroups(getActivity(), URLHelper.getUserGroupsURL(appSettingsManager.getAuthToken(),
                 appSettingsManager.getUserId()));
     }
@@ -68,7 +70,12 @@ public class GroupsFragment extends Fragment {
 
                     @Override
                     public void onItemClick(View view, int position) {
-
+                        Group group = groups.get(position);
+                        if(group != null){
+                            RESTService.fetchGroupAudio(getActivity(),
+                                    URLHelper.getGroupAudioURL(appSettingsManager.getAuthToken(),
+                                            group.gid, 20, 0));
+                        }
                     }
                 }));
     }
@@ -91,8 +98,7 @@ public class GroupsFragment extends Fragment {
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
                 case RESTService.ACTION_GROUPS_RESULT:
-                    ArrayList<Group> groups =
-                            intent.getParcelableArrayListExtra(RESTService.EXTRA_GROUPS_RESULT);
+                    groups = intent.getParcelableArrayListExtra(RESTService.EXTRA_GROUPS_RESULT);
                     if (groups != null) {
                         groupsAdapter.refresh(groups);
                     }

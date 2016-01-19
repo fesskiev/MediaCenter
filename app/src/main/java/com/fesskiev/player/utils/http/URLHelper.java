@@ -43,4 +43,18 @@ public class URLHelper {
         sb.append(offset);
         return sb.toString();
     }
+
+    public static String getGroupAudioURL(String token, int groupId, int count, int offset){
+        StringBuilder sb = new StringBuilder();
+        sb.append(GET_AUDIO);
+        sb.append("?group_id=");
+        sb.append(groupId);
+        sb.append("&access_token=");
+        sb.append(token);
+        sb.append("&count=");
+        sb.append(count);
+        sb.append("&offset=");
+        sb.append(offset);
+        return sb.toString();
+    }
 }

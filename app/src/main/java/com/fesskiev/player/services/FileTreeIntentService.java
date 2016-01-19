@@ -50,8 +50,6 @@ public class FileTreeIntentService extends IntentService {
     }
 
 
-
-
     private void getMusicFolders() {
         musicFolders = new ArrayList<>();
         String sdCardState = Environment.getExternalStorageState();
@@ -82,31 +80,29 @@ public class FileTreeIntentService extends IntentService {
 
     private void checkMusicFilesFolder(File child) {
         File[] directoryFiles = child.listFiles();
-        for (File directoryFile : directoryFiles) {
-            File[] filterFiles = directoryFile.listFiles(musicFilter());
-            if (filterFiles != null && filterFiles.length > 0) {
-                MusicFolder musicFolder = new MusicFolder();
-                musicFolder.folderName = directoryFile.getName();
+        if (directoryFiles != null) {
+            for (File directoryFile : directoryFiles) {
+                File[] filterFiles = directoryFile.listFiles(musicFilter());
+                if (filterFiles != null && filterFiles.length > 0) {
+                    MusicFolder musicFolder = new MusicFolder();
+                    musicFolder.folderName = directoryFile.getName();
 
-//                if(musicFolder.folderName.equals("Downloads")){
-//                    Log.wtf(TAG, "downloads contain files");
-//                }
-
-                for (File file : filterFiles) {
+                    for (File file : filterFiles) {
 //                    Log.wtf(TAG, "sound file: " + file);
-                    musicFolder.musicFiles.add(file);
-                }
-
-                File[] filterImages = directoryFile.listFiles(folderImageFilter());
-                if (filterImages != null) {
-                    for (File file : filterImages) {
-//                        Log.wtf(TAG, "image File: " + file);
-                        musicFolder.folderImages.add(file);
+                        musicFolder.musicFiles.add(file);
                     }
+
+                    File[] filterImages = directoryFile.listFiles(folderImageFilter());
+                    if (filterImages != null) {
+                        for (File file : filterImages) {
+//                        Log.wtf(TAG, "image File: " + file);
+                            musicFolder.folderImages.add(file);
+                        }
+                    }
+                    musicFolders.add(musicFolder);
+                    ((MusicApplication) getApplication()).setMusicFolders(musicFolders);
+                    sendMusicFoldersBroadcast();
                 }
-                musicFolders.add(musicFolder);
-                ((MusicApplication) getApplication()).setMusicFolders(musicFolders);
-                sendMusicFoldersBroadcast();
             }
         }
     }

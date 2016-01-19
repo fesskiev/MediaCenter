@@ -26,6 +26,8 @@ public class RESTService extends Service {
 
     private static final String TAG = RESTService.class.getSimpleName();
 
+    public static final String ACTION_GET_GROUP_AUDIO =
+            "com.fesskiev.player.ACTION_GET_GROUP_AUDIO";
     public static final String ACTION_GET_GROUPS =
             "com.fesskiev.player.ACTION_GET_GROUPS";
     public static final String ACTION_GET_AUDIO =
@@ -47,6 +49,13 @@ public class RESTService extends Service {
             = "ua.com.minfin.action.EXTRA_AUDIO_RESULT";
     public static final String EXTRA_GROUPS_RESULT
             = "ua.com.minfin.action.EXTRA_GROUPS_RESULT";
+
+    public static void fetchGroupAudio(Context context, String url){
+        Intent intent = new Intent(context, RESTService.class);
+        intent.setAction(ACTION_GET_GROUP_AUDIO);
+        intent.putExtra(EXTRA_REQUEST_URL, url);
+        context.startService(intent);
+    }
 
     public static void fetchGroups(Context context, String url){
         Intent intent = new Intent(context, RESTService.class);
@@ -83,6 +92,9 @@ public class RESTService extends Service {
                 doGET(url, action);
                 break;
             case ACTION_GET_GROUPS:
+                doGET(url, action);
+                break;
+            case ACTION_GET_GROUP_AUDIO:
                 doGET(url, action);
                 break;
         }
@@ -145,6 +157,9 @@ public class RESTService extends Service {
                 break;
             case ACTION_GET_GROUPS:
                 sendBroadcastGroups(JSONHelper.getGroups(response));
+                break;
+            case ACTION_GET_GROUP_AUDIO:
+                Log.d(TAG, "group audio: " + response.toString());
                 break;
         }
     }
