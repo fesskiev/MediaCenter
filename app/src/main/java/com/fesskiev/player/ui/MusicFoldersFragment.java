@@ -8,7 +8,6 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,9 +20,9 @@ import android.widget.TextView;
 import com.fesskiev.player.MusicApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.MusicFolder;
+import com.fesskiev.player.model.MusicPlayer;
 import com.fesskiev.player.services.FileTreeIntentService;
 import com.fesskiev.player.ui.tracklist.TrackListActivity;
-import com.fesskiev.player.utils.Constants;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -34,19 +33,13 @@ import java.util.List;
 public class MusicFoldersFragment extends Fragment {
 
     private static final String TAG = MusicFoldersFragment.class.getSimpleName();
-    private GridViewAdapter adapter;
-    private List<MusicFolder> musicFolders;
 
     public static MusicFoldersFragment newInstance() {
         return new MusicFoldersFragment();
     }
 
+    private GridViewAdapter adapter;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        musicFolders = new ArrayList<>();
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -58,16 +51,17 @@ public class MusicFoldersFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         GridView gridView = (GridView) view.findViewById(R.id.foldersGridView);
-        adapter = new GridViewAdapter(musicFolders);
+        adapter = new GridViewAdapter();
         gridView.setAdapter(adapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                MusicFolder musicFolder = musicFolders.get(position);
+                MusicPlayer musicPlayer = MusicApplication.getInstance().getMusicPlayer();
+                MusicFolder musicFolder = musicPlayer.musicFolders.get(position);
                 if (musicFolder != null) {
-                    Intent intent = new Intent(getActivity(), TrackListActivity.class);
-                    intent.putExtra(Constants.EXTRA_FOLDER_POSITION, position);
-                    startActivity(intent);
+                    musicPlayer.currentMusicFolder = musicFolder;
+
+                    startActivity(new Intent(getActivity(), TrackListActivity.class));
                 }
             }
         });
@@ -102,13 +96,10 @@ public class MusicFoldersFragment extends Fragment {
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
                 case FileTreeIntentService.ACTION_MUSIC_FOLDER:
-//                    Log.d(TAG, "receive music folders!");
                     List<MusicFolder> receiverMusicFolders =
-                            ((MusicApplication) getActivity().getApplication()).getMusicFolders();
+                            MusicApplication.getInstance().getMusicPlayer().musicFolders;
                     if (receiverMusicFolders != null) {
-                        musicFolders.clear();
-                        musicFolders.addAll(receiverMusicFolders);
-                        adapter.notifyDataSetChanged();
+                        adapter.refresh(receiverMusicFolders);
                     }
                     break;
             }
@@ -125,8 +116,8 @@ public class MusicFoldersFragment extends Fragment {
 
         private List<MusicFolder> musicFolders;
 
-        public GridViewAdapter(List<MusicFolder> musicFolders) {
-            this.musicFolders = musicFolders;
+        public GridViewAdapter() {
+            this.musicFolders = new ArrayList<>();
         }
 
         @Override
@@ -176,6 +167,13 @@ public class MusicFoldersFragment extends Fragment {
             viewHolder.albumName.setText(musicFolders.get(position).folderName);
 
             return convertView;
+        }
+
+
+        public void refresh(List<MusicFolder> receiverMusicFolders) {
+            musicFolders.clear();
+            musicFolders.addAll(receiverMusicFolders);
+            notifyDataSetChanged();
         }
     }
 }

@@ -8,9 +8,9 @@ import java.util.List;
 public class MusicFolder {
 
     public List<File> musicFiles;
-    public String folderName;
     public List<File> folderImages;
     public List<MusicFile> musicFilesDescription;
+    public String folderName;
 
     public MusicFolder() {
         musicFiles = new ArrayList<>();

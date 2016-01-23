@@ -24,12 +24,10 @@ import com.fesskiev.player.MusicApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.MusicFile;
 import com.fesskiev.player.model.MusicFolder;
+import com.fesskiev.player.model.MusicPlayer;
 import com.fesskiev.player.services.PlaybackService;
-import com.fesskiev.player.ui.MusicFoldersFragment;
 import com.fesskiev.player.ui.equalizer.EqualizerActivity;
 import com.fesskiev.player.ui.tracklist.TrackListActivity;
-import com.fesskiev.player.ui.tracklist.TrackListFragment;
-import com.fesskiev.player.utils.Constants;
 import com.fesskiev.player.utils.Utils;
 
 import java.io.File;
@@ -38,11 +36,10 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
 
     private static final String TAG = PlayerActivity.class.getSimpleName();
 
+    private MusicPlayer musicPlayer;
     private FloatingActionButton playStopButton;
     private CardView cardDescription;
     private ImageView volumeLevel;
-    private ImageView previousTrack;
-    private ImageView nextTrack;
     private TextView trackTimeCount;
     private TextView trackTimeTotal;
     private TextView artist;
@@ -51,11 +48,7 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
     private TextView album;
     private TextView trackDescription;
     private SeekBar trackSeek;
-    private MusicFolder musicFolder;
-    private MusicFile currentMusicFile;
     private boolean isPlaying;
-    private int folderPosition;
-    private int filePosition;
 
 
     @Override
@@ -77,17 +70,12 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
             }
         }
 
-        folderPosition = getIntent().getExtras().getInt(Constants.EXTRA_FOLDER_POSITION);
-        filePosition = getIntent().getExtras().getInt(Constants.EXTRA_FILE_POSITION);
+        musicPlayer = MusicApplication.getInstance().getMusicPlayer();
 
-        musicFolder =
-                ((MusicApplication) getApplication()).getMusicFolders().get(folderPosition);
-        setCurrentMusicFile(filePosition);
+        MusicFolder musicFolder = musicPlayer.currentMusicFolder;
 
         cardDescription = (CardView) findViewById(R.id.cardDescription);
         volumeLevel = (ImageView) findViewById(R.id.volumeLevel);
-        previousTrack = (ImageView) findViewById(R.id.previousTrack);
-        nextTrack = (ImageView) findViewById(R.id.nextTrack);
         trackTimeTotal = (TextView) findViewById(R.id.trackTimeTotal);
         trackTimeCount = (TextView) findViewById(R.id.trackTimeCount);
         artist = (TextView) findViewById(R.id.trackArtist);
@@ -113,14 +101,14 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
             }
         });
 
-        previousTrack.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.previousTrack).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 previous();
             }
         });
 
-        nextTrack.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.nextTrack).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 next();
@@ -209,11 +197,7 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
 
     @Override
     public void next() {
-        if (filePosition < musicFolder.musicFilesDescription.size() - 1) {
-            filePosition++;
-        }
-
-        setCurrentMusicFile(filePosition);
+        musicPlayer.next();
 
         animateCardDescription(true);
         resetIndicators();
@@ -222,10 +206,7 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
 
     @Override
     public void previous() {
-        if (filePosition > 0) {
-            filePosition--;
-        }
-        setCurrentMusicFile(filePosition);
+        musicPlayer.previous();
 
         animateCardDescription(false);
         resetIndicators();
@@ -234,15 +215,7 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
 
     @Override
     public void createPlayer() {
-        if (currentMusicFile != null) {
-            PlaybackService.createPlayer(this, currentMusicFile.filePath);
-        }
-    }
-
-
-    private void setCurrentMusicFile(int filePosition) {
-        currentMusicFile = musicFolder.musicFilesDescription.get(filePosition);
-        ((MusicApplication) getApplication()).setCurrentMusicFile(currentMusicFile);
+        PlaybackService.createPlayer(this, musicPlayer.currentMusicFile.filePath);
     }
 
     private void animateCardDescription(boolean next) {
@@ -310,19 +283,18 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
 
 
     private void setTrackInformation() {
-        if (currentMusicFile != null) {
-            artist.setText(currentMusicFile.artist);
-            title.setText(currentMusicFile.title);
-            album.setText(currentMusicFile.album);
-            genre.setText(currentMusicFile.genre);
+        MusicFile currentMusicFile = musicPlayer.currentMusicFile;
+        artist.setText(currentMusicFile.artist);
+        title.setText(currentMusicFile.title);
+        album.setText(currentMusicFile.album);
+        genre.setText(currentMusicFile.genre);
 
-            StringBuilder sb = new StringBuilder();
-            sb.append("MP3::");
-            sb.append(currentMusicFile.sampleRate);
-            sb.append("::");
-            sb.append(currentMusicFile.bitrate);
-            trackDescription.setText(sb.toString());
-        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("MP3::");
+        sb.append(currentMusicFile.sampleRate);
+        sb.append("::");
+        sb.append(currentMusicFile.bitrate);
+        trackDescription.setText(sb.toString());
     }
 
     @Override

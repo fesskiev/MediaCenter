@@ -22,17 +22,18 @@ import com.fesskiev.player.MusicApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.MusicFile;
 import com.fesskiev.player.model.MusicFolder;
-import com.fesskiev.player.services.FetchMp3InfoIntentService;
-import com.fesskiev.player.ui.MusicFoldersFragment;
+import com.fesskiev.player.model.MusicPlayer;
+import com.fesskiev.player.services.FetchAudioInfoIntentService;
 import com.fesskiev.player.ui.player.PlayerActivity;
-import com.fesskiev.player.utils.Constants;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.recycleview.OnItemClickListener;
 import com.fesskiev.player.widgets.recycleview.RecycleItemClickListener;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -40,35 +41,25 @@ public class TrackListFragment extends Fragment {
 
     private static final String TAG = TrackListFragment.class.getSimpleName();
 
-    private MusicFolder musicFolder;
     private Bitmap coverImageBitmap;
-    private List<MusicFile> musicFiles;
     private MusicFilesAdapter musicFilesAdapter;
-    private int folderPosition;
+    private MusicFolder musicFolder;
 
-    public static TrackListFragment newInstance(int position) {
-        TrackListFragment fragment = new TrackListFragment();
-        Bundle args = new Bundle();
-        args.putInt(Constants.EXTRA_FOLDER_POSITION, position);
-        fragment.setArguments(args);
-        return fragment;
+    public static TrackListFragment newInstance() {
+        return new TrackListFragment();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            folderPosition = getArguments().getInt(Constants.EXTRA_FOLDER_POSITION);
-            musicFolder =
-                    ((MusicApplication) getActivity().getApplication()).getMusicFolders().get(folderPosition);
-            List<File> folderImages = musicFolder.folderImages;
-            if (folderImages != null && folderImages.size() > 0) {
-                coverImageBitmap = Utils.getResizedBitmap(100, 100,
-                        folderImages.get(0).getAbsolutePath());
-            }
-        }
+        musicFolder =
+                MusicApplication.getInstance().getMusicPlayer().currentMusicFolder;
+        List<File> folderImages = musicFolder.folderImages;
+        if (folderImages != null && folderImages.size() > 0) {
 
-        musicFiles = new ArrayList<>();
+            coverImageBitmap = Utils.getResizedBitmap(100, 100,
+                    folderImages.get(0).getAbsolutePath());
+        }
     }
 
     @Override
@@ -84,21 +75,23 @@ public class TrackListFragment extends Fragment {
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false, 1000));
-        musicFilesAdapter = new MusicFilesAdapter(musicFiles);
+        musicFilesAdapter = new MusicFilesAdapter();
         recyclerView.setAdapter(musicFilesAdapter);
         recyclerView.addOnItemTouchListener(new RecycleItemClickListener(getActivity(), new OnItemClickListener() {
 
             @Override
             public void onItemClick(View view, int position) {
+                MusicFile musicFile = musicFolder.musicFilesDescription.get(position);
+                if (musicFile != null) {
+                    MusicPlayer musicPlayer = MusicApplication.getInstance().getMusicPlayer();
+                    musicPlayer.currentMusicFile = musicFile;
+                    musicPlayer.position = position;
 
-                Intent intent = new Intent(getActivity(), PlayerActivity.class);
-                intent.putExtra(Constants.EXTRA_FOLDER_POSITION, folderPosition);
-                intent.putExtra(Constants.EXTRA_FILE_POSITION, position);
-                startActivity(intent);
-
+                    startActivity(new Intent(getActivity(), PlayerActivity.class));
+                }
             }
         }));
-        FetchMp3InfoIntentService.startFetchMp3Info(getActivity(), folderPosition);
+        FetchAudioInfoIntentService.startFetchMp3Info(getActivity());
     }
 
     @Override
@@ -115,7 +108,7 @@ public class TrackListFragment extends Fragment {
 
     private void registerMusicFilesReceiver() {
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(FetchMp3InfoIntentService.ACTION_MUSIC_FILES);
+        intentFilter.addAction(FetchAudioInfoIntentService.ACTION_MUSIC_FILES_RESULT);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(musicFilesReceiver,
                 intentFilter);
     }
@@ -129,16 +122,13 @@ public class TrackListFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
-                case FetchMp3InfoIntentService.ACTION_MUSIC_FILES:
+                case FetchAudioInfoIntentService.ACTION_MUSIC_FILES_RESULT:
                     Log.d(TAG, "receive music files!");
 
-                    List<MusicFile> receiverMusicFiles = ((MusicApplication) getActivity().
-                            getApplication()).getMusicFolders().
-                            get(folderPosition).musicFilesDescription;
+                    List<MusicFile> receiverMusicFiles = MusicApplication.getInstance().
+                            getMusicPlayer().currentMusicFolder.musicFilesDescription;
                     if (receiverMusicFiles != null) {
-                        musicFiles.clear();
-                        musicFiles.addAll(receiverMusicFiles);
-                        musicFilesAdapter.notifyDataSetChanged();
+                        musicFilesAdapter.refreshAdapter(receiverMusicFiles);
                     }
                     break;
             }
@@ -149,20 +139,20 @@ public class TrackListFragment extends Fragment {
 
         private List<MusicFile> musicFiles;
 
-        public MusicFilesAdapter(List<MusicFile> musicFiles) {
-            this.musicFiles = musicFiles;
+        public MusicFilesAdapter() {
+            this.musicFiles = new ArrayList<>();
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
 
-            TextView artist;
+            TextView duration;
             TextView title;
             ImageView cover;
 
             public ViewHolder(View v) {
                 super(v);
 
-                artist = (TextView) v.findViewById(R.id.itemArtist);
+                duration = (TextView) v.findViewById(R.id.itemDuration);
                 title = (TextView) v.findViewById(R.id.itemTitle);
                 cover = (ImageView) v.findViewById(R.id.itemCover);
             }
@@ -183,16 +173,38 @@ public class TrackListFragment extends Fragment {
             if (coverImageBitmap != null) {
                 holder.cover.setImageBitmap(coverImageBitmap);
             } else {
-                // set default bitmap
+                Bitmap artwork = findArtwork(musicFile);
+                if (artwork != null) {
+                    holder.cover.setImageBitmap(artwork);
+                } else {
+                    Picasso.with(getActivity()).
+                            load(R.drawable.no_cover_icon).
+                            into(holder.cover);
+                }
             }
 
-            holder.artist.setText(musicFile.artist);
+            holder.duration.setText(Utils.getDurationString(musicFile.length));
             holder.title.setText(musicFile.title);
+        }
+
+        private Bitmap findArtwork(MusicFile musicFile) {
+            Bitmap bitmap = musicFile.getArtwork();
+            if (bitmap != null) {
+                return bitmap;
+            }
+            return null;
         }
 
         @Override
         public int getItemCount() {
             return musicFiles.size();
+        }
+
+        public void refreshAdapter(List<MusicFile> receiverMusicFiles) {
+            musicFiles.clear();
+            musicFiles.addAll(receiverMusicFiles);
+            Collections.sort(musicFiles);
+            notifyDataSetChanged();
         }
     }
 }

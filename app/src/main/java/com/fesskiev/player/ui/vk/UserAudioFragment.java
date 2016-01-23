@@ -80,7 +80,6 @@ public class UserAudioFragment extends Fragment {
                             DownloadVkMusicFile downloadVkMusicFile = downloadVkMusicFiles.get(position);
                             if (downloadVkMusicFile != null) {
                                 if (downloadVkMusicFile.download == null) {
-                                    Log.d(TAG, "download file");
                                     downloadVkMusicFile.downloadMusicFile(position);
                                 } else {
 //                                    Intent intent = new Intent(getActivity(), PlayerActivity.class);

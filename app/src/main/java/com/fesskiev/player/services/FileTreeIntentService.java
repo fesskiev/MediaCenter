@@ -88,19 +88,19 @@ public class FileTreeIntentService extends IntentService {
                     musicFolder.folderName = directoryFile.getName();
 
                     for (File file : filterFiles) {
-//                    Log.wtf(TAG, "sound file: " + file);
+//                        Log.wtf(TAG, "sound file: " + file);
                         musicFolder.musicFiles.add(file);
                     }
 
                     File[] filterImages = directoryFile.listFiles(folderImageFilter());
                     if (filterImages != null) {
                         for (File file : filterImages) {
-//                        Log.wtf(TAG, "image File: " + file);
+                        Log.wtf(TAG, "image File: " + file);
                             musicFolder.folderImages.add(file);
                         }
                     }
                     musicFolders.add(musicFolder);
-                    ((MusicApplication) getApplication()).setMusicFolders(musicFolders);
+                    MusicApplication.getInstance().getMusicPlayer().musicFolders = musicFolders;
                     sendMusicFoldersBroadcast();
                 }
             }
@@ -122,7 +122,7 @@ public class FileTreeIntentService extends IntentService {
         return new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 String lowercaseName = name.toLowerCase();
-                return lowercaseName.endsWith(".mp3");
+                return lowercaseName.endsWith(".mp3") || lowercaseName.endsWith(".flac");
             }
         };
     }

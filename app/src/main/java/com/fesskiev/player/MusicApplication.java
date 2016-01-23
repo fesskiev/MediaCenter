@@ -2,34 +2,28 @@ package com.fesskiev.player;
 
 import android.app.Application;
 
-
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
-import com.fesskiev.player.model.MusicFile;
-import com.fesskiev.player.model.MusicFolder;
+import com.fesskiev.player.model.MusicPlayer;
 import com.vk.sdk.VKSdk;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class MusicApplication extends Application {
 
     private static MusicApplication application;
     private RequestQueue requestQueue;
-    private List<MusicFolder> musicFolders;
-    private MusicFile currentMusicFile;
+    private MusicPlayer musicPlayer;
 
 
     @Override
+
     public void onCreate() {
         super.onCreate();
         application = this;
+        musicPlayer = new MusicPlayer();
 
         VKSdk.initialize(this);
-
-        musicFolders = new ArrayList<>();
 
     }
 
@@ -59,19 +53,7 @@ public class MusicApplication extends Application {
         }
     }
 
-    public List<MusicFolder> getMusicFolders() {
-        return musicFolders;
-    }
-
-    public void setMusicFolders(List<MusicFolder> musicFolders) {
-        this.musicFolders = musicFolders;
-    }
-
-    public MusicFile getCurrentMusicFile() {
-        return currentMusicFile;
-    }
-
-    public void setCurrentMusicFile(MusicFile currentMusicFile) {
-        this.currentMusicFile = currentMusicFile;
+    public MusicPlayer getMusicPlayer() {
+        return musicPlayer;
     }
 }

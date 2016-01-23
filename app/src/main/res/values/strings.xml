@@ -7,7 +7,6 @@
     <string name="snack_exit_text">Do you want exit from app?</string>
     <string name="snack_exit_action">EXIT</string>
 
-    <string name="title_tracklist_activity">Tracklist</string>
     <string name="title_eq_activity">Equalizer</string>
     <string name="title_music_vk_activity">VK Music</string>
     <string name="title_settings_activity">Settings</string>
@@ -16,6 +15,11 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="title_activity_equalizer">EqualizerActivity</string>
     <string name="title_activity_music_vk">MusicVKActivity</string>
+
+    <string name="empty_music_file_artist">artist isn\'t defined</string>
+    <string name="empty_music_file_title">title isn\'t defined</string>
+    <string name="empty_music_file_album">album isn\'t defined</string>
+    <string name="empty_music_file_genre">genre isn\'t defined</string>
 
     <string name="drawer_item_vk_music">VK Music</string>
     <string name="drawer_item_settings">Settings</string>

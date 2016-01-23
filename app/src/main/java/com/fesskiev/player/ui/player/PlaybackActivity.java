@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.PersistableBundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -108,9 +107,8 @@ public class PlaybackActivity extends AppCompatActivity {
                     Log.w(TAG, "playback activity is plying: " + isPlaying);
                     if (isPlaying) {
                         controlFragment.setPlyingStateButton(true);
-                        controlFragment.
-                                setMusicFileInfo(((MusicApplication) getApplication()).
-                                        getCurrentMusicFile());
+                        controlFragment.setMusicFileInfo(MusicApplication.getInstance().
+                                getMusicPlayer().currentMusicFile);
                         showPlaybackControl();
                     } else {
                         controlFragment.setPlyingStateButton(false);

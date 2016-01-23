@@ -87,7 +87,7 @@
             android:name=".services.PlaybackService"
             android:exported="false" />
         <service
-            android:name=".services.FetchMp3InfoIntentService"
+            android:name=".services.FetchAudioInfoIntentService"
             android:exported="false" />
         <service
             android:name=".services.RESTService"

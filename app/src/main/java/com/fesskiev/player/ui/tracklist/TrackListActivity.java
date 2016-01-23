@@ -7,11 +7,10 @@ import android.support.v4.content.IntentCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
+import com.fesskiev.player.MusicApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.ui.MainActivity;
-import com.fesskiev.player.ui.MusicFoldersFragment;
 import com.fesskiev.player.ui.player.PlaybackActivity;
-import com.fesskiev.player.utils.Constants;
 
 public class TrackListActivity extends PlaybackActivity {
 
@@ -22,7 +21,9 @@ public class TrackListActivity extends PlaybackActivity {
         if (savedInstanceState == null) {
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             if (toolbar != null) {
-                toolbar.setTitle(getString(R.string.title_tracklist_activity));
+                String folderName =
+                        MusicApplication.getInstance().getMusicPlayer().currentMusicFolder.folderName;
+                toolbar.setTitle(folderName);
                 toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
                 toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                     @Override
@@ -32,14 +33,9 @@ public class TrackListActivity extends PlaybackActivity {
                                         MainActivity.class)));
                     }
                 });
-            }
-
-            int position =
-                    getIntent().getExtras().getInt(Constants.EXTRA_FOLDER_POSITION, -1);
-            if (position != -1) {
 
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.content, TrackListFragment.newInstance(position),
+                transaction.replace(R.id.content, TrackListFragment.newInstance(),
                         TrackListFragment.class.getName());
                 transaction.commit();
 

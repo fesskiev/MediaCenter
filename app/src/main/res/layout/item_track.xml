@@ -40,22 +40,22 @@
 
 
             <TextView
-                android:id="@+id/itemArtist"
+                android:id="@+id/itemTitle"
                 style="@style/TitleTextAppearance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                tools:text="Splin" />
+                tools:text="Nothing Heren" />
 
             <TextView
-                android:id="@+id/itemTitle"
+                android:id="@+id/itemDuration"
                 style="@style/DescriptionTextAppearance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                tools:text="No Exit" />
+                tools:text="02:28" />
 
         </LinearLayout>
 
