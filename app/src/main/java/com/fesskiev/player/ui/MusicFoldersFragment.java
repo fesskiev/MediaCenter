@@ -42,6 +42,12 @@ public class MusicFoldersFragment extends Fragment {
 
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        registerLocationBroadcastReceiver();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_music_folders, container, false);
@@ -68,14 +74,8 @@ public class MusicFoldersFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        registerLocationBroadcastReceiver();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
+    public void onDestroy() {
+        super.onDestroy();
         unregisterLocationBroadcastReceiver();
     }
 

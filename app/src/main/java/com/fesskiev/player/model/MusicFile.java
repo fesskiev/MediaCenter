@@ -41,6 +41,7 @@ public class MusicFile implements Comparable<MusicFile> {
     public String sampleRate;
     public int trackNumber;
     public int length;
+    private Bitmap bitmapArtwork;
     private OnMp3TagListener listener;
 
     public MusicFile(Context context, String filePath, OnMp3TagListener listener) {
@@ -68,7 +69,7 @@ public class MusicFile implements Comparable<MusicFile> {
         fillEmptyFields();
     }
 
-    private void parseLosslsee(AudioFile file) {
+    private void parseLossless(AudioFile file) {
         FlacTag flacTag = (FlacTag) file.getTag();
         if (flacTag != null && flacTag.hasCommonFields()) {
 
@@ -101,10 +102,10 @@ public class MusicFile implements Comparable<MusicFile> {
     }
 
     public Bitmap getArtwork() {
-        if (artwork != null) {
-            return Utils.getBitmap(artwork.getBinaryData());
+        if (artwork != null && bitmapArtwork == null) {
+            bitmapArtwork =  Utils.getBitmap(artwork.getBinaryData());
         }
-        return null;
+        return bitmapArtwork;
     }
 
     private void getTrackInfo() {
@@ -119,7 +120,7 @@ public class MusicFile implements Comparable<MusicFile> {
             length = audioHeader.getTrackLength();
 
             if (audioHeader.isLossless()) {
-                parseLosslsee(file);
+                parseLossless(file);
             } else {
                 parseMP3(file);
             }

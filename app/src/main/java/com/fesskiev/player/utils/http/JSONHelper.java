@@ -18,13 +18,13 @@ public class JSONHelper {
     private final static String TAG = JSONHelper.class.getSimpleName();
 
 
-    public static ArrayList<VKMusicFile> getVKMusicFiles(JSONObject response) {
+    public static ArrayList<VKMusicFile> getVKMusicFiles(JSONObject response, int offset) {
 
         ArrayList<VKMusicFile> vkMusicFiles = new ArrayList<>();
         try {
 
             JSONArray jsonArray = response.getJSONArray("response");
-            for (int i = 0; i < jsonArray.length(); i++) {
+            for (int i = offset; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 VKMusicFile musicFile = new VKMusicFile();
 

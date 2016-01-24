@@ -23,11 +23,19 @@ public class AppSettingsManager {
     private static final String KEY_USER_LAST_NAME = "com.fesskiev.player.KEY_USER_LAST_NAME";
 
     private SharedPreferences sharedPreferences;
+    private static AppSettingsManager appSettingsManager;
 
 
-    public AppSettingsManager(Context context) {
+    private AppSettingsManager(Context context) {
         sharedPreferences =
                 context.getSharedPreferences(APP_SETTINGS_PREFERENCES, Context.MODE_PRIVATE);
+    }
+
+    public static AppSettingsManager getInstance(Context context) {
+        if (appSettingsManager == null) {
+            appSettingsManager = new AppSettingsManager(context);
+        }
+        return appSettingsManager;
     }
 
 
@@ -35,7 +43,7 @@ public class AppSettingsManager {
         return sharedPreferences.getString(KEY_OAUTH_TOKEN, "");
     }
 
-    public void setAuthToken(String authToken){
+    public void setAuthToken(String authToken) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(KEY_OAUTH_TOKEN, authToken);
         editor.apply();
@@ -45,7 +53,7 @@ public class AppSettingsManager {
         return sharedPreferences.getString(KEY_OAUTH_SECRET, "");
     }
 
-    public void setAuthSecret(String authSecret){
+    public void setAuthSecret(String authSecret) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(KEY_OAUTH_SECRET, authSecret);
         editor.apply();
@@ -55,7 +63,7 @@ public class AppSettingsManager {
         return sharedPreferences.getString(KEY_USER_ID, "");
     }
 
-    public void setUserId(String userId){
+    public void setUserId(String userId) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(KEY_USER_ID, userId);
         editor.apply();
@@ -65,7 +73,7 @@ public class AppSettingsManager {
         return sharedPreferences.getString(KEY_USER_FIRST_NAME, "");
     }
 
-    public void setUserFirstName(String userId){
+    public void setUserFirstName(String userId) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(KEY_USER_FIRST_NAME, userId);
         editor.apply();
@@ -75,18 +83,18 @@ public class AppSettingsManager {
         return sharedPreferences.getString(KEY_USER_LAST_NAME, "");
     }
 
-    public void setUserLastName(String userId){
+    public void setUserLastName(String userId) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(KEY_USER_LAST_NAME, userId);
         editor.apply();
     }
 
 
-    public boolean isAuthTokenEmpty(){
+    public boolean isAuthTokenEmpty() {
         return TextUtils.isEmpty(getAuthToken());
     }
 
-    private String getUserPhotoPath(){
+    private String getUserPhotoPath() {
         String externalStorage = Environment.getExternalStorageDirectory().toString();
         File folder = new File(externalStorage + "/MusicPlayer/UserPhoto/");
         if (!folder.exists()) {
@@ -96,7 +104,7 @@ public class AppSettingsManager {
         return new File(folder.getAbsolutePath(), "user_photo.png").getAbsolutePath();
     }
 
-    public void saveUserPhoto(Bitmap bitmap){
+    public void saveUserPhoto(Bitmap bitmap) {
         FileOutputStream out = null;
         try {
             out = new FileOutputStream(getUserPhotoPath());
@@ -114,7 +122,7 @@ public class AppSettingsManager {
         }
     }
 
-    public Bitmap getUserPhoto(){
+    public Bitmap getUserPhoto() {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         return BitmapFactory.decodeFile(getUserPhotoPath(), options);

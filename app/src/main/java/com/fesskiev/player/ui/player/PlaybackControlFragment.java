@@ -1,6 +1,7 @@
 package com.fesskiev.player.ui.player;
 
 import android.app.Fragment;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
@@ -12,6 +13,8 @@ import android.widget.TextView;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.MusicFile;
 import com.fesskiev.player.services.PlaybackService;
+
+import java.lang.reflect.Field;
 
 
 public class PlaybackControlFragment extends Fragment {
@@ -56,5 +59,25 @@ public class PlaybackControlFragment extends Fragment {
     public void setMusicFileInfo(MusicFile musicFile) {
         track.setText(musicFile.title);
         artist.setText(musicFile.artist);
+        Bitmap bitmap = musicFile.getArtwork();
+        if (cover != null) {
+            cover.setImageBitmap(bitmap);
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        try {
+            Field childFragmentManager = Fragment.class.getDeclaredField("mChildFragmentManager");
+            childFragmentManager.setAccessible(true);
+            childFragmentManager.set(this, null);
+
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

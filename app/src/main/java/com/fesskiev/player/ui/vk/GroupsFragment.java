@@ -46,7 +46,7 @@ public class GroupsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         registerBroadcastReceiver();
 
-        appSettingsManager = new AppSettingsManager(getActivity());
+        appSettingsManager = AppSettingsManager.getInstance(getActivity());
         RESTService.fetchGroups(getActivity(), URLHelper.getUserGroupsURL(appSettingsManager.getAuthToken(),
                 appSettingsManager.getUserId()));
     }

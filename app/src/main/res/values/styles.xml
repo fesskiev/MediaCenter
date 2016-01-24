@@ -77,4 +77,19 @@
         <item name="textAllCaps">true</item>
     </style>
 
+    <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/accent</item>
+        <item name="android:textColorPrimary">@color/white_text</item>
+        <item name="android:background">@color/primary</item>
+    </style>
+
+    <style name="TextInputStyle" parent="TextAppearance.AppCompat">
+        <item name="android:textColorHint">@color/white_text</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/white_text</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="colorControlNormal">@color/white_text</item>
+        <item name="colorControlActivated">@color/white_text</item>
+    </style>
+
 </resources>

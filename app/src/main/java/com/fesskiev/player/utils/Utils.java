@@ -45,8 +45,8 @@ public class Utils {
         return BitmapFactory.decodeFile(imagePath, bmOptions);
     }
 
-    public static Bitmap getBitmap(byte [] data) {
-        return  BitmapFactory.decodeByteArray(data, 0, data.length);
+    public static Bitmap getBitmap(byte[] data) {
+        return BitmapFactory.decodeByteArray(data, 0, data.length);
     }
 
 

@@ -27,7 +27,7 @@ public class FetchAudioInfoIntentService extends IntentService {
     }
 
 
-    public static void startFetchMp3Info(Context context) {
+    public static void startFetchAudioInfo(Context context) {
         Intent intent = new Intent(context, FetchAudioInfoIntentService.class);
         intent.setAction(ACTION_START_FETCH_AUDIO_INFO_SERVICE);
         context.startService(intent);
@@ -39,12 +39,12 @@ public class FetchAudioInfoIntentService extends IntentService {
         if (intent != null) {
             final String action = intent.getAction();
             if (ACTION_START_FETCH_AUDIO_INFO_SERVICE.equals(action)) {
-                    fetchMp3Info();
+                    fetchAudioInfo();
             }
         }
     }
 
-    private void fetchMp3Info() {
+    private void fetchAudioInfo() {
         MusicFolder musicFolder = MusicApplication.getInstance().getMusicPlayer().currentMusicFolder;
         if (musicFolder != null) {
             for (File file : musicFolder.musicFiles) {

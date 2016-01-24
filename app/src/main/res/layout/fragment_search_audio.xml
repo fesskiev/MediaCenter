@@ -1,8 +1,53 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.fesskiev.player.ui.vk.SearchAudioFragment">
+    tools:context="com.fesskiev.player.ui.vk.MusicVKFragment">
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/textInputRequestAudio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:theme="@style/TextInputStyle">
+
+        <EditText
+            android:id="@+id/requestAudio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white_text"
+            android:hint="@string/hint_request" />
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycleView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/textInputRequestAudio" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/searchButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/search_fab_icon"
+        app:borderWidth="0dp"
+        app:layout_behavior="com.fesskiev.player.widgets.utils.ScrollingFABBehavior" />
+
+    <com.fesskiev.player.widgets.MaterialProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_alignParentBottom="true"
+        android:indeterminate="true"
+        android:visibility="invisible"
+        app:backgroundColour="@color/primary"
+        app:duration="2000"
+        app:progressColour="@color/accent" />
 
 
-</FrameLayout>
+</RelativeLayout>

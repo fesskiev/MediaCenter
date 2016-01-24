@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
@@ -29,6 +30,7 @@ import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.equalizer.EqualizerActivity;
 import com.fesskiev.player.ui.tracklist.TrackListActivity;
 import com.fesskiev.player.utils.Utils;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 
@@ -90,6 +92,15 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
             if (albumImagePath != null) {
                 backdrop.setImageBitmap(Utils.getResizedBitmap(1024, 1024,
                         albumImagePath.getAbsolutePath()));
+            }
+        } else {
+            Bitmap artwork = musicPlayer.currentMusicFile.getArtwork();
+            if (artwork != null) {
+                backdrop.setImageBitmap(artwork);
+            } else {
+                Picasso.with(this).
+                        load(R.drawable.no_cover_icon).
+                        into(backdrop);
             }
         }
 

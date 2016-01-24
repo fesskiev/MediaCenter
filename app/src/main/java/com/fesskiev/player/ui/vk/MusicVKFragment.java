@@ -184,13 +184,7 @@ public class MusicVKFragment extends Fragment {
     }
 
 
-    public UserAudioFragment getUserAudioFragment() {
-        List<Fragment> fragments = adapter.getRegisteredFragments();
-        for (Fragment fragment : fragments) {
-            if (fragment instanceof UserAudioFragment) {
-                return (UserAudioFragment) fragment;
-            }
-        }
-        return null;
+    public List<Fragment> getRegisteredFragments() {
+        return adapter.getRegisteredFragments();
     }
 }

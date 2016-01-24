@@ -11,7 +11,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -91,7 +90,17 @@ public class TrackListFragment extends Fragment {
                 }
             }
         }));
-        FetchAudioInfoIntentService.startFetchMp3Info(getActivity());
+
+
+        if (musicFolder.musicFilesDescription.size() == 0) {
+            FetchAudioInfoIntentService.startFetchAudioInfo(getActivity());
+        } else {
+            List<MusicFile> receiverMusicFiles = MusicApplication.getInstance().
+                    getMusicPlayer().currentMusicFolder.musicFilesDescription;
+            if (receiverMusicFiles != null) {
+                musicFilesAdapter.refreshAdapter(receiverMusicFiles);
+            }
+        }
     }
 
     @Override
@@ -123,7 +132,7 @@ public class TrackListFragment extends Fragment {
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
                 case FetchAudioInfoIntentService.ACTION_MUSIC_FILES_RESULT:
-                    Log.d(TAG, "receive music files!");
+//                    Log.d(TAG, "receive music files!");
 
                     List<MusicFile> receiverMusicFiles = MusicApplication.getInstance().
                             getMusicPlayer().currentMusicFolder.musicFilesDescription;
@@ -173,7 +182,7 @@ public class TrackListFragment extends Fragment {
             if (coverImageBitmap != null) {
                 holder.cover.setImageBitmap(coverImageBitmap);
             } else {
-                Bitmap artwork = findArtwork(musicFile);
+                Bitmap artwork = musicFile.getArtwork();
                 if (artwork != null) {
                     holder.cover.setImageBitmap(artwork);
                 } else {
@@ -185,14 +194,6 @@ public class TrackListFragment extends Fragment {
 
             holder.duration.setText(Utils.getDurationString(musicFile.length));
             holder.title.setText(musicFile.title);
-        }
-
-        private Bitmap findArtwork(MusicFile musicFile) {
-            Bitmap bitmap = musicFile.getArtwork();
-            if (bitmap != null) {
-                return bitmap;
-            }
-            return null;
         }
 
         @Override

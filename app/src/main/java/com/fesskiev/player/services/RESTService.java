@@ -30,34 +30,38 @@ public class RESTService extends Service {
             "com.fesskiev.player.ACTION_GET_GROUP_AUDIO";
     public static final String ACTION_GET_GROUPS =
             "com.fesskiev.player.ACTION_GET_GROUPS";
-    public static final String ACTION_GET_AUDIO =
-            "com.fesskiev.player.ACTION_GET_AUDIO";
+    public static final String ACTION_GET_USER_AUDIO =
+            "com.fesskiev.player.ACTION_GET_USER_AUDIO";
+    public static final String ACTION_GET_SEARCH_AUDIO =
+            "com.fesskiev.player.ACTION_GET_SEARCH_AUDIO";
     public static final String ACTION_USER_PROFILE =
             "com.fesskiev.player.ACTION_USER_PROFILE";
     public static final String ACTION_USER_PROFILE_RESULT =
             "com.fesskiev.player.ACTION_USER_PROFILE_RESULT";
-    public static final String ACTION_AUDIO_RESULT =
-            "com.fesskiev.player.ACTION_AUDIO_RESULT";
+    public static final String ACTION_USER_AUDIO_RESULT =
+            "com.fesskiev.player.ACTION_USER_AUDIO_RESULT";
+    public static final String ACTION_SEARCH_AUDIO_RESULT =
+            "com.fesskiev.player.ACTION_SEARCH_AUDIO_RESULT";
     public static final String ACTION_GROUPS_RESULT =
             "com.fesskiev.player.ACTION_GROUPS_RESULT";
 
     public static final String EXTRA_REQUEST_URL
             = "com.fesskiev.player.EXTRA_REQUEST_URL";
     public static final String EXTRA_USER_PROFILE_RESULT
-            = "ua.com.minfin.action.EXTRA_USER_PROFILE_RESULT";
+            = "com.fesskiev.player.EXTRA_USER_PROFILE_RESULT";
     public static final String EXTRA_AUDIO_RESULT
-            = "ua.com.minfin.action.EXTRA_AUDIO_RESULT";
+            = "com.fesskiev.player.EXTRA_AUDIO_RESULT";
     public static final String EXTRA_GROUPS_RESULT
-            = "ua.com.minfin.action.EXTRA_GROUPS_RESULT";
+            = "com.fesskiev.player.EXTRA_GROUPS_RESULT";
 
-    public static void fetchGroupAudio(Context context, String url){
+    public static void fetchGroupAudio(Context context, String url) {
         Intent intent = new Intent(context, RESTService.class);
         intent.setAction(ACTION_GET_GROUP_AUDIO);
         intent.putExtra(EXTRA_REQUEST_URL, url);
         context.startService(intent);
     }
 
-    public static void fetchGroups(Context context, String url){
+    public static void fetchGroups(Context context, String url) {
         Intent intent = new Intent(context, RESTService.class);
         intent.setAction(ACTION_GET_GROUPS);
         intent.putExtra(EXTRA_REQUEST_URL, url);
@@ -71,9 +75,16 @@ public class RESTService extends Service {
         context.startService(intent);
     }
 
-    public static void fetchAudio(Context context, String url) {
+    public static void fetchUserAudio(Context context, String url) {
         Intent intent = new Intent(context, RESTService.class);
-        intent.setAction(ACTION_GET_AUDIO);
+        intent.setAction(ACTION_GET_USER_AUDIO);
+        intent.putExtra(EXTRA_REQUEST_URL, url);
+        context.startService(intent);
+    }
+
+    public static void fetchSearchAudio(Context context, String url) {
+        Intent intent = new Intent(context, RESTService.class);
+        intent.setAction(ACTION_GET_SEARCH_AUDIO);
         intent.putExtra(EXTRA_REQUEST_URL, url);
         context.startService(intent);
     }
@@ -85,7 +96,7 @@ public class RESTService extends Service {
         Log.wtf(TAG, "HANDLE INTENT, action: " + action + " url: " + url);
 
         switch (action) {
-            case ACTION_GET_AUDIO:
+            case ACTION_GET_USER_AUDIO:
                 doGET(url, action);
                 break;
             case ACTION_USER_PROFILE:
@@ -95,6 +106,9 @@ public class RESTService extends Service {
                 doGET(url, action);
                 break;
             case ACTION_GET_GROUP_AUDIO:
+                doGET(url, action);
+                break;
+            case ACTION_GET_SEARCH_AUDIO:
                 doGET(url, action);
                 break;
         }
@@ -149,8 +163,8 @@ public class RESTService extends Service {
 
     private void parseSendBroadcastByAction(final JSONObject response, String action) {
         switch (action) {
-            case ACTION_GET_AUDIO:
-                sendBroadcastAudio(JSONHelper.getVKMusicFiles(response));
+            case ACTION_GET_USER_AUDIO:
+                sendBroadcastUserAudio(JSONHelper.getVKMusicFiles(response, 0));
                 break;
             case ACTION_USER_PROFILE:
                 sendBroadcastUserProfile(JSONHelper.getUserProfile(response));
@@ -159,7 +173,10 @@ public class RESTService extends Service {
                 sendBroadcastGroups(JSONHelper.getGroups(response));
                 break;
             case ACTION_GET_GROUP_AUDIO:
-                Log.d(TAG, "group audio: " + response.toString());
+                JSONHelper.getVKMusicFiles(response, 0);
+                break;
+            case ACTION_GET_SEARCH_AUDIO:
+                sendBroadcastSearchAudio(JSONHelper.getVKMusicFiles(response, 1));
                 break;
         }
     }
@@ -171,9 +188,16 @@ public class RESTService extends Service {
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
     }
 
-    private void sendBroadcastAudio(ArrayList<VKMusicFile> vkMusicFiles) {
+    private void sendBroadcastSearchAudio(ArrayList<VKMusicFile> vkMusicFiles) {
         Intent intent = new Intent();
-        intent.setAction(ACTION_AUDIO_RESULT);
+        intent.setAction(ACTION_SEARCH_AUDIO_RESULT);
+        intent.putExtra(EXTRA_AUDIO_RESULT, vkMusicFiles);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+    }
+
+    private void sendBroadcastUserAudio(ArrayList<VKMusicFile> vkMusicFiles) {
+        Intent intent = new Intent();
+        intent.setAction(ACTION_USER_AUDIO_RESULT);
         intent.putExtra(EXTRA_AUDIO_RESULT, vkMusicFiles);
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
     }

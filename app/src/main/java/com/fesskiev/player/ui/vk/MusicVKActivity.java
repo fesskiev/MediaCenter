@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.IntentCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +23,8 @@ import com.vk.sdk.VKScope;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKError;
 
+import java.util.List;
+
 public class MusicVKActivity extends AppCompatActivity {
 
     private static final String TAG = MusicVKActivity.class.getName();
@@ -31,8 +34,7 @@ public class MusicVKActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_music_vk);
-        settingsManager =
-                new AppSettingsManager(getApplicationContext());
+        settingsManager = AppSettingsManager.getInstance(this);
 
         if (savedInstanceState == null) {
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -74,9 +76,14 @@ public class MusicVKActivity extends AppCompatActivity {
         MusicVKFragment musicVKFragment = (MusicVKFragment) getSupportFragmentManager().
                 findFragmentByTag(MusicVKFragment.class.getName());
         if (musicVKFragment != null) {
-            UserAudioFragment userAudioFragment =
-                    musicVKFragment.getUserAudioFragment();
-            userAudioFragment.fetchUserAudio();
+            List<Fragment> registeredFragments = musicVKFragment.getRegisteredFragments();
+            if (registeredFragments != null) {
+                for (Fragment fragment : registeredFragments) {
+                    if (fragment instanceof AudioFragment) {
+                        ((AudioFragment) fragment).fetchAudio();
+                    }
+                }
+            }
         }
     }
 
