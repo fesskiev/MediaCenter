@@ -62,10 +62,7 @@ public abstract class AudioFragment extends Fragment {
                                 if (downloadVkMusicFile.download == null) {
                                     downloadFileDialog(downloadVkMusicFile, position);
                                 } else {
-//                                    Intent intent = new Intent(getActivity(), PlayerActivity.class);
-//                                    intent.putExtra(Constants.EXTRA_FOLDER_POSITION, );
-//                                    intent.putExtra(Constants.EXTRA_FILE_POSITION, );
-//                                    startActivity(intent);
+
                                 }
                             }
                         }

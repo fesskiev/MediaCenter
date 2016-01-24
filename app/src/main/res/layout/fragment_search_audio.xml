@@ -10,7 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:theme="@style/TextInputStyle">
+        android:textColorHint="@color/white_text"
+        app:errorTextAppearance="@style/TextErrorAppearance">
 
         <EditText
             android:id="@+id/requestAudio"

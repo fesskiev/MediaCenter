@@ -12,6 +12,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
@@ -23,6 +24,7 @@ import com.fesskiev.player.R;
 import com.fesskiev.player.model.vk.VKMusicFile;
 import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.utils.AppSettingsManager;
+import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.utils.http.URLHelper;
 import com.fesskiev.player.widgets.utils.HidingScrollListener;
 
@@ -109,11 +111,14 @@ public class SearchAudioFragment extends AudioFragment implements TextWatcher, V
             requestLayout.setError(getString(R.string.request_error));
             return;
         }
+        String requestWithoutWhitespace = requestString.replaceAll(" ", "");
         AppSettingsManager manager = AppSettingsManager.getInstance(getActivity());
+
         RESTService.fetchSearchAudio(getActivity(),
-                URLHelper.getSearchAudioURL(manager.getAuthToken(), requestString, 20, 0));
+                URLHelper.getSearchAudioURL(manager.getAuthToken(), requestWithoutWhitespace, 20, 0));
 
         showProgressBar();
+        Utils.hideKeyboard(getActivity());
     }
 
     @Override
@@ -129,6 +134,9 @@ public class SearchAudioFragment extends AudioFragment implements TextWatcher, V
     @Override
     public void afterTextChanged(Editable s) {
         requestString = s.toString();
+        if(!TextUtils.isEmpty(requestString)) {
+            requestLayout.setErrorEnabled(false);
+        }
     }
 
     @Override

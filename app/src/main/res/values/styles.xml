@@ -8,6 +8,9 @@
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
         <item name="android:windowBackground">@drawable/weather_background</item>
+        <item name="colorControlNormal">@color/white_text</item>
+        <item name="colorControlActivated">@color/accent</item>
+        <item name="colorControlHighlight">@color/accent</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
@@ -84,12 +87,16 @@
     </style>
 
     <style name="TextInputStyle" parent="TextAppearance.AppCompat">
-        <item name="android:textColorHint">@color/white_text</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/white_text</item>
         <item name="colorAccent">@color/accent</item>
         <item name="colorControlNormal">@color/white_text</item>
         <item name="colorControlActivated">@color/white_text</item>
+    </style>
+
+    <style name="TextErrorAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@android:color/holo_red_light</item>
+        <item name="android:textSize">12sp</item>
     </style>
 
 </resources>

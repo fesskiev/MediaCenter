@@ -55,13 +55,23 @@ public class MusicFile implements Comparable<MusicFile> {
     private void parseMP3(AudioFile file) {
         Tag tag = file.getTag();
         if (tag != null && tag.hasCommonFields()) {
-            artist = tag.getFirst(ID3v24Frames.FRAME_ID_ARTIST);
-            title = tag.getFirst(ID3v24Frames.FRAME_ID_TITLE);
-            album = tag.getFirst(ID3v24Frames.FRAME_ID_ALBUM);
-            genre = tag.getFirst(ID3v24Frames.FRAME_ID_GENRE);
-            String number = tag.getFirst(ID3v24Frames.FRAME_ID_TRACK);
-            if (!TextUtils.isEmpty(number)) {
-                trackNumber = Integer.valueOf(number);
+            if(tag.hasField(ID3v24Frames.FRAME_ID_ARTIST)) {
+                artist = tag.getFirst(ID3v24Frames.FRAME_ID_ARTIST);
+            }
+            if(tag.hasField(ID3v24Frames.FRAME_ID_TITLE)) {
+                title = tag.getFirst(ID3v24Frames.FRAME_ID_TITLE);
+            }
+            if(tag.hasField(ID3v24Frames.FRAME_ID_TITLE)) {
+                album = tag.getFirst(ID3v24Frames.FRAME_ID_TITLE);
+            }
+            if(tag.hasField(ID3v24Frames.FRAME_ID_GENRE)) {
+                genre = tag.getFirst(ID3v24Frames.FRAME_ID_GENRE);
+            }
+            if(tag.hasField(ID3v24Frames.FRAME_ID_TRACK)) {
+                String number = tag.getFirst(ID3v24Frames.FRAME_ID_TRACK);
+                if (!TextUtils.isEmpty(number)) {
+                    trackNumber = Integer.valueOf(number);
+                }
             }
             artwork = tag.getFirstArtwork();
         }
