@@ -10,6 +10,7 @@ import android.support.v4.content.IntentCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.fesskiev.player.R;
@@ -49,6 +50,20 @@ public class MusicVKActivity extends AppCompatActivity {
                                         MainActivity.class)));
                     }
                 });
+
+                toolbar.inflateMenu(R.menu.vk_menu);
+                toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.vk_settings:
+                                break;
+                            case R.id.vk_show_download_folder:
+                                break;
+                        }
+                        return true;
+                    }
+                });
             }
 
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -80,7 +95,7 @@ public class MusicVKActivity extends AppCompatActivity {
             if (registeredFragments != null) {
                 for (Fragment fragment : registeredFragments) {
                     if (fragment instanceof AudioFragment) {
-                        ((AudioFragment) fragment).fetchAudio();
+                        ((AudioFragment) fragment).fetchAudio(0);
                     }
                 }
             }

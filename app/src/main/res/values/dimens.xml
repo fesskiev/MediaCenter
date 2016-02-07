@@ -7,13 +7,6 @@
     <dimen name="nav_header_height">160dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
 
-    <dimen name="card_view_margin_top">2dp</dimen>
-    <dimen name="card_view_margin_bottom">2dp</dimen>
-    <dimen name="card_view_margin_start">4dp</dimen>
-    <dimen name="card_view_margin_end">4dp</dimen>
-
-    <dimen name="card_view_elevation">8dp</dimen>
-
     <dimen name="grid_folder_size">100dp</dimen>
     <dimen name="grid_spacing">2dp</dimen>
     <dimen name="app_bar_height">180dp</dimen>

@@ -204,7 +204,7 @@ public class TrackListFragment extends Fragment {
         public void refreshAdapter(List<MusicFile> receiverMusicFiles) {
             musicFiles.clear();
             musicFiles.addAll(receiverMusicFiles);
-            Collections.sort(musicFiles);
+//            Collections.sort(musicFiles);
             notifyDataSetChanged();
         }
     }

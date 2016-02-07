@@ -96,8 +96,7 @@ public class SearchAudioFragment extends AudioFragment implements TextWatcher, V
                             intent.getParcelableArrayListExtra(RESTService.EXTRA_AUDIO_RESULT);
                     if (vkMusicFiles != null) {
                         hideProgressBar();
-                        downloadVkMusicFiles = getDownloadVKMusicFiles(vkMusicFiles);
-                        audioAdapter.refresh(downloadVkMusicFiles);
+                        audioAdapter.refresh(getDownloadVKMusicFiles(vkMusicFiles));
                     }
                     break;
             }
@@ -145,7 +144,7 @@ public class SearchAudioFragment extends AudioFragment implements TextWatcher, V
     }
 
     @Override
-    public void fetchAudio() {
+    public void fetchAudio(int offset) {
 
     }
 

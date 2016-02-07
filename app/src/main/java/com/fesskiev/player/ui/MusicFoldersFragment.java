@@ -8,6 +8,8 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +21,7 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MusicApplication;
 import com.fesskiev.player.R;
+import com.fesskiev.player.model.MusicFile;
 import com.fesskiev.player.model.MusicFolder;
 import com.fesskiev.player.model.MusicPlayer;
 import com.fesskiev.player.services.FileTreeIntentService;
@@ -30,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MusicFoldersFragment extends Fragment {
+public class MusicFoldersFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener  {
 
     private static final String TAG = MusicFoldersFragment.class.getSimpleName();
 
@@ -39,6 +42,7 @@ public class MusicFoldersFragment extends Fragment {
     }
 
     private GridViewAdapter adapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
 
     @Override
@@ -56,6 +60,10 @@ public class MusicFoldersFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
+        swipeRefreshLayout.setOnRefreshListener(this);
+
         GridView gridView = (GridView) view.findViewById(R.id.foldersGridView);
         adapter = new GridViewAdapter();
         gridView.setAdapter(adapter);
@@ -72,6 +80,14 @@ public class MusicFoldersFragment extends Fragment {
             }
         });
     }
+
+
+
+    @Override
+    public void onRefresh() {
+        FileTreeIntentService.startFileTreeService(getActivity());
+    }
+
 
     @Override
     public void onDestroy() {
@@ -100,6 +116,7 @@ public class MusicFoldersFragment extends Fragment {
                             MusicApplication.getInstance().getMusicPlayer().musicFolders;
                     if (receiverMusicFolders != null) {
                         adapter.refresh(receiverMusicFolders);
+                        swipeRefreshLayout.setRefreshing(false);
                     }
                     break;
             }

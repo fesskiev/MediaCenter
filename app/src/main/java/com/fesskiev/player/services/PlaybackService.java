@@ -104,7 +104,7 @@ public class PlaybackService extends Service {
     }
 
     static {
-        System.loadLibrary("player");
+        System.loadLibrary("khronos-media");
     }
 
     public native void unregisterCallback();

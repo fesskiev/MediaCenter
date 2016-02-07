@@ -10,6 +10,7 @@
     <string name="title_eq_activity">Equalizer</string>
     <string name="title_music_vk_activity">VK Music</string>
     <string name="title_settings_activity">Settings</string>
+    <string name="title_soundcloud_activity">Sondcloud</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -21,7 +22,8 @@
     <string name="empty_music_file_album">album isn\'t defined</string>
     <string name="empty_music_file_genre">genre isn\'t defined</string>
 
-    <string name="drawer_item_vk_music">VK Music</string>
+    <string name="drawer_item_soundcloud">Soundcloud</string>
+    <string name="drawer_item_vk_music">VK</string>
     <string name="drawer_item_settings">Settings</string>
 
     <string name="title_activity_vkplayer">VKPlayerActivity</string>
@@ -46,5 +48,6 @@
     <integer name="com_vk_sdk_AppId">5217689</integer>
     <string name="soundcloud_client_id">9a1ca148092128d763563b2d9bb11419</string>
     <string name="soundcloud_secret">41366314252181c09abca656d35a3490</string>
+    <string name="title_activity_sound_cloud">SoundCloudActivity</string>
 
 </resources>

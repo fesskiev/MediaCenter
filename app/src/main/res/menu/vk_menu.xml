@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.fesskiev.player.ui.vk.MusicVKActivity">
+
+    <item
+        android:id="@+id/vk_settings"
+        android:icon="@drawable/settings_icon"
+        android:title="@string/drawer_item_settings"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/vk_show_download_folder"
+        android:icon="@drawable/settings_icon"
+        android:title="@string/drawer_item_settings"
+        app:showAsAction="never" />
+
+</menu> 

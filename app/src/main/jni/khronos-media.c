@@ -4,6 +4,10 @@
 #include <SLES/OpenSLES.h>
 #include<android/log.h>
 
+#include <OMXAL/OpenMAXAL.h>
+#include <OMXAL/OpenMAXAL_Android.h>
+
+
 
 // engine interfaces
 static SLObjectItf engineObject = NULL;

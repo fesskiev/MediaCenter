@@ -19,6 +19,7 @@ import com.fesskiev.player.R;
 import com.fesskiev.player.model.vk.VKMusicFile;
 import com.fesskiev.player.utils.Download;
 import com.fesskiev.player.widgets.MaterialProgressBar;
+import com.fesskiev.player.widgets.recycleview.EndlessScrollListener;
 import com.fesskiev.player.widgets.recycleview.OnItemClickListener;
 import com.fesskiev.player.widgets.recycleview.RecycleItemClickListener;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
@@ -30,13 +31,12 @@ public abstract class AudioFragment extends Fragment {
 
     public abstract int getResourceId();
 
-    public abstract void fetchAudio();
+    public abstract void fetchAudio(int offset);
 
     protected AudioAdapter audioAdapter;
     private MaterialProgressBar progressBar;
-    protected List<DownloadVkMusicFile> downloadVkMusicFiles;
     protected RecyclerView recyclerView;
-
+    protected int audioOffset;
 
     @Nullable
     @Override
@@ -47,8 +47,9 @@ public abstract class AudioFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         recyclerView = (RecyclerView) view.findViewById(R.id.recycleView);
-        recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(getActivity(),
-                LinearLayoutManager.VERTICAL, false, 1000));
+        ScrollingLinearLayoutManager layoutManager = new ScrollingLinearLayoutManager(getActivity(),
+                LinearLayoutManager.VERTICAL, false, 1000);
+        recyclerView.setLayoutManager(layoutManager);
         audioAdapter = new AudioAdapter();
         recyclerView.setAdapter(audioAdapter);
         recyclerView.addOnItemTouchListener(new RecycleItemClickListener(getActivity(),
@@ -56,6 +57,7 @@ public abstract class AudioFragment extends Fragment {
 
                     @Override
                     public void onItemClick(View view, int position) {
+                        List<DownloadVkMusicFile> downloadVkMusicFiles = audioAdapter.getDownloadVkMusicFiles();
                         if (downloadVkMusicFiles != null) {
                             DownloadVkMusicFile downloadVkMusicFile = downloadVkMusicFiles.get(position);
                             if (downloadVkMusicFile != null) {
@@ -68,6 +70,14 @@ public abstract class AudioFragment extends Fragment {
                         }
                     }
                 }));
+        recyclerView.addOnScrollListener(new EndlessScrollListener(layoutManager) {
+            @Override
+            public void onEndlessScrolled() {
+                audioOffset += 20;
+                fetchAudio(audioOffset);
+                showProgressBar();
+            }
+        });
 
         progressBar = (MaterialProgressBar) view.findViewById(R.id.progressBar);
     }
@@ -189,7 +199,6 @@ public abstract class AudioFragment extends Fragment {
         }
 
         public void refresh(List<DownloadVkMusicFile> downloadVkMusicFiles) {
-            this.downloadVkMusicFiles.clear();
             this.downloadVkMusicFiles.addAll(downloadVkMusicFiles);
             notifyDataSetChanged();
         }
@@ -197,6 +206,10 @@ public abstract class AudioFragment extends Fragment {
         @Override
         public int getItemCount() {
             return downloadVkMusicFiles.size();
+        }
+
+        public List<DownloadVkMusicFile> getDownloadVkMusicFiles() {
+            return downloadVkMusicFiles;
         }
     }
 

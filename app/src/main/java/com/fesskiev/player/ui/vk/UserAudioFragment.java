@@ -52,8 +52,7 @@ public class UserAudioFragment extends AudioFragment {
                             intent.getParcelableArrayListExtra(RESTService.EXTRA_AUDIO_RESULT);
                     if (vkMusicFiles != null) {
                         hideProgressBar();
-                        downloadVkMusicFiles = getDownloadVKMusicFiles(vkMusicFiles);
-                        audioAdapter.refresh(downloadVkMusicFiles);
+                        audioAdapter.refresh(getDownloadVKMusicFiles(vkMusicFiles));
                     }
                     break;
             }
@@ -72,11 +71,11 @@ public class UserAudioFragment extends AudioFragment {
     }
 
     @Override
-    public void fetchAudio() {
+    public void fetchAudio(int offset) {
         showProgressBar();
         AppSettingsManager manager = AppSettingsManager.getInstance(getActivity());
         RESTService.fetchUserAudio(getActivity(),
-                URLHelper.getUserAudioURL(manager.getAuthToken(), manager.getUserId(), 20, 0));
+                URLHelper.getUserAudioURL(manager.getAuthToken(), manager.getUserId(), 20, offset));
     }
 
 }

@@ -2,6 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group >
+
+        <item
+            android:id="@+id/soundcloud_music"
+            android:icon="@drawable/soundcloud_icon"
+            android:title="@string/drawer_item_soundcloud" />
+
         <item
             android:id="@+id/vk_music"
             android:icon="@drawable/vk_logo_icon"

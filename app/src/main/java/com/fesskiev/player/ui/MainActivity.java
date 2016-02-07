@@ -33,6 +33,7 @@ import com.fesskiev.player.services.FileTreeIntentService;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.ui.settings.SettingsActivity;
+import com.fesskiev.player.ui.soundcloud.SoundCloudActivity;
 import com.fesskiev.player.ui.vk.MusicVKActivity;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.http.URLHelper;
@@ -117,6 +118,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.settings:
                 startActivity(new Intent(this, SettingsActivity.class));
+                break;
+            case R.id.soundcloud_music:
+                startActivity(new Intent(this, SoundCloudActivity.class));
                 break;
         }
 
