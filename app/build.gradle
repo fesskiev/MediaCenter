@@ -24,7 +24,7 @@ model {
     android.ndk {
         moduleName = "khronos-media"
         cppFlags += ["-std=c++11"]
-        ldLibs += ['android', 'log', 'OpenSLES', "OpenMAXAL"]
+        ldLibs += ["android", "log", "OpenSLES", "OpenMAXAL", "mediandk"]
         stl = "gnustl_static"
     }
 
