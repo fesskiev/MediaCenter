@@ -3,6 +3,9 @@
 #include <assert.h>
 #include <SLES/OpenSLES.h>
 #include<android/log.h>
+#include <fcntl.h>
+#include <android/native_window_jni.h>
+#include <time.h>
 
 #include "media/NdkMediaCodec.h"
 #include "media/NdkMediaExtractor.h"
@@ -21,6 +24,9 @@ static SLPlayItf uriPlayerPlay;
 static SLSeekItf uriPlayerSeek;
 static SLMuteSoloItf uriPlayerMuteSolo;
 static SLVolumeItf uriPlayerVolume;
+
+static ANativeWindow *window;
+static AMediaCodec *codec;
 
 static JavaVM *gJavaVM;
 static jobject gCallbackObject = NULL;
@@ -531,41 +537,156 @@ Java_com_fesskiev_player_services_PlaybackService_getPresetName(JNIEnv *env, job
  * Media methods
  */
 
+
+
+int64_t systemnanotime() {
+    struct timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    return now.tv_sec * 1000000000LL + now.tv_nsec;
+}
+
+void doCodecWork(AMediaExtractor *ex) {
+    __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native", "doCodecWork");
+    bool sawInputEOS = false;
+    bool sawOutputEOS = false;
+    bool renderonce;
+    while (!sawInputEOS || !sawOutputEOS) {
+
+        ssize_t bufidx = -1;
+        if (!sawInputEOS) {
+            bufidx = AMediaCodec_dequeueInputBuffer(codec, 2000);
+            if (bufidx >= 0) {
+                size_t bufsize;
+                uint8_t *buf = AMediaCodec_getInputBuffer(codec, bufidx, &bufsize);
+                ssize_t sampleSize = AMediaExtractor_readSampleData(ex, buf, bufsize);
+                if (sampleSize < 0) {
+                    sampleSize = 0;
+                    sawInputEOS = true;
+                    __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native", "sample size < 0");
+                }
+                int64_t presentationTimeUs = AMediaExtractor_getSampleTime(ex);
+
+                AMediaCodec_queueInputBuffer(codec, bufidx, 0, sampleSize, presentationTimeUs,
+                                             sawInputEOS ? AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM
+                                                            : 0);
+                AMediaExtractor_advance(ex);
+            }
+        }
+
+        if (!sawOutputEOS) {
+            AMediaCodecBufferInfo info;
+            ssize_t status = AMediaCodec_dequeueOutputBuffer(codec, &info, 0);
+            if (status >= 0) {
+                if (info.flags & AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM) {
+                    sawOutputEOS = true;
+                    __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native", "end of stream");
+                }
+                int64_t presentationNano = info.presentationTimeUs * 1000;
+
+                usleep(40000);
+
+                AMediaCodec_releaseOutputBuffer(codec, status, info.size != 0);
+                if (renderonce) {
+                    renderonce = false;
+                    __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native", "continue");
+                    continue;
+                }
+            } else if (status == AMEDIACODEC_INFO_OUTPUT_BUFFERS_CHANGED) {
+                __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native", "output buffers changed");
+            } else if (status == AMEDIACODEC_INFO_OUTPUT_FORMAT_CHANGED) {
+                AMediaFormat *format = NULL;
+                format = AMediaCodec_getOutputFormat(codec);
+                __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native", AMediaFormat_toString(format));
+                AMediaFormat_delete(format);
+            } else if (status == AMEDIACODEC_INFO_TRY_AGAIN_LATER) {
+                __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native", "no output buffer right now");
+            } else {
+                __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native", "unexpected info code: %zd", status);
+            }
+        }
+    }
+}
+
+
+
 JNIEXPORT jboolean JNICALL
 Java_com_fesskiev_player_ui_MediaFragment_createStreamingMediaPlayer(JNIEnv *env, jclass type,
                                                                      jstring filename_) {
     const char *filename = (*env)->GetStringUTFChars(env, filename_, 0);
-
-    // TODO
+    int fd = open(filename, O_RDONLY);
+    if (fd < 0) {
+        return JNI_FALSE;
+    }
 
     (*env)->ReleaseStringUTFChars(env, filename_, filename);
+
+    AMediaExtractor *ex = AMediaExtractor_new();
+    media_status_t err = AMediaExtractor_setDataSourceFd(ex, fd, 0, LONG_MAX);
+    close(fd);
+    if (err != AMEDIA_OK) {
+        return JNI_FALSE;
+    }
+
+    size_t numtracks = AMediaExtractor_getTrackCount(ex);
+
+    int i;
+    for (i = 0; i < numtracks; i++) {
+        AMediaFormat *format = AMediaExtractor_getTrackFormat(ex, i);
+        const char *s = AMediaFormat_toString(format);
+        const char *mime;
+        if (!AMediaFormat_getString(format, AMEDIAFORMAT_KEY_MIME, &mime)) {
+            return JNI_FALSE;
+        } else if (!strncmp(mime, "video/", 6)) {
+            AMediaExtractor_selectTrack(ex, i);
+            codec = AMediaCodec_createDecoderByType(mime);
+            AMediaCodec_configure(codec, format, window, NULL, 0);
+            AMediaCodec_start(codec);
+        }
+        AMediaFormat_delete(format);
+    }
+
+    doCodecWork(ex);
+
+    return JNI_TRUE;
 }
 
-JNIEXPORT void JNICALL
-Java_com_fesskiev_player_ui_MediaFragment_setPlayingStreamingMediaPlayer(JNIEnv *env, jclass type,
-                                                                         jboolean isPlaying) {
 
-    // TODO
 
-}
 
-JNIEXPORT void JNICALL
-Java_com_fesskiev_player_ui_MediaFragment_shutdown(JNIEnv *env, jclass type) {
+    JNIEXPORT void JNICALL
+    Java_com_fesskiev_player_ui_MediaFragment_setPlayingStreamingMediaPlayer(JNIEnv *env,
+                                                                             jclass type,
+                                                                             jboolean isPlaying) {
+        if (isPlaying) {
 
-    // TODO
+        } else {
 
-}
+        }
+    }
 
-JNIEXPORT void JNICALL
-Java_com_fesskiev_player_ui_MediaFragment_setSurface(JNIEnv *env, jclass type, jobject surface) {
+    JNIEXPORT void JNICALL
+    Java_com_fesskiev_player_ui_MediaFragment_shutdown(JNIEnv *env, jclass type) {
 
-    // TODO
+        if (window != NULL) {
+            ANativeWindow_release(window);
+            window = NULL;
+        }
+    }
 
-}
+    JNIEXPORT void JNICALL
+    Java_com_fesskiev_player_ui_MediaFragment_setSurface(JNIEnv *env, jclass type,
+                                                         jobject surface) {
+        if (window != NULL) {
+            ANativeWindow_release(window);
+            window = NULL;
+        }
 
-JNIEXPORT void JNICALL
-Java_com_fesskiev_player_ui_MediaFragment_rewindStreamingMediaPlayer(JNIEnv *env, jclass type) {
+        window = ANativeWindow_fromSurface(env, surface);
+    }
 
-    // TODO
+    JNIEXPORT void JNICALL
+    Java_com_fesskiev_player_ui_MediaFragment_rewindStreamingMediaPlayer(JNIEnv *env, jclass type) {
 
-}
+        // TODO
+
+    }

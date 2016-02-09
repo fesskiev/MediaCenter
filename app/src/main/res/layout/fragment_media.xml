@@ -4,5 +4,10 @@
     android:layout_height="match_parent"
     tools:context="com.fesskiev.player.ui.MediaFragment">
 
+    <TextureView
+        android:id="@+id/textureView"
+        android:layout_width="200dp"
+        android:layout_gravity="center"
+        android:layout_height="200dp" />
 
 </FrameLayout>
