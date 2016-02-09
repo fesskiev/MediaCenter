@@ -36,6 +36,9 @@
     <string name="vk_tab_title_groups">Groups</string>
     <string name="vk_tab_title_search">Search</string>
 
+    <string name="main_tab_title_audio">Audio</string>
+    <string name="main_tab_title_media">Media</string>
+
     <string name="dialog_download_title">Download</string>
     <string name="dialog_download_message">Download this file?</string>
     <string name="dialog_download_ok">OK</string>
@@ -49,5 +52,6 @@
     <string name="soundcloud_client_id">9a1ca148092128d763563b2d9bb11419</string>
     <string name="soundcloud_secret">41366314252181c09abca656d35a3490</string>
     <string name="title_activity_sound_cloud">SoundCloudActivity</string>
+
 
 </resources>

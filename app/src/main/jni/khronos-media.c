@@ -4,10 +4,8 @@
 #include <SLES/OpenSLES.h>
 #include<android/log.h>
 
-#include <OMXAL/OpenMAXAL.h>
-#include <OMXAL/OpenMAXAL_Android.h>
-
-
+#include "media/NdkMediaCodec.h"
+#include "media/NdkMediaExtractor.h"
 
 // engine interfaces
 static SLObjectItf engineObject = NULL;
@@ -526,5 +524,48 @@ Java_com_fesskiev_player_services_PlaybackService_getPresetName(JNIEnv *env, job
     }
 
     return (*env)->NewStringUTF(env, namePreset);
+
 }
 
+/**
+ * Media methods
+ */
+
+JNIEXPORT jboolean JNICALL
+Java_com_fesskiev_player_ui_MediaFragment_createStreamingMediaPlayer(JNIEnv *env, jclass type,
+                                                                     jstring filename_) {
+    const char *filename = (*env)->GetStringUTFChars(env, filename_, 0);
+
+    // TODO
+
+    (*env)->ReleaseStringUTFChars(env, filename_, filename);
+}
+
+JNIEXPORT void JNICALL
+Java_com_fesskiev_player_ui_MediaFragment_setPlayingStreamingMediaPlayer(JNIEnv *env, jclass type,
+                                                                         jboolean isPlaying) {
+
+    // TODO
+
+}
+
+JNIEXPORT void JNICALL
+Java_com_fesskiev_player_ui_MediaFragment_shutdown(JNIEnv *env, jclass type) {
+
+    // TODO
+
+}
+
+JNIEXPORT void JNICALL
+Java_com_fesskiev_player_ui_MediaFragment_setSurface(JNIEnv *env, jclass type, jobject surface) {
+
+    // TODO
+
+}
+
+JNIEXPORT void JNICALL
+Java_com_fesskiev_player_ui_MediaFragment_rewindStreamingMediaPlayer(JNIEnv *env, jclass type) {
+
+    // TODO
+
+}

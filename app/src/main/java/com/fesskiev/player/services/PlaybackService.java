@@ -103,9 +103,6 @@ public class PlaybackService extends Service {
         context.stopService(new Intent(context, PlaybackService.class));
     }
 
-    static {
-        System.loadLibrary("khronos-media");
-    }
 
     public native void unregisterCallback();
 
