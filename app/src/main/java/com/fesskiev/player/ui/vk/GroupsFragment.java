@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.vk.Group;
 import com.fesskiev.player.services.RESTService;
+import com.fesskiev.player.ui.tracklist.TrackListFragment;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.http.URLHelper;
 import com.fesskiev.player.widgets.recycleview.OnItemClickListener;
@@ -37,16 +39,15 @@ public class GroupsFragment extends Fragment {
         return new GroupsFragment();
     }
 
+    public static final String GROUP_EXTRA = "com.fesskiev.player.GROUP_EXTRA";
     private GroupsAdapter groupsAdapter;
-    private List<Group> groups;
-    private AppSettingsManager appSettingsManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         registerBroadcastReceiver();
 
-        appSettingsManager = AppSettingsManager.getInstance(getActivity());
+        AppSettingsManager appSettingsManager = AppSettingsManager.getInstance(getActivity());
         RESTService.fetchGroups(getActivity(), URLHelper.getUserGroupsURL(appSettingsManager.getAuthToken(),
                 appSettingsManager.getUserId()));
     }
@@ -70,15 +71,20 @@ public class GroupsFragment extends Fragment {
 
                     @Override
                     public void onItemClick(View view, int position) {
-                        Group group = groups.get(position);
-                        if(group != null){
-                            RESTService.fetchGroupAudio(getActivity(),
-                                    URLHelper.getGroupAudioURL(appSettingsManager.getAuthToken(),
-                                            group.gid, 20, 0));
+                        Group group = groupsAdapter.getGroups().get(position);
+                        if (group != null) {
+                            startGroupAudioActivity(group);
                         }
                     }
                 }));
     }
+
+    private void startGroupAudioActivity(Group group) {
+        Intent intent = new Intent(getActivity(), GroupAudioActivity.class);
+        intent.putExtra(GROUP_EXTRA, group);
+        startActivity(intent);
+    }
+
 
     private void registerBroadcastReceiver() {
         IntentFilter filter = new IntentFilter();
@@ -98,7 +104,7 @@ public class GroupsFragment extends Fragment {
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
                 case RESTService.ACTION_GROUPS_RESULT:
-                    groups = intent.getParcelableArrayListExtra(RESTService.EXTRA_GROUPS_RESULT);
+                    List<Group> groups = intent.getParcelableArrayListExtra(RESTService.EXTRA_GROUPS_RESULT);
                     if (groups != null) {
                         groupsAdapter.refresh(groups);
                     }
@@ -172,6 +178,10 @@ public class GroupsFragment extends Fragment {
         @Override
         public int getItemCount() {
             return groups.size();
+        }
+
+        public List<Group> getGroups() {
+            return groups;
         }
     }
 

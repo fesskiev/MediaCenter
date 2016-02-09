@@ -11,6 +11,7 @@
     <string name="title_music_vk_activity">VK Music</string>
     <string name="title_settings_activity">Settings</string>
     <string name="title_soundcloud_activity">Sondcloud</string>
+    <string name="title_group_music_activity">Group Audio</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -49,5 +50,7 @@
     <string name="soundcloud_client_id">9a1ca148092128d763563b2d9bb11419</string>
     <string name="soundcloud_secret">41366314252181c09abca656d35a3490</string>
     <string name="title_activity_sound_cloud">SoundCloudActivity</string>
+    <string name="title_activity_group_audio">GroupAudioActivity</string>
+
 
 </resources>

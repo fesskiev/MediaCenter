@@ -44,6 +44,8 @@ public class RESTService extends Service {
             "com.fesskiev.player.ACTION_SEARCH_AUDIO_RESULT";
     public static final String ACTION_GROUPS_RESULT =
             "com.fesskiev.player.ACTION_GROUPS_RESULT";
+    public static final String ACTION_GROUP_AUDIO_RESULT =
+            "com.fesskiev.player.ACTION_GROUP_AUDIO_RESULT";
 
     public static final String EXTRA_REQUEST_URL
             = "com.fesskiev.player.EXTRA_REQUEST_URL";
@@ -173,12 +175,19 @@ public class RESTService extends Service {
                 sendBroadcastGroups(JSONHelper.getGroups(response));
                 break;
             case ACTION_GET_GROUP_AUDIO:
-                JSONHelper.getVKMusicFiles(response, 0);
+                sendBroadcastGroupAudio(JSONHelper.getVKMusicFiles(response, 0));
                 break;
             case ACTION_GET_SEARCH_AUDIO:
                 sendBroadcastSearchAudio(JSONHelper.getVKMusicFiles(response, 1));
                 break;
         }
+    }
+
+    private void sendBroadcastGroupAudio(ArrayList<VKMusicFile> vkMusicFiles){
+        Intent intent = new Intent();
+        intent.setAction(ACTION_GROUP_AUDIO_RESULT);
+        intent.putExtra(EXTRA_AUDIO_RESULT, vkMusicFiles);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
     }
 
     private void sendBroadcastGroups(ArrayList<Group> groups) {

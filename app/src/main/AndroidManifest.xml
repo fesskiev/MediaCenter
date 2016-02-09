@@ -40,7 +40,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity" />
         </activity>
-
         <activity
             android:name=".ui.player.PlayerActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -72,6 +71,16 @@
         </activity>
 
         <activity
+            android:name=".ui.vk.GroupAudioActivity"
+            android:parentActivityName=".ui.vk.MusicVKActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.vk.MusicVKActivity" />
+        </activity>
+
+        <activity
             android:name=".ui.soundcloud.SoundCloudActivity"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait">
@@ -79,7 +88,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity" />
         </activity>
-
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
