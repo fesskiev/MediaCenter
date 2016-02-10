@@ -11,10 +11,14 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.fesskiev.player.MusicApplication;
@@ -25,6 +29,7 @@ import com.fesskiev.player.model.MusicPlayer;
 import com.fesskiev.player.services.FetchAudioInfoIntentService;
 import com.fesskiev.player.ui.player.PlayerActivity;
 import com.fesskiev.player.utils.Utils;
+import com.fesskiev.player.widgets.dialogs.EditTrackDialog;
 import com.fesskiev.player.widgets.recycleview.OnItemClickListener;
 import com.fesskiev.player.widgets.recycleview.RecycleItemClickListener;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
@@ -32,7 +37,6 @@ import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -157,6 +161,7 @@ public class TrackListFragment extends Fragment {
             TextView duration;
             TextView title;
             ImageView cover;
+            ImageView menu;
 
             public ViewHolder(View v) {
                 super(v);
@@ -164,6 +169,14 @@ public class TrackListFragment extends Fragment {
                 duration = (TextView) v.findViewById(R.id.itemDuration);
                 title = (TextView) v.findViewById(R.id.itemTitle);
                 cover = (ImageView) v.findViewById(R.id.itemCover);
+                menu = (ImageView) v.findViewById(R.id.popupMenu);
+                menu.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        showPopupMenu(v);
+                        return true;
+                    }
+                });
             }
         }
 
@@ -204,8 +217,32 @@ public class TrackListFragment extends Fragment {
         public void refreshAdapter(List<MusicFile> receiverMusicFiles) {
             musicFiles.clear();
             musicFiles.addAll(receiverMusicFiles);
-//            Collections.sort(musicFiles);
+//          Collections.sort(musicFiles);
             notifyDataSetChanged();
+        }
+
+        private void showPopupMenu(View view) {
+            final PopupMenu popupMenu = new PopupMenu(getActivity(), view);
+            final Menu menu = popupMenu.getMenu();
+            popupMenu.getMenuInflater().inflate(R.menu.menu_track_item, menu);
+            popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                public boolean onMenuItemClick(MenuItem item) {
+                    switch (item.getItemId()) {
+                        case R.id.edit:
+                            showEditDialog();
+                            break;
+                        case R.id.delete:
+                            break;
+                    }
+                    return true;
+                }
+            });
+            popupMenu.show();
+        }
+
+        private void showEditDialog(){
+            EditTrackDialog editTrackDialog = new EditTrackDialog(getActivity());
+            editTrackDialog.show();
         }
     }
 }
