@@ -83,8 +83,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (savedInstanceState == null) {
             FragmentTransaction transaction =
                     getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.content, MusicFoldersFragment.newInstance(),
-                    MusicFoldersFragment.class.getName());
+            transaction.replace(R.id.content, MainFragment.newInstance(),
+                    MainFragment.class.getName());
             transaction.addToBackStack(null);
             transaction.commit();
         }

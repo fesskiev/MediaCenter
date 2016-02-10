@@ -15,6 +15,9 @@ public class MusicApplication extends Application {
     private RequestQueue requestQueue;
     private MusicPlayer musicPlayer;
 
+    static {
+        System.loadLibrary("khronos-media");
+    }
 
     @Override
 
