@@ -39,12 +39,12 @@ public class MediaFragment extends Fragment {
                 setSurface(surface);
                 surface.release();
 
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        createStreamingMediaPlayer("/sdcard/testfile.mp4");
-                    }
-                }).start();
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        createStreamingMediaPlayer("/sdcard/testfile.mp4");
+//                    }
+//                }).start();
             }
 
             @Override

@@ -10,8 +10,10 @@
         <item name="android:windowBackground">@drawable/weather_background</item>
         <item name="colorControlNormal">@color/white_text</item>
         <item name="colorControlActivated">@color/accent</item>
-        <item name="colorControlHighlight">@color/accent</item>
+        <item name="colorControlHighlight">@color/white_text</item>
+        <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
     </style>
+
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 

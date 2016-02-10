@@ -1,7 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_margin="@dimen/activity_horizontal_margin"
     android:orientation="vertical">
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/textInputArtist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:textColorHint="@color/white_text"
+        app:errorTextAppearance="@style/TextErrorAppearance">
+
+        <EditText
+            android:id="@+id/editArtist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_artist"
+            android:textColor="@color/white_text" />
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/textInputTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:textColorHint="@color/white_text"
+        app:errorTextAppearance="@style/TextErrorAppearance">
+
+        <EditText
+            android:id="@+id/editTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_title"
+            android:textColor="@color/white_text" />
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/textInputAlbum"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:textColorHint="@color/white_text"
+        app:errorTextAppearance="@style/TextErrorAppearance">
+
+        <EditText
+            android:id="@+id/editAlbum"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_album"
+            android:textColor="@color/white_text" />
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/textInputGenre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:textColorHint="@color/white_text"
+        app:errorTextAppearance="@style/TextErrorAppearance">
+
+        <EditText
+            android:id="@+id/editGenre"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_genre"
+            android:textColor="@color/white_text" />
+
+    </android.support.design.widget.TextInputLayout>
+
+    <Button
+        android:id="@+id/saveTrackInfoButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_margin="8dp"
+        android:background="@drawable/button_background"
+        android:gravity="center"
+        android:text="@string/button_save_track_info_text"
+        android:textAllCaps="true"
+        android:textColor="@color/primary" />
+
 
 </LinearLayout>
