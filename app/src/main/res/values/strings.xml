@@ -45,6 +45,9 @@
     <string name="hint_request">Request</string>
     <string name="request_error">Empty request</string>
 
+    <string name="popup_menu_track_edit">Edit</string>
+    <string name="popup_menu_track_delete">Delete</string>
+
 
     <integer name="com_vk_sdk_AppId">5217689</integer>
     <string name="soundcloud_client_id">9a1ca148092128d763563b2d9bb11419</string>
