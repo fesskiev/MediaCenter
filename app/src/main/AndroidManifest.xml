@@ -32,7 +32,7 @@
         </activity>
         <activity
             android:name=".ui.tracklist.TrackListActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:windowSoftInputMode="adjustResize"
             android:launchMode="singleTop"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait">

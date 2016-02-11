@@ -22,8 +22,8 @@ public class MainFragment extends ViewPagerFragment{
     @Override
     public int[] getImagesIds() {
         return new int[]{
-                R.drawable.tab_wall_icon,
-                R.drawable.tab_groups_icon
+                R.drawable.audio_icon,
+                R.drawable.media_icon
         };
     }
 
