@@ -63,8 +63,8 @@ public class EditTrackDialog extends AlertDialog implements View.OnClickListener
 
     @Override
     public void onClick(View v) {
-        try {
 
+        try {
             AudioFile audioFile = AudioFileIO.read(new File(musicFile.filePath));
             Tag tag = audioFile.getTag();
             tag.setField(FieldKey.ARTIST, musicFile.artist);

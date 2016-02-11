@@ -1,11 +1,13 @@
 package com.fesskiev.player;
 
 import android.app.Application;
+import android.os.Environment;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.fesskiev.player.model.MusicPlayer;
+import com.fesskiev.player.utils.RecursiveFileObserver;
 import com.vk.sdk.VKSdk;
 
 
@@ -19,15 +21,26 @@ public class MusicApplication extends Application {
         System.loadLibrary("khronos-media");
     }
 
-    @Override
 
+    @Override
     public void onCreate() {
         super.onCreate();
         application = this;
         musicPlayer = new MusicPlayer();
-
         VKSdk.initialize(this);
 
+        createFileObserver();
+    }
+
+    private void createFileObserver() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                RecursiveFileObserver fileObserver =
+                        new RecursiveFileObserver(Environment.getExternalStorageDirectory().toString());
+                fileObserver.startWatching();
+            }
+        }).start();
     }
 
     public static synchronized MusicApplication getInstance() {

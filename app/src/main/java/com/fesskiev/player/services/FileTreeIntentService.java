@@ -18,11 +18,9 @@ import java.util.ArrayList;
 public class FileTreeIntentService extends IntentService {
 
     private static final String TAG = FileTreeIntentService.class.getSimpleName();
-    private static final String ACTION_START_FILE_TREE_SERVICE =
-            "com.fesskiev.player.action.START_FILE_TREE_SERVICE";
 
-    public static final String ACTION_MUSIC_FOLDER
-            = "com.fesskiev.player.action.MUSIC_FOLDER";
+    private static final String ACTION_START_FILE_TREE_SERVICE = "com.fesskiev.player.action.START_FILE_TREE_SERVICE";
+    public static final String ACTION_MUSIC_FOLDER = "com.fesskiev.player.action.MUSIC_FOLDER";
 
     private ArrayList<MusicFolder> musicFolders;
 
@@ -95,7 +93,7 @@ public class FileTreeIntentService extends IntentService {
                     File[] filterImages = directoryFile.listFiles(folderImageFilter());
                     if (filterImages != null) {
                         for (File file : filterImages) {
-                        Log.wtf(TAG, "image File: " + file);
+//                        Log.wtf(TAG, "image File: " + file);
                             musicFolder.folderImages.add(file);
                         }
                     }
