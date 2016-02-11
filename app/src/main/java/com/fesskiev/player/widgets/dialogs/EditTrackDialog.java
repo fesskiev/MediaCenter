@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
+import android.text.TextWatcher;;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
@@ -16,22 +16,28 @@ import com.fesskiev.player.model.MusicFile;
 
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.exceptions.CannotReadException;
+import org.jaudiotagger.audio.exceptions.CannotWriteException;
+import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
+import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
+import org.jaudiotagger.tag.TagException;
 
 import java.io.File;
+import java.io.IOException;
 
 public class EditTrackDialog extends AlertDialog implements View.OnClickListener, TextWatcher {
 
-    private AudioFile audioFile;
+    private MusicFile musicFile;
     private EditText editArtist;
     private EditText editTitle;
     private EditText editAlbum;
     private EditText editGenre;
 
-
-    public EditTrackDialog(Context context) {
+    public EditTrackDialog(Context context, MusicFile musicFile) {
         super(context);
+        this.musicFile = musicFile;
     }
 
     @Override
@@ -52,19 +58,24 @@ public class EditTrackDialog extends AlertDialog implements View.OnClickListener
         editGenre.addTextChangedListener(this);
 
         findViewById(R.id.saveTrackInfoButton).setOnClickListener(this);
-
     }
 
-    public void setMusicFile(MusicFile musicFile) throws Exception {
-        audioFile = AudioFileIO.read(new File(musicFile.filePath));
-        Tag tag = audioFile.getTag();
-        tag.setField(FieldKey.ARTIST, "Kings of Leon");
-        audioFile.commit();
-    }
 
     @Override
     public void onClick(View v) {
+        try {
 
+            AudioFile audioFile = AudioFileIO.read(new File(musicFile.filePath));
+            Tag tag = audioFile.getTag();
+            tag.setField(FieldKey.ARTIST, musicFile.artist);
+            tag.setField(FieldKey.TITLE, musicFile.title);
+            tag.setField(FieldKey.ALBUM, musicFile.album);
+            tag.setField(FieldKey.GENRE, musicFile.genre);
+            audioFile.commit();
+        } catch (CannotReadException | IOException | TagException |
+                ReadOnlyFileException | InvalidAudioFrameException | CannotWriteException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -82,13 +93,13 @@ public class EditTrackDialog extends AlertDialog implements View.OnClickListener
         String value = s.toString();
         if (!TextUtils.isEmpty(value)) {
             if (s == editArtist.getEditableText()) {
-
+                musicFile.artist = value;
             } else if (s == editTitle.getEditableText()) {
-
+                musicFile.title = value;
             } else if (s == editAlbum.getEditableText()) {
-
+                musicFile.album = value;
             } else if (s == editGenre.getEditableText()) {
-
+                musicFile.genre = value;
             }
         }
     }

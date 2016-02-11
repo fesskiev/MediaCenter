@@ -58,6 +58,13 @@
     <string name="popup_menu_track_edit">Edit</string>
     <string name="popup_menu_track_delete">Delete</string>
 
+    <string name="dialog_delete_file_title">Delete</string>
+    <string name="dialog_delete_file_message">Do you want delete file?</string>
+    <string name="dialog_delete_file_ok">YES</string>
+    <string name="dialog_delete_file_cancel">NO</string>
+
+    <string name="shackbar_delete_file">File has been deleted</string>
+
 
     <integer name="com_vk_sdk_AppId">5217689</integer>
     <string name="soundcloud_client_id">9a1ca148092128d763563b2d9bb11419</string>

@@ -35,7 +35,6 @@
             android:layout_centerVertical="true"
             android:layout_marginStart="12dp"
             android:layout_toEndOf="@+id/itemCover"
-            android:layout_toStartOf="@+id/popupMenu"
             android:orientation="vertical">
 
 
@@ -59,15 +58,6 @@
                 tools:text="02:28" />
 
         </LinearLayout>
-
-        <ImageView
-            android:id="@+id/popupMenu"
-            android:layout_width="wrap_content"
-            android:layout_height="24dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:contentDescription="@string/app_name"
-            android:src="@drawable/icon_menu" />
 
     </RelativeLayout>
 </android.support.v7.widget.CardView>
