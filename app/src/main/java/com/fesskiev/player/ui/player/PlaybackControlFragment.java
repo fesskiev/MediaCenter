@@ -1,6 +1,7 @@
 package com.fesskiev.player.ui.player;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -48,6 +49,13 @@ public class PlaybackControlFragment extends Fragment {
                 }
             }
         });
+
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getActivity(), PlayerActivity.class));
+            }
+        });
     }
 
     public void setPlyingStateButton(boolean isPlaying) {
@@ -68,16 +76,13 @@ public class PlaybackControlFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-
         try {
             Field childFragmentManager = Fragment.class.getDeclaredField("mChildFragmentManager");
             childFragmentManager.setAccessible(true);
             childFragmentManager.set(this, null);
 
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

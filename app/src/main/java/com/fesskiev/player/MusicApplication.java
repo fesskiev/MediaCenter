@@ -29,7 +29,7 @@ public class MusicApplication extends Application {
         musicPlayer = new MusicPlayer();
         VKSdk.initialize(this);
 
-        createFileObserver();
+//        createFileObserver();
     }
 
     private void createFileObserver() {

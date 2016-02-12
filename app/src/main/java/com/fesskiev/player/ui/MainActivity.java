@@ -20,7 +20,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,16 +31,16 @@ import com.fesskiev.player.model.User;
 import com.fesskiev.player.services.FileTreeIntentService;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.services.RESTService;
+import com.fesskiev.player.ui.player.PlaybackActivity;
 import com.fesskiev.player.ui.settings.SettingsActivity;
 import com.fesskiev.player.ui.soundcloud.SoundCloudActivity;
 import com.fesskiev.player.ui.vk.MusicVKActivity;
 import com.fesskiev.player.utils.AppSettingsManager;
-import com.fesskiev.player.utils.http.URLHelper;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -51,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageView userPhoto;
     private TextView firstName;
     private TextView lastName;
+    private boolean finish;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,19 +92,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         registerBroadcastReceiver();
         if (!appSettingsManager.isAuthTokenEmpty()) {
             setUserInfo();
-        }else {
+        } else {
             setEmptyUserInfo();
         }
         checkPermission();
     }
 
-    private void setUserInfo(){
+    private void setUserInfo() {
         userPhoto.setImageBitmap(appSettingsManager.getUserPhoto());
         firstName.setText(appSettingsManager.getUserFirstName());
         lastName.setText(appSettingsManager.getUserLastName());
     }
 
-    private void setEmptyUserInfo(){
+    private void setEmptyUserInfo() {
         userPhoto.setImageResource(R.drawable.no_cover_icon);
         firstName.setText(getString(R.string.empty_first_name));
         lastName.setText(getString(R.string.empty_last_name));
@@ -136,21 +136,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
+            hidePlaybackControl();
             View view = findViewById(R.id.content);
             if (view != null) {
                 Snackbar.make(view, getString(R.string.snack_exit_text), Snackbar.LENGTH_LONG)
                         .setAction(getString(R.string.snack_exit_action), new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
+                                finish = true;
                                 finish();
                             }
-                        }).show();
+                        }).setCallback(new Snackbar.Callback() {
+
+                    @Override
+                    public void onDismissed(Snackbar snackbar, int event) {
+                        if(!finish) {
+                            showPlaybackControl();
+                        }
+                    }
+
+                    @Override
+                    public void onShown(Snackbar snackbar) {
+
+                    }
+                }).show();
             } else {
                 super.onBackPressed();
             }

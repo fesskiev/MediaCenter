@@ -13,14 +13,37 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="bottom">
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/controlCardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardElevation="8dp">
+
+            <fragment
+                android:id="@+id/fragmentPlaybackControl"
+                android:name="com.fesskiev.player.ui.player.PlaybackControlFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                tools:layout="@layout/fragment_playback_control" />
+
+        </android.support.v7.widget.CardView>
+
+
+    </LinearLayout>
 
     <android.support.design.widget.NavigationView
         android:id="@+id/nav_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:fitsSystemWindows="true"
         android:background="@android:color/white"
+        android:fitsSystemWindows="true"
         app:menu="@menu/activity_main_drawer" />
 
 

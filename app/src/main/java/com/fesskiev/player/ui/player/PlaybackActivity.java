@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -20,15 +19,12 @@ public class PlaybackActivity extends AppCompatActivity {
 
     private PlaybackControlFragment controlFragment;
     private boolean playBackControlShow;
-    private Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        handler = new Handler();
 
         registerPlaybackBroadcastReceiver();
-
     }
 
     @Override
@@ -44,31 +40,21 @@ public class PlaybackActivity extends AppCompatActivity {
 
     protected void showPlaybackControl() {
         if (!playBackControlShow) {
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    getFragmentManager().beginTransaction()
-                            .setCustomAnimations(
-                                    R.animator.slide_in_from_bottom, R.animator.slide_out_to_bottom,
-                                    R.animator.slide_in_from_bottom, R.animator.slide_out_to_bottom)
-                            .show(controlFragment)
-                            .commitAllowingStateLoss();
-                    playBackControlShow = true;
-                }
-            }, 1000);
+            getFragmentManager().beginTransaction()
+                    .setCustomAnimations(
+                            R.animator.slide_in_from_bottom, R.animator.slide_out_to_bottom,
+                            R.animator.slide_in_from_bottom, R.animator.slide_out_to_bottom)
+                    .show(controlFragment)
+                    .commitAllowingStateLoss();
+            playBackControlShow = true;
         }
     }
 
     protected void hidePlaybackControl() {
         if (playBackControlShow) {
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    getFragmentManager().beginTransaction()
-                            .hide(controlFragment)
-                            .commitAllowingStateLoss();
-                }
-            }, 1000);
+            getFragmentManager().beginTransaction()
+                    .hide(controlFragment)
+                    .commitAllowingStateLoss();
             playBackControlShow = false;
         }
     }
@@ -98,8 +84,7 @@ public class PlaybackActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
                 case PlaybackService.ACTION_PLAYBACK_VALUES:
-                    int duration =
-                            intent.getIntExtra(PlaybackService.PLAYBACK_EXTRA_DURATION, 0);
+                    int duration = intent.getIntExtra(PlaybackService.PLAYBACK_EXTRA_DURATION, 0);
 
                     break;
                 case PlaybackService.ACTION_PLAYBACK_PLAYING_STATE:
@@ -112,7 +97,6 @@ public class PlaybackActivity extends AppCompatActivity {
                         showPlaybackControl();
                     } else {
                         controlFragment.setPlyingStateButton(false);
-                        hidePlaybackControl();
                     }
 
                     break;
