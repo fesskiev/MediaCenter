@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.MusicFile;
+import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.services.PlaybackService;
 
 import java.lang.reflect.Field;
@@ -52,7 +52,7 @@ public class PlaybackControlFragment extends Fragment {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PlayerActivity.startPlayerActivity(getActivity(), false);
+                AudioPlayerActivity.startPlayerActivity(getActivity(), false);
             }
         });
     }
@@ -63,10 +63,10 @@ public class PlaybackControlFragment extends Fragment {
         playPause.setImageDrawable(ContextCompat.getDrawable(getActivity(), resource));
     }
 
-    public void setMusicFileInfo(MusicFile musicFile) {
-        track.setText(musicFile.title);
-        artist.setText(musicFile.artist);
-        Bitmap bitmap = musicFile.getArtwork();
+    public void setMusicFileInfo(AudioFile audioFile) {
+        track.setText(audioFile.title);
+        artist.setText(audioFile.artist);
+        Bitmap bitmap = audioFile.getArtwork();
         if (cover != null) {
             cover.setImageBitmap(bitmap);
         }

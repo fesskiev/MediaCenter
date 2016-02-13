@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MusicPlayer</string>
+    <string name="app_name">MediaCenter</string>
 
     <string name="permission_read_external_storage">Read external stotage are needed to access</string>
     <string name="button_ok">OK</string>
@@ -38,7 +38,7 @@
     <string name="vk_tab_title_search">Search</string>
 
     <string name="main_tab_title_audio">Audio</string>
-    <string name="main_tab_title_media">Media</string>
+    <string name="main_tab_title_video">Video</string>
 
     <string name="dialog_download_title">Download</string>
     <string name="dialog_download_message">Download this file?</string>
@@ -71,7 +71,8 @@
     <string name="soundcloud_secret">41366314252181c09abca656d35a3490</string>
     <string name="title_activity_sound_cloud">SoundCloudActivity</string>
     <string name="title_activity_group_audio">GroupAudioActivity</string>
-
+    <string name="title_activity_video">VideoActivity</string>
+    <string name="action_settings">Settings</string>
 
 
 </resources>

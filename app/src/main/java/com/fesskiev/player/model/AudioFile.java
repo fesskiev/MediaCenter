@@ -3,12 +3,10 @@ package com.fesskiev.player.model;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.fesskiev.player.R;
 import com.fesskiev.player.utils.Utils;
 
-import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.AudioHeader;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
@@ -24,7 +22,7 @@ import org.jaudiotagger.tag.images.Artwork;
 import java.io.File;
 import java.io.IOException;
 
-public class MusicFile implements Comparable<MusicFile> {
+public class AudioFile implements Comparable<AudioFile> {
 
     public interface OnMp3TagListener {
         void onFetchCompleted();
@@ -44,7 +42,7 @@ public class MusicFile implements Comparable<MusicFile> {
     private Bitmap bitmapArtwork;
     private OnMp3TagListener listener;
 
-    public MusicFile(Context context, String filePath, OnMp3TagListener listener) {
+    public AudioFile(Context context, String filePath, OnMp3TagListener listener) {
         this.context = context;
         this.filePath = filePath;
         this.listener = listener;
@@ -52,7 +50,7 @@ public class MusicFile implements Comparable<MusicFile> {
     }
 
 
-    private void parseMP3(AudioFile file) {
+    private void parseMP3(org.jaudiotagger.audio.AudioFile file) {
         Tag tag = file.getTag();
         if (tag != null && tag.hasCommonFields()) {
             if(tag.hasField(ID3v24Frames.FRAME_ID_ARTIST)) {
@@ -79,7 +77,7 @@ public class MusicFile implements Comparable<MusicFile> {
         fillEmptyFields();
     }
 
-    private void parseLossless(AudioFile file) {
+    private void parseLossless(org.jaudiotagger.audio.AudioFile file) {
         FlacTag flacTag = (FlacTag) file.getTag();
         if (flacTag != null && flacTag.hasCommonFields()) {
 
@@ -121,7 +119,7 @@ public class MusicFile implements Comparable<MusicFile> {
     private void getTrackInfo() {
         try {
 
-            AudioFile file = AudioFileIO.read(new File(filePath));
+            org.jaudiotagger.audio.AudioFile file = AudioFileIO.read(new File(filePath));
             AudioHeader audioHeader = file.getAudioHeader();
 
             bitrate = audioHeader.getBitRate() + " kbps "
@@ -145,7 +143,7 @@ public class MusicFile implements Comparable<MusicFile> {
     }
 
     @Override
-    public int compareTo(MusicFile another) {
+    public int compareTo(AudioFile another) {
         if (this.trackNumber > another.trackNumber) {
             return 1;
         } else if (this.trackNumber < another.trackNumber) {
@@ -159,13 +157,13 @@ public class MusicFile implements Comparable<MusicFile> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        MusicFile musicFile = (MusicFile) o;
+        AudioFile audioFile = (AudioFile) o;
 
-        if (filePath != null ? !filePath.equals(musicFile.filePath) : musicFile.filePath != null)
+        if (filePath != null ? !filePath.equals(audioFile.filePath) : audioFile.filePath != null)
             return false;
-        if (artist != null ? !artist.equals(musicFile.artist) : musicFile.artist != null)
+        if (artist != null ? !artist.equals(audioFile.artist) : audioFile.artist != null)
             return false;
-        return !(title != null ? !title.equals(musicFile.title) : musicFile.title != null);
+        return !(title != null ? !title.equals(audioFile.title) : audioFile.title != null);
 
     }
 
@@ -179,8 +177,9 @@ public class MusicFile implements Comparable<MusicFile> {
 
     @Override
     public String toString() {
-        return "MusicFile{" +
+        return "AudioFile{" +
                 "context=" + context +
+                ", artwork=" + artwork +
                 ", filePath='" + filePath + '\'' +
                 ", artist='" + artist + '\'' +
                 ", title='" + title + '\'' +

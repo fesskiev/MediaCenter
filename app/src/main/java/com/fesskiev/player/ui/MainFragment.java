@@ -15,7 +15,7 @@ public class MainFragment extends ViewPagerFragment{
     public String[] getTitles() {
         return new String[]{
                 getString(R.string.main_tab_title_audio),
-                getString(R.string.main_tab_title_media)
+                getString(R.string.main_tab_title_video)
         };
     }
 
@@ -30,8 +30,8 @@ public class MainFragment extends ViewPagerFragment{
     @Override
     public Fragment[] getPagerFragments() {
         return new Fragment[]{
-                MusicFoldersFragment.newInstance(),
-                MediaFragment.newInstance()
+                AudioFoldersFragment.newInstance(),
+                VideoFoldersFragment.newInstance()
         };
     }
 }

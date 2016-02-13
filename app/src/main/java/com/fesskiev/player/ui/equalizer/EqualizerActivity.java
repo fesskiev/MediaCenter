@@ -9,8 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.fesskiev.player.R;
-import com.fesskiev.player.ui.player.PlayerActivity;
-import com.fesskiev.player.ui.tracklist.TrackListFragment;
+import com.fesskiev.player.ui.player.AudioPlayerActivity;
 
 public class EqualizerActivity extends AppCompatActivity {
 
@@ -28,7 +27,7 @@ public class EqualizerActivity extends AppCompatActivity {
                     public void onClick(View view) {
                         navigateUpToFromChild(EqualizerActivity.this,
                                 IntentCompat.makeMainActivity(new ComponentName(EqualizerActivity.this,
-                                        PlayerActivity.class)));
+                                        AudioPlayerActivity.class)));
                     }
                 });
             }

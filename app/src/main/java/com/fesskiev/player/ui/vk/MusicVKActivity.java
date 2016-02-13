@@ -94,8 +94,8 @@ public class MusicVKActivity extends AppCompatActivity {
             List<Fragment> registeredFragments = musicVKFragment.getRegisteredFragments();
             if (registeredFragments != null) {
                 for (Fragment fragment : registeredFragments) {
-                    if (fragment instanceof AudioFragment) {
-                        ((AudioFragment) fragment).fetchAudio(0);
+                    if (fragment instanceof RecyclerAudioFragment) {
+                        ((RecyclerAudioFragment) fragment).fetchAudio(0);
                     }
                 }
             }

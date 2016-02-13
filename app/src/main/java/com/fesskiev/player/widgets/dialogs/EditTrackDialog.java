@@ -12,9 +12,8 @@ import android.view.WindowManager;
 import android.widget.EditText;
 
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.MusicFile;
+import com.fesskiev.player.model.AudioFile;
 
-import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
 import org.jaudiotagger.audio.exceptions.CannotWriteException;
@@ -29,15 +28,15 @@ import java.io.IOException;
 
 public class EditTrackDialog extends AlertDialog implements View.OnClickListener, TextWatcher {
 
-    private MusicFile musicFile;
+    private AudioFile audioFile;
     private EditText editArtist;
     private EditText editTitle;
     private EditText editAlbum;
     private EditText editGenre;
 
-    public EditTrackDialog(Context context, MusicFile musicFile) {
+    public EditTrackDialog(Context context, AudioFile audioFile) {
         super(context);
-        this.musicFile = musicFile;
+        this.audioFile = audioFile;
     }
 
     @Override
@@ -65,12 +64,12 @@ public class EditTrackDialog extends AlertDialog implements View.OnClickListener
     public void onClick(View v) {
 
         try {
-            AudioFile audioFile = AudioFileIO.read(new File(musicFile.filePath));
+            org.jaudiotagger.audio.AudioFile audioFile = AudioFileIO.read(new File(this.audioFile.filePath));
             Tag tag = audioFile.getTag();
-            tag.setField(FieldKey.ARTIST, musicFile.artist);
-            tag.setField(FieldKey.TITLE, musicFile.title);
-            tag.setField(FieldKey.ALBUM, musicFile.album);
-            tag.setField(FieldKey.GENRE, musicFile.genre);
+            tag.setField(FieldKey.ARTIST, this.audioFile.artist);
+            tag.setField(FieldKey.TITLE, this.audioFile.title);
+            tag.setField(FieldKey.ALBUM, this.audioFile.album);
+            tag.setField(FieldKey.GENRE, this.audioFile.genre);
             audioFile.commit();
         } catch (CannotReadException | IOException | TagException |
                 ReadOnlyFileException | InvalidAudioFrameException | CannotWriteException e) {
@@ -93,13 +92,13 @@ public class EditTrackDialog extends AlertDialog implements View.OnClickListener
         String value = s.toString();
         if (!TextUtils.isEmpty(value)) {
             if (s == editArtist.getEditableText()) {
-                musicFile.artist = value;
+                audioFile.artist = value;
             } else if (s == editTitle.getEditableText()) {
-                musicFile.title = value;
+                audioFile.title = value;
             } else if (s == editAlbum.getEditableText()) {
-                musicFile.album = value;
+                audioFile.album = value;
             } else if (s == editGenre.getEditableText()) {
-                musicFile.genre = value;
+                audioFile.genre = value;
             }
         }
     }

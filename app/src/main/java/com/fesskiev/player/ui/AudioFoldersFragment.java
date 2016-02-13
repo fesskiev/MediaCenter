@@ -6,25 +6,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fesskiev.player.MusicApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.MusicFolder;
+import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.MusicPlayer;
 import com.fesskiev.player.services.FileTreeIntentService;
 import com.fesskiev.player.ui.tracklist.TrackListActivity;
-import com.fesskiev.player.widgets.gridview.HidingScrollListener;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -32,17 +28,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MusicFoldersFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class AudioFoldersFragment extends GridVideoFragment {
 
-    private static final String TAG = MusicFoldersFragment.class.getSimpleName();
+    private static final String TAG = AudioFoldersFragment.class.getSimpleName();
 
-    public static MusicFoldersFragment newInstance() {
-        return new MusicFoldersFragment();
+    public static AudioFoldersFragment newInstance() {
+        return new AudioFoldersFragment();
     }
-
-    private GridViewAdapter adapter;
-    private SwipeRefreshLayout swipeRefreshLayout;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -51,59 +43,27 @@ public class MusicFoldersFragment extends Fragment implements SwipeRefreshLayout
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_music_folders, container, false);
-    }
-
-    @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
-        swipeRefreshLayout.setOnRefreshListener(this);
-
-        GridView gridView = (GridView) view.findViewById(R.id.foldersGridView);
-        adapter = new GridViewAdapter();
-        gridView.setAdapter(adapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 MusicPlayer musicPlayer = MusicApplication.getInstance().getMusicPlayer();
-                MusicFolder musicFolder = musicPlayer.musicFolders.get(position);
-                if (musicFolder != null) {
-                    musicPlayer.currentMusicFolder = musicFolder;
+                AudioFolder audioFolder = musicPlayer.audioFolders.get(position);
+                if (audioFolder != null) {
+                    musicPlayer.currentAudioFolder = audioFolder;
 
                     startActivity(new Intent(getActivity(), TrackListActivity.class));
                 }
             }
         });
-
-        gridView.setOnScrollListener(new HidingScrollListener() {
-            @Override
-            public void onHide() {
-                hidePlaybackControl();
-            }
-
-            @Override
-            public void onShow() {
-                showPlaybackControl();
-            }
-        });
     }
 
-    private void hidePlaybackControl() {
-        MusicPlayer musicPlayer = MusicApplication.getInstance().getMusicPlayer();
-        if (musicPlayer.isPlaying) {
-            ((MainActivity) getActivity()).hidePlaybackControl();
-        }
-    }
 
-    private void showPlaybackControl() {
-        MusicPlayer musicPlayer = MusicApplication.getInstance().getMusicPlayer();
-        if (musicPlayer.isPlaying) {
-            ((MainActivity) getActivity()).showPlaybackControl();
-        }
+    @Override
+    public BaseAdapter getAdapter() {
+        return new AudioFoldersAdapter();
     }
 
 
@@ -136,10 +96,10 @@ public class MusicFoldersFragment extends Fragment implements SwipeRefreshLayout
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
                 case FileTreeIntentService.ACTION_MUSIC_FOLDER:
-                    List<MusicFolder> receiverMusicFolders =
-                            MusicApplication.getInstance().getMusicPlayer().musicFolders;
-                    if (receiverMusicFolders != null) {
-                        adapter.refresh(receiverMusicFolders);
+                    List<AudioFolder> receiverAudioFolders =
+                            MusicApplication.getInstance().getMusicPlayer().audioFolders;
+                    if (receiverAudioFolders != null) {
+                        ((AudioFoldersAdapter) adapter).refresh(receiverAudioFolders);
                         swipeRefreshLayout.setRefreshing(false);
                     }
                     break;
@@ -153,22 +113,22 @@ public class MusicFoldersFragment extends Fragment implements SwipeRefreshLayout
         public ImageView cover;
     }
 
-    private class GridViewAdapter extends BaseAdapter {
+    private class AudioFoldersAdapter extends BaseAdapter {
 
-        private List<MusicFolder> musicFolders;
+        private List<AudioFolder> audioFolders;
 
-        public GridViewAdapter() {
-            this.musicFolders = new ArrayList<>();
+        public AudioFoldersAdapter() {
+            this.audioFolders = new ArrayList<>();
         }
 
         @Override
         public int getCount() {
-            return musicFolders.size();
+            return audioFolders.size();
         }
 
         @Override
         public Object getItem(int position) {
-            return musicFolders.get(position);
+            return audioFolders.get(position);
         }
 
         @Override
@@ -191,8 +151,8 @@ public class MusicFoldersFragment extends Fragment implements SwipeRefreshLayout
                 viewHolder = (ViewHolder) convertView.getTag();
             }
 
-            if (musicFolders.get(position).folderImages.size() > 0) {
-                File coverFile = musicFolders.get(position).folderImages.get(0);
+            if (audioFolders.get(position).folderImages.size() > 0) {
+                File coverFile = audioFolders.get(position).folderImages.get(0);
                 if (coverFile != null) {
                     Picasso.with(getActivity()).
                             load(coverFile).
@@ -205,15 +165,15 @@ public class MusicFoldersFragment extends Fragment implements SwipeRefreshLayout
                         into(viewHolder.cover);
             }
 
-            viewHolder.albumName.setText(musicFolders.get(position).folderName);
+            viewHolder.albumName.setText(audioFolders.get(position).folderName);
 
             return convertView;
         }
 
 
-        public void refresh(List<MusicFolder> receiverMusicFolders) {
-            musicFolders.clear();
-            musicFolders.addAll(receiverMusicFolders);
+        public void refresh(List<AudioFolder> receiverAudioFolders) {
+            audioFolders.clear();
+            audioFolders.addAll(receiverAudioFolders);
             notifyDataSetChanged();
         }
     }

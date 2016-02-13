@@ -25,11 +25,11 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MusicApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.MusicFile;
-import com.fesskiev.player.model.MusicFolder;
+import com.fesskiev.player.model.AudioFile;
+import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.MusicPlayer;
 import com.fesskiev.player.services.FetchAudioInfoIntentService;
-import com.fesskiev.player.ui.player.PlayerActivity;
+import com.fesskiev.player.ui.player.AudioPlayerActivity;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.dialogs.EditTrackDialog;
 import com.fesskiev.player.widgets.recycleview.HidingScrollListener;
@@ -48,7 +48,7 @@ public class TrackListFragment extends Fragment {
 
     private Bitmap coverImageBitmap;
     private MusicFilesAdapter musicFilesAdapter;
-    private MusicFolder musicFolder;
+    private AudioFolder audioFolder;
 
     public static TrackListFragment newInstance() {
         return new TrackListFragment();
@@ -57,9 +57,9 @@ public class TrackListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        musicFolder =
-                MusicApplication.getInstance().getMusicPlayer().currentMusicFolder;
-        List<File> folderImages = musicFolder.folderImages;
+        audioFolder =
+                MusicApplication.getInstance().getMusicPlayer().currentAudioFolder;
+        List<File> folderImages = audioFolder.folderImages;
         if (folderImages != null && folderImages.size() > 0) {
 
             coverImageBitmap = Utils.getResizedBitmap(100, 100,
@@ -88,20 +88,20 @@ public class TrackListFragment extends Fragment {
 
                     @Override
                     public void onItemClick(View childView, int position) {
-                        MusicFile musicFile = musicFolder.musicFilesDescription.get(position);
-                        if (musicFile != null) {
+                        AudioFile audioFile = audioFolder.audioFilesDescription.get(position);
+                        if (audioFile != null) {
                             MusicPlayer musicPlayer = MusicApplication.getInstance().getMusicPlayer();
-                            musicPlayer.currentMusicFile = musicFile;
+                            musicPlayer.currentAudioFile = audioFile;
                             musicPlayer.position = position;
 
-                            PlayerActivity.startPlayerActivity(getActivity(), true);
+                            AudioPlayerActivity.startPlayerActivity(getActivity(), true);
                         }
                     }
 
                     @Override
                     public void onItemLongPress(View childView, int position) {
-                        MusicFile musicFile = musicFolder.musicFilesDescription.get(position);
-                        showPopupMenu(childView, musicFile);
+                        AudioFile audioFile = audioFolder.audioFilesDescription.get(position);
+                        showPopupMenu(childView, audioFile);
                     }
                 }));
 
@@ -118,13 +118,13 @@ public class TrackListFragment extends Fragment {
         });
 
 
-        if (musicFolder.musicFilesDescription.size() == 0) {
+        if (audioFolder.audioFilesDescription.size() == 0) {
             FetchAudioInfoIntentService.startFetchAudioInfo(getActivity());
         } else {
-            List<MusicFile> receiverMusicFiles = MusicApplication.getInstance().
-                    getMusicPlayer().currentMusicFolder.musicFilesDescription;
-            if (receiverMusicFiles != null) {
-                musicFilesAdapter.refreshAdapter(receiverMusicFiles);
+            List<AudioFile> receiverAudioFiles = MusicApplication.getInstance().
+                    getMusicPlayer().currentAudioFolder.audioFilesDescription;
+            if (receiverAudioFiles != null) {
+                musicFilesAdapter.refreshAdapter(receiverAudioFiles);
             }
         }
     }
@@ -156,7 +156,7 @@ public class TrackListFragment extends Fragment {
     }
 
 
-    private void showPopupMenu(View view, final MusicFile musicFile) {
+    private void showPopupMenu(View view, final AudioFile audioFile) {
         final PopupMenu popupMenu = new PopupMenu(getActivity(), view);
         final Menu menu = popupMenu.getMenu();
         popupMenu.getMenuInflater().inflate(R.menu.menu_track_item, menu);
@@ -164,10 +164,10 @@ public class TrackListFragment extends Fragment {
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.edit:
-                        showEditDialog(musicFile);
+                        showEditDialog(audioFile);
                         break;
                     case R.id.delete:
-                        deleteFile(musicFile);
+                        deleteFile(audioFile);
                         break;
                 }
                 return true;
@@ -176,7 +176,7 @@ public class TrackListFragment extends Fragment {
         popupMenu.show();
     }
 
-    private void deleteFile(final MusicFile musicFile) {
+    private void deleteFile(final AudioFile audioFile) {
         AlertDialog.Builder builder =
                 new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
         builder.setTitle(getString(R.string.dialog_delete_file_title));
@@ -185,10 +185,10 @@ public class TrackListFragment extends Fragment {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if (new File(musicFile.filePath).delete()) {
+                        if (new File(audioFile.filePath).delete()) {
                             Snackbar.make(getView(),
                                     getString(R.string.shackbar_delete_file), Snackbar.LENGTH_LONG).show();
-                            musicFilesAdapter.musicFiles.remove(musicFile);
+                            musicFilesAdapter.audioFiles.remove(audioFile);
                             musicFilesAdapter.notifyDataSetChanged();
                         }
                     }
@@ -203,8 +203,8 @@ public class TrackListFragment extends Fragment {
         builder.show();
     }
 
-    private void showEditDialog(MusicFile musicFile) {
-        EditTrackDialog editTrackDialog = new EditTrackDialog(getActivity(), musicFile);
+    private void showEditDialog(AudioFile audioFile) {
+        EditTrackDialog editTrackDialog = new EditTrackDialog(getActivity(), audioFile);
         editTrackDialog.show();
     }
 
@@ -227,10 +227,10 @@ public class TrackListFragment extends Fragment {
                 case FetchAudioInfoIntentService.ACTION_MUSIC_FILES_RESULT:
 //                    Log.d(TAG, "receive music files!");
 
-                    List<MusicFile> receiverMusicFiles = MusicApplication.getInstance().
-                            getMusicPlayer().currentMusicFolder.musicFilesDescription;
-                    if (receiverMusicFiles != null) {
-                        musicFilesAdapter.refreshAdapter(receiverMusicFiles);
+                    List<AudioFile> receiverAudioFiles = MusicApplication.getInstance().
+                            getMusicPlayer().currentAudioFolder.audioFilesDescription;
+                    if (receiverAudioFiles != null) {
+                        musicFilesAdapter.refreshAdapter(receiverAudioFiles);
                     }
                     break;
             }
@@ -239,10 +239,10 @@ public class TrackListFragment extends Fragment {
 
     private class MusicFilesAdapter extends RecyclerView.Adapter<MusicFilesAdapter.ViewHolder> {
 
-        private List<MusicFile> musicFiles;
+        private List<AudioFile> audioFiles;
 
         public MusicFilesAdapter() {
-            this.musicFiles = new ArrayList<>();
+            this.audioFiles = new ArrayList<>();
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
@@ -270,12 +270,12 @@ public class TrackListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            MusicFile musicFile = musicFiles.get(position);
+            AudioFile audioFile = audioFiles.get(position);
 
             if (coverImageBitmap != null) {
                 holder.cover.setImageBitmap(coverImageBitmap);
             } else {
-                Bitmap artwork = musicFile.getArtwork();
+                Bitmap artwork = audioFile.getArtwork();
                 if (artwork != null) {
                     holder.cover.setImageBitmap(artwork);
                 } else {
@@ -285,19 +285,18 @@ public class TrackListFragment extends Fragment {
                 }
             }
 
-            holder.duration.setText(Utils.getDurationString(musicFile.length));
-            holder.title.setText(musicFile.title);
+            holder.duration.setText(Utils.getDurationString(audioFile.length));
+            holder.title.setText(audioFile.title);
         }
 
         @Override
         public int getItemCount() {
-            return musicFiles.size();
+            return audioFiles.size();
         }
 
-        public void refreshAdapter(List<MusicFile> receiverMusicFiles) {
-            musicFiles.clear();
-            musicFiles.addAll(receiverMusicFiles);
-//          Collections.sort(musicFiles);
+        public void refreshAdapter(List<AudioFile> receiverAudioFiles) {
+            audioFiles.clear();
+            audioFiles.addAll(receiverAudioFiles);
             notifyDataSetChanged();
         }
     }

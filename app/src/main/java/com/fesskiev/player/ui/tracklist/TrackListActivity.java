@@ -22,7 +22,7 @@ public class TrackListActivity extends PlaybackActivity {
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             if (toolbar != null) {
                 String folderName =
-                        MusicApplication.getInstance().getMusicPlayer().currentMusicFolder.folderName;
+                        MusicApplication.getInstance().getMusicPlayer().currentAudioFolder.folderName;
                 toolbar.setTitle(folderName);
                 toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
                 toolbar.setNavigationOnClickListener(new View.OnClickListener() {

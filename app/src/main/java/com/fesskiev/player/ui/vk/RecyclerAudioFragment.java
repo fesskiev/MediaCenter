@@ -26,7 +26,7 @@ import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AudioFragment extends Fragment {
+public abstract class RecyclerAudioFragment extends Fragment {
 
     public abstract int getResourceId();
 
@@ -37,7 +37,6 @@ public abstract class AudioFragment extends Fragment {
     protected RecyclerView recyclerView;
     protected int audioOffset;
 
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(getResourceId(), container, false);

@@ -17,7 +17,7 @@ import com.fesskiev.player.utils.http.URLHelper;
 import java.util.List;
 
 
-public class UserAudioFragment extends AudioFragment {
+public class UserAudioFragment extends RecyclerAudioFragment {
 
 
     public static UserAudioFragment newInstance() {

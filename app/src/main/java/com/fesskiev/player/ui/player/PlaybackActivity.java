@@ -93,7 +93,7 @@ public class PlaybackActivity extends AppCompatActivity {
                     if (isPlaying) {
                         controlFragment.setPlyingStateButton(true);
                         controlFragment.setMusicFileInfo(MusicApplication.getInstance().
-                                getMusicPlayer().currentMusicFile);
+                                getMusicPlayer().currentAudioFile);
                         showPlaybackControl();
                     } else {
                         controlFragment.setPlyingStateButton(false);

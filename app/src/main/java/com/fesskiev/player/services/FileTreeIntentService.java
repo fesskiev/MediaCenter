@@ -8,7 +8,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.fesskiev.player.MusicApplication;
-import com.fesskiev.player.model.MusicFolder;
+import com.fesskiev.player.model.AudioFolder;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -22,7 +22,7 @@ public class FileTreeIntentService extends IntentService {
     private static final String ACTION_START_FILE_TREE_SERVICE = "com.fesskiev.player.action.START_FILE_TREE_SERVICE";
     public static final String ACTION_MUSIC_FOLDER = "com.fesskiev.player.action.MUSIC_FOLDER";
 
-    private ArrayList<MusicFolder> musicFolders;
+    private ArrayList<AudioFolder> audioFolders;
 
     public FileTreeIntentService() {
         super(FileTreeIntentService.class.getName());
@@ -49,7 +49,7 @@ public class FileTreeIntentService extends IntentService {
 
 
     private void getMusicFolders() {
-        musicFolders = new ArrayList<>();
+        audioFolders = new ArrayList<>();
         String sdCardState = Environment.getExternalStorageState();
         if (!sdCardState.equals(Environment.MEDIA_MOUNTED)) {
             Log.wtf(TAG, "NO SD CARD");
@@ -82,23 +82,23 @@ public class FileTreeIntentService extends IntentService {
             for (File directoryFile : directoryFiles) {
                 File[] filterFiles = directoryFile.listFiles(musicFilter());
                 if (filterFiles != null && filterFiles.length > 0) {
-                    MusicFolder musicFolder = new MusicFolder();
-                    musicFolder.folderName = directoryFile.getName();
+                    AudioFolder audioFolder = new AudioFolder();
+                    audioFolder.folderName = directoryFile.getName();
 
                     for (File file : filterFiles) {
 //                        Log.wtf(TAG, "sound file: " + file);
-                        musicFolder.musicFiles.add(file);
+                        audioFolder.musicFiles.add(file);
                     }
 
                     File[] filterImages = directoryFile.listFiles(folderImageFilter());
                     if (filterImages != null) {
                         for (File file : filterImages) {
 //                        Log.wtf(TAG, "image File: " + file);
-                            musicFolder.folderImages.add(file);
+                            audioFolder.folderImages.add(file);
                         }
                     }
-                    musicFolders.add(musicFolder);
-                    MusicApplication.getInstance().getMusicPlayer().musicFolders = musicFolders;
+                    audioFolders.add(audioFolder);
+                    MusicApplication.getInstance().getMusicPlayer().audioFolders = audioFolders;
                     sendMusicFoldersBroadcast();
                 }
             }
@@ -111,8 +111,8 @@ public class FileTreeIntentService extends IntentService {
     }
 
     private void musicFolderToString() {
-        for (MusicFolder musicFolder : musicFolders) {
-            Log.d(TAG, "folder: " + musicFolder.toString());
+        for (AudioFolder audioFolder : audioFolders) {
+            Log.d(TAG, "folder: " + audioFolder.toString());
         }
     }
 

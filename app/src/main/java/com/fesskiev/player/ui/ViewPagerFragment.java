@@ -15,6 +15,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fesskiev.player.R;
+import com.fesskiev.player.widgets.utils.DepthPageTransformer;
+import com.fesskiev.player.widgets.utils.ZoomOutPageTransformer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +42,7 @@ public abstract class ViewPagerFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
         ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+        viewPager.setPageTransformer(true, new DepthPageTransformer());
         viewPager.setOffscreenPageLimit(getPagerFragments().length);
         setupViewPager(viewPager);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {

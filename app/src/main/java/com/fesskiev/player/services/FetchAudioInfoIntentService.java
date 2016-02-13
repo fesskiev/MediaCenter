@@ -6,8 +6,8 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.fesskiev.player.MusicApplication;
-import com.fesskiev.player.model.MusicFile;
-import com.fesskiev.player.model.MusicFolder;
+import com.fesskiev.player.model.AudioFile;
+import com.fesskiev.player.model.AudioFolder;
 
 import java.io.File;
 
@@ -45,17 +45,17 @@ public class FetchAudioInfoIntentService extends IntentService {
     }
 
     private void fetchAudioInfo() {
-        MusicFolder musicFolder = MusicApplication.getInstance().getMusicPlayer().currentMusicFolder;
-        if (musicFolder != null) {
-            for (File file : musicFolder.musicFiles) {
-                MusicFile musicFile = new MusicFile(getApplicationContext(), file.getAbsolutePath(),
-                        new MusicFile.OnMp3TagListener() {
+        AudioFolder audioFolder = MusicApplication.getInstance().getMusicPlayer().currentAudioFolder;
+        if (audioFolder != null) {
+            for (File file : audioFolder.musicFiles) {
+                AudioFile audioFile = new AudioFile(getApplicationContext(), file.getAbsolutePath(),
+                        new AudioFile.OnMp3TagListener() {
                     @Override
                     public void onFetchCompleted() {
                         sendMusicFilesBroadcast();
                     }
                 });
-                musicFolder.musicFilesDescription.add(musicFile);
+                audioFolder.audioFilesDescription.add(audioFile);
             }
         }
     }

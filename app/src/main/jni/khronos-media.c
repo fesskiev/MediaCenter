@@ -610,7 +610,7 @@ void doCodecWork(AMediaExtractor *ex) {
 
 
 JNIEXPORT jboolean JNICALL
-Java_com_fesskiev_player_ui_MediaFragment_createStreamingMediaPlayer(JNIEnv *env, jclass type,
+Java_com_fesskiev_player_ui_player_VideoPlayerActivity_createStreamingMediaPlayer(JNIEnv *env, jclass type,
                                                                      jstring filename_) {
     const char *filename = (*env)->GetStringUTFChars(env, filename_, 0);
     int fd = open(filename, O_RDONLY);
@@ -654,7 +654,7 @@ Java_com_fesskiev_player_ui_MediaFragment_createStreamingMediaPlayer(JNIEnv *env
 
 
     JNIEXPORT void JNICALL
-    Java_com_fesskiev_player_ui_MediaFragment_setPlayingStreamingMediaPlayer(JNIEnv *env,
+    Java_com_fesskiev_player_ui_player_VideoPlayerActivity_setPlayingStreamingMediaPlayer(JNIEnv *env,
                                                                              jclass type,
                                                                              jboolean isPlaying) {
         if (isPlaying) {
@@ -665,7 +665,7 @@ Java_com_fesskiev_player_ui_MediaFragment_createStreamingMediaPlayer(JNIEnv *env
     }
 
     JNIEXPORT void JNICALL
-    Java_com_fesskiev_player_ui_MediaFragment_shutdown(JNIEnv *env, jclass type) {
+    Java_com_fesskiev_player_ui_player_VideoPlayerActivity_shutdown(JNIEnv *env, jclass type) {
 
         if (window != NULL) {
             ANativeWindow_release(window);
@@ -674,7 +674,7 @@ Java_com_fesskiev_player_ui_MediaFragment_createStreamingMediaPlayer(JNIEnv *env
     }
 
     JNIEXPORT void JNICALL
-    Java_com_fesskiev_player_ui_MediaFragment_setSurface(JNIEnv *env, jclass type,
+    Java_com_fesskiev_player_ui_player_VideoPlayerActivity_setSurface(JNIEnv *env, jclass type,
                                                          jobject surface) {
         if (window != NULL) {
             ANativeWindow_release(window);
@@ -685,7 +685,7 @@ Java_com_fesskiev_player_ui_MediaFragment_createStreamingMediaPlayer(JNIEnv *env
     }
 
     JNIEXPORT void JNICALL
-    Java_com_fesskiev_player_ui_MediaFragment_rewindStreamingMediaPlayer(JNIEnv *env, jclass type) {
+    Java_com_fesskiev_player_ui_player_VideoPlayerActivity_rewindStreamingMediaPlayer(JNIEnv *env, jclass type) {
 
         // TODO
 

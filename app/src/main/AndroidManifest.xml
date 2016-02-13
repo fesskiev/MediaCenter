@@ -18,6 +18,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Player">
+
         <activity
             android:name=".ui.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -30,18 +31,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".ui.tracklist.TrackListActivity"
-            android:windowSoftInputMode="adjustResize"
             android:launchMode="singleTop"
             android:parentActivityName=".ui.MainActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity" />
         </activity>
+
         <activity
-            android:name=".ui.player.PlayerActivity"
+            android:name=".ui.player.AudioPlayerActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:launchMode="singleTop"
             android:parentActivityName=".ui.tracklist.TrackListActivity"
@@ -50,15 +53,27 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.tracklist.TrackListActivity" />
         </activity>
+
+        <activity
+            android:name=".ui.player.VideoPlayerActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:parentActivityName=".ui.MainActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.MainActivity" />
+        </activity>
+
         <activity
             android:name=".ui.equalizer.EqualizerActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:parentActivityName=".ui.player.PlayerActivity"
+            android:parentActivityName=".ui.player.AudioPlayerActivity"
             android:screenOrientation="landscape">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.player.PlayerActivity" />
+                android:value=".ui.player.AudioPlayerActivity" />
         </activity>
+
         <activity
             android:name=".ui.vk.MusicVKActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -72,8 +87,8 @@
 
         <activity
             android:name=".ui.vk.GroupAudioActivity"
-            android:parentActivityName=".ui.vk.MusicVKActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
+            android:parentActivityName=".ui.vk.MusicVKActivity"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -88,6 +103,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity" />
         </activity>
+
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"

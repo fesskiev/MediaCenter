@@ -29,7 +29,7 @@ import com.fesskiev.player.widgets.recycleview.HidingScrollListener;
 import java.util.List;
 
 
-public class SearchAudioFragment extends AudioFragment implements TextWatcher, View.OnClickListener {
+public class SearchAudioFragment extends RecyclerAudioFragment implements TextWatcher, View.OnClickListener {
 
     public static SearchAudioFragment newInstance() {
         return new SearchAudioFragment();

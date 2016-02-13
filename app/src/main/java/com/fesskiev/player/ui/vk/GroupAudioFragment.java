@@ -19,7 +19,7 @@ import com.fesskiev.player.utils.http.URLHelper;
 import java.util.List;
 
 
-public class GroupAudioFragment extends AudioFragment {
+public class GroupAudioFragment extends RecyclerAudioFragment {
 
     private static final String GROUP_BUNDLE = "com.fesskiev.player.GROUP_BUNDLE";
 

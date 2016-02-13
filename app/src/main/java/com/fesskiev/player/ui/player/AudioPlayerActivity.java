@@ -13,7 +13,6 @@ import android.support.v4.content.IntentCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -21,8 +20,8 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MusicApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.MusicFile;
-import com.fesskiev.player.model.MusicFolder;
+import com.fesskiev.player.model.AudioFile;
+import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.MusicPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.equalizer.EqualizerActivity;
@@ -33,9 +32,9 @@ import com.squareup.picasso.Picasso;
 
 import java.io.File;
 
-public class PlayerActivity extends AppCompatActivity implements Playable {
+public class AudioPlayerActivity extends AppCompatActivity implements Playable {
 
-    private static final String TAG = PlayerActivity.class.getSimpleName();
+    private static final String TAG = AudioPlayerActivity.class.getSimpleName();
     public static final String EXTRA_IS_NEW_TRACK = "com.fesskiev.player.EXTRA_IS_NEW_TRACK";
 
     private MusicPlayer musicPlayer;
@@ -54,13 +53,13 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
 
     public static void startPlayerActivity(Context context, boolean isNewTrack) {
         context.startActivity(new Intent(context,
-                PlayerActivity.class).putExtra(PlayerActivity.EXTRA_IS_NEW_TRACK, isNewTrack));
+                AudioPlayerActivity.class).putExtra(AudioPlayerActivity.EXTRA_IS_NEW_TRACK, isNewTrack));
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_player);
+        setContentView(R.layout.activity_audio_player);
         if (savedInstanceState == null) {
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             if (toolbar != null) {
@@ -68,8 +67,8 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
                 toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        navigateUpToFromChild(PlayerActivity.this,
-                                IntentCompat.makeMainActivity(new ComponentName(PlayerActivity.this,
+                        navigateUpToFromChild(AudioPlayerActivity.this,
+                                IntentCompat.makeMainActivity(new ComponentName(AudioPlayerActivity.this,
                                         TrackListActivity.class)));
                     }
                 });
@@ -78,9 +77,9 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
 
         musicPlayer = MusicApplication.getInstance().getMusicPlayer();
 
-        MusicFolder musicFolder = musicPlayer.currentMusicFolder;
+        AudioFolder audioFolder = musicPlayer.currentAudioFolder;
 
-        setBackdropImage(musicFolder);
+        setBackdropImage(audioFolder);
 
         volumeLevel = (ImageView) findViewById(R.id.volumeLevel);
         trackTimeTotal = (TextView) findViewById(R.id.trackTimeTotal);
@@ -107,7 +106,7 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
         findViewById(R.id.equalizer).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(PlayerActivity.this, EqualizerActivity.class));
+                startActivity(new Intent(AudioPlayerActivity.this, EqualizerActivity.class));
             }
         });
 
@@ -154,7 +153,7 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                PlaybackService.seekPlayback(PlayerActivity.this, progress);
+                PlaybackService.seekPlayback(AudioPlayerActivity.this, progress);
             }
         });
 
@@ -203,16 +202,16 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
         setPlayingIcon();
     }
 
-    private void setBackdropImage(MusicFolder musicFolder){
+    private void setBackdropImage(AudioFolder audioFolder){
         ImageView backdrop = (ImageView) findViewById(R.id.backdrop);
-        if (!musicFolder.folderImages.isEmpty()) {
-            File albumImagePath = musicFolder.folderImages.get(0);
+        if (!audioFolder.folderImages.isEmpty()) {
+            File albumImagePath = audioFolder.folderImages.get(0);
             if (albumImagePath != null) {
                 backdrop.setImageBitmap(Utils.getResizedBitmap(1024, 1024,
                         albumImagePath.getAbsolutePath()));
             }
         } else {
-            Bitmap artwork = musicPlayer.currentMusicFile.getArtwork();
+            Bitmap artwork = musicPlayer.currentAudioFile.getArtwork();
             if (artwork != null) {
                 backdrop.setImageBitmap(artwork);
             } else {
@@ -225,12 +224,12 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
 
     @Override
     public void play() {
-        PlaybackService.startPlayback(PlayerActivity.this);
+        PlaybackService.startPlayback(AudioPlayerActivity.this);
     }
 
     @Override
     public void pause() {
-        PlaybackService.stopPlayback(PlayerActivity.this);
+        PlaybackService.stopPlayback(AudioPlayerActivity.this);
     }
 
     @Override
@@ -253,12 +252,12 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
 
     @Override
     public void createPlayer() {
-        PlaybackService.createPlayer(this, musicPlayer.currentMusicFile.filePath);
+        PlaybackService.createPlayer(this, musicPlayer.currentAudioFile.filePath);
     }
 
     private void setVolumeLevel() {
         volumeSeek.setProgress(musicPlayer.volume);
-        PlaybackService.volumePlayback(PlayerActivity.this, musicPlayer.volume);
+        PlaybackService.volumePlayback(AudioPlayerActivity.this, musicPlayer.volume);
         if (musicPlayer.volume <= 45) {
             volumeLevel.setImageResource(R.drawable.low_volume_icon);
         } else {
@@ -274,28 +273,28 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
 
 
     private void setTrackInformation() {
-        MusicFile currentMusicFile = musicPlayer.currentMusicFile;
-        artist.setText(currentMusicFile.artist);
-        title.setText(currentMusicFile.title);
-        album.setText(currentMusicFile.album);
-        genre.setText(currentMusicFile.genre);
+        AudioFile currentAudioFile = musicPlayer.currentAudioFile;
+        artist.setText(currentAudioFile.artist);
+        title.setText(currentAudioFile.title);
+        album.setText(currentAudioFile.album);
+        genre.setText(currentAudioFile.genre);
 
         StringBuilder sb = new StringBuilder();
         sb.append("MP3::");
-        sb.append(currentMusicFile.sampleRate);
+        sb.append(currentAudioFile.sampleRate);
         sb.append("::");
-        sb.append(currentMusicFile.bitrate);
+        sb.append(currentAudioFile.bitrate);
         trackDescription.setText(sb.toString());
     }
 
     private void setPlayingIcon() {
         if (musicPlayer.isPlaying) {
             playStopButton.
-                    setImageDrawable(ContextCompat.getDrawable(PlayerActivity.this,
+                    setImageDrawable(ContextCompat.getDrawable(AudioPlayerActivity.this,
                             R.drawable.pause_icon));
         } else {
             playStopButton.
-                    setImageDrawable(ContextCompat.getDrawable(PlayerActivity.this,
+                    setImageDrawable(ContextCompat.getDrawable(AudioPlayerActivity.this,
                             R.drawable.play_icon));
         }
     }

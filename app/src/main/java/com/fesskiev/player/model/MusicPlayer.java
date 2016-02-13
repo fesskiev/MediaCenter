@@ -6,29 +6,29 @@ import java.util.List;
 
 public class MusicPlayer {
 
-    public List<MusicFolder> musicFolders;
-    public MusicFolder currentMusicFolder;
-    public MusicFile currentMusicFile;
+    public List<AudioFolder> audioFolders;
+    public AudioFolder currentAudioFolder;
+    public AudioFile currentAudioFile;
     public int position;
     public int volume;
     public boolean isPlaying;
 
     public MusicPlayer() {
-        this.musicFolders = new ArrayList<>();
+        this.audioFolders = new ArrayList<>();
         this.volume = 100;
     }
 
     public void next() {
-        if (position < currentMusicFolder.musicFilesDescription.size() - 1) {
+        if (position < currentAudioFolder.audioFilesDescription.size() - 1) {
             position++;
         }
-        currentMusicFile = currentMusicFolder.musicFilesDescription.get(position);
+        currentAudioFile = currentAudioFolder.audioFilesDescription.get(position);
     }
 
     public void previous() {
         if (position > 0) {
             position--;
         }
-        currentMusicFile = currentMusicFolder.musicFilesDescription.get(position);
+        currentAudioFile = currentAudioFolder.audioFilesDescription.get(position);
     }
 }
