@@ -1,7 +1,5 @@
 package com.fesskiev.player.ui.player;
 
-
-import android.animation.Animator;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -14,8 +12,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.IntentCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -30,6 +28,7 @@ import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.equalizer.EqualizerActivity;
 import com.fesskiev.player.ui.tracklist.TrackListActivity;
 import com.fesskiev.player.utils.Utils;
+import com.fesskiev.player.widgets.DescriptionCard;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -37,10 +36,11 @@ import java.io.File;
 public class PlayerActivity extends AppCompatActivity implements Playable {
 
     private static final String TAG = PlayerActivity.class.getSimpleName();
+    public static final String EXTRA_IS_NEW_TRACK = "com.fesskiev.player.EXTRA_IS_NEW_TRACK";
 
     private MusicPlayer musicPlayer;
     private FloatingActionButton playStopButton;
-    private CardView cardDescription;
+    private DescriptionCard cardDescription;
     private ImageView volumeLevel;
     private TextView trackTimeCount;
     private TextView trackTimeTotal;
@@ -50,8 +50,12 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
     private TextView album;
     private TextView trackDescription;
     private SeekBar trackSeek;
-    private boolean isPlaying;
+    private SeekBar volumeSeek;
 
+    public static void startPlayerActivity(Context context, boolean isNewTrack) {
+        context.startActivity(new Intent(context,
+                PlayerActivity.class).putExtra(PlayerActivity.EXTRA_IS_NEW_TRACK, isNewTrack));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +80,8 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
 
         MusicFolder musicFolder = musicPlayer.currentMusicFolder;
 
-        cardDescription = (CardView) findViewById(R.id.cardDescription);
+        setBackdropImage(musicFolder);
+
         volumeLevel = (ImageView) findViewById(R.id.volumeLevel);
         trackTimeTotal = (TextView) findViewById(R.id.trackTimeTotal);
         trackTimeCount = (TextView) findViewById(R.id.trackTimeCount);
@@ -86,24 +91,18 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
         genre = (TextView) findViewById(R.id.genre);
         album = (TextView) findViewById(R.id.album);
 
-        ImageView backdrop = (ImageView) findViewById(R.id.backdrop);
-        if (!musicFolder.folderImages.isEmpty()) {
-            File albumImagePath = musicFolder.folderImages.get(0);
-            if (albumImagePath != null) {
-                backdrop.setImageBitmap(Utils.getResizedBitmap(1024, 1024,
-                        albumImagePath.getAbsolutePath()));
-            }
-        } else {
-            Bitmap artwork = musicPlayer.currentMusicFile.getArtwork();
-            if (artwork != null) {
-                backdrop.setImageBitmap(artwork);
-            } else {
-                Picasso.with(this).
-                        load(R.drawable.no_cover_icon).
-                        into(backdrop);
-            }
-        }
+        cardDescription = (DescriptionCard) findViewById(R.id.cardDescription);
+        cardDescription.setOnCardAnimationListener(new DescriptionCard.OnCardAnimationListener() {
+            @Override
+            public void animationStart() {
 
+            }
+
+            @Override
+            public void animationEnd() {
+                setTrackInformation();
+            }
+        });
 
         findViewById(R.id.equalizer).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,13 +125,12 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
             }
         });
 
-
         playStopButton =
                 (FloatingActionButton) findViewById(R.id.playStopFAB);
         playStopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isPlaying) {
+                if (musicPlayer.isPlaying) {
                     pause();
                 } else {
                     play();
@@ -161,14 +159,13 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
         });
 
 
-        SeekBar volumeSeek = (SeekBar) findViewById(R.id.seekVolume);
+        volumeSeek = (SeekBar) findViewById(R.id.seekVolume);
         volumeSeek.setProgress(100);
         volumeSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            int lastProgress = 100;
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                lastProgress = progress;
+                musicPlayer.volume = progress;
             }
 
             @Override
@@ -178,22 +175,52 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                PlaybackService.volumePlayback(PlayerActivity.this, lastProgress);
-                if (lastProgress <= 45) {
-                    volumeLevel.setImageResource(R.drawable.low_volume_icon);
-                } else {
-                    volumeLevel.setImageResource(R.drawable.high_volume_icon);
-                }
+                setVolumeLevel();
             }
         });
 
 
-        resetIndicators();
-        setTrackInformation();
-        createPlayer();
-        play();
+        boolean isNewTrack = getIntent().getBooleanExtra(EXTRA_IS_NEW_TRACK, false);
+        if (isNewTrack) {
+            createNewTrack();
+        } else {
+            resumePlaying();
+        }
 
         registerPlaybackBroadcastReceiver();
+    }
+
+    private void createNewTrack() {
+        createPlayer();
+        play();
+        setTrackInformation();
+        setVolumeLevel();
+    }
+
+    private void resumePlaying() {
+        setTrackInformation();
+        setVolumeLevel();
+        setPlayingIcon();
+    }
+
+    private void setBackdropImage(MusicFolder musicFolder){
+        ImageView backdrop = (ImageView) findViewById(R.id.backdrop);
+        if (!musicFolder.folderImages.isEmpty()) {
+            File albumImagePath = musicFolder.folderImages.get(0);
+            if (albumImagePath != null) {
+                backdrop.setImageBitmap(Utils.getResizedBitmap(1024, 1024,
+                        albumImagePath.getAbsolutePath()));
+            }
+        } else {
+            Bitmap artwork = musicPlayer.currentMusicFile.getArtwork();
+            if (artwork != null) {
+                backdrop.setImageBitmap(artwork);
+            } else {
+                Picasso.with(this).
+                        load(R.drawable.no_cover_icon).
+                        into(backdrop);
+            }
+        }
     }
 
     @Override
@@ -210,7 +237,7 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
     public void next() {
         musicPlayer.next();
 
-        animateCardDescription(true);
+        cardDescription.next();
         resetIndicators();
         createPlayer();
     }
@@ -219,7 +246,7 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
     public void previous() {
         musicPlayer.previous();
 
-        animateCardDescription(false);
+        cardDescription.previous();
         resetIndicators();
         createPlayer();
     }
@@ -229,62 +256,15 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
         PlaybackService.createPlayer(this, musicPlayer.currentMusicFile.filePath);
     }
 
-    private void animateCardDescription(boolean next) {
-        float value = next ? cardDescription.getWidth() +
-                getResources().getDimension(R.dimen.activity_horizontal_margin) :
-                -(cardDescription.getWidth() -
-                        getResources().getDimension(R.dimen.activity_horizontal_margin));
-
-        cardDescription.
-                animate().
-                x(value).
-                setDuration(500).
-                setListener(new Animator.AnimatorListener() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        cardDescription.animate().
-                                x(getResources().
-                                        getDimension(R.dimen.activity_horizontal_margin)).
-                                setListener(new Animator.AnimatorListener() {
-                                    @Override
-                                    public void onAnimationStart(Animator animation) {
-
-                                    }
-
-                                    @Override
-                                    public void onAnimationEnd(Animator animation) {
-                                        setTrackInformation();
-                                    }
-
-                                    @Override
-                                    public void onAnimationCancel(Animator animation) {
-
-                                    }
-
-                                    @Override
-                                    public void onAnimationRepeat(Animator animation) {
-
-                                    }
-                                });
-                    }
-
-                    @Override
-                    public void onAnimationCancel(Animator animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animator animation) {
-
-                    }
-                });
+    private void setVolumeLevel() {
+        volumeSeek.setProgress(musicPlayer.volume);
+        PlaybackService.volumePlayback(PlayerActivity.this, musicPlayer.volume);
+        if (musicPlayer.volume <= 45) {
+            volumeLevel.setImageResource(R.drawable.low_volume_icon);
+        } else {
+            volumeLevel.setImageResource(R.drawable.high_volume_icon);
+        }
     }
-
 
     private void resetIndicators() {
         trackTimeTotal.setText("0:00");
@@ -306,6 +286,18 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
         sb.append("::");
         sb.append(currentMusicFile.bitrate);
         trackDescription.setText(sb.toString());
+    }
+
+    private void setPlayingIcon() {
+        if (musicPlayer.isPlaying) {
+            playStopButton.
+                    setImageDrawable(ContextCompat.getDrawable(PlayerActivity.this,
+                            R.drawable.pause_icon));
+        } else {
+            playStopButton.
+                    setImageDrawable(ContextCompat.getDrawable(PlayerActivity.this,
+                            R.drawable.play_icon));
+        }
     }
 
     @Override
@@ -347,16 +339,8 @@ public class PlayerActivity extends AppCompatActivity implements Playable {
                     trackTimeCount.setText(Utils.getTimeString(progress));
                     break;
                 case PlaybackService.ACTION_PLAYBACK_PLAYING_STATE:
-                    isPlaying = intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_PLAYING, false);
-                    if (isPlaying) {
-                        playStopButton.
-                                setImageDrawable(ContextCompat.getDrawable(PlayerActivity.this,
-                                        R.drawable.pause_icon));
-                    } else {
-                        playStopButton.
-                                setImageDrawable(ContextCompat.getDrawable(PlayerActivity.this,
-                                        R.drawable.play_icon));
-                    }
+                    musicPlayer.isPlaying = intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_PLAYING, false);
+                    setPlayingIcon();
                     break;
                 case PlaybackService.ACTION_SONG_END:
                     next();

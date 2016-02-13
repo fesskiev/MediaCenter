@@ -10,9 +10,12 @@ public class MusicPlayer {
     public MusicFolder currentMusicFolder;
     public MusicFile currentMusicFile;
     public int position;
+    public int volume;
+    public boolean isPlaying;
 
     public MusicPlayer() {
         this.musicFolders = new ArrayList<>();
+        this.volume = 100;
     }
 
     public void next() {

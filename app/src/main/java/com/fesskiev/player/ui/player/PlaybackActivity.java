@@ -38,19 +38,19 @@ public class PlaybackActivity extends AppCompatActivity {
 
     }
 
-    protected void showPlaybackControl() {
+    public void showPlaybackControl() {
         if (!playBackControlShow) {
             getFragmentManager().beginTransaction()
                     .setCustomAnimations(
-                            R.animator.slide_in_from_bottom, R.animator.slide_out_to_bottom,
-                            R.animator.slide_in_from_bottom, R.animator.slide_out_to_bottom)
+                            R.animator.slide_up, R.animator.slide_down,
+                            R.animator.slide_up, R.animator.slide_down)
                     .show(controlFragment)
                     .commitAllowingStateLoss();
             playBackControlShow = true;
         }
     }
 
-    protected void hidePlaybackControl() {
+    public void hidePlaybackControl() {
         if (playBackControlShow) {
             getFragmentManager().beginTransaction()
                     .hide(controlFragment)

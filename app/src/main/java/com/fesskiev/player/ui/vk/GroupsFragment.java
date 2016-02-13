@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,11 +19,9 @@ import android.widget.TextView;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.vk.Group;
 import com.fesskiev.player.services.RESTService;
-import com.fesskiev.player.ui.tracklist.TrackListFragment;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.http.URLHelper;
-import com.fesskiev.player.widgets.recycleview.OnItemClickListener;
-import com.fesskiev.player.widgets.recycleview.RecycleItemClickListener;
+import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
 import com.squareup.picasso.Picasso;
 
@@ -66,17 +63,22 @@ public class GroupsFragment extends Fragment {
                 LinearLayoutManager.VERTICAL, false, 1000));
         groupsAdapter = new GroupsAdapter();
         recyclerView.setAdapter(groupsAdapter);
-        recyclerView.addOnItemTouchListener(new RecycleItemClickListener(getActivity(),
-                new OnItemClickListener() {
+        recyclerView.addOnItemTouchListener(new RecyclerItemTouchClickListener(getActivity(),
+                new RecyclerItemTouchClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View childView, int position) {
+                Group group = groupsAdapter.getGroups().get(position);
+                if (group != null) {
+                    startGroupAudioActivity(group);
+                }
+            }
 
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        Group group = groupsAdapter.getGroups().get(position);
-                        if (group != null) {
-                            startGroupAudioActivity(group);
-                        }
-                    }
-                }));
+            @Override
+            public void onItemLongPress(View childView, int position) {
+
+            }
+        }));
+
     }
 
     private void startGroupAudioActivity(Group group) {

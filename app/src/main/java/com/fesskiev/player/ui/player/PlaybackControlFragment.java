@@ -1,7 +1,6 @@
 package com.fesskiev.player.ui.player;
 
 import android.app.Fragment;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -53,7 +52,7 @@ public class PlaybackControlFragment extends Fragment {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getActivity(), PlayerActivity.class));
+                PlayerActivity.startPlayerActivity(getActivity(), false);
             }
         });
     }

@@ -32,6 +32,7 @@ import com.fesskiev.player.services.FetchAudioInfoIntentService;
 import com.fesskiev.player.ui.player.PlayerActivity;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.dialogs.EditTrackDialog;
+import com.fesskiev.player.widgets.recycleview.HidingScrollListener;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
 import com.squareup.picasso.Picasso;
@@ -85,24 +86,37 @@ public class TrackListFragment extends Fragment {
         recyclerView.addOnItemTouchListener(new RecyclerItemTouchClickListener(getActivity(),
                 new RecyclerItemTouchClickListener.OnItemClickListener() {
 
-            @Override
-            public void onItemClick(View childView, int position) {
-                MusicFile musicFile = musicFolder.musicFilesDescription.get(position);
-                if (musicFile != null) {
-                    MusicPlayer musicPlayer = MusicApplication.getInstance().getMusicPlayer();
-                    musicPlayer.currentMusicFile = musicFile;
-                    musicPlayer.position = position;
+                    @Override
+                    public void onItemClick(View childView, int position) {
+                        MusicFile musicFile = musicFolder.musicFilesDescription.get(position);
+                        if (musicFile != null) {
+                            MusicPlayer musicPlayer = MusicApplication.getInstance().getMusicPlayer();
+                            musicPlayer.currentMusicFile = musicFile;
+                            musicPlayer.position = position;
 
-                    startActivity(new Intent(getActivity(), PlayerActivity.class));
-                }
+                            PlayerActivity.startPlayerActivity(getActivity(), true);
+                        }
+                    }
+
+                    @Override
+                    public void onItemLongPress(View childView, int position) {
+                        MusicFile musicFile = musicFolder.musicFilesDescription.get(position);
+                        showPopupMenu(childView, musicFile);
+                    }
+                }));
+
+        recyclerView.addOnScrollListener(new HidingScrollListener() {
+            @Override
+            public void onHide() {
+                hidePlaybackControl();
             }
 
             @Override
-            public void onItemLongPress(View childView, int position) {
-                MusicFile musicFile = musicFolder.musicFilesDescription.get(position);
-                showPopupMenu(childView, musicFile);
+            public void onShow() {
+                showPlaybackControl();
             }
-        }));
+        });
+
 
         if (musicFolder.musicFilesDescription.size() == 0) {
             FetchAudioInfoIntentService.startFetchAudioInfo(getActivity());
@@ -127,6 +141,20 @@ public class TrackListFragment extends Fragment {
         unregisterMusicFilesReceiver();
     }
 
+    private void hidePlaybackControl() {
+        MusicPlayer musicPlayer = MusicApplication.getInstance().getMusicPlayer();
+        if (musicPlayer.isPlaying) {
+            ((TrackListActivity) getActivity()).hidePlaybackControl();
+        }
+    }
+
+    private void showPlaybackControl() {
+        MusicPlayer musicPlayer = MusicApplication.getInstance().getMusicPlayer();
+        if(musicPlayer.isPlaying) {
+            ((TrackListActivity) getActivity()).showPlaybackControl();
+        }
+    }
+
 
     private void showPopupMenu(View view, final MusicFile musicFile) {
         final PopupMenu popupMenu = new PopupMenu(getActivity(), view);
@@ -148,7 +176,7 @@ public class TrackListFragment extends Fragment {
         popupMenu.show();
     }
 
-    private void deleteFile(final MusicFile musicFile){
+    private void deleteFile(final MusicFile musicFile) {
         AlertDialog.Builder builder =
                 new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
         builder.setTitle(getString(R.string.dialog_delete_file_title));
@@ -157,7 +185,7 @@ public class TrackListFragment extends Fragment {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if(new File(musicFile.filePath).delete()){
+                        if (new File(musicFile.filePath).delete()) {
                             Snackbar.make(getView(),
                                     getString(R.string.shackbar_delete_file), Snackbar.LENGTH_LONG).show();
                             musicFilesAdapter.musicFiles.remove(musicFile);
@@ -175,7 +203,7 @@ public class TrackListFragment extends Fragment {
         builder.show();
     }
 
-    private void showEditDialog(MusicFile musicFile){
+    private void showEditDialog(MusicFile musicFile) {
         EditTrackDialog editTrackDialog = new EditTrackDialog(getActivity(), musicFile);
         editTrackDialog.show();
     }

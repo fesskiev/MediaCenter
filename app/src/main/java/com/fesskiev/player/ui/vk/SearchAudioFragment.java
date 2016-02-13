@@ -12,7 +12,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
@@ -25,7 +24,7 @@ import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.utils.http.URLHelper;
-import com.fesskiev.player.widgets.utils.HidingScrollListener;
+import com.fesskiev.player.widgets.recycleview.HidingScrollListener;
 
 import java.util.List;
 

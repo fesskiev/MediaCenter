@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,11 +20,11 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MusicApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.MusicFile;
 import com.fesskiev.player.model.MusicFolder;
 import com.fesskiev.player.model.MusicPlayer;
 import com.fesskiev.player.services.FileTreeIntentService;
 import com.fesskiev.player.ui.tracklist.TrackListActivity;
+import com.fesskiev.player.widgets.gridview.HidingScrollListener;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -33,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MusicFoldersFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener  {
+public class MusicFoldersFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = MusicFoldersFragment.class.getSimpleName();
 
@@ -79,8 +78,33 @@ public class MusicFoldersFragment extends Fragment implements SwipeRefreshLayout
                 }
             }
         });
+
+        gridView.setOnScrollListener(new HidingScrollListener() {
+            @Override
+            public void onHide() {
+                hidePlaybackControl();
+            }
+
+            @Override
+            public void onShow() {
+                showPlaybackControl();
+            }
+        });
     }
 
+    private void hidePlaybackControl() {
+        MusicPlayer musicPlayer = MusicApplication.getInstance().getMusicPlayer();
+        if (musicPlayer.isPlaying) {
+            ((MainActivity) getActivity()).hidePlaybackControl();
+        }
+    }
+
+    private void showPlaybackControl() {
+        MusicPlayer musicPlayer = MusicApplication.getInstance().getMusicPlayer();
+        if (musicPlayer.isPlaying) {
+            ((MainActivity) getActivity()).showPlaybackControl();
+        }
+    }
 
 
     @Override

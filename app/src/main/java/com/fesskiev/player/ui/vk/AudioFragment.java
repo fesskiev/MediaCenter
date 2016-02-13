@@ -20,8 +20,7 @@ import com.fesskiev.player.model.vk.VKMusicFile;
 import com.fesskiev.player.utils.Download;
 import com.fesskiev.player.widgets.MaterialProgressBar;
 import com.fesskiev.player.widgets.recycleview.EndlessScrollListener;
-import com.fesskiev.player.widgets.recycleview.OnItemClickListener;
-import com.fesskiev.player.widgets.recycleview.RecycleItemClickListener;
+import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
 
 import java.util.ArrayList;
@@ -52,24 +51,30 @@ public abstract class AudioFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         audioAdapter = new AudioAdapter();
         recyclerView.setAdapter(audioAdapter);
-        recyclerView.addOnItemTouchListener(new RecycleItemClickListener(getActivity(),
-                new OnItemClickListener() {
+        recyclerView.addOnItemTouchListener(new RecyclerItemTouchClickListener(getActivity(),
+                new RecyclerItemTouchClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View childView, int position) {
+                List<DownloadVkMusicFile> downloadVkMusicFiles = audioAdapter.getDownloadVkMusicFiles();
+                if (downloadVkMusicFiles != null) {
+                    DownloadVkMusicFile downloadVkMusicFile = downloadVkMusicFiles.get(position);
+                    if (downloadVkMusicFile != null) {
+                        if (downloadVkMusicFile.download == null) {
+                            downloadFileDialog(downloadVkMusicFile, position);
+                        } else {
 
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        List<DownloadVkMusicFile> downloadVkMusicFiles = audioAdapter.getDownloadVkMusicFiles();
-                        if (downloadVkMusicFiles != null) {
-                            DownloadVkMusicFile downloadVkMusicFile = downloadVkMusicFiles.get(position);
-                            if (downloadVkMusicFile != null) {
-                                if (downloadVkMusicFile.download == null) {
-                                    downloadFileDialog(downloadVkMusicFile, position);
-                                } else {
-
-                                }
-                            }
                         }
                     }
-                }));
+                }
+            }
+
+            @Override
+            public void onItemLongPress(View childView, int position) {
+
+            }
+        }));
+
+
         recyclerView.addOnScrollListener(new EndlessScrollListener(layoutManager) {
             @Override
             public void onEndlessScrolled() {
