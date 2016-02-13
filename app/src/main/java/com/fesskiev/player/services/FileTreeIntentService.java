@@ -9,10 +9,10 @@ import android.util.Log;
 
 import com.fesskiev.player.MusicApplication;
 import com.fesskiev.player.model.AudioFolder;
+import com.fesskiev.player.model.VideoFile;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.ArrayList;
 
 
 public class FileTreeIntentService extends IntentService {
@@ -20,9 +20,8 @@ public class FileTreeIntentService extends IntentService {
     private static final String TAG = FileTreeIntentService.class.getSimpleName();
 
     private static final String ACTION_START_FILE_TREE_SERVICE = "com.fesskiev.player.action.START_FILE_TREE_SERVICE";
-    public static final String ACTION_MUSIC_FOLDER = "com.fesskiev.player.action.MUSIC_FOLDER";
-
-    private ArrayList<AudioFolder> audioFolders;
+    public static final String ACTION_AUDIO_FOLDER = "com.fesskiev.player.action.AUDIO_FOLDER";
+    public static final String ACTION_VIDEO_FILE = "com.fesskiev.player.action.VIDEO_FILE";
 
     public FileTreeIntentService() {
         super(FileTreeIntentService.class.getName());
@@ -49,7 +48,6 @@ public class FileTreeIntentService extends IntentService {
 
 
     private void getMusicFolders() {
-        audioFolders = new ArrayList<>();
         String sdCardState = Environment.getExternalStorageState();
         if (!sdCardState.equals(Environment.MEDIA_MOUNTED)) {
             Log.wtf(TAG, "NO SD CARD");
@@ -57,9 +55,6 @@ public class FileTreeIntentService extends IntentService {
             File root = Environment.getExternalStorageDirectory();
             walk(root.getAbsolutePath());
         }
-
-//        musicFolderToString();
-
     }
 
     public void walk(String path) {
@@ -70,17 +65,32 @@ public class FileTreeIntentService extends IntentService {
         }
         for (File child : list) {
             if (child.isDirectory()) {
-                checkMusicFilesFolder(child);
+                checkAudioFilesFolder(child);
+                checkVideoFiles(child);
                 walk(child.getAbsolutePath());
             }
         }
     }
 
-    private void checkMusicFilesFolder(File child) {
+    private void checkVideoFiles(File child) {
+        File[] moviesFiles = child.listFiles(videoFilter());
+        if (moviesFiles != null) {
+            for (File movieFile : moviesFiles) {
+                VideoFile videoFile = new VideoFile();
+                videoFile.filePath = movieFile.getAbsolutePath();
+
+                MusicApplication.getInstance().getVideoPlayer().videoFiles.add(videoFile);
+                sendVideoFoldersBroadcast();
+            }
+        }
+    }
+
+
+    private void checkAudioFilesFolder(File child) {
         File[] directoryFiles = child.listFiles();
         if (directoryFiles != null) {
             for (File directoryFile : directoryFiles) {
-                File[] filterFiles = directoryFile.listFiles(musicFilter());
+                File[] filterFiles = directoryFile.listFiles(audioFilter());
                 if (filterFiles != null && filterFiles.length > 0) {
                     AudioFolder audioFolder = new AudioFolder();
                     audioFolder.folderName = directoryFile.getName();
@@ -97,26 +107,34 @@ public class FileTreeIntentService extends IntentService {
                             audioFolder.folderImages.add(file);
                         }
                     }
-                    audioFolders.add(audioFolder);
-                    MusicApplication.getInstance().getMusicPlayer().audioFolders = audioFolders;
-                    sendMusicFoldersBroadcast();
+                    MusicApplication.getInstance().getAudioPlayer().audioFolders.add(audioFolder);
+                    sendAudioFoldersBroadcast();
                 }
             }
         }
     }
 
-    public void sendMusicFoldersBroadcast() {
-        Intent intent = new Intent(ACTION_MUSIC_FOLDER);
+    public void sendAudioFoldersBroadcast() {
+        Intent intent = new Intent(ACTION_AUDIO_FOLDER);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
-    private void musicFolderToString() {
-        for (AudioFolder audioFolder : audioFolders) {
-            Log.d(TAG, "folder: " + audioFolder.toString());
-        }
+    public void sendVideoFoldersBroadcast() {
+        Intent intent = new Intent(ACTION_VIDEO_FILE);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
-    private FilenameFilter musicFilter() {
+
+    private FilenameFilter videoFilter() {
+        return new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                String lowercaseName = name.toLowerCase();
+                return lowercaseName.endsWith(".mp4") || lowercaseName.endsWith(".ts");
+            }
+        };
+    }
+
+    private FilenameFilter audioFilter() {
         return new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 String lowercaseName = name.toLowerCase();

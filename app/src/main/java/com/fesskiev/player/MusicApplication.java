@@ -6,7 +6,8 @@ import android.os.Environment;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
-import com.fesskiev.player.model.MusicPlayer;
+import com.fesskiev.player.model.AudioPlayer;
+import com.fesskiev.player.model.VideoPlayer;
 import com.fesskiev.player.utils.RecursiveFileObserver;
 import com.vk.sdk.VKSdk;
 
@@ -15,7 +16,8 @@ public class MusicApplication extends Application {
 
     private static MusicApplication application;
     private RequestQueue requestQueue;
-    private MusicPlayer musicPlayer;
+    private AudioPlayer audioPlayer;
+    private VideoPlayer videoPlayer;
 
     static {
         System.loadLibrary("khronos-media");
@@ -26,7 +28,8 @@ public class MusicApplication extends Application {
     public void onCreate() {
         super.onCreate();
         application = this;
-        musicPlayer = new MusicPlayer();
+        audioPlayer = new AudioPlayer();
+        videoPlayer = new VideoPlayer();
         VKSdk.initialize(this);
 
 //        createFileObserver();
@@ -69,7 +72,11 @@ public class MusicApplication extends Application {
         }
     }
 
-    public MusicPlayer getMusicPlayer() {
-        return musicPlayer;
+    public AudioPlayer getAudioPlayer() {
+        return audioPlayer;
+    }
+
+    public VideoPlayer getVideoPlayer() {
+        return videoPlayer;
     }
 }

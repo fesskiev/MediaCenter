@@ -96,7 +96,7 @@ public class AppSettingsManager {
 
     private String getUserPhotoPath() {
         String externalStorage = Environment.getExternalStorageDirectory().toString();
-        File folder = new File(externalStorage + "/MusicPlayer/UserPhoto/");
+        File folder = new File(externalStorage + "/MediaCenter/UserPhoto/");
         if (!folder.exists()) {
             folder.mkdirs();
         }

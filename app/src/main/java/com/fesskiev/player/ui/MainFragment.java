@@ -31,7 +31,7 @@ public class MainFragment extends ViewPagerFragment{
     public Fragment[] getPagerFragments() {
         return new Fragment[]{
                 AudioFoldersFragment.newInstance(),
-                VideoFoldersFragment.newInstance()
+                VideoFilesFragment.newInstance()
         };
     }
 }

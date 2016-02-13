@@ -22,7 +22,7 @@ import com.fesskiev.player.MusicApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
-import com.fesskiev.player.model.MusicPlayer;
+import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.equalizer.EqualizerActivity;
 import com.fesskiev.player.ui.tracklist.TrackListActivity;
@@ -37,7 +37,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
     private static final String TAG = AudioPlayerActivity.class.getSimpleName();
     public static final String EXTRA_IS_NEW_TRACK = "com.fesskiev.player.EXTRA_IS_NEW_TRACK";
 
-    private MusicPlayer musicPlayer;
+    private AudioPlayer audioPlayer;
     private FloatingActionButton playStopButton;
     private DescriptionCard cardDescription;
     private ImageView volumeLevel;
@@ -75,9 +75,9 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
             }
         }
 
-        musicPlayer = MusicApplication.getInstance().getMusicPlayer();
+        audioPlayer = MusicApplication.getInstance().getAudioPlayer();
 
-        AudioFolder audioFolder = musicPlayer.currentAudioFolder;
+        AudioFolder audioFolder = audioPlayer.currentAudioFolder;
 
         setBackdropImage(audioFolder);
 
@@ -129,7 +129,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
         playStopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (musicPlayer.isPlaying) {
+                if (audioPlayer.isPlaying) {
                     pause();
                 } else {
                     play();
@@ -164,7 +164,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                musicPlayer.volume = progress;
+                audioPlayer.volume = progress;
             }
 
             @Override
@@ -211,7 +211,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
                         albumImagePath.getAbsolutePath()));
             }
         } else {
-            Bitmap artwork = musicPlayer.currentAudioFile.getArtwork();
+            Bitmap artwork = audioPlayer.currentAudioFile.getArtwork();
             if (artwork != null) {
                 backdrop.setImageBitmap(artwork);
             } else {
@@ -234,7 +234,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
 
     @Override
     public void next() {
-        musicPlayer.next();
+        audioPlayer.next();
 
         cardDescription.next();
         resetIndicators();
@@ -243,7 +243,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
 
     @Override
     public void previous() {
-        musicPlayer.previous();
+        audioPlayer.previous();
 
         cardDescription.previous();
         resetIndicators();
@@ -252,13 +252,13 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
 
     @Override
     public void createPlayer() {
-        PlaybackService.createPlayer(this, musicPlayer.currentAudioFile.filePath);
+        PlaybackService.createPlayer(this, audioPlayer.currentAudioFile.filePath);
     }
 
     private void setVolumeLevel() {
-        volumeSeek.setProgress(musicPlayer.volume);
-        PlaybackService.volumePlayback(AudioPlayerActivity.this, musicPlayer.volume);
-        if (musicPlayer.volume <= 45) {
+        volumeSeek.setProgress(audioPlayer.volume);
+        PlaybackService.volumePlayback(AudioPlayerActivity.this, audioPlayer.volume);
+        if (audioPlayer.volume <= 45) {
             volumeLevel.setImageResource(R.drawable.low_volume_icon);
         } else {
             volumeLevel.setImageResource(R.drawable.high_volume_icon);
@@ -273,7 +273,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
 
 
     private void setTrackInformation() {
-        AudioFile currentAudioFile = musicPlayer.currentAudioFile;
+        AudioFile currentAudioFile = audioPlayer.currentAudioFile;
         artist.setText(currentAudioFile.artist);
         title.setText(currentAudioFile.title);
         album.setText(currentAudioFile.album);
@@ -288,7 +288,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
     }
 
     private void setPlayingIcon() {
-        if (musicPlayer.isPlaying) {
+        if (audioPlayer.isPlaying) {
             playStopButton.
                     setImageDrawable(ContextCompat.getDrawable(AudioPlayerActivity.this,
                             R.drawable.pause_icon));
@@ -338,7 +338,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
                     trackTimeCount.setText(Utils.getTimeString(progress));
                     break;
                 case PlaybackService.ACTION_PLAYBACK_PLAYING_STATE:
-                    musicPlayer.isPlaying = intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_PLAYING, false);
+                    audioPlayer.isPlaying = intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_PLAYING, false);
                     setPlayingIcon();
                     break;
                 case PlaybackService.ACTION_SONG_END:

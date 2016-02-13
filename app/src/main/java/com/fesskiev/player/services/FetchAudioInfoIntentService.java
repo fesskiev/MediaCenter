@@ -45,7 +45,7 @@ public class FetchAudioInfoIntentService extends IntentService {
     }
 
     private void fetchAudioInfo() {
-        AudioFolder audioFolder = MusicApplication.getInstance().getMusicPlayer().currentAudioFolder;
+        AudioFolder audioFolder = MusicApplication.getInstance().getAudioPlayer().currentAudioFolder;
         if (audioFolder != null) {
             for (File file : audioFolder.musicFiles) {
                 AudioFile audioFile = new AudioFile(getApplicationContext(), file.getAbsolutePath(),

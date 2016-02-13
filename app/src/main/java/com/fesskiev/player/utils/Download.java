@@ -91,7 +91,7 @@ public class Download implements Runnable {
 
     private String getFilePath() {
         String externalStorage = Environment.getExternalStorageDirectory().toString();
-        File folder = new File(externalStorage + "/MusicPlayer/Downloads/");
+        File folder = new File(externalStorage + "/MediaCenter/Downloads/");
         if (!folder.exists()) {
             folder.mkdirs();
         }

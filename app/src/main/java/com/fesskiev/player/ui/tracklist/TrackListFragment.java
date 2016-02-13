@@ -27,7 +27,7 @@ import com.fesskiev.player.MusicApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
-import com.fesskiev.player.model.MusicPlayer;
+import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.FetchAudioInfoIntentService;
 import com.fesskiev.player.ui.player.AudioPlayerActivity;
 import com.fesskiev.player.utils.Utils;
@@ -58,7 +58,7 @@ public class TrackListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         audioFolder =
-                MusicApplication.getInstance().getMusicPlayer().currentAudioFolder;
+                MusicApplication.getInstance().getAudioPlayer().currentAudioFolder;
         List<File> folderImages = audioFolder.folderImages;
         if (folderImages != null && folderImages.size() > 0) {
 
@@ -90,9 +90,9 @@ public class TrackListFragment extends Fragment {
                     public void onItemClick(View childView, int position) {
                         AudioFile audioFile = audioFolder.audioFilesDescription.get(position);
                         if (audioFile != null) {
-                            MusicPlayer musicPlayer = MusicApplication.getInstance().getMusicPlayer();
-                            musicPlayer.currentAudioFile = audioFile;
-                            musicPlayer.position = position;
+                            AudioPlayer audioPlayer = MusicApplication.getInstance().getAudioPlayer();
+                            audioPlayer.currentAudioFile = audioFile;
+                            audioPlayer.position = position;
 
                             AudioPlayerActivity.startPlayerActivity(getActivity(), true);
                         }
@@ -122,7 +122,7 @@ public class TrackListFragment extends Fragment {
             FetchAudioInfoIntentService.startFetchAudioInfo(getActivity());
         } else {
             List<AudioFile> receiverAudioFiles = MusicApplication.getInstance().
-                    getMusicPlayer().currentAudioFolder.audioFilesDescription;
+                    getAudioPlayer().currentAudioFolder.audioFilesDescription;
             if (receiverAudioFiles != null) {
                 musicFilesAdapter.refreshAdapter(receiverAudioFiles);
             }
@@ -142,15 +142,15 @@ public class TrackListFragment extends Fragment {
     }
 
     private void hidePlaybackControl() {
-        MusicPlayer musicPlayer = MusicApplication.getInstance().getMusicPlayer();
-        if (musicPlayer.isPlaying) {
+        AudioPlayer audioPlayer = MusicApplication.getInstance().getAudioPlayer();
+        if (audioPlayer.isPlaying) {
             ((TrackListActivity) getActivity()).hidePlaybackControl();
         }
     }
 
     private void showPlaybackControl() {
-        MusicPlayer musicPlayer = MusicApplication.getInstance().getMusicPlayer();
-        if(musicPlayer.isPlaying) {
+        AudioPlayer audioPlayer = MusicApplication.getInstance().getAudioPlayer();
+        if(audioPlayer.isPlaying) {
             ((TrackListActivity) getActivity()).showPlaybackControl();
         }
     }
@@ -228,7 +228,7 @@ public class TrackListFragment extends Fragment {
 //                    Log.d(TAG, "receive music files!");
 
                     List<AudioFile> receiverAudioFiles = MusicApplication.getInstance().
-                            getMusicPlayer().currentAudioFolder.audioFilesDescription;
+                            getAudioPlayer().currentAudioFolder.audioFilesDescription;
                     if (receiverAudioFiles != null) {
                         musicFilesAdapter.refreshAdapter(receiverAudioFiles);
                     }

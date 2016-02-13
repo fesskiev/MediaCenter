@@ -11,7 +11,7 @@ import android.widget.GridView;
 
 import com.fesskiev.player.MusicApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.MusicPlayer;
+import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.widgets.gridview.HidingScrollListener;
 
 public abstract class GridVideoFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -51,15 +51,15 @@ public abstract class GridVideoFragment extends Fragment implements SwipeRefresh
     }
 
     private void hidePlaybackControl() {
-        MusicPlayer musicPlayer = MusicApplication.getInstance().getMusicPlayer();
-        if (musicPlayer.isPlaying) {
+        AudioPlayer audioPlayer = MusicApplication.getInstance().getAudioPlayer();
+        if (audioPlayer.isPlaying) {
             ((MainActivity) getActivity()).hidePlaybackControl();
         }
     }
 
     private void showPlaybackControl() {
-        MusicPlayer musicPlayer = MusicApplication.getInstance().getMusicPlayer();
-        if (musicPlayer.isPlaying) {
+        AudioPlayer audioPlayer = MusicApplication.getInstance().getAudioPlayer();
+        if (audioPlayer.isPlaying) {
             ((MainActivity) getActivity()).showPlaybackControl();
         }
     }

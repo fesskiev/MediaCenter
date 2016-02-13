@@ -4,7 +4,7 @@ package com.fesskiev.player.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MusicPlayer {
+public class AudioPlayer {
 
     public List<AudioFolder> audioFolders;
     public AudioFolder currentAudioFolder;
@@ -13,7 +13,7 @@ public class MusicPlayer {
     public int volume;
     public boolean isPlaying;
 
-    public MusicPlayer() {
+    public AudioPlayer() {
         this.audioFolders = new ArrayList<>();
         this.volume = 100;
     }

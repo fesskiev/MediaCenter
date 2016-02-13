@@ -18,7 +18,7 @@ import android.widget.TextView;
 import com.fesskiev.player.MusicApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioFolder;
-import com.fesskiev.player.model.MusicPlayer;
+import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.FileTreeIntentService;
 import com.fesskiev.player.ui.tracklist.TrackListActivity;
 import com.squareup.picasso.Picasso;
@@ -39,7 +39,7 @@ public class AudioFoldersFragment extends GridVideoFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        registerLocationBroadcastReceiver();
+        registerAudioFolderBroadcastReceiver();
     }
 
     @Override
@@ -49,10 +49,10 @@ public class AudioFoldersFragment extends GridVideoFragment {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                MusicPlayer musicPlayer = MusicApplication.getInstance().getMusicPlayer();
-                AudioFolder audioFolder = musicPlayer.audioFolders.get(position);
+                AudioPlayer audioPlayer = MusicApplication.getInstance().getAudioPlayer();
+                AudioFolder audioFolder = audioPlayer.audioFolders.get(position);
                 if (audioFolder != null) {
-                    musicPlayer.currentAudioFolder = audioFolder;
+                    audioPlayer.currentAudioFolder = audioFolder;
 
                     startActivity(new Intent(getActivity(), TrackListActivity.class));
                 }
@@ -76,28 +76,28 @@ public class AudioFoldersFragment extends GridVideoFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        unregisterLocationBroadcastReceiver();
+        unregisterAudioFolderBroadcastReceiver();
     }
 
-    private void registerLocationBroadcastReceiver() {
+    private void registerAudioFolderBroadcastReceiver() {
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(FileTreeIntentService.ACTION_MUSIC_FOLDER);
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(musicFolderReceiver,
+        intentFilter.addAction(FileTreeIntentService.ACTION_AUDIO_FOLDER);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(audioFolderReceiver,
                 intentFilter);
     }
 
-    private void unregisterLocationBroadcastReceiver() {
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(musicFolderReceiver);
+    private void unregisterAudioFolderBroadcastReceiver() {
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(audioFolderReceiver);
     }
 
-    private BroadcastReceiver musicFolderReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver audioFolderReceiver = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
-                case FileTreeIntentService.ACTION_MUSIC_FOLDER:
+                case FileTreeIntentService.ACTION_AUDIO_FOLDER:
                     List<AudioFolder> receiverAudioFolders =
-                            MusicApplication.getInstance().getMusicPlayer().audioFolders;
+                            MusicApplication.getInstance().getAudioPlayer().audioFolders;
                     if (receiverAudioFolders != null) {
                         ((AudioFoldersAdapter) adapter).refresh(receiverAudioFolders);
                         swipeRefreshLayout.setRefreshing(false);
@@ -142,7 +142,7 @@ public class AudioFoldersFragment extends GridVideoFragment {
             if (convertView == null) {
                 LayoutInflater inflater = (LayoutInflater) getActivity()
                         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(R.layout.item_folder, parent, false);
+                convertView = inflater.inflate(R.layout.item_audio_folder, parent, false);
                 viewHolder = new ViewHolder();
                 viewHolder.albumName = (TextView) convertView.findViewById(R.id.albumName);
                 viewHolder.cover = (ImageView) convertView.findViewById(R.id.folderCover);
@@ -151,21 +151,24 @@ public class AudioFoldersFragment extends GridVideoFragment {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
 
-            if (audioFolders.get(position).folderImages.size() > 0) {
-                File coverFile = audioFolders.get(position).folderImages.get(0);
-                if (coverFile != null) {
+            AudioFolder audioFolder = audioFolders.get(position);
+            if (audioFolder != null) {
+                if (audioFolder.folderImages.size() > 0) {
+                    File coverFile = audioFolder.folderImages.get(0);
+                    if (coverFile != null) {
+                        Picasso.with(getActivity()).
+                                load(coverFile).
+                                resize(256, 256).
+                                into(viewHolder.cover);
+                    }
+                } else {
                     Picasso.with(getActivity()).
-                            load(coverFile).
-                            resize(256, 256).
+                            load(R.drawable.no_cover_icon).
                             into(viewHolder.cover);
                 }
-            } else {
-                Picasso.with(getActivity()).
-                        load(R.drawable.no_cover_icon).
-                        into(viewHolder.cover);
-            }
 
-            viewHolder.albumName.setText(audioFolders.get(position).folderName);
+                viewHolder.albumName.setText(audioFolder.folderName);
+            }
 
             return convertView;
         }
