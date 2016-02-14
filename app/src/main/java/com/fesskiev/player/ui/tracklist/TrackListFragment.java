@@ -14,13 +14,11 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.fesskiev.player.MusicApplication;
@@ -31,9 +29,9 @@ import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.FetchAudioInfoIntentService;
 import com.fesskiev.player.ui.player.AudioPlayerActivity;
 import com.fesskiev.player.utils.Utils;
+import com.fesskiev.player.widgets.cards.SlidingCardView;
 import com.fesskiev.player.widgets.dialogs.EditTrackDialog;
 import com.fesskiev.player.widgets.recycleview.HidingScrollListener;
-import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
 import com.squareup.picasso.Picasso;
 
@@ -82,29 +80,6 @@ public class TrackListFragment extends Fragment {
                 LinearLayoutManager.VERTICAL, false, 1000));
         musicFilesAdapter = new MusicFilesAdapter();
         recyclerView.setAdapter(musicFilesAdapter);
-
-        recyclerView.addOnItemTouchListener(new RecyclerItemTouchClickListener(getActivity(),
-                new RecyclerItemTouchClickListener.OnItemClickListener() {
-
-                    @Override
-                    public void onItemClick(View childView, int position) {
-                        AudioFile audioFile = audioFolder.audioFilesDescription.get(position);
-                        if (audioFile != null) {
-                            AudioPlayer audioPlayer = MusicApplication.getInstance().getAudioPlayer();
-                            audioPlayer.currentAudioFile = audioFile;
-                            audioPlayer.position = position;
-
-                            AudioPlayerActivity.startPlayerActivity(getActivity(), true);
-                        }
-                    }
-
-                    @Override
-                    public void onItemLongPress(View childView, int position) {
-                        AudioFile audioFile = audioFolder.audioFilesDescription.get(position);
-                        showPopupMenu(childView, audioFile);
-                    }
-                }));
-
         recyclerView.addOnScrollListener(new HidingScrollListener() {
             @Override
             public void onHide() {
@@ -156,58 +131,6 @@ public class TrackListFragment extends Fragment {
     }
 
 
-    private void showPopupMenu(View view, final AudioFile audioFile) {
-        final PopupMenu popupMenu = new PopupMenu(getActivity(), view);
-        final Menu menu = popupMenu.getMenu();
-        popupMenu.getMenuInflater().inflate(R.menu.menu_track_item, menu);
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.edit:
-                        showEditDialog(audioFile);
-                        break;
-                    case R.id.delete:
-                        deleteFile(audioFile);
-                        break;
-                }
-                return true;
-            }
-        });
-        popupMenu.show();
-    }
-
-    private void deleteFile(final AudioFile audioFile) {
-        AlertDialog.Builder builder =
-                new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
-        builder.setTitle(getString(R.string.dialog_delete_file_title));
-        builder.setMessage(R.string.dialog_delete_file_message);
-        builder.setPositiveButton(R.string.dialog_delete_file_ok,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (new File(audioFile.filePath).delete()) {
-                            Snackbar.make(getView(),
-                                    getString(R.string.shackbar_delete_file), Snackbar.LENGTH_LONG).show();
-                            musicFilesAdapter.audioFiles.remove(audioFile);
-                            musicFilesAdapter.notifyDataSetChanged();
-                        }
-                    }
-                });
-        builder.setNegativeButton(R.string.dialog_delete_file_cancel,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-        builder.show();
-    }
-
-    private void showEditDialog(AudioFile audioFile) {
-        EditTrackDialog editTrackDialog = new EditTrackDialog(getActivity(), audioFile);
-        editTrackDialog.show();
-    }
-
     private void registerMusicFilesReceiver() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(FetchAudioInfoIntentService.ACTION_MUSIC_FILES_RESULT);
@@ -257,7 +180,70 @@ public class TrackListFragment extends Fragment {
                 duration = (TextView) v.findViewById(R.id.itemDuration);
                 title = (TextView) v.findViewById(R.id.itemTitle);
                 cover = (ImageView) v.findViewById(R.id.itemCover);
+
+                ((SlidingCardView) v).
+                        setOnSlidingCardListener(new SlidingCardView.OnSlidingCardListener() {
+                            @Override
+                            public void onDeleteClick() {
+                                deleteFile(getAdapterPosition());
+                            }
+
+                            @Override
+                            public void onEditClick() {
+                               showEditDialog(getAdapterPosition());
+                            }
+
+                            @Override
+                            public void onClick() {
+                                startPlayerActivity(getAdapterPosition());
+                            }
+                        });
             }
+        }
+
+        private void startPlayerActivity(int position){
+            AudioFile audioFile = audioFolder.audioFilesDescription.get(position);
+            if (audioFile != null) {
+                AudioPlayer audioPlayer = MusicApplication.getInstance().getAudioPlayer();
+                audioPlayer.currentAudioFile = audioFile;
+                audioPlayer.position = position;
+
+                AudioPlayerActivity.startPlayerActivity(getActivity(), true);
+            }
+        }
+
+        private void showEditDialog(int position) {
+            AudioFile audioFile = audioFolder.audioFilesDescription.get(position);
+            EditTrackDialog editTrackDialog = new EditTrackDialog(getActivity(), audioFile);
+            editTrackDialog.show();
+        }
+
+        private void deleteFile(int position) {
+            final AudioFile audioFile = audioFolder.audioFilesDescription.get(position);
+            AlertDialog.Builder builder =
+                    new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
+            builder.setTitle(getString(R.string.dialog_delete_file_title));
+            builder.setMessage(R.string.dialog_delete_file_message);
+            builder.setPositiveButton(R.string.dialog_delete_file_ok,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (new File(audioFile.filePath).delete()) {
+                                Snackbar.make(getView(),
+                                        getString(R.string.shackbar_delete_file), Snackbar.LENGTH_LONG).show();
+                                musicFilesAdapter.audioFiles.remove(audioFile);
+                                musicFilesAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    });
+            builder.setNegativeButton(R.string.dialog_delete_file_cancel,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+            builder.show();
         }
 
         @Override

@@ -55,9 +55,6 @@
 
     <string name="button_save_track_info_text">Save</string>
 
-    <string name="popup_menu_track_edit">Edit</string>
-    <string name="popup_menu_track_delete">Delete</string>
-
     <string name="dialog_delete_file_title">Delete</string>
     <string name="dialog_delete_file_message">Do you want delete file?</string>
     <string name="dialog_delete_file_ok">YES</string>

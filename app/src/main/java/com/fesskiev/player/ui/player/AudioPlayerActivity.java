@@ -27,7 +27,7 @@ import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.equalizer.EqualizerActivity;
 import com.fesskiev.player.ui.tracklist.TrackListActivity;
 import com.fesskiev.player.utils.Utils;
-import com.fesskiev.player.widgets.DescriptionCard;
+import com.fesskiev.player.widgets.cards.DescriptionCardView;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -39,7 +39,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
 
     private AudioPlayer audioPlayer;
     private FloatingActionButton playStopButton;
-    private DescriptionCard cardDescription;
+    private DescriptionCardView cardDescription;
     private ImageView volumeLevel;
     private TextView trackTimeCount;
     private TextView trackTimeTotal;
@@ -90,8 +90,8 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
         genre = (TextView) findViewById(R.id.genre);
         album = (TextView) findViewById(R.id.album);
 
-        cardDescription = (DescriptionCard) findViewById(R.id.cardDescription);
-        cardDescription.setOnCardAnimationListener(new DescriptionCard.OnCardAnimationListener() {
+        cardDescription = (DescriptionCardView) findViewById(R.id.cardDescription);
+        cardDescription.setOnCardAnimationListener(new DescriptionCardView.OnCardAnimationListener() {
             @Override
             public void animationStart() {
 

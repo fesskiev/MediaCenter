@@ -7,11 +7,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.Surface;
 import android.view.TextureView;
 
+import com.fesskiev.player.MusicApplication;
 import com.fesskiev.player.R;
+import com.fesskiev.player.model.VideoFile;
 
 public class VideoPlayerActivity extends AppCompatActivity implements Playable {
 
-    private Surface surface;
 
     public static native boolean createStreamingMediaPlayer(String filename);
 
@@ -23,6 +24,8 @@ public class VideoPlayerActivity extends AppCompatActivity implements Playable {
 
     public static native void rewindStreamingMediaPlayer();
 
+    private Surface surface;
+    private VideoFile videoFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +33,8 @@ public class VideoPlayerActivity extends AppCompatActivity implements Playable {
         setContentView(R.layout.activity_video_player);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        videoFile = MusicApplication.getInstance().getVideoPlayer().currentVideoFile;
 
         final TextureView textureView = (TextureView) findViewById(R.id.textureView);
         textureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
@@ -65,7 +70,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements Playable {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                createStreamingMediaPlayer("/sdcard/testfile.mp4");
+                createStreamingMediaPlayer(videoFile.filePath);
             }
         }).start();
     }

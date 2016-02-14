@@ -10,13 +10,19 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.fesskiev.player.MusicApplication;
 import com.fesskiev.player.R;
+import com.fesskiev.player.model.AudioFolder;
+import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.VideoFile;
+import com.fesskiev.player.model.VideoPlayer;
 import com.fesskiev.player.services.FileTreeIntentService;
+import com.fesskiev.player.ui.player.VideoPlayerActivity;
+import com.fesskiev.player.ui.tracklist.TrackListActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +44,19 @@ public class VideoFilesFragment extends GridVideoFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                VideoPlayer videoPlayer = MusicApplication.getInstance().getVideoPlayer();
+                VideoFile videoFile = videoPlayer.videoFiles.get(position);
+                if (videoFile != null) {
+                    videoPlayer.currentVideoFile = videoFile;
+
+                    startActivity(new Intent(getActivity(), VideoPlayerActivity.class));
+                }
+            }
+        });
 
     }
 

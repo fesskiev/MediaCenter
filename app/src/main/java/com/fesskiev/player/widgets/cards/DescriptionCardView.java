@@ -1,4 +1,4 @@
-package com.fesskiev.player.widgets;
+package com.fesskiev.player.widgets.cards;
 
 import android.animation.Animator;
 import android.content.Context;
@@ -8,7 +8,7 @@ import android.util.AttributeSet;
 import com.fesskiev.player.R;
 
 
-public class DescriptionCard extends CardView {
+public class DescriptionCardView extends CardView {
 
     private enum ANIMATION {
         NEXT, PREVIOUS;
@@ -24,15 +24,15 @@ public class DescriptionCard extends CardView {
     private OnCardAnimationListener listener;
 
 
-    public DescriptionCard(Context context) {
+    public DescriptionCardView(Context context) {
         super(context);
     }
 
-    public DescriptionCard(Context context, AttributeSet attrs) {
+    public DescriptionCardView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public DescriptionCard(Context context, AttributeSet attrs, int defStyleAttr) {
+    public DescriptionCardView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 

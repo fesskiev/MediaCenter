@@ -7,6 +7,7 @@ import java.util.List;
 public class VideoPlayer {
 
     public List<VideoFile> videoFiles;
+    public VideoFile currentVideoFile;
 
     public VideoPlayer() {
         this.videoFiles = new ArrayList<>();

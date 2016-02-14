@@ -7,7 +7,7 @@ model {
 
         defaultConfig.with {
             applicationId = "com.fesskiev.player"
-            minSdkVersion.apiLevel = 17
+            minSdkVersion.apiLevel = 18
             targetSdkVersion.apiLevel = 23
             versionCode = 1
             versionName = "1.0"
