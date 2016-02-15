@@ -48,6 +48,7 @@ public class FileTreeIntentService extends IntentService {
 
 
     private void getMusicFolders() {
+        MusicApplication.getInstance().getAudioPlayer().audioFolders.clear();
         String sdCardState = Environment.getExternalStorageState();
         if (!sdCardState.equals(Environment.MEDIA_MOUNTED)) {
             Log.wtf(TAG, "NO SD CARD");

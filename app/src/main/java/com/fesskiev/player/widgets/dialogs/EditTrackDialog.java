@@ -7,6 +7,7 @@ import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
@@ -22,6 +23,7 @@ import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagException;
+import org.jaudiotagger.tag.TagOptionSingleton;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,8 +59,16 @@ public class EditTrackDialog extends AlertDialog implements View.OnClickListener
         editGenre.addTextChangedListener(this);
 
         findViewById(R.id.saveTrackInfoButton).setOnClickListener(this);
+
+        setDialogFields();
     }
 
+    private void setDialogFields(){
+        editArtist.setText(audioFile.artist);
+        editTitle.setText(audioFile.title);
+        editAlbum.setText(audioFile.album);
+        editGenre.setText(audioFile.genre);
+    }
 
     @Override
     public void onClick(View v) {
@@ -66,11 +76,13 @@ public class EditTrackDialog extends AlertDialog implements View.OnClickListener
         try {
             org.jaudiotagger.audio.AudioFile audioFile = AudioFileIO.read(new File(this.audioFile.filePath));
             Tag tag = audioFile.getTag();
-            tag.setField(FieldKey.ARTIST, this.audioFile.artist);
-            tag.setField(FieldKey.TITLE, this.audioFile.title);
-            tag.setField(FieldKey.ALBUM, this.audioFile.album);
-            tag.setField(FieldKey.GENRE, this.audioFile.genre);
-            audioFile.commit();
+            if(tag != null) {
+                tag.setField(FieldKey.ARTIST, this.audioFile.artist);
+                tag.setField(FieldKey.TITLE, this.audioFile.title);
+                tag.setField(FieldKey.ALBUM, this.audioFile.album);
+                tag.setField(FieldKey.GENRE, this.audioFile.genre);
+                audioFile.commit();
+            }
         } catch (CannotReadException | IOException | TagException |
                 ReadOnlyFileException | InvalidAudioFrameException | CannotWriteException e) {
             e.printStackTrace();

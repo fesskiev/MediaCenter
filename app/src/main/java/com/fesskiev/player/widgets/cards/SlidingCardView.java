@@ -3,6 +3,7 @@ package com.fesskiev.player.widgets.cards;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -20,7 +21,7 @@ public class SlidingCardView extends FrameLayout implements View.OnClickListener
         void onClick();
     }
 
-    private static final int MIN_DISTANCE = 50;
+    private static final int MIN_DISTANCE = 80;
 
     private OnSlidingCardListener listener;
     private View slidingContainer;
@@ -61,13 +62,14 @@ public class SlidingCardView extends FrameLayout implements View.OnClickListener
             case MotionEvent.ACTION_DOWN:
                 shouldClick = true;
                 x1 = event.getX();
-                return true;
+                break;
             case MotionEvent.ACTION_MOVE:
                 shouldClick = false;
                 break;
             case MotionEvent.ACTION_UP:
                 if (shouldClick) {
                     if (listener != null) {
+                        shouldClick = false;
                         listener.onClick();
                     }
                     return true;
@@ -86,7 +88,7 @@ public class SlidingCardView extends FrameLayout implements View.OnClickListener
                 }
                 break;
         }
-        return false;
+        return true;
     }
 
     @Override
