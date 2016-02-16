@@ -2,24 +2,40 @@ package com.fesskiev.player.utils.media;
 
 
 import android.graphics.Bitmap;
+import android.graphics.ImageFormat;
+import android.media.Image;
+import android.media.ImageReader;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
-import android.os.Environment;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.Log;
+import android.view.Surface;
 
-import java.io.BufferedOutputStream;
+import com.fesskiev.player.utils.Utils;
+
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 public class ExtractMediaInfo {
 
     private static final String TAG = ExtractMediaInfo.class.getSimpleName();
 
-    private static final int MAX_FRAMES = 1;
-    private static File FILES_DIR = Environment.getExternalStorageDirectory();
+    private static final int NUM_FRAME_DECODED = 100;
+    private static final int MAX_NUM_IMAGES = 1;
+
+    private static final long DEFAULT_TIMEOUT_US = 10000;
+    private static final long WAIT_FOR_IMAGE_TIMEOUT_MS = 1000;
+
+    private Surface mReaderSurface;
+    private ImageListener mImageListener;
+    private ImageReader mReader;
+    private HandlerThread mHandlerThread;
+    private Handler mHandler;
+
 
     public class MediaInfo {
 
@@ -36,7 +52,28 @@ public class ExtractMediaInfo {
     }
 
     public ExtractMediaInfo() {
-        FILES_DIR = Environment.getExternalStorageDirectory();
+        mHandlerThread = new HandlerThread(TAG);
+        mHandlerThread.start();
+        mHandler = new Handler(mHandlerThread.getLooper());
+        mImageListener = new ImageListener();
+    }
+
+    private static class ImageListener implements ImageReader.OnImageAvailableListener {
+        private final LinkedBlockingQueue<Image> queue = new LinkedBlockingQueue<>();
+
+        @Override
+        public void onImageAvailable(ImageReader reader) {
+            try {
+                queue.put(reader.acquireNextImage());
+            } catch (InterruptedException e) {
+                throw new UnsupportedOperationException(
+                        "Can't handle InterruptedException in onImageAvailable");
+            }
+        }
+
+        public Image getImage(long timeout) throws InterruptedException {
+            return queue.poll(timeout, TimeUnit.MILLISECONDS);
+        }
     }
 
 
@@ -64,21 +101,18 @@ public class ExtractMediaInfo {
 
             String mime = format.getString(MediaFormat.KEY_MIME);
             decoder = MediaCodec.createDecoderByType(mime);
-            decoder.configure(format, null, null, 0);
-            decoder.start();
 
-            doExtract(extractor, trackIndex, decoder, mediaInfo);
-        } catch (IOException e) {
+            decodeFramesToImageReader(480, 360, ImageFormat.YUV_420_888, decoder, extractor, format, mediaInfo);
+
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             if (decoder != null) {
                 decoder.stop();
                 decoder.release();
-                decoder = null;
             }
             if (extractor != null) {
                 extractor.release();
-                extractor = null;
             }
         }
 
@@ -86,109 +120,156 @@ public class ExtractMediaInfo {
     }
 
 
-    static void doExtract(MediaExtractor extractor, int trackIndex, MediaCodec decoder, MediaInfo mediaInfo) throws IOException {
-        final int TIMEOUT_USEC = 10000;
-        ByteBuffer[] decoderInputBuffers = decoder.getInputBuffers();
+    /**
+     * Decode video frames to image reader.
+     */
+    private void decodeFramesToImageReader(int width, int height, int imageFormat,
+                                           MediaCodec decoder, MediaExtractor extractor, MediaFormat mediaFmt, MediaInfo mediaInfo) throws Exception {
+        ByteBuffer[] decoderInputBuffers;
+
+        createImageReader(width, height, imageFormat, MAX_NUM_IMAGES, mImageListener);
+
+        decoder.configure(mediaFmt, mReaderSurface, null, 0);
+        decoder.start();
+        decoderInputBuffers = decoder.getInputBuffers();
+        extractor.selectTrack(0);
+        // Start decoding and get Image, only test the first NUM_FRAME_DECODED frames.
         MediaCodec.BufferInfo info = new MediaCodec.BufferInfo();
-        int inputChunk = 0;
-        int decodeCount = 0;
-        long frameSaveTime = 0;
-
-        boolean outputDone = false;
-        boolean inputDone = false;
-        while (!outputDone) {
-            Log.d(TAG, "loop");
-
-            // Feed more data to the decoder.
-            if (!inputDone) {
-                int inputBufIndex = decoder.dequeueInputBuffer(TIMEOUT_USEC);
+        boolean sawInputEOS = false;
+        boolean sawOutputEOS = false;
+        int outputFrameCount = 0;
+        while (!sawOutputEOS && outputFrameCount < NUM_FRAME_DECODED) {
+            Log.v(TAG, "loop:" + outputFrameCount);
+            if (!sawInputEOS) {
+                int inputBufIndex = decoder.dequeueInputBuffer(DEFAULT_TIMEOUT_US);
                 if (inputBufIndex >= 0) {
-                    ByteBuffer inputBuf = decoderInputBuffers[inputBufIndex];
-                    // Read the sample data into the ByteBuffer.  This neither respects nor
-                    // updates inputBuf's position, limit, etc.
-                    int chunkSize = extractor.readSampleData(inputBuf, 0);
-                    if (chunkSize < 0) {
-                        // End of stream -- send empty frame with EOS flag set.
-                        decoder.queueInputBuffer(inputBufIndex, 0, 0, 0L,
-                                MediaCodec.BUFFER_FLAG_END_OF_STREAM);
-                        inputDone = true;
-                        Log.d(TAG, "sent input EOS");
+                    ByteBuffer dstBuf = decoderInputBuffers[inputBufIndex];
+                    int sampleSize =
+                            extractor.readSampleData(dstBuf, 0 /* offset */);
+                    Log.v(TAG, "queue a input buffer, idx/size: "
+                            + inputBufIndex + "/" + sampleSize);
+                    long presentationTimeUs = 0;
+                    if (sampleSize < 0) {
+                        Log.v(TAG, "saw input EOS.");
+                        sawInputEOS = true;
+                        sampleSize = 0;
                     } else {
-                        if (extractor.getSampleTrackIndex() != trackIndex) {
-                            Log.w(TAG, "WEIRD: got sample from track " +
-                                    extractor.getSampleTrackIndex() + ", expected " + trackIndex);
-                        }
-                        long presentationTimeUs = extractor.getSampleTime();
-                        decoder.queueInputBuffer(inputBufIndex, 0, chunkSize,
-                                presentationTimeUs, 0 /*flags*/);
-
-                        Log.d(TAG, "submitted frame " + inputChunk + " to dec, size=" +
-                                chunkSize);
-
-                        inputChunk++;
+                        presentationTimeUs = extractor.getSampleTime();
+                    }
+                    decoder.queueInputBuffer(
+                            inputBufIndex,
+                            0 /* offset */,
+                            sampleSize,
+                            presentationTimeUs,
+                            sawInputEOS ? MediaCodec.BUFFER_FLAG_END_OF_STREAM : 0);
+                    if (!sawInputEOS) {
                         extractor.advance();
                     }
+                }
+            }
+            // Get output frame
+            int res = decoder.dequeueOutputBuffer(info, DEFAULT_TIMEOUT_US);
+            Log.v(TAG, "got a buffer: " + info.size + "/" + res);
+            if (res == MediaCodec.INFO_TRY_AGAIN_LATER) {
+                // no output available yet
+                Log.v(TAG, "no output frame available");
+            } else if (res == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
+                // decoder output buffers changed, need update.
+                Log.v(TAG, "decoder output buffers changed");
+            } else if (res == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
+                // this happens before the first frame is returned.
+                MediaFormat outFormat = decoder.getOutputFormat();
+                Log.v(TAG, "decoder output format changed: " + outFormat);
+            } else if (res < 0) {
+                // Should be decoding error.
+                Log.v(TAG, "unexpected result from deocder.dequeueOutputBuffer: " + res);
+            } else {
+                // res >= 0: normal decoding case, copy the output buffer.
+                // Will use it as reference to valid the ImageReader output
+                // Some decoders output a 0-sized buffer at the end. Ignore those.
+                outputFrameCount++;
+                boolean doRender = (info.size != 0);
+                decoder.releaseOutputBuffer(res, doRender);
+                if (doRender) {
+                    // Read image and verify
+                    Image image = mImageListener.getImage(WAIT_FOR_IMAGE_TIMEOUT_MS);
+                    Image.Plane[] imagePlanes = image.getPlanes();
+
+                    byte[] data = getDataFromImage(image);
+                    Log.e(TAG, "Data is null: " + (data == null));
+
+                    mediaInfo.frame = Utils.getBitmap(data);
+
+                    Log.v(TAG, "Image " + outputFrameCount + " Info:");
+                    Log.v(TAG, "first plane pixelstride " + imagePlanes[0].getPixelStride());
+                    Log.v(TAG, "first plane rowstride " + imagePlanes[0].getRowStride());
+                    Log.v(TAG, "Image timestamp:" + image.getTimestamp());
+                    image.close();
+                }
+            }
+        }
+    }
+
+    private void createImageReader(int width, int height, int format, int maxNumImages,
+                                   ImageReader.OnImageAvailableListener listener) throws Exception {
+        closeImageReader();
+        mReader = ImageReader.newInstance(width, height, format, maxNumImages);
+        mReaderSurface = mReader.getSurface();
+        mReader.setOnImageAvailableListener(listener, mHandler);
+        Log.v(TAG, String.format("Created ImageReader size (%dx%d), format %d", width, height,
+                format));
+    }
+
+    private static byte[] getDataFromImage(Image image) {
+        int format = image.getFormat();
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int rowStride, pixelStride;
+        byte[] data;
+        Image.Plane[] planes = image.getPlanes();
+        ByteBuffer buffer;
+        int offset = 0;
+        data = new byte[width * height * ImageFormat.getBitsPerPixel(format) / 8];
+        byte[] rowData = new byte[planes[0].getRowStride()];
+        Log.v(TAG, "get data from " + planes.length + " planes");
+        for (int i = 0; i < planes.length; i++) {
+            buffer = planes[i].getBuffer();
+
+            rowStride = planes[i].getRowStride();
+            pixelStride = planes[i].getPixelStride();
+
+            Log.v(TAG, "pixelStride " + pixelStride);
+            Log.v(TAG, "rowStride " + rowStride);
+            Log.v(TAG, "width " + width);
+            Log.v(TAG, "height " + height);
+
+            // For multi-planar yuv images, assuming yuv420 with 2x2 chroma subsampling.
+            int w = (i == 0) ? width : width / 2;
+            int h = (i == 0) ? height : height / 2;
+            for (int row = 0; row < h; row++) {
+                int bytesPerPixel = ImageFormat.getBitsPerPixel(format) / 8;
+                if (pixelStride == bytesPerPixel) {
+                    // Special case: optimized read of the entire row
+                    int length = w * bytesPerPixel;
+                    buffer.get(data, offset, length);
+                    // Advance buffer the remainder of the row stride
+                    buffer.position(buffer.position() + rowStride - length);
+                    offset += length;
                 } else {
-                    Log.d(TAG, "input buffer not available");
-                }
-            }
-
-            if (!outputDone) {
-                int decoderStatus = decoder.dequeueOutputBuffer(info, TIMEOUT_USEC);
-                if (decoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
-                    // no output available yet
-                    Log.d(TAG, "no output from decoder available");
-                } else if (decoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
-                    // not important for us, since we're using Surface
-                    Log.d(TAG, "decoder output buffers changed");
-                } else if (decoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-                    MediaFormat newFormat = decoder.getOutputFormat();
-                    Log.d(TAG, "decoder output format changed: " + newFormat);
-                } else if (decoderStatus < 0) {
-                    Log.d(TAG, "unexpected result from decoder.dequeueOutputBuffer: " + decoderStatus);
-                } else { // decoderStatus >= 0
-                    Log.d(TAG, "surface decoder given buffer " + decoderStatus +
-                            " (size=" + info.size + ")");
-                    if ((info.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
-                        Log.d(TAG, "output EOS");
-                        outputDone = true;
-                    }
-
-                    boolean doRender = (info.size != 0);
-
-                    decoder.releaseOutputBuffer(decoderStatus, doRender);
-                    if (doRender) {
-                        Log.d(TAG, "awaiting decode of frame " + decodeCount);
-                        if (decodeCount < MAX_FRAMES) {
-                            File outputFile = new File(FILES_DIR,
-                                    String.format("frame-%02d.png", decodeCount));
-                            long startWhen = System.nanoTime();
-                            mediaInfo.frame = getFrameBitmap(outputFile.toString());
-                            frameSaveTime += System.nanoTime() - startWhen;
-                        }
-                        decodeCount++;
+                    // Generic case: should work for any pixelStride but slower.
+                    // Use intermediate buffer to avoid read byte-by-byte from
+                    // DirectByteBuffer, which is very bad for performance
+                    buffer.get(rowData, 0, rowStride);
+                    for (int col = 0; col < w; col++) {
+                        data[offset++] = rowData[col * pixelStride];
                     }
                 }
             }
+            Log.v(TAG, "Finished reading data from plane " + i);
         }
-
-        int numSaved = (MAX_FRAMES < decodeCount) ? MAX_FRAMES : decodeCount;
-        Log.d(TAG, "Saving " + numSaved + " frames took " +
-                (frameSaveTime / numSaved / 1000) + " us per frame");
+        return data;
     }
 
-    private static Bitmap getFrameBitmap(String filename) throws IOException {
-        BufferedOutputStream bos = null;
-        try {
-            bos = new BufferedOutputStream(new FileOutputStream(filename));
-            return Bitmap.createBitmap(640, 480, Bitmap.Config.ARGB_8888);
-        } finally {
-            if (bos != null) {
-                bos.close();
-            }
-        }
-
-    }
 
     private int selectTrack(MediaExtractor extractor) {
         int numTracks = extractor.getTrackCount();
@@ -201,6 +282,21 @@ public class ExtractMediaInfo {
             }
         }
         return -1;
+    }
+
+    private void closeImageReader() {
+        if (mReader != null) {
+            try {
+                // Close all possible pending images first.
+                Image image = mReader.acquireLatestImage();
+                if (image != null) {
+                    image.close();
+                }
+            } finally {
+                mReader.close();
+                mReader = null;
+            }
+        }
     }
 
 }

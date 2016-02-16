@@ -62,9 +62,6 @@ public class ImageReaderDecoderTest extends AndroidTestCase {
     private static final int NUM_FRAME_DECODED = 100;
     private static final int MAX_NUM_IMAGES = 3;
     private Resources mResources;
-    private MediaCodec.BufferInfo mBufferInfo = new MediaCodec.BufferInfo();
-    private ByteBuffer[] mInputBuffers;
-    private ByteBuffer[] mOutputBuffers;
     private ImageReader mReader;
     private Surface mReaderSurface;
     private HandlerThread mHandlerThread;
@@ -124,7 +121,7 @@ public class ImageReaderDecoderTest extends AndroidTestCase {
 
     private static class ImageListener implements ImageReader.OnImageAvailableListener {
         private final LinkedBlockingQueue<Image> mQueue =
-                new LinkedBlockingQueue<Image>();
+                new LinkedBlockingQueue<>();
 
         @Override
         public void onImageAvailable(ImageReader reader) {
@@ -153,16 +150,13 @@ public class ImageReaderDecoderTest extends AndroidTestCase {
                                       int height, int imageFormat, boolean useHw) throws Exception {
         MediaCodec decoder = null;
         MediaExtractor extractor;
-        int outputBufferIndex;
-        ByteBuffer[] decoderInputBuffers;
-        ByteBuffer[] decoderOutputBuffers;
         AssetFileDescriptor vidFD = mResources.openRawResourceFd(video);
         extractor = new MediaExtractor();
         extractor.setDataSource(vidFD.getFileDescriptor(), vidFD.getStartOffset(),
                 vidFD.getLength());
         MediaFormat mediaFmt = extractor.getTrackFormat(0);
         mediaFmt.setInteger(MediaFormat.KEY_COLOR_FORMAT,
-                CodecCapabilities.COLOR_FormatYUV420Flexible);
+                CodecCapabilities.COLOR_Format32bitABGR8888);
         String mime = mediaFmt.getString(MediaFormat.KEY_MIME);
         try {
             // Create decoder
