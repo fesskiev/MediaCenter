@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,14 +17,12 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MusicApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.AudioFolder;
-import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.VideoFile;
 import com.fesskiev.player.model.VideoPlayer;
 import com.fesskiev.player.services.FileTreeIntentService;
-import com.fesskiev.player.ui.player.VideoPlayerActivity;
-import com.fesskiev.player.ui.tracklist.TrackListActivity;
+import com.fesskiev.player.utils.media.ExtractMediaInfo;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +52,12 @@ public class VideoFilesFragment extends GridVideoFragment {
                 if (videoFile != null) {
                     videoPlayer.currentVideoFile = videoFile;
 
-                    startActivity(new Intent(getActivity(), VideoPlayerActivity.class));
+                    ExtractMediaInfo.MediaInfo mediaInfo
+                            = new ExtractMediaInfo().extractFileInfo(new File(videoFile.filePath));
+                    Log.d("test_", "media info: " + mediaInfo.toString());
+
+
+//                    startActivity(new Intent(getActivity(), VideoPlayerActivity.class));
                 }
             }
         });
@@ -139,7 +143,7 @@ public class VideoFilesFragment extends GridVideoFragment {
                         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 convertView = inflater.inflate(R.layout.item_video_file, parent, false);
                 viewHolder = new ViewHolder();
-                viewHolder.filePath = (TextView) convertView.findViewById(R.id.videoFilePath);
+                viewHolder.filePath = (TextView) convertView.findViewById(R.id.fileDescription);
                 convertView.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolder) convertView.getTag();

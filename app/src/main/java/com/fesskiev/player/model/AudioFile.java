@@ -59,8 +59,8 @@ public class AudioFile implements Comparable<AudioFile> {
             if(tag.hasField(ID3v24Frames.FRAME_ID_TITLE)) {
                 title = tag.getFirst(ID3v24Frames.FRAME_ID_TITLE);
             }
-            if(tag.hasField(ID3v24Frames.FRAME_ID_TITLE)) {
-                album = tag.getFirst(ID3v24Frames.FRAME_ID_TITLE);
+            if(tag.hasField(ID3v24Frames.FRAME_ID_ALBUM)) {
+                album = tag.getFirst(ID3v24Frames.FRAME_ID_ALBUM);
             }
             if(tag.hasField(ID3v24Frames.FRAME_ID_GENRE)) {
                 genre = tag.getFirst(ID3v24Frames.FRAME_ID_GENRE);

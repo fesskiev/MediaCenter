@@ -77,9 +77,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
 
         audioPlayer = MusicApplication.getInstance().getAudioPlayer();
 
-        AudioFolder audioFolder = audioPlayer.currentAudioFolder;
-
-        setBackdropImage(audioFolder);
+        setBackdropImage();
 
         volumeLevel = (ImageView) findViewById(R.id.volumeLevel);
         trackTimeTotal = (TextView) findViewById(R.id.trackTimeTotal);
@@ -202,8 +200,19 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
         setPlayingIcon();
     }
 
-    private void setBackdropImage(AudioFolder audioFolder){
+    private void setBackdropImage() {
         ImageView backdrop = (ImageView) findViewById(R.id.backdrop);
+        Bitmap artwork = audioPlayer.currentAudioFile.getArtwork();
+        if (artwork != null) {
+            backdrop.setImageBitmap(artwork);
+        } else {
+            setFolderBackdropImage(backdrop);
+        }
+
+    }
+
+    private void setFolderBackdropImage(ImageView backdrop) {
+        AudioFolder audioFolder = audioPlayer.currentAudioFolder;
         if (!audioFolder.folderImages.isEmpty()) {
             File albumImagePath = audioFolder.folderImages.get(0);
             if (albumImagePath != null) {
@@ -211,14 +220,9 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
                         albumImagePath.getAbsolutePath()));
             }
         } else {
-            Bitmap artwork = audioPlayer.currentAudioFile.getArtwork();
-            if (artwork != null) {
-                backdrop.setImageBitmap(artwork);
-            } else {
-                Picasso.with(this).
-                        load(R.drawable.no_cover_icon).
-                        into(backdrop);
-            }
+            Picasso.with(this).
+                    load(R.drawable.no_cover_icon).
+                    into(backdrop);
         }
     }
 
@@ -280,7 +284,6 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
         genre.setText(currentAudioFile.genre);
 
         StringBuilder sb = new StringBuilder();
-        sb.append("MP3::");
         sb.append(currentAudioFile.sampleRate);
         sb.append("::");
         sb.append(currentAudioFile.bitrate);

@@ -14,7 +14,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -125,7 +124,7 @@ public class TrackListFragment extends Fragment {
 
     private void showPlaybackControl() {
         AudioPlayer audioPlayer = MusicApplication.getInstance().getAudioPlayer();
-        if(audioPlayer.isPlaying) {
+        if (audioPlayer.isPlaying) {
             ((TrackListActivity) getActivity()).showPlaybackControl();
         }
     }
@@ -190,7 +189,7 @@ public class TrackListFragment extends Fragment {
 
                             @Override
                             public void onEditClick() {
-                               showEditDialog(getAdapterPosition());
+                                showEditDialog(getAdapterPosition());
                             }
 
                             @Override
@@ -201,7 +200,7 @@ public class TrackListFragment extends Fragment {
             }
         }
 
-        private void startPlayerActivity(int position){
+        private void startPlayerActivity(int position) {
             AudioFile audioFile = audioFolder.audioFilesDescription.get(position);
             if (audioFile != null) {
                 AudioPlayer audioPlayer = MusicApplication.getInstance().getAudioPlayer();
@@ -258,17 +257,15 @@ public class TrackListFragment extends Fragment {
         public void onBindViewHolder(ViewHolder holder, int position) {
             AudioFile audioFile = audioFiles.get(position);
 
-            if (coverImageBitmap != null) {
+            Bitmap artwork = audioFile.getArtwork();
+            if (artwork != null) {
+                holder.cover.setImageBitmap(artwork);
+            } else if (coverImageBitmap != null) {
                 holder.cover.setImageBitmap(coverImageBitmap);
             } else {
-                Bitmap artwork = audioFile.getArtwork();
-                if (artwork != null) {
-                    holder.cover.setImageBitmap(artwork);
-                } else {
-                    Picasso.with(getActivity()).
-                            load(R.drawable.no_cover_icon).
-                            into(holder.cover);
-                }
+                Picasso.with(getActivity()).
+                        load(R.drawable.no_cover_icon).
+                        into(holder.cover);
             }
 
             holder.duration.setText(Utils.getDurationString(audioFile.length));
