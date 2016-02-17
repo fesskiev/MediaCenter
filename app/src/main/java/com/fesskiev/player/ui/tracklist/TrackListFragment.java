@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -33,6 +34,7 @@ import com.fesskiev.player.widgets.dialogs.EditTrackDialog;
 import com.fesskiev.player.widgets.recycleview.HidingScrollListener;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -58,9 +60,25 @@ public class TrackListFragment extends Fragment {
                 MusicApplication.getInstance().getAudioPlayer().currentAudioFolder;
         List<File> folderImages = audioFolder.folderImages;
         if (folderImages != null && folderImages.size() > 0) {
+            Picasso.with(getActivity())
+                    .load(folderImages.get(0).getAbsolutePath())
+                    .into(new Target() {
+                        @Override
+                        public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
+                            coverImageBitmap = bitmap;
+                        }
 
-            coverImageBitmap = Utils.getResizedBitmap(100, 100,
-                    folderImages.get(0).getAbsolutePath());
+                        @Override
+                        public void onBitmapFailed(Drawable errorDrawable) {
+
+                        }
+
+                        @Override
+                        public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                        }
+                    });
+
         }
     }
 

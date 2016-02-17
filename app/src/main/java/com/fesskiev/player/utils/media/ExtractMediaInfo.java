@@ -33,7 +33,6 @@ public class ExtractMediaInfo {
     private Surface mReaderSurface;
     private ImageListener mImageListener;
     private ImageReader mReader;
-    private HandlerThread mHandlerThread;
     private Handler mHandler;
 
 
@@ -52,13 +51,14 @@ public class ExtractMediaInfo {
     }
 
     public ExtractMediaInfo() {
-        mHandlerThread = new HandlerThread(TAG);
+        HandlerThread mHandlerThread = new HandlerThread(TAG);
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
         mImageListener = new ImageListener();
     }
 
     private static class ImageListener implements ImageReader.OnImageAvailableListener {
+
         private final LinkedBlockingQueue<Image> queue = new LinkedBlockingQueue<>();
 
         @Override
@@ -140,12 +140,13 @@ public class ExtractMediaInfo {
         int outputFrameCount = 0;
         while (!sawOutputEOS && outputFrameCount < NUM_FRAME_DECODED) {
             Log.v(TAG, "loop:" + outputFrameCount);
+
             if (!sawInputEOS) {
                 int inputBufIndex = decoder.dequeueInputBuffer(DEFAULT_TIMEOUT_US);
                 if (inputBufIndex >= 0) {
                     ByteBuffer dstBuf = decoderInputBuffers[inputBufIndex];
                     int sampleSize =
-                            extractor.readSampleData(dstBuf, 0 /* offset */);
+                            extractor.readSampleData(dstBuf, 0);
                     Log.v(TAG, "queue a input buffer, idx/size: "
                             + inputBufIndex + "/" + sampleSize);
                     long presentationTimeUs = 0;
@@ -158,7 +159,7 @@ public class ExtractMediaInfo {
                     }
                     decoder.queueInputBuffer(
                             inputBufIndex,
-                            0 /* offset */,
+                            0,
                             sampleSize,
                             presentationTimeUs,
                             sawInputEOS ? MediaCodec.BUFFER_FLAG_END_OF_STREAM : 0);

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
@@ -29,6 +30,7 @@ import com.fesskiev.player.ui.tracklist.TrackListActivity;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.cards.DescriptionCardView;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.io.File;
 
@@ -211,13 +213,29 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
 
     }
 
-    private void setFolderBackdropImage(ImageView backdrop) {
+    private void setFolderBackdropImage(final ImageView backdrop) {
         AudioFolder audioFolder = audioPlayer.currentAudioFolder;
         if (!audioFolder.folderImages.isEmpty()) {
             File albumImagePath = audioFolder.folderImages.get(0);
             if (albumImagePath != null) {
-                backdrop.setImageBitmap(Utils.getResizedBitmap(1024, 1024,
-                        albumImagePath.getAbsolutePath()));
+                Picasso.with(this)
+                        .load(albumImagePath.getAbsolutePath())
+                        .into(new Target() {
+                            @Override
+                            public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
+                                backdrop.setImageBitmap(bitmap);
+                            }
+
+                            @Override
+                            public void onBitmapFailed(Drawable errorDrawable) {
+
+                            }
+
+                            @Override
+                            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                            }
+                        });
             }
         } else {
             Picasso.with(this).

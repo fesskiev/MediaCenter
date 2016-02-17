@@ -20,6 +20,7 @@ import com.fesskiev.player.R;
 import com.fesskiev.player.model.VideoFile;
 import com.fesskiev.player.model.VideoPlayer;
 import com.fesskiev.player.services.FileTreeIntentService;
+import com.fesskiev.player.ui.player.VideoPlayerActivity;
 import com.fesskiev.player.utils.media.ExtractMediaInfo;
 
 import java.io.File;
@@ -51,13 +52,7 @@ public class VideoFilesFragment extends GridVideoFragment {
                 VideoFile videoFile = videoPlayer.videoFiles.get(position);
                 if (videoFile != null) {
                     videoPlayer.currentVideoFile = videoFile;
-
-                    ExtractMediaInfo.MediaInfo mediaInfo
-                            = new ExtractMediaInfo().extractFileInfo(new File(videoFile.filePath));
-                    Log.d("test_", "media info: " + mediaInfo.toString());
-
-
-//                    startActivity(new Intent(getActivity(), VideoPlayerActivity.class));
+                    startActivity(new Intent(getActivity(), VideoPlayerActivity.class));
                 }
             }
         });
