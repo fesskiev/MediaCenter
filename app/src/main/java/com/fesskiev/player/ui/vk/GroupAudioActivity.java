@@ -8,11 +8,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
-import com.fesskiev.player.MusicApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.vk.Group;
-import com.fesskiev.player.ui.MainActivity;
-import com.fesskiev.player.ui.tracklist.TrackListFragment;
 
 public class GroupAudioActivity extends AppCompatActivity {
 

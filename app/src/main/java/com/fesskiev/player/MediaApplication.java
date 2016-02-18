@@ -12,9 +12,9 @@ import com.fesskiev.player.utils.RecursiveFileObserver;
 import com.vk.sdk.VKSdk;
 
 
-public class MusicApplication extends Application {
+public class MediaApplication extends Application {
 
-    private static MusicApplication application;
+    private static MediaApplication application;
     private RequestQueue requestQueue;
     private AudioPlayer audioPlayer;
     private VideoPlayer videoPlayer;
@@ -46,7 +46,7 @@ public class MusicApplication extends Application {
         }).start();
     }
 
-    public static synchronized MusicApplication getInstance() {
+    public static synchronized MediaApplication getInstance() {
         return application;
     }
 
@@ -61,14 +61,14 @@ public class MusicApplication extends Application {
 
 
     public <T> void addToRequestQueue(Request<T> req) {
-        req.setTag(MusicApplication.class.getSimpleName());
+        req.setTag(MediaApplication.class.getSimpleName());
         getRequestQueue().add(req);
     }
 
 
     public void cancelPendingRequests() {
         if (requestQueue != null) {
-            requestQueue.cancelAll(MusicApplication.class.getSimpleName());
+            requestQueue.cancelAll(MediaApplication.class.getSimpleName());
         }
     }
 

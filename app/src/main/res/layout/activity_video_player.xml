@@ -25,7 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.fesskiev.player.utils.media.VideoGLSurfaceView
+        <com.fesskiev.player.ui.gl.VideoGLSurfaceView
             android:id="@+id/videoGLSurfaceView"
             android:layout_width="match_parent"
             android:layout_height="240dp"

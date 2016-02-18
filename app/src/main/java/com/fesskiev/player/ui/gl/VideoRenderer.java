@@ -1,4 +1,4 @@
-package com.fesskiev.player.utils.media;
+package com.fesskiev.player.ui.gl;
 
 
 import android.graphics.SurfaceTexture;
@@ -66,7 +66,7 @@ public class VideoRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnF
 
     private float mRatio = 1.0f;
     private SurfaceTexture mSurface;
-    private boolean updateSurface = false;
+    private boolean updateSurface = true;
     private long mLastTime = -1;
     private long mRunTime = 0;
 
@@ -92,18 +92,14 @@ public class VideoRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnF
 
     @Override
     public void onDrawFrame(GL10 glUnused) {
-//        synchronized (this) {
-//            if (updateSurface) {
-//                mSurface.updateTexImage();
-//
-//                mSurface.getTransformMatrix(mSTMatrix);
-//                updateSurface = false;
-//            }
-//        }
+        synchronized (this) {
+            if (updateSurface) {
+                mSurface.updateTexImage();
 
-        mSurface.updateTexImage();
-
-        mSurface.getTransformMatrix(mSTMatrix);
+                mSurface.getTransformMatrix(mSTMatrix);
+                updateSurface = false;
+            }
+        }
 
         // Ignore the passed-in GL10 interface, and use the GLES20
         // class's static methods instead.

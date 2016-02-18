@@ -111,14 +111,7 @@ public class ExtractMpegFramesTest extends AndroidTestCase {
         }
     }
 
-    /**
-     * Tests extraction from an MP4 to a series of PNG files.
-     * <p>
-     * We scale the video to 640x480 for the PNG just to demonstrate that we can scale the
-     * video with the GPU.  If the input video has a different aspect ratio, we could preserve
-     * it by adjusting the GL viewport to get letterboxing or pillarboxing, but generally if
-     * you're extracting frames you don't want black bars.
-     */
+
     private void extractMpegFrames() throws IOException {
         MediaCodec decoder = null;
         CodecOutputSurface outputSurface = null;

@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.fesskiev.player.MusicApplication;
+import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
 
@@ -45,7 +45,7 @@ public class FetchAudioInfoIntentService extends IntentService {
     }
 
     private void fetchAudioInfo() {
-        AudioFolder audioFolder = MusicApplication.getInstance().getAudioPlayer().currentAudioFolder;
+        AudioFolder audioFolder = MediaApplication.getInstance().getAudioPlayer().currentAudioFolder;
         if (audioFolder != null) {
             for (File file : audioFolder.musicFiles) {
                 AudioFile audioFile = new AudioFile(getApplicationContext(), file.getAbsolutePath(),

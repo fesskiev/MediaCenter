@@ -9,7 +9,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import com.fesskiev.player.MusicApplication;
+import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.services.PlaybackService;
 
@@ -92,7 +92,7 @@ public class PlaybackActivity extends AppCompatActivity {
                     Log.w(TAG, "playback activity is plying: " + isPlaying);
                     if (isPlaying) {
                         controlFragment.setPlyingStateButton(true);
-                        controlFragment.setMusicFileInfo(MusicApplication.getInstance().
+                        controlFragment.setMusicFileInfo(MediaApplication.getInstance().
                                 getAudioPlayer().currentAudioFile);
                         showPlaybackControl();
                     } else {

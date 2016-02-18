@@ -26,6 +26,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.User;
 import com.fesskiev.player.services.FileTreeIntentService;
@@ -157,7 +158,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {
-                        if(!finish) {
+                        if (!finish) {
                             showPlaybackControl();
                         }
                     }
@@ -190,6 +191,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         super.onDestroy();
         unregisterBroadcastReceiver();
         PlaybackService.destroyPlayer(this);
+        MediaApplication.getInstance().getAudioPlayer().isPlaying = false;
     }
 
     private BroadcastReceiver userProfileReceiver = new BroadcastReceiver() {

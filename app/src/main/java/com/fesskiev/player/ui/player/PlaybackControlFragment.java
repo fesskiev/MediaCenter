@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.services.PlaybackService;
@@ -55,6 +56,8 @@ public class PlaybackControlFragment extends Fragment {
                 AudioPlayerActivity.startPlayerActivity(getActivity(), false);
             }
         });
+
+        setMusicFileInfo(MediaApplication.getInstance().getAudioPlayer().currentAudioFile);
     }
 
     public void setPlyingStateButton(boolean isPlaying) {

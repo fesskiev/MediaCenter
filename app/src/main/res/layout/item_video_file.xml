@@ -2,14 +2,16 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical">
 
     <ImageView
         android:id="@+id/frameView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="128dp"
+        android:layout_height="128dp"
+        android:layout_gravity="center"
         android:contentDescription="@string/app_name"
+        android:gravity="center"
         tools:src="@drawable/cover" />
 
     <TextView
@@ -19,6 +21,7 @@
         android:layout_gravity="bottom"
         android:layout_margin="5dp"
         android:gravity="center"
+        android:textColor="@color/vk_white"
         android:textSize="18sp"
         tools:text="480x320" />
 

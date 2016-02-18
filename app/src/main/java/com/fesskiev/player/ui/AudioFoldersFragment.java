@@ -15,7 +15,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.fesskiev.player.MusicApplication;
+import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
@@ -49,7 +49,7 @@ public class AudioFoldersFragment extends GridVideoFragment {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                AudioPlayer audioPlayer = MusicApplication.getInstance().getAudioPlayer();
+                AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
                 AudioFolder audioFolder = audioPlayer.audioFolders.get(position);
                 if (audioFolder != null) {
                     audioPlayer.currentAudioFolder = audioFolder;
@@ -97,7 +97,7 @@ public class AudioFoldersFragment extends GridVideoFragment {
             switch (intent.getAction()) {
                 case FileTreeIntentService.ACTION_AUDIO_FOLDER:
                     List<AudioFolder> receiverAudioFolders =
-                            MusicApplication.getInstance().getAudioPlayer().audioFolders;
+                            MediaApplication.getInstance().getAudioPlayer().audioFolders;
                     if (receiverAudioFolders != null) {
                         ((AudioFoldersAdapter) adapter).refresh(receiverAudioFolders);
                         swipeRefreshLayout.setRefreshing(false);

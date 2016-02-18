@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 
-import com.fesskiev.player.MusicApplication;
+import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.widgets.gridview.HidingScrollListener;
@@ -51,14 +51,14 @@ public abstract class GridVideoFragment extends Fragment implements SwipeRefresh
     }
 
     private void hidePlaybackControl() {
-        AudioPlayer audioPlayer = MusicApplication.getInstance().getAudioPlayer();
+        AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
         if (audioPlayer.isPlaying) {
             ((MainActivity) getActivity()).hidePlaybackControl();
         }
     }
 
     private void showPlaybackControl() {
-        AudioPlayer audioPlayer = MusicApplication.getInstance().getAudioPlayer();
+        AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
         if (audioPlayer.isPlaying) {
             ((MainActivity) getActivity()).showPlaybackControl();
         }

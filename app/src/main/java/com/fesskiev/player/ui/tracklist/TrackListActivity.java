@@ -7,7 +7,7 @@ import android.support.v4.content.IntentCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
-import com.fesskiev.player.MusicApplication;
+import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.ui.MainActivity;
 import com.fesskiev.player.ui.player.PlaybackActivity;
@@ -22,7 +22,7 @@ public class TrackListActivity extends PlaybackActivity {
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             if (toolbar != null) {
                 String folderName =
-                        MusicApplication.getInstance().getAudioPlayer().currentAudioFolder.folderName;
+                        MediaApplication.getInstance().getAudioPlayer().currentAudioFolder.folderName;
                 toolbar.setTitle(folderName);
                 toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
                 toolbar.setNavigationOnClickListener(new View.OnClickListener() {

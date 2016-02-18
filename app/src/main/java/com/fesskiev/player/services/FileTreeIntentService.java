@@ -7,7 +7,7 @@ import android.os.Environment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.fesskiev.player.MusicApplication;
+import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.VideoFile;
 
@@ -48,7 +48,7 @@ public class FileTreeIntentService extends IntentService {
 
 
     private void getMusicFolders() {
-        MusicApplication.getInstance().getAudioPlayer().audioFolders.clear();
+        MediaApplication.getInstance().getAudioPlayer().audioFolders.clear();
         String sdCardState = Environment.getExternalStorageState();
         if (!sdCardState.equals(Environment.MEDIA_MOUNTED)) {
             Log.wtf(TAG, "NO SD CARD");
@@ -74,13 +74,12 @@ public class FileTreeIntentService extends IntentService {
     }
 
     private void checkVideoFiles(File child) {
+        MediaApplication.getInstance().getVideoPlayer().videoFiles.clear();
         File[] moviesFiles = child.listFiles(videoFilter());
         if (moviesFiles != null) {
             for (File movieFile : moviesFiles) {
-                VideoFile videoFile = new VideoFile();
-                videoFile.filePath = movieFile.getAbsolutePath();
-
-                MusicApplication.getInstance().getVideoPlayer().videoFiles.add(videoFile);
+                VideoFile videoFile = new VideoFile(movieFile.getAbsolutePath());
+                MediaApplication.getInstance().getVideoPlayer().videoFiles.add(videoFile);
                 sendVideoFoldersBroadcast();
             }
         }
@@ -108,7 +107,7 @@ public class FileTreeIntentService extends IntentService {
                             audioFolder.folderImages.add(file);
                         }
                     }
-                    MusicApplication.getInstance().getAudioPlayer().audioFolders.add(audioFolder);
+                    MediaApplication.getInstance().getAudioPlayer().audioFolders.add(audioFolder);
                     sendAudioFoldersBroadcast();
                 }
             }

@@ -19,7 +19,7 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.fesskiev.player.MusicApplication;
+import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
@@ -77,7 +77,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
             }
         }
 
-        audioPlayer = MusicApplication.getInstance().getAudioPlayer();
+        audioPlayer = MediaApplication.getInstance().getAudioPlayer();
 
         setBackdropImage();
 

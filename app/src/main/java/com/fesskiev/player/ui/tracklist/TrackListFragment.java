@@ -21,7 +21,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.fesskiev.player.MusicApplication;
+import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
@@ -57,7 +57,7 @@ public class TrackListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         audioFolder =
-                MusicApplication.getInstance().getAudioPlayer().currentAudioFolder;
+                MediaApplication.getInstance().getAudioPlayer().currentAudioFolder;
         List<File> folderImages = audioFolder.folderImages;
         if (folderImages != null && folderImages.size() > 0) {
             Picasso.with(getActivity())
@@ -113,7 +113,7 @@ public class TrackListFragment extends Fragment {
         if (audioFolder.audioFilesDescription.size() == 0) {
             FetchAudioInfoIntentService.startFetchAudioInfo(getActivity());
         } else {
-            List<AudioFile> receiverAudioFiles = MusicApplication.getInstance().
+            List<AudioFile> receiverAudioFiles = MediaApplication.getInstance().
                     getAudioPlayer().currentAudioFolder.audioFilesDescription;
             if (receiverAudioFiles != null) {
                 musicFilesAdapter.refreshAdapter(receiverAudioFiles);
@@ -134,14 +134,14 @@ public class TrackListFragment extends Fragment {
     }
 
     private void hidePlaybackControl() {
-        AudioPlayer audioPlayer = MusicApplication.getInstance().getAudioPlayer();
+        AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
         if (audioPlayer.isPlaying) {
             ((TrackListActivity) getActivity()).hidePlaybackControl();
         }
     }
 
     private void showPlaybackControl() {
-        AudioPlayer audioPlayer = MusicApplication.getInstance().getAudioPlayer();
+        AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
         if (audioPlayer.isPlaying) {
             ((TrackListActivity) getActivity()).showPlaybackControl();
         }
@@ -167,7 +167,7 @@ public class TrackListFragment extends Fragment {
                 case FetchAudioInfoIntentService.ACTION_MUSIC_FILES_RESULT:
 //                    Log.d(TAG, "receive music files!");
 
-                    List<AudioFile> receiverAudioFiles = MusicApplication.getInstance().
+                    List<AudioFile> receiverAudioFiles = MediaApplication.getInstance().
                             getAudioPlayer().currentAudioFolder.audioFilesDescription;
                     if (receiverAudioFiles != null) {
                         musicFilesAdapter.refreshAdapter(receiverAudioFiles);
@@ -221,7 +221,7 @@ public class TrackListFragment extends Fragment {
         private void startPlayerActivity(int position) {
             AudioFile audioFile = audioFolder.audioFilesDescription.get(position);
             if (audioFile != null) {
-                AudioPlayer audioPlayer = MusicApplication.getInstance().getAudioPlayer();
+                AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
                 audioPlayer.currentAudioFile = audioFile;
                 audioPlayer.position = position;
 

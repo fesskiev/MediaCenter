@@ -1,4 +1,4 @@
-package com.fesskiev.player.utils.media;
+package com.fesskiev.player.ui.gl;
 
 
 import android.content.Context;

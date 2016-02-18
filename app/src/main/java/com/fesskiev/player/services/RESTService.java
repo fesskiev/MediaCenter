@@ -10,7 +10,7 @@ import android.util.Log;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.fesskiev.player.MusicApplication;
+import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.model.User;
 import com.fesskiev.player.model.vk.Group;
 import com.fesskiev.player.model.vk.VKMusicFile;
@@ -136,7 +136,7 @@ public class RESTService extends Service {
                         Log.wtf(TAG, "volley error: " + error.getMessage());
                     }
                 });
-        MusicApplication.getInstance().addToRequestQueue(jsonRequest);
+        MediaApplication.getInstance().addToRequestQueue(jsonRequest);
 
     }
 
@@ -160,7 +160,7 @@ public class RESTService extends Service {
 
                 });
 
-        MusicApplication.getInstance().addToRequestQueue(jsonRequest);
+        MediaApplication.getInstance().addToRequestQueue(jsonRequest);
     }
 
     private void parseSendBroadcastByAction(final JSONObject response, String action) {
@@ -221,7 +221,7 @@ public class RESTService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        MusicApplication.getInstance().cancelPendingRequests();
+        MediaApplication.getInstance().cancelPendingRequests();
     }
 
 

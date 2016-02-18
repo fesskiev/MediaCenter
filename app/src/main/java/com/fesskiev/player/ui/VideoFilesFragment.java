@@ -7,23 +7,21 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.fesskiev.player.MusicApplication;
+import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.VideoFile;
 import com.fesskiev.player.model.VideoPlayer;
 import com.fesskiev.player.services.FileTreeIntentService;
 import com.fesskiev.player.ui.player.VideoPlayerActivity;
-import com.fesskiev.player.utils.media.ExtractMediaInfo;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +46,7 @@ public class VideoFilesFragment extends GridVideoFragment {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                VideoPlayer videoPlayer = MusicApplication.getInstance().getVideoPlayer();
+                VideoPlayer videoPlayer = MediaApplication.getInstance().getVideoPlayer();
                 VideoFile videoFile = videoPlayer.videoFiles.get(position);
                 if (videoFile != null) {
                     videoPlayer.currentVideoFile = videoFile;
@@ -93,7 +91,7 @@ public class VideoFilesFragment extends GridVideoFragment {
             switch (intent.getAction()) {
                 case FileTreeIntentService.ACTION_VIDEO_FILE:
                     List<VideoFile> videoFiles =
-                            MusicApplication.getInstance().getVideoPlayer().videoFiles;
+                            MediaApplication.getInstance().getVideoPlayer().videoFiles;
                     if (videoFiles != null) {
                         ((VideoFilesAdapter) adapter).refresh(videoFiles);
                         swipeRefreshLayout.setRefreshing(false);
@@ -104,7 +102,8 @@ public class VideoFilesFragment extends GridVideoFragment {
     };
 
     private static class ViewHolder {
-        public TextView filePath;
+        public TextView description;
+        public ImageView frame;
     }
 
     private class VideoFilesAdapter extends BaseAdapter {
@@ -131,22 +130,24 @@ public class VideoFilesFragment extends GridVideoFragment {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder viewHolder;
+        public View getView(final int position, View convertView, ViewGroup parent) {
+            final ViewHolder viewHolder;
             if (convertView == null) {
                 LayoutInflater inflater = (LayoutInflater) getActivity()
                         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 convertView = inflater.inflate(R.layout.item_video_file, parent, false);
                 viewHolder = new ViewHolder();
-                viewHolder.filePath = (TextView) convertView.findViewById(R.id.fileDescription);
+                viewHolder.description = (TextView) convertView.findViewById(R.id.fileDescription);
+                viewHolder.frame = (ImageView) convertView.findViewById(R.id.frameView);
                 convertView.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
 
-            VideoFile videoFile = videoFiles.get(position);
+            final VideoFile videoFile = videoFiles.get(position);
             if (videoFile != null) {
-                viewHolder.filePath.setText(videoFile.filePath);
+                viewHolder.frame.setImageBitmap(videoFile.frame);
+                viewHolder.description.setText(videoFile.description);
             }
 
             return convertView;
