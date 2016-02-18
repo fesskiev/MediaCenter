@@ -57,7 +57,10 @@ public class PlaybackControlFragment extends Fragment {
             }
         });
 
-        setMusicFileInfo(MediaApplication.getInstance().getAudioPlayer().currentAudioFile);
+        AudioFile audioFile = MediaApplication.getInstance().getAudioPlayer().currentAudioFile;
+        if(audioFile != null) {
+            setMusicFileInfo(audioFile);
+        }
     }
 
     public void setPlyingStateButton(boolean isPlaying) {

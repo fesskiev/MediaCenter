@@ -49,6 +49,7 @@ public class FileTreeIntentService extends IntentService {
 
     private void getMusicFolders() {
         MediaApplication.getInstance().getAudioPlayer().audioFolders.clear();
+        MediaApplication.getInstance().getVideoPlayer().videoFiles.clear();
         String sdCardState = Environment.getExternalStorageState();
         if (!sdCardState.equals(Environment.MEDIA_MOUNTED)) {
             Log.wtf(TAG, "NO SD CARD");
@@ -74,7 +75,6 @@ public class FileTreeIntentService extends IntentService {
     }
 
     private void checkVideoFiles(File child) {
-        MediaApplication.getInstance().getVideoPlayer().videoFiles.clear();
         File[] moviesFiles = child.listFiles(videoFilter());
         if (moviesFiles != null) {
             for (File movieFile : moviesFiles) {
