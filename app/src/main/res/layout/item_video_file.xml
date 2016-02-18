@@ -7,9 +7,10 @@
 
     <ImageView
         android:id="@+id/frameView"
-        android:layout_width="128dp"
+        android:layout_width="match_parent"
         android:layout_height="128dp"
         android:layout_gravity="center"
+        android:scaleType="fitXY"
         android:contentDescription="@string/app_name"
         android:gravity="center"
         tools:src="@drawable/cover" />
@@ -20,9 +21,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_margin="5dp"
+        android:textSize="10sp"
+        android:textColor="@color/white_text"
         android:gravity="center"
-        android:textColor="@color/vk_white"
-        android:textSize="18sp"
         tools:text="480x320" />
 
 </FrameLayout>
