@@ -23,6 +23,7 @@ import com.fesskiev.player.model.vk.VKMusicFile;
 import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.Utils;
+import com.fesskiev.player.utils.download.DownloadAudioFile;
 import com.fesskiev.player.utils.http.URLHelper;
 import com.fesskiev.player.widgets.recycleview.HidingScrollListener;
 
@@ -94,8 +95,9 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
                             intent.getParcelableArrayListExtra(RESTService.EXTRA_AUDIO_RESULT);
                     if (vkMusicFiles != null) {
                         hideProgressBar();
-                        audioAdapter.getDownloadVkMusicFiles().clear();
-                        audioAdapter.refresh(getDownloadVKMusicFiles(vkMusicFiles));
+                        audioAdapter.getDownloadAudioFiles().clear();
+                        audioAdapter.refresh(DownloadAudioFile.
+                                getDownloadAudioFiles(getActivity(), audioAdapter, vkMusicFiles));
                     }
                     break;
             }
@@ -132,7 +134,7 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
     @Override
     public void afterTextChanged(Editable s) {
         requestString = s.toString();
-        if(!TextUtils.isEmpty(requestString)) {
+        if (!TextUtils.isEmpty(requestString)) {
             requestLayout.setErrorEnabled(false);
         }
     }

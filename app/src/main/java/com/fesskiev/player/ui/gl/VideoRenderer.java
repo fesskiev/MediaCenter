@@ -237,7 +237,7 @@ public class VideoRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnF
          * so let's be safe and use synchronize. No OpenGL calls can be done here.
          */
         updateSurface = true;
-        Log.v(TAG, "onFrameAvailable " + surface.getTimestamp());
+//        Log.v(TAG, "onFrameAvailable " + surface.getTimestamp());
     }
 
     private int loadShader(int shaderType, String source) {

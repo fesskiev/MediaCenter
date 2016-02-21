@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.fesskiev.player.model.User;
 import com.fesskiev.player.model.vk.Group;
+import com.fesskiev.player.model.vk.GroupPost;
 import com.fesskiev.player.model.vk.VKMusicFile;
 
 import org.json.JSONArray;
@@ -73,7 +74,7 @@ public class JSONHelper {
         return user;
     }
 
-    public static ArrayList<Group> getGroups(JSONObject response){
+    public static ArrayList<Group> getGroups(JSONObject response) {
         ArrayList<Group> groups = new ArrayList<>();
 
         try {
@@ -90,7 +91,7 @@ public class JSONHelper {
                 group.type = jsonObject.getString("type");
                 group.photoURL = jsonObject.getString("photo");
                 group.photoMediumURL = jsonObject.getString("photo_medium");
-                group.photoBigURL= jsonObject.getString("photo_big");
+                group.photoBigURL = jsonObject.getString("photo_big");
 
 
                 Log.d(TAG, "group: " + group.toString());
@@ -103,5 +104,69 @@ public class JSONHelper {
         }
 
         return groups;
+    }
+
+    public static ArrayList<GroupPost> getGroupPosts(JSONObject response) {
+        ArrayList<GroupPost> groupPosts = new ArrayList<>();
+
+        try {
+
+            JSONArray responseArray = response.getJSONArray("response");
+            for (int i = 1; i < responseArray.length(); i++) {
+                JSONObject jsonObject = responseArray.getJSONObject(i);
+
+                GroupPost groupPost = new GroupPost();
+                groupPost.id = jsonObject.getInt("id");
+                groupPost.date = jsonObject.getLong("date");
+                groupPost.text = jsonObject.getString("text");
+
+                JSONObject likesObject = jsonObject.getJSONObject("likes");
+                groupPost.likes = likesObject.optInt("count");
+
+                JSONObject repostsObject = jsonObject.getJSONObject("reposts");
+                groupPost.reposts = repostsObject.getInt("count");
+
+                JSONObject attachmentObject = jsonObject.getJSONObject("attachment");
+                String attachmentType = attachmentObject.getString("type");
+                if(attachmentType.equals(GroupPost.TYPE_PHOTO)){
+                    JSONObject photoObject = attachmentObject.getJSONObject(GroupPost.TYPE_PHOTO);
+                    groupPost.photo = photoObject.getString("src_big");
+                }
+
+                JSONArray attachmentsArray = jsonObject.getJSONArray("attachments");
+                for(int j = 0; j < attachmentsArray.length(); j++){
+                    JSONObject attachmentsObject = attachmentsArray.getJSONObject(j);
+
+                    String attachmentsType = attachmentsObject.getString("type");
+                    if(attachmentsType.equals(GroupPost.TYPE_AUDIO)){
+                        JSONObject musicObject = attachmentsObject.getJSONObject(GroupPost.TYPE_AUDIO);
+
+                        VKMusicFile musicFile = new VKMusicFile();
+
+                        musicFile.aid = musicObject.getInt("aid");
+                        musicFile.ownerId = musicObject.getInt("owner_id");
+                        musicFile.artist = musicObject.getString("artist");
+                        musicFile.title = musicObject.getString("title");
+                        musicFile.duration = musicObject.getInt("duration");
+                        musicFile.url = musicObject.getString("url");
+                        if (jsonObject.has("genre")) {
+                            musicFile.genre = musicObject.getInt("genre");
+                        }
+
+                        groupPost.musicFiles.add(musicFile);
+                    }
+                }
+
+                groupPosts.add(groupPost);
+
+                Log.e(TAG, "group post: " + groupPost.toString());
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        return groupPosts;
     }
 }

@@ -355,8 +355,8 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
                             intent.getIntExtra(PlaybackService.PLAYBACK_EXTRA_PROGRESS_SCALE, 0);
 
                     trackSeek.setProgress(progressScale);
-                    trackTimeTotal.setText(Utils.getTimeString(duration));
-                    trackTimeCount.setText(Utils.getTimeString(progress));
+                    trackTimeTotal.setText(Utils.getTimeFromMillisecondsString(duration));
+                    trackTimeCount.setText(Utils.getTimeFromMillisecondsString(progress));
                     break;
                 case PlaybackService.ACTION_PLAYBACK_PLAYING_STATE:
                     audioPlayer.isPlaying = intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_PLAYING, false);

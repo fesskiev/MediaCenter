@@ -17,12 +17,16 @@ public class Utils {
 
     private static final String TAG = Utils.class.getName();
 
-    public static String getTimeString(int millis) {
+    public static String getTimeFromMillisecondsString(int millis) {
         return String.format("%02d:%02d",
                 TimeUnit.MILLISECONDS.toMinutes(millis),
                 TimeUnit.MILLISECONDS.toSeconds(millis) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))
         );
+    }
+
+    public static String getTimeFromSecondsString(int seconds) {
+        return getTimeFromMillisecondsString(seconds * 1000);
     }
 
 

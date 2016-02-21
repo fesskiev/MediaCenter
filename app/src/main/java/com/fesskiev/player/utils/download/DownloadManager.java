@@ -1,4 +1,4 @@
-package com.fesskiev.player.utils;
+package com.fesskiev.player.utils.download;
 
 
 import android.os.Environment;
@@ -11,7 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class Download implements Runnable {
+public class DownloadManager implements Runnable {
 
     public interface OnDownloadListener {
         void onStatusChanged();
@@ -33,7 +33,7 @@ public class Download implements Runnable {
     private int downloaded;
     private int status;
 
-    public Download(String url, String fleName) {
+    public DownloadManager(String url, String fleName) {
         try {
             this.url = new URL(url);
         } catch (MalformedURLException e) {

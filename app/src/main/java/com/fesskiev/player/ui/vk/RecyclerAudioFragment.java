@@ -16,7 +16,9 @@ import android.widget.TextView;
 
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.vk.VKMusicFile;
-import com.fesskiev.player.utils.Download;
+import com.fesskiev.player.utils.download.DownloadAudioFile;
+import com.fesskiev.player.utils.download.DownloadManager;
+import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.MaterialProgressBar;
 import com.fesskiev.player.widgets.recycleview.EndlessScrollListener;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
@@ -53,12 +55,12 @@ public abstract class RecyclerAudioFragment extends Fragment {
                 new RecyclerItemTouchClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View childView, int position) {
-                List<DownloadVkMusicFile> downloadVkMusicFiles = audioAdapter.getDownloadVkMusicFiles();
-                if (downloadVkMusicFiles != null) {
-                    DownloadVkMusicFile downloadVkMusicFile = downloadVkMusicFiles.get(position);
-                    if (downloadVkMusicFile != null) {
-                        if (downloadVkMusicFile.download == null) {
-                            downloadFileDialog(downloadVkMusicFile, position);
+                List<DownloadAudioFile> downloadAudioFiles = audioAdapter.getDownloadAudioFiles();
+                if (downloadAudioFiles != null) {
+                    DownloadAudioFile downloadAudioFile = downloadAudioFiles.get(position);
+                    if (downloadAudioFile != null) {
+                        if (downloadAudioFile.getDownloadManager() == null) {
+                            downloadFileDialog(downloadAudioFile, position);
                         } else {
 
                         }
@@ -85,7 +87,7 @@ public abstract class RecyclerAudioFragment extends Fragment {
         progressBar = (MaterialProgressBar) view.findViewById(R.id.progressBar);
     }
 
-    private void downloadFileDialog(final DownloadVkMusicFile musicFile, final int position) {
+    private void downloadFileDialog(final DownloadAudioFile musicFile, final int position) {
         AlertDialog.Builder builder =
                 new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
         builder.setTitle(getString(R.string.dialog_download_title));
@@ -115,30 +117,19 @@ public abstract class RecyclerAudioFragment extends Fragment {
         progressBar.setVisibility(View.INVISIBLE);
     }
 
-
-    protected List<DownloadVkMusicFile> getDownloadVKMusicFiles(List<VKMusicFile> vkMusicFiles) {
-        List<DownloadVkMusicFile> downloadVkMusicFiles = new ArrayList<>();
-        for (VKMusicFile vkMusicFile : vkMusicFiles) {
-            DownloadVkMusicFile downloadVkMusicFile = new DownloadVkMusicFile();
-            downloadVkMusicFile.vkMusicFile = vkMusicFile;
-            downloadVkMusicFiles.add(downloadVkMusicFile);
-        }
-        return downloadVkMusicFiles;
-    }
-
-
     protected class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.ViewHolder> {
 
-        private List<DownloadVkMusicFile> downloadVkMusicFiles;
+        private List<DownloadAudioFile> downloadAudioFiles;
 
         public AudioAdapter() {
-            this.downloadVkMusicFiles = new ArrayList<>();
+            this.downloadAudioFiles = new ArrayList<>();
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
 
             TextView artist;
             TextView title;
+            TextView duration;
             ImageView downloadCompleteIcon;
             ProgressBar downloadProgress;
             TextView progressValue;
@@ -149,6 +140,7 @@ public abstract class RecyclerAudioFragment extends Fragment {
 
                 artist = (TextView) v.findViewById(R.id.itemArtist);
                 title = (TextView) v.findViewById(R.id.itemTitle);
+                duration = (TextView) v.findViewById(R.id.itemTime);
                 downloadCompleteIcon = (ImageView) v.findViewById(R.id.itemDownloadComplete);
                 downloadProgress = (ProgressBar) v.findViewById(R.id.downloadProgressBar);
                 progressValue = (TextView) v.findViewById(R.id.progressValue);
@@ -167,29 +159,30 @@ public abstract class RecyclerAudioFragment extends Fragment {
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
 
-            DownloadVkMusicFile vkMusicFile = downloadVkMusicFiles.get(position);
-            if (vkMusicFile != null) {
+            DownloadAudioFile downloadAudioFile = downloadAudioFiles.get(position);
+            if (downloadAudioFile != null) {
 
-                holder.artist.setText(vkMusicFile.vkMusicFile.artist);
-                holder.title.setText(vkMusicFile.vkMusicFile.title);
+                holder.artist.setText(downloadAudioFile.getVkMusicFile().artist);
+                holder.title.setText(downloadAudioFile.getVkMusicFile().title);
+                holder.duration.setText(Utils.getTimeFromSecondsString(downloadAudioFile.getVkMusicFile().duration));
 
-                if (vkMusicFile.download != null) {
-                    Download download = vkMusicFile.download;
-                    switch (download.getStatus()) {
-                        case Download.DOWNLOADING:
+                if (downloadAudioFile.getDownloadManager() != null) {
+                    DownloadManager downloadManager = downloadAudioFile.getDownloadManager();
+                    switch (downloadManager.getStatus()) {
+                        case DownloadManager.DOWNLOADING:
                             holder.downloadContainer.setVisibility(View.VISIBLE);
-                            holder.downloadProgress.setProgress((int) vkMusicFile.download.getProgress());
-                            holder.progressValue.setText(String.valueOf((int) vkMusicFile.download.getProgress()) + "%");
+                            holder.downloadProgress.setProgress((int) downloadAudioFile.getDownloadManager().getProgress());
+                            holder.progressValue.setText(String.valueOf((int) downloadAudioFile.getDownloadManager().getProgress()) + "%");
                             break;
-                        case Download.COMPLETE:
+                        case DownloadManager.COMPLETE:
                             holder.downloadContainer.setVisibility(View.GONE);
                             holder.downloadCompleteIcon.setVisibility(View.VISIBLE);
                             break;
-                        case Download.PAUSED:
+                        case DownloadManager.PAUSED:
                             break;
-                        case Download.CANCELLED:
+                        case DownloadManager.CANCELLED:
                             break;
-                        case Download.ERROR:
+                        case DownloadManager.ERROR:
                             break;
                     }
 
@@ -201,55 +194,21 @@ public abstract class RecyclerAudioFragment extends Fragment {
             }
         }
 
-        public void refresh(List<DownloadVkMusicFile> downloadVkMusicFiles) {
-            this.downloadVkMusicFiles.addAll(downloadVkMusicFiles);
+        public void refresh(List<DownloadAudioFile> downloadAudioFiles) {
+            this.downloadAudioFiles.addAll(downloadAudioFiles);
             notifyDataSetChanged();
         }
 
         @Override
         public int getItemCount() {
-            return downloadVkMusicFiles.size();
+            return downloadAudioFiles.size();
         }
 
-        public List<DownloadVkMusicFile> getDownloadVkMusicFiles() {
-            return downloadVkMusicFiles;
-        }
-    }
-
-
-    protected class DownloadVkMusicFile implements Download.OnDownloadListener {
-
-        public VKMusicFile vkMusicFile;
-        public Download download;
-        public int position;
-
-        @Override
-        public void onStatusChanged() {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    audioAdapter.notifyItemChanged(position);
-
-                }
-            });
-        }
-
-        @Override
-        public void onProgress() {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    audioAdapter.notifyItemChanged(position);
-
-                }
-            });
-        }
-
-        public void downloadMusicFile(int position) {
-            this.position = position;
-            String fileName = vkMusicFile.artist + "-" + vkMusicFile.title;
-            download = new Download(vkMusicFile.url, fileName);
-            download.setOnDownloadListener(this);
+        public List<DownloadAudioFile> getDownloadAudioFiles() {
+            return downloadAudioFiles;
         }
     }
+
+
+
 }

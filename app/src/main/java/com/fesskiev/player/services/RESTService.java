@@ -13,6 +13,7 @@ import com.android.volley.VolleyError;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.model.User;
 import com.fesskiev.player.model.vk.Group;
+import com.fesskiev.player.model.vk.GroupPost;
 import com.fesskiev.player.model.vk.VKMusicFile;
 import com.fesskiev.player.utils.http.JSONHelper;
 import com.fesskiev.player.utils.http.JSONUTF8Request;
@@ -26,6 +27,8 @@ public class RESTService extends Service {
 
     private static final String TAG = RESTService.class.getSimpleName();
 
+    public static final String ACTION_GET_GROUP_POST =
+            "com.fesskiev.player.ACTION_GET_GROUP_POST";
     public static final String ACTION_GET_GROUP_AUDIO =
             "com.fesskiev.player.ACTION_GET_GROUP_AUDIO";
     public static final String ACTION_GET_GROUPS =
@@ -46,6 +49,9 @@ public class RESTService extends Service {
             "com.fesskiev.player.ACTION_GROUPS_RESULT";
     public static final String ACTION_GROUP_AUDIO_RESULT =
             "com.fesskiev.player.ACTION_GROUP_AUDIO_RESULT";
+    public static final String ACTION_GROUP_POSTS_RESULT =
+            "com.fesskiev.player.ACTION_GROUP_POSTS_RESULT";
+
 
     public static final String EXTRA_REQUEST_URL
             = "com.fesskiev.player.EXTRA_REQUEST_URL";
@@ -55,6 +61,17 @@ public class RESTService extends Service {
             = "com.fesskiev.player.EXTRA_AUDIO_RESULT";
     public static final String EXTRA_GROUPS_RESULT
             = "com.fesskiev.player.EXTRA_GROUPS_RESULT";
+    public static final String EXTRA_GROUP_POSTS
+            = "com.fesskiev.player.EXTRA_GROUP_POSTS";
+
+
+    public static void fetchGroupPost(Context context, String url) {
+        Intent intent = new Intent(context, RESTService.class);
+        intent.setAction(ACTION_GET_GROUP_POST);
+        intent.putExtra(EXTRA_REQUEST_URL, url);
+        context.startService(intent);
+    }
+
 
     public static void fetchGroupAudio(Context context, String url) {
         Intent intent = new Intent(context, RESTService.class);
@@ -111,6 +128,9 @@ public class RESTService extends Service {
                 doGET(url, action);
                 break;
             case ACTION_GET_SEARCH_AUDIO:
+                doGET(url, action);
+                break;
+            case ACTION_GET_GROUP_POST:
                 doGET(url, action);
                 break;
         }
@@ -180,7 +200,17 @@ public class RESTService extends Service {
             case ACTION_GET_SEARCH_AUDIO:
                 sendBroadcastSearchAudio(JSONHelper.getVKMusicFiles(response, 1));
                 break;
+            case ACTION_GET_GROUP_POST:
+                sendBroadcastGroupPosts(JSONHelper.getGroupPosts(response));
+                break;
         }
+    }
+
+    private void sendBroadcastGroupPosts(ArrayList<GroupPost> groupPosts){
+        Intent intent = new Intent();
+        intent.setAction(ACTION_GROUP_POSTS_RESULT);
+        intent.putExtra(EXTRA_GROUP_POSTS, groupPosts);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
     }
 
     private void sendBroadcastGroupAudio(ArrayList<VKMusicFile> vkMusicFiles){

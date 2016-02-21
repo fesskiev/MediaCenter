@@ -7,6 +7,7 @@ public class URLHelper {
     private static final String GET_AUDIO = BASE_URL + "audio.get";
     private static final String GET_USER_PROFILE = BASE_URL + "users.get";
     private static final String GET_USER_GROUP = BASE_URL + "groups.get";
+    private static final String GET_POST = BASE_URL + "wall.get";
     private static final String SEARCH_AUDIO = BASE_URL + "audio.search";
 
     public static String getUserGroupsURL(String token, String userId) {
@@ -68,6 +69,19 @@ public class URLHelper {
         sb.append(groupId);
         sb.append("&access_token=");
         sb.append(token);
+        sb.append("&count=");
+        sb.append(count);
+        sb.append("&offset=");
+        sb.append(offset);
+        return sb.toString();
+    }
+
+    public static String getGroupPostURL(int ownerId, int count, int offset) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(GET_POST);
+        sb.append("?owner_id=-");
+        sb.append(ownerId);
+        sb.append("&filter=all");
         sb.append("&count=");
         sb.append(count);
         sb.append("&offset=");

@@ -12,6 +12,7 @@ import com.fesskiev.player.R;
 import com.fesskiev.player.model.vk.VKMusicFile;
 import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.utils.AppSettingsManager;
+import com.fesskiev.player.utils.download.DownloadAudioFile;
 import com.fesskiev.player.utils.http.URLHelper;
 
 import java.util.List;
@@ -52,7 +53,8 @@ public class UserAudioFragment extends RecyclerAudioFragment {
                             intent.getParcelableArrayListExtra(RESTService.EXTRA_AUDIO_RESULT);
                     if (vkMusicFiles != null) {
                         hideProgressBar();
-                        audioAdapter.refresh(getDownloadVKMusicFiles(vkMusicFiles));
+                        audioAdapter.refresh(DownloadAudioFile.
+                                getDownloadAudioFiles(getActivity(), audioAdapter, vkMusicFiles));
                     }
                     break;
             }
