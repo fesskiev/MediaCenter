@@ -14,6 +14,7 @@ import android.support.v4.content.IntentCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -228,7 +229,9 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
 
                             @Override
                             public void onBitmapFailed(Drawable errorDrawable) {
-
+                                Picasso.with(getApplicationContext()).
+                                        load(R.drawable.no_cover_icon).
+                                        into(backdrop);
                             }
 
                             @Override

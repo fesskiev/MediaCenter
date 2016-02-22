@@ -14,6 +14,7 @@ import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.services.PlaybackService;
+import com.squareup.picasso.Picasso;
 
 import java.lang.reflect.Field;
 
@@ -73,8 +74,12 @@ public class PlaybackControlFragment extends Fragment {
         track.setText(audioFile.title);
         artist.setText(audioFile.artist);
         Bitmap bitmap = audioFile.getArtwork();
-        if (cover != null) {
+        if (bitmap != null) {
             cover.setImageBitmap(bitmap);
+        } else {
+            Picasso.with(getActivity()).
+                    load(R.drawable.no_cover_icon).
+                    into(cover);
         }
     }
 
