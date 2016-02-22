@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -34,7 +33,6 @@ import com.fesskiev.player.widgets.dialogs.EditTrackDialog;
 import com.fesskiev.player.widgets.recycleview.HidingScrollListener;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -45,7 +43,6 @@ public class TrackListFragment extends Fragment {
 
     private static final String TAG = TrackListFragment.class.getSimpleName();
 
-    private Bitmap coverImageBitmap;
     private MusicFilesAdapter musicFilesAdapter;
     private AudioFolder audioFolder;
 
@@ -58,34 +55,12 @@ public class TrackListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         audioFolder =
                 MediaApplication.getInstance().getAudioPlayer().currentAudioFolder;
-        List<File> folderImages = audioFolder.folderImages;
-        if (folderImages != null && folderImages.size() > 0) {
-            Picasso.with(getActivity())
-                    .load(folderImages.get(0).getAbsolutePath())
-                    .into(new Target() {
-                        @Override
-                        public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
-                            coverImageBitmap = bitmap;
-                        }
-
-                        @Override
-                        public void onBitmapFailed(Drawable errorDrawable) {
-
-                        }
-
-                        @Override
-                        public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                        }
-                    });
-
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_song_list, container, false);
+        return inflater.inflate(R.layout.fragment_track_list, container, false);
     }
 
     @Override
@@ -191,7 +166,7 @@ public class TrackListFragment extends Fragment {
             TextView title;
             ImageView cover;
 
-            public ViewHolder(View v) {
+            public ViewHolder(final View v) {
                 super(v);
 
                 duration = (TextView) v.findViewById(R.id.itemDuration);
@@ -212,20 +187,21 @@ public class TrackListFragment extends Fragment {
 
                             @Override
                             public void onClick() {
-                                startPlayerActivity(getAdapterPosition());
+                                startPlayerActivity(getAdapterPosition(), cover);
                             }
                         });
             }
         }
 
-        private void startPlayerActivity(int position) {
+        private void startPlayerActivity(int position, View cover) {
             AudioFile audioFile = audioFolder.audioFilesDescription.get(position);
             if (audioFile != null) {
                 AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
                 audioPlayer.currentAudioFile = audioFile;
                 audioPlayer.position = position;
 
-                AudioPlayerActivity.startPlayerActivity(getActivity(), true);
+
+                AudioPlayerActivity.startPlayerActivity(getActivity(), true, cover);
             }
         }
 
@@ -274,16 +250,23 @@ public class TrackListFragment extends Fragment {
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             AudioFile audioFile = audioFiles.get(position);
-
-            Bitmap artwork = audioFile.getArtwork();
+                        Bitmap artwork = audioFile.getArtwork();
             if (artwork != null) {
                 holder.cover.setImageBitmap(artwork);
-            } else if (coverImageBitmap != null) {
-                holder.cover.setImageBitmap(coverImageBitmap);
             } else {
-                Picasso.with(getActivity()).
-                        load(R.drawable.no_cover_icon).
-                        into(holder.cover);
+                if (audioFolder != null && audioFolder.folderImages.size() > 0) {
+                    File coverFile = audioFolder.folderImages.get(0);
+                    if (coverFile != null) {
+                        Picasso.with(getActivity()).
+                                load(coverFile).
+                                resize(256, 256).
+                                into(holder.cover);
+                    }
+                } else {
+                    Picasso.with(getActivity()).
+                            load(R.drawable.no_cover_icon).
+                            into(holder.cover);
+                }
             }
 
             holder.duration.setText(Utils.getDurationString(audioFile.length));

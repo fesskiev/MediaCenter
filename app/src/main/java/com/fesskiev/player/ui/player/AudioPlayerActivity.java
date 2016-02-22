@@ -1,20 +1,18 @@
 package com.fesskiev.player.ui.player;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.IntentCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -27,11 +25,9 @@ import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.equalizer.EqualizerActivity;
-import com.fesskiev.player.ui.tracklist.TrackListActivity;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.cards.DescriptionCardView;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import java.io.File;
 
@@ -54,9 +50,11 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
     private SeekBar trackSeek;
     private SeekBar volumeSeek;
 
-    public static void startPlayerActivity(Context context, boolean isNewTrack) {
-        context.startActivity(new Intent(context,
-                AudioPlayerActivity.class).putExtra(AudioPlayerActivity.EXTRA_IS_NEW_TRACK, isNewTrack));
+    public static void startPlayerActivity(Activity activity, boolean isNewTrack, View coverView) {
+        ActivityOptionsCompat options = ActivityOptionsCompat.
+                makeSceneTransitionAnimation(activity, coverView, "cover");
+        activity.startActivity(new Intent(activity, AudioPlayerActivity.class).
+                putExtra(AudioPlayerActivity.EXTRA_IS_NEW_TRACK, isNewTrack), options.toBundle());
     }
 
     @Override
@@ -70,9 +68,8 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
                 toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        navigateUpToFromChild(AudioPlayerActivity.this,
-                                IntentCompat.makeMainActivity(new ComponentName(AudioPlayerActivity.this,
-                                        TrackListActivity.class)));
+
+                        supportFinishAfterTransition();
                     }
                 });
             }
@@ -209,42 +206,17 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
         if (artwork != null) {
             backdrop.setImageBitmap(artwork);
         } else {
-            setFolderBackdropImage(backdrop);
-        }
-
-    }
-
-    private void setFolderBackdropImage(final ImageView backdrop) {
-        AudioFolder audioFolder = audioPlayer.currentAudioFolder;
-        if (!audioFolder.folderImages.isEmpty()) {
-            File albumImagePath = audioFolder.folderImages.get(0);
-            if (albumImagePath != null) {
-                Picasso.with(this)
-                        .load(albumImagePath.getAbsolutePath())
-                        .into(new Target() {
-                            @Override
-                            public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
-                                backdrop.setImageBitmap(bitmap);
-                            }
-
-                            @Override
-                            public void onBitmapFailed(Drawable errorDrawable) {
-                                Picasso.with(getApplicationContext()).
-                                        load(R.drawable.no_cover_icon).
-                                        into(backdrop);
-                            }
-
-                            @Override
-                            public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                            }
-                        });
+            AudioFolder audioFolder = audioPlayer.currentAudioFolder;
+            if (audioFolder != null && audioFolder.folderImages.size() > 0) {
+                File coverFile = audioFolder.folderImages.get(0);
+                if (coverFile != null) {
+                    Picasso.with(this).load(coverFile).into(backdrop);
+                }
+            } else {
+                Picasso.with(this).load(R.drawable.no_cover_icon).into(backdrop);
             }
-        } else {
-            Picasso.with(this).
-                    load(R.drawable.no_cover_icon).
-                    into(backdrop);
         }
+
     }
 
     @Override

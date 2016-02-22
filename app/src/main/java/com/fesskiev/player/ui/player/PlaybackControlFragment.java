@@ -13,9 +13,11 @@ import android.widget.TextView;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioFile;
+import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.services.PlaybackService;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.lang.reflect.Field;
 
 
@@ -54,7 +56,7 @@ public class PlaybackControlFragment extends Fragment {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AudioPlayerActivity.startPlayerActivity(getActivity(), false);
+                AudioPlayerActivity.startPlayerActivity(getActivity(), false, cover);
             }
         });
 
@@ -73,13 +75,20 @@ public class PlaybackControlFragment extends Fragment {
     public void setMusicFileInfo(AudioFile audioFile) {
         track.setText(audioFile.title);
         artist.setText(audioFile.artist);
-        Bitmap bitmap = audioFile.getArtwork();
-        if (bitmap != null) {
-            cover.setImageBitmap(bitmap);
+
+        Bitmap artwork = audioFile.getArtwork();
+        if (artwork != null) {
+            cover.setImageBitmap(artwork);
         } else {
-            Picasso.with(getActivity()).
-                    load(R.drawable.no_cover_icon).
-                    into(cover);
+            AudioFolder audioFolder = MediaApplication.getInstance().getAudioPlayer().currentAudioFolder;
+            if (audioFolder != null && audioFolder.folderImages.size() > 0) {
+                File coverFile = audioFolder.folderImages.get(0);
+                if (coverFile != null) {
+                    Picasso.with(getActivity()).load(coverFile).into(cover);
+                }
+            } else {
+                Picasso.with(getActivity()).load(R.drawable.no_cover_icon).into(cover);
+            }
         }
     }
 

@@ -62,6 +62,7 @@
                 android:id="@+id/itemCover"
                 android:layout_width="64dp"
                 android:layout_height="64dp"
+                android:transitionName="cover"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
                 android:contentDescription="@string/app_name"
