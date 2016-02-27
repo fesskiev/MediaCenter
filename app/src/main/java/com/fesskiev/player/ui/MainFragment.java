@@ -22,7 +22,7 @@ public class MainFragment extends ViewPagerFragment{
     @Override
     public int[] getImagesIds() {
         return new int[]{
-                R.drawable.audio_icon,
+                R.drawable.icon_audio,
                 R.drawable.media_icon
         };
     }

@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.fesskiev.player.R;
+import com.fesskiev.player.memory.MemoryLeakWatcherFragment;
 import com.fesskiev.player.model.vk.Group;
 import com.fesskiev.player.model.vk.GroupPost;
 import com.fesskiev.player.services.RESTService;
@@ -27,7 +28,7 @@ import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
 import java.util.ArrayList;
 
 
-public class GroupAudioFragment extends Fragment {
+public class GroupAudioFragment extends MemoryLeakWatcherFragment {
 
     private static final String GROUP_BUNDLE = "com.fesskiev.player.GROUP_BUNDLE";
 

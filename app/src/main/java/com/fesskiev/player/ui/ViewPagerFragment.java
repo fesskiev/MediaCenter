@@ -15,13 +15,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fesskiev.player.R;
+import com.fesskiev.player.memory.MemoryLeakWatcherFragment;
 import com.fesskiev.player.widgets.utils.DepthPageTransformer;
 import com.fesskiev.player.widgets.utils.ZoomOutPageTransformer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ViewPagerFragment extends Fragment {
+public abstract class ViewPagerFragment extends MemoryLeakWatcherFragment {
 
     public abstract String[] getTitles();
 

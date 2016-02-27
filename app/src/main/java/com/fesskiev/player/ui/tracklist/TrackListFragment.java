@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
+import com.fesskiev.player.memory.MemoryLeakWatcherFragment;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
@@ -39,7 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class TrackListFragment extends Fragment {
+public class TrackListFragment extends MemoryLeakWatcherFragment {
 
     private static final String TAG = TrackListFragment.class.getSimpleName();
 

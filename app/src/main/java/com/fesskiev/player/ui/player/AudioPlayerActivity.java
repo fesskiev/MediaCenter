@@ -26,6 +26,7 @@ import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.equalizer.EqualizerActivity;
 import com.fesskiev.player.utils.Utils;
+import com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton;
 import com.fesskiev.player.widgets.cards.DescriptionCardView;
 import com.squareup.picasso.Picasso;
 
@@ -37,7 +38,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
     public static final String EXTRA_IS_NEW_TRACK = "com.fesskiev.player.EXTRA_IS_NEW_TRACK";
 
     private AudioPlayer audioPlayer;
-    private FloatingActionButton playStopButton;
+    private PlayPauseFloatingButton playPauseButton;
     private DescriptionCardView cardDescription;
     private ImageView volumeLevel;
     private TextView trackTimeCount;
@@ -68,8 +69,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
                 toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
-                        supportFinishAfterTransition();
+                        hideWithAnimation();
                     }
                 });
             }
@@ -122,9 +122,9 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
             }
         });
 
-        playStopButton =
-                (FloatingActionButton) findViewById(R.id.playStopFAB);
-        playStopButton.setOnClickListener(new View.OnClickListener() {
+        playPauseButton =
+                (PlayPauseFloatingButton) findViewById(R.id.playStopFAB);
+        playPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (audioPlayer.isPlaying) {
@@ -132,6 +132,8 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
                 } else {
                     play();
                 }
+                playPauseButton.toggle();
+
             }
         });
 
@@ -187,6 +189,15 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
         registerPlaybackBroadcastReceiver();
     }
 
+    private void hideWithAnimation(){
+        playPauseButton.hide(new FloatingActionButton.OnVisibilityChangedListener() {
+            @Override
+            public void onHidden(FloatingActionButton fab) {
+                supportFinishAfterTransition();
+            }
+        });
+    }
+
     private void createNewTrack() {
         createPlayer();
         play();
@@ -197,7 +208,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
     private void resumePlaying() {
         setTrackInformation();
         setVolumeLevel();
-        setPlayingIcon();
+//        setPlayingIcon();
     }
 
     private void setBackdropImage() {
@@ -285,14 +296,20 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
 
     private void setPlayingIcon() {
         if (audioPlayer.isPlaying) {
-            playStopButton.
+            playPauseButton.
                     setImageDrawable(ContextCompat.getDrawable(AudioPlayerActivity.this,
                             R.drawable.pause_icon));
         } else {
-            playStopButton.
+            playPauseButton.
                     setImageDrawable(ContextCompat.getDrawable(AudioPlayerActivity.this,
                             R.drawable.play_icon));
         }
+//        playPauseButton.toggle();
+    }
+
+    @Override
+    public void onBackPressed() {
+        hideWithAnimation();
     }
 
     @Override
@@ -335,7 +352,8 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
                     break;
                 case PlaybackService.ACTION_PLAYBACK_PLAYING_STATE:
                     audioPlayer.isPlaying = intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_PLAYING, false);
-                    setPlayingIcon();
+//                    setPlayingIcon();
+
                     break;
                 case PlaybackService.ACTION_SONG_END:
                     next();

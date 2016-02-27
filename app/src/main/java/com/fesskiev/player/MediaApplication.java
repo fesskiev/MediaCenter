@@ -1,6 +1,7 @@
 package com.fesskiev.player;
 
 import android.app.Application;
+import android.content.Context;
 import android.os.Environment;
 
 import com.android.volley.Request;
@@ -9,6 +10,8 @@ import com.android.volley.toolbox.Volley;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.VideoPlayer;
 import com.fesskiev.player.utils.RecursiveFileObserver;
+import com.squareup.leakcanary.LeakCanary;
+import com.squareup.leakcanary.RefWatcher;
 import com.vk.sdk.VKSdk;
 
 
@@ -18,6 +21,8 @@ public class MediaApplication extends Application {
     private RequestQueue requestQueue;
     private AudioPlayer audioPlayer;
     private VideoPlayer videoPlayer;
+
+    private RefWatcher refWatcher;
 
     static {
         System.loadLibrary("khronos-media");
@@ -31,6 +36,7 @@ public class MediaApplication extends Application {
         audioPlayer = new AudioPlayer();
         videoPlayer = new VideoPlayer();
         VKSdk.initialize(this);
+        refWatcher = LeakCanary.install(this);
 
 //        createFileObserver();
     }
@@ -49,7 +55,6 @@ public class MediaApplication extends Application {
     public static synchronized MediaApplication getInstance() {
         return application;
     }
-
 
     public RequestQueue getRequestQueue() {
         if (requestQueue == null) {
@@ -78,5 +83,9 @@ public class MediaApplication extends Application {
 
     public VideoPlayer getVideoPlayer() {
         return videoPlayer;
+    }
+
+    public RefWatcher getRefWatcher() {
+        return refWatcher;
     }
 }

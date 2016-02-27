@@ -15,6 +15,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.fesskiev.player.R;
+import com.fesskiev.player.memory.MemoryLeakWatcherFragment;
 import com.fesskiev.player.model.vk.VKMusicFile;
 import com.fesskiev.player.utils.download.DownloadAudioFile;
 import com.fesskiev.player.utils.download.DownloadManager;
@@ -27,7 +28,7 @@ import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class RecyclerAudioFragment extends Fragment {
+public abstract class RecyclerAudioFragment extends MemoryLeakWatcherFragment {
 
     public abstract int getResourceId();
 

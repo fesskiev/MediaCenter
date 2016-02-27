@@ -244,13 +244,11 @@
 
     </android.support.v4.widget.NestedScrollView>
 
-    <android.support.design.widget.FloatingActionButton
+    <com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton
         android:id="@+id/playStopFAB"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
-        android:clickable="true"
-        android:src="@drawable/play_icon"
         app:layout_anchor="@id/appbar"
         app:layout_anchorGravity="bottom|right|end" />
 

@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fesskiev.player.R;
+import com.fesskiev.player.memory.MemoryLeakWatcherFragment;
 import com.fesskiev.player.model.vk.Group;
 import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.utils.AppSettingsManager;
@@ -29,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class GroupsFragment extends Fragment {
+public class GroupsFragment extends MemoryLeakWatcherFragment {
 
 
     public static GroupsFragment newInstance() {
