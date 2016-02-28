@@ -66,7 +66,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+        drawer.addDrawerListener(toggle);
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -144,7 +144,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            hidePlaybackControl();
+            hidePlayback();
             View view = findViewById(R.id.content);
             if (view != null) {
                 Snackbar.make(view, getString(R.string.snack_exit_text), Snackbar.LENGTH_LONG)
@@ -159,7 +159,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {
                         if (!finish) {
-                            showPlaybackControl();
+                            showPlayback();
                         }
                     }
 

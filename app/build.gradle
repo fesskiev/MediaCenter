@@ -8,7 +8,7 @@ model {
         defaultConfig.with {
             applicationId = "com.fesskiev.player"
             vectorDrawables.useSupportLibrary = true
-            minSdkVersion.apiLevel = 18
+            minSdkVersion.apiLevel = 17
             targetSdkVersion.apiLevel = 23
             versionCode = 1
             versionName = "1.0"
@@ -28,7 +28,7 @@ model {
     android.ndk {
         moduleName = "khronos-media"
         cppFlags.addAll(["-std=c++11"])
-        ldLibs.addAll(["android", "log", "OpenSLES", "OpenMAXAL"])
+        ldLibs.addAll(["android", "log", "OpenSLES"])
         stl = "gnustl_static"
     }
 

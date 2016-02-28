@@ -73,18 +73,6 @@ public class TrackListFragment extends MemoryLeakWatcherFragment {
                 LinearLayoutManager.VERTICAL, false, 1000));
         musicFilesAdapter = new MusicFilesAdapter();
         recyclerView.setAdapter(musicFilesAdapter);
-        recyclerView.addOnScrollListener(new HidingScrollListener() {
-            @Override
-            public void onHide() {
-                hidePlaybackControl();
-            }
-
-            @Override
-            public void onShow() {
-                showPlaybackControl();
-            }
-        });
-
 
         if (audioFolder.audioFilesDescription.size() == 0) {
             FetchAudioInfoIntentService.startFetchAudioInfo(getActivity());
@@ -109,19 +97,6 @@ public class TrackListFragment extends MemoryLeakWatcherFragment {
         unregisterMusicFilesReceiver();
     }
 
-    private void hidePlaybackControl() {
-        AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-        if (audioPlayer.isPlaying) {
-            ((TrackListActivity) getActivity()).hidePlaybackControl();
-        }
-    }
-
-    private void showPlaybackControl() {
-        AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-        if (audioPlayer.isPlaying) {
-            ((TrackListActivity) getActivity()).showPlaybackControl();
-        }
-    }
 
 
     private void registerMusicFilesReceiver() {

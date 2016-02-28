@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,9 +8,9 @@
     tools:context=".ui.tracklist.TrackListActivity">
 
     <android.support.design.widget.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/appBarLayout"
         android:theme="@style/Theme.Player.AppBarOverlay">
 
         <android.support.v7.widget.Toolbar
@@ -26,22 +26,6 @@
         android:id="@+id/content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="?android:attr/actionBarSize"/>
+        android:layout_marginTop="?android:attr/actionBarSize" />
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/controlCardView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        app:cardElevation="8dp">
-
-        <fragment android:name="com.fesskiev.player.ui.player.PlaybackControlFragment"
-            android:id="@+id/fragmentPlaybackControl"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            tools:layout="@layout/fragment_playback_control" />
-
-    </android.support.v7.widget.CardView>
-
-</RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

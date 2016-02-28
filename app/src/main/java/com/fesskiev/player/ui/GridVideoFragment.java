@@ -54,14 +54,14 @@ public abstract class GridVideoFragment extends MemoryLeakWatcherFragment implem
     private void hidePlaybackControl() {
         AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
         if (audioPlayer.isPlaying) {
-            ((MainActivity) getActivity()).hidePlaybackControl();
+            ((MainActivity) getActivity()).hidePlayback();
         }
     }
 
     private void showPlaybackControl() {
         AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
         if (audioPlayer.isPlaying) {
-            ((MainActivity) getActivity()).showPlaybackControl();
+            ((MainActivity) getActivity()).showPlayback();
         }
     }
 }
