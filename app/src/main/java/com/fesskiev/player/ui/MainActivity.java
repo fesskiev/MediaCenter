@@ -192,6 +192,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         unregisterBroadcastReceiver();
         PlaybackService.destroyPlayer(this);
         MediaApplication.getInstance().getAudioPlayer().isPlaying = false;
+//        MediaApplication.getInstance().getLruCache().clear();
     }
 
     private BroadcastReceiver userProfileReceiver = new BroadcastReceiver() {
@@ -211,7 +212,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                         appSettingsManager.setUserFirstName(user.firstName);
                         appSettingsManager.setUserLastName(user.lastName);
 
-                        Picasso.with(getApplicationContext()).
+                        MediaApplication.getInstance().getPicasso().
                                 load(user.photoUrl).
                                 resize(128, 128).
                                 into(new Target() {

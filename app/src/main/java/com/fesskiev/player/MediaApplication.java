@@ -12,6 +12,8 @@ import com.fesskiev.player.model.VideoPlayer;
 import com.fesskiev.player.utils.RecursiveFileObserver;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
+import com.squareup.picasso.LruCache;
+import com.squareup.picasso.Picasso;
 import com.vk.sdk.VKSdk;
 
 
@@ -21,6 +23,8 @@ public class MediaApplication extends Application {
     private RequestQueue requestQueue;
     private AudioPlayer audioPlayer;
     private VideoPlayer videoPlayer;
+    private Picasso picasso;
+    private LruCache lruCache;
 
     private RefWatcher refWatcher;
 
@@ -37,6 +41,11 @@ public class MediaApplication extends Application {
         videoPlayer = new VideoPlayer();
         VKSdk.initialize(this);
         refWatcher = LeakCanary.install(this);
+
+        lruCache = new LruCache(1024 * 1024 * 60);
+        picasso = new Picasso.Builder(getApplicationContext())
+                .memoryCache(lruCache)
+                .build();
 
 //        createFileObserver();
     }
@@ -87,5 +96,13 @@ public class MediaApplication extends Application {
 
     public RefWatcher getRefWatcher() {
         return refWatcher;
+    }
+
+    public Picasso getPicasso() {
+        return picasso;
+    }
+
+    public LruCache getLruCache() {
+        return lruCache;
     }
 }

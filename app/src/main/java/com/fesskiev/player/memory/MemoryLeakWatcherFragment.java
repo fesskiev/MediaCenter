@@ -11,7 +11,7 @@ public class MemoryLeakWatcherFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        RefWatcher refWatcher = MediaApplication.getInstance().getRefWatcher();
-        refWatcher.watch(this);
+//        RefWatcher refWatcher = MediaApplication.getInstance().getRefWatcher();
+//        refWatcher.watch(this);
     }
 }

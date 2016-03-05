@@ -26,17 +26,15 @@ public class DownloadAudioFile implements DownloadManager.OnDownloadListener {
 
     @Override
     public void onStatusChanged() {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                adapter.notifyItemChanged(position);
-
-            }
-        });
+        updateAdapter();
     }
 
     @Override
     public void onProgress() {
+        updateAdapter();
+    }
+
+    public void updateAdapter() {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {

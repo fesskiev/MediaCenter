@@ -2,7 +2,6 @@ package com.fesskiev.player.utils.download;
 
 
 import android.os.Environment;
-import android.util.Log;
 
 import java.io.File;
 import java.io.InputStream;
@@ -15,6 +14,7 @@ public class DownloadManager implements Runnable {
 
     public interface OnDownloadListener {
         void onStatusChanged();
+
         void onProgress();
     }
 
@@ -32,6 +32,7 @@ public class DownloadManager implements Runnable {
     private int size;
     private int downloaded;
     private int status;
+    private int updateCount;
 
     public DownloadManager(String url, String fleName) {
         try {
@@ -89,24 +90,28 @@ public class DownloadManager implements Runnable {
     }
 
 
-    private String getFilePath() {
+    private File getFilePath() {
         String externalStorage = Environment.getExternalStorageDirectory().toString();
         File folder = new File(externalStorage + "/MediaCenter/Downloads/");
         if (!folder.exists()) {
             folder.mkdirs();
         }
 
-        return new File(folder.getAbsolutePath(), fileName + ".mp3").getAbsolutePath();
+        return new File(folder.getAbsolutePath(), fileName + ".mp3");
+    }
+
+    public boolean removeFile(){
+        return getFilePath().delete();
     }
 
     private void stateChanged() {
-        if(listener != null){
+        if (listener != null) {
             listener.onStatusChanged();
         }
     }
 
-    private void progressChanged(){
-        if(listener != null){
+    private void progressChanged() {
+        if (listener != null) {
             listener.onProgress();
         }
     }
@@ -156,8 +161,12 @@ public class DownloadManager implements Runnable {
 
                 file.write(buffer, 0, read);
                 downloaded += read;
-                progressChanged();
 
+                updateCount++;
+                if (updateCount == 500) {
+                    progressChanged();
+                    updateCount = 0;
+                }
             }
 
             if (status == DOWNLOADING) {

@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -45,6 +44,10 @@ public class GroupsFragment extends MemoryLeakWatcherFragment {
         super.onCreate(savedInstanceState);
         registerBroadcastReceiver();
 
+        fetchGroups();
+    }
+
+    public void fetchGroups() {
         AppSettingsManager appSettingsManager = AppSettingsManager.getInstance(getActivity());
         RESTService.fetchGroups(getActivity(), URLHelper.getUserGroupsURL(appSettingsManager.getAuthToken(),
                 appSettingsManager.getUserId()));
@@ -66,19 +69,19 @@ public class GroupsFragment extends MemoryLeakWatcherFragment {
         recyclerView.setAdapter(groupsAdapter);
         recyclerView.addOnItemTouchListener(new RecyclerItemTouchClickListener(getActivity(),
                 new RecyclerItemTouchClickListener.OnItemClickListener() {
-            @Override
-            public void onItemClick(View childView, int position) {
-                Group group = groupsAdapter.getGroups().get(position);
-                if (group != null) {
-                    startGroupAudioActivity(group);
-                }
-            }
+                    @Override
+                    public void onItemClick(View childView, int position) {
+                        Group group = groupsAdapter.getGroups().get(position);
+                        if (group != null) {
+                            startGroupAudioActivity(group);
+                        }
+                    }
 
-            @Override
-            public void onItemLongPress(View childView, int position) {
+                    @Override
+                    public void onItemLongPress(View childView, int position) {
 
-            }
-        }));
+                    }
+                }));
 
     }
 

@@ -9,6 +9,8 @@
     <color name="white_text">#FFFFFF</color>
     <color name="divider">#B6B6B6</color>
 
+    <color name="red">#f74343</color>
+
     <color name="grid_state_pressed">#1Affffff</color>
     <color name="grid_state_focused">#80000000</color>
 

@@ -21,6 +21,7 @@ import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.FileTreeIntentService;
 import com.fesskiev.player.ui.tracklist.TrackListActivity;
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -156,15 +157,16 @@ public class AudioFoldersFragment extends GridVideoFragment {
                 if (audioFolder.folderImages.size() > 0) {
                     File coverFile = audioFolder.folderImages.get(0);
                     if (coverFile != null) {
-                        Picasso.with(getActivity()).
-                                load(coverFile).
-                                resize(256, 256).
-                                into(viewHolder.cover);
+                        MediaApplication.getInstance().getPicasso()
+                                .load(coverFile)
+                                .fit()
+                                .into(viewHolder.cover);
                     }
                 } else {
-                    Picasso.with(getActivity()).
-                            load(R.drawable.no_cover_icon).
-                            into(viewHolder.cover);
+                    MediaApplication.getInstance().getPicasso()
+                            .load(R.drawable.no_cover_icon)
+                            .fit()
+                            .into(viewHolder.cover);
                 }
 
                 viewHolder.albumName.setText(audioFolder.folderName);

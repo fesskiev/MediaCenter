@@ -70,7 +70,7 @@ public class GroupPostCardView extends CardView {
         TextView artist = (TextView) v.findViewById(R.id.itemArtist);
         TextView title = (TextView) v.findViewById(R.id.itemTitle);
         TextView duration = (TextView) v.findViewById(R.id.itemTime);
-        ImageView downloadCompleteIcon = (ImageView) v.findViewById(R.id.itemDownloadComplete);
+        View itemContainer = v.findViewById(R.id.itemContainer);
         ProgressBar downloadProgress = (ProgressBar) v.findViewById(R.id.downloadProgressBar);
         TextView progressValue = (TextView) v.findViewById(R.id.progressValue);
         View downloadContainer = v.findViewById(R.id.downloadContainer);

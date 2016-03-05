@@ -33,6 +33,7 @@ import com.fesskiev.player.widgets.cards.SlidingCardView;
 import com.fesskiev.player.widgets.dialogs.EditTrackDialog;
 import com.fesskiev.player.widgets.recycleview.HidingScrollListener;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -233,15 +234,16 @@ public class TrackListFragment extends MemoryLeakWatcherFragment {
                 if (audioFolder != null && audioFolder.folderImages.size() > 0) {
                     File coverFile = audioFolder.folderImages.get(0);
                     if (coverFile != null) {
-                        Picasso.with(getActivity()).
-                                load(coverFile).
-                                resize(256, 256).
-                                into(holder.cover);
+                        MediaApplication.getInstance().getPicasso()
+                                .load(coverFile)
+                                .fit()
+                                .into(holder.cover);
                     }
                 } else {
-                    Picasso.with(getActivity()).
-                            load(R.drawable.no_cover_icon).
-                            into(holder.cover);
+                    MediaApplication.getInstance().getPicasso()
+                            .load(R.drawable.no_cover_icon)
+                            .fit()
+                            .into(holder.cover);
                 }
             }
 

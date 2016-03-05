@@ -15,6 +15,7 @@ import android.view.View;
 
 import com.fesskiev.player.R;
 import com.fesskiev.player.services.RESTService;
+import com.fesskiev.player.ui.GridVideoFragment;
 import com.fesskiev.player.ui.MainActivity;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.http.URLHelper;
@@ -80,14 +81,14 @@ public class MusicVKActivity extends AppCompatActivity {
                     String[] vkScope = new String[]{VKScope.DIRECT, VKScope.AUDIO};
                     VKSdk.login(MusicVKActivity.this, vkScope);
                 } else {
-                    makeRequestMusicFiles();
+                    makeRequestVKFiles();
                 }
             }
         }, 1000);
 
     }
 
-    private void makeRequestMusicFiles() {
+    private void makeRequestVKFiles() {
         MusicVKFragment musicVKFragment = (MusicVKFragment) getSupportFragmentManager().
                 findFragmentByTag(MusicVKFragment.class.getName());
         if (musicVKFragment != null) {
@@ -96,6 +97,8 @@ public class MusicVKActivity extends AppCompatActivity {
                 for (Fragment fragment : registeredFragments) {
                     if (fragment instanceof RecyclerAudioFragment) {
                         ((RecyclerAudioFragment) fragment).fetchAudio(0);
+                    } else if(fragment instanceof GroupsFragment){
+                        ((GroupsFragment) fragment).fetchGroups();
                     }
                 }
             }
@@ -117,7 +120,7 @@ public class MusicVKActivity extends AppCompatActivity {
                 settingsManager.setAuthSecret(res.secret);
                 settingsManager.setUserId(res.userId);
 
-                makeRequestMusicFiles();
+                makeRequestVKFiles();
                 makeRequestUserProfile();
 
             }

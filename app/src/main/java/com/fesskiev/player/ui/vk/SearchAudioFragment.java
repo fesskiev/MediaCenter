@@ -38,12 +38,14 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
 
     private FloatingActionButton searchButton;
     private TextInputLayout requestLayout;
+    private AppSettingsManager settingsManager;
     private String requestString;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         registerBroadcastReceiver();
+        settingsManager = AppSettingsManager.getInstance(getActivity());
     }
 
 
@@ -95,7 +97,6 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
                             intent.getParcelableArrayListExtra(RESTService.EXTRA_AUDIO_RESULT);
                     if (vkMusicFiles != null) {
                         hideProgressBar();
-                        audioAdapter.getDownloadAudioFiles().clear();
                         audioAdapter.refresh(DownloadAudioFile.
                                 getDownloadAudioFiles(getActivity(), audioAdapter, vkMusicFiles));
                     }
@@ -111,11 +112,8 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
             requestLayout.setError(getString(R.string.request_error));
             return;
         }
-        String requestWithoutWhitespace = requestString.replaceAll(" ", "");
-        AppSettingsManager manager = AppSettingsManager.getInstance(getActivity());
-
-        RESTService.fetchSearchAudio(getActivity(),
-                URLHelper.getSearchAudioURL(manager.getAuthToken(), requestWithoutWhitespace, 20, 0));
+        audioOffset += 20;
+        fetchAudio(audioOffset);
 
         showProgressBar();
         Utils.hideKeyboard(getActivity());
@@ -146,7 +144,12 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
 
     @Override
     public void fetchAudio(int offset) {
-
+        if(requestString != null) {
+            String requestWithoutWhitespace = requestString.replaceAll(" ", "");
+            RESTService.fetchSearchAudio(getActivity(),
+                    URLHelper.getSearchAudioURL(settingsManager.getAuthToken(),
+                            requestWithoutWhitespace, 20, offset));
+        }
     }
 
     @Override
