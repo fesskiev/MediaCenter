@@ -1,7 +1,6 @@
 package com.fesskiev.player;
 
 import android.app.Application;
-import android.content.Context;
 import android.os.Environment;
 
 import com.android.volley.Request;
@@ -10,8 +9,6 @@ import com.android.volley.toolbox.Volley;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.VideoPlayer;
 import com.fesskiev.player.utils.RecursiveFileObserver;
-import com.squareup.leakcanary.LeakCanary;
-import com.squareup.leakcanary.RefWatcher;
 import com.squareup.picasso.LruCache;
 import com.squareup.picasso.Picasso;
 import com.vk.sdk.VKSdk;
@@ -26,8 +23,6 @@ public class MediaApplication extends Application {
     private Picasso picasso;
     private LruCache lruCache;
 
-    private RefWatcher refWatcher;
-
     static {
         System.loadLibrary("khronos-media");
     }
@@ -40,7 +35,6 @@ public class MediaApplication extends Application {
         audioPlayer = new AudioPlayer();
         videoPlayer = new VideoPlayer();
         VKSdk.initialize(this);
-        refWatcher = LeakCanary.install(this);
 
         lruCache = new LruCache(1024 * 1024 * 60);
         picasso = new Picasso.Builder(getApplicationContext())
@@ -92,10 +86,6 @@ public class MediaApplication extends Application {
 
     public VideoPlayer getVideoPlayer() {
         return videoPlayer;
-    }
-
-    public RefWatcher getRefWatcher() {
-        return refWatcher;
     }
 
     public Picasso getPicasso() {

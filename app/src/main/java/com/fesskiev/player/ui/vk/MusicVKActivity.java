@@ -1,12 +1,17 @@
 package com.fesskiev.player.ui.vk;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.IntentCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -15,10 +20,10 @@ import android.view.View;
 
 import com.fesskiev.player.R;
 import com.fesskiev.player.services.RESTService;
-import com.fesskiev.player.ui.GridVideoFragment;
 import com.fesskiev.player.ui.MainActivity;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.http.URLHelper;
+import com.fesskiev.player.widgets.MaterialProgressBar;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKScope;
@@ -31,6 +36,7 @@ public class MusicVKActivity extends AppCompatActivity {
 
     private static final String TAG = MusicVKActivity.class.getName();
     private AppSettingsManager settingsManager;
+    private MaterialProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +73,8 @@ public class MusicVKActivity extends AppCompatActivity {
                 });
             }
 
+            progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
+
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.content, MusicVKFragment.newInstance(),
                     MusicVKFragment.class.getName());
@@ -88,6 +96,54 @@ public class MusicVKActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerBroadcastReceiver();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterBroadcastReceiver();
+    }
+
+    private void registerBroadcastReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(RESTService.ACTION_SERVER_ERROR_RESULT);
+        LocalBroadcastManager.getInstance(this).registerReceiver(serverErrorReceiver,
+                filter);
+    }
+
+    private void unregisterBroadcastReceiver() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(serverErrorReceiver);
+    }
+
+    private BroadcastReceiver serverErrorReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (intent.getAction()) {
+                case RESTService.ACTION_SERVER_ERROR_RESULT:
+                    String serverError =
+                            intent.getStringExtra(RESTService.EXTRA_ERROR_MESSAGE);
+                    Snackbar.make(findViewById(R.id.content),
+                            serverError, Snackbar.LENGTH_LONG)
+                            .show();
+                    hideProgressBar();
+                    break;
+            }
+        }
+    };
+
+    public void showProgressBar() {
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    public void hideProgressBar() {
+        progressBar.setVisibility(View.INVISIBLE);
+    }
+
     private void makeRequestVKFiles() {
         MusicVKFragment musicVKFragment = (MusicVKFragment) getSupportFragmentManager().
                 findFragmentByTag(MusicVKFragment.class.getName());
@@ -97,7 +153,7 @@ public class MusicVKActivity extends AppCompatActivity {
                 for (Fragment fragment : registeredFragments) {
                     if (fragment instanceof RecyclerAudioFragment) {
                         ((RecyclerAudioFragment) fragment).fetchAudio(0);
-                    } else if(fragment instanceof GroupsFragment){
+                    } else if (fragment instanceof GroupsFragment) {
                         ((GroupsFragment) fragment).fetchGroups();
                     }
                 }

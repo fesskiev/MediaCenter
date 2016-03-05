@@ -7,8 +7,14 @@ import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.model.User;
@@ -51,6 +57,8 @@ public class RESTService extends Service {
             "com.fesskiev.player.ACTION_GROUP_AUDIO_RESULT";
     public static final String ACTION_GROUP_POSTS_RESULT =
             "com.fesskiev.player.ACTION_GROUP_POSTS_RESULT";
+    public static final String ACTION_SERVER_ERROR_RESULT =
+            "com.fesskiev.player.ACTION_SERVER_ERROR_RESULT";
 
 
     public static final String EXTRA_REQUEST_URL
@@ -63,6 +71,8 @@ public class RESTService extends Service {
             = "com.fesskiev.player.EXTRA_GROUPS_RESULT";
     public static final String EXTRA_GROUP_POSTS
             = "com.fesskiev.player.EXTRA_GROUP_POSTS";
+    public static final String EXTRA_ERROR_MESSAGE
+            = "com.fesskiev.player.EXTRA_ERROR_MESSAGE";
 
 
     public static void fetchGroupPost(Context context, String url) {
@@ -138,7 +148,6 @@ public class RESTService extends Service {
         return START_NOT_STICKY;
     }
 
-
     private void doGET(String url, final String action) {
         JSONUTF8Request jsonRequest = new JSONUTF8Request
                 (Request.Method.GET,
@@ -153,11 +162,10 @@ public class RESTService extends Service {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.wtf(TAG, "volley error: " + error.getMessage());
+                        handleErrors(error);
                     }
                 });
         MediaApplication.getInstance().addToRequestQueue(jsonRequest);
-
     }
 
 
@@ -175,7 +183,7 @@ public class RESTService extends Service {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.wtf(TAG, "volley error: " + error.getMessage());
+                        handleErrors(error);
                     }
 
                 });
@@ -206,14 +214,35 @@ public class RESTService extends Service {
         }
     }
 
-    private void sendBroadcastGroupPosts(ArrayList<GroupPost> groupPosts){
+    private void handleErrors(VolleyError error) {
+        if (error instanceof TimeoutError || error instanceof NoConnectionError) {
+            sendServerError("TimeoutError: " + error.getMessage());
+        } else if (error instanceof AuthFailureError) {
+            sendServerError("AuthFailureError: " + error.getMessage());
+        } else if (error instanceof ServerError) {
+            sendServerError("ServerError: " + error.getMessage());
+        } else if (error instanceof NetworkError) {
+            sendServerError("NetworkError: " + error.getMessage());
+        } else if (error instanceof ParseError) {
+            sendServerError("ParseError: " + error.getMessage());
+        }
+    }
+
+    private void sendServerError(String message) {
+        Intent intent = new Intent();
+        intent.setAction(ACTION_SERVER_ERROR_RESULT);
+        intent.putExtra(EXTRA_ERROR_MESSAGE, message);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+    }
+
+    private void sendBroadcastGroupPosts(ArrayList<GroupPost> groupPosts) {
         Intent intent = new Intent();
         intent.setAction(ACTION_GROUP_POSTS_RESULT);
         intent.putExtra(EXTRA_GROUP_POSTS, groupPosts);
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
     }
 
-    private void sendBroadcastGroupAudio(ArrayList<VKMusicFile> vkMusicFiles){
+    private void sendBroadcastGroupAudio(ArrayList<VKMusicFile> vkMusicFiles) {
         Intent intent = new Intent();
         intent.setAction(ACTION_GROUP_AUDIO_RESULT);
         intent.putExtra(EXTRA_AUDIO_RESULT, vkMusicFiles);

@@ -4,6 +4,7 @@ package com.fesskiev.player.ui.vk;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,11 +18,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.fesskiev.player.R;
-import com.fesskiev.player.memory.MemoryLeakWatcherFragment;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.utils.download.DownloadAudioFile;
 import com.fesskiev.player.utils.download.DownloadManager;
-import com.fesskiev.player.widgets.MaterialProgressBar;
 import com.fesskiev.player.widgets.recycleview.EndlessScrollListener;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
@@ -29,13 +28,12 @@ import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class RecyclerAudioFragment extends MemoryLeakWatcherFragment {
+public abstract class RecyclerAudioFragment extends Fragment {
 
     public abstract int getResourceId();
 
     public abstract void fetchAudio(int offset);
 
-    private MaterialProgressBar progressBar;
     protected AudioAdapter audioAdapter;
     protected RecyclerView recyclerView;
     protected int audioOffset;
@@ -67,8 +65,6 @@ public abstract class RecyclerAudioFragment extends MemoryLeakWatcherFragment {
                 showProgressBar();
             }
         });
-
-        progressBar = (MaterialProgressBar) view.findViewById(R.id.progressBar);
     }
 
     private RecyclerItemTouchClickListener recyclerItemTouchClickListener = new RecyclerItemTouchClickListener(getActivity(),
@@ -134,11 +130,11 @@ public abstract class RecyclerAudioFragment extends MemoryLeakWatcherFragment {
     }
 
     public void showProgressBar() {
-        progressBar.setVisibility(View.VISIBLE);
+        ((MusicVKActivity)getActivity()).showProgressBar();
     }
 
     public void hideProgressBar() {
-        progressBar.setVisibility(View.INVISIBLE);
+        ((MusicVKActivity)getActivity()).hideProgressBar();
     }
 
     protected class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.ViewHolder> {

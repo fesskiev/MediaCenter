@@ -11,11 +11,10 @@ import android.widget.GridView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.memory.MemoryLeakWatcherFragment;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.widgets.gridview.HidingScrollListener;
 
-public abstract class GridVideoFragment extends MemoryLeakWatcherFragment implements SwipeRefreshLayout.OnRefreshListener {
+public abstract class GridVideoFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     public abstract BaseAdapter getAdapter();
 

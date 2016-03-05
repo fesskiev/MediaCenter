@@ -22,7 +22,6 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.memory.MemoryLeakWatcherFragment;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
@@ -31,17 +30,14 @@ import com.fesskiev.player.ui.player.AudioPlayerActivity;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.cards.SlidingCardView;
 import com.fesskiev.player.widgets.dialogs.EditTrackDialog;
-import com.fesskiev.player.widgets.recycleview.HidingScrollListener;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
-import com.squareup.picasso.MemoryPolicy;
-import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class TrackListFragment extends MemoryLeakWatcherFragment {
+public class TrackListFragment extends Fragment {
 
     private static final String TAG = TrackListFragment.class.getSimpleName();
 

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,7 +17,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fesskiev.player.R;
-import com.fesskiev.player.memory.MemoryLeakWatcherFragment;
 import com.fesskiev.player.model.vk.Group;
 import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.utils.AppSettingsManager;
@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class GroupsFragment extends MemoryLeakWatcherFragment {
+public class GroupsFragment extends Fragment {
 
 
     public static GroupsFragment newInstance() {
