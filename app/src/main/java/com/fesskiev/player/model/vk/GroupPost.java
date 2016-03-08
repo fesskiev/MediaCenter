@@ -4,6 +4,8 @@ package com.fesskiev.player.model.vk;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.fesskiev.player.utils.download.DownloadGroupAudioFile;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,6 +17,7 @@ public class GroupPost implements Parcelable {
     public static final String TYPE_DOC = "doc";
 
     public List<VKMusicFile> musicFiles;
+    public List<DownloadGroupAudioFile> downloadGroupAudioFiles;
     public String photo;
     public String text;
     public long date;

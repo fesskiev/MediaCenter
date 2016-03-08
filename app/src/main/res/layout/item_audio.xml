@@ -89,6 +89,7 @@
             android:layout_gravity="bottom"
             android:layout_marginEnd="@dimen/card_view_margin_end"
             android:layout_marginStart="@dimen/card_view_margin_start"
+            android:visibility="gone"
             android:layout_marginTop="4dp"
             android:animateLayoutChanges="true"
             android:orientation="horizontal">

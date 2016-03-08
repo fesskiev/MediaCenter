@@ -13,11 +13,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.vk.Group;
 import com.fesskiev.player.model.vk.GroupPost;
 import com.fesskiev.player.services.RESTService;
+import com.fesskiev.player.utils.download.DownloadGroupAudioFile;
 import com.fesskiev.player.utils.http.URLHelper;
 import com.fesskiev.player.widgets.MaterialProgressBar;
 import com.fesskiev.player.widgets.cards.GroupPostCardView;
@@ -113,6 +117,7 @@ public class GroupAudioFragment extends Fragment {
                     ArrayList<GroupPost> groupPosts =
                             intent.getParcelableArrayListExtra(RESTService.EXTRA_GROUP_POSTS);
                     if (groupPosts != null) {
+                        getGroupDownloadAudioFiles(groupPosts);
                         adapter.refresh(groupPosts);
                         hideProgressBar();
                     }
@@ -120,6 +125,13 @@ public class GroupAudioFragment extends Fragment {
             }
         }
     };
+
+    private void getGroupDownloadAudioFiles(ArrayList<GroupPost> groupPosts){
+        for(GroupPost groupPost : groupPosts){
+            groupPost.downloadGroupAudioFiles =
+                    DownloadGroupAudioFile.getDownloadGroupAudioFiles(getActivity(), groupPost.musicFiles);
+        }
+    }
 
     @Override
     public void onDestroy() {
@@ -138,6 +150,8 @@ public class GroupAudioFragment extends Fragment {
         public class ViewHolder extends RecyclerView.ViewHolder {
 
             GroupPostCardView groupPostCardView;
+
+
 
             public ViewHolder(View v) {
                 super(v);

@@ -10,6 +10,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -222,25 +223,25 @@ public abstract class RecyclerAudioFragment extends Fragment {
             DownloadAudioFile downloadAudioFile = downloadAudioFiles.get(position);
             if (downloadAudioFile != null) {
 
-                holder.artist.setText(downloadAudioFile.getVkMusicFile().artist);
-                holder.title.setText(downloadAudioFile.getVkMusicFile().title);
+                holder.artist.setText(Html.fromHtml(downloadAudioFile.getVkMusicFile().artist));
+                holder.title.setText(Html.fromHtml(downloadAudioFile.getVkMusicFile().title));
                 holder.duration.setText(Utils.getTimeFromSecondsString(downloadAudioFile.getVkMusicFile().duration));
 
-                if (downloadAudioFile.getDownloadManager() != null) {
-                    DownloadManager downloadManager = downloadAudioFile.getDownloadManager();
+                DownloadManager downloadManager = downloadAudioFile.getDownloadManager();
+                if (downloadManager != null) {
                     switch (downloadManager.getStatus()) {
                         case DownloadManager.DOWNLOADING:
                             holder.downloadContainer.setVisibility(View.VISIBLE);
                             holder.cancelDownload.setVisibility(View.GONE);
                             holder.startPauseDownload.setImageResource(R.drawable.pause_icon);
-                            holder.downloadProgress.setProgress((int) downloadAudioFile.getDownloadManager().getProgress());
-
+                            holder.downloadProgress.setProgress((int) downloadManager.getProgress());
                             holder.progressValue.setText(String.format("%1$d %2$s",
-                                    (int) downloadAudioFile.getDownloadManager().getProgress(), "\u0025"));
+                                    (int) downloadManager.getProgress(), "\u0025"));
                             break;
                         case DownloadManager.COMPLETE:
                             holder.downloadContainer.setVisibility(View.GONE);
                             holder.itemContainer.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.primary_light));
+                            addTouchListener();
                             break;
                         case DownloadManager.PAUSED:
                             holder.startPauseDownload.setImageResource(R.drawable.download_icon);

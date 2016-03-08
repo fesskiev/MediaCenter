@@ -2,6 +2,8 @@ package com.fesskiev.player.widgets.cards;
 
 
 import android.content.Context;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.text.Html;
 import android.util.AttributeSet;
@@ -13,11 +15,13 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.vk.GroupPost;
 import com.fesskiev.player.model.vk.VKMusicFile;
 import com.fesskiev.player.utils.Utils;
-import com.squareup.picasso.Picasso;
+import com.fesskiev.player.utils.download.DownloadGroupAudioFile;
+import com.fesskiev.player.utils.download.DownloadManager;
 
 import java.util.List;
 
@@ -48,44 +52,116 @@ public class GroupPostCardView extends CardView {
         inflater.inflate(R.layout.card_post_group_layout, this, true);
     }
 
-    private void createAudioItems(List<VKMusicFile> musicFiles) {
+    private void createAudioItems(List<DownloadGroupAudioFile> downloadGroupAudioFiles) {
         audioItems = (ViewGroup) findViewById(R.id.audioFilesContainer);
         audioItems.removeAllViews();
 
-        for (int i = 0; i < musicFiles.size(); i++) {
-            VKMusicFile musicFile = musicFiles.get(i);
-            audioItems.addView(makeAudioItem(musicFile, audioItems));
+        for (int i = 0; i < downloadGroupAudioFiles.size(); i++) {
+            DownloadGroupAudioFile downloadGroupAudioFile = downloadGroupAudioFiles.get(i);
+            audioItems.addView(makeAudioItem(downloadGroupAudioFile, audioItems));
         }
 
     }
 
-    private void removeAllItems(){
+    private void removeAllItems() {
         audioItems.removeAllViews();
     }
 
 
-    private View makeAudioItem(VKMusicFile musicFile, ViewGroup viewGroup) {
+    private View makeAudioItem(final DownloadGroupAudioFile downloadGroupAudioFile, final ViewGroup viewGroup) {
+
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
-
         View v = inflater.inflate(R.layout.item_audio, viewGroup, false);
-        v.setOnClickListener(clickListener);
-        v.setTag(musicFile);
 
+        v.setOnClickListener(clickListener);
+        v.setTag(downloadGroupAudioFile);
 
         TextView artist = (TextView) v.findViewById(R.id.itemArtist);
         TextView title = (TextView) v.findViewById(R.id.itemTitle);
         TextView duration = (TextView) v.findViewById(R.id.itemTime);
-        View itemContainer = v.findViewById(R.id.itemContainer);
-        ProgressBar downloadProgress = (ProgressBar) v.findViewById(R.id.downloadProgressBar);
-        TextView progressValue = (TextView) v.findViewById(R.id.progressValue);
-        View downloadContainer = v.findViewById(R.id.downloadContainer);
 
-        if (musicFile != null) {
-            downloadContainer.setVisibility(GONE);
-            artist.setText(Html.fromHtml(musicFile.artist));
-            title.setText(Html.fromHtml(musicFile.title));
-            duration.setText(Utils.getTimeFromSecondsString(musicFile.duration));
+        final View downloadContainer = v.findViewById(R.id.downloadContainer);
+        final View itemContainer = v.findViewById(R.id.itemContainer);
+
+        final ProgressBar downloadProgress = (ProgressBar) v.findViewById(R.id.downloadProgressBar);
+        final TextView progressValue = (TextView) v.findViewById(R.id.progressValue);
+        final ImageView startPauseDownload = (ImageView) v.findViewById(R.id.startPauseDownloadButton);
+        startPauseDownload.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DownloadManager downloadManager = downloadGroupAudioFile.getDownloadManager();
+                switch (downloadManager.getStatus()) {
+                    case DownloadManager.PAUSED:
+                        downloadManager.resume();
+                        break;
+                    case DownloadManager.DOWNLOADING:
+                        downloadManager.pause();
+                        break;
+                }
+            }
+        });
+        final ImageView cancelDownload = (ImageView) v.findViewById(R.id.cancelDownloadButton);
+        cancelDownload.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DownloadManager downloadManager = downloadGroupAudioFile.getDownloadManager();
+                downloadManager.cancel();
+                if (downloadManager.removeFile()) {
+                    Snackbar.make(viewGroup, R.string.shackbar_delete_file, Snackbar.LENGTH_SHORT)
+                            .show();
+                }
+            }
+        });
+
+        downloadGroupAudioFile.
+                setOnDownloadAudioListener(new DownloadGroupAudioFile.OnDownloadAudioListener() {
+                    @Override
+                    public void onProgress(DownloadManager downloadManager) {
+                        if (downloadManager != null) {
+                            downloadContainer.setVisibility(VISIBLE);
+                            switch (downloadManager.getStatus()) {
+                                case DownloadManager.DOWNLOADING:
+                                    downloadContainer.setVisibility(View.VISIBLE);
+                                    cancelDownload.setVisibility(View.GONE);
+                                    startPauseDownload.setImageResource(R.drawable.pause_icon);
+                                    downloadProgress.setProgress((int) downloadManager.getProgress());
+
+                                    progressValue.setText(String.format("%1$d %2$s",
+                                            (int) downloadManager.getProgress(), "\u0025"));
+                                    break;
+                                case DownloadManager.COMPLETE:
+                                    downloadContainer.setVisibility(View.GONE);
+                                    itemContainer.setBackgroundColor(ContextCompat.getColor(getContext(),
+                                            R.color.primary_light));
+                                    break;
+                                case DownloadManager.PAUSED:
+                                    startPauseDownload.setImageResource(R.drawable.download_icon);
+                                    cancelDownload.setVisibility(View.VISIBLE);
+                                    break;
+                                case DownloadManager.CANCELLED:
+                                    downloadContainer.setVisibility(View.GONE);
+                                    break;
+                                case DownloadManager.ERROR:
+                                    downloadContainer.setBackgroundColor(ContextCompat.getColor(getContext(),
+                                            R.color.red));
+                                    cancelDownload.setVisibility(View.VISIBLE);
+                                    startPauseDownload.setVisibility(View.GONE);
+                                    break;
+                            }
+
+                        } else {
+                            downloadContainer.setVisibility(GONE);
+                        }
+                    }
+                });
+
+
+        VKMusicFile vkMusicFile = downloadGroupAudioFile.getVkMusicFile();
+        if (vkMusicFile != null) {
+            artist.setText(Html.fromHtml(vkMusicFile.artist));
+            title.setText(Html.fromHtml(vkMusicFile.title));
+            duration.setText(Utils.getTimeFromSecondsString(vkMusicFile.duration));
         }
 
         return v;
@@ -94,13 +170,12 @@ public class GroupPostCardView extends CardView {
     private OnClickListener clickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            VKMusicFile musicFile = (VKMusicFile) v.getTag();
-            if (musicFile != null) {
-                Log.e("click", "click: " + musicFile.toString());
+            DownloadGroupAudioFile downloadGroupAudioFile = (DownloadGroupAudioFile) v.getTag();
+            if (downloadGroupAudioFile != null) {
+                downloadGroupAudioFile.startDownload();
             }
         }
     };
-
 
 
     private void createGroupInfo(final GroupPost groupPost) {
@@ -112,27 +187,34 @@ public class GroupPostCardView extends CardView {
         postText.setText(Html.fromHtml(groupPost.text));
         likes.setText(String.valueOf(groupPost.likes));
         shares.setText(String.valueOf(groupPost.reposts));
-        Picasso.with(getContext()).
-                load(groupPost.photo).
-                into(postCover);
+
+        if (groupPost.photo != null) {
+            postCover.setVisibility(VISIBLE);
+            MediaApplication.getInstance().getPicasso().
+                    load(groupPost.photo).fit().
+                    into(postCover);
+        } else {
+            postCover.setVisibility(GONE);
+        }
+
 
         open = false;
         final ImageView openCloseButton = (ImageView) findViewById(R.id.openCloseButton);
         openCloseButton.setImageResource(R.drawable.icon_down);
-        if(!groupPost.musicFiles.isEmpty()) {
+        if (!groupPost.musicFiles.isEmpty()) {
+            openCloseButton.setVisibility(VISIBLE);
             openCloseButton.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (!open) {
                         openCloseButton.setImageResource(R.drawable.icon_up);
-                        createAudioItems(groupPost.musicFiles);
+                        createAudioItems(groupPost.downloadGroupAudioFiles);
                         open = true;
                     } else {
                         openCloseButton.setImageResource(R.drawable.icon_down);
                         removeAllItems();
                         open = false;
                     }
-
                 }
             });
         } else {
@@ -142,9 +224,8 @@ public class GroupPostCardView extends CardView {
 
 
     public void setGroupPost(GroupPost groupPost) {
-        if(audioItems != null) {
-            Log.d("test", "remove view, open: " + open);
-            audioItems.removeAllViews();
+        if (audioItems != null) {
+            removeAllItems();
         }
         createGroupInfo(groupPost);
     }

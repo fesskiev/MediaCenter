@@ -59,6 +59,7 @@ public class DownloadManager implements Runnable {
 
     public void pause() {
         status = PAUSED;
+        stateChanged();
     }
 
     public void resume() {
