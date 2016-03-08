@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/card_view_margin_bottom"
     android:layout_marginEnd="@dimen/card_view_margin_end"
     android:layout_marginStart="@dimen/card_view_margin_start"
-    android:layout_marginTop="@dimen/card_view_margin_top"
     card_view:cardCornerRadius="4dp"
     card_view:cardElevation="@dimen/card_view_elevation"
     card_view:cardPreventCornerOverlap="false">
@@ -28,7 +27,7 @@
                 android:layout_alignParentStart="true"
                 android:contentDescription="@string/app_name"
                 android:scaleType="centerCrop"
-                android:src="@drawable/cover"
+                tools:src="@drawable/cover"
                 android:transitionName="cover" />
 
             <LinearLayout
@@ -48,7 +47,7 @@
                     android:contentDescription="@string/app_name"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:text="Naibu"
+                    tools:text="Naibu"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textColor="?android:attr/textColorPrimary" />
 
@@ -59,7 +58,7 @@
                     android:contentDescription="@string/app_name"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:text="Astray"
+                    tools:text="Astray"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
 
             </LinearLayout>
@@ -84,14 +83,18 @@
             android:background="@android:color/black" />
 
         <LinearLayout
-            android:layout_below="@+id/divider1"
             android:layout_width="match_parent"
-            android:layout_height="240dp">
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:layout_below="@+id/divider1">
 
+            <android.support.v7.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/trackListContol"/>
 
         </LinearLayout>
 
     </RelativeLayout>
-
 
 </android.support.v7.widget.CardView>

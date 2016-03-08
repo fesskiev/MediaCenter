@@ -1,23 +1,21 @@
-package com.fesskiev.player.widgets.cards;
+package com.fesskiev.player.widgets;
 
 
 import android.content.Context;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.CardView;
 import android.text.Html;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.vk.GroupPost;
 import com.fesskiev.player.model.vk.VKMusicFile;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.utils.download.DownloadGroupAudioFile;
@@ -25,22 +23,21 @@ import com.fesskiev.player.utils.download.DownloadManager;
 
 import java.util.List;
 
-public class GroupPostCardView extends CardView {
+public class GroupPostAudioView extends FrameLayout {
 
-    private ViewGroup audioItems;
-    private boolean open;
+    private LinearLayout audioItems;
 
-    public GroupPostCardView(Context context) {
+    public GroupPostAudioView(Context context) {
         super(context);
         init(context);
     }
 
-    public GroupPostCardView(Context context, AttributeSet attrs) {
+    public GroupPostAudioView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
 
-    public GroupPostCardView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public GroupPostAudioView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context);
     }
@@ -49,24 +46,24 @@ public class GroupPostCardView extends CardView {
     private void init(Context context) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.card_post_group_layout, this, true);
+        inflater.inflate(R.layout.group_post_audio_layout, this, true);
     }
 
-    private void createAudioItems(List<DownloadGroupAudioFile> downloadGroupAudioFiles) {
-        audioItems = (ViewGroup) findViewById(R.id.audioFilesContainer);
+    public void createAudioItems(List<DownloadGroupAudioFile> downloadGroupAudioFiles) {
+        audioItems = (LinearLayout) findViewById(R.id.audioFilesContainer);
         audioItems.removeAllViews();
 
         for (int i = 0; i < downloadGroupAudioFiles.size(); i++) {
             DownloadGroupAudioFile downloadGroupAudioFile = downloadGroupAudioFiles.get(i);
             audioItems.addView(makeAudioItem(downloadGroupAudioFile, audioItems));
         }
-
     }
 
-    private void removeAllItems() {
-        audioItems.removeAllViews();
+    public void removeAudioItems() {
+        if (audioItems != null) {
+            audioItems.removeAllViews();
+        }
     }
-
 
     private View makeAudioItem(final DownloadGroupAudioFile downloadGroupAudioFile, final ViewGroup viewGroup) {
 
@@ -176,57 +173,4 @@ public class GroupPostCardView extends CardView {
             }
         }
     };
-
-
-    private void createGroupInfo(final GroupPost groupPost) {
-        TextView postText = (TextView) findViewById(R.id.postText);
-        ImageView postCover = (ImageView) findViewById(R.id.postCover);
-        TextView likes = (TextView) findViewById(R.id.likePost);
-        TextView shares = (TextView) findViewById(R.id.sharePost);
-
-        postText.setText(Html.fromHtml(groupPost.text));
-        likes.setText(String.valueOf(groupPost.likes));
-        shares.setText(String.valueOf(groupPost.reposts));
-
-        if (groupPost.photo != null) {
-            postCover.setVisibility(VISIBLE);
-            MediaApplication.getInstance().getPicasso().
-                    load(groupPost.photo).fit().
-                    into(postCover);
-        } else {
-            postCover.setVisibility(GONE);
-        }
-
-
-        open = false;
-        final ImageView openCloseButton = (ImageView) findViewById(R.id.openCloseButton);
-        openCloseButton.setImageResource(R.drawable.icon_down);
-        if (!groupPost.musicFiles.isEmpty()) {
-            openCloseButton.setVisibility(VISIBLE);
-            openCloseButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!open) {
-                        openCloseButton.setImageResource(R.drawable.icon_up);
-                        createAudioItems(groupPost.downloadGroupAudioFiles);
-                        open = true;
-                    } else {
-                        openCloseButton.setImageResource(R.drawable.icon_down);
-                        removeAllItems();
-                        open = false;
-                    }
-                }
-            });
-        } else {
-            openCloseButton.setVisibility(GONE);
-        }
-    }
-
-
-    public void setGroupPost(GroupPost groupPost) {
-        if (audioItems != null) {
-            removeAllItems();
-        }
-        createGroupInfo(groupPost);
-    }
 }

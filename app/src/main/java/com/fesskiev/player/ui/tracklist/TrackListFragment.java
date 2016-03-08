@@ -41,7 +41,7 @@ public class TrackListFragment extends Fragment {
 
     private static final String TAG = TrackListFragment.class.getSimpleName();
 
-    private MusicFilesAdapter musicFilesAdapter;
+    private TrackListAdapter trackListAdapter;
     private AudioFolder audioFolder;
 
     public static TrackListFragment newInstance() {
@@ -68,8 +68,8 @@ public class TrackListFragment extends Fragment {
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false, 1000));
-        musicFilesAdapter = new MusicFilesAdapter();
-        recyclerView.setAdapter(musicFilesAdapter);
+        trackListAdapter = new TrackListAdapter();
+        recyclerView.setAdapter(trackListAdapter);
 
         if (audioFolder.audioFilesDescription.size() == 0) {
             FetchAudioInfoIntentService.startFetchAudioInfo(getActivity());
@@ -77,7 +77,7 @@ public class TrackListFragment extends Fragment {
             List<AudioFile> receiverAudioFiles = MediaApplication.getInstance().
                     getAudioPlayer().currentAudioFolder.audioFilesDescription;
             if (receiverAudioFiles != null) {
-                musicFilesAdapter.refreshAdapter(receiverAudioFiles);
+                trackListAdapter.refreshAdapter(receiverAudioFiles);
             }
         }
     }
@@ -118,18 +118,18 @@ public class TrackListFragment extends Fragment {
                     List<AudioFile> receiverAudioFiles = MediaApplication.getInstance().
                             getAudioPlayer().currentAudioFolder.audioFilesDescription;
                     if (receiverAudioFiles != null) {
-                        musicFilesAdapter.refreshAdapter(receiverAudioFiles);
+                        trackListAdapter.refreshAdapter(receiverAudioFiles);
                     }
                     break;
             }
         }
     };
 
-    private class MusicFilesAdapter extends RecyclerView.Adapter<MusicFilesAdapter.ViewHolder> {
+    private class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.ViewHolder> {
 
         private List<AudioFile> audioFiles;
 
-        public MusicFilesAdapter() {
+        public TrackListAdapter() {
             this.audioFiles = new ArrayList<>();
         }
 
@@ -197,8 +197,8 @@ public class TrackListFragment extends Fragment {
                             if (new File(audioFile.filePath).delete()) {
                                 Snackbar.make(getView(),
                                         getString(R.string.shackbar_delete_file), Snackbar.LENGTH_LONG).show();
-                                musicFilesAdapter.audioFiles.remove(audioFile);
-                                musicFilesAdapter.notifyDataSetChanged();
+                                trackListAdapter.audioFiles.remove(audioFile);
+                                trackListAdapter.notifyDataSetChanged();
                             }
                         }
                     });

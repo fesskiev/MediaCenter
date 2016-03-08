@@ -24,6 +24,7 @@ public class GroupPost implements Parcelable {
     public int id;
     public int likes;
     public int reposts;
+    public boolean openAudioItems;
 
     public GroupPost(Parcel in) {
         this.musicFiles = in.readArrayList(VKMusicFile.class.getClassLoader());

@@ -11,8 +11,10 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -31,6 +33,8 @@ public class PlaybackActivity extends AppCompatActivity {
     private static final String TAG = PlaybackActivity.class.getSimpleName();
 
     private BottomSheetBehavior bottomSheetBehavior;
+    private RecyclerView trackListControl;
+    private TrackListAdapter adapter;
     private ImageView playPause;
     private TextView track;
     private TextView artist;
@@ -66,6 +70,9 @@ public class PlaybackActivity extends AppCompatActivity {
             }
         });
 
+        trackListControl = (RecyclerView)findViewById(R.id.trackListContol);
+        adapter = new TrackListAdapter();
+        trackListControl.setAdapter(adapter);
 
         AudioFile audioFile = MediaApplication.getInstance().getAudioPlayer().currentAudioFile;
         if(audioFile != null) {
@@ -184,4 +191,30 @@ public class PlaybackActivity extends AppCompatActivity {
             }
         }
     };
+
+    private class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.ViewHolder> {
+
+        public class ViewHolder extends RecyclerView.ViewHolder {
+
+            public ViewHolder(View itemView) {
+                super(itemView);
+            }
+        }
+
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            return null;
+        }
+
+        @Override
+        public void onBindViewHolder(ViewHolder holder, int position) {
+
+        }
+
+        @Override
+        public int getItemCount() {
+            return 0;
+        }
+    }
 }

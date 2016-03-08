@@ -10,13 +10,15 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.vk.Group;
 import com.fesskiev.player.model.vk.GroupPost;
@@ -24,7 +26,7 @@ import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.utils.download.DownloadGroupAudioFile;
 import com.fesskiev.player.utils.http.URLHelper;
 import com.fesskiev.player.widgets.MaterialProgressBar;
-import com.fesskiev.player.widgets.cards.GroupPostCardView;
+import com.fesskiev.player.widgets.GroupPostAudioView;
 import com.fesskiev.player.widgets.recycleview.EndlessScrollListener;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
 
@@ -38,7 +40,7 @@ public class GroupAudioFragment extends Fragment {
     private Group group;
     private GroupPostsAdapter adapter;
     private MaterialProgressBar progressBar;
-    protected int postsOffset;
+    private int postsOffset;
 
     public static GroupAudioFragment newInstance(Group group) {
         GroupAudioFragment groupAudioFragment = new GroupAudioFragment();
@@ -55,7 +57,6 @@ public class GroupAudioFragment extends Fragment {
             group = getArguments().getParcelable(GROUP_BUNDLE);
         }
         registerBroadcastReceiver();
-        postsOffset = 20;
     }
 
 
@@ -71,6 +72,7 @@ public class GroupAudioFragment extends Fragment {
         ScrollingLinearLayoutManager layoutManager = new ScrollingLinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false, 1000);
         recyclerView.setLayoutManager(layoutManager);
+        ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
         adapter = new GroupPostsAdapter();
         recyclerView.setAdapter(adapter);
         recyclerView.addOnScrollListener(new EndlessScrollListener(layoutManager) {
@@ -81,11 +83,12 @@ public class GroupAudioFragment extends Fragment {
             }
         });
 
+
         fetchPosts();
     }
 
     private void fetchPosts() {
-        RESTService.fetchGroupPost(getActivity(), URLHelper.getGroupPostURL(group.gid, postsOffset, 0));
+        RESTService.fetchGroupPost(getActivity(), URLHelper.getGroupPostURL(group.gid, 20, postsOffset));
         showProgressBar();
     }
 
@@ -126,8 +129,8 @@ public class GroupAudioFragment extends Fragment {
         }
     };
 
-    private void getGroupDownloadAudioFiles(ArrayList<GroupPost> groupPosts){
-        for(GroupPost groupPost : groupPosts){
+    private void getGroupDownloadAudioFiles(ArrayList<GroupPost> groupPosts) {
+        for (GroupPost groupPost : groupPosts) {
             groupPost.downloadGroupAudioFiles =
                     DownloadGroupAudioFile.getDownloadGroupAudioFiles(getActivity(), groupPost.musicFiles);
         }
@@ -147,16 +150,38 @@ public class GroupAudioFragment extends Fragment {
             this.groupPosts = new ArrayList<>();
         }
 
-        public class ViewHolder extends RecyclerView.ViewHolder {
+        public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-            GroupPostCardView groupPostCardView;
-
-
+            TextView postText;
+            ImageView postCover;
+            TextView likes;
+            TextView shares;
+            ImageView openCloseButton;
+            GroupPostAudioView audioCardView;
 
             public ViewHolder(View v) {
                 super(v);
 
-                groupPostCardView = (GroupPostCardView)v.findViewById(R.id.groupPostView);
+                postText = (TextView) v.findViewById(R.id.postText);
+                postCover = (ImageView) v.findViewById(R.id.postCover);
+                likes = (TextView) v.findViewById(R.id.likePost);
+                shares = (TextView) v.findViewById(R.id.sharePost);
+                openCloseButton = (ImageView) v.findViewById(R.id.openCloseButton);
+                openCloseButton.setOnClickListener(this);
+                audioCardView = (GroupPostAudioView) v.findViewById(R.id.groupPostAudioView);
+            }
+
+            @Override
+            public void onClick(View v) {
+                switch (v.getId()) {
+                    case R.id.openCloseButton:
+                        GroupPost groupPost = groupPosts.get(getAdapterPosition());
+                        if (groupPost != null) {
+                            groupPost.openAudioItems = !groupPost.openAudioItems;
+                            adapter.notifyItemChanged(getAdapterPosition());
+                        }
+                        break;
+                }
             }
         }
 
@@ -170,8 +195,34 @@ public class GroupAudioFragment extends Fragment {
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             GroupPost groupPost = groupPosts.get(position);
-            if(groupPost != null){
-                holder.groupPostCardView.setGroupPost(groupPost);
+            if (groupPost != null) {
+
+                holder.postText.setText(Html.fromHtml(groupPost.text));
+                holder.likes.setText(String.valueOf(groupPost.likes));
+                holder.shares.setText(String.valueOf(groupPost.reposts));
+
+                if (groupPost.photo != null) {
+                    holder.postCover.setVisibility(View.VISIBLE);
+                    MediaApplication.getInstance().getPicasso().
+                            load(groupPost.photo).fit().
+                            into(holder.postCover);
+                } else {
+                    holder.postCover.setVisibility(View.GONE);
+                }
+
+                if (!groupPost.musicFiles.isEmpty()) {
+                    holder.openCloseButton.setVisibility(View.VISIBLE);
+                } else {
+                    holder.openCloseButton.setVisibility(View.GONE);
+                }
+
+                if(groupPost.openAudioItems){
+                    holder.openCloseButton.setImageResource(R.drawable.icon_up);
+                    holder.audioCardView.createAudioItems(groupPost.downloadGroupAudioFiles);
+                } else {
+                    holder.openCloseButton.setImageResource(R.drawable.icon_down);
+                    holder.audioCardView.removeAudioItems();
+                }
             }
         }
 
