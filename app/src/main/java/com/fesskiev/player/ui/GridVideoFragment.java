@@ -3,25 +3,24 @@ package com.fesskiev.player.ui;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.GridView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioPlayer;
-import com.fesskiev.player.widgets.gridview.HidingScrollListener;
+import com.fesskiev.player.widgets.recycleview.HidingScrollListener;
 
 public abstract class GridVideoFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
-    public abstract BaseAdapter getAdapter();
-
+    public abstract RecyclerView.Adapter getAdapter();
 
     protected SwipeRefreshLayout swipeRefreshLayout;
-    protected BaseAdapter adapter;
-    protected GridView gridView;
+    protected RecyclerView.Adapter adapter;
+    protected RecyclerView recyclerView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -33,11 +32,14 @@ public abstract class GridVideoFragment extends Fragment implements SwipeRefresh
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         swipeRefreshLayout.setOnRefreshListener(this);
 
-        gridView = (GridView) view.findViewById(R.id.foldersGridView);
-        adapter = getAdapter();
-        gridView.setAdapter(adapter);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 3);
 
-        gridView.setOnScrollListener(new HidingScrollListener() {
+        recyclerView = (RecyclerView)view.findViewById(R.id.foldersGridView);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(gridLayoutManager);
+        adapter = getAdapter();
+        recyclerView.setAdapter(adapter);
+        recyclerView.addOnScrollListener(new HidingScrollListener() {
             @Override
             public void onHide() {
                 hidePlaybackControl();

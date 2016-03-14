@@ -7,11 +7,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,6 +20,7 @@ import com.fesskiev.player.model.VideoFile;
 import com.fesskiev.player.model.VideoPlayer;
 import com.fesskiev.player.services.FileTreeIntentService;
 import com.fesskiev.player.ui.player.VideoPlayerActivity;
+import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,9 +43,10 @@ public class VideoFilesFragment extends GridVideoFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        recyclerView.addOnItemTouchListener(new RecyclerItemTouchClickListener(getActivity(),
+                new RecyclerItemTouchClickListener.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemClick(View childView, int position) {
                 VideoPlayer videoPlayer = MediaApplication.getInstance().getVideoPlayer();
                 VideoFile videoFile = videoPlayer.videoFiles.get(position);
                 if (videoFile != null) {
@@ -53,12 +54,17 @@ public class VideoFilesFragment extends GridVideoFragment {
                     startActivity(new Intent(getActivity(), VideoPlayerActivity.class));
                 }
             }
-        });
+
+            @Override
+            public void onItemLongPress(View childView, int position) {
+
+            }
+        }));
 
     }
 
     @Override
-    public BaseAdapter getAdapter() {
+    public RecyclerView.Adapter getAdapter() {
         return new VideoFilesAdapter();
     }
 
@@ -101,12 +107,8 @@ public class VideoFilesFragment extends GridVideoFragment {
         }
     };
 
-    private static class ViewHolder {
-        public TextView description;
-        public ImageView frame;
-    }
 
-    private class VideoFilesAdapter extends BaseAdapter {
+    private class VideoFilesAdapter extends RecyclerView.Adapter<VideoFilesAdapter.ViewHolder> {
 
         List<VideoFile> videoFiles;
 
@@ -114,43 +116,39 @@ public class VideoFilesFragment extends GridVideoFragment {
             this.videoFiles = new ArrayList<>();
         }
 
-        @Override
-        public int getCount() {
-            return videoFiles.size();
-        }
+        public class ViewHolder extends RecyclerView.ViewHolder {
 
-        @Override
-        public Object getItem(int position) {
-            return videoFiles.get(position);
-        }
+            TextView description;
+            ImageView frame;
 
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
+            public ViewHolder(View v) {
+                super(v);
 
-        @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
-            final ViewHolder viewHolder;
-            if (convertView == null) {
-                LayoutInflater inflater = (LayoutInflater) getActivity()
-                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(R.layout.item_video_file, parent, false);
-                viewHolder = new ViewHolder();
-                viewHolder.description = (TextView) convertView.findViewById(R.id.fileDescription);
-                viewHolder.frame = (ImageView) convertView.findViewById(R.id.frameView);
-                convertView.setTag(viewHolder);
-            } else {
-                viewHolder = (ViewHolder) convertView.getTag();
+                description = (TextView) v.findViewById(R.id.fileDescription);
+                frame = (ImageView) v.findViewById(R.id.frameView);
             }
+        }
 
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_video_file, parent, false);
+            return new ViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(ViewHolder holder, int position) {
             final VideoFile videoFile = videoFiles.get(position);
             if (videoFile != null) {
-                viewHolder.frame.setImageBitmap(videoFile.frame);
-                viewHolder.description.setText(videoFile.description);
+                holder.frame.setImageBitmap(videoFile.frame);
+                holder.description.setText(videoFile.description);
             }
+        }
 
-            return convertView;
+        @Override
+        public int getItemCount() {
+            return videoFiles.size();
         }
 
         public void refresh(List<VideoFile> receiveVideoFiles) {

@@ -67,7 +67,7 @@ public class AudioFile implements Comparable<AudioFile> {
             }
             if(tag.hasField(ID3v24Frames.FRAME_ID_TRACK)) {
                 String number = tag.getFirst(ID3v24Frames.FRAME_ID_TRACK);
-                if (!TextUtils.isEmpty(number)) {
+                if (!number.equals("null") && !TextUtils.isEmpty(number)) {
                     trackNumber = Integer.valueOf(number);
                 }
             }

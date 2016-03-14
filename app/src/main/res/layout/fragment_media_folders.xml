@@ -5,20 +5,10 @@
     android:layout_height="match_parent"
     tools:context=".ui.AudioFoldersFragment">
 
-    <GridView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/foldersGridView"
         style="@style/FolderGridView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:drawSelectorOnTop="true"
-        android:scrollbars="none"
-        android:layout_marginTop="@dimen/grid_spacing"
-        android:columnWidth="@dimen/grid_folder_size"
-        android:horizontalSpacing="@dimen/grid_spacing"
-        android:padding="@dimen/grid_spacing"
-        android:numColumns="auto_fit"
-        android:stretchMode="columnWidth"
-        android:verticalSpacing="@dimen/grid_spacing"/>
+        android:layout_height="match_parent"/>
 
 </android.support.v4.widget.SwipeRefreshLayout>

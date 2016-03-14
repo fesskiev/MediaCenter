@@ -34,13 +34,13 @@ public class DownloadManager implements Runnable {
     private int status;
     private int updateCount;
 
-    public DownloadManager(String url, String fleName) {
+    public DownloadManager(String url, String fileName) {
         try {
             this.url = new URL(url);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        this.fileName = fleName;
+        this.fileName = replaceSlash(fileName);
         size = -1;
         downloaded = 0;
         status = DOWNLOADING;
@@ -51,6 +51,11 @@ public class DownloadManager implements Runnable {
     public void setOnDownloadListener(OnDownloadListener listener) {
         this.listener = listener;
     }
+
+    private String replaceSlash(String fileName){
+        return fileName.replace(File.separator, ":");
+    }
+
 
     private void download() {
         Thread thread = new Thread(this);
