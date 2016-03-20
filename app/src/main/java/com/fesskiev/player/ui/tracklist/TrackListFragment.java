@@ -137,6 +137,7 @@ public class TrackListFragment extends Fragment {
 
             TextView duration;
             TextView title;
+            TextView filePath;
             ImageView cover;
 
             public ViewHolder(final View v) {
@@ -144,6 +145,7 @@ public class TrackListFragment extends Fragment {
 
                 duration = (TextView) v.findViewById(R.id.itemDuration);
                 title = (TextView) v.findViewById(R.id.itemTitle);
+                filePath = (TextView) v.findViewById(R.id.filePath);
                 cover = (ImageView) v.findViewById(R.id.itemCover);
 
                 ((SlidingCardView) v).
@@ -194,7 +196,7 @@ public class TrackListFragment extends Fragment {
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            if (new File(audioFile.filePath).delete()) {
+                            if (audioFile.filePath.delete()) {
                                 Snackbar.make(getView(),
                                         getString(R.string.shackbar_delete_file), Snackbar.LENGTH_LONG).show();
                                 trackListAdapter.audioFiles.remove(audioFile);
@@ -245,6 +247,7 @@ public class TrackListFragment extends Fragment {
 
             holder.duration.setText(Utils.getDurationString(audioFile.length));
             holder.title.setText(audioFile.title);
+            holder.filePath.setText(audioFile.filePath.getName());
         }
 
         @Override

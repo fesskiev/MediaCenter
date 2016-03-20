@@ -74,7 +74,7 @@ public class EditTrackDialog extends AlertDialog implements View.OnClickListener
     public void onClick(View v) {
 
         try {
-            org.jaudiotagger.audio.AudioFile audioFile = AudioFileIO.read(new File(this.audioFile.filePath));
+            org.jaudiotagger.audio.AudioFile audioFile = AudioFileIO.read(this.audioFile.filePath);
             Tag tag = audioFile.getTag();
             if(tag != null) {
                 tag.setField(FieldKey.ARTIST, this.audioFile.artist);

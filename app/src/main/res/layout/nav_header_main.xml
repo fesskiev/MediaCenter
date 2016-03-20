@@ -18,7 +18,7 @@
             android:scaleType="centerCrop"
             android:layout_gravity="center_vertical"
             android:contentDescription="@string/app_name"
-            tools:src="@drawable/ic_launcher" />
+            tools:src="@drawable/icon_no_avatar" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -28,17 +28,17 @@
             android:orientation="vertical">
 
             <TextView
+                style="@style/FirstNameTextAppearance"
                 android:id="@+id/firstName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="20sp"
                 tools:text="Fess" />
 
             <TextView
+                style="@style/SecondNameTextAppearance"
                 android:id="@+id/lastName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
                 tools:text="Kiev" />
 
         </LinearLayout>

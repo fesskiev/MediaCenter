@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -41,6 +40,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
     private PlayPauseFloatingButton playPauseButton;
     private DescriptionCardView cardDescription;
     private ImageView volumeLevel;
+    private ImageView backdrop;
     private TextView trackTimeCount;
     private TextView trackTimeTotal;
     private TextView artist;
@@ -77,8 +77,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
 
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
 
-        setBackdropImage();
-
+        backdrop = (ImageView) findViewById(R.id.backdrop);
         volumeLevel = (ImageView) findViewById(R.id.volumeLevel);
         trackTimeTotal = (TextView) findViewById(R.id.trackTimeTotal);
         trackTimeCount = (TextView) findViewById(R.id.trackTimeCount);
@@ -123,7 +122,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
         });
 
         playPauseButton =
-                (PlayPauseFloatingButton) findViewById(R.id.playStopFAB);
+                (PlayPauseFloatingButton) findViewById(R.id.playPauseFAB);
         playPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -132,8 +131,6 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
                 } else {
                     play();
                 }
-                playPauseButton.toggle();
-
             }
         });
 
@@ -179,17 +176,20 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
         });
 
 
+        setTrackInformation();
+        setVolumeLevel();
+        setBackdropImage();
+
         boolean isNewTrack = getIntent().getBooleanExtra(EXTRA_IS_NEW_TRACK, false);
         if (isNewTrack) {
-            createNewTrack();
-        } else {
-            resumePlaying();
+            createPlayer();
+            play();
         }
 
         registerPlaybackBroadcastReceiver();
     }
 
-    private void hideWithAnimation(){
+    private void hideWithAnimation() {
         playPauseButton.hide(new FloatingActionButton.OnVisibilityChangedListener() {
             @Override
             public void onHidden(FloatingActionButton fab) {
@@ -198,21 +198,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
         });
     }
 
-    private void createNewTrack() {
-        createPlayer();
-        play();
-        setTrackInformation();
-        setVolumeLevel();
-    }
-
-    private void resumePlaying() {
-        setTrackInformation();
-        setVolumeLevel();
-//        setPlayingIcon();
-    }
-
     private void setBackdropImage() {
-        ImageView backdrop = (ImageView) findViewById(R.id.backdrop);
         Bitmap artwork = audioPlayer.currentAudioFile.getArtwork();
         if (artwork != null) {
             backdrop.setImageBitmap(artwork);
@@ -227,7 +213,6 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
                 Picasso.with(this).load(R.drawable.no_cover_icon).into(backdrop);
             }
         }
-
     }
 
     @Override
@@ -243,24 +228,28 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
     @Override
     public void next() {
         audioPlayer.next();
-
         cardDescription.next();
-        resetIndicators();
-        createPlayer();
+
+        reset();
     }
 
     @Override
     public void previous() {
         audioPlayer.previous();
-
         cardDescription.previous();
+
+        reset();
+    }
+
+    private void reset() {
         resetIndicators();
         createPlayer();
+        setBackdropImage();
     }
 
     @Override
     public void createPlayer() {
-        PlaybackService.createPlayer(this, audioPlayer.currentAudioFile.filePath);
+        PlaybackService.createPlayer(this, audioPlayer.currentAudioFile.filePath.getAbsolutePath());
     }
 
     private void setVolumeLevel() {
@@ -292,19 +281,6 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
         sb.append("::");
         sb.append(currentAudioFile.bitrate);
         trackDescription.setText(sb.toString());
-    }
-
-    private void setPlayingIcon() {
-        if (audioPlayer.isPlaying) {
-            playPauseButton.
-                    setImageDrawable(ContextCompat.getDrawable(AudioPlayerActivity.this,
-                            R.drawable.pause_icon));
-        } else {
-            playPauseButton.
-                    setImageDrawable(ContextCompat.getDrawable(AudioPlayerActivity.this,
-                            R.drawable.play_icon));
-        }
-//        playPauseButton.toggle();
     }
 
     @Override
@@ -352,8 +328,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
                     break;
                 case PlaybackService.ACTION_PLAYBACK_PLAYING_STATE:
                     audioPlayer.isPlaying = intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_PLAYING, false);
-//                    setPlayingIcon();
-
+                    playPauseButton.setPlay(audioPlayer.isPlaying);
                     break;
                 case PlaybackService.ACTION_SONG_END:
                     next();

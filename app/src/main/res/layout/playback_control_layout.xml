@@ -1,100 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginEnd="@dimen/card_view_margin_end"
-    android:layout_marginStart="@dimen/card_view_margin_start"
-    card_view:cardCornerRadius="4dp"
-    card_view:cardElevation="@dimen/card_view_elevation"
-    card_view:cardPreventCornerOverlap="false">
+    android:layout_height="300dp"
+    app:behavior_peekHeight="0dp"
+    app:layout_behavior="@string/bottom_sheet_behavior">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+    <LinearLayout
+        android:id="@+id/controlPanelContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
 
-        <RelativeLayout
-            android:id="@+id/basicNavPlayerContainer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/playback_controls_padding">
-
-            <ImageView
-                android:id="@+id/cover"
-                android:layout_width="@dimen/playback_controls_albumart_size"
-                android:layout_height="@dimen/playback_controls_albumart_size"
-                android:layout_alignParentStart="true"
-                android:contentDescription="@string/app_name"
-                android:scaleType="centerCrop"
-                tools:src="@drawable/cover"
-                android:transitionName="cover" />
-
-            <LinearLayout
-                android:id="@+id/content"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="@dimen/playback_controls_albumart_horizontal_margin"
-                android:layout_toEndOf="@id/cover"
-                android:layout_toStartOf="@+id/playPauseButton"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/track"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/app_name"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    tools:text="Naibu"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="?android:attr/textColorPrimary" />
-
-                <TextView
-                    android:id="@+id/artist"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/app_name"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    tools:text="Astray"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
-
-            </LinearLayout>
-
-            <ImageView
-                android:id="@+id/playPauseButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:contentDescription="@string/app_name"
-                android:padding="8dp"
-                android:src="@drawable/play_icon"
-                android:tint="@color/accent" />
-        </RelativeLayout>
-
-        <View
-            android:id="@+id/divider1"
+        <android.support.v7.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="0.5dp"
-            android:layout_below="@+id/basicNavPlayerContainer"
-            android:background="@android:color/black" />
+            android:layout_height="match_parent"
+            android:layout_marginEnd="@dimen/card_view_margin_end"
+            android:layout_marginStart="@dimen/card_view_margin_start"
+            android:layout_marginTop="@dimen/bottom_sheet_margin_top"
+            card_view:cardCornerRadius="4dp"
+            card_view:cardElevation="@dimen/card_view_elevation"
+            card_view:cardPreventCornerOverlap="false">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/activity_horizontal_margin"
-            android:layout_below="@+id/divider1">
-
-            <android.support.v7.widget.RecyclerView
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/trackListContol"/>
+                android:layout_height="match_parent">
 
-        </LinearLayout>
+                <RelativeLayout
+                    android:id="@+id/basicNavPlayerContainer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/playback_controls_padding">
 
-    </RelativeLayout>
+                    <ImageView
+                        android:id="@+id/cover"
+                        android:layout_width="@dimen/playback_controls_albumart_size"
+                        android:layout_height="@dimen/playback_controls_albumart_size"
+                        android:layout_alignParentStart="true"
+                        android:contentDescription="@string/app_name"
+                        android:scaleType="centerCrop"
+                        android:transitionName="cover"
+                        tools:src="@drawable/cover" />
 
-</android.support.v7.widget.CardView>
+                    <LinearLayout
+                        android:id="@+id/TrackArtistContainer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="@dimen/playback_controls_albumart_horizontal_margin"
+                        android:layout_toEndOf="@id/cover"
+                        android:layout_toStartOf="@+id/duration"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/TrackTitleBigTextAppearance"
+                            android:id="@+id/track"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            tools:text="Naibu" />
+
+                        <TextView
+                            style="@style/TrackDescBigTextAppearance"
+                            android:id="@+id/artist"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            tools:text="Astray" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        style="@style/TrackDescBigTextAppearance"
+                        android:id="@+id/duration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="00:02:41"
+                        android:layout_below="@+id/TrackArtistContainer"
+                        android:layout_alignParentEnd="true" />
+
+                </RelativeLayout>
+
+                <View
+                    android:id="@+id/divider1"
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:layout_below="@+id/basicNavPlayerContainer"
+                    android:background="@android:color/black" />
+
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/trackListControl"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/divider1"
+                    android:layout_margin="8dp" />
+
+            </RelativeLayout>
+
+
+        </android.support.v7.widget.CardView>
+
+    </LinearLayout>
+
+    <com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton
+        android:id="@+id/playPauseFAB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginEnd="@dimen/fab_margin" />
+
+</FrameLayout>

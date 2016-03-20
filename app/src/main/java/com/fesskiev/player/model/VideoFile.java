@@ -13,29 +13,33 @@ public class VideoFile {
     public Bitmap frame;
     public String description;
 
-    public VideoFile(String path){
+    public VideoFile(String path) {
         this.filePath = path;
 
         fetchVideoData();
     }
 
-    private void fetchVideoData(){
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(filePath);
-        frame = retriever.getFrameAtTime();
+    private void fetchVideoData() {
+        try {
+            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+            retriever.setDataSource(filePath);
+            frame = retriever.getFrameAtTime();
 
-        StringBuilder sb = new StringBuilder();
-        String name = new File(filePath).getName();
-        if(name.length() >= 14) {
-            String cutName = name.substring(name.length() - 14);
-            sb.append(cutName);
+            StringBuilder sb = new StringBuilder();
+            String name = new File(filePath).getName();
+            if (name.length() >= 14) {
+                String cutName = name.substring(name.length() - 14);
+                sb.append(cutName);
+            }
+            sb.append(":");
+            sb.append(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+            sb.append("x");
+            sb.append(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+
+            description = sb.toString();
+            retriever.release();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        sb.append(":");
-        sb.append(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
-        sb.append("x");
-        sb.append(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
-
-        description = sb.toString();
-        retriever.release();
     }
 }

@@ -41,14 +41,14 @@
         android:id="@+id/slidingContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_marginBottom="@dimen/card_view_margin_bottom"
-        android:layout_marginStart="@dimen/card_view_margin_end"
         android:layout_marginEnd="@dimen/card_view_margin_start"
+        android:layout_marginStart="@dimen/card_view_margin_end"
         android:layout_marginTop="@dimen/card_view_margin_top"
+        android:orientation="vertical"
+        card_view:cardBackgroundColor="@android:color/white"
         card_view:cardCornerRadius="4dp"
         card_view:cardElevation="@dimen/card_view_elevation"
-        card_view:cardBackgroundColor="@android:color/white"
         card_view:cardPreventCornerOverlap="false"
         card_view:cardUseCompatPadding="false">
 
@@ -60,44 +60,58 @@
 
             <ImageView
                 android:id="@+id/itemCover"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:transitionName="cover"
+                android:layout_width="62dp"
+                android:layout_height="62dp"
+                android:scaleType="centerCrop"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
                 android:contentDescription="@string/app_name"
+                android:transitionName="cover"
                 tools:src="@drawable/cover" />
 
             <LinearLayout
                 android:id="@+id/content"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="12dp"
                 android:layout_toEndOf="@+id/itemCover"
+                android:layout_toStartOf="@+id/itemDuration"
                 android:orientation="vertical">
 
 
                 <TextView
                     android:id="@+id/itemTitle"
                     style="@style/TitleTextAppearance"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:maxLines="1"
                     tools:text="Nothing Heren" />
 
                 <TextView
-                    android:id="@+id/itemDuration"
+                    android:id="@+id/filePath"
                     style="@style/DescriptionTextAppearance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    tools:text="02:28" />
+                    tools:text="Nothing Heren.mp3" />
 
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/itemDuration"
+                style="@style/DescriptionTextAppearance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="5dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                tools:text="02:28" />
 
         </RelativeLayout>
 

@@ -37,6 +37,7 @@ import com.fesskiev.player.ui.settings.SettingsActivity;
 import com.fesskiev.player.ui.soundcloud.SoundCloudActivity;
 import com.fesskiev.player.ui.vk.MusicVKActivity;
 import com.fesskiev.player.utils.AppSettingsManager;
+import com.fesskiev.player.widgets.transformation.CircleTransform;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -106,7 +107,13 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     private void setEmptyUserInfo() {
-        userPhoto.setImageResource(R.drawable.no_cover_icon);
+        MediaApplication.getInstance().getPicasso().
+                load(R.drawable.icon_no_avatar).
+                placeholder(R.drawable.circle_placeholder).
+                resize(128, 128).
+                transform(new CircleTransform()).
+                centerCrop().
+                into(userPhoto);
         firstName.setText(getString(R.string.empty_first_name));
         lastName.setText(getString(R.string.empty_last_name));
     }
@@ -214,7 +221,10 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
                         MediaApplication.getInstance().getPicasso().
                                 load(user.photoUrl).
+                                placeholder(R.drawable.circle_placeholder).
                                 resize(128, 128).
+                                transform(new CircleTransform()).
+                                centerCrop().
                                 into(new Target() {
                                     @Override
                                     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {

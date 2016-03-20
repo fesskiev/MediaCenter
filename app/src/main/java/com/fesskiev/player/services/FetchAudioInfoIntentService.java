@@ -48,7 +48,7 @@ public class FetchAudioInfoIntentService extends IntentService {
         AudioFolder audioFolder = MediaApplication.getInstance().getAudioPlayer().currentAudioFolder;
         if (audioFolder != null) {
             for (File file : audioFolder.musicFiles) {
-                AudioFile audioFile = new AudioFile(getApplicationContext(), file.getAbsolutePath(),
+                AudioFile audioFile = new AudioFile(getApplicationContext(), file,
                         new AudioFile.OnMp3TagListener() {
                     @Override
                     public void onFetchCompleted() {

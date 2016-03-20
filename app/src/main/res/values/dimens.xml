@@ -4,7 +4,7 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
 
     <dimen name="nav_header_vertical_spacing">16dp</dimen>
-    <dimen name="nav_header_height">160dp</dimen>
+    <dimen name="nav_header_height">180dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
 
     <dimen name="grid_folder_size">100dp</dimen>
@@ -25,5 +25,9 @@
     <dimen name="pause_bar_width">6dp</dimen>
     <dimen name="pause_bar_distance">5dp</dimen>
     <dimen name="pause_bar_height">18dp</dimen>
-    <dimen name="pause_radius">20dp</dimen>
+
+    <dimen name="card_insets">4dp</dimen>
+    <dimen name="card_min_width">110dp</dimen>
+
+    <dimen name="bottom_sheet_margin_top">24dp</dimen>
 </resources>

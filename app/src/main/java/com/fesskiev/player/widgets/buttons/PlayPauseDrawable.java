@@ -1,7 +1,6 @@
 package com.fesskiev.player.widgets.buttons;
 
 import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.Resources;
@@ -69,7 +68,6 @@ public class PlayPauseDrawable extends Drawable {
     public void draw(Canvas canvas) {
         leftPauseBar.rewind();
         rightPauseBar.rewind();
-
         // The current distance between the two pause bars.
         final float barDist = lerp(pauseBarDistance, 0, progress);
         // The current width of each pause bar.
@@ -118,15 +116,9 @@ public class PlayPauseDrawable extends Drawable {
         canvas.restore();
     }
 
-    public Animator getPausePlayAnimator() {
-        final Animator anim = ObjectAnimator.ofFloat(this, PROGRESS, isPlay ? 1 : 0, isPlay ? 0 : 1);
-        anim.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                isPlay = !isPlay;
-            }
-        });
-        return anim;
+    public Animator getPausePlayAnimator(boolean play) {
+        isPlay = play;
+        return ObjectAnimator.ofFloat(this, PROGRESS, isPlay ? 1 : 0, isPlay ? 0 : 1);
     }
 
     public boolean isPlay() {

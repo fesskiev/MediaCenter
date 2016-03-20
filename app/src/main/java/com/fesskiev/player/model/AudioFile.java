@@ -30,7 +30,7 @@ public class AudioFile implements Comparable<AudioFile> {
 
     private Context context;
     public Artwork artwork;
-    public String filePath;
+    public File filePath;
     public String artist;
     public String title;
     public String album;
@@ -42,7 +42,7 @@ public class AudioFile implements Comparable<AudioFile> {
     private Bitmap bitmapArtwork;
     private OnMp3TagListener listener;
 
-    public AudioFile(Context context, String filePath, OnMp3TagListener listener) {
+    public AudioFile(Context context, File filePath, OnMp3TagListener listener) {
         this.context = context;
         this.filePath = filePath;
         this.listener = listener;
@@ -119,7 +119,7 @@ public class AudioFile implements Comparable<AudioFile> {
     private void getTrackInfo() {
         try {
 
-            org.jaudiotagger.audio.AudioFile file = AudioFileIO.read(new File(filePath));
+            org.jaudiotagger.audio.AudioFile file = AudioFileIO.read(filePath.getAbsoluteFile());
             AudioHeader audioHeader = file.getAudioHeader();
 
             bitrate = audioHeader.getBitRate() + " kbps "
@@ -159,19 +159,17 @@ public class AudioFile implements Comparable<AudioFile> {
 
         AudioFile audioFile = (AudioFile) o;
 
-        if (filePath != null ? !filePath.equals(audioFile.filePath) : audioFile.filePath != null)
-            return false;
-        if (artist != null ? !artist.equals(audioFile.artist) : audioFile.artist != null)
-            return false;
-        return !(title != null ? !title.equals(audioFile.title) : audioFile.title != null);
+        if (!filePath.equals(audioFile.filePath)) return false;
+        if (!artist.equals(audioFile.artist)) return false;
+        return title.equals(audioFile.title);
 
     }
 
     @Override
     public int hashCode() {
-        int result = filePath != null ? filePath.hashCode() : 0;
-        result = 31 * result + (artist != null ? artist.hashCode() : 0);
-        result = 31 * result + (title != null ? title.hashCode() : 0);
+        int result = filePath.hashCode();
+        result = 31 * result + artist.hashCode();
+        result = 31 * result + title.hashCode();
         return result;
     }
 

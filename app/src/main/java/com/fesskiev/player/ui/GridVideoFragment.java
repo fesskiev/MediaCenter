@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioPlayer;
+import com.fesskiev.player.widgets.recycleview.GridDividerDecoration;
 import com.fesskiev.player.widgets.recycleview.HidingScrollListener;
 
 public abstract class GridVideoFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -32,11 +33,12 @@ public abstract class GridVideoFragment extends Fragment implements SwipeRefresh
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         swipeRefreshLayout.setOnRefreshListener(this);
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 3);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 3,
+                GridLayoutManager.VERTICAL, false);
 
         recyclerView = (RecyclerView)view.findViewById(R.id.foldersGridView);
-        recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(gridLayoutManager);
+        recyclerView.addItemDecoration(new GridDividerDecoration(getActivity()));
         adapter = getAdapter();
         recyclerView.setAdapter(adapter);
         recyclerView.addOnScrollListener(new HidingScrollListener() {
