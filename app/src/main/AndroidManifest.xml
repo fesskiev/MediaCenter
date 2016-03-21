@@ -96,7 +96,7 @@
         </activity>
 
         <activity
-            android:name=".ui.soundcloud.SoundCloudActivity"
+            android:name=".ui.about.AboutActivity"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait">
             <meta-data

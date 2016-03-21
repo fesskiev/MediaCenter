@@ -1,4 +1,4 @@
-package com.fesskiev.player.ui.soundcloud;
+package com.fesskiev.player.ui.about;
 
 import android.content.ComponentName;
 import android.os.Bundle;
@@ -12,29 +12,29 @@ import com.fesskiev.player.R;
 import com.fesskiev.player.ui.MainActivity;
 import com.fesskiev.player.ui.vk.SearchAudioFragment;
 
-public class SoundCloudActivity extends AppCompatActivity {
+public class AboutActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sound_cloud);
+        setContentView(R.layout.activity_about);
         if (savedInstanceState == null) {
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             if (toolbar != null) {
-                toolbar.setTitle(getString(R.string.title_soundcloud_activity));
+                toolbar.setTitle(getString(R.string.title_about_activity));
                 toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
                 toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        navigateUpToFromChild(SoundCloudActivity.this,
-                                IntentCompat.makeMainActivity(new ComponentName(SoundCloudActivity.this,
+                        navigateUpToFromChild(AboutActivity.this,
+                                IntentCompat.makeMainActivity(new ComponentName(AboutActivity.this,
                                         MainActivity.class)));
                     }
                 });
             }
 
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.content, SoundCloudFragment.newInstance(),
+            transaction.replace(R.id.content, AboutFragment.newInstance(),
                     SearchAudioFragment.class.getName());
             transaction.commit();
 

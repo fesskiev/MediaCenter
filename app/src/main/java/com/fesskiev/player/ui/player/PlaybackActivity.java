@@ -80,7 +80,13 @@ public class PlaybackActivity extends AppCompatActivity {
                 new RecyclerItemTouchClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View childView, int position) {
-
+                        List<AudioFile> audioFiles = adapter.getAudioFiles();
+                        AudioFile audioFile = audioFiles.get(position);
+                        if (audioFile != null) {
+                            audioPlayer.currentAudioFile = audioFile;
+                            PlaybackService.createPlayer(PlaybackActivity.this, audioFile.filePath.getAbsolutePath());
+                            PlaybackService.startPlayback(PlaybackActivity.this);
+                        }
                     }
 
                     @Override
@@ -278,9 +284,13 @@ public class PlaybackActivity extends AppCompatActivity {
             return audioFiles.size();
         }
 
+
+        public List<AudioFile> getAudioFiles() {
+            return audioFiles;
+        }
+
         public void refreshAdapter(List<AudioFile> receiverAudioFiles) {
-            audioFiles.clear();
-            audioFiles.addAll(receiverAudioFiles);
+            audioFiles = receiverAudioFiles;
             notifyDataSetChanged();
         }
     }

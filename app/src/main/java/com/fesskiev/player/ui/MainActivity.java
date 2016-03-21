@@ -34,7 +34,7 @@ import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.ui.player.PlaybackActivity;
 import com.fesskiev.player.ui.settings.SettingsActivity;
-import com.fesskiev.player.ui.soundcloud.SoundCloudActivity;
+import com.fesskiev.player.ui.about.AboutActivity;
 import com.fesskiev.player.ui.vk.MusicVKActivity;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.widgets.transformation.CircleTransform;
@@ -127,8 +127,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             case R.id.settings:
                 startActivity(new Intent(this, SettingsActivity.class));
                 break;
-            case R.id.soundcloud_music:
-                startActivity(new Intent(this, SoundCloudActivity.class));
+            case R.id.about:
+                startActivity(new Intent(this, AboutActivity.class));
                 break;
         }
 
