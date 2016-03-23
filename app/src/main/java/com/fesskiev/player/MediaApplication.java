@@ -32,7 +32,7 @@ public class MediaApplication extends Application {
     public void onCreate() {
         super.onCreate();
         application = this;
-        audioPlayer = new AudioPlayer();
+        audioPlayer = new AudioPlayer(getApplicationContext());
         videoPlayer = new VideoPlayer();
         VKSdk.initialize(this);
 

@@ -7,8 +7,10 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
@@ -29,7 +31,6 @@ import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton;
-import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
 import com.squareup.picasso.Picasso;
 
@@ -51,13 +52,12 @@ public class PlaybackActivity extends AppCompatActivity {
     private View peakView;
     private AudioPlayer audioPlayer;
     private int height;
+    private boolean isShow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         registerPlaybackBroadcastReceiver();
-
     }
 
     @Override
@@ -76,31 +76,11 @@ public class PlaybackActivity extends AppCompatActivity {
                 LinearLayoutManager.VERTICAL, false, 1000));
         adapter = new TrackListAdapter();
         trackListControl.setAdapter(adapter);
-        trackListControl.addOnItemTouchListener(new RecyclerItemTouchClickListener(getApplicationContext(),
-                new RecyclerItemTouchClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View childView, int position) {
-                        List<AudioFile> audioFiles = adapter.getAudioFiles();
-                        AudioFile audioFile = audioFiles.get(position);
-                        if (audioFile != null) {
-                            audioPlayer.currentAudioFile = audioFile;
-                            PlaybackService.createPlayer(PlaybackActivity.this, audioFile.filePath.getAbsolutePath());
-                            PlaybackService.startPlayback(PlaybackActivity.this);
-                        }
-                    }
-
-                    @Override
-                    public void onItemLongPress(View childView, int position) {
-
-                    }
-                }));
-
 
         AudioFile audioFile = MediaApplication.getInstance().getAudioPlayer().currentAudioFile;
         if (audioFile != null) {
             setMusicFileInfo(audioFile);
         }
-
 
         playPauseButton = (PlayPauseFloatingButton) findViewById(R.id.playPauseFAB);
         playPauseButton.setOnClickListener(new View.OnClickListener() {
@@ -168,13 +148,19 @@ public class PlaybackActivity extends AppCompatActivity {
     }
 
     public void showPlayback() {
-        bottomSheetBehavior.setPeekHeight(height);
-        peakView.requestLayout();
+        if(!isShow) {
+            bottomSheetBehavior.setPeekHeight(height);
+            isShow = true;
+//        peakView.requestLayout();
+        }
     }
 
     public void hidePlayback() {
-        bottomSheetBehavior.setPeekHeight(0);
-        peakView.requestLayout();
+        if(isShow) {
+            bottomSheetBehavior.setPeekHeight(0);
+            isShow = false;
+//        peakView.requestLayout();
+        }
     }
 
     @Override
@@ -188,6 +174,8 @@ public class PlaybackActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter();
         filter.addAction(PlaybackService.ACTION_PLAYBACK_VALUES);
         filter.addAction(PlaybackService.ACTION_PLAYBACK_PLAYING_STATE);
+        filter.addAction(AudioPlayer.ACTION_CHANGE_CURRENT_AUDIO_FILE);
+        filter.addAction(AudioPlayer.ACTION_CHANGE_CURRENT_AUDIO_FOLDER);
         LocalBroadcastManager.getInstance(this).registerReceiver(playbackReceiver, filter);
     }
 
@@ -208,14 +196,21 @@ public class PlaybackActivity extends AppCompatActivity {
                     break;
                 case PlaybackService.ACTION_PLAYBACK_PLAYING_STATE:
                     boolean isPlaying = intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_PLAYING, false);
-                    Log.w(TAG, "playback activity is plying: " + isPlaying);
+                    Log.w(TAG, "playback activity is plying");
                     audioPlayer.isPlaying = isPlaying;
-
-                    setMusicFileInfo(audioPlayer.currentAudioFile);
-                    showPlayback();
                     playPauseButton.setPlay(audioPlayer.isPlaying);
+                    adapter.notifyDataSetChanged();
+                    break;
+                case AudioPlayer.ACTION_CHANGE_CURRENT_AUDIO_FILE:
+                    Log.w(TAG, "change current audio file");
+                    setMusicFileInfo(audioPlayer.currentAudioFile);
+                    adapter.notifyDataSetChanged();
+                    showPlayback();
+                    break;
+                case AudioPlayer.ACTION_CHANGE_CURRENT_AUDIO_FOLDER:
+                    Log.w(TAG, "change current audio folder");
                     adapter.refreshAdapter(audioPlayer.currentAudioFolder.audioFilesDescription);
-
+                    showPlayback();
                     break;
             }
         }
@@ -237,6 +232,23 @@ public class PlaybackActivity extends AppCompatActivity {
 
             public ViewHolder(View v) {
                 super(v);
+                v.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(getAdapterPosition() == -1){
+                            Snackbar.make(getCurrentFocus(), "pos is -1", Snackbar.LENGTH_SHORT);
+                            return;
+                        }
+
+                        List<AudioFile> audioFiles = adapter.getAudioFiles();
+                        AudioFile audioFile = audioFiles.get(getAdapterPosition());
+                        if (audioFile != null) {
+                            audioPlayer.setCurrentAudioFile(audioFile);
+                            PlaybackService.createPlayer(PlaybackActivity.this, audioFile.filePath.getAbsolutePath());
+                            PlaybackService.startPlayback(PlaybackActivity.this);
+                        }
+                    }
+                });
 
                 playEq = (ImageView) v.findViewById(R.id.playEq);
                 title = (TextView) v.findViewById(R.id.title);
@@ -260,8 +272,7 @@ public class PlaybackActivity extends AppCompatActivity {
             if (audioFile != null) {
                 holder.title.setText(audioFile.title);
                 holder.duration.setText(Utils.getDurationString(audioFile.length));
-                AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-                if (audioPlayer.currentAudioFile.equals(audioFile)) {
+                if (audioPlayer.isPlaying && audioPlayer.currentAudioFile.equals(audioFile)) {
                     holder.playEq.setVisibility(View.VISIBLE);
                     AnimationDrawable animation = (AnimationDrawable) ContextCompat.
                             getDrawable(getApplicationContext(), R.drawable.ic_equalizer);
@@ -290,8 +301,14 @@ public class PlaybackActivity extends AppCompatActivity {
         }
 
         public void refreshAdapter(List<AudioFile> receiverAudioFiles) {
-            audioFiles = receiverAudioFiles;
-            notifyDataSetChanged();
+            audioFiles.clear();
+            audioFiles.addAll(receiverAudioFiles);
+            new Handler().post(new Runnable() {
+                @Override
+                public void run() {
+                    notifyDataSetChanged();
+                }
+            });
         }
     }
 }

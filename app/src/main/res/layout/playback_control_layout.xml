@@ -45,7 +45,7 @@
 
                     <LinearLayout
                         android:id="@+id/TrackArtistContainer"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
                         android:layout_marginStart="@dimen/playback_controls_albumart_horizontal_margin"
@@ -54,8 +54,8 @@
                         android:orientation="vertical">
 
                         <TextView
-                            style="@style/TrackTitleBigTextAppearance"
                             android:id="@+id/track"
+                            style="@style/TrackTitleBigTextAppearance"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:ellipsize="end"
@@ -63,8 +63,8 @@
                             tools:text="Naibu" />
 
                         <TextView
-                            style="@style/TrackDescBigTextAppearance"
                             android:id="@+id/artist"
+                            style="@style/TrackDescBigTextAppearance"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:ellipsize="end"
@@ -74,30 +74,35 @@
                     </LinearLayout>
 
                     <TextView
-                        style="@style/TrackDescBigTextAppearance"
                         android:id="@+id/duration"
+                        style="@style/TrackDescBigTextAppearance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        tools:text="00:02:41"
+                        android:layout_alignParentEnd="true"
                         android:layout_below="@+id/TrackArtistContainer"
-                        android:layout_alignParentEnd="true" />
+                        tools:text="00:02:41" />
 
                 </RelativeLayout>
 
                 <View
                     android:id="@+id/divider1"
                     android:layout_width="match_parent"
-                    android:layout_height="0.5dp"
+                    android:layout_height="1dp"
                     android:layout_below="@+id/basicNavPlayerContainer"
-                    android:background="@android:color/black" />
+                    android:background="@color/primary_text" />
 
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/trackListControl"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_below="@+id/divider1"
-                    android:layout_margin="8dp" />
+                    android:layout_margin="8dp">
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/trackListControl"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
+                </LinearLayout>
 
             </RelativeLayout>
 

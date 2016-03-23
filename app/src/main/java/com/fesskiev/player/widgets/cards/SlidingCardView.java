@@ -21,7 +21,7 @@ public class SlidingCardView extends FrameLayout implements View.OnClickListener
         void onClick();
     }
 
-    private static final int MIN_DISTANCE = 80;
+    private static final int MIN_DISTANCE = 100;
 
     private OnSlidingCardListener listener;
     private View slidingContainer;
@@ -59,13 +59,6 @@ public class SlidingCardView extends FrameLayout implements View.OnClickListener
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getActionMasked()) {
-            case MotionEvent.ACTION_DOWN:
-                shouldClick = true;
-                x1 = event.getX();
-                break;
-            case MotionEvent.ACTION_MOVE:
-                shouldClick = false;
-                break;
             case MotionEvent.ACTION_UP:
                 if (shouldClick) {
                     if (listener != null) {
@@ -74,7 +67,7 @@ public class SlidingCardView extends FrameLayout implements View.OnClickListener
                     }
                     return true;
                 }
-
+            case MotionEvent.ACTION_CANCEL:
                 x2 = event.getX();
                 float deltaX = x2 - x1;
                 if (Math.abs(deltaX) > MIN_DISTANCE) {
@@ -87,6 +80,14 @@ public class SlidingCardView extends FrameLayout implements View.OnClickListener
                     }
                 }
                 break;
+            case MotionEvent.ACTION_DOWN:
+                shouldClick = true;
+                x1 = event.getX();
+                return true;
+            case MotionEvent.ACTION_MOVE:
+                shouldClick = false;
+                break;
+
         }
         return true;
     }

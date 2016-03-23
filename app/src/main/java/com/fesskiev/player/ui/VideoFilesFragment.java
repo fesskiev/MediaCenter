@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class VideoFilesFragment extends GridVideoFragment {
+public class VideoFilesFragment extends GridFragment {
 
     public static VideoFilesFragment newInstance() {
         return new VideoFilesFragment();

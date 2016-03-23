@@ -43,6 +43,7 @@ public class TrackListFragment extends Fragment {
 
     private TrackListAdapter trackListAdapter;
     private AudioFolder audioFolder;
+    private AudioPlayer audioPlayer;
 
     public static TrackListFragment newInstance() {
         return new TrackListFragment();
@@ -51,8 +52,8 @@ public class TrackListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        audioFolder =
-                MediaApplication.getInstance().getAudioPlayer().currentAudioFolder;
+        audioPlayer = MediaApplication.getInstance().getAudioPlayer();
+        audioFolder = audioPlayer.currentAudioFolder;
     }
 
     @Override
@@ -71,15 +72,7 @@ public class TrackListFragment extends Fragment {
         trackListAdapter = new TrackListAdapter();
         recyclerView.setAdapter(trackListAdapter);
 
-        if (audioFolder.audioFilesDescription.size() == 0) {
-            FetchAudioInfoIntentService.startFetchAudioInfo(getActivity());
-        } else {
-            List<AudioFile> receiverAudioFiles = MediaApplication.getInstance().
-                    getAudioPlayer().currentAudioFolder.audioFilesDescription;
-            if (receiverAudioFiles != null) {
-                trackListAdapter.refreshAdapter(receiverAudioFiles);
-            }
-        }
+        FetchAudioInfoIntentService.startFetchAudioInfo(getActivity());
     }
 
     @Override
@@ -94,11 +87,10 @@ public class TrackListFragment extends Fragment {
         unregisterMusicFilesReceiver();
     }
 
-
-
     private void registerMusicFilesReceiver() {
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(FetchAudioInfoIntentService.ACTION_MUSIC_FILES_RESULT);
+        intentFilter.addAction(FetchAudioInfoIntentService.ACTION_AUDIO_FILE_INFO_RESULT);
+        intentFilter.addAction(FetchAudioInfoIntentService.ACTION_FETCH_AUDIO_INFO_COMPLETED);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(musicFilesReceiver,
                 intentFilter);
     }
@@ -112,14 +104,14 @@ public class TrackListFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
-                case FetchAudioInfoIntentService.ACTION_MUSIC_FILES_RESULT:
-//                    Log.d(TAG, "receive music files!");
-
-                    List<AudioFile> receiverAudioFiles = MediaApplication.getInstance().
-                            getAudioPlayer().currentAudioFolder.audioFilesDescription;
+                case FetchAudioInfoIntentService.ACTION_AUDIO_FILE_INFO_RESULT:
+                    List<AudioFile> receiverAudioFiles = audioPlayer.currentAudioFolder.audioFilesDescription;
                     if (receiverAudioFiles != null) {
                         trackListAdapter.refreshAdapter(receiverAudioFiles);
                     }
+                    break;
+                case FetchAudioInfoIntentService.ACTION_FETCH_AUDIO_INFO_COMPLETED:
+                    audioPlayer.sendBroadcastChangeAudioFolder();
                     break;
             }
         }
@@ -171,10 +163,8 @@ public class TrackListFragment extends Fragment {
         private void startPlayerActivity(int position, View cover) {
             AudioFile audioFile = audioFolder.audioFilesDescription.get(position);
             if (audioFile != null) {
-                AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-                audioPlayer.currentAudioFile = audioFile;
+                audioPlayer.setCurrentAudioFile(audioFile);
                 audioPlayer.position = position;
-
 
                 AudioPlayerActivity.startPlayerActivity(getActivity(), true, cover);
             }

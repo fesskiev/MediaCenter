@@ -16,10 +16,9 @@ public class FetchAudioInfoIntentService extends IntentService {
 
     private static final String TAG = FetchAudioInfoIntentService.class.getSimpleName();
 
-    private static final String ACTION_START_FETCH_AUDIO_INFO_SERVICE =
-            "com.fesskiev.player.action.ACTION_START_FETCH_AUDIO_INFO_SERVICE";
-    public static final String ACTION_MUSIC_FILES_RESULT = "com.fesskiev.player.action.MUSIC_FILES_RESULT";
-
+    private static final String ACTION_FETCH_AUDIO_INFO_SERVICE = "com.fesskiev.player.action.ACTION_FETCH_AUDIO_INFO_SERVICE";
+    public static final String ACTION_AUDIO_FILE_INFO_RESULT = "com.fesskiev.player.action.ACTION_AUDIO_FILE_INFO_RESULT";
+    public static final String ACTION_FETCH_AUDIO_INFO_COMPLETED = "com.fesskiev.player.action.ACTION_FETCH_AUDIO_INFO_COMPLETED";
 
 
     public FetchAudioInfoIntentService() {
@@ -29,7 +28,7 @@ public class FetchAudioInfoIntentService extends IntentService {
 
     public static void startFetchAudioInfo(Context context) {
         Intent intent = new Intent(context, FetchAudioInfoIntentService.class);
-        intent.setAction(ACTION_START_FETCH_AUDIO_INFO_SERVICE);
+        intent.setAction(ACTION_FETCH_AUDIO_INFO_SERVICE);
         context.startService(intent);
     }
 
@@ -38,8 +37,8 @@ public class FetchAudioInfoIntentService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
             final String action = intent.getAction();
-            if (ACTION_START_FETCH_AUDIO_INFO_SERVICE.equals(action)) {
-                    fetchAudioInfo();
+            if (ACTION_FETCH_AUDIO_INFO_SERVICE.equals(action)) {
+                fetchAudioInfo();
             }
         }
     }
@@ -50,18 +49,25 @@ public class FetchAudioInfoIntentService extends IntentService {
             for (File file : audioFolder.musicFiles) {
                 AudioFile audioFile = new AudioFile(getApplicationContext(), file,
                         new AudioFile.OnMp3TagListener() {
-                    @Override
-                    public void onFetchCompleted() {
-                        sendMusicFilesBroadcast();
-                    }
-                });
+                            @Override
+                            public void onFetchCompleted() {
+                                sendAudioFileInfoBroadcast();
+                            }
+                        });
                 audioFolder.audioFilesDescription.add(audioFile);
             }
+
+            sendFetchAudioInfoCompletedBroadcast();
         }
     }
 
-    private void sendMusicFilesBroadcast() {
-        Intent intent = new Intent(ACTION_MUSIC_FILES_RESULT);
+    private void sendFetchAudioInfoCompletedBroadcast() {
+        Intent intent = new Intent(ACTION_FETCH_AUDIO_INFO_COMPLETED);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+    }
+
+    private void sendAudioFileInfoBroadcast() {
+        Intent intent = new Intent(ACTION_AUDIO_FILE_INFO_RESULT);
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
     }
 }

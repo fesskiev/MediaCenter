@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class AudioFoldersFragment extends GridVideoFragment {
+public class AudioFoldersFragment extends GridFragment {
 
     private static final String TAG = AudioFoldersFragment.class.getSimpleName();
 

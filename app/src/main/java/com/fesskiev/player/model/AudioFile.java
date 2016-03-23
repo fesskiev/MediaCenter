@@ -176,9 +176,7 @@ public class AudioFile implements Comparable<AudioFile> {
     @Override
     public String toString() {
         return "AudioFile{" +
-                "context=" + context +
-                ", artwork=" + artwork +
-                ", filePath='" + filePath + '\'' +
+                "filePath='" + filePath + '\'' +
                 ", artist='" + artist + '\'' +
                 ", title='" + title + '\'' +
                 ", album='" + album + '\'' +
