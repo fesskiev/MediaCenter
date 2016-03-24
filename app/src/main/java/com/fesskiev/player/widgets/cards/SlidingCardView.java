@@ -3,7 +3,7 @@ package com.fesskiev.player.widgets.cards;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -23,12 +23,12 @@ public class SlidingCardView extends FrameLayout implements View.OnClickListener
 
     private static final int MIN_DISTANCE = 100;
 
+    private GestureDetector detector;
     private OnSlidingCardListener listener;
     private View slidingContainer;
     private float x1;
     private float x2;
     private boolean isOpen;
-    private boolean shouldClick;
 
     public SlidingCardView(Context context) {
         super(context);
@@ -54,19 +54,29 @@ public class SlidingCardView extends FrameLayout implements View.OnClickListener
         view.findViewById(R.id.deleteButton).setOnClickListener(this);
 
         slidingContainer = view.findViewById(R.id.slidingContainer);
+
+        detector = new GestureDetector(getContext(), new GestureListener());
+    }
+
+
+    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            if (listener != null) {
+                listener.onClick();
+            }
+            return true;
+        }
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        detector.onTouchEvent(event);
         switch (event.getActionMasked()) {
-            case MotionEvent.ACTION_UP:
-                if (shouldClick) {
-                    if (listener != null) {
-                        shouldClick = false;
-                        listener.onClick();
-                    }
-                    return true;
-                }
+            case MotionEvent.ACTION_DOWN:
+                x1 = event.getX();
+                return true;
             case MotionEvent.ACTION_CANCEL:
                 x2 = event.getX();
                 float deltaX = x2 - x1;
@@ -80,14 +90,6 @@ public class SlidingCardView extends FrameLayout implements View.OnClickListener
                     }
                 }
                 break;
-            case MotionEvent.ACTION_DOWN:
-                shouldClick = true;
-                x1 = event.getX();
-                return true;
-            case MotionEvent.ACTION_MOVE:
-                shouldClick = false;
-                break;
-
         }
         return true;
     }

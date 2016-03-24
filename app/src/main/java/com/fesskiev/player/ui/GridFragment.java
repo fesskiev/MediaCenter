@@ -9,7 +9,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
+import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.widgets.recycleview.GridDividerDecoration;
 import com.fesskiev.player.widgets.recycleview.HidingScrollListener;
 
@@ -53,10 +55,16 @@ public abstract class GridFragment extends Fragment implements SwipeRefreshLayou
     }
 
     private void hidePlaybackControl() {
-        ((MainActivity) getActivity()).hidePlayback();
+        AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
+        if(audioPlayer.currentAudioFile != null) {
+            ((MainActivity) getActivity()).hidePlayback();
+        }
     }
 
     private void showPlaybackControl() {
-        ((MainActivity) getActivity()).showPlayback();
+        AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
+        if(audioPlayer.currentAudioFile != null) {
+            ((MainActivity) getActivity()).showPlayback();
+        }
     }
 }

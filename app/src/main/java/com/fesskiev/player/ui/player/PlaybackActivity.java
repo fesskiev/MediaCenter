@@ -7,10 +7,8 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
@@ -31,7 +29,6 @@ import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton;
-import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -53,6 +50,7 @@ public class PlaybackActivity extends AppCompatActivity {
     private AudioPlayer audioPlayer;
     private int height;
     private boolean isShow;
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,11 +69,10 @@ public class PlaybackActivity extends AppCompatActivity {
         durationText = (TextView) findViewById(R.id.duration);
 
 
-        RecyclerView trackListControl = (RecyclerView) findViewById(R.id.trackListControl);
-        trackListControl.setLayoutManager(new ScrollingLinearLayoutManager(this,
-                LinearLayoutManager.VERTICAL, false, 1000));
+        recyclerView = (RecyclerView) findViewById(R.id.trackListControl);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new TrackListAdapter();
-        trackListControl.setAdapter(adapter);
+        recyclerView.setAdapter(adapter);
 
         AudioFile audioFile = MediaApplication.getInstance().getAudioPlayer().currentAudioFile;
         if (audioFile != null) {
@@ -95,19 +92,19 @@ public class PlaybackActivity extends AppCompatActivity {
         });
 
         View bottomSheet = findViewById(R.id.bottom_sheet);
-        bottomSheet.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AudioPlayerActivity.startPlayerActivity(PlaybackActivity.this, false, cover);
-            }
-        });
-
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
         if (bottomSheetBehavior != null) {
             bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
                 @Override
                 public void onStateChanged(@NonNull View bottomSheet, int newState) {
-
+                    switch (newState) {
+                        case BottomSheetBehavior.STATE_COLLAPSED:
+                            Log.d(TAG, "BottomSheetBehavior.STATE_COLLAPSED");
+                            break;
+                        case BottomSheetBehavior.STATE_EXPANDED:
+                            Log.d(TAG, "BottomSheetBehavior.STATE_EXPANDED");
+                            break;
+                    }
                 }
 
                 @Override
@@ -117,6 +114,12 @@ public class PlaybackActivity extends AppCompatActivity {
             });
 
             peakView = findViewById(R.id.basicNavPlayerContainer);
+            peakView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AudioPlayerActivity.startPlayerActivity(PlaybackActivity.this, false, cover);
+                }
+            });
             peakView.post(new Runnable() {
                 @Override
                 public void run() {
@@ -148,18 +151,18 @@ public class PlaybackActivity extends AppCompatActivity {
     }
 
     public void showPlayback() {
-        if(!isShow) {
+        if (!isShow) {
             bottomSheetBehavior.setPeekHeight(height);
             isShow = true;
-//        peakView.requestLayout();
+            peakView.requestLayout();
         }
     }
 
     public void hidePlayback() {
-        if(isShow) {
+        if (isShow) {
             bottomSheetBehavior.setPeekHeight(0);
             isShow = false;
-//        peakView.requestLayout();
+            peakView.requestLayout();
         }
     }
 
@@ -200,6 +203,7 @@ public class PlaybackActivity extends AppCompatActivity {
                     audioPlayer.isPlaying = isPlaying;
                     playPauseButton.setPlay(audioPlayer.isPlaying);
                     adapter.notifyDataSetChanged();
+                    showPlayback();
                     break;
                 case AudioPlayer.ACTION_CHANGE_CURRENT_AUDIO_FILE:
                     Log.w(TAG, "change current audio file");
@@ -235,8 +239,7 @@ public class PlaybackActivity extends AppCompatActivity {
                 v.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(getAdapterPosition() == -1){
-                            Snackbar.make(getCurrentFocus(), "pos is -1", Snackbar.LENGTH_SHORT);
+                        if (getAdapterPosition() == -1) {
                             return;
                         }
 
@@ -303,12 +306,7 @@ public class PlaybackActivity extends AppCompatActivity {
         public void refreshAdapter(List<AudioFile> receiverAudioFiles) {
             audioFiles.clear();
             audioFiles.addAll(receiverAudioFiles);
-            new Handler().post(new Runnable() {
-                @Override
-                public void run() {
-                    notifyDataSetChanged();
-                }
-            });
+            notifyDataSetChanged();
         }
     }
 }

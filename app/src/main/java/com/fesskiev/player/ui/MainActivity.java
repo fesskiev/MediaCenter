@@ -28,13 +28,14 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
+import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.User;
 import com.fesskiev.player.services.FileTreeIntentService;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.services.RESTService;
+import com.fesskiev.player.ui.about.AboutActivity;
 import com.fesskiev.player.ui.player.PlaybackActivity;
 import com.fesskiev.player.ui.settings.SettingsActivity;
-import com.fesskiev.player.ui.about.AboutActivity;
 import com.fesskiev.player.ui.vk.MusicVKActivity;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.widgets.transformation.CircleTransform;
@@ -198,8 +199,15 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         super.onDestroy();
         unregisterBroadcastReceiver();
         PlaybackService.destroyPlayer(this);
-        MediaApplication.getInstance().getAudioPlayer().isPlaying = false;
+        resetAudioPlayer();
 //        MediaApplication.getInstance().getLruCache().clear();
+    }
+
+    private void resetAudioPlayer() {
+        AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
+        audioPlayer.isPlaying = false;
+        audioPlayer.currentAudioFolder = null;
+        audioPlayer.currentAudioFile = null;
     }
 
     private BroadcastReceiver userProfileReceiver = new BroadcastReceiver() {
