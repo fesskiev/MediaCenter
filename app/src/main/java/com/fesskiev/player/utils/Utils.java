@@ -2,7 +2,6 @@ package com.fesskiev.player.utils;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
@@ -29,16 +28,6 @@ public class Utils {
         return getTimeFromMillisecondsString(seconds * 1000);
     }
 
-
-    public static Bitmap getBitmap(byte[] data) {
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeByteArray(data, 0, data.length, options);
-        options.inSampleSize = calculateInSampleSize(options, 500, 500);
-        options.inJustDecodeBounds = false;
-
-        return BitmapFactory.decodeByteArray(data, 0, data.length, options);
-    }
 
     public static int calculateInSampleSize(
             BitmapFactory.Options options, int reqWidth, int reqHeight) {

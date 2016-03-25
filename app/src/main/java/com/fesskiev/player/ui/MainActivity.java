@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
@@ -38,9 +37,7 @@ import com.fesskiev.player.ui.player.PlaybackActivity;
 import com.fesskiev.player.ui.settings.SettingsActivity;
 import com.fesskiev.player.ui.vk.MusicVKActivity;
 import com.fesskiev.player.utils.AppSettingsManager;
-import com.fesskiev.player.widgets.transformation.CircleTransform;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
+import com.fesskiev.player.utils.BitmapHelper;
 
 
 public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -102,19 +99,15 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     private void setUserInfo() {
-        userPhoto.setImageBitmap(appSettingsManager.getUserPhoto());
+        BitmapHelper.loadBitmapAvatar(this, appSettingsManager.getUserPhoto(), userPhoto);
+
         firstName.setText(appSettingsManager.getUserFirstName());
         lastName.setText(appSettingsManager.getUserLastName());
     }
 
     private void setEmptyUserInfo() {
-        MediaApplication.getInstance().getPicasso().
-                load(R.drawable.icon_no_avatar).
-                placeholder(R.drawable.circle_placeholder).
-                resize(128, 128).
-                transform(new CircleTransform()).
-                centerCrop().
-                into(userPhoto);
+        BitmapHelper.loadEmptyAvatar(this, userPhoto);
+
         firstName.setText(getString(R.string.empty_first_name));
         lastName.setText(getString(R.string.empty_last_name));
     }
@@ -200,7 +193,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         unregisterBroadcastReceiver();
         PlaybackService.destroyPlayer(this);
         resetAudioPlayer();
-//        MediaApplication.getInstance().getLruCache().clear();
     }
 
     private void resetAudioPlayer() {
@@ -213,7 +205,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private BroadcastReceiver userProfileReceiver = new BroadcastReceiver() {
 
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onReceive(final Context context, Intent intent) {
             switch (intent.getAction()) {
                 case RESTService.ACTION_USER_PROFILE_RESULT:
 
@@ -227,29 +219,14 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                         appSettingsManager.setUserFirstName(user.firstName);
                         appSettingsManager.setUserLastName(user.lastName);
 
-                        MediaApplication.getInstance().getPicasso().
-                                load(user.photoUrl).
-                                placeholder(R.drawable.circle_placeholder).
-                                resize(128, 128).
-                                transform(new CircleTransform()).
-                                centerCrop().
-                                into(new Target() {
+                        BitmapHelper.loadURLAvatar(context,
+                                user.photoUrl, userPhoto, new BitmapHelper.OnBitmapLoad() {
                                     @Override
-                                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                                        userPhoto.setImageBitmap(bitmap);
+                                    public void onLoaded(Bitmap bitmap) {
                                         appSettingsManager.saveUserPhoto(bitmap);
                                     }
-
-                                    @Override
-                                    public void onBitmapFailed(Drawable errorDrawable) {
-
-                                    }
-
-                                    @Override
-                                    public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                                    }
                                 });
+
                     }
                     break;
             }

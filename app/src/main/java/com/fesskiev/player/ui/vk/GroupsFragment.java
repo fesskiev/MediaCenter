@@ -20,10 +20,10 @@ import com.fesskiev.player.R;
 import com.fesskiev.player.model.vk.Group;
 import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.utils.AppSettingsManager;
+import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.http.URLHelper;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -168,10 +168,8 @@ public class GroupsFragment extends Fragment {
                 holder.screenName.setText(group.screenName);
                 holder.groupType.setText(group.type);
 
-                Picasso.with(getActivity()).
-                        load(group.photoMediumURL).
-                        resize(256, 256).
-                        into(holder.coverGroup);
+                BitmapHelper.loadURLBitmap(getActivity(), group.photoMediumURL, holder.coverGroup);
+
             }
         }
 

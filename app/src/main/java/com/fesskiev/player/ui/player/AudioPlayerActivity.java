@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -20,16 +19,13 @@ import android.widget.TextView;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioFile;
-import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.equalizer.EqualizerActivity;
+import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton;
 import com.fesskiev.player.widgets.cards.DescriptionCardView;
-import com.squareup.picasso.Picasso;
-
-import java.io.File;
 
 public class AudioPlayerActivity extends AppCompatActivity implements Playable {
 
@@ -199,20 +195,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
     }
 
     private void setBackdropImage() {
-        Bitmap artwork = audioPlayer.currentAudioFile.getArtwork();
-        if (artwork != null) {
-            backdrop.setImageBitmap(artwork);
-        } else {
-            AudioFolder audioFolder = audioPlayer.currentAudioFolder;
-            if (audioFolder != null && audioFolder.folderImages.size() > 0) {
-                File coverFile = audioFolder.folderImages.get(0);
-                if (coverFile != null) {
-                    Picasso.with(this).load(coverFile).into(backdrop);
-                }
-            } else {
-                Picasso.with(this).load(R.drawable.no_cover_icon).into(backdrop);
-            }
-        }
+        BitmapHelper.loadAudioPlayerArtwork(this, audioPlayer, backdrop);
     }
 
     @Override

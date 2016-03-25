@@ -9,8 +9,6 @@ import com.android.volley.toolbox.Volley;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.VideoPlayer;
 import com.fesskiev.player.utils.RecursiveFileObserver;
-import com.squareup.picasso.LruCache;
-import com.squareup.picasso.Picasso;
 import com.vk.sdk.VKSdk;
 
 
@@ -20,8 +18,6 @@ public class MediaApplication extends Application {
     private RequestQueue requestQueue;
     private AudioPlayer audioPlayer;
     private VideoPlayer videoPlayer;
-    private Picasso picasso;
-    private LruCache lruCache;
 
     static {
         System.loadLibrary("khronos-media");
@@ -35,11 +31,6 @@ public class MediaApplication extends Application {
         audioPlayer = new AudioPlayer(getApplicationContext());
         videoPlayer = new VideoPlayer();
         VKSdk.initialize(this);
-
-        lruCache = new LruCache(1024 * 1024 * 60);
-        picasso = new Picasso.Builder(getApplicationContext())
-                .memoryCache(lruCache)
-                .build();
 
 //        createFileObserver();
     }
@@ -88,11 +79,4 @@ public class MediaApplication extends Application {
         return videoPlayer;
     }
 
-    public Picasso getPicasso() {
-        return picasso;
-    }
-
-    public LruCache getLruCache() {
-        return lruCache;
-    }
 }

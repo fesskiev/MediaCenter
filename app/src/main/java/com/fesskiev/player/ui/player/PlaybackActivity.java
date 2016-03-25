@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -24,14 +23,12 @@ import android.widget.TextView;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioFile;
-import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
+import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton;
-import com.squareup.picasso.Picasso;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +47,6 @@ public class PlaybackActivity extends AppCompatActivity {
     private AudioPlayer audioPlayer;
     private int height;
     private boolean isShow;
-    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,12 +65,12 @@ public class PlaybackActivity extends AppCompatActivity {
         durationText = (TextView) findViewById(R.id.duration);
 
 
-        recyclerView = (RecyclerView) findViewById(R.id.trackListControl);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.trackListControl);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new TrackListAdapter();
         recyclerView.setAdapter(adapter);
 
-        AudioFile audioFile = MediaApplication.getInstance().getAudioPlayer().currentAudioFile;
+        AudioFile audioFile = audioPlayer.currentAudioFile;
         if (audioFile != null) {
             setMusicFileInfo(audioFile);
         }
@@ -134,20 +130,8 @@ public class PlaybackActivity extends AppCompatActivity {
         track.setText(audioFile.title);
         artist.setText(audioFile.artist);
 
-        Bitmap artwork = audioFile.getArtwork();
-        if (artwork != null) {
-            cover.setImageBitmap(artwork);
-        } else {
-            AudioFolder audioFolder = MediaApplication.getInstance().getAudioPlayer().currentAudioFolder;
-            if (audioFolder != null && audioFolder.folderImages.size() > 0) {
-                File coverFile = audioFolder.folderImages.get(0);
-                if (coverFile != null) {
-                    Picasso.with(this).load(coverFile).into(cover);
-                }
-            } else {
-                Picasso.with(this).load(R.drawable.no_cover_icon).into(cover);
-            }
-        }
+        BitmapHelper.loadTrackListArtwork(this, audioPlayer.currentAudioFolder, audioFile, cover);
+
     }
 
     public void showPlayback() {

@@ -20,9 +20,9 @@ import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.FileTreeIntentService;
 import com.fesskiev.player.ui.tracklist.TrackListActivity;
+import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,22 +47,22 @@ public class AudioFoldersFragment extends GridFragment {
 
         recyclerView.addOnItemTouchListener(new RecyclerItemTouchClickListener(getActivity(),
                 new RecyclerItemTouchClickListener.OnItemClickListener() {
-            @Override
-            public void onItemClick(View childView, int position) {
-                AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-                AudioFolder audioFolder = audioPlayer.audioFolders.get(position);
-                if (audioFolder != null) {
-                    audioPlayer.currentAudioFolder = audioFolder;
+                    @Override
+                    public void onItemClick(View childView, int position) {
+                        AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
+                        AudioFolder audioFolder = audioPlayer.audioFolders.get(position);
+                        if (audioFolder != null) {
+                            audioPlayer.currentAudioFolder = audioFolder;
 
-                    startActivity(new Intent(getActivity(), TrackListActivity.class));
-                }
-            }
+                            startActivity(new Intent(getActivity(), TrackListActivity.class));
+                        }
+                    }
 
-            @Override
-            public void onItemLongPress(View childView, int position) {
+                    @Override
+                    public void onItemLongPress(View childView, int position) {
 
-            }
-        }));
+                    }
+                }));
     }
 
 
@@ -130,8 +130,8 @@ public class AudioFoldersFragment extends GridFragment {
             public ViewHolder(View v) {
                 super(v);
 
-               albumName = (TextView) v.findViewById(R.id.albumName);
-               cover = (ImageView) v.findViewById(R.id.folderCover);
+                albumName = (TextView) v.findViewById(R.id.albumName);
+                cover = (ImageView) v.findViewById(R.id.folderCover);
             }
         }
 
@@ -146,20 +146,7 @@ public class AudioFoldersFragment extends GridFragment {
         public void onBindViewHolder(ViewHolder holder, int position) {
             AudioFolder audioFolder = audioFolders.get(position);
             if (audioFolder != null) {
-                if (audioFolder.folderImages.size() > 0) {
-                    File coverFile = audioFolder.folderImages.get(0);
-                    if (coverFile != null) {
-                        MediaApplication.getInstance().getPicasso()
-                                .load(coverFile)
-                                .fit()
-                                .into(holder.cover);
-                    }
-                } else {
-                    MediaApplication.getInstance().getPicasso()
-                            .load(R.drawable.no_cover_icon)
-                            .fit()
-                            .into(holder.cover);
-                }
+                BitmapHelper.loadAudioFolderArtwork(getActivity(), audioFolder, holder.cover);
 
                 holder.albumName.setText(audioFolder.folderName);
             }

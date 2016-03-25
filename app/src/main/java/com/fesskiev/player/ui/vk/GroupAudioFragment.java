@@ -18,15 +18,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.vk.Group;
 import com.fesskiev.player.model.vk.GroupPost;
 import com.fesskiev.player.services.RESTService;
+import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.download.DownloadGroupAudioFile;
 import com.fesskiev.player.utils.http.URLHelper;
-import com.fesskiev.player.widgets.MaterialProgressBar;
 import com.fesskiev.player.widgets.GroupPostAudioView;
+import com.fesskiev.player.widgets.MaterialProgressBar;
 import com.fesskiev.player.widgets.recycleview.EndlessScrollListener;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
 
@@ -203,9 +203,8 @@ public class GroupAudioFragment extends Fragment {
 
                 if (groupPost.photo != null) {
                     holder.postCover.setVisibility(View.VISIBLE);
-                    MediaApplication.getInstance().getPicasso().
-                            load(groupPost.photo).fit().
-                            into(holder.postCover);
+
+                    BitmapHelper.loadURLBitmap(getActivity(), groupPost.photo, holder.postCover);
                 } else {
                     holder.postCover.setVisibility(View.GONE);
                 }
@@ -216,7 +215,7 @@ public class GroupAudioFragment extends Fragment {
                     holder.openCloseButton.setVisibility(View.GONE);
                 }
 
-                if(groupPost.openAudioItems){
+                if (groupPost.openAudioItems) {
                     holder.openCloseButton.setImageResource(R.drawable.icon_up);
                     holder.audioCardView.createAudioItems(groupPost.downloadGroupAudioFiles);
                 } else {

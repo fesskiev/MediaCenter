@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -27,12 +26,12 @@ import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.FetchAudioInfoIntentService;
 import com.fesskiev.player.ui.player.AudioPlayerActivity;
+import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.cards.SlidingCardView;
 import com.fesskiev.player.widgets.dialogs.EditTrackDialog;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -214,26 +213,10 @@ public class TrackListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
+
             AudioFile audioFile = audioFiles.get(position);
-                        Bitmap artwork = audioFile.getArtwork();
-            if (artwork != null) {
-                holder.cover.setImageBitmap(artwork);
-            } else {
-                if (audioFolder != null && audioFolder.folderImages.size() > 0) {
-                    File coverFile = audioFolder.folderImages.get(0);
-                    if (coverFile != null) {
-                        MediaApplication.getInstance().getPicasso()
-                                .load(coverFile)
-                                .fit()
-                                .into(holder.cover);
-                    }
-                } else {
-                    MediaApplication.getInstance().getPicasso()
-                            .load(R.drawable.no_cover_icon)
-                            .fit()
-                            .into(holder.cover);
-                }
-            }
+
+            BitmapHelper.loadTrackListArtwork(getActivity(), audioFolder, audioFile, holder.cover);
 
             holder.duration.setText(Utils.getDurationString(audioFile.length));
             holder.title.setText(audioFile.title);

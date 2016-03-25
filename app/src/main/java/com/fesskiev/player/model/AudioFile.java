@@ -1,11 +1,9 @@
 package com.fesskiev.player.model;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.text.TextUtils;
 
 import com.fesskiev.player.R;
-import com.fesskiev.player.utils.Utils;
 
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.AudioHeader;
@@ -39,7 +37,6 @@ public class AudioFile implements Comparable<AudioFile> {
     public String sampleRate;
     public int trackNumber;
     public int length;
-    private Bitmap bitmapArtwork;
     private OnMp3TagListener listener;
 
     public AudioFile(Context context, File filePath, OnMp3TagListener listener) {
@@ -53,19 +50,19 @@ public class AudioFile implements Comparable<AudioFile> {
     private void parseMP3(org.jaudiotagger.audio.AudioFile file) {
         Tag tag = file.getTag();
         if (tag != null && tag.hasCommonFields()) {
-            if(tag.hasField(ID3v24Frames.FRAME_ID_ARTIST)) {
+            if (tag.hasField(ID3v24Frames.FRAME_ID_ARTIST)) {
                 artist = tag.getFirst(ID3v24Frames.FRAME_ID_ARTIST);
             }
-            if(tag.hasField(ID3v24Frames.FRAME_ID_TITLE)) {
+            if (tag.hasField(ID3v24Frames.FRAME_ID_TITLE)) {
                 title = tag.getFirst(ID3v24Frames.FRAME_ID_TITLE);
             }
-            if(tag.hasField(ID3v24Frames.FRAME_ID_ALBUM)) {
+            if (tag.hasField(ID3v24Frames.FRAME_ID_ALBUM)) {
                 album = tag.getFirst(ID3v24Frames.FRAME_ID_ALBUM);
             }
-            if(tag.hasField(ID3v24Frames.FRAME_ID_GENRE)) {
+            if (tag.hasField(ID3v24Frames.FRAME_ID_GENRE)) {
                 genre = tag.getFirst(ID3v24Frames.FRAME_ID_GENRE);
             }
-            if(tag.hasField(ID3v24Frames.FRAME_ID_TRACK)) {
+            if (tag.hasField(ID3v24Frames.FRAME_ID_TRACK)) {
                 String number = tag.getFirst(ID3v24Frames.FRAME_ID_TRACK);
                 if (!number.equals("null") && !TextUtils.isEmpty(number)) {
                     trackNumber = Integer.valueOf(number);
@@ -109,11 +106,8 @@ public class AudioFile implements Comparable<AudioFile> {
         }
     }
 
-    public Bitmap getArtwork() {
-        if (artwork != null && bitmapArtwork == null) {
-            bitmapArtwork =  Utils.getBitmap(artwork.getBinaryData());
-        }
-        return bitmapArtwork;
+    public byte[] getArtworkBinaryData() {
+        return artwork != null ? artwork.getBinaryData() : null;
     }
 
     private void getTrackInfo() {
