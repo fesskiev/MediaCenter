@@ -3,7 +3,7 @@ apply plugin: 'com.android.model.application'
 model {
     android {
         compileSdkVersion = 23
-        buildToolsVersion = "23.0.2"
+        buildToolsVersion = "23.0.3"
 
         defaultConfig.with {
             applicationId = "com.fesskiev.player"
@@ -63,7 +63,6 @@ model {
 
 }
 
-
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile files('libs/jaudiotagger-2.2.5.jar')
@@ -77,5 +76,4 @@ dependencies {
     compile 'com.vk:androidsdk:+'
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'com.android.volley:volley:1.0.0'
-
 }

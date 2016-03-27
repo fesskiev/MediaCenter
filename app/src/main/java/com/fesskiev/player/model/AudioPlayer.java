@@ -4,7 +4,6 @@ package com.fesskiev.player.model;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +29,10 @@ public class AudioPlayer {
         this.volume = 100;
     }
 
+    public void setCurrentAudioFolder(AudioFolder audioFolder) {
+        this.currentAudioFolder = audioFolder;
+        sendBroadcastChangeAudioFolder();
+    }
 
     public void setCurrentAudioFile(AudioFile audioFile) {
         this.currentAudioFile = audioFile;
@@ -40,18 +43,18 @@ public class AudioPlayer {
         if (!lastPosition()) {
             incrementPosition();
         }
-        setCurrentAudioFile(currentAudioFolder.audioFilesDescription.get(position));
+        setCurrentAudioFile(currentAudioFolder.audioFiles.get(position));
     }
 
     public void previous() {
         if (position > 0) {
             decrementPosition();
         }
-        setCurrentAudioFile(currentAudioFolder.audioFilesDescription.get(position));
+        setCurrentAudioFile(currentAudioFolder.audioFiles.get(position));
     }
 
     private boolean lastPosition() {
-        return position == currentAudioFolder.audioFilesDescription.size() - 1;
+        return position == currentAudioFolder.audioFiles.size() - 1;
     }
 
     private void incrementPosition() {
@@ -62,13 +65,13 @@ public class AudioPlayer {
         position--;
     }
 
-    public void sendBroadcastChangeAudioFolder() {
+    private void sendBroadcastChangeAudioFolder() {
         Intent intent = new Intent();
         intent.setAction(ACTION_CHANGE_CURRENT_AUDIO_FOLDER);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 
-    public void sendBroadcastChangeAudioFile() {
+    private void sendBroadcastChangeAudioFile() {
         Intent intent = new Intent();
         intent.setAction(ACTION_CHANGE_CURRENT_AUDIO_FILE);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);

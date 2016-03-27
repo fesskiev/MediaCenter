@@ -18,7 +18,7 @@ import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.VideoFile;
 import com.fesskiev.player.model.VideoPlayer;
-import com.fesskiev.player.services.FileTreeIntentService;
+import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.ui.player.VideoPlayerActivity;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 
@@ -81,7 +81,7 @@ public class VideoFilesFragment extends GridFragment {
 
     private void registerVideoFolderBroadcastReceiver() {
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(FileTreeIntentService.ACTION_VIDEO_FILE);
+        intentFilter.addAction(FileSystemIntentService.ACTION_VIDEO_FILE);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(videoFilesReceiver,
                 intentFilter);
     }
@@ -95,7 +95,7 @@ public class VideoFilesFragment extends GridFragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
-                case FileTreeIntentService.ACTION_VIDEO_FILE:
+                case FileSystemIntentService.ACTION_VIDEO_FILE:
                     List<VideoFile> videoFiles =
                             MediaApplication.getInstance().getVideoPlayer().videoFiles;
                     if (videoFiles != null) {

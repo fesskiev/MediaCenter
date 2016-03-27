@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="150dp"
+    android:layout_margin="@dimen/activity_horizontal_margin"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/fetchInfoContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/fetchFolderName"
+            style="@style/FirstNameTextAppearance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:minLines="2"
+            tools:text="Moderat" />
+
+        <TextView
+            android:id="@+id/fetchAudioName"
+            style="@style/SecondNameTextAppearance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:minLines="2"
+            tools:text="Versions (Live)" />
+
+    </LinearLayout>
+
+
+    <com.fesskiev.player.widgets.MaterialProgressBar
+        android:id="@+id/fetchProgressBar"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_below="@+id/fetchInfoContainer"
+        android:layout_marginTop="10dp"
+        app:backgroundColour="@color/primary"
+        app:duration="2000"
+        app:progressColour="@color/accent" />
+
+</RelativeLayout>

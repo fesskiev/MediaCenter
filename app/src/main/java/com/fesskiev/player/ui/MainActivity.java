@@ -20,6 +20,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -29,7 +30,7 @@ import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.User;
-import com.fesskiev.player.services.FileTreeIntentService;
+import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.ui.about.AboutActivity;
@@ -40,7 +41,8 @@ import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.BitmapHelper;
 
 
-public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener,
+        AudioFoldersFragment.OnAttachFolderFragmentListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -95,6 +97,10 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         } else {
             setEmptyUserInfo();
         }
+    }
+
+    @Override
+    public void onAttachFolderFragment() {
         checkPermission();
     }
 
@@ -237,7 +243,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         if (!checkPermissions()) {
             showPermissionSnackbar();
         } else {
-            FileTreeIntentService.startFileTreeService(this);
+            FileSystemIntentService.startFileTreeService(this);
             PlaybackService.startPlaybackService(this);
         }
     }
@@ -278,7 +284,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         switch (requestCode) {
             case PERMISSION_REQ:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    FileTreeIntentService.startFileTreeService(this);
+                    FileSystemIntentService.startFileTreeService(this);
                     PlaybackService.startPlaybackService(this);
                 } else {
                     finish();
@@ -288,5 +294,4 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
-
 }

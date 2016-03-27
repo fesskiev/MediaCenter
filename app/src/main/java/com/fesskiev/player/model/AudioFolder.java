@@ -1,29 +1,42 @@
 package com.fesskiev.player.model;
 
 
+import android.database.Cursor;
+
+import com.fesskiev.player.db.MediaCenterProvider;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class AudioFolder {
 
-    public List<File> musicFiles;
-    public List<File> folderImages;
-    public List<AudioFile> audioFilesDescription;
+    public String id;
+    public File folderPath;
+    public File folderImage;
+    public List<AudioFile> audioFiles;
     public String folderName;
 
+    public AudioFolder(Cursor cursor) {
+        id = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.ID));
+        folderName = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.FOLDER_NAME));
+        folderPath = new File(cursor.getString(cursor.getColumnIndex(MediaCenterProvider.FOLDER_PATH)));
+
+        String imagePath = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.FOLDER_COVER));
+        folderImage = imagePath != null ? new File(imagePath) : null;
+    }
+
     public AudioFolder() {
-        musicFiles = new ArrayList<>();
-        folderImages = new ArrayList<>();
-        audioFilesDescription = new ArrayList<>();
+        audioFiles = new ArrayList<>();
     }
 
     @Override
     public String toString() {
         return "AudioFolder{" +
-                "musicFiles=" + musicFiles +
-                ", folderImages=" + folderImages +
-                ", audioFilesDescription=" + audioFilesDescription +
+                "id=" + id +
+                ", folderPath=" + folderPath +
+                ", folderImage=" + folderImage +
+                ", audioFiles=" + audioFiles +
                 ", folderName='" + folderName + '\'' +
                 '}';
     }

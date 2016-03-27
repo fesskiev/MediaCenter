@@ -1,15 +1,10 @@
 package com.fesskiev.player.ui.tracklist;
 
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,7 +19,6 @@ import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
-import com.fesskiev.player.services.FetchAudioInfoIntentService;
 import com.fesskiev.player.ui.player.AudioPlayerActivity;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
@@ -70,51 +64,11 @@ public class TrackListFragment extends Fragment {
                 LinearLayoutManager.VERTICAL, false, 1000));
         trackListAdapter = new TrackListAdapter();
         recyclerView.setAdapter(trackListAdapter);
-
-        FetchAudioInfoIntentService.startFetchAudioInfo(getActivity());
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        registerMusicFilesReceiver();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        unregisterMusicFilesReceiver();
-    }
-
-    private void registerMusicFilesReceiver() {
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(FetchAudioInfoIntentService.ACTION_AUDIO_FILE_INFO_RESULT);
-        intentFilter.addAction(FetchAudioInfoIntentService.ACTION_FETCH_AUDIO_INFO_COMPLETED);
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(musicFilesReceiver,
-                intentFilter);
-    }
-
-    private void unregisterMusicFilesReceiver() {
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(musicFilesReceiver);
-    }
-
-    private BroadcastReceiver musicFilesReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case FetchAudioInfoIntentService.ACTION_AUDIO_FILE_INFO_RESULT:
-                    List<AudioFile> receiverAudioFiles = audioPlayer.currentAudioFolder.audioFilesDescription;
-                    if (receiverAudioFiles != null) {
-                        trackListAdapter.refreshAdapter(receiverAudioFiles);
-                    }
-                    break;
-                case FetchAudioInfoIntentService.ACTION_FETCH_AUDIO_INFO_COMPLETED:
-                    audioPlayer.sendBroadcastChangeAudioFolder();
-                    break;
-            }
+        List<AudioFile> receiverAudioFiles = audioPlayer.currentAudioFolder.audioFiles;
+        if (receiverAudioFiles != null) {
+            trackListAdapter.refreshAdapter(receiverAudioFiles);
         }
-    };
+    }
 
     private class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.ViewHolder> {
 
@@ -160,7 +114,7 @@ public class TrackListFragment extends Fragment {
         }
 
         private void startPlayerActivity(int position, View cover) {
-            AudioFile audioFile = audioFolder.audioFilesDescription.get(position);
+            AudioFile audioFile = audioFolder.audioFiles.get(position);
             if (audioFile != null) {
                 audioPlayer.setCurrentAudioFile(audioFile);
                 audioPlayer.position = position;
@@ -170,13 +124,13 @@ public class TrackListFragment extends Fragment {
         }
 
         private void showEditDialog(int position) {
-            AudioFile audioFile = audioFolder.audioFilesDescription.get(position);
+            AudioFile audioFile = audioFolder.audioFiles.get(position);
             EditTrackDialog editTrackDialog = new EditTrackDialog(getActivity(), audioFile);
             editTrackDialog.show();
         }
 
         private void deleteFile(int position) {
-            final AudioFile audioFile = audioFolder.audioFilesDescription.get(position);
+            final AudioFile audioFile = audioFolder.audioFiles.get(position);
             AlertDialog.Builder builder =
                     new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
             builder.setTitle(getString(R.string.dialog_delete_file_title));

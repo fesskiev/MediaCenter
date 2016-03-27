@@ -23,6 +23,7 @@ import com.fesskiev.player.model.vk.Group;
 import com.fesskiev.player.model.vk.GroupPost;
 import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.utils.BitmapHelper;
+import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.utils.download.DownloadGroupAudioFile;
 import com.fesskiev.player.utils.http.URLHelper;
 import com.fesskiev.player.widgets.GroupPostAudioView;
@@ -156,6 +157,7 @@ public class GroupAudioFragment extends Fragment {
             ImageView postCover;
             TextView likes;
             TextView shares;
+            TextView time;
             ImageView openCloseButton;
             GroupPostAudioView audioCardView;
 
@@ -166,6 +168,7 @@ public class GroupAudioFragment extends Fragment {
                 postCover = (ImageView) v.findViewById(R.id.postCover);
                 likes = (TextView) v.findViewById(R.id.likePost);
                 shares = (TextView) v.findViewById(R.id.sharePost);
+                time = (TextView) v.findViewById(R.id.timeText);
                 openCloseButton = (ImageView) v.findViewById(R.id.openCloseButton);
                 openCloseButton.setOnClickListener(this);
                 audioCardView = (GroupPostAudioView) v.findViewById(R.id.groupPostAudioView);
@@ -200,6 +203,7 @@ public class GroupAudioFragment extends Fragment {
                 holder.postText.setText(Html.fromHtml(groupPost.text));
                 holder.likes.setText(String.valueOf(groupPost.likes));
                 holder.shares.setText(String.valueOf(groupPost.reposts));
+                holder.time.setText(Utils.getDateStringFromSeconds(groupPost.date));
 
                 if (groupPost.photo != null) {
                     holder.postCover.setVisibility(View.VISIBLE);

@@ -2,13 +2,15 @@ package com.fesskiev.player.utils;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 
 import com.vk.sdk.util.VKUtil;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 
@@ -16,7 +18,7 @@ public class Utils {
 
     private static final String TAG = Utils.class.getName();
 
-    public static String getTimeFromMillisecondsString(int millis) {
+    public static String getTimeFromMillisecondsString(long millis) {
         return String.format("%02d:%02d",
                 TimeUnit.MILLISECONDS.toMinutes(millis),
                 TimeUnit.MILLISECONDS.toSeconds(millis) -
@@ -24,30 +26,14 @@ public class Utils {
         );
     }
 
+    public static String getDateStringFromSeconds(long seconds){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+        return dateFormat.format(new Date(seconds * 1000));
+    }
+
     public static String getTimeFromSecondsString(int seconds) {
         return getTimeFromMillisecondsString(seconds * 1000);
     }
-
-
-    public static int calculateInSampleSize(
-            BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        if (height > reqHeight || width > reqWidth) {
-
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
-            while ((halfHeight / inSampleSize) > reqHeight
-                    && (halfWidth / inSampleSize) > reqWidth) {
-                inSampleSize *= 2;
-            }
-        }
-
-        return inSampleSize;
-    }
-
 
     public static void getCertificateFingerprint(Context context) {
         String[] fingerprints =

@@ -197,7 +197,7 @@ public class PlaybackActivity extends AppCompatActivity {
                     break;
                 case AudioPlayer.ACTION_CHANGE_CURRENT_AUDIO_FOLDER:
                     Log.w(TAG, "change current audio folder");
-                    adapter.refreshAdapter(audioPlayer.currentAudioFolder.audioFilesDescription);
+                    adapter.refreshAdapter(audioPlayer.currentAudioFolder.audioFiles);
                     showPlayback();
                     break;
             }

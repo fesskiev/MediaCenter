@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -69,8 +70,8 @@ public class BitmapHelper {
             Glide.with(context).load(artworkBinaryData).into(placeholder);
         } else {
             AudioFolder audioFolder = audioPlayer.currentAudioFolder;
-            if (audioFolder != null && audioFolder.folderImages.size() > 0) {
-                File coverFile = audioFolder.folderImages.get(0);
+            if (audioFolder != null) {
+                File coverFile = audioFolder.folderImage;
                 if (coverFile != null) {
                     Glide.with(context).load(coverFile).into(placeholder);
                 }
@@ -85,8 +86,8 @@ public class BitmapHelper {
         if (artworkBinaryData != null) {
             Glide.with(context).load(artworkBinaryData).into(placeholder);
         } else {
-            if (audioFolder != null && audioFolder.folderImages.size() > 0) {
-                File coverFile = audioFolder.folderImages.get(0);
+            if (audioFolder != null) {
+                File coverFile = audioFolder.folderImage;
                 if (coverFile != null) {
                     Glide.with(context).load(coverFile).into(placeholder);
                 }
@@ -97,11 +98,9 @@ public class BitmapHelper {
     }
 
     public static void loadAudioFolderArtwork(Context context, AudioFolder audioFolder, ImageView placeholder) {
-        if (audioFolder.folderImages.size() > 0) {
-            File coverFile = audioFolder.folderImages.get(0);
-            if (coverFile != null) {
-                Glide.with(context).load(coverFile).into(placeholder);
-            }
+        File coverFile = audioFolder.folderImage;
+        if (coverFile != null) {
+            Glide.with(context).load(coverFile).into(placeholder);
         } else {
             Glide.with(context).load(R.drawable.no_cover_icon).into(placeholder);
         }

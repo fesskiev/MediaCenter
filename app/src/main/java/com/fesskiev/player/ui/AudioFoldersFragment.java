@@ -1,6 +1,7 @@
 package com.fesskiev.player.ui;
 
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +9,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +20,8 @@ import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
-import com.fesskiev.player.services.FileTreeIntentService;
+import com.fesskiev.player.services.FileSystemIntentService;
+import com.fesskiev.player.ui.dialogs.FetchAudioFoldersDialog;
 import com.fesskiev.player.ui.tracklist.TrackListActivity;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
@@ -29,16 +32,35 @@ import java.util.List;
 
 public class AudioFoldersFragment extends GridFragment {
 
+    public interface OnAttachFolderFragmentListener{
+        void onAttachFolderFragment();
+    }
+
     private static final String TAG = AudioFoldersFragment.class.getSimpleName();
 
     public static AudioFoldersFragment newInstance() {
         return new AudioFoldersFragment();
     }
 
+    private OnAttachFolderFragmentListener attachFolderFragmentListener;
+    private FetchAudioFoldersDialog audioFoldersDialog;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        attachFolderFragmentListener = (OnAttachFolderFragmentListener)context;
+
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         registerAudioFolderBroadcastReceiver();
+
+        if(attachFolderFragmentListener != null){
+            attachFolderFragmentListener.onAttachFolderFragment();
+        }
     }
 
     @Override
@@ -52,7 +74,7 @@ public class AudioFoldersFragment extends GridFragment {
                         AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
                         AudioFolder audioFolder = audioPlayer.audioFolders.get(position);
                         if (audioFolder != null) {
-                            audioPlayer.currentAudioFolder = audioFolder;
+                            audioPlayer.setCurrentAudioFolder(audioFolder);
 
                             startActivity(new Intent(getActivity(), TrackListActivity.class));
                         }
@@ -74,7 +96,7 @@ public class AudioFoldersFragment extends GridFragment {
 
     @Override
     public void onRefresh() {
-        FileTreeIntentService.startFileTreeService(getActivity());
+        FileSystemIntentService.startFileTreeService(getActivity());
     }
 
 
@@ -86,7 +108,10 @@ public class AudioFoldersFragment extends GridFragment {
 
     private void registerAudioFolderBroadcastReceiver() {
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(FileTreeIntentService.ACTION_AUDIO_FOLDER);
+        intentFilter.addAction(FileSystemIntentService.ACTION_START_FETCH_AUDIO);
+        intentFilter.addAction(FileSystemIntentService.ACTION_END_FETCH_AUDIO);
+        intentFilter.addAction(FileSystemIntentService.ACTION_AUDIO_FOLDER_NAME);
+        intentFilter.addAction(FileSystemIntentService.ACTION_AUDIO_TRACK_NAME);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(audioFolderReceiver,
                 intentFilter);
     }
@@ -100,12 +125,35 @@ public class AudioFoldersFragment extends GridFragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
-                case FileTreeIntentService.ACTION_AUDIO_FOLDER:
+                case FileSystemIntentService.ACTION_START_FETCH_AUDIO:
+                    Log.w(TAG, FileSystemIntentService.ACTION_START_FETCH_AUDIO);
+                    audioFoldersDialog = new FetchAudioFoldersDialog(getActivity());
+                    audioFoldersDialog.show();
+                    break;
+                case FileSystemIntentService.ACTION_END_FETCH_AUDIO:
+                    if(audioFoldersDialog != null) {
+                        audioFoldersDialog.hide();
+                    }
+
                     List<AudioFolder> receiverAudioFolders =
                             MediaApplication.getInstance().getAudioPlayer().audioFolders;
                     if (receiverAudioFolders != null) {
                         ((AudioFoldersAdapter) adapter).refresh(receiverAudioFolders);
                         swipeRefreshLayout.setRefreshing(false);
+                    }
+                    break;
+                case FileSystemIntentService.ACTION_AUDIO_FOLDER_NAME:
+                    String folderName =
+                            intent.getStringExtra(FileSystemIntentService.EXTRA_AUDIO_FOLDER_NAME);
+                    if (audioFoldersDialog != null) {
+                        audioFoldersDialog.setFolderName(folderName);
+                    }
+                    break;
+                case FileSystemIntentService.ACTION_AUDIO_TRACK_NAME:
+                    String trackName =
+                            intent.getStringExtra(FileSystemIntentService.EXTRA_AUDIO_TRACK_NAME);
+                    if (audioFoldersDialog != null) {
+                        audioFoldersDialog.setAudioTrackName(trackName);
                     }
                     break;
             }

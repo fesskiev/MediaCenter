@@ -23,11 +23,11 @@ import java.io.IOException;
 public class AudioFile implements Comparable<AudioFile> {
 
     public interface OnMp3TagListener {
-        void onFetchCompleted();
+        void onFetchCompleted(AudioFile audioFile);
     }
 
     private Context context;
-    public Artwork artwork;
+    public String id;
     public File filePath;
     public String artist;
     public String title;
@@ -35,6 +35,7 @@ public class AudioFile implements Comparable<AudioFile> {
     public String genre;
     public String bitrate;
     public String sampleRate;
+    public byte[] artworkBinaryData;
     public int trackNumber;
     public int length;
     private OnMp3TagListener listener;
@@ -45,7 +46,6 @@ public class AudioFile implements Comparable<AudioFile> {
         this.listener = listener;
         getTrackInfo();
     }
-
 
     private void parseMP3(org.jaudiotagger.audio.AudioFile file) {
         Tag tag = file.getTag();
@@ -68,7 +68,11 @@ public class AudioFile implements Comparable<AudioFile> {
                     trackNumber = Integer.valueOf(number);
                 }
             }
-            artwork = tag.getFirstArtwork();
+
+            Artwork artwork = tag.getFirstArtwork();
+            if (artwork != null) {
+                artworkBinaryData = artwork.getBinaryData();
+            }
         }
 
         fillEmptyFields();
@@ -86,7 +90,12 @@ public class AudioFile implements Comparable<AudioFile> {
             if (!TextUtils.isEmpty(number)) {
                 trackNumber = Integer.valueOf(number);
             }
-            artwork = flacTag.getFirstArtwork();
+
+            Artwork artwork = flacTag.getFirstArtwork();
+            if (artwork != null) {
+                artworkBinaryData = artwork.getBinaryData();
+            }
+
             fillEmptyFields();
         }
     }
@@ -107,7 +116,7 @@ public class AudioFile implements Comparable<AudioFile> {
     }
 
     public byte[] getArtworkBinaryData() {
-        return artwork != null ? artwork.getBinaryData() : null;
+        return artworkBinaryData;
     }
 
     private void getTrackInfo() {
@@ -132,7 +141,7 @@ public class AudioFile implements Comparable<AudioFile> {
             e.printStackTrace();
         }
         if (listener != null) {
-            listener.onFetchCompleted();
+            listener.onFetchCompleted(this);
         }
     }
 

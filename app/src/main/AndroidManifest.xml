@@ -115,14 +115,12 @@
         </activity>
 
         <service
-            android:name=".services.FileTreeIntentService"
+            android:name=".services.FileSystemIntentService"
             android:exported="false" />
         <service
             android:name=".services.PlaybackService"
             android:exported="false" />
-        <service
-            android:name=".services.FetchAudioInfoIntentService"
-            android:exported="false" />
+
         <service
             android:name=".services.RESTService"
             android:exported="false" />
@@ -131,6 +129,11 @@
             android:name="com.vk.sdk.VKServiceActivity"
             android:label="ServiceActivity"
             android:theme="@style/VK.Transparent" />
+
+        <provider
+            android:name=".db.MediaCenterProvider"
+            android:authorities="@string/authority"
+            android:exported="false" />
 
     </application>
 
