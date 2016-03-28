@@ -128,6 +128,7 @@ public class DatabaseHelper {
         dateValues.put(MediaCenterProvider.TRACK_BITRATE, audioFile.bitrate);
         dateValues.put(MediaCenterProvider.TRACK_LENGTH, audioFile.length);
         dateValues.put(MediaCenterProvider.TRACK_NUMBER, audioFile.trackNumber);
+        dateValues.put(MediaCenterProvider.TRACK_SAMPLE_RATE, audioFile.sampleRate);
         dateValues.put(MediaCenterProvider.TRACK_COVER, audioFile.artworkBinaryData);
 
 
