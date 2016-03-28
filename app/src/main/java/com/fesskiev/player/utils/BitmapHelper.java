@@ -74,9 +74,9 @@ public class BitmapHelper {
                 File coverFile = audioFolder.folderImage;
                 if (coverFile != null) {
                     Glide.with(context).load(coverFile).into(placeholder);
+                }else {
+                    Glide.with(context).load(R.drawable.no_cover_icon).into(placeholder);
                 }
-            } else {
-                Glide.with(context).load(R.drawable.no_cover_icon).into(placeholder);
             }
         }
     }
@@ -90,9 +90,9 @@ public class BitmapHelper {
                 File coverFile = audioFolder.folderImage;
                 if (coverFile != null) {
                     Glide.with(context).load(coverFile).into(placeholder);
+                }else {
+                    Glide.with(context).load(R.drawable.no_cover_icon).into(placeholder);
                 }
-            } else {
-                Glide.with(context).load(R.drawable.no_cover_icon).into(placeholder);
             }
         }
     }
