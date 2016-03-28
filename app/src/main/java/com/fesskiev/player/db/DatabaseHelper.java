@@ -28,6 +28,45 @@ public class DatabaseHelper {
         return contain;
     }
 
+    public static boolean containsTrack(Context context, File file) {
+        Cursor cursor = ContentResolverCompat.query(context.getContentResolver(),
+                MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
+                null,
+                MediaCenterProvider.TRACK_PATH + "=" + "'" + file.getAbsolutePath() + "'",
+                null,
+                null,
+                null);
+        boolean contain = cursor.getCount() > 0;
+        cursor.close();
+        return contain;
+    }
+
+    public static String getFolderID(Context context, File file) {
+        Cursor cursor = ContentResolverCompat.query(context.getContentResolver(),
+                MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
+                new String[]{MediaCenterProvider.ID},
+                MediaCenterProvider.TRACK_PATH + "=" + "'" + file.getAbsolutePath() + "'",
+                null,
+                null,
+                null);
+
+        String id = null;
+        if (cursor.getCount() > 0) {
+            cursor.moveToPosition(-1);
+            while (cursor.moveToNext()) {
+                id = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.ID));
+            }
+        }
+        cursor.close();
+        return id;
+    }
+
+    public static void resetDatabase(Context context) {
+        context.getContentResolver().delete( MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI, null, null);
+        context.getContentResolver().delete( MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI, null, null);
+    }
+
+
     public static List<AudioFolder> getAudioFolders(Context context) {
         List<AudioFolder> audioFolders = null;
         Cursor cursor = ContentResolverCompat.query(context.getContentResolver(),

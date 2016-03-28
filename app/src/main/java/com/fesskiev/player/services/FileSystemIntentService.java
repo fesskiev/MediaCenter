@@ -9,7 +9,6 @@ import android.util.Log;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.db.DatabaseHelper;
-import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.VideoFile;
