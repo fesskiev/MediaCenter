@@ -17,7 +17,7 @@ import com.fesskiev.player.widgets.recycleview.HidingScrollListener;
 
 public abstract class GridFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
-    public abstract RecyclerView.Adapter getAdapter();
+    public abstract RecyclerView.Adapter createAdapter();
 
     protected SwipeRefreshLayout swipeRefreshLayout;
     protected RecyclerView.Adapter adapter;
@@ -39,7 +39,7 @@ public abstract class GridFragment extends Fragment implements SwipeRefreshLayou
         recyclerView = (RecyclerView) view.findViewById(R.id.foldersGridView);
         recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.addItemDecoration(new GridDividerDecoration(getActivity()));
-        adapter = getAdapter();
+        adapter = createAdapter();
         recyclerView.setAdapter(adapter);
         recyclerView.addOnScrollListener(new HidingScrollListener() {
             @Override
@@ -66,5 +66,9 @@ public abstract class GridFragment extends Fragment implements SwipeRefreshLayou
         if(audioPlayer.currentAudioFile != null) {
             ((MainActivity) getActivity()).showPlayback();
         }
+    }
+
+    public RecyclerView.Adapter getAdapter() {
+        return adapter;
     }
 }

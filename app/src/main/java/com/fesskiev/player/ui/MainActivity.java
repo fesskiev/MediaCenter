@@ -7,14 +7,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -28,6 +33,8 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
+import com.fesskiev.player.db.MediaCenterProvider;
+import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.User;
 import com.fesskiev.player.services.FileSystemIntentService;
@@ -40,13 +47,18 @@ import com.fesskiev.player.ui.vk.MusicVKActivity;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.BitmapHelper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener,
-        AudioFoldersFragment.OnAttachFolderFragmentListener {
+        AudioFoldersFragment.OnAttachFolderFragmentListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private static final int PERMISSION_REQ = 0;
+    private static final int GET_AUDIO_FOLDERS_LOADER = 1001;
+
     private AppSettingsManager appSettingsManager;
     private Handler handler;
     private ImageView userPhoto;
@@ -243,7 +255,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         if (!checkPermissions()) {
             showPermissionSnackbar();
         } else {
-            FileSystemIntentService.startFileTreeService(this);
+            checkAppFirstStart();
             PlaybackService.startPlaybackService(this);
         }
     }
@@ -255,6 +267,79 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                         this, Manifest.permission.MODIFY_AUDIO_SETTINGS) &&
                 PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(
                         this, Manifest.permission.RECORD_AUDIO);
+    }
+
+    private void checkAppFirstStart() {
+        if (appSettingsManager.isFirstStartApp()) {
+            appSettingsManager.setFirstStartApp();
+            FileSystemIntentService.startFileTreeService(this);
+        } else {
+            getSupportLoaderManager().initLoader(GET_AUDIO_FOLDERS_LOADER, null, this);
+        }
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        switch (id) {
+            case GET_AUDIO_FOLDERS_LOADER:
+                return new CursorLoader(
+                        this,
+                        MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
+                        null,
+                        null,
+                        null,
+                        null
+
+                );
+            default:
+                return null;
+        }
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        if (cursor.getCount() > 0) {
+            List<AudioFolder> audioFolders = new ArrayList<>();
+
+            cursor.moveToPosition(-1);
+            while (cursor.moveToNext()) {
+                AudioFolder audioFolder = new AudioFolder(cursor);
+                audioFolders.add(audioFolder);
+            }
+
+            MediaApplication.getInstance().getAudioPlayer().audioFolders = audioFolders;
+
+            updateAudioFoldersFragment(audioFolders);
+        }
+        cursor.close();
+    }
+
+    private void updateAudioFoldersFragment(final List<AudioFolder> audioFolders) {
+        MainFragment mainFragment = (MainFragment) getSupportFragmentManager().
+                findFragmentByTag(MainFragment.class.getName());
+        if (mainFragment != null) {
+            List<Fragment> registeredFragments = mainFragment.getRegisteredFragments();
+            if (registeredFragments != null) {
+                for (Fragment fragment : registeredFragments) {
+                    if (fragment instanceof AudioFoldersFragment) {
+                        final AudioFoldersFragment audioFoldersFragment = (AudioFoldersFragment) fragment;
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                ((AudioFoldersFragment.AudioFoldersAdapter)
+                                        audioFoldersFragment.getAdapter()).refresh(audioFolders);
+                            }
+                        }, 2000);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
     }
 
     private void showPermissionSnackbar() {
@@ -284,7 +369,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         switch (requestCode) {
             case PERMISSION_REQ:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    FileSystemIntentService.startFileTreeService(this);
+                    checkAppFirstStart();
                     PlaybackService.startPlaybackService(this);
                 } else {
                     finish();

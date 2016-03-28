@@ -1,4 +1,4 @@
-package com.fesskiev.player.ui.dialogs;
+package com.fesskiev.player.widgets.dialogs;
 
 
 import android.content.Context;

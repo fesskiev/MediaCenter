@@ -61,6 +61,9 @@
 
     <string name="shackbar_delete_file">File has been deleted</string>
 
+    <string name="dialog_fetch_audio_folder_name">Searching folders....</string>
+    <string name="dialog_fetch_audio_track_name">Searching tracks....</string>
+
     <string name="action_settings">Settings</string>
 
     <integer name="com_vk_sdk_AppId">5217689</integer>

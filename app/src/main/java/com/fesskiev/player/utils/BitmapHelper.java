@@ -65,7 +65,7 @@ public class BitmapHelper {
     }
 
     public static void loadAudioPlayerArtwork(Context context, AudioPlayer audioPlayer, ImageView placeholder) {
-        byte[] artworkBinaryData = audioPlayer.currentAudioFile.getArtworkBinaryData();
+        byte[] artworkBinaryData = audioPlayer.currentAudioFile.artworkBinaryData;
         if (artworkBinaryData != null) {
             Glide.with(context).load(artworkBinaryData).into(placeholder);
         } else {
@@ -82,7 +82,7 @@ public class BitmapHelper {
     }
 
     public static void loadTrackListArtwork(Context context, AudioFolder audioFolder, AudioFile audioFile, ImageView placeholder) {
-        byte[] artworkBinaryData = audioFile.getArtworkBinaryData();
+        byte[] artworkBinaryData = audioFile.artworkBinaryData;
         if (artworkBinaryData != null) {
             Glide.with(context).load(artworkBinaryData).into(placeholder);
         } else {

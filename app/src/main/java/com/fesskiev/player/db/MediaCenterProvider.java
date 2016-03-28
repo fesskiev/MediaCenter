@@ -63,7 +63,7 @@ public class MediaCenterProvider extends ContentProvider {
     private static final int AUDIO_TRACK_QUERY = 2;
     private static final int INVALID_URI = -1;
 
-    private static final String PRIMARY_KEY_TYPE = "TEXT NOT NULL PRIMARY KEY";
+    private static final String KEY_TYPE = "TEXT NOT NULL";
     private static final String TEXT_TYPE = "TEXT";
     private static final String INTEGER_TYPE = "INTEGER";
     private static final String REAL_TYPE = "REAL";
@@ -74,7 +74,7 @@ public class MediaCenterProvider extends ContentProvider {
     public static final String CREATE_AUDIO_FOLDERS_TABLE_SQL = "CREATE TABLE" + " " +
             AUDIO_FOLDERS_TABLE_NAME + " " +
             "(" + " " +
-            ID + " " + PRIMARY_KEY_TYPE + " ," +
+            ID + " " + KEY_TYPE + " ," +
             FOLDER_PATH + " " + TEXT_TYPE + " ," +
             FOLDER_NAME + " " + TEXT_TYPE + " ," +
             FOLDER_COVER + " " + TEXT_TYPE +
@@ -83,7 +83,7 @@ public class MediaCenterProvider extends ContentProvider {
     public static final String CREATE_AUDIO_TRACKS_TABLE_SQL = "CREATE TABLE" + " " +
             AUDIO_TRACKS_TABLE_NAME + " " +
             "(" + " " +
-            ID + " " + PRIMARY_KEY_TYPE + " ," +
+            ID + " " + KEY_TYPE + " ," +
             TRACK_PATH + " " + TEXT_TYPE + " ," +
             TRACK_ARTIST + " " + TEXT_TYPE + " ," +
             TRACK_TITLE + " " + TEXT_TYPE + " ," +

@@ -2,9 +2,13 @@ package com.fesskiev.player.ui.tracklist;
 
 
 import android.content.DialogInterface;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,6 +20,7 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
+import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
@@ -30,9 +35,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class TrackListFragment extends Fragment {
+public class TrackListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = TrackListFragment.class.getSimpleName();
+
+    private static final int GET_AUDIO_FILES_LOADER = 1002;
 
     private TrackListAdapter trackListAdapter;
     private AudioFolder audioFolder;
@@ -68,6 +75,48 @@ public class TrackListFragment extends Fragment {
         if (receiverAudioFiles != null) {
             trackListAdapter.refreshAdapter(receiverAudioFiles);
         }
+
+        getActivity().getSupportLoaderManager().initLoader(GET_AUDIO_FILES_LOADER, null, this);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        switch (id) {
+            case GET_AUDIO_FILES_LOADER:
+                return new CursorLoader(
+                        getActivity(),
+                        MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
+                        null,
+                        MediaCenterProvider.ID + "=" + "'" + audioFolder.id + "'",
+                        null,
+                        null
+
+                );
+            default:
+                return null;
+
+        }
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        if (cursor.getCount() > 0) {
+            List<AudioFile> audioFiles = new ArrayList<>();
+            cursor.moveToFirst();
+            while (cursor.moveToNext()) {
+                AudioFile audioFile = new AudioFile(cursor);
+                audioFiles.add(audioFile);
+            }
+            audioFolder.audioFiles = audioFiles;
+            audioPlayer.sendBroadcastChangeAudioFolder();
+            trackListAdapter.refreshAdapter(audioFiles);
+        }
+        cursor.close();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
     }
 
     private class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.ViewHolder> {

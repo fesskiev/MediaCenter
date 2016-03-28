@@ -29,10 +29,6 @@ public class AudioPlayer {
         this.volume = 100;
     }
 
-    public void setCurrentAudioFolder(AudioFolder audioFolder) {
-        this.currentAudioFolder = audioFolder;
-        sendBroadcastChangeAudioFolder();
-    }
 
     public void setCurrentAudioFile(AudioFile audioFile) {
         this.currentAudioFile = audioFile;
@@ -65,7 +61,7 @@ public class AudioPlayer {
         position--;
     }
 
-    private void sendBroadcastChangeAudioFolder() {
+    public void sendBroadcastChangeAudioFolder() {
         Intent intent = new Intent();
         intent.setAction(ACTION_CHANGE_CURRENT_AUDIO_FOLDER);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);

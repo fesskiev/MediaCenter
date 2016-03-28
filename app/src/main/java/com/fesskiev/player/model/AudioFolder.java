@@ -18,6 +18,7 @@ public class AudioFolder {
     public String folderName;
 
     public AudioFolder(Cursor cursor) {
+        audioFiles = new ArrayList<>();
         id = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.ID));
         folderName = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.FOLDER_NAME));
         folderPath = new File(cursor.getString(cursor.getColumnIndex(MediaCenterProvider.FOLDER_PATH)));

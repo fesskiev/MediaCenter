@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="150dp"
     android:layout_margin="@dimen/activity_horizontal_margin"
@@ -21,7 +20,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:minLines="2"
-            tools:text="Moderat" />
+            android:text="@string/dialog_fetch_audio_folder_name" />
 
         <TextView
             android:id="@+id/fetchAudioName"
@@ -30,7 +29,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:minLines="2"
-            tools:text="Versions (Live)" />
+            android:text="@string/dialog_fetch_audio_track_name" />
 
     </LinearLayout>
 
@@ -38,7 +37,7 @@
     <com.fesskiev.player.widgets.MaterialProgressBar
         android:id="@+id/fetchProgressBar"
         android:layout_width="match_parent"
-        android:layout_height="8dp"
+        android:layout_height="6dp"
         android:layout_below="@+id/fetchInfoContainer"
         android:layout_marginTop="10dp"
         app:backgroundColour="@color/primary"

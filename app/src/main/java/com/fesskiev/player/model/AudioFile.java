@@ -1,9 +1,11 @@
 package com.fesskiev.player.model;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.text.TextUtils;
 
 import com.fesskiev.player.R;
+import com.fesskiev.player.db.MediaCenterProvider;
 
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.AudioHeader;
@@ -13,12 +15,14 @@ import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagException;
+import org.jaudiotagger.tag.TagOptionSingleton;
 import org.jaudiotagger.tag.flac.FlacTag;
 import org.jaudiotagger.tag.id3.ID3v24Frames;
 import org.jaudiotagger.tag.images.Artwork;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 public class AudioFile implements Comparable<AudioFile> {
 
@@ -45,6 +49,21 @@ public class AudioFile implements Comparable<AudioFile> {
         this.filePath = filePath;
         this.listener = listener;
         getTrackInfo();
+    }
+
+    public AudioFile(Cursor cursor) {
+        id = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.ID));
+        filePath = new File(cursor.getString(cursor.getColumnIndex(MediaCenterProvider.TRACK_PATH)));
+        artist = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.TRACK_ARTIST));
+        title = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.TRACK_TITLE));
+        album = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.TRACK_ALBUM));
+        genre = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.TRACK_GENRE));
+        bitrate = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.TRACK_BITRATE));
+        sampleRate = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.TRACK_SAMPLE_RATE));
+        artworkBinaryData = cursor.getBlob(cursor.getColumnIndex(MediaCenterProvider.TRACK_COVER));
+        trackNumber = cursor.getInt(cursor.getColumnIndex(MediaCenterProvider.TRACK_NUMBER));
+        length = cursor.getInt(cursor.getColumnIndex(MediaCenterProvider.TRACK_LENGTH));
+
     }
 
     private void parseMP3(org.jaudiotagger.audio.AudioFile file) {
@@ -115,15 +134,13 @@ public class AudioFile implements Comparable<AudioFile> {
         }
     }
 
-    public byte[] getArtworkBinaryData() {
-        return artworkBinaryData;
-    }
-
     private void getTrackInfo() {
         try {
 
+            TagOptionSingleton.getInstance().setAndroid(true);
             org.jaudiotagger.audio.AudioFile file = AudioFileIO.read(filePath.getAbsoluteFile());
             AudioHeader audioHeader = file.getAudioHeader();
+
 
             bitrate = audioHeader.getBitRate() + " kbps "
                     + (audioHeader.isVariableBitRate() ? "(VBR)" : "(CBR)");
@@ -179,13 +196,15 @@ public class AudioFile implements Comparable<AudioFile> {
     @Override
     public String toString() {
         return "AudioFile{" +
-                "filePath='" + filePath + '\'' +
+                "id='" + id + '\'' +
+                ", filePath=" + filePath +
                 ", artist='" + artist + '\'' +
                 ", title='" + title + '\'' +
                 ", album='" + album + '\'' +
                 ", genre='" + genre + '\'' +
                 ", bitrate='" + bitrate + '\'' +
                 ", sampleRate='" + sampleRate + '\'' +
+                ", artworkBinaryData=" + Arrays.toString(artworkBinaryData) +
                 ", trackNumber=" + trackNumber +
                 ", length=" + length +
                 '}';

@@ -21,6 +21,7 @@ public class AppSettingsManager {
     private static final String KEY_USER_ID = "com.fesskiev.player.SAVE_STATE_KEY_USER_ID";
     private static final String KEY_USER_FIRST_NAME = "com.fesskiev.player.KEY_USER_FIRST_NAME";
     private static final String KEY_USER_LAST_NAME = "com.fesskiev.player.KEY_USER_LAST_NAME";
+    private static final String KEY_FIRST_START_APP = "com.fesskiev.player.KEY_FIRST_START_APP";
 
     private SharedPreferences sharedPreferences;
     private static AppSettingsManager appSettingsManager;
@@ -36,6 +37,17 @@ public class AppSettingsManager {
             appSettingsManager = new AppSettingsManager(context);
         }
         return appSettingsManager;
+    }
+
+
+    public boolean isFirstStartApp() {
+        return sharedPreferences.getBoolean(KEY_FIRST_START_APP, true);
+    }
+
+    public void setFirstStartApp() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_FIRST_START_APP, false);
+        editor.apply();
     }
 
 

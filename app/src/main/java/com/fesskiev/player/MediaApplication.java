@@ -7,8 +7,6 @@ import android.util.Log;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
-import com.fesskiev.player.db.DatabaseHelper;
-import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.VideoPlayer;
 import com.fesskiev.player.utils.RecursiveFileObserver;

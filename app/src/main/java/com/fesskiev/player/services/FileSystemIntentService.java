@@ -56,8 +56,6 @@ public class FileSystemIntentService extends IntentService {
             final String action = intent.getAction();
             Log.d(TAG, "HANDLE INTENT: " + action);
             if (ACTION_START_FILE_SYSTEM_SERVICE.equals(action)) {
-//                DatabaseHelper.getAudioFolders(getApplicationContext());
-
                 getMusicFolders();
             }
         }
@@ -115,6 +113,10 @@ public class FileSystemIntentService extends IntentService {
             for (File directoryFile : directoryFiles) {
                 File[] filterFiles = directoryFile.listFiles(audioFilter());
                 if (filterFiles != null && filterFiles.length > 0) {
+                    if(DatabaseHelper.containsFolder(getApplicationContext(), directoryFile)){
+                        Log.d(TAG, "contains folder: " + directoryFile.getAbsolutePath());
+                        continue;
+                    }
                     AudioFolder audioFolder = new AudioFolder();
 
                     audioFolder.folderPath = directoryFile;
@@ -140,8 +142,7 @@ public class FileSystemIntentService extends IntentService {
                         audioFolder.folderImage = filterImages[0];
                     }
 
-//                    DatabaseHelper.insertAudioFolder(getApplicationContext(), audioFolder);
-
+                    DatabaseHelper.insertAudioFolder(getApplicationContext(), audioFolder);
 
                     MediaApplication.getInstance().getAudioPlayer().audioFolders.add(audioFolder);
                 }
@@ -165,11 +166,14 @@ public class FileSystemIntentService extends IntentService {
         @Override
         public void run() {
 
-            AudioFile audioFile = new AudioFile(getApplicationContext(), file,
+            final AudioFile audioFile = new AudioFile(getApplicationContext(), file,
                     new AudioFile.OnMp3TagListener() {
                         @Override
                         public void onFetchCompleted(AudioFile file) {
                             file.id = audioFolder.id;
+
+                            DatabaseHelper.insertAudioFile(getApplicationContext(), file);
+
                             sendAudioTrackNameBroadcast(file.artist + "-" + file.title);
                             latch.countDown();
 

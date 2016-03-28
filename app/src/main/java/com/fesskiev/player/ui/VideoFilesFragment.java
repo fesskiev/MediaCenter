@@ -64,7 +64,7 @@ public class VideoFilesFragment extends GridFragment {
     }
 
     @Override
-    public RecyclerView.Adapter getAdapter() {
+    public RecyclerView.Adapter createAdapter() {
         return new VideoFilesAdapter();
     }
 
