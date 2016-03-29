@@ -47,6 +47,7 @@ import com.fesskiev.player.ui.settings.SettingsActivity;
 import com.fesskiev.player.ui.vk.MusicVKActivity;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.BitmapHelper;
+import com.fesskiev.player.utils.CacheConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -272,9 +273,16 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                         this, Manifest.permission.RECORD_AUDIO);
     }
 
+    private void saveDownloadFolderIcon(){
+        BitmapHelper.saveBitmap(
+                BitmapHelper.getBitmapFromResource(getApplicationContext(), R.drawable.icon_folder_download),
+                CacheConstants.getDownloadFolderIconPath());
+    }
+
     private void checkAppFirstStart() {
         if (appSettingsManager.isFirstStartApp()) {
             appSettingsManager.setFirstStartApp();
+            saveDownloadFolderIcon();
             FileSystemIntentService.startFileTreeService(this);
         } else {
             getSupportLoaderManager().initLoader(GET_AUDIO_FOLDERS_LOADER, null, this);

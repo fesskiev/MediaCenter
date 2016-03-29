@@ -3,6 +3,7 @@ package com.fesskiev.player.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.util.Log;
@@ -16,6 +17,8 @@ import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class BitmapHelper {
 
@@ -104,5 +107,33 @@ public class BitmapHelper {
         } else {
             Glide.with(context).load(R.drawable.no_cover_icon).into(placeholder);
         }
+    }
+
+    public static void saveBitmap(Bitmap bitmap, File path){
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(path);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static Bitmap getBitmapFromPath(String path){
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        return BitmapFactory.decodeFile(path, options);
+    }
+
+    public static Bitmap getBitmapFromResource(Context context, int resource){
+        return BitmapFactory.decodeResource(context.getResources(), resource);
     }
 }

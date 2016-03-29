@@ -4,14 +4,7 @@ package com.fesskiev.player.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Environment;
 import android.text.TextUtils;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 
 public class AppSettingsManager {
 
@@ -106,38 +99,13 @@ public class AppSettingsManager {
         return TextUtils.isEmpty(getAuthToken());
     }
 
-    private String getUserPhotoPath() {
-        String externalStorage = Environment.getExternalStorageDirectory().toString();
-        File folder = new File(externalStorage + "/MediaCenter/UserPhoto/");
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
-
-        return new File(folder.getAbsolutePath(), "user_photo.png").getAbsolutePath();
-    }
 
     public void saveUserPhoto(Bitmap bitmap) {
-        FileOutputStream out = null;
-        try {
-            out = new FileOutputStream(getUserPhotoPath());
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        BitmapHelper.saveBitmap(bitmap, CacheConstants.getUserPhotoPath());
     }
 
     public Bitmap getUserPhoto() {
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-        return BitmapFactory.decodeFile(getUserPhotoPath(), options);
+        return BitmapHelper.getBitmapFromPath(CacheConstants.getUserPhotoPath().getAbsolutePath());
     }
 }
 

@@ -1,7 +1,8 @@
 package com.fesskiev.player.utils.download;
 
 
-import android.os.Environment;
+
+import com.fesskiev.player.utils.CacheConstants;
 
 import java.io.File;
 import java.io.InputStream;
@@ -96,18 +97,8 @@ public class DownloadManager implements Runnable {
     }
 
 
-    private File getFilePath() {
-        String externalStorage = Environment.getExternalStorageDirectory().toString();
-        File folder = new File(externalStorage + "/MediaCenter/Downloads/");
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
-
-        return new File(folder.getAbsolutePath(), fileName + ".mp3");
-    }
-
     public boolean removeFile(){
-        return getFilePath().delete();
+        return CacheConstants.getDownloadsFilePath(fileName).delete();
     }
 
     private void stateChanged() {
@@ -149,7 +140,7 @@ public class DownloadManager implements Runnable {
                 size = contentLength;
             }
 
-            file = new RandomAccessFile(getFilePath(), "rw");
+            file = new RandomAccessFile(CacheConstants.getDownloadsFilePath(fileName), "rw");
             file.seek(downloaded);
 
             stream = connection.getInputStream();
