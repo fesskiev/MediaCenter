@@ -20,10 +20,11 @@ import com.fesskiev.player.R;
 import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
+import com.fesskiev.player.services.FileObserverService;
 import com.fesskiev.player.services.FileSystemIntentService;
-import com.fesskiev.player.widgets.dialogs.FetchAudioFoldersDialog;
 import com.fesskiev.player.ui.tracklist.TrackListActivity;
 import com.fesskiev.player.utils.BitmapHelper;
+import com.fesskiev.player.widgets.dialogs.FetchAudioFoldersDialog;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 
 import java.util.ArrayList;
@@ -95,7 +96,7 @@ public class AudioFoldersFragment extends GridFragment {
 
     @Override
     public void onRefresh() {
-        DatabaseHelper.resetDatabase(getActivity());
+        DatabaseHelper.getInstance().resetDatabase(getActivity());
         FileSystemIntentService.startFileTreeService(getActivity());
     }
 
@@ -141,6 +142,9 @@ public class AudioFoldersFragment extends GridFragment {
                         ((AudioFoldersAdapter) adapter).refresh(receiverAudioFolders);
                     }
                     swipeRefreshLayout.setRefreshing(false);
+
+                    FileObserverService.startFileObserverService(getActivity());
+
                     break;
                 case FileSystemIntentService.ACTION_AUDIO_FOLDER_NAME:
                     String folderName =

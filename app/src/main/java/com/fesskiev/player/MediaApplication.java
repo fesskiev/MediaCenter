@@ -1,15 +1,12 @@
 package com.fesskiev.player;
 
 import android.app.Application;
-import android.os.Environment;
-import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.VideoPlayer;
-import com.fesskiev.player.utils.RecursiveFileObserver;
 import com.vk.sdk.VKSdk;
 
 
@@ -32,20 +29,9 @@ public class MediaApplication extends Application {
         audioPlayer = new AudioPlayer(getApplicationContext());
         videoPlayer = new VideoPlayer();
         VKSdk.initialize(this);
-
-//        createFileObserver();
     }
 
-    private void createFileObserver() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                RecursiveFileObserver fileObserver =
-                        new RecursiveFileObserver(Environment.getExternalStorageDirectory().toString());
-                fileObserver.startWatching();
-            }
-        }).start();
-    }
+
 
     public static synchronized MediaApplication getInstance() {
         return application;

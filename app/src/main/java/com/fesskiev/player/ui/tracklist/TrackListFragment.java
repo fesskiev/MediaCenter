@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
+import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
@@ -89,7 +90,7 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
                         null,
                         MediaCenterProvider.ID + "=" + "'" + audioFolder.id + "'",
                         null,
-                        null
+                        MediaCenterProvider.TRACK_NUMBER + " ASC"
 
                 );
             default:
@@ -102,7 +103,7 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         if (cursor.getCount() > 0) {
             List<AudioFile> audioFiles = new ArrayList<>();
-            cursor.moveToFirst();
+            cursor.moveToPosition(-1);
             while (cursor.moveToNext()) {
                 AudioFile audioFile = new AudioFile(cursor);
                 audioFiles.add(audioFile);
@@ -151,6 +152,7 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
 
                             @Override
                             public void onEditClick() {
+
                                 showEditDialog(getAdapterPosition());
                             }
 
@@ -178,7 +180,7 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
             editTrackDialog.show();
         }
 
-        private void deleteFile(int position) {
+        private void deleteFile(final int position) {
             final AudioFile audioFile = audioFolder.audioFiles.get(position);
             AlertDialog.Builder builder =
                     new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
@@ -191,8 +193,12 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
                             if (audioFile.filePath.delete()) {
                                 Snackbar.make(getView(),
                                         getString(R.string.shackbar_delete_file), Snackbar.LENGTH_LONG).show();
-                                trackListAdapter.audioFiles.remove(audioFile);
-                                trackListAdapter.notifyDataSetChanged();
+
+                                DatabaseHelper.getInstance().deleteAudioFile(getContext(),
+                                        audioFile.filePath.getAbsolutePath());
+
+                                trackListAdapter.removeItem(position);
+
                             }
                         }
                     });
@@ -235,6 +241,11 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
             audioFiles.clear();
             audioFiles.addAll(receiverAudioFiles);
             notifyDataSetChanged();
+        }
+
+        public void removeItem(int position){
+            audioFiles.remove(position);
+            notifyItemRemoved(position);
         }
     }
 }

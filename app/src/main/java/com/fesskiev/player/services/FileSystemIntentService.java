@@ -112,10 +112,7 @@ public class FileSystemIntentService extends IntentService {
             for (File directoryFile : directoryFiles) {
                 File[] filterFiles = directoryFile.listFiles(audioFilter());
                 if (filterFiles != null && filterFiles.length > 0) {
-                    if(DatabaseHelper.containsFolder(getApplicationContext(), directoryFile)){
-                        Log.d(TAG, "contains folder: " + directoryFile.getAbsolutePath());
-                        continue;
-                    }
+
                     AudioFolder audioFolder = new AudioFolder();
 
                     audioFolder.folderPath = directoryFile;

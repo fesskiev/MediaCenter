@@ -1,11 +1,10 @@
-package com.fesskiev.player.utils;
+package com.fesskiev.player.utils.fileobserver;
 
 
 import android.os.FileObserver;
 import android.util.Log;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -17,7 +16,7 @@ public class RecursiveFileObserver extends FileObserver {
     private int mask;
 
     public RecursiveFileObserver(String path) {
-        this(path, ALL_EVENTS);
+        this(path,  DELETE | CREATE | DELETE_SELF );
     }
 
     public RecursiveFileObserver(String path, int mask) {
@@ -44,10 +43,7 @@ public class RecursiveFileObserver extends FileObserver {
                 continue;
             }
             for (int i = 0; i < files.length; ++i) {
-                if (files[i].isDirectory() && !files[i].getName().equals(".")
-                        && !files[i].getName().equals("..")) {
-                    stack.push(files[i].getPath());
-                }
+                stack.push(files[i].getPath());
             }
         }
 
@@ -71,17 +67,16 @@ public class RecursiveFileObserver extends FileObserver {
 
     @Override
     public void onEvent(int event, String path) {
-        Log.d("observer", "path: " + path);
-        event &= FileObserver.ALL_EVENTS;
         switch (event) {
             case FileObserver.DELETE_SELF:
-                Log.d("observer", "delete self");
+                Log.d("observer", "delete self: " + path);
                 break;
             case FileObserver.CREATE:
-                Log.d("observer", "event create");
+                Log.d("observer", "event create: "  + path);
                 break;
             case FileObserver.DELETE:
-                Log.d("observer", "event delete");
+                Log.d("observer", "event delete: "  + path);
+
                 break;
         }
     }
@@ -95,9 +90,8 @@ public class RecursiveFileObserver extends FileObserver {
         }
 
         @Override
-        public void onEvent(int event, String path) {
-            String newPath = this.path + "/" + path;
-            RecursiveFileObserver.this.onEvent(event, newPath);
+        public void onEvent(int event, String p) {
+            RecursiveFileObserver.this.onEvent(event, path);
         }
     }
 }

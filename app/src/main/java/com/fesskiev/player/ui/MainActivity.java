@@ -37,6 +37,7 @@ import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.User;
+import com.fesskiev.player.services.FileObserverService;
 import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.services.RESTService;
@@ -211,6 +212,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         unregisterBroadcastReceiver();
         PlaybackService.destroyPlayer(this);
         resetAudioPlayer();
+        FileObserverService.stopFileObserverService(this);
     }
 
     private void resetAudioPlayer() {
@@ -257,6 +259,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         } else {
             checkAppFirstStart();
             PlaybackService.startPlaybackService(this);
+
         }
     }
 
@@ -312,6 +315,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             updateAudioFoldersFragment(audioFolders);
         }
         cursor.close();
+
+        FileObserverService.startFileObserverService(this);
     }
 
     private void updateAudioFoldersFragment(final List<AudioFolder> audioFolders) {
