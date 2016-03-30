@@ -2,10 +2,14 @@ package com.fesskiev.player.model;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.fesskiev.player.R;
 import com.fesskiev.player.db.MediaCenterProvider;
+import com.fesskiev.player.utils.BitmapHelper;
+import com.fesskiev.player.utils.CacheConstants;
 
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.AudioHeader;
@@ -23,6 +27,7 @@ import org.jaudiotagger.tag.images.Artwork;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.UUID;
 
 public class AudioFile implements Comparable<AudioFile> {
 
@@ -39,7 +44,7 @@ public class AudioFile implements Comparable<AudioFile> {
     public String genre;
     public String bitrate;
     public String sampleRate;
-    public byte[] artworkBinaryData;
+    public String artworkPath;
     public int trackNumber;
     public int length;
     private OnMp3TagListener listener;
@@ -52,6 +57,7 @@ public class AudioFile implements Comparable<AudioFile> {
     }
 
     public AudioFile(Cursor cursor) {
+
         id = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.ID));
         filePath = new File(cursor.getString(cursor.getColumnIndex(MediaCenterProvider.TRACK_PATH)));
         artist = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.TRACK_ARTIST));
@@ -60,7 +66,7 @@ public class AudioFile implements Comparable<AudioFile> {
         genre = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.TRACK_GENRE));
         bitrate = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.TRACK_BITRATE));
         sampleRate = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.TRACK_SAMPLE_RATE));
-        artworkBinaryData = cursor.getBlob(cursor.getColumnIndex(MediaCenterProvider.TRACK_COVER));
+        artworkPath = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.TRACK_COVER));
         trackNumber = cursor.getInt(cursor.getColumnIndex(MediaCenterProvider.TRACK_NUMBER));
         length = cursor.getInt(cursor.getColumnIndex(MediaCenterProvider.TRACK_LENGTH));
 
@@ -88,10 +94,7 @@ public class AudioFile implements Comparable<AudioFile> {
                 }
             }
 
-            Artwork artwork = tag.getFirstArtwork();
-            if (artwork != null) {
-                artworkBinaryData = artwork.getBinaryData();
-            }
+            saveArtwork(tag);
         }
 
         fillEmptyFields();
@@ -110,12 +113,27 @@ public class AudioFile implements Comparable<AudioFile> {
                 trackNumber = Integer.valueOf(number);
             }
 
-            Artwork artwork = flacTag.getFirstArtwork();
-            if (artwork != null) {
-                artworkBinaryData = artwork.getBinaryData();
-            }
+            saveArtwork(flacTag);
 
             fillEmptyFields();
+        }
+    }
+
+    private void saveArtwork(Tag tag) {
+        Artwork artwork = tag.getFirstArtwork();
+        if (artwork != null) {
+            try {
+
+               File path = File.createTempFile(UUID.randomUUID().toString(),
+                        ".png", new File(CacheConstants.IMAGES_CACHE_PATH));
+
+                BitmapHelper.saveBitmap(artwork.getBinaryData(), path);
+
+                artworkPath = path.getAbsolutePath();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -205,7 +223,7 @@ public class AudioFile implements Comparable<AudioFile> {
                 ", genre='" + genre + '\'' +
                 ", bitrate='" + bitrate + '\'' +
                 ", sampleRate='" + sampleRate + '\'' +
-                ", artworkBinaryData=" + Arrays.toString(artworkBinaryData) +
+                ", artworkBinaryData=" + artworkPath +
                 ", trackNumber=" + trackNumber +
                 ", length=" + length +
                 '}';

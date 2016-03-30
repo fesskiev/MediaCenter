@@ -10,7 +10,7 @@ public class CacheConstants {
     private final static String EXTERNAL_STORAGE = Environment.getExternalStorageDirectory().toString();
     private final static String DOWNLOADS_FOLDER_PATH = EXTERNAL_STORAGE + "/MediaCenter/Downloads/";
     private final static String USER_PHOTO_PATH = EXTERNAL_STORAGE + "/MediaCenter/UserPhoto/";
-    private final static String IMAGES_CACHE_PATH = EXTERNAL_STORAGE + "/MediaCenter/Images/";
+    public final static String IMAGES_CACHE_PATH = EXTERNAL_STORAGE + "/MediaCenter/Images/";
     public final static String CHECK_DOWNLOADS_FOLDER_PATH = EXTERNAL_STORAGE + "/MediaCenter/Downloads";
 
     public static File getUserPhotoPath() {

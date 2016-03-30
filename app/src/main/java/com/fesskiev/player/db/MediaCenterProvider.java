@@ -67,8 +67,6 @@ public class MediaCenterProvider extends ContentProvider {
     private static final String TEXT_TYPE = "TEXT";
     private static final String INTEGER_TYPE = "INTEGER";
     private static final String REAL_TYPE = "REAL";
-    private static final String BLOB_TYPE = "BLOB";
-
 
 
     public static final String CREATE_AUDIO_FOLDERS_TABLE_SQL = "CREATE TABLE" + " " +
@@ -93,7 +91,7 @@ public class MediaCenterProvider extends ContentProvider {
             TRACK_SAMPLE_RATE + " " + INTEGER_TYPE + " ," +
             TRACK_NUMBER + " " + INTEGER_TYPE + " ," +
             TRACK_LENGTH + " " + REAL_TYPE + " ," +
-            TRACK_COVER + " " + BLOB_TYPE +
+            TRACK_COVER + " " + TEXT_TYPE +
             ")";
 
     private SQLiteOpenHelper helper;

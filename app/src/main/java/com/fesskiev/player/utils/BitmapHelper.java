@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
-import android.util.Log;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -68,16 +67,16 @@ public class BitmapHelper {
     }
 
     public static void loadAudioPlayerArtwork(Context context, AudioPlayer audioPlayer, ImageView placeholder) {
-        byte[] artworkBinaryData = audioPlayer.currentAudioFile.artworkBinaryData;
-        if (artworkBinaryData != null) {
-            Glide.with(context).load(artworkBinaryData).into(placeholder);
+        String artworkPath = audioPlayer.currentAudioFile.artworkPath;
+        if (artworkPath != null) {
+            Glide.with(context).load(artworkPath).into(placeholder);
         } else {
             AudioFolder audioFolder = audioPlayer.currentAudioFolder;
             if (audioFolder != null) {
                 File coverFile = audioFolder.folderImage;
                 if (coverFile != null) {
                     Glide.with(context).load(coverFile).into(placeholder);
-                }else {
+                } else {
                     Glide.with(context).load(R.drawable.no_cover_icon).into(placeholder);
                 }
             }
@@ -85,15 +84,15 @@ public class BitmapHelper {
     }
 
     public static void loadTrackListArtwork(Context context, AudioFolder audioFolder, AudioFile audioFile, ImageView placeholder) {
-        byte[] artworkBinaryData = audioFile.artworkBinaryData;
-        if (artworkBinaryData != null) {
-            Glide.with(context).load(artworkBinaryData).into(placeholder);
+        String artworkPath = audioFile.artworkPath;
+        if (artworkPath != null) {
+            Glide.with(context).load(artworkPath).into(placeholder);
         } else {
             if (audioFolder != null) {
                 File coverFile = audioFolder.folderImage;
                 if (coverFile != null) {
                     Glide.with(context).load(coverFile).into(placeholder);
-                }else {
+                } else {
                     Glide.with(context).load(R.drawable.no_cover_icon).into(placeholder);
                 }
             }
@@ -109,7 +108,7 @@ public class BitmapHelper {
         }
     }
 
-    public static void saveBitmap(Bitmap bitmap, File path){
+    public static void saveBitmap(Bitmap bitmap, File path) {
         FileOutputStream out = null;
         try {
             out = new FileOutputStream(path);
@@ -127,13 +126,35 @@ public class BitmapHelper {
         }
     }
 
-    public static Bitmap getBitmapFromPath(String path){
+    public static void saveBitmap(byte[] data, File path) {
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(path);
+            out.write(data);
+            out.flush();
+            out.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static Bitmap getBitmapFromPath(String path) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         return BitmapFactory.decodeFile(path, options);
     }
 
-    public static Bitmap getBitmapFromResource(Context context, int resource){
+    public static Bitmap getBitmapFromResource(Context context, int resource) {
         return BitmapFactory.decodeResource(context.getResources(), resource);
     }
+
 }
