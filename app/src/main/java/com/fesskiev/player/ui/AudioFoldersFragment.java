@@ -96,7 +96,7 @@ public class AudioFoldersFragment extends GridFragment {
 
     @Override
     public void onRefresh() {
-        DatabaseHelper.getInstance().resetDatabase(getActivity());
+        DatabaseHelper.resetDatabase(getActivity());
         FileSystemIntentService.startFileTreeService(getActivity());
     }
 

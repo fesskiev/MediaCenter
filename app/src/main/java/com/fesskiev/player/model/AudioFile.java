@@ -156,6 +156,7 @@ public class AudioFile implements Comparable<AudioFile> {
         } catch (CannotReadException |
                 IOException | TagException | ReadOnlyFileException | InvalidAudioFrameException e) {
             e.printStackTrace();
+            fillEmptyFields();
         }
         if (listener != null) {
             listener.onFetchCompleted(this);

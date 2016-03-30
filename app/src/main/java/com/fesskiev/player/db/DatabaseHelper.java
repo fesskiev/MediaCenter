@@ -8,31 +8,13 @@ import android.util.Log;
 
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
+import com.fesskiev.player.utils.CacheConstants;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class DatabaseHelper {
 
-    private static DatabaseHelper instance;
-    private static ExecutorService service;
-
-    private DatabaseHelper() {
-
-    }
-
-    public static DatabaseHelper getInstance() {
-        if (instance == null) {
-            instance = new DatabaseHelper();
-        }
-        service = Executors.newSingleThreadExecutor();
-        return instance;
-    }
 
     public static void insertAudioFolder(Context context, AudioFolder audioFolder) {
 
@@ -72,95 +54,71 @@ public class DatabaseHelper {
                 dateValues);
     }
 
-    public void resetDatabase(Context context) {
-        service.submit(new ResetDatabaseTask(context));
-        service.shutdown();
+    public static boolean containAudioTrack(Context context, String path) {
+        Cursor cursor = ContentResolverCompat.query(context.getContentResolver(),
+                MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
+                null,
+                MediaCenterProvider.TRACK_PATH + "=" + "'" + path + "'",
+                null,
+                null,
+                null);
+
+        boolean contain = cursor.getCount() > 0;
+
+        cursor.close();
+
+        return contain;
+    }
+
+    public static String getDownloadFolderID(Context context) {
+        Cursor cursor = ContentResolverCompat.query(context.getContentResolver(),
+                MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
+                new String[]{MediaCenterProvider.ID},
+                MediaCenterProvider.FOLDER_PATH + "=" + "'" + CacheConstants.CHECK_DOWNLOADS_FOLDER_PATH + "'",
+                null,
+                null,
+                null);
+
+        cursor.moveToFirst();
+        String id = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.ID));
+        cursor.close();
+
+        return id;
+    }
+
+    public static void resetDatabase(Context context) {
+        context.getContentResolver().delete(MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI, null, null);
+        context.getContentResolver().delete(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI, null, null);
     }
 
 
-    public void deleteAudioFile(Context context, String path) {
-        service.submit(new RemoveFileTask(context, path));
-        service.shutdown();
+    public static void deleteAudioFile(Context context, String path) {
+        context.getContentResolver().
+                delete(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
+                        MediaCenterProvider.TRACK_PATH + "=" + "'" + path + "'",
+                        null);
     }
 
-    public List<String> getFoldersPath(Context context) {
-        Future<List<String>> future = service.submit(new FolderPathTask(context));
-        List<String> result = null;
-        try {
-            result = future.get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-        service.shutdown();
-        return result;
-    }
-
-    private class FolderPathTask implements Callable<List<String>> {
-
-        private Context context;
-
-        public FolderPathTask(Context context) {
-            this.context = context;
-        }
-
-        @Override
-        public List<String> call() throws Exception {
-
-            Cursor cursor = ContentResolverCompat.query(context.getContentResolver(),
-                    MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
-                    new String[]{MediaCenterProvider.FOLDER_PATH},
-                    null,
-                    null,
-                    null,
-                    null);
-            List<String> paths = null;
-            if (cursor.getCount() > 0) {
-                paths = new ArrayList<>();
-                cursor.moveToPosition(-1);
-                while (cursor.moveToNext()) {
-                    String path =
-                            cursor.getString(cursor.getColumnIndex(MediaCenterProvider.FOLDER_PATH));
-                    paths.add(path);
-                }
+    public static List<String> getFoldersPath(Context context) {
+        Cursor cursor = ContentResolverCompat.query(context.getContentResolver(),
+                MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
+                new String[]{MediaCenterProvider.FOLDER_PATH},
+                null,
+                null,
+                null,
+                null);
+        List<String> paths = null;
+        if (cursor.getCount() > 0) {
+            paths = new ArrayList<>();
+            cursor.moveToPosition(-1);
+            while (cursor.moveToNext()) {
+                String path =
+                        cursor.getString(cursor.getColumnIndex(MediaCenterProvider.FOLDER_PATH));
+                paths.add(path);
             }
-            cursor.close();
-
-            return paths;
         }
+        cursor.close();
+
+        return paths;
     }
-
-    private class RemoveFileTask implements Runnable {
-
-        private Context context;
-        private String path;
-
-        public RemoveFileTask(Context context, String path) {
-            this.context = context;
-            this.path = path;
-        }
-
-        @Override
-        public void run() {
-            context.getContentResolver().
-                    delete(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
-                            MediaCenterProvider.TRACK_PATH + "=" + "'" + path + "'",
-                            null);
-        }
-    }
-
-    private class ResetDatabaseTask implements Runnable {
-
-        private Context context;
-
-        public ResetDatabaseTask(Context context) {
-            this.context = context;
-        }
-
-        @Override
-        public void run() {
-            context.getContentResolver().delete( MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI, null, null);
-            context.getContentResolver().delete(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI, null, null);
-        }
-    }
-
 }

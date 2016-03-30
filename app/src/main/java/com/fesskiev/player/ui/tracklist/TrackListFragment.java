@@ -194,7 +194,7 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
                                 Snackbar.make(getView(),
                                         getString(R.string.shackbar_delete_file), Snackbar.LENGTH_LONG).show();
 
-                                DatabaseHelper.getInstance().deleteAudioFile(getContext(),
+                                DatabaseHelper.deleteAudioFile(getContext(),
                                         audioFile.filePath.getAbsolutePath());
 
                                 trackListAdapter.removeItem(position);

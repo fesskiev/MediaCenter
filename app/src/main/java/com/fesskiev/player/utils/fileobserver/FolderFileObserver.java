@@ -26,10 +26,9 @@ public class FolderFileObserver {
         @Override
         public void run() {
 
-            List<String> paths = DatabaseHelper.getInstance().getFoldersPath(context);
+            List<String> paths = DatabaseHelper.getFoldersPath(context);
             for (String path : paths) {
-                RecursiveFileObserver fileObserver =
-                        new RecursiveFileObserver(path);
+                RecursiveFileObserver fileObserver = new RecursiveFileObserver(context, path);
                 fileObserver.startWatching();
                 recursiveFileObservers.add(fileObserver);
             }

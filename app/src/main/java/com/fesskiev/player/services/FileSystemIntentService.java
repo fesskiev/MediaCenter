@@ -27,7 +27,10 @@ public class FileSystemIntentService extends IntentService {
 
     public static final String ACTION_VIDEO_FILE = "com.fesskiev.player.action.VIDEO_FILE";
 
-    private static final String ACTION_START_FILE_SYSTEM_SERVICE = "com.fesskiev.player.action.ACTION_START_FILE_SYSTEM_SERVICE";
+    private static final String ACTION_START_FILE_SYSTEM_SERVICE =
+            "com.fesskiev.player.action.ACTION_START_FILE_SYSTEM_SERVICE";
+    private static final String ACTION_CHECK_DOWNLOAD_FOLDER_SERVICE =
+            "com.fesskiev.player.action.ACTION_CHECK_DOWNLOAD_FOLDER_SERVICE";
 
     public static final String ACTION_START_FETCH_AUDIO = "com.fesskiev.player.action.ACTION_START_FETCH_AUDIO";
     public static final String ACTION_END_FETCH_AUDIO = "com.fesskiev.player.action.ACTION_END_FETCH_AUDIO";
@@ -49,20 +52,44 @@ public class FileSystemIntentService extends IntentService {
         context.startService(intent);
     }
 
+    public static void startCheckDownloadFolderService(Context context) {
+        Intent intent = new Intent(context, FileSystemIntentService.class);
+        intent.setAction(ACTION_CHECK_DOWNLOAD_FOLDER_SERVICE);
+        context.startService(intent);
+    }
+
 
     @Override
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
             final String action = intent.getAction();
             Log.d(TAG, "HANDLE INTENT: " + action);
-            if (ACTION_START_FILE_SYSTEM_SERVICE.equals(action)) {
-                getMusicFolders();
+            switch (action) {
+                case ACTION_START_FILE_SYSTEM_SERVICE:
+                    getAudioFolders();
+                    break;
+                case ACTION_CHECK_DOWNLOAD_FOLDER_SERVICE:
+                    checkAudioFolderService();
+                    break;
             }
         }
     }
 
+    private void checkAudioFolderService() {
+        String folderId = null;
+        File root = new File(CacheConstants.CHECK_DOWNLOADS_FOLDER_PATH);
+        File[] list = root.listFiles();
+        for (File child : list) {
+            if (!DatabaseHelper.containAudioTrack(getApplicationContext(), child.getAbsolutePath())) {
+                if (folderId == null) {
+                    folderId = DatabaseHelper.getDownloadFolderID(getApplicationContext());
+                }
+                new Thread(new FetchDownloadAudioInfo(child, folderId)).start();
+            }
+        }
+    }
 
-    private void getMusicFolders() {
+    private void getAudioFolders() {
         MediaApplication.getInstance().getAudioPlayer().audioFolders.clear();
         MediaApplication.getInstance().getVideoPlayer().videoFiles.clear();
         String sdCardState = Environment.getExternalStorageState();
@@ -156,6 +183,30 @@ public class FileSystemIntentService extends IntentService {
         }
     }
 
+    private class FetchDownloadAudioInfo implements Runnable {
+
+        private File file;
+        private String id;
+
+        public FetchDownloadAudioInfo(File file, String id) {
+            this.file = file;
+            this.id = id;
+        }
+
+        @Override
+        public void run() {
+
+            new AudioFile(getApplicationContext(), file,
+                    new AudioFile.OnMp3TagListener() {
+                        @Override
+                        public void onFetchCompleted(AudioFile file) {
+                            file.id = id;
+                            DatabaseHelper.insertAudioFile(getApplicationContext(), file);
+                        }
+                    });
+        }
+    }
+
     private class FetchAudioInfo implements Runnable {
 
         private CountDownLatch latch;
@@ -166,7 +217,6 @@ public class FileSystemIntentService extends IntentService {
             this.audioFolder = audioFolder;
             this.file = file;
             this.latch = latch;
-
         }
 
         @Override
