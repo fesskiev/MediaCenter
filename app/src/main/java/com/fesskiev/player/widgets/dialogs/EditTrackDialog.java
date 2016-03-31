@@ -6,8 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;;
-import android.util.Log;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
@@ -25,20 +24,29 @@ import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagException;
 import org.jaudiotagger.tag.TagOptionSingleton;
 
-import java.io.File;
 import java.io.IOException;
 
 public class EditTrackDialog extends AlertDialog implements View.OnClickListener, TextWatcher {
 
+    public interface OnEditTrackChangedListener {
+
+        void onEditTrackChanged(AudioFile audioFile);
+
+        void onEditTrackError();
+    }
+
+    private OnEditTrackChangedListener listener;
     private AudioFile audioFile;
     private EditText editArtist;
     private EditText editTitle;
     private EditText editAlbum;
     private EditText editGenre;
 
-    public EditTrackDialog(Context context, AudioFile audioFile) {
+
+    public EditTrackDialog(Context context, AudioFile audioFile, OnEditTrackChangedListener listener) {
         super(context);
         this.audioFile = audioFile;
+        this.listener = listener;
     }
 
     @Override
@@ -63,7 +71,7 @@ public class EditTrackDialog extends AlertDialog implements View.OnClickListener
         setDialogFields();
     }
 
-    private void setDialogFields(){
+    private void setDialogFields() {
         editArtist.setText(audioFile.artist);
         editTitle.setText(audioFile.title);
         editAlbum.setText(audioFile.album);
@@ -72,20 +80,26 @@ public class EditTrackDialog extends AlertDialog implements View.OnClickListener
 
     @Override
     public void onClick(View v) {
-
         try {
+            TagOptionSingleton.getInstance().setAndroid(true);
             org.jaudiotagger.audio.AudioFile audioFile = AudioFileIO.read(this.audioFile.filePath);
             Tag tag = audioFile.getTag();
-            if(tag != null) {
+            if (tag != null) {
                 tag.setField(FieldKey.ARTIST, this.audioFile.artist);
                 tag.setField(FieldKey.TITLE, this.audioFile.title);
                 tag.setField(FieldKey.ALBUM, this.audioFile.album);
                 tag.setField(FieldKey.GENRE, this.audioFile.genre);
                 audioFile.commit();
+
+                listener.onEditTrackChanged(this.audioFile);
+            } else {
+                listener.onEditTrackError();
             }
         } catch (CannotReadException | IOException | TagException |
                 ReadOnlyFileException | InvalidAudioFrameException | CannotWriteException e) {
             e.printStackTrace();
+
+            listener.onEditTrackError();
         }
     }
 

@@ -12,6 +12,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -174,10 +175,24 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
             }
         }
 
-        private void showEditDialog(int position) {
+        private void showEditDialog(final int position) {
             AudioFile audioFile = audioFolder.audioFiles.get(position);
-            EditTrackDialog editTrackDialog = new EditTrackDialog(getActivity(), audioFile);
-            editTrackDialog.show();
+            if(audioFile != null) {
+                EditTrackDialog editTrackDialog = new EditTrackDialog(getActivity(), audioFile,
+                        new EditTrackDialog.OnEditTrackChangedListener() {
+                            @Override
+                            public void onEditTrackChanged(AudioFile audioFile) {
+                                Log.d(TAG, "update item");
+                                trackListAdapter.updateItem(position, audioFile);
+                            }
+
+                            @Override
+                            public void onEditTrackError() {
+                                Log.d(TAG, "error item");
+                            }
+                        });
+                editTrackDialog.show();
+            }
         }
 
         private void deleteFile(final int position) {
@@ -243,9 +258,14 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
             notifyDataSetChanged();
         }
 
-        public void removeItem(int position){
+        public void removeItem(int position) {
             audioFiles.remove(position);
             notifyItemRemoved(position);
+        }
+
+        public void updateItem(int position, AudioFile audioFile) {
+            audioFiles.set(position, audioFile);
+            notifyItemChanged(position);
         }
     }
 }
