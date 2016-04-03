@@ -280,6 +280,9 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     private void checkAppFirstStart() {
+        if(appSettingsManager == null){
+            appSettingsManager = AppSettingsManager.getInstance(getApplication());
+        }
         if (appSettingsManager.isFirstStartApp()) {
             appSettingsManager.setFirstStartApp();
             saveDownloadFolderIcon();

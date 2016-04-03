@@ -113,7 +113,9 @@ public class PlaybackActivity extends AppCompatActivity {
             peakView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    AudioPlayerActivity.startPlayerActivity(PlaybackActivity.this, false, cover);
+                    if(audioPlayer.currentAudioFile != null) {
+                        AudioPlayerActivity.startPlayerActivity(PlaybackActivity.this, false, cover);
+                    }
                 }
             });
             peakView.post(new Runnable() {

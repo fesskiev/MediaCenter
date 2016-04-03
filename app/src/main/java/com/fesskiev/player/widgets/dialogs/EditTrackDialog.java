@@ -12,6 +12,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 
 import com.fesskiev.player.R;
+import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.model.AudioFile;
 
 import org.jaudiotagger.audio.AudioFileIO;
@@ -23,6 +24,7 @@ import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagException;
 import org.jaudiotagger.tag.TagOptionSingleton;
+import org.jaudiotagger.tag.id3.ID3v23Tag;
 
 import java.io.IOException;
 
@@ -72,10 +74,22 @@ public class EditTrackDialog extends AlertDialog implements View.OnClickListener
     }
 
     private void setDialogFields() {
-        editArtist.setText(audioFile.artist);
-        editTitle.setText(audioFile.title);
-        editAlbum.setText(audioFile.album);
-        editGenre.setText(audioFile.genre);
+        if (!audioFile.artist.equals(getContext().getString(R.string.empty_music_file_artist))) {
+            editArtist.setText(audioFile.artist);
+        }
+        if (!audioFile.title.equals(getContext().getString(R.string.empty_music_file_title))) {
+            editTitle.setText(audioFile.title);
+        }
+        if (!audioFile.album.equals(getContext().getString(R.string.empty_music_file_album))) {
+            editAlbum.setText(audioFile.album);
+        }
+        if (!audioFile.genre.equals(getContext().getString(R.string.empty_music_file_genre))) {
+            editGenre.setText(audioFile.genre);
+        }
+    }
+
+    private void updateAudioFileDatabase(AudioFile audioFile) {
+        DatabaseHelper.updateAudioFile(getContext(), audioFile);
     }
 
     @Override
@@ -83,6 +97,7 @@ public class EditTrackDialog extends AlertDialog implements View.OnClickListener
         try {
             TagOptionSingleton.getInstance().setAndroid(true);
             org.jaudiotagger.audio.AudioFile audioFile = AudioFileIO.read(this.audioFile.filePath);
+            audioFile.setTag(new ID3v23Tag());
             Tag tag = audioFile.getTag();
             if (tag != null) {
                 tag.setField(FieldKey.ARTIST, this.audioFile.artist);
@@ -91,7 +106,10 @@ public class EditTrackDialog extends AlertDialog implements View.OnClickListener
                 tag.setField(FieldKey.GENRE, this.audioFile.genre);
                 audioFile.commit();
 
+                updateAudioFileDatabase(this.audioFile);
+
                 listener.onEditTrackChanged(this.audioFile);
+                hide();
             } else {
                 listener.onEditTrackError();
             }

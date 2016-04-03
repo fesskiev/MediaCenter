@@ -4,7 +4,6 @@ package com.fesskiev.player.utils.download;
 
 import com.fesskiev.player.utils.CacheConstants;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
@@ -41,7 +40,7 @@ public class DownloadManager implements Runnable {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        this.fileName = replaceSlash(fileName);
+        this.fileName = replaceSymbols(fileName);
         size = -1;
         downloaded = 0;
         status = DOWNLOADING;
@@ -53,8 +52,8 @@ public class DownloadManager implements Runnable {
         this.listener = listener;
     }
 
-    private String replaceSlash(String fileName){
-        return fileName.replace(File.separator, ":");
+    private String replaceSymbols(String fileName){
+        return fileName.replaceAll("['/]", "");
     }
 
 

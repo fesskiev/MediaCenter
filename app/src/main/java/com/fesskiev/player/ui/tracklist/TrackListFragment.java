@@ -12,7 +12,6 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +45,7 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
     private TrackListAdapter trackListAdapter;
     private AudioFolder audioFolder;
     private AudioPlayer audioPlayer;
+    private List<AudioFile> audioFiles;
 
     public static TrackListFragment newInstance() {
         return new TrackListFragment();
@@ -56,6 +56,7 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
         super.onCreate(savedInstanceState);
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
         audioFolder = audioPlayer.currentAudioFolder;
+        audioFiles = new ArrayList<>();
     }
 
     @Override
@@ -73,10 +74,6 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
                 LinearLayoutManager.VERTICAL, false, 1000));
         trackListAdapter = new TrackListAdapter();
         recyclerView.setAdapter(trackListAdapter);
-        List<AudioFile> receiverAudioFiles = audioPlayer.currentAudioFolder.audioFiles;
-        if (receiverAudioFiles != null) {
-            trackListAdapter.refreshAdapter(receiverAudioFiles);
-        }
 
         getActivity().getSupportLoaderManager().initLoader(GET_AUDIO_FILES_LOADER, null, this);
     }
@@ -121,13 +118,8 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
 
     }
 
+
     private class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.ViewHolder> {
-
-        private List<AudioFile> audioFiles;
-
-        public TrackListAdapter() {
-            this.audioFiles = new ArrayList<>();
-        }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -161,12 +153,13 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
                             public void onClick() {
                                 startPlayerActivity(getAdapterPosition(), cover);
                             }
+
                         });
             }
         }
 
         private void startPlayerActivity(int position, View cover) {
-            AudioFile audioFile = audioFolder.audioFiles.get(position);
+            AudioFile audioFile = audioFiles.get(position);
             if (audioFile != null) {
                 audioPlayer.setCurrentAudioFile(audioFile);
                 audioPlayer.position = position;
@@ -176,19 +169,17 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
         }
 
         private void showEditDialog(final int position) {
-            AudioFile audioFile = audioFolder.audioFiles.get(position);
-            if(audioFile != null) {
+            AudioFile audioFile = audioFiles.get(position);
+            if (audioFile != null) {
                 EditTrackDialog editTrackDialog = new EditTrackDialog(getActivity(), audioFile,
                         new EditTrackDialog.OnEditTrackChangedListener() {
                             @Override
                             public void onEditTrackChanged(AudioFile audioFile) {
-                                Log.d(TAG, "update item");
                                 trackListAdapter.updateItem(position, audioFile);
                             }
 
                             @Override
                             public void onEditTrackError() {
-                                Log.d(TAG, "error item");
                             }
                         });
                 editTrackDialog.show();
@@ -196,7 +187,7 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
         }
 
         private void deleteFile(final int position) {
-            final AudioFile audioFile = audioFolder.audioFiles.get(position);
+            final AudioFile audioFile = audioFiles.get(position);
             AlertDialog.Builder builder =
                     new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
             builder.setTitle(getString(R.string.dialog_delete_file_title));

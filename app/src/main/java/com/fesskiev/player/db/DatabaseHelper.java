@@ -32,6 +32,28 @@ public class DatabaseHelper {
 
     }
 
+    public static void updateAudioFile(Context context, AudioFile audioFile){
+
+        ContentValues dateValues = new ContentValues();
+
+        dateValues.put(MediaCenterProvider.ID, audioFile.id);
+        dateValues.put(MediaCenterProvider.TRACK_ARTIST, audioFile.artist);
+        dateValues.put(MediaCenterProvider.TRACK_TITLE, audioFile.title);
+        dateValues.put(MediaCenterProvider.TRACK_ALBUM, audioFile.album);
+        dateValues.put(MediaCenterProvider.TRACK_GENRE, audioFile.genre);
+        dateValues.put(MediaCenterProvider.TRACK_PATH, audioFile.filePath.getAbsolutePath());
+        dateValues.put(MediaCenterProvider.TRACK_BITRATE, audioFile.bitrate);
+        dateValues.put(MediaCenterProvider.TRACK_LENGTH, audioFile.length);
+        dateValues.put(MediaCenterProvider.TRACK_NUMBER, audioFile.trackNumber);
+        dateValues.put(MediaCenterProvider.TRACK_SAMPLE_RATE, audioFile.sampleRate);
+        dateValues.put(MediaCenterProvider.TRACK_COVER, audioFile.artworkPath);
+
+        context.getContentResolver().update(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
+                dateValues,
+                MediaCenterProvider.TRACK_PATH + "=" + "'" + audioFile.filePath + "'",
+                null);
+    }
+
     public static void insertAudioFile(Context context, AudioFile audioFile) {
 
         ContentValues dateValues = new ContentValues();
@@ -49,8 +71,7 @@ public class DatabaseHelper {
         dateValues.put(MediaCenterProvider.TRACK_COVER, audioFile.artworkPath);
 
 
-        context.getContentResolver().insert(
-                MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
+        context.getContentResolver().insert(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
                 dateValues);
     }
 

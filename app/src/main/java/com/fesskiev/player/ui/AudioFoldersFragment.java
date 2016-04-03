@@ -5,11 +5,15 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -26,8 +30,12 @@ import com.fesskiev.player.ui.tracklist.TrackListActivity;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.widgets.dialogs.FetchAudioFoldersDialog;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
+import com.fesskiev.player.widgets.recycleview.helper.ItemTouchHelperAdapter;
+import com.fesskiev.player.widgets.recycleview.helper.ItemTouchHelperViewHolder;
+import com.fesskiev.player.widgets.recycleview.helper.SimpleItemTouchHelperCallback;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -45,11 +53,14 @@ public class AudioFoldersFragment extends GridFragment {
 
     private OnAttachFolderFragmentListener attachFolderFragmentListener;
     private FetchAudioFoldersDialog audioFoldersDialog;
+    private ItemTouchHelper itemTouchHelper;
+    private List<AudioFolder> audioFolders;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         attachFolderFragmentListener = (OnAttachFolderFragmentListener) context;
+        audioFolders = new ArrayList<>();
 
     }
 
@@ -68,12 +79,17 @@ public class AudioFoldersFragment extends GridFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback((ItemTouchHelperAdapter)adapter);
+        itemTouchHelper = new ItemTouchHelper(callback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+
         recyclerView.addOnItemTouchListener(new RecyclerItemTouchClickListener(getActivity(),
                 new RecyclerItemTouchClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View childView, int position) {
                         AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-                        AudioFolder audioFolder = audioPlayer.audioFolders.get(position);
+
+                        AudioFolder audioFolder = audioFolders.get(position);
                         if (audioFolder != null) {
                             audioPlayer.currentAudioFolder = audioFolder;
                             startActivity(new Intent(getActivity(), TrackListActivity.class));
@@ -165,16 +181,11 @@ public class AudioFoldersFragment extends GridFragment {
     };
 
 
-    public class AudioFoldersAdapter extends RecyclerView.Adapter<AudioFoldersAdapter.ViewHolder> {
-
-        private List<AudioFolder> audioFolders;
-
-        public AudioFoldersAdapter() {
-            this.audioFolders = new ArrayList<>();
-        }
+    public class AudioFoldersAdapter extends RecyclerView.Adapter<AudioFoldersAdapter.ViewHolder> implements ItemTouchHelperAdapter {
 
 
-        public class ViewHolder extends RecyclerView.ViewHolder {
+        public class ViewHolder extends RecyclerView.ViewHolder implements
+                ItemTouchHelperViewHolder {
 
             TextView albumName;
             ImageView cover;
@@ -184,6 +195,17 @@ public class AudioFoldersFragment extends GridFragment {
 
                 albumName = (TextView) v.findViewById(R.id.albumName);
                 cover = (ImageView) v.findViewById(R.id.folderCover);
+
+            }
+
+            @Override
+            public void onItemSelected() {
+                itemView.setAlpha(0.5f);
+            }
+
+            @Override
+            public void onItemClear() {
+                itemView.setAlpha(1.0f);
             }
         }
 
@@ -191,11 +213,35 @@ public class AudioFoldersFragment extends GridFragment {
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_audio_folder, parent, false);
+
             return new ViewHolder(v);
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
+        public boolean onItemMove(int fromPosition, int toPosition) {
+            Collections.swap(audioFolders, fromPosition, toPosition);
+            notifyItemMoved(fromPosition, toPosition);
+            return true;
+        }
+
+        @Override
+        public void onItemDismiss(int position) {
+
+        }
+
+        @Override
+        public void onBindViewHolder(final ViewHolder holder, int position) {
+
+            holder.cover.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
+                        itemTouchHelper.startDrag(holder);
+                    }
+                    return false;
+                }
+            });
+
             AudioFolder audioFolder = audioFolders.get(position);
             if (audioFolder != null) {
                 BitmapHelper.loadAudioFolderArtwork(getActivity(), audioFolder, holder.cover);
@@ -214,5 +260,6 @@ public class AudioFoldersFragment extends GridFragment {
             audioFolders.addAll(receiverAudioFolders);
             notifyDataSetChanged();
         }
+
     }
 }
