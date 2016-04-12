@@ -13,6 +13,16 @@ public class CacheConstants {
     public final static String IMAGES_CACHE_PATH = EXTERNAL_STORAGE + "/MediaCenter/Images/";
     public final static String CHECK_DOWNLOADS_FOLDER_PATH = EXTERNAL_STORAGE + "/MediaCenter/Downloads";
 
+    public static void clearImagesCache() {
+        File folder = new File(IMAGES_CACHE_PATH);
+        File[] files = folder.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                file.delete();
+            }
+        }
+    }
+
     public static File getUserPhotoPath() {
         File folder = new File(USER_PHOTO_PATH);
         if (!folder.exists()) {
@@ -30,7 +40,7 @@ public class CacheConstants {
         return new File(folder.getAbsolutePath(), fileName + ".mp3");
     }
 
-    public static File getDownloadFolderIconPath(){
+    public static File getDownloadFolderIconPath() {
         File folder = new File(IMAGES_CACHE_PATH);
         if (!folder.exists()) {
             folder.mkdirs();

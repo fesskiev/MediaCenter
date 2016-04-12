@@ -1,23 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="@dimen/nav_header_height"
     android:background="@drawable/side_nav_bar"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:orientation="horizontal">
+
         <ImageView
             android:id="@+id/photo"
             android:layout_width="72dp"
             android:layout_height="72dp"
-            android:scaleType="centerCrop"
             android:layout_gravity="center_vertical"
             android:contentDescription="@string/app_name"
+            android:scaleType="centerCrop"
             tools:src="@drawable/icon_no_avatar" />
 
         <LinearLayout
@@ -28,19 +34,31 @@
             android:orientation="vertical">
 
             <TextView
-                style="@style/FirstNameTextAppearance"
                 android:id="@+id/firstName"
+                style="@style/FirstNameTextAppearance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 tools:text="Fess" />
 
             <TextView
-                style="@style/SecondNameTextAppearance"
                 android:id="@+id/lastName"
+                style="@style/SecondNameTextAppearance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 tools:text="Kiev" />
 
         </LinearLayout>
 
-</LinearLayout>
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/logout"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:contentDescription="@string/app_name"
+        android:src="@drawable/icon_logout"
+        android:visibility="gone" />
+
+</RelativeLayout>

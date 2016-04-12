@@ -126,34 +126,38 @@ public class JSONHelper {
                 JSONObject repostsObject = jsonObject.getJSONObject("reposts");
                 groupPost.reposts = repostsObject.getInt("count");
 
-                JSONObject attachmentObject = jsonObject.getJSONObject("attachment");
-                String attachmentType = attachmentObject.getString("type");
-                if(attachmentType.equals(GroupPost.TYPE_PHOTO)){
-                    JSONObject photoObject = attachmentObject.getJSONObject(GroupPost.TYPE_PHOTO);
-                    groupPost.photo = photoObject.getString("src_big");
+                if(jsonObject.has("attachment")){
+                    JSONObject attachmentObject = jsonObject.getJSONObject("attachment");
+                    String attachmentType = attachmentObject.getString("type");
+                    if(attachmentType.equals(GroupPost.TYPE_PHOTO)){
+                        JSONObject photoObject = attachmentObject.getJSONObject(GroupPost.TYPE_PHOTO);
+                        groupPost.photo = photoObject.getString("src_big");
+                    }
                 }
 
-                JSONArray attachmentsArray = jsonObject.getJSONArray("attachments");
-                for(int j = 0; j < attachmentsArray.length(); j++){
-                    JSONObject attachmentsObject = attachmentsArray.getJSONObject(j);
+                if(jsonObject.has("attachments")) {
+                    JSONArray attachmentsArray = jsonObject.getJSONArray("attachments");
+                    for (int j = 0; j < attachmentsArray.length(); j++) {
+                        JSONObject attachmentsObject = attachmentsArray.getJSONObject(j);
 
-                    String attachmentsType = attachmentsObject.getString("type");
-                    if(attachmentsType.equals(GroupPost.TYPE_AUDIO)){
-                        JSONObject musicObject = attachmentsObject.getJSONObject(GroupPost.TYPE_AUDIO);
+                        String attachmentsType = attachmentsObject.getString("type");
+                        if (attachmentsType.equals(GroupPost.TYPE_AUDIO)) {
+                            JSONObject musicObject = attachmentsObject.getJSONObject(GroupPost.TYPE_AUDIO);
 
-                        VKMusicFile musicFile = new VKMusicFile();
+                            VKMusicFile musicFile = new VKMusicFile();
 
-                        musicFile.aid = musicObject.getInt("aid");
-                        musicFile.ownerId = musicObject.getInt("owner_id");
-                        musicFile.artist = musicObject.getString("artist");
-                        musicFile.title = musicObject.getString("title");
-                        musicFile.duration = musicObject.getInt("duration");
-                        musicFile.url = musicObject.getString("url");
-                        if (jsonObject.has("genre")) {
-                            musicFile.genre = musicObject.getInt("genre");
+                            musicFile.aid = musicObject.getInt("aid");
+                            musicFile.ownerId = musicObject.getInt("owner_id");
+                            musicFile.artist = musicObject.getString("artist");
+                            musicFile.title = musicObject.getString("title");
+                            musicFile.duration = musicObject.getInt("duration");
+                            musicFile.url = musicObject.getString("url");
+                            if (jsonObject.has("genre")) {
+                                musicFile.genre = musicObject.getInt("genre");
+                            }
+
+                            groupPost.musicFiles.add(musicFile);
                         }
-
-                        groupPost.musicFiles.add(musicFile);
                     }
                 }
 

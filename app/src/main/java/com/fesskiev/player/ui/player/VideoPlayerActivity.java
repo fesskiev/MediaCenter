@@ -27,17 +27,6 @@ import java.util.Queue;
 public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHolder.Callback {
 
 
-    public static native boolean createStreamingMediaPlayer(String filename);
-
-    public static native void setPlayingStreamingMediaPlayer(boolean isPlaying);
-
-    public static native void shutdown();
-
-    public static native void setSurface(Surface surface);
-
-    public static native void rewindStreamingMediaPlayer();
-
-
     private VideoGLSurfaceView glSurfaceView;
     private VideoFile videoFile;
 

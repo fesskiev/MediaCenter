@@ -23,7 +23,6 @@
     <string name="empty_music_file_genre">genre isn\'t defined</string>
 
     <string name="drawer_item_about">About</string>
-    <string name="drawer_item_vk_music">VK</string>
     <string name="drawer_item_settings">Settings</string>
 
     <string name="title_activity_vkplayer">VKPlayerActivity</string>
@@ -63,6 +62,12 @@
 
     <string name="dialog_fetch_audio_folder_name">Searching folders....</string>
     <string name="dialog_fetch_audio_track_name">Searching tracks....</string>
+
+    <string name="dialog_refresh_folders_title">Поиск музыки</string>
+    <string name="dialog_refresh_folders_message">Сделать полный поиск по разделам?</string>
+    <string name="dialog_refresh_folders_ok">Да</string>
+    <string name="dialog_refresh_folders_cancel">Нет</string>
+
 
     <string name="action_settings">Settings</string>
 

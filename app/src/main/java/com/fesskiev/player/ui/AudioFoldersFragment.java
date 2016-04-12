@@ -3,12 +3,13 @@ package com.fesskiev.player.ui;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MotionEventCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
@@ -28,6 +29,7 @@ import com.fesskiev.player.services.FileObserverService;
 import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.ui.tracklist.TrackListActivity;
 import com.fesskiev.player.utils.BitmapHelper;
+import com.fesskiev.player.utils.CacheConstants;
 import com.fesskiev.player.widgets.dialogs.FetchAudioFoldersDialog;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 import com.fesskiev.player.widgets.recycleview.helper.ItemTouchHelperAdapter;
@@ -79,7 +81,7 @@ public class AudioFoldersFragment extends GridFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback((ItemTouchHelperAdapter)adapter);
+        ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback((ItemTouchHelperAdapter) adapter);
         itemTouchHelper = new ItemTouchHelper(callback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
@@ -112,8 +114,32 @@ public class AudioFoldersFragment extends GridFragment {
 
     @Override
     public void onRefresh() {
-        DatabaseHelper.resetDatabase(getActivity());
-        FileSystemIntentService.startFileTreeService(getActivity());
+
+        AlertDialog.Builder builder =
+                new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
+        builder.setTitle(getString(R.string.dialog_refresh_folders_title));
+        builder.setMessage(R.string.dialog_refresh_folders_message);
+        builder.setPositiveButton(R.string.dialog_refresh_folders_ok,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        CacheConstants.clearImagesCache();
+                        DatabaseHelper.resetDatabase(getActivity());
+                        FileSystemIntentService.startFileTreeService(getActivity());
+
+                    }
+                });
+        builder.setNegativeButton(R.string.dialog_refresh_folders_cancel,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        swipeRefreshLayout.setRefreshing(false);
+                        dialog.cancel();
+                    }
+                });
+        builder.show();
+
     }
 
 

@@ -4,10 +4,6 @@
     <group >
 
         <item
-            android:id="@+id/vk_music"
-            android:icon="@drawable/vk_logo_icon"
-            android:title="@string/drawer_item_vk_music" />
-        <item
             android:id="@+id/settings"
             android:icon="@drawable/settings_icon"
             android:title="@string/drawer_item_settings" />

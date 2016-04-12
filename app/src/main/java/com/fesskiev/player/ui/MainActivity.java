@@ -48,6 +48,12 @@ import com.fesskiev.player.ui.vk.MusicVKActivity;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.CacheConstants;
+import com.fesskiev.player.utils.http.URLHelper;
+import com.vk.sdk.VKAccessToken;
+import com.vk.sdk.VKCallback;
+import com.vk.sdk.VKScope;
+import com.vk.sdk.VKSdk;
+import com.vk.sdk.api.VKError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,9 +67,10 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private static final int PERMISSION_REQ = 0;
     private static final int GET_AUDIO_FOLDERS_LOADER = 1001;
 
-    private AppSettingsManager appSettingsManager;
+    private AppSettingsManager settingsManager;
     private Handler handler;
     private ImageView userPhoto;
+    private ImageView logoutButton;
     private TextView firstName;
     private TextView lastName;
     private boolean finish;
@@ -73,7 +80,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         handler = new Handler();
-        appSettingsManager = AppSettingsManager.getInstance(this);
+        settingsManager = AppSettingsManager.getInstance(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -91,7 +98,29 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         View headerLayout =
                 navigationView.inflateHeaderView(R.layout.nav_header_main);
 
+        logoutButton = (ImageView)headerLayout.findViewById(R.id.logout);
+        logoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setEmptyUserInfo();
+                clearUserInfo();
+                logoutHide();
+            }
+        });
+
+
         userPhoto = (ImageView) headerLayout.findViewById(R.id.photo);
+        userPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (settingsManager.isAuthTokenEmpty()) {
+                    String[] vkScope = new String[]{VKScope.DIRECT, VKScope.AUDIO};
+                    VKSdk.login(MainActivity.this, vkScope);
+                } else {
+                    startActivity(new Intent(MainActivity.this, MusicVKActivity.class));
+                }
+            }
+        });
         firstName = (TextView) headerLayout.findViewById(R.id.firstName);
         lastName = (TextView) headerLayout.findViewById(R.id.lastName);
 
@@ -106,7 +135,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         }
 
         registerBroadcastReceiver();
-        if (!appSettingsManager.isAuthTokenEmpty()) {
+        if (!settingsManager.isAuthTokenEmpty()) {
             setUserInfo();
         } else {
             setEmptyUserInfo();
@@ -119,10 +148,20 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     private void setUserInfo() {
-        BitmapHelper.loadBitmapAvatar(this, appSettingsManager.getUserPhoto(), userPhoto);
+        BitmapHelper.loadBitmapAvatar(this, settingsManager.getUserPhoto(), userPhoto);
 
-        firstName.setText(appSettingsManager.getUserFirstName());
-        lastName.setText(appSettingsManager.getUserLastName());
+        firstName.setText(settingsManager.getUserFirstName());
+        lastName.setText(settingsManager.getUserLastName());
+
+        logoutShow();
+    }
+
+    private void logoutShow(){
+        logoutButton.setVisibility(View.VISIBLE);
+    }
+
+    private void logoutHide(){
+        logoutButton.setVisibility(View.GONE);
     }
 
     private void setEmptyUserInfo() {
@@ -132,12 +171,17 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         lastName.setText(getString(R.string.empty_last_name));
     }
 
+    private void clearUserInfo(){
+        settingsManager.setUserFirstName("");
+        settingsManager.setUserLastName("");
+        settingsManager.setAuthToken("");
+        settingsManager.setAuthSecret("");
+        settingsManager.setUserId("");
+    }
+
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.vk_music:
-                startActivity(new Intent(this, MusicVKActivity.class));
-                break;
             case R.id.settings:
                 startActivity(new Intent(this, SettingsActivity.class));
                 break;
@@ -237,14 +281,14 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                         lastName.setText(user.lastName);
 
 
-                        appSettingsManager.setUserFirstName(user.firstName);
-                        appSettingsManager.setUserLastName(user.lastName);
+                        settingsManager.setUserFirstName(user.firstName);
+                        settingsManager.setUserLastName(user.lastName);
 
                         BitmapHelper.loadURLAvatar(context,
                                 user.photoUrl, userPhoto, new BitmapHelper.OnBitmapLoad() {
                                     @Override
                                     public void onLoaded(Bitmap bitmap) {
-                                        appSettingsManager.saveUserPhoto(bitmap);
+                                        settingsManager.saveUserPhoto(bitmap);
                                     }
                                 });
 
@@ -273,18 +317,18 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                         this, Manifest.permission.RECORD_AUDIO);
     }
 
-    private void saveDownloadFolderIcon(){
+    private void saveDownloadFolderIcon() {
         BitmapHelper.saveBitmap(
                 BitmapHelper.getBitmapFromResource(getApplicationContext(), R.drawable.icon_folder_download),
                 CacheConstants.getDownloadFolderIconPath());
     }
 
     private void checkAppFirstStart() {
-        if(appSettingsManager == null){
-            appSettingsManager = AppSettingsManager.getInstance(getApplication());
+        if (settingsManager == null) {
+            settingsManager = AppSettingsManager.getInstance(getApplication());
         }
-        if (appSettingsManager.isFirstStartApp()) {
-            appSettingsManager.setFirstStartApp();
+        if (settingsManager.isFirstStartApp()) {
+            settingsManager.setFirstStartApp();
             saveDownloadFolderIcon();
             FileSystemIntentService.startFileTreeService(this);
         } else {
@@ -339,13 +383,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 for (Fragment fragment : registeredFragments) {
                     if (fragment instanceof AudioFoldersFragment) {
                         final AudioFoldersFragment audioFoldersFragment = (AudioFoldersFragment) fragment;
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                ((AudioFoldersFragment.AudioFoldersAdapter)
-                                        audioFoldersFragment.getAdapter()).refresh(audioFolders);
-                            }
-                        }, 2000);
+                        ((AudioFoldersFragment.AudioFoldersAdapter)
+                                audioFoldersFragment.getAdapter()).refresh(audioFolders);
                         break;
                     }
                 }
@@ -394,5 +433,36 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             default:
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (!VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
+            @Override
+            public void onResult(VKAccessToken res) {
+                Log.d(TAG, "auth success: " + res.accessToken);
+
+                settingsManager.setAuthToken(res.accessToken);
+                settingsManager.setAuthSecret(res.secret);
+                settingsManager.setUserId(res.userId);
+
+                logoutShow();
+
+                makeRequestUserProfile();
+                startActivity(new Intent(MainActivity.this, MusicVKActivity.class));
+            }
+
+            @Override
+            public void onError(VKError error) {
+                Log.d(TAG, "auth fail: " + error.errorMessage);
+                finish();
+            }
+        })) {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    private void makeRequestUserProfile() {
+        RESTService.fetchUserProfile(this, URLHelper.getUserProfileURL(settingsManager.getUserId()));
     }
 }

@@ -22,6 +22,7 @@ import java.util.List;
 
 public abstract class ViewPagerFragment extends Fragment {
 
+
     public abstract String[] getTitles();
 
     public abstract int[] getImagesIds();
@@ -30,6 +31,7 @@ public abstract class ViewPagerFragment extends Fragment {
 
     private ViewPagerAdapter adapter;
     private TabLayout tabLayout;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
