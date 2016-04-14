@@ -4,11 +4,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.content.ContentResolverCompat;
-import android.util.Log;
 
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
-import com.fesskiev.player.utils.CacheConstants;
+import com.fesskiev.player.utils.CacheManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,7 +94,7 @@ public class DatabaseHelper {
         Cursor cursor = ContentResolverCompat.query(context.getContentResolver(),
                 MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
                 new String[]{MediaCenterProvider.ID},
-                MediaCenterProvider.FOLDER_PATH + "=" + "'" + CacheConstants.CHECK_DOWNLOADS_FOLDER_PATH + "'",
+                MediaCenterProvider.FOLDER_PATH + "=" + "'" + CacheManager.CHECK_DOWNLOADS_FOLDER_PATH + "'",
                 null,
                 null,
                 null);

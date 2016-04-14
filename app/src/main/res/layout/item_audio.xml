@@ -13,10 +13,10 @@
     card_view:cardUseCompatPadding="false">
 
     <LinearLayout
+        android:id="@+id/itemContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:id="@+id/itemContainer"
         android:padding="8dp">
 
         <RelativeLayout
@@ -33,7 +33,7 @@
                 android:scaleType="centerCrop"
                 android:src="@drawable/icon_music" />
 
-            <LinearLayout
+            <RelativeLayout
                 android:id="@+id/content"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -43,9 +43,11 @@
                 android:orientation="horizontal">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center|start"
+                    android:id="@+id/audioInfoContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toStartOf="@+id/itemTime"
                     android:orientation="vertical">
 
                     <TextView
@@ -71,14 +73,13 @@
                 <TextView
                     android:id="@+id/itemTime"
                     style="@style/DescriptionTextAppearance"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center|end"
-                    android:padding="8dp"
-                    android:textSize="12sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
                     tools:text="4:08" />
 
-            </LinearLayout>
+            </RelativeLayout>
 
         </RelativeLayout>
 
@@ -89,16 +90,16 @@
             android:layout_gravity="bottom"
             android:layout_marginEnd="@dimen/card_view_margin_end"
             android:layout_marginStart="@dimen/card_view_margin_start"
-            android:visibility="gone"
             android:layout_marginTop="4dp"
             android:animateLayoutChanges="true"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="4dp"
                 android:layout_gravity="center"
+                android:layout_margin="4dp"
                 android:orientation="horizontal">
 
                 <ImageView
@@ -116,10 +117,10 @@
                     android:layout_width="0dp"
                     android:layout_height="32dp"
                     android:layout_weight="1"
-                    android:visibility="invisible"
                     android:contentDescription="@string/app_name"
                     android:src="@drawable/icon_delete"
-                    android:tint="@color/accent" />
+                    android:tint="@color/accent"
+                    android:visibility="invisible" />
 
             </LinearLayout>
 

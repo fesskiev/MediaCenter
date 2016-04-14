@@ -5,7 +5,7 @@ import android.os.Environment;
 
 import java.io.File;
 
-public class CacheConstants {
+public class CacheManager {
 
     private final static String EXTERNAL_STORAGE = Environment.getExternalStorageDirectory().toString();
     private final static String DOWNLOADS_FOLDER_PATH = EXTERNAL_STORAGE + "/MediaCenter/Downloads/";

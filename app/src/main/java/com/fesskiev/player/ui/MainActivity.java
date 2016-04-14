@@ -47,7 +47,7 @@ import com.fesskiev.player.ui.settings.SettingsActivity;
 import com.fesskiev.player.ui.vk.MusicVKActivity;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.BitmapHelper;
-import com.fesskiev.player.utils.CacheConstants;
+import com.fesskiev.player.utils.CacheManager;
 import com.fesskiev.player.utils.http.URLHelper;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
@@ -320,7 +320,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private void saveDownloadFolderIcon() {
         BitmapHelper.saveBitmap(
                 BitmapHelper.getBitmapFromResource(getApplicationContext(), R.drawable.icon_folder_download),
-                CacheConstants.getDownloadFolderIconPath());
+                CacheManager.getDownloadFolderIconPath());
     }
 
     private void checkAppFirstStart() {

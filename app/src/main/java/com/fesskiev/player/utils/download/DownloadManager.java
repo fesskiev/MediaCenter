@@ -2,7 +2,7 @@ package com.fesskiev.player.utils.download;
 
 
 
-import com.fesskiev.player.utils.CacheConstants;
+import com.fesskiev.player.utils.CacheManager;
 
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -60,6 +60,7 @@ public class DownloadManager implements Runnable {
     private void download() {
         Thread thread = new Thread(this);
         thread.start();
+        stateChanged();
     }
 
     public void pause() {
@@ -97,7 +98,7 @@ public class DownloadManager implements Runnable {
 
 
     public boolean removeFile(){
-        return CacheConstants.getDownloadsFilePath(fileName).delete();
+        return CacheManager.getDownloadsFilePath(fileName).delete();
     }
 
     private void stateChanged() {
@@ -139,7 +140,7 @@ public class DownloadManager implements Runnable {
                 size = contentLength;
             }
 
-            file = new RandomAccessFile(CacheConstants.getDownloadsFilePath(fileName), "rw");
+            file = new RandomAccessFile(CacheManager.getDownloadsFilePath(fileName), "rw");
             file.seek(downloaded);
 
             stream = connection.getInputStream();

@@ -33,6 +33,7 @@ public class DownloadGroupAudioFile implements DownloadManager.OnDownloadListene
         String fileName = vkMusicFile.artist + "-" + vkMusicFile.title;
         downloadManager = new DownloadManager(vkMusicFile.url, fileName);
         downloadManager.setOnDownloadListener(this);
+        progressOnUiThread();
     }
 
     public static List<DownloadGroupAudioFile> getDownloadGroupAudioFiles(Activity activity, List<VKMusicFile> vkMusicFiles) {
@@ -46,17 +47,16 @@ public class DownloadGroupAudioFile implements DownloadManager.OnDownloadListene
 
     @Override
     public void onStatusChanged() {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                progress();
-            }
-        });
+        progressOnUiThread();
 
     }
 
     @Override
     public void onProgress() {
+        progressOnUiThread();
+    }
+
+    private void progressOnUiThread() {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {

@@ -29,7 +29,7 @@ import com.fesskiev.player.services.FileObserverService;
 import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.ui.tracklist.TrackListActivity;
 import com.fesskiev.player.utils.BitmapHelper;
-import com.fesskiev.player.utils.CacheConstants;
+import com.fesskiev.player.utils.CacheManager;
 import com.fesskiev.player.widgets.dialogs.FetchAudioFoldersDialog;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 import com.fesskiev.player.widgets.recycleview.helper.ItemTouchHelperAdapter;
@@ -124,7 +124,7 @@ public class AudioFoldersFragment extends GridFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        CacheConstants.clearImagesCache();
+                        CacheManager.clearImagesCache();
                         DatabaseHelper.resetDatabase(getActivity());
                         FileSystemIntentService.startFileTreeService(getActivity());
 

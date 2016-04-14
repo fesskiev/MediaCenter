@@ -6,6 +6,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -167,6 +168,7 @@ public class GroupPostAudioView extends FrameLayout {
     private OnClickListener clickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            Log.d("test", "start download");
             DownloadGroupAudioFile downloadGroupAudioFile = (DownloadGroupAudioFile) v.getTag();
             if (downloadGroupAudioFile != null) {
                 downloadGroupAudioFile.startDownload();

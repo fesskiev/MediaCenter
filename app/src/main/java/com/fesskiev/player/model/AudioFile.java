@@ -2,14 +2,12 @@ package com.fesskiev.player.model;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.fesskiev.player.R;
 import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.utils.BitmapHelper;
-import com.fesskiev.player.utils.CacheConstants;
+import com.fesskiev.player.utils.CacheManager;
 
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.AudioHeader;
@@ -26,7 +24,6 @@ import org.jaudiotagger.tag.images.Artwork;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.UUID;
 
 public class AudioFile implements Comparable<AudioFile> {
@@ -125,7 +122,7 @@ public class AudioFile implements Comparable<AudioFile> {
             try {
 
                File path = File.createTempFile(UUID.randomUUID().toString(),
-                        ".png", new File(CacheConstants.IMAGES_CACHE_PATH));
+                        ".png", new File(CacheManager.IMAGES_CACHE_PATH));
 
                 BitmapHelper.saveBitmap(artwork.getBinaryData(), path);
 

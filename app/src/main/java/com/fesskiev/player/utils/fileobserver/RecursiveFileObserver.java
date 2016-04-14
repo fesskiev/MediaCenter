@@ -6,7 +6,7 @@ import android.os.FileObserver;
 import android.util.Log;
 
 import com.fesskiev.player.services.FileSystemIntentService;
-import com.fesskiev.player.utils.CacheConstants;
+import com.fesskiev.player.utils.CacheManager;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -81,7 +81,7 @@ public class RecursiveFileObserver extends FileObserver {
                 break;
             case FileObserver.CREATE:
                 Log.d(TAG, "event create: " + path);
-                if (CacheConstants.CHECK_DOWNLOADS_FOLDER_PATH.equals(path)) {
+                if (CacheManager.CHECK_DOWNLOADS_FOLDER_PATH.equals(path)) {
                     FileSystemIntentService.startCheckDownloadFolderService(context);
                 }
                 break;

@@ -101,11 +101,11 @@ public class AppSettingsManager {
 
 
     public void saveUserPhoto(Bitmap bitmap) {
-        BitmapHelper.saveBitmap(bitmap, CacheConstants.getUserPhotoPath());
+        BitmapHelper.saveBitmap(bitmap, CacheManager.getUserPhotoPath());
     }
 
     public Bitmap getUserPhoto() {
-        return BitmapHelper.getBitmapFromPath(CacheConstants.getUserPhotoPath().getAbsolutePath());
+        return BitmapHelper.getBitmapFromPath(CacheManager.getUserPhotoPath().getAbsolutePath());
     }
 }
 

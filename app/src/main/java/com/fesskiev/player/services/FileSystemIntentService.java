@@ -12,7 +12,7 @@ import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.VideoFile;
-import com.fesskiev.player.utils.CacheConstants;
+import com.fesskiev.player.utils.CacheManager;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -77,7 +77,7 @@ public class FileSystemIntentService extends IntentService {
 
     private void checkAudioFolderService() {
         String folderId = null;
-        File root = new File(CacheConstants.CHECK_DOWNLOADS_FOLDER_PATH);
+        File root = new File(CacheManager.CHECK_DOWNLOADS_FOLDER_PATH);
         File[] list = root.listFiles();
         for (File child : list) {
             if (!DatabaseHelper.containAudioTrack(getApplicationContext(), child.getAbsolutePath())) {
@@ -134,7 +134,7 @@ public class FileSystemIntentService extends IntentService {
     }
 
     public boolean checkDownloadFolder(File file) {
-        return file.getAbsolutePath().equals(CacheConstants.CHECK_DOWNLOADS_FOLDER_PATH);
+        return file.getAbsolutePath().equals(CacheManager.CHECK_DOWNLOADS_FOLDER_PATH);
     }
 
 
@@ -148,7 +148,7 @@ public class FileSystemIntentService extends IntentService {
                     AudioFolder audioFolder = new AudioFolder();
 
                     if (checkDownloadFolder(directoryFile)) {
-                        audioFolder.folderImage = CacheConstants.getDownloadFolderIconPath();
+                        audioFolder.folderImage = CacheManager.getDownloadFolderIconPath();
                     } else {
                         File[] filterImages = directoryFile.listFiles(folderImageFilter());
                         if (filterImages != null && filterImages.length > 0) {

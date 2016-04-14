@@ -64,7 +64,7 @@
     <string name="dialog_fetch_audio_track_name">Searching tracks....</string>
 
     <string name="dialog_refresh_folders_title">Поиск музыки</string>
-    <string name="dialog_refresh_folders_message">Сделать полный поиск по разделам?</string>
+    <string name="dialog_refresh_folders_message">Выполнить полный поиск по разделам?</string>
     <string name="dialog_refresh_folders_ok">Да</string>
     <string name="dialog_refresh_folders_cancel">Нет</string>
 
