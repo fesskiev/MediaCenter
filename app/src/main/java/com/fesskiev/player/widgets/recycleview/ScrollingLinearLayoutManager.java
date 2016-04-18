@@ -22,7 +22,7 @@ public class ScrollingLinearLayoutManager extends LinearLayoutManager {
         View firstVisibleChild = recyclerView.getChildAt(0);
         if (firstVisibleChild != null) {
             int itemHeight = firstVisibleChild.getHeight();
-            int currentPosition = recyclerView.getChildPosition(firstVisibleChild);
+            int currentPosition = recyclerView.getChildAdapterPosition(firstVisibleChild);
             int distanceInPixels = Math.abs((currentPosition - position) * itemHeight);
             if (distanceInPixels == 0) {
                 distanceInPixels = (int) Math.abs(firstVisibleChild.getY());

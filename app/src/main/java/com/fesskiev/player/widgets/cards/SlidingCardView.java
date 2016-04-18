@@ -8,10 +8,11 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import com.fesskiev.player.R;
 
-public class SlidingCardView extends FrameLayout implements View.OnClickListener {
+public class SlidingCardView extends FrameLayout {
 
     public interface OnSlidingCardListener {
         void onDeleteClick();
@@ -25,6 +26,8 @@ public class SlidingCardView extends FrameLayout implements View.OnClickListener
 
     private GestureDetector detector;
     private OnSlidingCardListener listener;
+    private ImageView editButton;
+    private ImageView deleteButton;
     private View slidingContainer;
     private float x1;
     private float x2;
@@ -50,8 +53,8 @@ public class SlidingCardView extends FrameLayout implements View.OnClickListener
                 Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.card_sliding_layout, this, true);
 
-        view.findViewById(R.id.editButton).setOnClickListener(this);
-        view.findViewById(R.id.deleteButton).setOnClickListener(this);
+        editButton = (ImageView) view.findViewById(R.id.editButton);
+        deleteButton = (ImageView) view.findViewById(R.id.deleteButton);
 
         slidingContainer = view.findViewById(R.id.slidingContainer);
 
@@ -63,20 +66,31 @@ public class SlidingCardView extends FrameLayout implements View.OnClickListener
 
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
-            if (listener != null) {
-                listener.onClick();
+            if (isOpen) {
+                if (isPointInsideView(e.getRawX(), e.getRawY(), editButton)) {
+                    if (listener != null) {
+                        listener.onEditClick();
+                    }
+                }
+                if (isPointInsideView(e.getRawX(), e.getRawY(), deleteButton)) {
+                    if (listener != null) {
+                        listener.onDeleteClick();
+                    }
+                }
+            } else {
+                if (listener != null) {
+                    listener.onClick();
+                }
             }
             return true;
         }
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean dispatchTouchEvent(MotionEvent event) {
         detector.onTouchEvent(event);
         switch (event.getActionMasked()) {
-            case MotionEvent.ACTION_DOWN:
-                x1 = event.getX();
-                return true;
+            case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 x2 = event.getX();
                 float deltaX = x2 - x1;
@@ -90,24 +104,20 @@ public class SlidingCardView extends FrameLayout implements View.OnClickListener
                     }
                 }
                 break;
+            case MotionEvent.ACTION_DOWN:
+                x1 = event.getX();
+                return true;
         }
         return true;
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.editButton:
-                if (listener != null && isOpen) {
-                    listener.onEditClick();
-                }
-                break;
-            case R.id.deleteButton:
-                if (listener != null && isOpen) {
-                    listener.onDeleteClick();
-                }
-                break;
-        }
+    private boolean isPointInsideView(float x, float y, View view) {
+        int location[] = new int[2];
+        view.getLocationOnScreen(location);
+        int viewX = location[0];
+        int viewY = location[1];
+        return (x > viewX && x < (viewX + view.getWidth())) &&
+                (y > viewY && y < (viewY + view.getHeight()));
     }
 
     private void animateSlidingContainer() {
@@ -116,7 +126,7 @@ public class SlidingCardView extends FrameLayout implements View.OnClickListener
         slidingContainer.
                 animate().
                 x(value).
-                setDuration(500);
+                setDuration(450);
     }
 
     public void setOnSlidingCardListener(OnSlidingCardListener listener) {

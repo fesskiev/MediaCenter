@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -245,6 +244,8 @@ public class AudioFoldersFragment extends GridFragment {
 
         @Override
         public boolean onItemMove(int fromPosition, int toPosition) {
+            Log.d(TAG, "item move from: " + fromPosition + " to: " + toPosition);
+
             Collections.swap(audioFolders, fromPosition, toPosition);
             notifyItemMoved(fromPosition, toPosition);
             return true;
@@ -258,13 +259,23 @@ public class AudioFoldersFragment extends GridFragment {
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
 
-            holder.cover.setOnTouchListener(new View.OnTouchListener() {
+            holder.itemView.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
-                    if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
-                        itemTouchHelper.startDrag(holder);
+                    switch (event.getActionMasked()) {
+                        case MotionEvent.ACTION_UP:
+                        case MotionEvent.ACTION_CANCEL:
+                            Log.w(TAG, "notify!");
+                            notifyDataSetChanged();
+                            break;
+                        case MotionEvent.ACTION_DOWN:
+                            Log.w(TAG, "move!");
+                            itemTouchHelper.startDrag(holder);
+                            return true;
                     }
-                    return false;
+
+
+                    return true;
                 }
             });
 
