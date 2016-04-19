@@ -28,6 +28,7 @@ import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton;
+import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,6 +70,29 @@ public class PlaybackActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new TrackListAdapter();
         recyclerView.setAdapter(adapter);
+        recyclerView.addOnItemTouchListener(new RecyclerItemTouchClickListener(this,
+                new RecyclerItemTouchClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View childView, int position) {
+                        Log.d(TAG, "get adapter pos: " + position);
+                        if(position == -1){
+                            return;
+                        }
+
+                        List<AudioFile> audioFiles = adapter.getAudioFiles();
+                        AudioFile audioFile = audioFiles.get(position);
+                        if (audioFile != null) {
+                            audioPlayer.setCurrentAudioFile(audioFile);
+                            PlaybackService.createPlayer(PlaybackActivity.this, audioFile.filePath.getAbsolutePath());
+                            PlaybackService.startPlayback(PlaybackActivity.this);
+                        }
+                    }
+
+                    @Override
+                    public void onItemLongPress(View childView, int position) {
+
+                    }
+                }));
 
         AudioFile audioFile = audioPlayer.currentAudioFile;
         if (audioFile != null) {
@@ -113,7 +137,7 @@ public class PlaybackActivity extends AppCompatActivity {
             peakView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(audioPlayer.currentAudioFile != null) {
+                    if (audioPlayer.currentAudioFile != null) {
                         AudioPlayerActivity.startPlayerActivity(PlaybackActivity.this, false, cover);
                     }
                 }
@@ -189,18 +213,15 @@ public class PlaybackActivity extends AppCompatActivity {
                     audioPlayer.isPlaying = isPlaying;
                     playPauseButton.setPlay(audioPlayer.isPlaying);
                     adapter.notifyDataSetChanged();
-                    showPlayback();
                     break;
                 case AudioPlayer.ACTION_CHANGE_CURRENT_AUDIO_FILE:
                     Log.w(TAG, "change current audio file");
                     setMusicFileInfo(audioPlayer.currentAudioFile);
                     adapter.notifyDataSetChanged();
-                    showPlayback();
                     break;
                 case AudioPlayer.ACTION_CHANGE_CURRENT_AUDIO_FOLDER:
                     Log.w(TAG, "change current audio folder");
                     adapter.refreshAdapter(audioPlayer.currentAudioFolder.audioFiles);
-                    showPlayback();
                     break;
             }
         }
@@ -222,22 +243,6 @@ public class PlaybackActivity extends AppCompatActivity {
 
             public ViewHolder(View v) {
                 super(v);
-                v.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (getAdapterPosition() == -1) {
-                            return;
-                        }
-
-                        List<AudioFile> audioFiles = adapter.getAudioFiles();
-                        AudioFile audioFile = audioFiles.get(getAdapterPosition());
-                        if (audioFile != null) {
-                            audioPlayer.setCurrentAudioFile(audioFile);
-                            PlaybackService.createPlayer(PlaybackActivity.this, audioFile.filePath.getAbsolutePath());
-                            PlaybackService.startPlayback(PlaybackActivity.this);
-                        }
-                    }
-                });
 
                 playEq = (ImageView) v.findViewById(R.id.playEq);
                 title = (TextView) v.findViewById(R.id.title);
