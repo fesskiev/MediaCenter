@@ -44,6 +44,7 @@ public class MediaCenterProvider extends ContentProvider {
     public static final String FOLDER_PATH = "FolderPath";
     public static final String FOLDER_COVER = "FolderCover";
     public static final String FOLDER_NAME = "FolderName";
+    public static final String FOLDER_INDEX = "FolderIndex";
 
     /**
      * audio file constants
@@ -75,7 +76,8 @@ public class MediaCenterProvider extends ContentProvider {
             ID + " " + KEY_TYPE + " ," +
             FOLDER_PATH + " " + TEXT_TYPE + " ," +
             FOLDER_NAME + " " + TEXT_TYPE + " ," +
-            FOLDER_COVER + " " + TEXT_TYPE +
+            FOLDER_COVER + " " + TEXT_TYPE + " ," +
+            FOLDER_INDEX + " " + INTEGER_TYPE +
             ")";
 
     public static final String CREATE_AUDIO_TRACKS_TABLE_SQL = "CREATE TABLE" + " " +
@@ -141,7 +143,6 @@ public class MediaCenterProvider extends ContentProvider {
         helper = new MediaCenterProviderHelper(getContext());
         return true;
     }
-
 
 
     @Nullable

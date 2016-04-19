@@ -24,6 +24,7 @@ public class DatabaseHelper {
         dateValues.put(MediaCenterProvider.FOLDER_NAME, audioFolder.folderName);
         dateValues.put(MediaCenterProvider.FOLDER_COVER,
                 audioFolder.folderImage != null ? audioFolder.folderImage.getAbsolutePath() : null);
+        dateValues.put(MediaCenterProvider.FOLDER_INDEX, audioFolder.index);
 
         context.getContentResolver().insert(
                 MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
@@ -31,7 +32,18 @@ public class DatabaseHelper {
 
     }
 
-    public static void updateAudioFile(Context context, AudioFile audioFile){
+    public static void updateAudioFolderIndex(Context context, AudioFolder audioFolder) {
+
+        ContentValues dateValues = new ContentValues();
+        dateValues.put(MediaCenterProvider.FOLDER_INDEX, audioFolder.index);
+
+        context.getContentResolver().update(MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
+                dateValues,
+                MediaCenterProvider.FOLDER_PATH + "=" + "'" + audioFolder.folderPath + "'",
+                null);
+    }
+
+    public static void updateAudioFile(Context context, AudioFile audioFile) {
 
         ContentValues dateValues = new ContentValues();
 

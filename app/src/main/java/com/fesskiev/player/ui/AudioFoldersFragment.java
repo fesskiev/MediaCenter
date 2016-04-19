@@ -13,7 +13,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -54,7 +53,6 @@ public class AudioFoldersFragment extends GridFragment {
 
     private OnAttachFolderFragmentListener attachFolderFragmentListener;
     private FetchAudioFoldersDialog audioFoldersDialog;
-    private ItemTouchHelper itemTouchHelper;
     private List<AudioFolder> audioFolders;
 
     @Override
@@ -81,7 +79,7 @@ public class AudioFoldersFragment extends GridFragment {
         super.onViewCreated(view, savedInstanceState);
 
         ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback((ItemTouchHelperAdapter) adapter);
-        itemTouchHelper = new ItemTouchHelper(callback);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
         recyclerView.addOnItemTouchListener(new RecyclerItemTouchClickListener(getActivity(),
@@ -206,7 +204,8 @@ public class AudioFoldersFragment extends GridFragment {
     };
 
 
-    public class AudioFoldersAdapter extends RecyclerView.Adapter<AudioFoldersAdapter.ViewHolder> implements ItemTouchHelperAdapter {
+    public class AudioFoldersAdapter extends
+            RecyclerView.Adapter<AudioFoldersAdapter.ViewHolder> implements ItemTouchHelperAdapter {
 
 
         public class ViewHolder extends RecyclerView.ViewHolder implements
@@ -229,8 +228,18 @@ public class AudioFoldersFragment extends GridFragment {
             }
 
             @Override
-            public void onItemClear() {
+            public void onItemClear(int position) {
                 itemView.setAlpha(1.0f);
+                updateAudioFolderIndex(position);
+                notifyDataSetChanged();
+            }
+        }
+
+        private void updateAudioFolderIndex(int position) {
+            AudioFolder audioFolder = audioFolders.get(position);
+            if (audioFolder != null) {
+                audioFolder.index = position;
+                DatabaseHelper.updateAudioFolderIndex(getActivity(), audioFolder);
             }
         }
 
@@ -244,8 +253,6 @@ public class AudioFoldersFragment extends GridFragment {
 
         @Override
         public boolean onItemMove(int fromPosition, int toPosition) {
-            Log.d(TAG, "item move from: " + fromPosition + " to: " + toPosition);
-
             Collections.swap(audioFolders, fromPosition, toPosition);
             notifyItemMoved(fromPosition, toPosition);
             return true;
@@ -258,26 +265,6 @@ public class AudioFoldersFragment extends GridFragment {
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-
-            holder.itemView.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    switch (event.getActionMasked()) {
-                        case MotionEvent.ACTION_UP:
-                        case MotionEvent.ACTION_CANCEL:
-                            Log.w(TAG, "notify!");
-                            notifyDataSetChanged();
-                            break;
-                        case MotionEvent.ACTION_DOWN:
-                            Log.w(TAG, "move!");
-                            itemTouchHelper.startDrag(holder);
-                            return true;
-                    }
-
-
-                    return true;
-                }
-            });
 
             AudioFolder audioFolder = audioFolders.get(position);
             if (audioFolder != null) {
@@ -297,6 +284,5 @@ public class AudioFoldersFragment extends GridFragment {
             audioFolders.addAll(receiverAudioFolders);
             notifyDataSetChanged();
         }
-
     }
 }

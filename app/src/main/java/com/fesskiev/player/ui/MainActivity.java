@@ -56,6 +56,7 @@ import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKError;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -383,6 +384,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 for (Fragment fragment : registeredFragments) {
                     if (fragment instanceof AudioFoldersFragment) {
                         final AudioFoldersFragment audioFoldersFragment = (AudioFoldersFragment) fragment;
+                        Collections.sort(audioFolders);
                         ((AudioFoldersFragment.AudioFoldersAdapter)
                                 audioFoldersFragment.getAdapter()).refresh(audioFolders);
                         break;

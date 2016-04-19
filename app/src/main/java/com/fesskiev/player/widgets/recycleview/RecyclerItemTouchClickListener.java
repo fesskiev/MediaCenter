@@ -3,6 +3,7 @@ package com.fesskiev.player.widgets.recycleview;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -56,6 +57,8 @@ public class RecyclerItemTouchClickListener implements RecyclerView.OnItemTouchL
                 listener.onItemLongPress(childView, childViewPosition);
             }
         }
+
+
 
         @Override
         public boolean onDown(MotionEvent event) {

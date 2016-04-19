@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 
 
 public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
@@ -75,6 +76,7 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
     @Override
     public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
+
         // We only want the active item to change
         if (actionState != ItemTouchHelper.ACTION_STATE_IDLE) {
             if (viewHolder instanceof ItemTouchHelperViewHolder) {
@@ -96,7 +98,7 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
         if (viewHolder instanceof ItemTouchHelperViewHolder) {
             // Tell the view holder it's time to restore the idle state
             ItemTouchHelperViewHolder itemViewHolder = (ItemTouchHelperViewHolder) viewHolder;
-            itemViewHolder.onItemClear();
+            itemViewHolder.onItemClear(viewHolder.getAdapterPosition());
         }
     }
 }
