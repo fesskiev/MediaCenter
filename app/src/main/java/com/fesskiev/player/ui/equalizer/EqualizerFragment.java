@@ -81,6 +81,9 @@ public class EqualizerFragment extends Fragment implements SeekBar.OnSeekBarChan
             bandLevel.setOnSeekBarChangeListener(this);
         }
 
+        SeekBar bassBoost = (SeekBar) view.findViewById(R.id.bassBoostSeek);
+        bassBoost.setOnSeekBarChangeListener(this);
+
     }
 
     public void onDestroy() {
@@ -101,6 +104,11 @@ public class EqualizerFragment extends Fragment implements SeekBar.OnSeekBarChan
 
             getPresetsName();
             setPresetItems();
+
+            if(playbackService.isSupportedBassBoost()){
+                playbackService.setEnableBassBoost(true);
+                Log.d(TAG, "bass boost enable!");
+            }
         }
 
         @Override
@@ -185,7 +193,11 @@ public class EqualizerFragment extends Fragment implements SeekBar.OnSeekBarChan
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
+        switch (seekBar.getId()) {
+            case R.id.bassBoostSeek:
+                playbackService.setBassBoostValue(progress);
+                break;
+        }
     }
 
     @Override

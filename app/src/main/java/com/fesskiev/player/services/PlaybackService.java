@@ -156,6 +156,13 @@ public class PlaybackService extends Service {
 
     public native String getPresetName(int presetNumber);
 
+    public native boolean isSupportedBassBoost();
+
+    public native void setEnableBassBoost(boolean isEnable);
+
+    public native void setBassBoostValue(int value);
+
+
     /**
      * Callback method from C to Java
      **/
@@ -171,7 +178,6 @@ public class PlaybackService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "Create playback service!");
-        createEngine();
         registerHeadsetReceiver();
         registerCallback();
     }
@@ -239,7 +245,9 @@ public class PlaybackService extends Service {
         if (isPlaying()) {
             stop();
             releaseUriAudioPlayer();
+            releaseEngine();
         }
+        createEngine();
         createUriAudioPlayer(path);
     }
 

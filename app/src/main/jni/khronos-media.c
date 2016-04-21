@@ -5,23 +5,23 @@
 #include<android/log.h>
 
 // engine interfaces
-static SLObjectItf engineObject = NULL;
-static SLEngineItf engineEngine;
+SLObjectItf engineObject = NULL;
+SLEngineItf engineEngine;
 
 // output mix interfaces
-static SLObjectItf outputMixObject = NULL;
-static SLEqualizerItf eqOutputItf = NULL;
+SLObjectItf outputMixObject = NULL;
+SLEqualizerItf eqOutputItf = NULL;
 
 // URI player interfaces
-static SLObjectItf uriPlayerObject = NULL;
-static SLPlayItf uriPlayerPlay;
-static SLSeekItf uriPlayerSeek;
-static SLMuteSoloItf uriPlayerMuteSolo;
-static SLVolumeItf uriPlayerVolume;
+SLObjectItf uriPlayerObject = NULL;
+SLPlayItf uriPlayerPlay;
+SLSeekItf uriPlayerSeek;
+SLMuteSoloItf uriPlayerMuteSolo;
+SLVolumeItf uriPlayerVolume;
+SLBassBoostItf uriBassBoost;
 
-
-static JavaVM *gJavaVM;
-static jobject gCallbackObject = NULL;
+JavaVM *gJavaVM;
+jobject gCallbackObject = NULL;
 
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native", "JNI_OnLoad");
@@ -48,50 +48,36 @@ Java_com_fesskiev_player_services_PlaybackService_createEngine(JNIEnv *env, jobj
 
     // create engine
     result = slCreateEngine(&engineObject, 0, NULL, 0, NULL, NULL);
-    assert(SL_RESULT_SUCCESS == result);
-    (void) result;
 
     // realize the engine
     result = (*engineObject)->Realize(engineObject, SL_BOOLEAN_FALSE);
-    assert(SL_RESULT_SUCCESS == result);
-    (void) result;
 
     // get the engine interface, which is needed in order to create other objects
     result = (*engineObject)->GetInterface(engineObject, SL_IID_ENGINE, &engineEngine);
-    assert(SL_RESULT_SUCCESS == result);
-    (void) result;
 
-    const SLInterfaceID ids[1] = {SL_IID_EQUALIZER};
-    const SLboolean req[1] = {SL_BOOLEAN_FALSE};
-    result = (*engineEngine)->CreateOutputMix(engineEngine, &outputMixObject, 1, ids, req);
-    assert(SL_RESULT_SUCCESS == result);
-    (void) result;
+    const SLInterfaceID ids[2] = {SL_IID_EQUALIZER, SL_IID_BASSBOOST};
+    const SLboolean req[2] = {SL_BOOLEAN_FALSE, SL_BOOLEAN_FALSE};
+    result = (*engineEngine)->CreateOutputMix(engineEngine, &outputMixObject, 2, ids, req);
 
     // realize the output mix
     result = (*outputMixObject)->Realize(outputMixObject, SL_BOOLEAN_FALSE);
-    assert(SL_RESULT_SUCCESS == result);
-    (void) result;
-
 
     result = (*outputMixObject)->GetInterface(outputMixObject, SL_IID_EQUALIZER,
                                               &eqOutputItf);
 
-    assert(SL_RESULT_SUCCESS == result);
-    (void) result;
-
-
+    result = (*outputMixObject)->GetInterface(outputMixObject, SL_IID_BASSBOOST,
+                                              &uriBassBoost);
 }
 
 
 void handlingCallback(int event) {
-    int status;
     JNIEnv *env;
     int isAttached = 0;
 
     if (!gCallbackObject) return;
 
-    if ((status = (*gJavaVM)->GetEnv(gJavaVM, (void **) &env, JNI_VERSION_1_6)) < 0) {
-        if ((status = (*gJavaVM)->AttachCurrentThread(gJavaVM, &env, NULL)) < 0) {
+    if (((*gJavaVM)->GetEnv(gJavaVM, (void **) &env, JNI_VERSION_1_6)) < 0) {
+        if (((*gJavaVM)->AttachCurrentThread(gJavaVM, &env, NULL)) < 0) {
             return;
         }
         isAttached = 1;
@@ -129,7 +115,6 @@ Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *e
 
     // convert Java string to UTF-8
     const char *utf8 = (*env)->GetStringUTFChars(env, uri, NULL);
-    assert(NULL != utf8);
 
     // configure audio source
     // (requires the INTERNET permission depending on the uri parameter)
@@ -142,15 +127,10 @@ Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *e
     SLDataSink audioSnk = {&loc_outmix, NULL};
 
     // create audio player
-    const SLInterfaceID ids[3] = {SL_IID_SEEK, SL_IID_MUTESOLO, SL_IID_VOLUME};
-    const SLboolean req[3] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
+    const SLInterfaceID ids[4] = {SL_IID_SEEK, SL_IID_MUTESOLO, SL_IID_VOLUME, SL_IID_BASSBOOST};
+    const SLboolean req[4] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
     result = (*engineEngine)->CreateAudioPlayer(engineEngine, &uriPlayerObject, &audioSrc,
-                                                &audioSnk, 3, ids, req);
-    // note that an invalid URI is not detected here, but during prepare/prefetch on Android,
-    // or possibly during Realize on other platforms
-    assert(SL_RESULT_SUCCESS == result);
-    (void) result;
-
+                                                &audioSnk, 4, ids, req);
     // release the Java string and UTF-8
     (*env)->ReleaseStringUTFChars(env, uri, utf8);
 
@@ -165,32 +145,25 @@ Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *e
 
     // get the play interface
     result = (*uriPlayerObject)->GetInterface(uriPlayerObject, SL_IID_PLAY, &uriPlayerPlay);
-    assert(SL_RESULT_SUCCESS == result);
-    (void) result;
 
     // get the seek interface
     result = (*uriPlayerObject)->GetInterface(uriPlayerObject, SL_IID_SEEK, &uriPlayerSeek);
-    assert(SL_RESULT_SUCCESS == result);
-    (void) result;
 
     // get the mute/solo interface
     result = (*uriPlayerObject)->GetInterface(uriPlayerObject, SL_IID_MUTESOLO, &uriPlayerMuteSolo);
-    assert(SL_RESULT_SUCCESS == result);
-    (void) result;
 
     // get the volume interface
     result = (*uriPlayerObject)->GetInterface(uriPlayerObject, SL_IID_VOLUME, &uriPlayerVolume);
-    assert(SL_RESULT_SUCCESS == result);
-    (void) result;
+
+
+    result = (*uriPlayerObject)->GetInterface(uriPlayerObject, SL_IID_BASSBOOST,
+                                              (void *) &uriBassBoost);
 
     // register callback function
     result = (*uriPlayerPlay)->RegisterCallback(uriPlayerPlay,
                                                 playStatusCallback, 0);
-    assert(SL_RESULT_SUCCESS == result);
     result = (*uriPlayerPlay)->SetCallbackEventsMask(uriPlayerPlay,
                                                      SL_PLAYEVENT_HEADATEND);
-    assert(SL_RESULT_SUCCESS == result);
-
     return JNI_TRUE;
 }
 
@@ -198,58 +171,34 @@ JNIEXPORT void JNICALL
 Java_com_fesskiev_player_services_PlaybackService_setPlayingUriAudioPlayer(JNIEnv *env,
                                                                            jobject instance,
                                                                            jboolean isPlaying) {
-
-    SLresult result;
-
-    // make sure the URI audio player was created
     if (NULL != uriPlayerPlay) {
-
-        // set the player's state
-        result = (*uriPlayerPlay)->SetPlayState(uriPlayerPlay, isPlaying ?
-                                                               SL_PLAYSTATE_PLAYING
-                                                                         : SL_PLAYSTATE_PAUSED);
-        assert(SL_RESULT_SUCCESS == result);
-        (void) result;
+        SLresult result = (*uriPlayerPlay)->SetPlayState(uriPlayerPlay, isPlaying ?
+                                                                        SL_PLAYSTATE_PLAYING : SL_PLAYSTATE_PAUSED);
     }
-
-
 }
 
 JNIEXPORT void JNICALL
 Java_com_fesskiev_player_services_PlaybackService_setVolumeUriAudioPlayer(JNIEnv *env,
                                                                           jobject instance,
                                                                           jint milliBel) {
-
-    SLresult result;
     if (NULL != uriPlayerVolume) {
-        result = (*uriPlayerVolume)->SetVolumeLevel(uriPlayerVolume, milliBel);
-        assert(SL_RESULT_SUCCESS == result);
-        (void) result;
+        SLresult result = (*uriPlayerVolume)->SetVolumeLevel(uriPlayerVolume, milliBel);
     }
-
 }
 
 JNIEXPORT void JNICALL
 Java_com_fesskiev_player_services_PlaybackService_setSeekUriAudioPlayer(JNIEnv *env,
                                                                         jobject instance,
                                                                         jlong milliseconds) {
-    SLresult result;
-
     if (NULL != uriPlayerSeek) {
-
-        result = (*uriPlayerSeek)->SetPosition(uriPlayerSeek, milliseconds, SL_SEEKMODE_FAST);
-
-        assert(SL_RESULT_SUCCESS == result);
-        (void) result;
+        SLresult result = (*uriPlayerSeek)->SetPosition(uriPlayerSeek, milliseconds,
+                                                        SL_SEEKMODE_FAST);
     }
-
 }
 
 JNIEXPORT void JNICALL
 Java_com_fesskiev_player_services_PlaybackService_releaseUriAudioPlayer(JNIEnv *env,
                                                                         jobject instance) {
-
-    // destroy URI audio player object, and invalidate all associated interfaces
     if (uriPlayerObject != NULL) {
         (*uriPlayerObject)->Destroy(uriPlayerObject);
         uriPlayerObject = NULL;
@@ -287,14 +236,9 @@ Java_com_fesskiev_player_services_PlaybackService_getDuration(JNIEnv *env, jobje
 
         SLmillisecond msec;
         SLresult result = (*uriPlayerPlay)->GetDuration(uriPlayerPlay, &msec);
-
-        assert(SL_RESULT_SUCCESS == result);
         return msec;
     }
-
     return 0;
-
-
 }
 
 JNIEXPORT jint JNICALL
@@ -304,30 +248,23 @@ Java_com_fesskiev_player_services_PlaybackService_getPosition(JNIEnv *env, jobje
 
         SLmillisecond msec;
         SLresult result = (*uriPlayerPlay)->GetPosition(uriPlayerPlay, &msec);
-        assert(SL_RESULT_SUCCESS == result);
         return msec;
     }
 
     return 0;
-
 }
 
 SLuint32 getPlayState() {
-    SLresult result;
-
 
     if (NULL != uriPlayerPlay) {
 
         SLuint32 state;
-        result = (*uriPlayerPlay)->GetPlayState(uriPlayerPlay, &state);
-        assert(SL_RESULT_SUCCESS == result);
+        SLresult result = (*uriPlayerPlay)->GetPlayState(uriPlayerPlay, &state);
         (void) result;
 
         return state;
     }
-
     return 0;
-
 }
 
 JNIEXPORT jboolean JNICALL
@@ -339,17 +276,10 @@ Java_com_fesskiev_player_services_PlaybackService_isPlaying(JNIEnv *env, jobject
 JNIEXPORT void JNICALL
 Java_com_fesskiev_player_services_PlaybackService_setEnableEQ(JNIEnv *env, jobject instance,
                                                               jboolean isEnable) {
-
-    SLresult result;
     if (NULL != eqOutputItf) {
-
-        result = (*eqOutputItf)->SetEnabled(eqOutputItf, isEnable ?
+        SLresult result = (*eqOutputItf)->SetEnabled(eqOutputItf, isEnable ?
                                                          SL_BOOLEAN_TRUE : SL_BOOLEAN_FALSE);
-        assert(SL_RESULT_SUCCESS == result);
-        (void) result;
     }
-
-
 }
 
 JNIEXPORT void JNICALL
@@ -358,9 +288,7 @@ Java_com_fesskiev_player_services_PlaybackService_usePreset(JNIEnv *env, jobject
 
     if (NULL != eqOutputItf) {
         SLresult result = (*eqOutputItf)->UsePreset(eqOutputItf, (SLuint16) presetValue);
-        assert(SL_RESULT_SUCCESS == result);
     }
-
 }
 
 JNIEXPORT jint JNICALL
@@ -370,11 +298,8 @@ Java_com_fesskiev_player_services_PlaybackService_getNumberOfBands(JNIEnv *env, 
 
     if (NULL != eqOutputItf) {
         SLresult result = (*eqOutputItf)->GetNumberOfBands(eqOutputItf, &numberBands);
-        assert(SL_RESULT_SUCCESS == result);
     }
-
     return numberBands;
-
 }
 
 JNIEXPORT jint JNICALL
@@ -432,19 +357,16 @@ Java_com_fesskiev_player_services_PlaybackService_getBandLevelRange(JNIEnv *env,
 JNIEXPORT void JNICALL
 Java_com_fesskiev_player_services_PlaybackService_setBandLevel(JNIEnv *env, jobject instance,
                                                                jint bandNumber, jint milliBel) {
-
     if (NULL != eqOutputItf) {
         SLresult result = (*eqOutputItf)->SetBandLevel(eqOutputItf, (SLuint16) bandNumber,
                                                        (SLmillibel) milliBel);
-        assert(SL_RESULT_SUCCESS == result);
     }
-
 }
 
 JNIEXPORT jint JNICALL
 Java_com_fesskiev_player_services_PlaybackService_getBandLevel(JNIEnv *env, jobject instance,
                                                                jint bandNumber) {
-    SLmillibel level;
+    SLmillibel level = NULL;
     if (NULL != eqOutputItf) {
         SLresult result = (*eqOutputItf)->GetBandLevel(eqOutputItf, (SLuint16) bandNumber, &level);
         assert(SL_RESULT_SUCCESS == result);
@@ -504,7 +426,6 @@ Java_com_fesskiev_player_services_PlaybackService_getNumberOfPreset(JNIEnv *env,
     SLuint16 numberPreset = 0;
     if (NULL != eqOutputItf) {
         SLresult result = (*eqOutputItf)->GetNumberOfPresets(eqOutputItf, &numberPreset);
-        assert(SL_RESULT_SUCCESS == result);
     }
     return numberPreset;
 
@@ -513,14 +434,42 @@ Java_com_fesskiev_player_services_PlaybackService_getNumberOfPreset(JNIEnv *env,
 JNIEXPORT jstring JNICALL
 Java_com_fesskiev_player_services_PlaybackService_getPresetName(JNIEnv *env, jobject instance,
                                                                 jint presetNumber) {
-
     const SLchar *namePreset = NULL;
     if (NULL != eqOutputItf) {
         SLresult result = (*eqOutputItf)->GetPresetName(eqOutputItf, (SLuint16) presetNumber,
                                                         &namePreset);
-        assert(SL_RESULT_SUCCESS == result);
     }
-
     return (*env)->NewStringUTF(env, namePreset);
 
+}
+
+JNIEXPORT void JNICALL
+Java_com_fesskiev_player_services_PlaybackService_setEnableBassBoost(JNIEnv *env, jobject instance,
+                                                                     jboolean isEnable) {
+    if (NULL != uriBassBoost) {
+
+        SLboolean enable = isEnable ?
+                           SL_BOOLEAN_TRUE : SL_BOOLEAN_FALSE;
+        SLresult result = (*uriBassBoost)->SetEnabled(uriBassBoost, enable);
+    }
+}
+
+JNIEXPORT jboolean JNICALL
+Java_com_fesskiev_player_services_PlaybackService_isSupportedBassBoost(JNIEnv *env,
+                                                                       jobject instance) {
+    if (NULL != uriBassBoost) {
+        SLboolean strengthSupported = SL_BOOLEAN_FALSE;
+        SLresult result = (*uriBassBoost)->IsStrengthSupported(uriBassBoost, &strengthSupported);
+        return (jboolean) strengthSupported;
+    }
+    return JNI_FALSE;
+}
+
+
+JNIEXPORT void JNICALL
+Java_com_fesskiev_player_services_PlaybackService_setBassBoostValue(JNIEnv *env, jobject instance,
+                                                                    jint value) {
+    if (NULL != uriBassBoost) {
+        SLresult result = (*uriBassBoost)->SetStrength(uriBassBoost, (SLuint16) value);
+    }
 }
