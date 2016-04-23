@@ -51,6 +51,11 @@ public abstract class GridFragment extends Fragment implements SwipeRefreshLayou
             public void onShow() {
                 showPlaybackControl();
             }
+
+            @Override
+            public void onItemPosition(int position) {
+
+            }
         });
     }
 

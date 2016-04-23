@@ -30,6 +30,7 @@ import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.cards.SlidingCardView;
 import com.fesskiev.player.widgets.dialogs.EditTrackDialog;
+import com.fesskiev.player.widgets.recycleview.HidingScrollListener;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
 
 import java.util.ArrayList;
@@ -46,6 +47,7 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
     private AudioFolder audioFolder;
     private AudioPlayer audioPlayer;
     private List<AudioFile> audioFiles;
+    private List<SlidingCardView> openCards;
 
     public static TrackListFragment newInstance() {
         return new TrackListFragment();
@@ -57,6 +59,7 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
         audioFolder = audioPlayer.currentAudioFolder;
         audioFiles = new ArrayList<>();
+        openCards = new ArrayList<>();
     }
 
     @Override
@@ -74,6 +77,22 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
                 LinearLayoutManager.VERTICAL, false, 1000));
         trackListAdapter = new TrackListAdapter();
         recyclerView.setAdapter(trackListAdapter);
+        recyclerView.addOnScrollListener(new HidingScrollListener() {
+            @Override
+            public void onHide() {
+
+            }
+
+            @Override
+            public void onShow() {
+
+            }
+
+            @Override
+            public void onItemPosition(int position) {
+                closeOpenCards();
+            }
+        });
 
         getActivity().getSupportLoaderManager().initLoader(GET_AUDIO_FILES_LOADER, null, this);
     }
@@ -118,6 +137,16 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
 
     }
 
+    private void closeOpenCards() {
+        if(!openCards.isEmpty()) {
+            for (SlidingCardView cardView : openCards) {
+                if (cardView.isOpen()) {
+                    cardView.animateSlidingContainer(false);
+                }
+            }
+        }
+    }
+
 
     private class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.ViewHolder> {
 
@@ -154,6 +183,14 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
                                 startPlayerActivity(getAdapterPosition(), cover);
                             }
 
+                            @Override
+                            public void onAnimateChanged(SlidingCardView cardView, boolean open) {
+                                if (open) {
+                                    openCards.add(cardView);
+                                } else {
+                                    openCards.remove(cardView);
+                                }
+                            }
                         });
             }
         }

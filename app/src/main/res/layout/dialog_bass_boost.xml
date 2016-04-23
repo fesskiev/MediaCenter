@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="160dp"
+    android:layout_margin="@dimen/activity_horizontal_margin"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/closeContainer"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_alignParentEnd="true">
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/close"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/icon_close" />
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/bassBoostNotSupportedText"
+        style="@style/SecondNameTextAppearance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:text="@string/dialog_bass_boost_not_supported"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/bassBoostControlContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/SecondNameTextAppearance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/dialog_bass_boost_title" />
+
+        <SeekBar
+            android:id="@+id/bassBoostSeek"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:max="1000" />
+
+        <TextView
+            android:id="@+id/bassBoostLevel"
+            style="@style/SecondNameTextAppearance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            tools:text="800" />
+
+    </LinearLayout>
+
+</RelativeLayout>

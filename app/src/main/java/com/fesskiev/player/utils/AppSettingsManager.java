@@ -3,7 +3,6 @@ package com.fesskiev.player.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.text.TextUtils;
 
 public class AppSettingsManager {
@@ -15,6 +14,7 @@ public class AppSettingsManager {
     private static final String KEY_USER_FIRST_NAME = "com.fesskiev.player.KEY_USER_FIRST_NAME";
     private static final String KEY_USER_LAST_NAME = "com.fesskiev.player.KEY_USER_LAST_NAME";
     private static final String KEY_FIRST_START_APP = "com.fesskiev.player.KEY_FIRST_START_APP";
+    private static final String KEY_BASS_BOOST_VALUE = "com.fesskiev.player.KEY_BASS_BOOST_VALUE";
 
     private SharedPreferences sharedPreferences;
     private static AppSettingsManager appSettingsManager;
@@ -100,13 +100,17 @@ public class AppSettingsManager {
     }
 
 
-    public void saveUserPhoto(Bitmap bitmap) {
-        BitmapHelper.saveBitmap(bitmap, CacheManager.getUserPhotoPath());
+    public int getBassBoostValue() {
+        return sharedPreferences.getInt(KEY_BASS_BOOST_VALUE, -1);
     }
 
-    public Bitmap getUserPhoto() {
-        return BitmapHelper.getBitmapFromPath(CacheManager.getUserPhotoPath().getAbsolutePath());
+    public void setBassBoostValue(int value) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(KEY_BASS_BOOST_VALUE, value);
+        editor.apply();
     }
+
+
 }
 
 

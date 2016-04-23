@@ -1,6 +1,7 @@
 package com.fesskiev.player.widgets.cards;
 
 
+import android.animation.Animator;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -20,6 +21,8 @@ public class SlidingCardView extends FrameLayout {
         void onEditClick();
 
         void onClick();
+
+        void onAnimateChanged(SlidingCardView cardView, boolean open);
     }
 
     private static final int MIN_DISTANCE = 100;
@@ -96,11 +99,9 @@ public class SlidingCardView extends FrameLayout {
                 float deltaX = x2 - x1;
                 if (Math.abs(deltaX) > MIN_DISTANCE) {
                     if (x2 > x1) {
-                        isOpen = false;
-                        animateSlidingContainer();
+                        animateSlidingContainer(false);
                     } else {
-                        isOpen = true;
-                        animateSlidingContainer();
+                        animateSlidingContainer(true);
                     }
                 }
                 break;
@@ -120,16 +121,43 @@ public class SlidingCardView extends FrameLayout {
                 (y > viewY && y < (viewY + view.getHeight()));
     }
 
-    private void animateSlidingContainer() {
+    public void animateSlidingContainer(boolean open) {
         int marginInPixels = (int) getResources().getDimension(R.dimen.card_view_margin_start);
+        isOpen = open;
         float value = isOpen ? -slidingContainer.getWidth() / 3 : marginInPixels;
         slidingContainer.
                 animate().
                 x(value).
-                setDuration(450);
+                setDuration(450).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                if (listener != null) {
+                    listener.onAnimateChanged(SlidingCardView.this, isOpen);
+                }
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
     }
 
     public void setOnSlidingCardListener(OnSlidingCardListener listener) {
         this.listener = listener;
+    }
+
+    public boolean isOpen() {
+        return isOpen;
     }
 }

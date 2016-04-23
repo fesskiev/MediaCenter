@@ -10,6 +10,8 @@ import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.fesskiev.player.utils.AppSettingsManager;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -18,6 +20,9 @@ public class PlaybackService extends Service {
     private static final String TAG = PlaybackService.class.getSimpleName();
 
     private static final int END_SONG = 1;
+    public static final int BASS_BOOST_SUPPORT = 0;
+    public static final int BASS_BOOST_NOT_SUPPORT = 1;
+
 
     public static final String ACTION_HEADSET_PLUG_IN =
             "com.fesskiev.player.action.ACTION_HEADSET_PLUG_IN";
@@ -25,6 +30,10 @@ public class PlaybackService extends Service {
             "com.fesskiev.player.action.ACTION_HEADSET_PLUG_OUT";
     public static final String ACTION_SONG_END =
             "com.fesskiev.player.action.ACTION_SONG_END";
+    public static final String ACTION_BASS_BOOST_LEVEL =
+            "com.fesskiev.player.action.ACTION_BASS_BOOST_LEVEL";
+    public static final String ACTION_BASS_BOOST_CHECK =
+            "com.fesskiev.player.action.ACTION_BASS_BOOST_CHECK";
 
     public static final String ACTION_CREATE_PLAYER =
             "com.fesskiev.player.action.ACTION_CREATE_PLAYER";
@@ -40,6 +49,8 @@ public class PlaybackService extends Service {
             "com.fesskiev.player.action.ACTION_PLAYBACK_VOLUME";
     public static final String ACTION_PLAYBACK_PLAYING_STATE =
             "com.fesskiev.player.action.ACTION_PLAYBACK_PLAYING_STATE";
+    public static final String ACTION_PLAYBACK_BASS_BOOST_STATE =
+            "com.fesskiev.player.action.ACTION_PLAYBACK_BASS_BOOST_STATE";
 
 
     public static final String PLAYBACK_EXTRA_MUSIC_FILE_PATH
@@ -56,10 +67,28 @@ public class PlaybackService extends Service {
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_VOLUME";
     public static final String PLAYBACK_EXTRA_PLAYING
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_PLAYING";
+    public static final String PLAYBACK_EXTRA_BASS_BOOST_LEVEL
+            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_BASS_BOOST_LEVEL";
+    public static final String PLAYBACK_EXTRA_BASS_BOOST_STATE
+            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_BASS_BOOST_STATE";
 
 
     private Timer timer;
+    private AppSettingsManager settingsManager;
     private int durationScale;
+
+    public static void checkBassBoost(Context context) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_BASS_BOOST_CHECK);
+        context.startService(intent);
+    }
+
+    public static void changeBassBoostLevel(Context context, int level) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_BASS_BOOST_LEVEL);
+        intent.putExtra(PLAYBACK_EXTRA_BASS_BOOST_LEVEL, level);
+        context.startService(intent);
+    }
 
     public static void startPlaybackService(Context context) {
         Intent intent = new Intent(context, PlaybackService.class);
@@ -178,6 +207,8 @@ public class PlaybackService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "Create playback service!");
+        settingsManager = AppSettingsManager.getInstance(getApplicationContext());
+
         registerHeadsetReceiver();
         registerCallback();
     }
@@ -205,6 +236,13 @@ public class PlaybackService extends Service {
                 case ACTION_PLAYBACK_VOLUME:
                     int volumeValue = intent.getIntExtra(PLAYBACK_EXTRA_VOLUME, 0);
                     volume(volumeValue);
+                    break;
+                case ACTION_BASS_BOOST_CHECK:
+                    checkBassBoost();
+                    break;
+                case ACTION_BASS_BOOST_LEVEL:
+                    int bassBoostLevel = intent.getIntExtra(PLAYBACK_EXTRA_BASS_BOOST_LEVEL, 0);
+                    setBassBoostValue(bassBoostLevel);
                     break;
 
             }
@@ -241,6 +279,17 @@ public class PlaybackService extends Service {
         }
     };
 
+    private void checkBassBoost() {
+        if (isSupportedBassBoost()) {
+            setEnableBassBoost(true);
+            sendBroadcastBassBoostState(BASS_BOOST_SUPPORT);
+            Log.d(TAG, "bass boost enable");
+        } else {
+            sendBroadcastBassBoostState(BASS_BOOST_NOT_SUPPORT);
+            Log.d(TAG, "bass boost not supported!");
+        }
+    }
+
     private void createPlayer(String path) {
         if (isPlaying()) {
             stop();
@@ -249,6 +298,21 @@ public class PlaybackService extends Service {
         }
         createEngine();
         createUriAudioPlayer(path);
+        setEffects();
+    }
+
+    private void setEffects() {
+        setBassBoost();
+    }
+
+    private void setBassBoost() {
+        if (settingsManager != null) {
+            int value = settingsManager.getBassBoostValue();
+            if (value != -1 && isSupportedBassBoost()) {
+                setBassBoostValue(value);
+                Log.d(TAG, "set bass boost effect: " + value);
+            }
+        }
     }
 
     private void volume(int volumeValue) {
@@ -306,17 +370,24 @@ public class PlaybackService extends Service {
         timer.cancel();
     }
 
-    private void sendBroadcastHeadsetPlugIn(){
+    private void sendBroadcastBassBoostState(int state) {
+        Intent intent = new Intent();
+        intent.setAction(ACTION_PLAYBACK_BASS_BOOST_STATE);
+        intent.putExtra(PLAYBACK_EXTRA_BASS_BOOST_STATE, state);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+    }
+
+    private void sendBroadcastHeadsetPlugIn() {
         LocalBroadcastManager.getInstance(getApplicationContext()).
                 sendBroadcast(new Intent(ACTION_HEADSET_PLUG_IN));
     }
 
-    private void sendBroadcastHeadsetPlugOut(){
+    private void sendBroadcastHeadsetPlugOut() {
         LocalBroadcastManager.getInstance(getApplicationContext()).
                 sendBroadcast(new Intent(ACTION_HEADSET_PLUG_OUT));
     }
 
-    private void sendBroadcastSongEnd(){
+    private void sendBroadcastSongEnd() {
         LocalBroadcastManager.getInstance(getApplicationContext()).
                 sendBroadcast(new Intent(ACTION_SONG_END));
     }

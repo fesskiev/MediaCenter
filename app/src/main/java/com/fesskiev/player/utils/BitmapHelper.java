@@ -157,4 +157,12 @@ public class BitmapHelper {
         return BitmapFactory.decodeResource(context.getResources(), resource);
     }
 
+    public static void saveUserPhoto(Bitmap bitmap) {
+        BitmapHelper.saveBitmap(bitmap, CacheManager.getUserPhotoPath());
+    }
+
+    public static Bitmap getUserPhoto() {
+        return BitmapHelper.getBitmapFromPath(CacheManager.getUserPhotoPath().getAbsolutePath());
+    }
+
 }

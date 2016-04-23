@@ -8,7 +8,7 @@ model {
         defaultConfig.with {
             applicationId = "com.fesskiev.player"
             vectorDrawables.useSupportLibrary = true
-            minSdkVersion.apiLevel = 17
+            minSdkVersion.apiLevel = 19
             targetSdkVersion.apiLevel = 23
             versionCode = 1
             versionName = "1.0"

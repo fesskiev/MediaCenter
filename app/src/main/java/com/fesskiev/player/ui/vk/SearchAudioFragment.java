@@ -71,6 +71,11 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
             public void onShow() {
                 showViews();
             }
+
+            @Override
+            public void onItemPosition(int position) {
+
+            }
         });
 
     }

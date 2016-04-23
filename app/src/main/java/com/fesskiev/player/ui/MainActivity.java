@@ -42,6 +42,7 @@ import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.ui.about.AboutActivity;
+import com.fesskiev.player.ui.equalizer.EqualizerActivity;
 import com.fesskiev.player.ui.player.PlaybackActivity;
 import com.fesskiev.player.ui.settings.SettingsActivity;
 import com.fesskiev.player.ui.vk.MusicVKActivity;
@@ -49,6 +50,7 @@ import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.CacheManager;
 import com.fesskiev.player.utils.http.URLHelper;
+import com.fesskiev.player.widgets.dialogs.BassBoostDialog;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKScope;
@@ -149,7 +151,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     private void setUserInfo() {
-        BitmapHelper.loadBitmapAvatar(this, settingsManager.getUserPhoto(), userPhoto);
+        BitmapHelper.loadBitmapAvatar(this, BitmapHelper.getUserPhoto(), userPhoto);
 
         firstName.setText(settingsManager.getUserFirstName());
         lastName.setText(settingsManager.getUserLastName());
@@ -188,6 +190,12 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 break;
             case R.id.about:
                 startActivity(new Intent(this, AboutActivity.class));
+                break;
+            case R.id.equalizer:
+                startActivity(new Intent(this, EqualizerActivity.class));
+                break;
+            case R.id.bass:
+                BassBoostDialog.getInstance(this);
                 break;
         }
 
@@ -289,7 +297,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                                 user.photoUrl, userPhoto, new BitmapHelper.OnBitmapLoad() {
                                     @Override
                                     public void onLoaded(Bitmap bitmap) {
-                                        settingsManager.saveUserPhoto(bitmap);
+                                        BitmapHelper.saveUserPhoto(bitmap);
                                     }
                                 });
 

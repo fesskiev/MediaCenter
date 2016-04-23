@@ -5,6 +5,7 @@ import android.animation.AnimatorSet;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.util.AttributeSet;
 import android.view.animation.DecelerateInterpolator;
@@ -21,6 +22,37 @@ public class PlayPauseFloatingButton extends FloatingActionButton {
         super(context, attrs);
         drawable = new PlayPauseDrawable(context);
         drawable.setCallback(this);
+    }
+
+    private void disableBehaviour() {
+        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) getLayoutParams();
+        params.setBehavior(new PlaPauseBehaviour());
+    }
+
+    private void enableBehaviour(){
+        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) getLayoutParams();
+        params.setBehavior(new FloatingActionButton.Behavior());
+    }
+
+
+    public void translateToPosition(float x, float y) {
+        disableBehaviour();
+
+        animate().translationX(x).setDuration(500);
+        animate().translationY(y).setDuration(500);
+
+        animate().scaleX(1.5f);
+        animate().scaleY(1.5f);
+    }
+
+    public void returnFromPosition() {
+        enableBehaviour();
+
+        animate().translationX(0);
+        animate().translationY(0);
+
+        animate().scaleX(1.0f);
+        animate().scaleY(1.0f);
     }
 
     @Override
@@ -40,7 +72,7 @@ public class PlayPauseFloatingButton extends FloatingActionButton {
         drawable.draw(canvas);
     }
 
-    public void setPlay(boolean play){
+    public void setPlay(boolean play) {
         if (animatorSet != null) {
             animatorSet.cancel();
         }
@@ -50,5 +82,9 @@ public class PlayPauseFloatingButton extends FloatingActionButton {
         animatorSet.setDuration(PLAY_PAUSE_ANIMATION_DURATION);
         animatorSet.playTogether(pausePlayAnim);
         animatorSet.start();
+    }
+
+    public static class PlaPauseBehaviour extends CoordinatorLayout.Behavior<FloatingActionButton> {
+
     }
 }

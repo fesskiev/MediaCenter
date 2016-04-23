@@ -1,12 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group >
+    <group android:id="@+id/menu_effects">
+        <item android:title="@string/drawer_title_effects">
+            <menu>
+                <group>
+                    <item
+                        android:id="@+id/equalizer"
+                        android:icon="@drawable/equalizer_icon"
+                        android:title="@string/drawer_item_eq" />
+
+                    <item
+                        android:id="@+id/bass"
+                        android:icon="@drawable/equalizer_icon"
+                        android:title="@string/drawer_item_bass" />
+                </group>
+
+            </menu>
+        </item>
+
+    </group>
+
+    <group>
+        <item
+            android:id="@+id/empty1"
+            android:title="" />
+    </group>
+    <group>
+        <item
+            android:id="@+id/empty2"
+            android:title="" />
+    </group>
+
+    <group android:id="@+id/menu_settings">
 
         <item
             android:id="@+id/settings"
             android:icon="@drawable/settings_icon"
             android:title="@string/drawer_item_settings" />
+    </group>
+
+    <group android:id="@+id/menu_about">
 
         <item
             android:id="@+id/about"
