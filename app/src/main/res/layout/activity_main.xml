@@ -18,8 +18,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <include layout="@layout/playback_control_layout"
-            android:id="@+id/bottom_sheet"/>
+        <include
+            android:id="@+id/bottom_sheet"
+            layout="@layout/playback_control_layout" />
 
     </android.support.design.widget.CoordinatorLayout>
 
@@ -30,6 +31,7 @@
         android:layout_gravity="start"
         android:background="@android:color/white"
         android:fitsSystemWindows="true"
+        app:itemTextColor="@color/secondary_text"
         app:menu="@menu/activity_main_drawer" />
 
 

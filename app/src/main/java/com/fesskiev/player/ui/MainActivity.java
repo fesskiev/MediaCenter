@@ -24,10 +24,12 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -70,6 +72,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private static final int PERMISSION_REQ = 0;
     private static final int GET_AUDIO_FOLDERS_LOADER = 1001;
 
+    private NavigationView navigationView;
     private AppSettingsManager settingsManager;
     private Handler handler;
     private ImageView userPhoto;
@@ -94,14 +97,43 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setItemIconTintList(null);
+
+
+        SwitchCompat eqSwitch = (SwitchCompat)
+                navigationView.getMenu().findItem(R.id.equalizer).getActionView().findViewById(R.id.eq_switch);
+        eqSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.v(TAG, "EQ " + isChecked);
+            }
+        });
+
+        SwitchCompat bassSwitch = (SwitchCompat)
+                navigationView.getMenu().findItem(R.id.bass).getActionView().findViewById(R.id.bass_switch);
+        if (settingsManager.isBassBoostOn()) {
+            bassSwitch.setChecked(true);
+        }
+        bassSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    PlaybackService.changeBassBoostState(MainActivity.this, PlaybackService.BASS_BOOST_ON);
+                } else {
+                    PlaybackService.changeBassBoostState(MainActivity.this, PlaybackService.BASS_BOOST_OFF);
+                }
+                settingsManager.setBassBoostState(isChecked);
+            }
+        });
+        visibleBassBoostMenu(false);
+
 
         View headerLayout =
                 navigationView.inflateHeaderView(R.layout.nav_header_main);
 
-        logoutButton = (ImageView)headerLayout.findViewById(R.id.logout);
+        logoutButton = (ImageView) headerLayout.findViewById(R.id.logout);
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -159,11 +191,11 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         logoutShow();
     }
 
-    private void logoutShow(){
+    private void logoutShow() {
         logoutButton.setVisibility(View.VISIBLE);
     }
 
-    private void logoutHide(){
+    private void logoutHide() {
         logoutButton.setVisibility(View.GONE);
     }
 
@@ -174,7 +206,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         lastName.setText(getString(R.string.empty_last_name));
     }
 
-    private void clearUserInfo(){
+    private void clearUserInfo() {
         settingsManager.setUserFirstName("");
         settingsManager.setUserLastName("");
         settingsManager.setAuthToken("");
@@ -195,7 +227,9 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 startActivity(new Intent(this, EqualizerActivity.class));
                 break;
             case R.id.bass:
-                BassBoostDialog.getInstance(this);
+                if (settingsManager.isBassBoostOn()) {
+                    BassBoostDialog.getInstance(this);
+                }
                 break;
         }
 
@@ -252,12 +286,13 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private void registerBroadcastReceiver() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(RESTService.ACTION_USER_PROFILE_RESULT);
-        LocalBroadcastManager.getInstance(this).registerReceiver(userProfileReceiver,
+        filter.addAction(PlaybackService.ACTION_PLAYBACK_BASS_BOOST_STATE);
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver,
                 filter);
     }
 
     private void unregisterBroadcastReceiver() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(userProfileReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
     }
 
     @Override
@@ -276,36 +311,56 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         audioPlayer.currentAudioFile = null;
     }
 
-    private BroadcastReceiver userProfileReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 
         @Override
         public void onReceive(final Context context, Intent intent) {
             switch (intent.getAction()) {
                 case RESTService.ACTION_USER_PROFILE_RESULT:
-
-                    User user = intent.getParcelableExtra(RESTService.EXTRA_USER_PROFILE_RESULT);
-                    if (user != null) {
-
-                        firstName.setText(user.firstName);
-                        lastName.setText(user.lastName);
-
-
-                        settingsManager.setUserFirstName(user.firstName);
-                        settingsManager.setUserLastName(user.lastName);
-
-                        BitmapHelper.loadURLAvatar(context,
-                                user.photoUrl, userPhoto, new BitmapHelper.OnBitmapLoad() {
-                                    @Override
-                                    public void onLoaded(Bitmap bitmap) {
-                                        BitmapHelper.saveUserPhoto(bitmap);
-                                    }
-                                });
-
+                    setUserProfile(context, intent);
+                    break;
+                case PlaybackService.ACTION_PLAYBACK_BASS_BOOST_STATE:
+                    int bassBoostState =
+                            intent.getIntExtra(PlaybackService.PLAYBACK_EXTRA_BASS_BOOST_STATE, -1);
+                    if (bassBoostState != -1) {
+                        switch (bassBoostState) {
+                            case PlaybackService.BASS_BOOST_SUPPORT:
+                                visibleBassBoostMenu(true);
+                                break;
+                            case PlaybackService.BASS_BOOST_NOT_SUPPORT:
+                                visibleBassBoostMenu(false);
+                                break;
+                        }
                     }
                     break;
             }
         }
     };
+
+    private void visibleBassBoostMenu(boolean visible) {
+        navigationView.getMenu().findItem(R.id.bass).setVisible(visible);
+    }
+
+    private void setUserProfile(Context context, Intent intent) {
+        User user = intent.getParcelableExtra(RESTService.EXTRA_USER_PROFILE_RESULT);
+        if (user != null) {
+
+            firstName.setText(user.firstName);
+            lastName.setText(user.lastName);
+
+
+            settingsManager.setUserFirstName(user.firstName);
+            settingsManager.setUserLastName(user.lastName);
+
+            BitmapHelper.loadURLAvatar(context,
+                    user.photoUrl, userPhoto, new BitmapHelper.OnBitmapLoad() {
+                        @Override
+                        public void onLoaded(Bitmap bitmap) {
+                            BitmapHelper.saveUserPhoto(bitmap);
+                        }
+                    });
+        }
+    }
 
     private void checkPermission() {
         if (!checkPermissions()) {

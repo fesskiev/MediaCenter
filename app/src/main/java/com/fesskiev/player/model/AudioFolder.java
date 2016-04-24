@@ -30,7 +30,6 @@ public class AudioFolder implements Comparable<AudioFolder> {
         folderImage = imagePath != null ? new File(imagePath) : null;
 
         index = cursor.getInt(cursor.getColumnIndex(MediaCenterProvider.FOLDER_INDEX));
-        Log.d("test", "index: " + index);
     }
 
     public AudioFolder() {

@@ -473,3 +473,15 @@ Java_com_fesskiev_player_services_PlaybackService_setBassBoostValue(JNIEnv *env,
         SLresult result = (*uriBassBoost)->SetStrength(uriBassBoost, (SLuint16) value);
     }
 }
+
+JNIEXPORT jboolean JNICALL
+Java_com_fesskiev_player_services_PlaybackService_isEnabledBassBoost(JNIEnv *env,
+                                                                     jobject instance) {
+    if (NULL != uriBassBoost) {
+        SLboolean strengthSupported = SL_BOOLEAN_FALSE;
+        SLresult result = (*uriBassBoost)->IsEnabled(uriBassBoost, &strengthSupported);
+        return (jboolean) strengthSupported;
+    }
+
+    return JNI_FALSE;
+}

@@ -22,17 +22,6 @@
 
     </RelativeLayout>
 
-    <TextView
-        android:id="@+id/bassBoostNotSupportedText"
-        style="@style/SecondNameTextAppearance"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_marginTop="10dp"
-        android:gravity="center"
-        android:text="@string/dialog_bass_boost_not_supported"
-        android:visibility="gone" />
-
     <LinearLayout
         android:id="@+id/bassBoostControlContainer"
         android:layout_width="match_parent"
@@ -52,7 +41,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:max="1000" />
+            android:max="100" />
 
         <TextView
             android:id="@+id/bassBoostLevel"

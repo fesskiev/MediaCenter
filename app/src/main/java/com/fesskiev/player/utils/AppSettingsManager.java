@@ -15,6 +15,7 @@ public class AppSettingsManager {
     private static final String KEY_USER_LAST_NAME = "com.fesskiev.player.KEY_USER_LAST_NAME";
     private static final String KEY_FIRST_START_APP = "com.fesskiev.player.KEY_FIRST_START_APP";
     private static final String KEY_BASS_BOOST_VALUE = "com.fesskiev.player.KEY_BASS_BOOST_VALUE";
+    private static final String KEY_BASS_BOOST_STATE = "com.fesskiev.player.KEY_BASS_BOOST_STATE";
 
     private SharedPreferences sharedPreferences;
     private static AppSettingsManager appSettingsManager;
@@ -110,6 +111,15 @@ public class AppSettingsManager {
         editor.apply();
     }
 
+    public boolean isBassBoostOn() {
+        return sharedPreferences.getBoolean(KEY_BASS_BOOST_STATE, false);
+    }
+
+    public void setBassBoostState(boolean state) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_BASS_BOOST_STATE, state);
+        editor.apply();
+    }
 
 }
 

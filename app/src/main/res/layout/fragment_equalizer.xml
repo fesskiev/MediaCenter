@@ -135,13 +135,6 @@
 
         </Spinner>
 
-        <SeekBar
-            android:id="@+id/bassBoostSeek"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:max="1000"/>
-
     </LinearLayout>
 
 </LinearLayout>

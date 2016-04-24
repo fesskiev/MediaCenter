@@ -61,13 +61,6 @@ public class EqualizerFragment extends Fragment implements SeekBar.OnSeekBarChan
         super.onViewCreated(view, savedInstanceState);
 
         presets = (Spinner) view.findViewById(R.id.presets);
-        SwitchCompat stateEQSwitch = (SwitchCompat) view.findViewById(R.id.stateEqualizer);
-        stateEQSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                playbackService.setEnableEQ(isChecked);
-            }
-        });
 
         bandsLevel = new VerticalSeekBar[]{
                 (VerticalSeekBar) view.findViewById(R.id.firstBandLevel),
@@ -80,9 +73,6 @@ public class EqualizerFragment extends Fragment implements SeekBar.OnSeekBarChan
         for (VerticalSeekBar bandLevel : bandsLevel) {
             bandLevel.setOnSeekBarChangeListener(this);
         }
-
-        SeekBar bassBoost = (SeekBar) view.findViewById(R.id.bassBoostSeek);
-        bassBoost.setOnSeekBarChangeListener(this);
 
     }
 

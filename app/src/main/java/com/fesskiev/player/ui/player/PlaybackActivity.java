@@ -75,7 +75,7 @@ public class PlaybackActivity extends AppCompatActivity {
                     @Override
                     public void onItemClick(View childView, int position) {
                         Log.d(TAG, "get adapter pos: " + position);
-                        if(position == -1){
+                        if (position == -1) {
                             return;
                         }
 

@@ -72,8 +72,6 @@
     <string name="dialog_refresh_folders_cancel">Нет</string>
 
     <string name="dialog_bass_boost_title">Выберите уровень:</string>
-    <string name="dialog_bass_boost_not_supported">Bass Boost не поддерживается!</string>
-
 
     <string name="action_settings">Settings</string>
 
