@@ -48,7 +48,7 @@ public class AudioFragment extends ViewPagerFragment implements LoaderManager.Lo
                     public void run() {
                         fetchAudioFolders();
                     }
-                }, 500);
+                }, 500 );
             }
         }
     }
