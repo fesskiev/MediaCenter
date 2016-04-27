@@ -3,16 +3,19 @@ package com.fesskiev.player.ui.audio;
 
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.services.FileObserverService;
+import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.ui.ViewPagerFragment;
 
 import java.util.ArrayList;
@@ -37,11 +40,19 @@ public class AudioFragment extends ViewPagerFragment implements LoaderManager.Lo
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             boolean isFirstStart = getArguments().getBoolean(EXTRA_IS_FIRST_START);
-            if (!isFirstStart) {
-                fetchAudioFolders();
+            if (isFirstStart) {
+                FileSystemIntentService.startFileTreeService(getActivity());
+            } else {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        fetchAudioFolders();
+                    }
+                }, 500);
             }
         }
     }
+
 
     private void fetchAudioFolders() {
         getActivity().getSupportLoaderManager().initLoader(GET_AUDIO_FOLDERS_LOADER, null, this);

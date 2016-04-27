@@ -33,7 +33,6 @@ import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.User;
 import com.fesskiev.player.services.FileObserverService;
-import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.ui.about.AboutActivity;
@@ -87,39 +86,20 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        navigationViewEffects = (NavigationView) findViewById(R.id.nav_view_effects);
-        navigationViewEffects.setNavigationItemSelectedListener(this);
-        View effectsHeaderLayout =
-                navigationViewEffects.inflateHeaderView(R.layout.nav_header_effects);
+        setEffectsNavView();
+        setMainNavView();
 
-        SwitchCompat eqSwitch = (SwitchCompat)
-                navigationViewEffects.getMenu().findItem(R.id.equalizer).getActionView().findViewById(R.id.eq_switch);
-        eqSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.v(TAG, "EQ " + isChecked);
-            }
-        });
-
-        SwitchCompat bassSwitch = (SwitchCompat)
-                navigationViewEffects.getMenu().findItem(R.id.bass).getActionView().findViewById(R.id.bass_switch);
-        if (settingsManager.isBassBoostOn()) {
-            bassSwitch.setChecked(true);
+        registerBroadcastReceiver();
+        if (!settingsManager.isAuthTokenEmpty()) {
+            setUserInfo();
+        } else {
+            setEmptyUserInfo();
         }
-        bassSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    PlaybackService.changeBassBoostState(MainActivity.this, PlaybackService.BASS_BOOST_ON);
-                } else {
-                    PlaybackService.changeBassBoostState(MainActivity.this, PlaybackService.BASS_BOOST_OFF);
-                }
-                settingsManager.setBassBoostState(isChecked);
-            }
-        });
-        visibleBassBoostMenu(false);
 
+        checkPermission();
+    }
 
+    private void setMainNavView() {
         NavigationView navigationViewMain = (NavigationView) findViewById(R.id.nav_view_main);
         navigationViewMain.setNavigationItemSelectedListener(this);
         navigationViewMain.setItemIconTintList(null);
@@ -152,15 +132,40 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         });
         firstName = (TextView) headerLayout.findViewById(R.id.firstName);
         lastName = (TextView) headerLayout.findViewById(R.id.lastName);
+    }
 
-        registerBroadcastReceiver();
-        if (!settingsManager.isAuthTokenEmpty()) {
-            setUserInfo();
-        } else {
-            setEmptyUserInfo();
+    private void setEffectsNavView() {
+        navigationViewEffects = (NavigationView) findViewById(R.id.nav_view_effects);
+        navigationViewEffects.setNavigationItemSelectedListener(this);
+        View effectsHeaderLayout =
+                navigationViewEffects.inflateHeaderView(R.layout.nav_header_effects);
+
+        SwitchCompat eqSwitch = (SwitchCompat)
+                navigationViewEffects.getMenu().findItem(R.id.equalizer).getActionView().findViewById(R.id.eq_switch);
+        eqSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.v(TAG, "EQ " + isChecked);
+            }
+        });
+
+        SwitchCompat bassSwitch = (SwitchCompat)
+                navigationViewEffects.getMenu().findItem(R.id.bass).getActionView().findViewById(R.id.bass_switch);
+        if (settingsManager.isBassBoostOn()) {
+            bassSwitch.setChecked(true);
         }
-
-        checkPermission();
+        bassSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    PlaybackService.changeBassBoostState(MainActivity.this, PlaybackService.BASS_BOOST_ON);
+                } else {
+                    PlaybackService.changeBassBoostState(MainActivity.this, PlaybackService.BASS_BOOST_OFF);
+                }
+                settingsManager.setBassBoostState(isChecked);
+            }
+        });
+        visibleBassBoostMenu(false);
     }
 
     private void setUserInfo() {
@@ -385,15 +390,12 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             saveDownloadFolderIcon();
 
             addAudioFragment(true);
-            FileSystemIntentService.startFileTreeService(this);
         } else {
             addAudioFragment(false);
         }
     }
 
     private void addAudioFragment(boolean firstStart){
-        Log.d(TAG, "audio folder first start: " + firstStart);
-
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.content, AudioFragment.newInstance(firstStart),
                 AudioFragment.class.getName());

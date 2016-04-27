@@ -7,7 +7,7 @@
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
-        <item name="android:windowBackground">@drawable/weather_background</item>
+        <item name="android:windowBackground">@drawable/media_center_background</item>
         <item name="colorControlNormal">@color/white_text</item>
         <item name="colorControlActivated">@color/accent</item>
         <item name="colorControlHighlight">@color/white_text</item>
