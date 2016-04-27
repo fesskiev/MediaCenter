@@ -1,4 +1,4 @@
-package com.fesskiev.player.ui;
+package com.fesskiev.player.ui.audio;
 
 
 import android.content.BroadcastReceiver;
@@ -25,6 +25,7 @@ import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.FileObserverService;
 import com.fesskiev.player.services.FileSystemIntentService;
+import com.fesskiev.player.ui.GridFragment;
 import com.fesskiev.player.ui.tracklist.TrackListActivity;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.CacheManager;

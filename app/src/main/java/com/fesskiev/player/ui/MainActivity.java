@@ -7,19 +7,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -35,8 +30,6 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.db.MediaCenterProvider;
-import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.User;
 import com.fesskiev.player.services.FileObserverService;
@@ -44,6 +37,8 @@ import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.ui.about.AboutActivity;
+import com.fesskiev.player.ui.audio.AudioFoldersFragment;
+import com.fesskiev.player.ui.audio.AudioFragment;
 import com.fesskiev.player.ui.equalizer.EqualizerActivity;
 import com.fesskiev.player.ui.player.PlaybackActivity;
 import com.fesskiev.player.ui.settings.SettingsActivity;
@@ -59,20 +54,15 @@ import com.vk.sdk.VKScope;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKError;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 
 public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener,
-        AudioFoldersFragment.OnAttachFolderFragmentListener, LoaderManager.LoaderCallbacks<Cursor> {
+        AudioFoldersFragment.OnAttachFolderFragmentListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private static final int PERMISSION_REQ = 0;
-    private static final int GET_AUDIO_FOLDERS_LOADER = 1001;
 
-    private NavigationView navigationView;
+    private NavigationView navigationViewEffects;
     private AppSettingsManager settingsManager;
     private Handler handler;
     private ImageView userPhoto;
@@ -97,13 +87,13 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-        navigationView.setItemIconTintList(null);
-
+        navigationViewEffects = (NavigationView) findViewById(R.id.nav_view_effects);
+        navigationViewEffects.setNavigationItemSelectedListener(this);
+        View effectsHeaderLayout =
+                navigationViewEffects.inflateHeaderView(R.layout.nav_header_effects);
 
         SwitchCompat eqSwitch = (SwitchCompat)
-                navigationView.getMenu().findItem(R.id.equalizer).getActionView().findViewById(R.id.eq_switch);
+                navigationViewEffects.getMenu().findItem(R.id.equalizer).getActionView().findViewById(R.id.eq_switch);
         eqSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -112,7 +102,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         });
 
         SwitchCompat bassSwitch = (SwitchCompat)
-                navigationView.getMenu().findItem(R.id.bass).getActionView().findViewById(R.id.bass_switch);
+                navigationViewEffects.getMenu().findItem(R.id.bass).getActionView().findViewById(R.id.bass_switch);
         if (settingsManager.isBassBoostOn()) {
             bassSwitch.setChecked(true);
         }
@@ -130,8 +120,12 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         visibleBassBoostMenu(false);
 
 
+        NavigationView navigationViewMain = (NavigationView) findViewById(R.id.nav_view_main);
+        navigationViewMain.setNavigationItemSelectedListener(this);
+        navigationViewMain.setItemIconTintList(null);
         View headerLayout =
-                navigationView.inflateHeaderView(R.layout.nav_header_main);
+                navigationViewMain.inflateHeaderView(R.layout.nav_header_main);
+
 
         logoutButton = (ImageView) headerLayout.findViewById(R.id.logout);
         logoutButton.setOnClickListener(new View.OnClickListener() {
@@ -159,26 +153,13 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         firstName = (TextView) headerLayout.findViewById(R.id.firstName);
         lastName = (TextView) headerLayout.findViewById(R.id.lastName);
 
-
-        if (savedInstanceState == null) {
-            FragmentTransaction transaction =
-                    getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.content, MainFragment.newInstance(),
-                    MainFragment.class.getName());
-            transaction.addToBackStack(null);
-            transaction.commit();
-        }
-
         registerBroadcastReceiver();
         if (!settingsManager.isAuthTokenEmpty()) {
             setUserInfo();
         } else {
             setEmptyUserInfo();
         }
-    }
 
-    @Override
-    public void onAttachFolderFragment() {
         checkPermission();
     }
 
@@ -215,6 +196,11 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     @Override
+    public void onAttachFolderFragment() {
+
+    }
+
+    @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.settings:
@@ -230,6 +216,10 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 if (settingsManager.isBassBoostOn()) {
                     BassBoostDialog.getInstance(this);
                 }
+                break;
+            case R.id.audio_content:
+                break;
+            case R.id.video_content:
                 break;
         }
 
@@ -338,7 +328,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     };
 
     private void visibleBassBoostMenu(boolean visible) {
-        navigationView.getMenu().findItem(R.id.bass).setVisible(visible);
+        navigationViewEffects.getMenu().findItem(R.id.bass).setVisible(visible);
     }
 
     private void setUserProfile(Context context, Intent intent) {
@@ -368,7 +358,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         } else {
             checkAppFirstStart();
             PlaybackService.startPlaybackService(this);
-
         }
     }
 
@@ -394,73 +383,23 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         if (settingsManager.isFirstStartApp()) {
             settingsManager.setFirstStartApp();
             saveDownloadFolderIcon();
+
+            addAudioFragment(true);
             FileSystemIntentService.startFileTreeService(this);
         } else {
-            getSupportLoaderManager().initLoader(GET_AUDIO_FOLDERS_LOADER, null, this);
+            addAudioFragment(false);
         }
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        switch (id) {
-            case GET_AUDIO_FOLDERS_LOADER:
-                return new CursorLoader(
-                        this,
-                        MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
-                        null,
-                        null,
-                        null,
-                        null
+    private void addAudioFragment(boolean firstStart){
+        Log.d(TAG, "audio folder first start: " + firstStart);
 
-                );
-            default:
-                return null;
-        }
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.content, AudioFragment.newInstance(firstStart),
+                AudioFragment.class.getName());
+        transaction.commitAllowingStateLoss();
     }
 
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        if (cursor.getCount() > 0) {
-            List<AudioFolder> audioFolders = new ArrayList<>();
-
-            cursor.moveToPosition(-1);
-            while (cursor.moveToNext()) {
-                AudioFolder audioFolder = new AudioFolder(cursor);
-                audioFolders.add(audioFolder);
-            }
-
-            MediaApplication.getInstance().getAudioPlayer().audioFolders = audioFolders;
-
-            updateAudioFoldersFragment(audioFolders);
-        }
-        cursor.close();
-
-        FileObserverService.startFileObserverService(this);
-    }
-
-    private void updateAudioFoldersFragment(final List<AudioFolder> audioFolders) {
-        MainFragment mainFragment = (MainFragment) getSupportFragmentManager().
-                findFragmentByTag(MainFragment.class.getName());
-        if (mainFragment != null) {
-            List<Fragment> registeredFragments = mainFragment.getRegisteredFragments();
-            if (registeredFragments != null) {
-                for (Fragment fragment : registeredFragments) {
-                    if (fragment instanceof AudioFoldersFragment) {
-                        final AudioFoldersFragment audioFoldersFragment = (AudioFoldersFragment) fragment;
-                        Collections.sort(audioFolders);
-                        ((AudioFoldersFragment.AudioFoldersAdapter)
-                                audioFoldersFragment.getAdapter()).refresh(audioFolders);
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
-    }
 
     private void showPermissionSnackbar() {
         Snackbar.make(findViewById(R.id.content), R.string.permission_read_external_storage,

@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:id="@+id/swipeRefresh"
     android:layout_height="match_parent"
-    tools:context=".ui.AudioFoldersFragment">
+    tools:context=".ui.audio.AudioFoldersFragment">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/foldersGridView"
