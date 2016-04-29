@@ -107,7 +107,12 @@ public class AudioFile implements Comparable<AudioFile> {
             genre = flacTag.getFirst(FieldKey.GENRE);
             String number = flacTag.getFirst(FieldKey.TRACK);
             if (!TextUtils.isEmpty(number)) {
-                trackNumber = Integer.valueOf(number);
+                try {
+                    trackNumber = Integer.valueOf(number);
+                } catch (NumberFormatException e) {
+                    trackNumber = 0;
+                    e.printStackTrace();
+                }
             }
 
             saveArtwork(flacTag);
@@ -121,7 +126,7 @@ public class AudioFile implements Comparable<AudioFile> {
         if (artwork != null) {
             try {
 
-               File path = File.createTempFile(UUID.randomUUID().toString(),
+                File path = File.createTempFile(UUID.randomUUID().toString(),
                         ".png", new File(CacheManager.IMAGES_CACHE_PATH));
 
                 BitmapHelper.saveBitmap(artwork.getBinaryData(), path);
