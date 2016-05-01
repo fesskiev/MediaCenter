@@ -187,6 +187,10 @@ public class PlaybackService extends Service {
 
     public native String getPresetName(int presetNumber);
 
+    /***
+     * Bass Boost methods
+     */
+
     public native boolean isSupportedBassBoost();
 
     public native boolean isEnabledBassBoost();
@@ -194,6 +198,20 @@ public class PlaybackService extends Service {
     public native void setEnableBassBoost(boolean isEnable);
 
     public native void setBassBoostValue(int value);
+
+
+    /**
+     * Virtualizer methods
+     */
+    public native boolean isSupportedVirtualizer();
+
+    public native boolean isEnabledVirtualizer();
+
+    public native void setEnableVirtualizer(boolean isEnable);
+
+    public native void setBassVirtualizerValue(int value);
+
+
 
 
     /**
@@ -307,6 +325,17 @@ public class PlaybackService extends Service {
 
     private void setEffects() {
         setBassBoost();
+//        setVirtualizer();
+    }
+
+    private void setVirtualizer(){
+        if (isSupportedVirtualizer()) {
+            Log.d(TAG, "virtualizer supported");
+            setEnableVirtualizer(true);
+            setBassVirtualizerValue(1000);
+        } else {
+            Log.d(TAG, "bass boost not supported!");
+        }
     }
 
     private void setBassBoost() {

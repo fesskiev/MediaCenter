@@ -4,6 +4,8 @@
 #include <SLES/OpenSLES.h>
 #include<android/log.h>
 
+#define MAX_NUMBER_INTERFACES 3
+
 // engine interfaces
 SLObjectItf engineObject = NULL;
 SLEngineItf engineEngine;
@@ -19,6 +21,7 @@ SLSeekItf uriPlayerSeek;
 SLMuteSoloItf uriPlayerMuteSolo;
 SLVolumeItf uriPlayerVolume;
 SLBassBoostItf uriBassBoost;
+SLVirtualizerItf uriVirtualizer;
 
 JavaVM *gJavaVM;
 jobject gCallbackObject = NULL;
@@ -52,21 +55,24 @@ Java_com_fesskiev_player_services_PlaybackService_createEngine(JNIEnv *env, jobj
     // realize the engine
     result = (*engineObject)->Realize(engineObject, SL_BOOLEAN_FALSE);
 
+    SLboolean required[MAX_NUMBER_INTERFACES];
+    SLInterfaceID iidArray[MAX_NUMBER_INTERFACES];
+
+    int i;
+    for (i = 0; i < MAX_NUMBER_INTERFACES; i++) {
+        required[i] = SL_BOOLEAN_FALSE;
+        iidArray[i] = SL_IID_NULL;
+    }
+
     // get the engine interface, which is needed in order to create other objects
     result = (*engineObject)->GetInterface(engineObject, SL_IID_ENGINE, &engineEngine);
 
-    const SLInterfaceID ids[2] = {SL_IID_EQUALIZER, SL_IID_BASSBOOST};
-    const SLboolean req[2] = {SL_BOOLEAN_FALSE, SL_BOOLEAN_FALSE};
-    result = (*engineEngine)->CreateOutputMix(engineEngine, &outputMixObject, 2, ids, req);
+    result = (*engineEngine)->CreateOutputMix(engineEngine, &outputMixObject, 0, iidArray,
+                                              required);
 
     // realize the output mix
     result = (*outputMixObject)->Realize(outputMixObject, SL_BOOLEAN_FALSE);
 
-    result = (*outputMixObject)->GetInterface(outputMixObject, SL_IID_EQUALIZER,
-                                              &eqOutputItf);
-
-    result = (*outputMixObject)->GetInterface(outputMixObject, SL_IID_BASSBOOST,
-                                              &uriBassBoost);
 }
 
 
@@ -113,24 +119,50 @@ Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *e
                                                                        jstring uri) {
     SLresult result;
 
+    /* Source of audio data to play */
+    SLDataSource audioSource;
+    SLDataLocator_URI locatorUri;
+    SLDataFormat_MIME mime;
+
+    /* Data sinks for the audio player */
+    SLDataSink audioSink;
+    SLDataLocator_OutputMix locator_outputmix;
+
     // convert Java string to UTF-8
     const char *utf8 = (*env)->GetStringUTFChars(env, uri, NULL);
 
-    // configure audio source
-    // (requires the INTERNET permission depending on the uri parameter)
-    SLDataLocator_URI loc_uri = {SL_DATALOCATOR_URI, (SLchar *) utf8};
-    SLDataFormat_MIME format_mime = {SL_DATAFORMAT_MIME, NULL, SL_CONTAINERTYPE_UNSPECIFIED};
-    SLDataSource audioSrc = {&loc_uri, &format_mime};
+    /* Setup the data sink structure */
+    locator_outputmix.locatorType = SL_DATALOCATOR_OUTPUTMIX;
+    locator_outputmix.outputMix = outputMixObject;
+    audioSink.pLocator = (void *) &locator_outputmix;
+    audioSink.pFormat = NULL;
 
-    // configure audio sink
-    SLDataLocator_OutputMix loc_outmix = {SL_DATALOCATOR_OUTPUTMIX, outputMixObject};
-    SLDataSink audioSnk = {&loc_outmix, NULL};
+    locatorUri.locatorType = SL_DATALOCATOR_URI;
+    locatorUri.URI = (SLchar *) utf8;
+    mime.formatType = SL_DATAFORMAT_MIME;
+    mime.mimeType = (SLchar *) NULL;
+    mime.containerType = SL_CONTAINERTYPE_UNSPECIFIED;
 
-    // create audio player
-    const SLInterfaceID ids[4] = {SL_IID_SEEK, SL_IID_MUTESOLO, SL_IID_VOLUME, SL_IID_BASSBOOST};
-    const SLboolean req[4] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
-    result = (*engineEngine)->CreateAudioPlayer(engineEngine, &uriPlayerObject, &audioSrc,
-                                                &audioSnk, 4, ids, req);
+    audioSource.pFormat = (void *) &mime;
+    audioSource.pLocator = (void *) &locatorUri;
+
+    const SLInterfaceID ids[5] = {SL_IID_SEEK,
+                                  SL_IID_MUTESOLO,
+                                  SL_IID_VOLUME,
+                                  SL_IID_BASSBOOST,
+                                  SL_IID_VIRTUALIZER};
+
+    const SLboolean req[5] = {SL_BOOLEAN_TRUE,
+                              SL_BOOLEAN_TRUE,
+                              SL_BOOLEAN_TRUE,
+                              SL_BOOLEAN_TRUE,
+                              SL_BOOLEAN_TRUE};
+
+
+    /* Create the audio player */
+    result = (*engineEngine)->CreateAudioPlayer(engineEngine, &uriPlayerObject, &audioSource,
+                                                &audioSink, 5,
+                                                ids, req);
     // release the Java string and UTF-8
     (*env)->ReleaseStringUTFChars(env, uri, utf8);
 
@@ -143,27 +175,24 @@ Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *e
         return JNI_FALSE;
     }
 
-    // get the play interface
+
     result = (*uriPlayerObject)->GetInterface(uriPlayerObject, SL_IID_PLAY, &uriPlayerPlay);
-
-    // get the seek interface
     result = (*uriPlayerObject)->GetInterface(uriPlayerObject, SL_IID_SEEK, &uriPlayerSeek);
-
-    // get the mute/solo interface
     result = (*uriPlayerObject)->GetInterface(uriPlayerObject, SL_IID_MUTESOLO, &uriPlayerMuteSolo);
-
-    // get the volume interface
     result = (*uriPlayerObject)->GetInterface(uriPlayerObject, SL_IID_VOLUME, &uriPlayerVolume);
+    result = (*uriPlayerObject)->GetInterface(uriPlayerObject, SL_IID_BASSBOOST, &uriBassBoost);
+    result = (*uriPlayerObject)->GetInterface(uriPlayerObject, SL_IID_VIRTUALIZER, &uriVirtualizer);
 
+    result = (*uriPlayerPlay)->SetMarkerPosition(uriPlayerPlay, 2000);
+    result = (*uriPlayerPlay)->SetPositionUpdatePeriod(uriPlayerPlay, 500);
 
-    result = (*uriPlayerObject)->GetInterface(uriPlayerObject, SL_IID_BASSBOOST,
-                                              (void *) &uriBassBoost);
 
     // register callback function
     result = (*uriPlayerPlay)->RegisterCallback(uriPlayerPlay,
                                                 playStatusCallback, 0);
-    result = (*uriPlayerPlay)->SetCallbackEventsMask(uriPlayerPlay,
-                                                     SL_PLAYEVENT_HEADATEND);
+    result = (*uriPlayerPlay)->SetCallbackEventsMask(uriPlayerPlay, SL_PLAYEVENT_HEADATMARKER |
+                                                                    SL_PLAYEVENT_HEADATNEWPOS |
+                                                                    SL_PLAYEVENT_HEADATEND);
     return JNI_TRUE;
 }
 
@@ -173,7 +202,8 @@ Java_com_fesskiev_player_services_PlaybackService_setPlayingUriAudioPlayer(JNIEn
                                                                            jboolean isPlaying) {
     if (NULL != uriPlayerPlay) {
         SLresult result = (*uriPlayerPlay)->SetPlayState(uriPlayerPlay, isPlaying ?
-                                                                        SL_PLAYSTATE_PLAYING : SL_PLAYSTATE_PAUSED);
+                                                                        SL_PLAYSTATE_PLAYING
+                                                                                  : SL_PLAYSTATE_PAUSED);
     }
 }
 
@@ -278,7 +308,8 @@ Java_com_fesskiev_player_services_PlaybackService_setEnableEQ(JNIEnv *env, jobje
                                                               jboolean isEnable) {
     if (NULL != eqOutputItf) {
         SLresult result = (*eqOutputItf)->SetEnabled(eqOutputItf, isEnable ?
-                                                         SL_BOOLEAN_TRUE : SL_BOOLEAN_FALSE);
+                                                                  SL_BOOLEAN_TRUE
+                                                                           : SL_BOOLEAN_FALSE);
     }
 }
 
@@ -484,4 +515,52 @@ Java_com_fesskiev_player_services_PlaybackService_isEnabledBassBoost(JNIEnv *env
     }
 
     return JNI_FALSE;
+}
+
+JNIEXPORT jboolean JNICALL
+Java_com_fesskiev_player_services_PlaybackService_isSupportedVirtualizer(JNIEnv *env,
+                                                                         jobject instance) {
+    if (NULL != uriVirtualizer) {
+        SLboolean strengthSupported = SL_BOOLEAN_FALSE;
+        SLresult result = (*uriVirtualizer)->IsStrengthSupported(uriVirtualizer, &strengthSupported);
+        return (jboolean) strengthSupported;
+    }
+    return JNI_FALSE;
+
+}
+
+JNIEXPORT jboolean JNICALL
+Java_com_fesskiev_player_services_PlaybackService_isEnabledVirtualizer(JNIEnv *env,
+                                                                       jobject instance) {
+
+    if (NULL != uriVirtualizer) {
+        SLboolean strengthSupported = SL_BOOLEAN_FALSE;
+        SLresult result = (*uriVirtualizer)->IsEnabled(uriVirtualizer, &strengthSupported);
+        return (jboolean) strengthSupported;
+    }
+
+    return JNI_FALSE;
+
+}
+
+JNIEXPORT void JNICALL
+Java_com_fesskiev_player_services_PlaybackService_setEnableVirtualizer(JNIEnv *env,
+                                                                       jobject instance,
+                                                                       jboolean isEnable) {
+    if (NULL != uriVirtualizer) {
+
+        SLboolean enable = isEnable ?
+                           SL_BOOLEAN_TRUE : SL_BOOLEAN_FALSE;
+        SLresult result = (*uriVirtualizer)->SetEnabled(uriVirtualizer, enable);
+    }
+
+}
+
+JNIEXPORT void JNICALL
+Java_com_fesskiev_player_services_PlaybackService_setBassVirtualizerValue(JNIEnv *env,
+                                                                          jobject instance,
+                                                                          jint value) {
+    if (NULL != uriVirtualizer) {
+        SLresult result = (*uriVirtualizer)->SetStrength(uriVirtualizer, (SLuint16) value);
+    }
 }

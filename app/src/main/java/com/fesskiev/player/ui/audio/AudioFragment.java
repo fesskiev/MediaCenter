@@ -55,7 +55,7 @@ public class AudioFragment extends ViewPagerFragment implements LoaderManager.Lo
 
 
     private void fetchAudioFolders() {
-        getActivity().getSupportLoaderManager().initLoader(GET_AUDIO_FOLDERS_LOADER, null, this);
+        getActivity().getSupportLoaderManager().restartLoader(GET_AUDIO_FOLDERS_LOADER, null, this);
     }
 
     @Override

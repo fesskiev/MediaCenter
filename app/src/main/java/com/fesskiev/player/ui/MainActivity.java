@@ -41,6 +41,7 @@ import com.fesskiev.player.ui.audio.AudioFragment;
 import com.fesskiev.player.ui.equalizer.EqualizerActivity;
 import com.fesskiev.player.ui.player.PlaybackActivity;
 import com.fesskiev.player.ui.settings.SettingsActivity;
+import com.fesskiev.player.ui.video.VideoFilesFragment;
 import com.fesskiev.player.ui.vk.MusicVKActivity;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.BitmapHelper;
@@ -222,9 +223,13 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                     BassBoostDialog.getInstance(this);
                 }
                 break;
+            case R.id.virtualizer:
+                break;
             case R.id.audio_content:
+                addAudioFragment(false);
                 break;
             case R.id.video_content:
+                addVideoFilesFragment();
                 break;
         }
 
@@ -395,9 +400,16 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         }
     }
 
-    private void addAudioFragment(boolean firstStart){
+    private void addAudioFragment(boolean firstStart) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.content, AudioFragment.newInstance(firstStart),
+                AudioFragment.class.getName());
+        transaction.commitAllowingStateLoss();
+    }
+
+    private void addVideoFilesFragment() {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.content, VideoFilesFragment.newInstance(),
                 AudioFragment.class.getName());
         transaction.commitAllowingStateLoss();
     }

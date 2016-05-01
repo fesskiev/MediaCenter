@@ -16,6 +16,12 @@
                         android:icon="@drawable/icon_bass_boost"
                         android:title="@string/drawer_item_bass"
                         app:actionLayout="@layout/nav_drawer_bass_switch" />
+
+                    <item
+                        android:id="@+id/virtualizer"
+                        android:icon="@drawable/icon_bass_boost"
+                        android:title="@string/drawer_item_virtualizer"
+                        app:actionLayout="@layout/nav_drawer_bass_switch" />
                 </group>
             </menu>
         </item>
