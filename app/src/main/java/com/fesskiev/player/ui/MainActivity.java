@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
@@ -63,10 +64,12 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private static final int PERMISSION_REQ = 0;
 
     private NavigationView navigationViewEffects;
+    private DrawerLayout drawer;
     private AppSettingsManager settingsManager;
     private Handler handler;
     private ImageView userPhoto;
     private ImageView logoutButton;
+    private ImageView headerAnimation;
     private TextView firstName;
     private TextView lastName;
     private boolean finish;
@@ -81,10 +84,31 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
+        drawer.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                ((AnimationDrawable) headerAnimation.getDrawable()).start();
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                ((AnimationDrawable) headerAnimation.getDrawable()).stop();
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+        });
         toggle.syncState();
 
         setEffectsNavView();
@@ -140,6 +164,9 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         navigationViewEffects.setNavigationItemSelectedListener(this);
         View effectsHeaderLayout =
                 navigationViewEffects.inflateHeaderView(R.layout.nav_header_effects);
+
+        headerAnimation = (ImageView) effectsHeaderLayout.findViewById(R.id.effectHeaderAnimation);
+
 
         SwitchCompat eqSwitch = (SwitchCompat)
                 navigationViewEffects.getMenu().findItem(R.id.equalizer).getActionView().findViewById(R.id.eq_switch);
@@ -237,7 +264,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
                 drawer.closeDrawer(GravityCompat.START);
             }
         }, 500);
@@ -248,7 +274,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
