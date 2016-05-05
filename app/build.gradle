@@ -5,7 +5,7 @@ model {
         compileSdkVersion = 23
         buildToolsVersion = "23.0.3"
 
-        defaultConfig.with {
+        defaultConfig {
             applicationId = "com.fesskiev.player"
             vectorDrawables.useSupportLibrary = true
             minSdkVersion.apiLevel = 19
@@ -15,52 +15,27 @@ model {
 
         }
 
+        buildTypes {
+            release {
+                minifyEnabled = false
+
+                proguardFiles.add(file('proguard-rules.txt'))
+            }
+        }
+
+        ndk {
+            platformVersion = 21
+            moduleName = "khronos-media"
+            toolchain = 'clang'
+            stl = 'c++_static'
+            cppFlags.add('-std=c++11')
+            ldLibs.addAll(["android", "log", "OpenSLES"])
+            abiFilters.addAll(['armeabi', 'armeabi-v7a', 'arm64-v8a',
+                               'x86', 'x86_64',
+                               'mips', 'mips64'])
+        }
+
     }
-
-    android.buildTypes {
-        release {
-            minifyEnabled = false
-
-            proguardFiles.add(file('proguard-rules.txt'))
-        }
-    }
-
-    android.ndk {
-        moduleName = "khronos-media"
-        cppFlags.addAll(["-std=c++11"])
-        ldLibs.addAll(["android", "log", "OpenSLES"])
-        stl = "gnustl_static"
-    }
-
-
-    android.productFlavors {
-        // for detailed abiFilter descriptions, refer to "Supported ABIs" @
-        // https://developer.android.com/ndk/guides/abis.html#sa
-        create("arm") {
-            ndk.abiFilters.add("armeabi")
-        }
-        create("arm7") {
-            ndk.abiFilters.add("armeabi-v7a")
-        }
-        create("arm8") {
-            ndk.abiFilters.add("arm64-v8a")
-        }
-        create("x86-32") {
-            ndk.abiFilters.add("x86")
-        }
-        create("x86-64") {
-            ndk.abiFilters.add("x86_64")
-        }
-        create("mips") {
-            ndk.abiFilters.add("mips")
-        }
-        create("mips-64") {
-            ndk.abiFilters.add("mips64")
-        }
-        // To include all cpu architectures, leaves abiFilters empty
-        create("all")
-    }
-
 }
 
 dependencies {
