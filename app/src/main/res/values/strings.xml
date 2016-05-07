@@ -83,10 +83,7 @@
     <integer name="com_vk_sdk_AppId">5217689</integer>
 
     <string name="authority">com.fesskiev.player.authority</string>
-    <string name="title_activity_audio">AudioActivity</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
 </resources>

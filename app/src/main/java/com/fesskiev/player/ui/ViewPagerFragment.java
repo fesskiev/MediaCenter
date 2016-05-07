@@ -27,22 +27,25 @@ public abstract class ViewPagerFragment extends Fragment {
 
     public abstract int[] getImagesIds();
 
+    public abstract  int getResourceId();
+
     public abstract Fragment[] getPagerFragments();
 
     private ViewPagerAdapter adapter;
     private TabLayout tabLayout;
+    protected ViewPager viewPager;
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_music_vk, container, false);
+        return inflater.inflate(getResourceId(), container, false);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
-        ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+        viewPager = (ViewPager) view.findViewById(R.id.viewpager);
         viewPager.setPageTransformer(true, new DepthPageTransformer());
         viewPager.setOffscreenPageLimit(getPagerFragments().length);
         setupViewPager(viewPager);

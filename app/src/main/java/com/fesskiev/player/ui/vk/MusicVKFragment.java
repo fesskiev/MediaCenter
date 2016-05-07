@@ -14,6 +14,11 @@ public class MusicVKFragment extends ViewPagerFragment {
     }
 
     @Override
+    public int getResourceId() {
+        return R.layout.fragment_music_vk;
+    }
+
+    @Override
     public String[] getTitles() {
         return new String[]{
                 getString(R.string.vk_tab_title_user_music),
@@ -39,4 +44,5 @@ public class MusicVKFragment extends ViewPagerFragment {
                 SearchAudioFragment.newInstance()
         };
     }
+
 }

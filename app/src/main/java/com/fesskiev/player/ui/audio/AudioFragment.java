@@ -1,69 +1,197 @@
 package com.fesskiev.player.ui.audio;
 
 
-import android.database.Cursor;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.util.Log;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
+import android.view.MotionEvent;
+import android.view.View;
 
-import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.db.MediaCenterProvider;
-import com.fesskiev.player.model.AudioFolder;
-import com.fesskiev.player.services.FileObserverService;
+import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.ui.ViewPagerFragment;
+import com.fesskiev.player.utils.CacheManager;
+import com.fesskiev.player.widgets.dialogs.FetchAudioFoldersDialog;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-public class AudioFragment extends ViewPagerFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private static final int GET_AUDIO_FOLDERS_LOADER = 1001;
-    public static final String EXTRA_IS_FIRST_START = "com.fesskiev.player.EXTRA_IS_FIRST_START";
+public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayout.OnRefreshListener {
 
-    public static AudioFragment newInstance(boolean isFirstStart) {
+
+    public static final String EXTRA_IS_FETCH_AUDIO = "com.fesskiev.player.EXTRA_IS_FETCH_AUDIO";
+
+    public static AudioFragment newInstance(boolean isFetchAudio) {
         AudioFragment fragment = new AudioFragment();
         Bundle args = new Bundle();
-        args.putBoolean(EXTRA_IS_FIRST_START, isFirstStart);
+        args.putBoolean(EXTRA_IS_FETCH_AUDIO, isFetchAudio);
         fragment.setArguments(args);
         return fragment;
     }
+
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private FetchAudioFoldersDialog audioFoldersDialog;
+    private boolean isFetchAudio;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            boolean isFirstStart = getArguments().getBoolean(EXTRA_IS_FIRST_START);
-            if (isFirstStart) {
-                FileSystemIntentService.startFileTreeService(getActivity());
-            } else {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        fetchAudioFolders();
-                    }
-                }, 500 );
-            }
+            isFetchAudio = getArguments().getBoolean(EXTRA_IS_FETCH_AUDIO);
+        }
+        registerAudioFolderBroadcastReceiver();
+    }
+
+    private void fetchAudioContent() {
+        List<Fragment> fragments = getRegisteredFragments();
+        for (Fragment fragment : fragments) {
+            AudioContent audioContent = (AudioContent) fragment;
+            audioContent.fetchAudioContent();
         }
     }
 
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-    private void fetchAudioFolders() {
-        getActivity().getSupportLoaderManager().restartLoader(GET_AUDIO_FOLDERS_LOADER, null, this);
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        viewPager.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                swipeRefreshLayout.setEnabled(false);
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_UP:
+                        swipeRefreshLayout.setEnabled(true);
+                        break;
+                }
+                return false;
+            }
+        });
+
+        if (isFetchAudio) {
+            FileSystemIntentService.startFileTreeService(getContext());
+        } else {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    fetchAudioContent();
+                }
+            }, 1000);
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterAudioFolderBroadcastReceiver();
+    }
+
+    @Override
+    public void onRefresh() {
+        AlertDialog.Builder builder =
+                new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
+        builder.setTitle(getString(R.string.dialog_refresh_folders_title));
+        builder.setMessage(R.string.dialog_refresh_folders_message);
+        builder.setPositiveButton(R.string.dialog_refresh_folders_ok,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        CacheManager.clearImagesCache();
+                        DatabaseHelper.resetDatabase(getActivity());
+                        FileSystemIntentService.startFileTreeService(getActivity());
+                        isFetchAudio = true;
+
+                    }
+                });
+        builder.setNegativeButton(R.string.dialog_refresh_folders_cancel,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        swipeRefreshLayout.setRefreshing(false);
+                        dialog.cancel();
+                    }
+                });
+        builder.show();
+    }
+
+    private void registerAudioFolderBroadcastReceiver() {
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(FileSystemIntentService.ACTION_START_FETCH_AUDIO);
+        intentFilter.addAction(FileSystemIntentService.ACTION_END_FETCH_AUDIO);
+        intentFilter.addAction(FileSystemIntentService.ACTION_AUDIO_FOLDER_NAME);
+        intentFilter.addAction(FileSystemIntentService.ACTION_AUDIO_TRACK_NAME);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(audioFolderReceiver,
+                intentFilter);
+    }
+
+    private void unregisterAudioFolderBroadcastReceiver() {
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(audioFolderReceiver);
+    }
+
+
+    private BroadcastReceiver audioFolderReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (intent.getAction()) {
+                case FileSystemIntentService.ACTION_START_FETCH_AUDIO:
+                    audioFoldersDialog = FetchAudioFoldersDialog.newInstance(getActivity());
+                    audioFoldersDialog.show();
+                    break;
+                case FileSystemIntentService.ACTION_END_FETCH_AUDIO:
+                    if (audioFoldersDialog != null) {
+                        audioFoldersDialog.hide();
+                    }
+
+                    if(swipeRefreshLayout.isRefreshing()){
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+
+                    if(isFetchAudio){
+                        fetchAudioContent();
+                    }
+                    break;
+                case FileSystemIntentService.ACTION_AUDIO_FOLDER_NAME:
+                    String folderName =
+                            intent.getStringExtra(FileSystemIntentService.EXTRA_AUDIO_FOLDER_NAME);
+                    if (audioFoldersDialog != null) {
+                        audioFoldersDialog.setFolderName(folderName);
+                    }
+                    break;
+                case FileSystemIntentService.ACTION_AUDIO_TRACK_NAME:
+                    String trackName =
+                            intent.getStringExtra(FileSystemIntentService.EXTRA_AUDIO_TRACK_NAME);
+                    if (audioFoldersDialog != null) {
+                        audioFoldersDialog.setAudioTrackName(trackName);
+                    }
+                    break;
+            }
+        }
+    };
+
+    @Override
+    public int getResourceId() {
+        return R.layout.fragment_audio;
     }
 
     @Override
     public String[] getTitles() {
         return new String[]{
                 getString(R.string.audio_tab_title_folders),
+                getString(R.string.audio_tab_title_tracks),
                 getString(R.string.audio_tab_title_genres),
-                getString(R.string.audio_tab_title_tracks)
+
         };
     }
 
@@ -80,70 +208,9 @@ public class AudioFragment extends ViewPagerFragment implements LoaderManager.Lo
     public Fragment[] getPagerFragments() {
         return new Fragment[]{
                 AudioFoldersFragment.newInstance(),
-                GenresFragment.newInstance(),
-                TracksFragment.newInstance()
+                AudioTracksFragment.newInstance(),
+                AudioGenresFragment.newInstance()
+
         };
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        switch (id) {
-            case GET_AUDIO_FOLDERS_LOADER:
-                return new CursorLoader(
-                        getActivity(),
-                        MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
-                        null,
-                        null,
-                        null,
-                        null
-
-                );
-            default:
-                return null;
-        }
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        if (cursor.getCount() > 0) {
-            List<AudioFolder> audioFolders = new ArrayList<>();
-
-            cursor.moveToPosition(-1);
-            while (cursor.moveToNext()) {
-                AudioFolder audioFolder = new AudioFolder(cursor);
-                audioFolders.add(audioFolder);
-            }
-
-            MediaApplication.getInstance().getAudioPlayer().audioFolders = audioFolders;
-
-            updateAudioFoldersFragment(audioFolders);
-        }
-        cursor.close();
-
-        FileObserverService.startFileObserverService(getActivity());
-    }
-
-    private void updateAudioFoldersFragment(final List<AudioFolder> audioFolders) {
-        AudioFragment audioFragment = (AudioFragment) getFragmentManager().
-                findFragmentByTag(AudioFragment.class.getName());
-        if (audioFragment != null) {
-            List<Fragment> registeredFragments = audioFragment.getRegisteredFragments();
-            if (registeredFragments != null) {
-                for (Fragment fragment : registeredFragments) {
-                    if (fragment instanceof AudioFoldersFragment) {
-                        final AudioFoldersFragment audioFoldersFragment = (AudioFoldersFragment) fragment;
-                        Collections.sort(audioFolders);
-                        ((AudioFoldersFragment.AudioFoldersAdapter)
-                                audioFoldersFragment.getAdapter()).refresh(audioFolders);
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
     }
 }

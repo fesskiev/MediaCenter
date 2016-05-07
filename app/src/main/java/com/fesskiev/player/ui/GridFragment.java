@@ -15,11 +15,10 @@ import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.widgets.recycleview.GridDividerDecoration;
 import com.fesskiev.player.widgets.recycleview.HidingScrollListener;
 
-public abstract class GridFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public abstract class GridFragment extends Fragment {
 
     public abstract RecyclerView.Adapter createAdapter();
 
-    protected SwipeRefreshLayout swipeRefreshLayout;
     protected RecyclerView.Adapter adapter;
     protected RecyclerView recyclerView;
 
@@ -30,8 +29,6 @@ public abstract class GridFragment extends Fragment implements SwipeRefreshLayou
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
-        swipeRefreshLayout.setOnRefreshListener(this);
 
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 3,
                 GridLayoutManager.VERTICAL, false);

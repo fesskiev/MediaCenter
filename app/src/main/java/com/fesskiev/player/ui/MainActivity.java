@@ -34,10 +34,10 @@ import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.User;
 import com.fesskiev.player.services.FileObserverService;
+import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.ui.about.AboutActivity;
-import com.fesskiev.player.ui.audio.AudioFoldersFragment;
 import com.fesskiev.player.ui.audio.AudioFragment;
 import com.fesskiev.player.ui.equalizer.EqualizerActivity;
 import com.fesskiev.player.ui.player.PlaybackActivity;
@@ -56,8 +56,7 @@ import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKError;
 
 
-public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener,
-        AudioFoldersFragment.OnAttachFolderFragmentListener {
+public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -229,11 +228,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     @Override
-    public void onAttachFolderFragment() {
-
-    }
-
-    @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.settings:
@@ -345,22 +339,26 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                     setUserProfile(context, intent);
                     break;
                 case PlaybackService.ACTION_PLAYBACK_BASS_BOOST_STATE:
-                    int bassBoostState =
-                            intent.getIntExtra(PlaybackService.PLAYBACK_EXTRA_BASS_BOOST_STATE, -1);
-                    if (bassBoostState != -1) {
-                        switch (bassBoostState) {
-                            case PlaybackService.BASS_BOOST_SUPPORT:
-                                visibleBassBoostMenu(true);
-                                break;
-                            case PlaybackService.BASS_BOOST_NOT_SUPPORT:
-                                visibleBassBoostMenu(false);
-                                break;
-                        }
-                    }
+                    setBassBoostState(intent);
                     break;
             }
         }
     };
+
+    private void setBassBoostState(Intent intent) {
+        int bassBoostState =
+                intent.getIntExtra(PlaybackService.PLAYBACK_EXTRA_BASS_BOOST_STATE, -1);
+        if (bassBoostState != -1) {
+            switch (bassBoostState) {
+                case PlaybackService.BASS_BOOST_SUPPORT:
+                    visibleBassBoostMenu(true);
+                    break;
+                case PlaybackService.BASS_BOOST_NOT_SUPPORT:
+                    visibleBassBoostMenu(false);
+                    break;
+            }
+        }
+    }
 
     private void visibleBassBoostMenu(boolean visible) {
         navigationViewEffects.getMenu().findItem(R.id.bass).setVisible(visible);
@@ -418,16 +416,15 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         if (settingsManager.isFirstStartApp()) {
             settingsManager.setFirstStartApp();
             saveDownloadFolderIcon();
-
             addAudioFragment(true);
         } else {
             addAudioFragment(false);
         }
     }
 
-    private void addAudioFragment(boolean firstStart) {
+    private void addAudioFragment(boolean isFetchAudio) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.content, AudioFragment.newInstance(firstStart),
+        transaction.replace(R.id.content, AudioFragment.newInstance(isFetchAudio),
                 AudioFragment.class.getName());
         transaction.commitAllowingStateLoss();
     }

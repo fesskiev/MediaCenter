@@ -43,15 +43,15 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
 
     private static final int GET_AUDIO_FILES_LOADER = 1002;
 
+    public static TrackListFragment newInstance() {
+        return new TrackListFragment();
+    }
+
     private TrackListAdapter trackListAdapter;
     private AudioFolder audioFolder;
     private AudioPlayer audioPlayer;
     private List<AudioFile> audioFiles;
     private List<SlidingCardView> openCards;
-
-    public static TrackListFragment newInstance() {
-        return new TrackListFragment();
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -94,7 +94,7 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
             }
         });
 
-        getActivity().getSupportLoaderManager().initLoader(GET_AUDIO_FILES_LOADER, null, this);
+        getActivity().getSupportLoaderManager().restartLoader(GET_AUDIO_FILES_LOADER, null, this);
     }
 
     @Override
@@ -129,7 +129,6 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
             audioPlayer.sendBroadcastChangeAudioFolder();
             trackListAdapter.refreshAdapter(audioFiles);
         }
-        cursor.close();
     }
 
     @Override

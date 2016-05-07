@@ -1,14 +1,12 @@
 package com.fesskiev.player.ui.audio;
 
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AlertDialog;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
@@ -21,15 +19,13 @@ import android.widget.TextView;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.db.DatabaseHelper;
+import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.FileObserverService;
-import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.ui.GridFragment;
 import com.fesskiev.player.ui.tracklist.TrackListActivity;
 import com.fesskiev.player.utils.BitmapHelper;
-import com.fesskiev.player.utils.CacheManager;
-import com.fesskiev.player.widgets.dialogs.FetchAudioFoldersDialog;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 import com.fesskiev.player.widgets.recycleview.helper.ItemTouchHelperAdapter;
 import com.fesskiev.player.widgets.recycleview.helper.ItemTouchHelperViewHolder;
@@ -40,44 +36,22 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class AudioFoldersFragment extends GridFragment {
-
-    public interface OnAttachFolderFragmentListener {
-        void onAttachFolderFragment();
-    }
+public class AudioFoldersFragment extends GridFragment implements AudioContent, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = AudioFoldersFragment.class.getSimpleName();
+    private static final int GET_AUDIO_FOLDERS_LOADER = 1001;
 
     public static AudioFoldersFragment newInstance() {
         return new AudioFoldersFragment();
     }
 
-    private OnAttachFolderFragmentListener attachFolderFragmentListener;
-    private FetchAudioFoldersDialog audioFoldersDialog;
+
     private List<AudioFolder> audioFolders;
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        attachFolderFragmentListener = (OnAttachFolderFragmentListener) context;
-        audioFolders = new ArrayList<>();
-
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        registerAudioFolderBroadcastReceiver();
-
-        if (attachFolderFragmentListener != null) {
-            attachFolderFragmentListener.onAttachFolderFragment();
-        }
-    }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        audioFolders = new ArrayList<>();
 
         ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback((ItemTouchHelperAdapter) adapter);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
@@ -101,6 +75,8 @@ public class AudioFoldersFragment extends GridFragment {
 
                     }
                 }));
+
+
     }
 
 
@@ -109,101 +85,60 @@ public class AudioFoldersFragment extends GridFragment {
         return new AudioFoldersAdapter();
     }
 
+    @Override
+    public void fetchAudioContent() {
+        getActivity().getSupportLoaderManager().restartLoader(GET_AUDIO_FOLDERS_LOADER, null, this);
+    }
 
     @Override
-    public void onRefresh() {
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        switch (id) {
+            case GET_AUDIO_FOLDERS_LOADER:
+                return new CursorLoader(
+                        getActivity(),
+                        MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
+                        null,
+                        null,
+                        null,
+                        null
 
-        AlertDialog.Builder builder =
-                new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
-        builder.setTitle(getString(R.string.dialog_refresh_folders_title));
-        builder.setMessage(R.string.dialog_refresh_folders_message);
-        builder.setPositiveButton(R.string.dialog_refresh_folders_ok,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        CacheManager.clearImagesCache();
-                        DatabaseHelper.resetDatabase(getActivity());
-                        FileSystemIntentService.startFileTreeService(getActivity());
-
-                    }
-                });
-        builder.setNegativeButton(R.string.dialog_refresh_folders_cancel,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        swipeRefreshLayout.setRefreshing(false);
-                        dialog.cancel();
-                    }
-                });
-        builder.show();
-
-    }
-
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        unregisterAudioFolderBroadcastReceiver();
-    }
-
-    private void registerAudioFolderBroadcastReceiver() {
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(FileSystemIntentService.ACTION_START_FETCH_AUDIO);
-        intentFilter.addAction(FileSystemIntentService.ACTION_END_FETCH_AUDIO);
-        intentFilter.addAction(FileSystemIntentService.ACTION_AUDIO_FOLDER_NAME);
-        intentFilter.addAction(FileSystemIntentService.ACTION_AUDIO_TRACK_NAME);
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(audioFolderReceiver,
-                intentFilter);
-    }
-
-    private void unregisterAudioFolderBroadcastReceiver() {
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(audioFolderReceiver);
-    }
-
-    private BroadcastReceiver audioFolderReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case FileSystemIntentService.ACTION_START_FETCH_AUDIO:
-                    Log.w(TAG, FileSystemIntentService.ACTION_START_FETCH_AUDIO);
-                    audioFoldersDialog = new FetchAudioFoldersDialog(getActivity());
-                    audioFoldersDialog.show();
-                    break;
-                case FileSystemIntentService.ACTION_END_FETCH_AUDIO:
-                    if (audioFoldersDialog != null) {
-                        audioFoldersDialog.hide();
-                    }
-
-                    List<AudioFolder> receiverAudioFolders =
-                            MediaApplication.getInstance().getAudioPlayer().audioFolders;
-                    if (receiverAudioFolders != null && !receiverAudioFolders.isEmpty()) {
-                        ((AudioFoldersAdapter) adapter).refresh(receiverAudioFolders);
-                    }
-                    swipeRefreshLayout.setRefreshing(false);
-
-                    FileObserverService.startFileObserverService(getActivity());
-
-                    break;
-                case FileSystemIntentService.ACTION_AUDIO_FOLDER_NAME:
-                    String folderName =
-                            intent.getStringExtra(FileSystemIntentService.EXTRA_AUDIO_FOLDER_NAME);
-                    if (audioFoldersDialog != null) {
-                        audioFoldersDialog.setFolderName(folderName);
-                    }
-                    break;
-                case FileSystemIntentService.ACTION_AUDIO_TRACK_NAME:
-                    String trackName =
-                            intent.getStringExtra(FileSystemIntentService.EXTRA_AUDIO_TRACK_NAME);
-                    if (audioFoldersDialog != null) {
-                        audioFoldersDialog.setAudioTrackName(trackName);
-                    }
-                    break;
-            }
+                );
+            default:
+                return null;
         }
-    };
+    }
 
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        Log.d(TAG, "cursor folders " + cursor.getCount());
+        if (cursor.getCount() > 0) {
+            List<AudioFolder> audioFolders = new ArrayList<>();
+
+            cursor.moveToPosition(-1);
+            while (cursor.moveToNext()) {
+                AudioFolder audioFolder = new AudioFolder(cursor);
+                audioFolders.add(audioFolder);
+            }
+
+            MediaApplication.getInstance().getAudioPlayer().audioFolders = audioFolders;
+
+            if (!audioFolders.isEmpty()) {
+                ((AudioFoldersAdapter) adapter).refresh(audioFolders);
+            }
+
+            FileObserverService.startFileObserverService(getActivity());
+            destroyLoader();
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
+    }
+
+    private void destroyLoader(){
+        getActivity().getSupportLoaderManager().destroyLoader(GET_AUDIO_FOLDERS_LOADER);
+    }
 
     public class AudioFoldersAdapter extends
             RecyclerView.Adapter<AudioFoldersAdapter.ViewHolder> implements ItemTouchHelperAdapter {

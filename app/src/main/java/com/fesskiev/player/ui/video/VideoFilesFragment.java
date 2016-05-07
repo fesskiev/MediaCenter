@@ -70,11 +70,6 @@ public class VideoFilesFragment extends GridFragment {
     }
 
     @Override
-    public void onRefresh() {
-
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
         unregisterVideoFolderBroadcastReceiver();
@@ -101,7 +96,6 @@ public class VideoFilesFragment extends GridFragment {
                             MediaApplication.getInstance().getVideoPlayer().videoFiles;
                     if (videoFiles != null) {
                         ((VideoFilesAdapter) adapter).refresh(videoFiles);
-                        swipeRefreshLayout.setRefreshing(false);
                     }
                     break;
             }

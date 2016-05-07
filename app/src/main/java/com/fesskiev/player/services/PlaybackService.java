@@ -325,7 +325,7 @@ public class PlaybackService extends Service {
 
     private void setEffects() {
         setBassBoost();
-        setVirtualizer();
+//        setVirtualizer();
     }
 
     private void setVirtualizer(){

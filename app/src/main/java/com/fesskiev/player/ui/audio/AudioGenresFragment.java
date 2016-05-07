@@ -9,17 +9,22 @@ import android.view.ViewGroup;
 
 import com.fesskiev.player.R;
 
+public class AudioGenresFragment extends Fragment implements AudioContent {
 
-public class TracksFragment extends Fragment {
 
-    public static TracksFragment newInstance() {
-        return new TracksFragment();
+    public static AudioGenresFragment newInstance() {
+        return new AudioGenresFragment();
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_tracks, container, false);
+        return inflater.inflate(R.layout.fragment_genre, container, false);
     }
 
+    @Override
+    public void fetchAudioContent() {
+
+    }
 }
