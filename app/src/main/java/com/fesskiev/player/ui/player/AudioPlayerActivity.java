@@ -6,12 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -37,7 +35,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
     private AudioPlayer audioPlayer;
     private PlayPauseFloatingButton playPauseButton;
     private DescriptionCardView cardDescription;
-    private CardView controlCard;
+
     private ImageView volumeLevel;
     private ImageView backdrop;
     private TextView trackTimeCount;
@@ -49,7 +47,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
     private TextView trackDescription;
     private SeekBar trackSeek;
     private SeekBar volumeSeek;
-    private Handler handler;
+
 
     public static void startPlayerActivity(Activity activity, boolean isNewTrack, View coverView) {
         ActivityOptionsCompat options = ActivityOptionsCompat.
@@ -75,11 +73,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
             }
         }
 
-        handler = new Handler();
-
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-
-        controlCard = (CardView) findViewById(R.id.controlCard);
 
         backdrop = (ImageView) findViewById(R.id.backdrop);
         volumeLevel = (ImageView) findViewById(R.id.volumeLevel);

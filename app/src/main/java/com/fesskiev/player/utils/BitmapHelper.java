@@ -79,6 +79,8 @@ public class BitmapHelper {
                 } else {
                     Glide.with(context).load(R.drawable.no_cover_icon).into(placeholder);
                 }
+            } else {
+                Glide.with(context).load(R.drawable.no_cover_icon).into(placeholder);
             }
         }
     }
@@ -95,6 +97,8 @@ public class BitmapHelper {
                 } else {
                     Glide.with(context).load(R.drawable.no_cover_icon).into(placeholder);
                 }
+            } else {
+                Glide.with(context).load(R.drawable.no_cover_icon).into(placeholder);
             }
         }
     }
