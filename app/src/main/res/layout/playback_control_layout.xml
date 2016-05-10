@@ -27,6 +27,29 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
+                <android.support.v7.widget.CardView
+                    android:id="@+id/emptyTrackCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_margin="@dimen/activity_horizontal_margin"
+                    android:visibility="gone"
+                    card_view:cardBackgroundColor="@android:color/white"
+                    card_view:cardCornerRadius="4dp"
+                    card_view:cardElevation="@dimen/card_view_elevation"
+                    card_view:cardPreventCornerOverlap="false"
+                    card_view:cardUseCompatPadding="false">
+
+                    <TextView
+                        style="@style/TrackDescBigTextAppearance"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:gravity="center"
+                        android:text="@string/playback_control_track_not_selected" />
+
+                </android.support.v7.widget.CardView>
+
                 <RelativeLayout
                     android:id="@+id/basicNavPlayerContainer"
                     android:layout_width="wrap_content"
@@ -91,18 +114,41 @@
                     android:layout_below="@+id/basicNavPlayerContainer"
                     android:background="@color/primary_text" />
 
-                <LinearLayout
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_below="@+id/divider1"
                     android:layout_margin="8dp">
+
+                    <android.support.v7.widget.CardView
+                        android:id="@+id/emptyFolderCard"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_margin="@dimen/activity_horizontal_margin"
+                        android:visibility="gone"
+                        card_view:cardBackgroundColor="@android:color/white"
+                        card_view:cardCornerRadius="4dp"
+                        card_view:cardElevation="@dimen/card_view_elevation"
+                        card_view:cardPreventCornerOverlap="false"
+                        card_view:cardUseCompatPadding="false">
+
+                        <TextView
+                            style="@style/TrackDescBigTextAppearance"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:gravity="center"
+                            android:text="@string/playback_control_folder_not_selected" />
+
+                    </android.support.v7.widget.CardView>
 
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/trackListControl"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent" />
 
-                </LinearLayout>
+                </FrameLayout>
 
             </RelativeLayout>
 

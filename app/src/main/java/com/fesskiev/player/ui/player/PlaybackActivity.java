@@ -11,6 +11,7 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -23,6 +24,7 @@ import android.widget.TextView;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioFile;
+import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.utils.BitmapHelper;
@@ -37,6 +39,7 @@ public class PlaybackActivity extends AppCompatActivity {
 
     private static final String TAG = PlaybackActivity.class.getSimpleName();
 
+    private AudioPlayer audioPlayer;
     private BottomSheetBehavior bottomSheetBehavior;
     private TrackListAdapter adapter;
     private PlayPauseFloatingButton playPauseButton;
@@ -44,8 +47,9 @@ public class PlaybackActivity extends AppCompatActivity {
     private TextView track;
     private TextView artist;
     private ImageView cover;
+    private CardView emptyFolder;
+    private CardView emptyTrack;
     private View peakView;
-    private AudioPlayer audioPlayer;
     private int height;
     private boolean isShow;
 
@@ -65,6 +69,8 @@ public class PlaybackActivity extends AppCompatActivity {
         cover = (ImageView) findViewById(R.id.cover);
         durationText = (TextView) findViewById(R.id.duration);
 
+        emptyTrack = (CardView) findViewById(R.id.emptyTrackCard);
+        emptyFolder = (CardView) findViewById(R.id.emptyFolderCard);
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.trackListControl);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -97,6 +103,15 @@ public class PlaybackActivity extends AppCompatActivity {
         AudioFile audioFile = audioPlayer.currentAudioFile;
         if (audioFile != null) {
             setMusicFileInfo(audioFile);
+        } else {
+            showEmptyTrackCard();
+        }
+
+        AudioFolder audioFolder = audioPlayer.currentAudioFolder;
+        if (audioFolder != null) {
+            setMusicFolderInfo();
+        } else {
+            showEmptyFolderCard();
         }
 
         playPauseButton = (PlayPauseFloatingButton) findViewById(R.id.playPauseFAB);
@@ -152,7 +167,27 @@ public class PlaybackActivity extends AppCompatActivity {
         }
     }
 
-    public void setMusicFileInfo(AudioFile audioFile) {
+    private void showEmptyFolderCard() {
+        emptyFolder.setVisibility(View.VISIBLE);
+    }
+
+    private void showEmptyTrackCard() {
+        emptyTrack.setVisibility(View.VISIBLE);
+    }
+
+    private void hideEmptyFolderCard() {
+        emptyFolder.setVisibility(View.GONE);
+    }
+
+    private void hideEmptyTrackCard() {
+        emptyTrack.setVisibility(View.GONE);
+    }
+
+    private void setMusicFolderInfo() {
+        adapter.refreshAdapter(audioPlayer.currentAudioFolder.audioFiles);
+    }
+
+    private void setMusicFileInfo(AudioFile audioFile) {
         track.setText(audioFile.title);
         artist.setText(audioFile.artist);
 
@@ -218,10 +253,12 @@ public class PlaybackActivity extends AppCompatActivity {
                     Log.w(TAG, "change current audio file");
                     setMusicFileInfo(audioPlayer.currentAudioFile);
                     adapter.notifyDataSetChanged();
+                    hideEmptyTrackCard();
                     break;
                 case AudioPlayer.ACTION_CHANGE_CURRENT_AUDIO_FOLDER:
                     Log.w(TAG, "change current audio folder");
-                    adapter.refreshAdapter(audioPlayer.currentAudioFolder.audioFiles);
+                    setMusicFolderInfo();
+                    hideEmptyFolderCard();
                     break;
             }
         }

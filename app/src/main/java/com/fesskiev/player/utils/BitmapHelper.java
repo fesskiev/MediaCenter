@@ -88,17 +88,17 @@ public class BitmapHelper {
     public static void loadTrackListArtwork(Context context, AudioFolder audioFolder, AudioFile audioFile, ImageView placeholder) {
         String artworkPath = audioFile.artworkPath;
         if (artworkPath != null) {
-            Glide.with(context).load(artworkPath).into(placeholder);
+            Glide.with(context).load(artworkPath).transform(new CircleTransform(context)).into(placeholder);
         } else {
             if (audioFolder != null) {
                 File coverFile = audioFolder.folderImage;
                 if (coverFile != null) {
-                    Glide.with(context).load(coverFile).into(placeholder);
+                    Glide.with(context).load(coverFile).transform(new CircleTransform(context)).into(placeholder);
                 } else {
-                    Glide.with(context).load(R.drawable.no_cover_icon).into(placeholder);
+                    Glide.with(context).load(R.drawable.no_cover_icon).transform(new CircleTransform(context)).into(placeholder);
                 }
             } else {
-                Glide.with(context).load(R.drawable.no_cover_icon).into(placeholder);
+                Glide.with(context).load(R.drawable.no_cover_icon).transform(new CircleTransform(context)).into(placeholder);
             }
         }
     }

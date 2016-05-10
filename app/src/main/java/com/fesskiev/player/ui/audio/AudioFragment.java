@@ -48,6 +48,7 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
         if (getArguments() != null) {
             isFetchAudio = getArguments().getBoolean(EXTRA_IS_FETCH_AUDIO);
         }
+        setRetainInstance(true);
         registerAudioFolderBroadcastReceiver();
     }
 

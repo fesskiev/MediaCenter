@@ -34,7 +34,6 @@ import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.User;
 import com.fesskiev.player.services.FileObserverService;
-import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.ui.about.AboutActivity;
@@ -65,7 +64,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private NavigationView navigationViewEffects;
     private DrawerLayout drawer;
     private AppSettingsManager settingsManager;
-    private Handler handler;
     private ImageView userPhoto;
     private ImageView logoutButton;
     private ImageView headerAnimation;
@@ -77,7 +75,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        handler = new Handler();
         settingsManager = AppSettingsManager.getInstance(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -254,13 +251,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 break;
         }
 
-
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                drawer.closeDrawer(GravityCompat.START);
-            }
-        }, 500);
+        drawer.closeDrawer(GravityCompat.START);
 
         return true;
     }
@@ -424,16 +415,50 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
     private void addAudioFragment(boolean isFetchAudio) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.content, AudioFragment.newInstance(isFetchAudio),
-                AudioFragment.class.getName());
-        transaction.commitAllowingStateLoss();
+
+        VideoFilesFragment videoFilesFragment = (VideoFilesFragment) getSupportFragmentManager().
+                findFragmentByTag(VideoFilesFragment.class.getName());
+        if (videoFilesFragment != null && videoFilesFragment.isAdded()) {
+            Log.d(TAG, "hide video fragment");
+            transaction.hide(videoFilesFragment);
+        }
+
+        AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
+                findFragmentByTag(AudioFragment.class.getName());
+        if (audioFragment == null) {
+            Log.d(TAG, "audio fragment is null");
+            transaction.add(R.id.content, AudioFragment.newInstance(isFetchAudio),
+                    AudioFragment.class.getName());
+            transaction.addToBackStack(AudioFragment.class.getName());
+        } else {
+            Log.d(TAG, "audio fragment not null");
+            transaction.show(audioFragment);
+        }
+        transaction.commit();
     }
 
     private void addVideoFilesFragment() {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.content, VideoFilesFragment.newInstance(),
-                AudioFragment.class.getName());
-        transaction.commitAllowingStateLoss();
+
+        AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
+                findFragmentByTag(AudioFragment.class.getName());
+        if (audioFragment != null && audioFragment.isAdded()) {
+            Log.d(TAG, "hide audio fragment");
+            transaction.hide(audioFragment);
+        }
+
+        VideoFilesFragment videoFilesFragment = (VideoFilesFragment) getSupportFragmentManager().
+                findFragmentByTag(VideoFilesFragment.class.getName());
+        if (videoFilesFragment == null) {
+            Log.d(TAG, "video fragment is null");
+            transaction.add(R.id.content, VideoFilesFragment.newInstance(),
+                    VideoFilesFragment.class.getName());
+            transaction.addToBackStack(VideoFilesFragment.class.getName());
+        } else {
+            Log.d(TAG, "audio fragment not null");
+            transaction.show(videoFilesFragment);
+        }
+        transaction.commit();
     }
 
 

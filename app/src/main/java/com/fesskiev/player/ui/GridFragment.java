@@ -12,10 +12,11 @@ import android.view.ViewGroup;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioPlayer;
+import com.fesskiev.player.ui.player.HidingPlaybackFragment;
 import com.fesskiev.player.widgets.recycleview.GridDividerDecoration;
 import com.fesskiev.player.widgets.recycleview.HidingScrollListener;
 
-public abstract class GridFragment extends Fragment {
+public abstract class GridFragment extends HidingPlaybackFragment {
 
     public abstract RecyclerView.Adapter createAdapter();
 
@@ -54,20 +55,6 @@ public abstract class GridFragment extends Fragment {
 
             }
         });
-    }
-
-    private void hidePlaybackControl() {
-        AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-        if(audioPlayer.currentAudioFile != null) {
-            ((MainActivity) getActivity()).hidePlayback();
-        }
-    }
-
-    private void showPlaybackControl() {
-        AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-        if(audioPlayer.currentAudioFile != null) {
-            ((MainActivity) getActivity()).showPlayback();
-        }
     }
 
     public RecyclerView.Adapter getAdapter() {

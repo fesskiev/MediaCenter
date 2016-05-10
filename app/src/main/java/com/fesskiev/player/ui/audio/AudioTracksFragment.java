@@ -23,8 +23,10 @@ import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.ui.player.AudioPlayerActivity;
+import com.fesskiev.player.ui.player.HidingPlaybackFragment;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
+import com.fesskiev.player.widgets.recycleview.HidingScrollListener;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
 
@@ -32,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class AudioTracksFragment extends Fragment implements AudioContent, LoaderManager.LoaderCallbacks<Cursor> {
+public class AudioTracksFragment extends HidingPlaybackFragment implements AudioContent, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = AudioTracksFragment.class.getSimpleName();
     private static final int GET_AUDIO_FILES_LOADER = 1002;
@@ -67,6 +69,22 @@ public class AudioTracksFragment extends Fragment implements AudioContent, Loade
                 LinearLayoutManager.VERTICAL, false, 1000));
         adapter = new AudioTracksAdapter();
         recyclerView.setAdapter(adapter);
+        recyclerView.addOnScrollListener(new HidingScrollListener() {
+            @Override
+            public void onHide() {
+                hidePlaybackControl();
+            }
+
+            @Override
+            public void onShow() {
+                showPlaybackControl();
+            }
+
+            @Override
+            public void onItemPosition(int position) {
+
+            }
+        });
     }
 
     @Override

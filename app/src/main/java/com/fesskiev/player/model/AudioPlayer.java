@@ -36,6 +36,9 @@ public class AudioPlayer {
     }
 
     public void next() {
+        if(currentAudioFolder == null){
+            return;
+        }
         if (!lastPosition()) {
             incrementPosition();
         }
@@ -43,6 +46,9 @@ public class AudioPlayer {
     }
 
     public void previous() {
+        if(currentAudioFolder == null){
+            return;
+        }
         if (position > 0) {
             decrementPosition();
         }
