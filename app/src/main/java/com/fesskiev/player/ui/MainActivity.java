@@ -434,7 +434,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             Log.d(TAG, "audio fragment not null");
             transaction.show(audioFragment);
         }
-        transaction.commit();
+        transaction.commitAllowingStateLoss();
     }
 
     private void addVideoFilesFragment() {

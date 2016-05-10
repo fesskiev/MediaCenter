@@ -27,6 +27,8 @@ import com.fesskiev.player.utils.download.DownloadAudioFile;
 import com.fesskiev.player.utils.http.URLHelper;
 import com.fesskiev.player.widgets.recycleview.HidingScrollListener;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 
 
@@ -150,10 +152,13 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
     @Override
     public void fetchAudio(int offset) {
         if(requestString != null) {
-            String requestWithoutWhitespace = requestString.replaceAll(" ", "");
-            RESTService.fetchSearchAudio(getActivity(),
-                    URLHelper.getSearchAudioURL(settingsManager.getAuthToken(),
-                            requestWithoutWhitespace, 20, offset));
+            try {
+                String encodeString = URLEncoder.encode(requestString, "UTF-8");
+                RESTService.fetchSearchAudio(getActivity(),
+                        URLHelper.getSearchAudioURL(settingsManager.getAuthToken(), encodeString , 20, offset));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
         }
     }
 
