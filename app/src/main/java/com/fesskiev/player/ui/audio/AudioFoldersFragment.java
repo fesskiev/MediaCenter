@@ -120,13 +120,14 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent, 
                 audioFolders.add(audioFolder);
             }
 
-            MediaApplication.getInstance().getAudioPlayer().audioFolders = audioFolders;
-
             if (!audioFolders.isEmpty()) {
+                Collections.sort(audioFolders);
+                MediaApplication.getInstance().getAudioPlayer().audioFolders = audioFolders;
                 ((AudioFoldersAdapter) adapter).refresh(audioFolders);
+
+                FileObserverService.startFileObserverService(getActivity());
             }
 
-            FileObserverService.startFileObserverService(getActivity());
             destroyLoader();
         }
     }
@@ -136,7 +137,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent, 
 
     }
 
-    private void destroyLoader(){
+    private void destroyLoader() {
         getActivity().getSupportLoaderManager().destroyLoader(GET_AUDIO_FOLDERS_LOADER);
     }
 

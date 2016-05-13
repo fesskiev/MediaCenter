@@ -1,12 +1,15 @@
 package com.fesskiev.player;
 
 import android.app.Application;
+import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.VideoPlayer;
+import com.vk.sdk.VKAccessToken;
+import com.vk.sdk.VKAccessTokenTracker;
 import com.vk.sdk.VKSdk;
 
 
@@ -17,6 +20,17 @@ public class MediaApplication extends Application {
     private AudioPlayer audioPlayer;
     private VideoPlayer videoPlayer;
 
+    VKAccessTokenTracker vkAccessTokenTracker = new VKAccessTokenTracker() {
+        @Override
+        public void onVKAccessTokenChanged(VKAccessToken oldToken, VKAccessToken newToken) {
+            if (newToken == null) {
+                Log.e(MediaApplication.class.getName(), "VK TOKEN INVALID");
+            } else {
+                Log.e(MediaApplication.class.getName(), "VK TOKEN VALID");
+            }
+        }
+    };
+
     static {
         System.loadLibrary("khronos-media");
     }
@@ -26,11 +40,13 @@ public class MediaApplication extends Application {
     public void onCreate() {
         super.onCreate();
         application = this;
+
         audioPlayer = new AudioPlayer(getApplicationContext());
         videoPlayer = new VideoPlayer();
+
+        vkAccessTokenTracker.startTracking();
         VKSdk.initialize(this);
     }
-
 
 
     public static synchronized MediaApplication getInstance() {
