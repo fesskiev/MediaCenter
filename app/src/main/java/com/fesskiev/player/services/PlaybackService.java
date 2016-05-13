@@ -315,9 +315,10 @@ public class PlaybackService extends Service {
     private void createPlayer(String path) {
         if (isPlaying()) {
             stop();
-            releaseUriAudioPlayer();
-            releaseEngine();
         }
+        releaseUriAudioPlayer();
+        releaseEngine();
+
         createEngine();
         createUriAudioPlayer(path);
         setEffects();
