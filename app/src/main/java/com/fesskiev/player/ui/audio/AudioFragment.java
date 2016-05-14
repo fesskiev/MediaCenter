@@ -190,6 +190,7 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
     public String[] getTitles() {
         return new String[]{
                 getString(R.string.audio_tab_title_folders),
+                getString(R.string.audio_tab_title_artist),
                 getString(R.string.audio_tab_title_tracks),
                 getString(R.string.audio_tab_title_genres),
 
@@ -199,9 +200,10 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
     @Override
     public int[] getImagesIds() {
         return new int[]{
-                R.drawable.icon_audio,
-                R.drawable.icon_audio,
-                R.drawable.icon_audio
+                R.drawable.tab_folder_icon,
+                R.drawable.tab_artist_icon,
+                R.drawable.tab_tracks_icon,
+                R.drawable.tab_genre_icon
         };
     }
 
@@ -209,6 +211,7 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
     public Fragment[] getPagerFragments() {
         return new Fragment[]{
                 AudioFoldersFragment.newInstance(),
+                AudioArtistFragment.newInstance(),
                 AudioTracksFragment.newInstance(),
                 AudioGenresFragment.newInstance()
 

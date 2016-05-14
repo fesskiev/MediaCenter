@@ -43,6 +43,7 @@
     <string name="vk_tab_title_search">Search</string>
 
     <string name="audio_tab_title_folders">FOLDERS</string>
+    <string name="audio_tab_title_artist">ARTIST</string>
     <string name="audio_tab_title_genres">GENRES</string>
     <string name="audio_tab_title_tracks">TRACKS</string>
 
@@ -86,7 +87,6 @@
     <integer name="com_vk_sdk_AppId">5217689</integer>
 
     <string name="authority">com.fesskiev.player.authority</string>
-
 
 
 </resources>

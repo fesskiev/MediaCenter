@@ -3,25 +3,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/activity_horizontal_margin"
     android:orientation="horizontal">
 
-    <ImageView
+    <android.support.v7.widget.AppCompatImageView
         android:id="@+id/imageTab"
-        android:layout_width="0dp"
-        android:layout_height="24dp"
-        android:layout_weight="0.5"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
         android:contentDescription="@string/app_name"
         tools:src="@android:drawable/ic_dialog_info" />
 
     <TextView
+        style="@style/CustomTabStyle"
         android:id="@+id/titleTab"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:textAllCaps="true"
-        android:textColor="@android:color/white"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:paddingStart="5dp"
         tools:text="Продажа" />
 
 </LinearLayout>

@@ -48,6 +48,15 @@
         <item name="android:orientation">vertical</item>
     </style>
 
+    <style name="CustomTabStyle" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/white_text</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:gravity">center</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
     <style name="DescriptionTextAppearance" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/secondary_text</item>
         <item name="android:textSize">@dimen/text_size_description</item>

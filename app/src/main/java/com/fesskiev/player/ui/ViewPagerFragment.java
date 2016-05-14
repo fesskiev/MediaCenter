@@ -1,13 +1,17 @@
 package com.fesskiev.player.ui;
 
 
+import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.AppCompatImageView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,14 +31,21 @@ public abstract class ViewPagerFragment extends Fragment {
 
     public abstract int[] getImagesIds();
 
-    public abstract  int getResourceId();
+    public abstract int getResourceId();
 
     public abstract Fragment[] getPagerFragments();
 
+    private ColorStateList colorStateList;
     private ViewPagerAdapter adapter;
     private TabLayout tabLayout;
     protected ViewPager viewPager;
 
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -68,14 +79,20 @@ public abstract class ViewPagerFragment extends Fragment {
             public void onPageScrollStateChanged(int state) {
                 if (ViewPager.SCROLL_STATE_IDLE == state) {
                     List<TextView> titleTexts = adapter.getTitleTextViews();
+                    List<AppCompatImageView> titleImages = adapter.getTitleImageViews();
                     for (int i = 0; i < titleTexts.size(); i++) {
                         TextView textView = titleTexts.get(i);
+                        AppCompatImageView imageView = titleImages.get(i);
                         if (currentPosition == i) {
                             textView.setTextColor(ContextCompat.
                                     getColor(getActivity(), R.color.accent));
+                            imageView.setSupportBackgroundTintList(ColorStateList.valueOf(ContextCompat.
+                                    getColor(getActivity(), R.color.accent)));
                         } else {
                             textView.setTextColor(ContextCompat.
                                     getColor(getActivity(), R.color.white_text));
+                            imageView.setSupportBackgroundTintList(ColorStateList.valueOf(ContextCompat.
+                                    getColor(getActivity(), R.color.white_text)));
                         }
                     }
                 }
@@ -89,7 +106,6 @@ public abstract class ViewPagerFragment extends Fragment {
 
     }
 
-
     private void createTabs() {
         for (int i = 0; i < tabLayout.getTabCount(); i++) {
             TabLayout.Tab tab = tabLayout.getTabAt(i);
@@ -101,7 +117,6 @@ public abstract class ViewPagerFragment extends Fragment {
                     tab.setCustomView(adapter.getTabView(getImagesIds()[i], getTitles()[i],
                             ContextCompat.getColor(getActivity(), R.color.white_text)));
                 }
-
             }
         }
     }
@@ -120,6 +135,7 @@ public abstract class ViewPagerFragment extends Fragment {
         private List<Fragment> fragmentList = new ArrayList<>();
         private List<Fragment> registeredFragments = new ArrayList<>();
         private List<TextView> titleTextViews = new ArrayList<>();
+        private List<AppCompatImageView> titleImageViews = new ArrayList<>();
 
         public ViewPagerAdapter(FragmentManager manager) {
             super(manager);
@@ -161,14 +177,21 @@ public abstract class ViewPagerFragment extends Fragment {
             return titleTextViews;
         }
 
+        public List<AppCompatImageView> getTitleImageViews() {
+            return titleImageViews;
+        }
+
         public View getTabView(int imageResId, String textTitle, int tabTextColor) {
             View v = LayoutInflater.from(getActivity()).inflate(R.layout.custom_tab, null);
             TextView tv = (TextView) v.findViewById(R.id.titleTab);
             tv.setText(textTitle);
             tv.setTextColor(tabTextColor);
             titleTextViews.add(tv);
-            ImageView img = (ImageView) v.findViewById(R.id.imageTab);
-            img.setImageResource(imageResId);
+
+            AppCompatImageView img = (AppCompatImageView) v.findViewById(R.id.imageTab);
+            img.setBackgroundResource(imageResId);
+            img.setSupportBackgroundTintList(ColorStateList.valueOf(tabTextColor));
+            titleImageViews.add(img);
             return v;
         }
     }

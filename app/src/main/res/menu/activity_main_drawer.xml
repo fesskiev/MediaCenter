@@ -6,12 +6,12 @@
                 <group>
                     <item
                         android:id="@+id/audio_content"
-                        android:icon="@drawable/icon_music"
+                        android:icon="@drawable/item_audio_icon"
                         android:title="@string/drawer_item_audio"/>
 
                     <item
                         android:id="@+id/video_content"
-                        android:icon="@drawable/icon_music"
+                        android:icon="@drawable/item_video_icon"
                         android:title="@string/drawer_item_video"/>
                 </group>
 
