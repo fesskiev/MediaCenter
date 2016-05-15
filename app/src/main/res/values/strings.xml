@@ -72,15 +72,15 @@
     <string name="dialog_fetch_audio_folder_name">Searching folders....</string>
     <string name="dialog_fetch_audio_track_name">Searching tracks....</string>
 
-    <string name="dialog_refresh_folders_title">Поиск музыки</string>
-    <string name="dialog_refresh_folders_message">Выполнить полный поиск по разделам?</string>
-    <string name="dialog_refresh_folders_ok">Да</string>
-    <string name="dialog_refresh_folders_cancel">Нет</string>
+    <string name="dialog_refresh_folders_title">music search</string>
+    <string name="dialog_refresh_folders_message">Make a a full search?</string>
+    <string name="dialog_refresh_folders_ok">Yes</string>
+    <string name="dialog_refresh_folders_cancel">No</string>
 
-    <string name="dialog_bass_boost_title">Выберите уровень:</string>
+    <string name="dialog_bass_boost_title">Select level:</string>
 
-    <string name="playback_control_folder_not_selected">Папка не выбрана</string>
-    <string name="playback_control_track_not_selected">Файл не выбран</string>
+    <string name="playback_control_folder_not_selected">Folder is not selected</string>
+    <string name="playback_control_track_not_selected">File is not selected</string>
 
     <string name="action_settings">Settings</string>
 
