@@ -10,7 +10,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -46,6 +45,7 @@ import com.fesskiev.player.ui.vk.MusicVKActivity;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.CacheManager;
+import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.utils.http.URLHelper;
 import com.fesskiev.player.widgets.dialogs.BassBoostDialog;
 import com.vk.sdk.VKAccessToken;
@@ -265,7 +265,9 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             hidePlayback();
             View view = findViewById(R.id.content);
             if (view != null) {
-                Snackbar.make(view, getString(R.string.snack_exit_text), Snackbar.LENGTH_LONG)
+                Utils.showCustomSnackbar(view, getApplicationContext(),
+                        getString(R.string.snack_exit_text),
+                        Snackbar.LENGTH_LONG)
                         .setAction(getString(R.string.snack_exit_action), new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -463,7 +465,9 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
 
     private void showPermissionSnackbar() {
-        Snackbar.make(findViewById(R.id.content), R.string.permission_read_external_storage,
+        Utils.showCustomSnackbar(findViewById(R.id.content),
+                getApplicationContext(),
+                getString(R.string.permission_read_external_storage),
                 Snackbar.LENGTH_INDEFINITE)
                 .setAction(R.string.button_ok, new View.OnClickListener() {
                     @Override

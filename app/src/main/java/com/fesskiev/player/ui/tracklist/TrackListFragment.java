@@ -233,8 +233,10 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             if (audioFile.filePath.delete()) {
-                                Snackbar.make(getView(),
-                                        getString(R.string.shackbar_delete_file), Snackbar.LENGTH_LONG).show();
+                                Utils.showCustomSnackbar(getView(),
+                                        getContext(),
+                                        getString(R.string.shackbar_delete_file),
+                                        Snackbar.LENGTH_LONG).show();
 
                                 DatabaseHelper.deleteAudioFile(getContext(),
                                         audioFile.filePath.getAbsolutePath());
