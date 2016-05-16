@@ -67,7 +67,9 @@ public class MediaApplication extends Application {
     public synchronized Tracker getDefaultTracker() {
         if (tracker == null) {
             GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
-            tracker = analytics.newTracker(R.xml.app_tracker);
+            tracker = analytics.newTracker(R.xml.global_tracker);
+            tracker.enableAutoActivityTracking(true);
+            tracker.enableExceptionReporting(false);
         }
         return tracker;
     }
