@@ -108,6 +108,11 @@ public class GroupPostAudioView extends FrameLayout {
                 if (downloadManager.removeFile()) {
                     Snackbar.make(viewGroup, R.string.shackbar_delete_file, Snackbar.LENGTH_SHORT)
                             .show();
+                    Utils.showCustomSnackbar(viewGroup,
+                            getContext(),
+                            getResources().getString(R.string.shackbar_delete_file),
+                            Snackbar.LENGTH_LONG).show();
+
                 }
             }
         });

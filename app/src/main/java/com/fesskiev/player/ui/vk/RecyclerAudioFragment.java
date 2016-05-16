@@ -199,9 +199,11 @@ public abstract class RecyclerAudioFragment extends Fragment {
                             DownloadManager downloadManager = downloadAudioFile.getDownloadManager();
                             downloadManager.cancel();
                             if (downloadManager.removeFile()) {
-                                Snackbar.make(getView(),
-                                        R.string.shackbar_delete_file, Snackbar.LENGTH_SHORT)
-                                        .show();
+                                Utils.showCustomSnackbar(getView(),
+                                        getContext(),
+                                        getString(R.string.shackbar_delete_file),
+                                        Snackbar.LENGTH_SHORT).
+                                        show();
                             }
                             addTouchListener();
                         }
