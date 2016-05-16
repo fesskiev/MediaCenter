@@ -10,9 +10,10 @@ import android.view.View;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
+import com.fesskiev.player.analytics.AnalyticsActivity;
 import com.fesskiev.player.ui.MainActivity;
 
-public class TrackListActivity extends AppCompatActivity {
+public class TrackListActivity extends AnalyticsActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,5 +42,10 @@ public class TrackListActivity extends AppCompatActivity {
 
             }
         }
+    }
+
+    @Override
+    public String getActivityName() {
+        return this.getLocalClassName();
     }
 }

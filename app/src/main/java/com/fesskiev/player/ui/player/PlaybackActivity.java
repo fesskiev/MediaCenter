@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
+import com.fesskiev.player.analytics.AnalyticsActivity;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
@@ -35,7 +36,7 @@ import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlaybackActivity extends AppCompatActivity {
+public class PlaybackActivity extends AnalyticsActivity {
 
     private static final String TAG = PlaybackActivity.class.getSimpleName();
 
@@ -165,6 +166,11 @@ public class PlaybackActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    @Override
+    public String getActivityName() {
+        return this.getLocalClassName();
     }
 
     private void showEmptyFolderCard() {

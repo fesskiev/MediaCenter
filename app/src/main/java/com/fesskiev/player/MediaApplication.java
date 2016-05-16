@@ -8,6 +8,9 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.VideoPlayer;
+import com.google.android.gms.analytics.ExceptionReporter;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.Tracker;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKAccessTokenTracker;
 import com.vk.sdk.VKSdk;
@@ -19,6 +22,8 @@ public class MediaApplication extends Application {
     private RequestQueue requestQueue;
     private AudioPlayer audioPlayer;
     private VideoPlayer videoPlayer;
+
+    private Tracker tracker;
 
     VKAccessTokenTracker vkAccessTokenTracker = new VKAccessTokenTracker() {
         @Override
@@ -46,11 +51,25 @@ public class MediaApplication extends Application {
 
         vkAccessTokenTracker.startTracking();
         VKSdk.initialize(this);
+
+        Thread.UncaughtExceptionHandler uncaughtExceptionHandler = new ExceptionReporter(
+                getDefaultTracker(),
+                Thread.getDefaultUncaughtExceptionHandler(),
+                getApplicationContext());
+        Thread.setDefaultUncaughtExceptionHandler(uncaughtExceptionHandler);
     }
 
 
     public static synchronized MediaApplication getInstance() {
         return application;
+    }
+
+    public synchronized Tracker getDefaultTracker() {
+        if (tracker == null) {
+            GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
+            tracker = analytics.newTracker(R.xml.app_tracker);
+        }
+        return tracker;
     }
 
     public RequestQueue getRequestQueue() {

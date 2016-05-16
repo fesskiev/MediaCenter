@@ -9,9 +9,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.fesskiev.player.R;
+import com.fesskiev.player.analytics.AnalyticsActivity;
 import com.fesskiev.player.ui.MainActivity;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends AnalyticsActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,5 +40,10 @@ public class SettingsActivity extends AppCompatActivity {
 
 
         }
+    }
+
+    @Override
+    public String getActivityName() {
+        return this.getLocalClassName();
     }
 }

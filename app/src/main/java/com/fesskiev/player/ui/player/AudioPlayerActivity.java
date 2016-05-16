@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
+import com.fesskiev.player.analytics.AnalyticsActivity;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
@@ -27,7 +28,7 @@ import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton;
 import com.fesskiev.player.widgets.cards.DescriptionCardView;
 
-public class AudioPlayerActivity extends AppCompatActivity implements Playable {
+public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
 
     private static final String TAG = AudioPlayerActivity.class.getSimpleName();
     public static final String EXTRA_IS_NEW_TRACK = "com.fesskiev.player.EXTRA_IS_NEW_TRACK";
@@ -190,6 +191,11 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
                 supportFinishAfterTransition();
             }
         });
+    }
+
+    @Override
+    public String getActivityName() {
+        return this.getLocalClassName();
     }
 
     private void translateFAB() {

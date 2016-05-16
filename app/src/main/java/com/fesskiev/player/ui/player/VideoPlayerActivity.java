@@ -6,8 +6,6 @@ import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Surface;
@@ -15,6 +13,7 @@ import android.view.SurfaceHolder;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
+import com.fesskiev.player.analytics.AnalyticsActivity;
 import com.fesskiev.player.model.VideoFile;
 import com.fesskiev.player.ui.gl.VideoGLSurfaceView;
 
@@ -24,7 +23,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHolder.Callback {
+public class VideoPlayerActivity extends AnalyticsActivity implements SurfaceHolder.Callback {
 
 
     private VideoGLSurfaceView glSurfaceView;
@@ -118,6 +117,10 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
         return result;
     }
 
+    @Override
+    public String getActivityName() {
+        return this.getLocalClassName();
+    }
 
     public void popSample(boolean render) {
         update();
