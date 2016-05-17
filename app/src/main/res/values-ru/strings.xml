@@ -18,7 +18,7 @@
     <string name="title_activity_music_vk">MusicVKActivity</string>
 
     <string name="empty_music_file_artist">Артист не определен</string>
-    <string name="empty_music_file_title">Название не поределено</string>
+    <string name="empty_music_file_title">Название не определено</string>
     <string name="empty_music_file_album">Альбон не определен</string>
     <string name="empty_music_file_genre">Жанр не определен</string>
 
@@ -45,6 +45,7 @@
     <string name="audio_tab_title_folders">Папки</string>
     <string name="audio_tab_title_artist">Артист</string>
     <string name="audio_tab_title_genres">Жанры</string>
+    <string name="audio_tab_title_playlist">Плейлист</string>
     <string name="audio_tab_title_tracks">Треки</string>
 
     <string name="dialog_download_title">Скачивание</string>

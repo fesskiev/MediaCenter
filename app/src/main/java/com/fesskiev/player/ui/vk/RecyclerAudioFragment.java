@@ -268,7 +268,6 @@ public abstract class RecyclerAudioFragment extends Fragment {
         }
 
         public void refresh(List<DownloadAudioFile> downloadAudioFiles) {
-            this.downloadAudioFiles.clear();
             this.downloadAudioFiles.addAll(downloadAudioFiles);
             notifyDataSetChanged();
         }

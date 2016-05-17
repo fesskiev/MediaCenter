@@ -153,4 +153,11 @@
         <item name="android:fontFamily">sans-serif-thin</item>
     </style>
 
+    <style name="GenreNameTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/accent</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
 </resources>

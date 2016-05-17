@@ -155,11 +155,11 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
                         audioFoldersDialog.hide();
                     }
 
-                    if(swipeRefreshLayout.isRefreshing()){
+                    if (swipeRefreshLayout.isRefreshing()) {
                         swipeRefreshLayout.setRefreshing(false);
                     }
 
-                    if(isFetchAudio){
+                    if (isFetchAudio) {
                         fetchAudioContent();
                     }
                     break;
@@ -189,9 +189,9 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
     @Override
     public String[] getTitles() {
         return new String[]{
+                getString(R.string.audio_tab_title_playlist),
                 getString(R.string.audio_tab_title_folders),
                 getString(R.string.audio_tab_title_artist),
-                getString(R.string.audio_tab_title_tracks),
                 getString(R.string.audio_tab_title_genres),
 
         };
@@ -200,9 +200,9 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
     @Override
     public int[] getImagesIds() {
         return new int[]{
+                R.drawable.tab_playlist_icon,
                 R.drawable.tab_folder_icon,
                 R.drawable.tab_artist_icon,
-                R.drawable.tab_tracks_icon,
                 R.drawable.tab_genre_icon
         };
     }
@@ -210,10 +210,10 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
     @Override
     public Fragment[] getPagerFragments() {
         return new Fragment[]{
+                AudioPlaylistFragment.newInstance(),
                 AudioFoldersFragment.newInstance(),
                 AudioArtistFragment.newInstance(),
-                AudioTracksFragment.newInstance(),
-                AudioGenresFragment.newInstance()
+                AudioGenresFragment.newInstance(),
 
         };
     }

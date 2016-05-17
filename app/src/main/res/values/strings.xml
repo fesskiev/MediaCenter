@@ -45,6 +45,7 @@
     <string name="audio_tab_title_folders">FOLDERS</string>
     <string name="audio_tab_title_artist">ARTIST</string>
     <string name="audio_tab_title_genres">GENRES</string>
+    <string name="audio_tab_title_playlist">PLAYLIST</string>
     <string name="audio_tab_title_tracks">TRACKS</string>
 
     <string name="dialog_download_title">Download</string>

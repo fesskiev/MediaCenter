@@ -8,11 +8,21 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.fesskiev.player.R;
 import com.fesskiev.player.db.MediaCenterProvider;
+import com.fesskiev.player.model.Genre;
 import com.fesskiev.player.ui.GridFragment;
+import com.fesskiev.player.utils.BitmapHelper;
+
+import java.util.Set;
+import java.util.TreeSet;
 
 public class AudioGenresFragment extends GridFragment implements AudioContent, LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -41,7 +51,7 @@ public class AudioGenresFragment extends GridFragment implements AudioContent, L
                 return new CursorLoader(
                         getActivity(),
                         MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
-                        new String[]{MediaCenterProvider.TRACK_GENRE},
+                        new String[]{MediaCenterProvider.TRACK_GENRE, MediaCenterProvider.TRACK_COVER},
                         null,
                         null,
                         null
@@ -54,11 +64,16 @@ public class AudioGenresFragment extends GridFragment implements AudioContent, L
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        Log.d(TAG, "cursor genres " + cursor.getCount());
+
+        Set<Genre> genres = new TreeSet<>();
+
         cursor.moveToPosition(-1);
         while (cursor.moveToNext()) {
-           Log.d(TAG, "genre: " +
-                   cursor.getString(cursor.getColumnIndex(MediaCenterProvider.TRACK_GENRE)));
+            genres.add(new Genre(cursor));
+        }
+
+        if (!genres.isEmpty()) {
+            ((AudioGenresAdapter) adapter).refresh(genres);
         }
     }
 
@@ -73,30 +88,56 @@ public class AudioGenresFragment extends GridFragment implements AudioContent, L
     }
 
 
-    public class AudioGenresAdapter extends
-            RecyclerView.Adapter< AudioGenresAdapter.ViewHolder> {
+    public class AudioGenresAdapter extends RecyclerView.Adapter<AudioGenresAdapter.ViewHolder> {
+
+        private Object[] genres;
 
         public class ViewHolder extends RecyclerView.ViewHolder {
 
-            public ViewHolder(View itemView) {
-                super(itemView);
+            TextView genreName;
+            ImageView cover;
+
+            public ViewHolder(View v) {
+                super(v);
+
+                genreName = (TextView) v.findViewById(R.id.genreName);
+                cover = (ImageView) v.findViewById(R.id.genreCover);
             }
         }
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return null;
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_genre, parent, false);
+
+            return new ViewHolder(v);
         }
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
+            Genre genre = (Genre) genres[position];
+            if (genre != null) {
+                holder.genreName.setText(genre.name);
 
+                if (genre.artworkPath != null) {
+                    BitmapHelper.loadURLBitmap(getContext(), genre.artworkPath, holder.cover);
+                } else {
+                    Glide.with(getContext()).load(R.drawable.no_cover_icon).into(holder.cover);
+                }
+            }
         }
 
         @Override
         public int getItemCount() {
+            if (genres != null) {
+                return genres.length;
+            }
             return 0;
         }
 
+        public void refresh(Set<Genre> receiveGenres) {
+            genres = receiveGenres.toArray();
+            notifyDataSetChanged();
+        }
     }
 }

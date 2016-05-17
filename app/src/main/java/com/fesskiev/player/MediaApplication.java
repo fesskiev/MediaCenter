@@ -69,7 +69,7 @@ public class MediaApplication extends Application {
             GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
             tracker = analytics.newTracker(R.xml.global_tracker);
             tracker.enableAutoActivityTracking(true);
-            tracker.enableExceptionReporting(false);
+            tracker.enableExceptionReporting(true);
         }
         return tracker;
     }
