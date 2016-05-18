@@ -26,6 +26,7 @@ public class AudioPlayer {
     public AudioPlayer(Context context) {
         this.context = context;
         this.audioFolders = new ArrayList<>();
+        this.currentAudioFolder = new AudioFolder();
         this.volume = 100;
     }
 

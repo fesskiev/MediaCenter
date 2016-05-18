@@ -140,7 +140,7 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
                         getActivity(),
                         MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
                         null,
-                        MediaCenterProvider.ID + "=" + "'" + audioFolder.id + "'",
+                        MediaCenterProvider.TRACK_GENRE + "=" + "'" + contentValue + "'",
                         null,
                         MediaCenterProvider.TRACK_NUMBER + " ASC"
 
