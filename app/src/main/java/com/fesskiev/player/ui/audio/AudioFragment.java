@@ -19,6 +19,7 @@ import com.fesskiev.player.R;
 import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.ui.ViewPagerFragment;
+import com.fesskiev.player.ui.audio.utils.Constants;
 import com.fesskiev.player.utils.CacheManager;
 import com.fesskiev.player.widgets.dialogs.FetchAudioFoldersDialog;
 
@@ -27,13 +28,10 @@ import java.util.List;
 
 public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayout.OnRefreshListener {
 
-
-    public static final String EXTRA_IS_FETCH_AUDIO = "com.fesskiev.player.EXTRA_IS_FETCH_AUDIO";
-
     public static AudioFragment newInstance(boolean isFetchAudio) {
         AudioFragment fragment = new AudioFragment();
         Bundle args = new Bundle();
-        args.putBoolean(EXTRA_IS_FETCH_AUDIO, isFetchAudio);
+        args.putBoolean(Constants.EXTRA_IS_FETCH_AUDIO, isFetchAudio);
         fragment.setArguments(args);
         return fragment;
     }
@@ -46,7 +44,7 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            isFetchAudio = getArguments().getBoolean(EXTRA_IS_FETCH_AUDIO);
+            isFetchAudio = getArguments().getBoolean(Constants.EXTRA_IS_FETCH_AUDIO);
         }
         setRetainInstance(true);
         registerAudioFolderBroadcastReceiver();

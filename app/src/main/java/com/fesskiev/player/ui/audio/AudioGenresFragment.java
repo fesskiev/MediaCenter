@@ -1,6 +1,7 @@
 package com.fesskiev.player.ui.audio;
 
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -19,7 +20,11 @@ import com.fesskiev.player.R;
 import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.model.Genre;
 import com.fesskiev.player.ui.GridFragment;
+import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
+import com.fesskiev.player.ui.audio.utils.Constants;
+import com.fesskiev.player.ui.tracklist.TrackListActivity;
 import com.fesskiev.player.utils.BitmapHelper;
+import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 
 import java.util.Set;
 import java.util.TreeSet;
@@ -27,16 +32,41 @@ import java.util.TreeSet;
 public class AudioGenresFragment extends GridFragment implements AudioContent, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = AudioGenresFragment.class.getSimpleName();
+
     private static final int GET_AUDIO_GENRES_LOADER = 1003;
+
 
     public static AudioGenresFragment newInstance() {
         return new AudioGenresFragment();
     }
 
+    private Object[] genres;
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        recyclerView.addOnItemTouchListener(new RecyclerItemTouchClickListener(getActivity(),
+                new RecyclerItemTouchClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View childView, int position) {
+
+                        Genre genre = (Genre) genres[position];
+                        if (genre != null) {
+                            Log.d(TAG, "genre click: " + genre.toString());
+
+                            Intent i = new Intent(getActivity(), TrackListActivity.class);
+                            i.putExtra(Constants.EXTRA_CONTENT_TYPE, CONTENT_TYPE.GENRE);
+                            i.putExtra(Constants.EXTRA_CONTENT_TYPE_VALUE, genre.name);
+                            startActivity(i);
+                        }
+                    }
+
+                    @Override
+                    public void onItemLongPress(View childView, int position) {
+
+                    }
+                }));
     }
 
     @Override
@@ -89,8 +119,6 @@ public class AudioGenresFragment extends GridFragment implements AudioContent, L
 
 
     public class AudioGenresAdapter extends RecyclerView.Adapter<AudioGenresAdapter.ViewHolder> {
-
-        private Object[] genres;
 
         public class ViewHolder extends RecyclerView.ViewHolder {
 

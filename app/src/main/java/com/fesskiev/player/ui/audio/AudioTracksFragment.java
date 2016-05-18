@@ -22,6 +22,7 @@ import com.fesskiev.player.R;
 import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioPlayer;
+import com.fesskiev.player.ui.audio.utils.Constants;
 import com.fesskiev.player.ui.player.AudioPlayerActivity;
 import com.fesskiev.player.ui.player.HidingPlaybackFragment;
 import com.fesskiev.player.utils.BitmapHelper;
@@ -37,7 +38,7 @@ import java.util.List;
 public class AudioTracksFragment extends HidingPlaybackFragment implements AudioContent, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = AudioTracksFragment.class.getSimpleName();
-    private static final int GET_AUDIO_FILES_LOADER = 1002;
+
 
     public static AudioTracksFragment newInstance() {
         return new AudioTracksFragment();
@@ -89,13 +90,13 @@ public class AudioTracksFragment extends HidingPlaybackFragment implements Audio
 
     @Override
     public void fetchAudioContent() {
-        getActivity().getSupportLoaderManager().restartLoader(GET_AUDIO_FILES_LOADER, null, this);
+        getActivity().getSupportLoaderManager().restartLoader(Constants.GET_AUDIO_FILES_LOADER, null, this);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         switch (id) {
-            case GET_AUDIO_FILES_LOADER:
+            case Constants.GET_AUDIO_FILES_LOADER:
                 return new CursorLoader(
                         getActivity(),
                         MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
@@ -112,7 +113,7 @@ public class AudioTracksFragment extends HidingPlaybackFragment implements Audio
     }
 
     private void destroyLoader() {
-        getActivity().getSupportLoaderManager().destroyLoader(GET_AUDIO_FILES_LOADER);
+        getActivity().getSupportLoaderManager().destroyLoader(Constants.GET_AUDIO_FILES_LOADER);
     }
 
 

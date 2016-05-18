@@ -25,6 +25,8 @@ import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
+import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
+import com.fesskiev.player.ui.audio.utils.Constants;
 import com.fesskiev.player.ui.player.AudioPlayerActivity;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
@@ -41,10 +43,14 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
 
     private static final String TAG = TrackListFragment.class.getSimpleName();
 
-    private static final int GET_AUDIO_FILES_LOADER = 1002;
 
-    public static TrackListFragment newInstance() {
-        return new TrackListFragment();
+    public static TrackListFragment newInstance(CONTENT_TYPE contentType, String contentValue) {
+        TrackListFragment fragment = new TrackListFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(Constants.EXTRA_CONTENT_TYPE, contentType);
+        args.putString(Constants.EXTRA_CONTENT_TYPE_VALUE, contentValue);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     private TrackListAdapter trackListAdapter;
@@ -52,10 +58,18 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
     private AudioPlayer audioPlayer;
     private List<AudioFile> audioFiles;
     private List<SlidingCardView> openCards;
+    private CONTENT_TYPE contentType;
+    private String contentValue;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            contentType = (CONTENT_TYPE)
+                    getArguments().getSerializable(Constants.EXTRA_CONTENT_TYPE);
+            contentValue = getArguments().getString(Constants.EXTRA_CONTENT_TYPE_VALUE);
+        }
+
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
         audioFolder = audioPlayer.currentAudioFolder;
         audioFiles = new ArrayList<>();
@@ -94,13 +108,34 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
             }
         });
 
-        getActivity().getSupportLoaderManager().restartLoader(GET_AUDIO_FILES_LOADER, null, this);
+        fetchContentByType();
+    }
+
+    private void fetchContentByType() {
+        switch (contentType) {
+            case GENRE:
+                getActivity().
+                        getSupportLoaderManager().restartLoader(Constants.GET_GENRE_FILES_LOADER, null, this);
+                break;
+            case FOLDERS:
+                getActivity().
+                        getSupportLoaderManager().restartLoader(Constants.GET_FOLDERS_FILES_LOADER, null, this);
+                break;
+            case PLAYLIST:
+                getActivity().
+                        getSupportLoaderManager().restartLoader(Constants.GET_PLAY_LIST_FILES_LOADER, null, this);
+                break;
+            case ARTIST:
+                getActivity().
+                        getSupportLoaderManager().restartLoader(Constants.GET_ARTIST_FILES_LOADER, null, this);
+                break;
+        }
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         switch (id) {
-            case GET_AUDIO_FILES_LOADER:
+            case Constants.GET_GENRE_FILES_LOADER:
                 return new CursorLoader(
                         getActivity(),
                         MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
@@ -110,10 +145,22 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
                         MediaCenterProvider.TRACK_NUMBER + " ASC"
 
                 );
-            default:
-                return null;
+            case Constants.GET_FOLDERS_FILES_LOADER:
+                return new CursorLoader(
+                        getActivity(),
+                        MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
+                        null,
+                        MediaCenterProvider.ID + "=" + "'" + audioFolder.id + "'",
+                        null,
+                        MediaCenterProvider.TRACK_NUMBER + " ASC"
 
+                );
+            case Constants.GET_PLAY_LIST_FILES_LOADER:
+                break;
+            case Constants.GET_ARTIST_FILES_LOADER:
+                break;
         }
+        return null;
     }
 
     @Override
@@ -137,7 +184,7 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
     }
 
     private void closeOpenCards() {
-        if(!openCards.isEmpty()) {
+        if (!openCards.isEmpty()) {
             for (SlidingCardView cardView : openCards) {
                 if (cardView.isOpen()) {
                     cardView.animateSlidingContainer(false);

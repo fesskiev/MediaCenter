@@ -4,6 +4,7 @@ package com.fesskiev.player.ui.audio;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -24,6 +25,8 @@ import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.FileObserverService;
 import com.fesskiev.player.ui.GridFragment;
+import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
+import com.fesskiev.player.ui.audio.utils.Constants;
 import com.fesskiev.player.ui.tracklist.TrackListActivity;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
@@ -39,7 +42,7 @@ import java.util.List;
 public class AudioFoldersFragment extends GridFragment implements AudioContent, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = AudioFoldersFragment.class.getSimpleName();
-    private static final int GET_AUDIO_FOLDERS_LOADER = 1001;
+
 
     public static AudioFoldersFragment newInstance() {
         return new AudioFoldersFragment();
@@ -49,9 +52,14 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent, 
     private List<AudioFolder> audioFolders;
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        audioFolders = new ArrayList<>();
+    }
+
+    @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        audioFolders = new ArrayList<>();
 
         ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback((ItemTouchHelperAdapter) adapter);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
@@ -66,7 +74,10 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent, 
                         AudioFolder audioFolder = audioFolders.get(position);
                         if (audioFolder != null) {
                             audioPlayer.currentAudioFolder = audioFolder;
-                            startActivity(new Intent(getActivity(), TrackListActivity.class));
+
+                            Intent i = new Intent(getActivity(), TrackListActivity.class);
+                            i.putExtra(Constants.EXTRA_CONTENT_TYPE, CONTENT_TYPE.FOLDERS);
+                            startActivity(i);
                         }
                     }
 
@@ -87,13 +98,13 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent, 
 
     @Override
     public void fetchAudioContent() {
-        getActivity().getSupportLoaderManager().restartLoader(GET_AUDIO_FOLDERS_LOADER, null, this);
+        getActivity().getSupportLoaderManager().restartLoader(Constants.GET_AUDIO_FOLDERS_LOADER, null, this);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         switch (id) {
-            case GET_AUDIO_FOLDERS_LOADER:
+            case Constants.GET_AUDIO_FOLDERS_LOADER:
                 return new CursorLoader(
                         getActivity(),
                         MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
@@ -138,7 +149,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent, 
     }
 
     private void destroyLoader() {
-        getActivity().getSupportLoaderManager().destroyLoader(GET_AUDIO_FOLDERS_LOADER);
+        getActivity().getSupportLoaderManager().destroyLoader(Constants.GET_AUDIO_FOLDERS_LOADER);
     }
 
     public class AudioFoldersAdapter extends
