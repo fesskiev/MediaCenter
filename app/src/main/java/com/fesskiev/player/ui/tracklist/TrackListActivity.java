@@ -28,14 +28,13 @@ public class TrackListActivity extends AnalyticsActivity {
                         (CONTENT_TYPE) getIntent().getSerializableExtra(Constants.EXTRA_CONTENT_TYPE);
                 switch (contentType) {
                     case GENRE:
+                    case ARTIST:
                         title = getIntent().getExtras().getString(Constants.EXTRA_CONTENT_TYPE_VALUE);
                         break;
                     case FOLDERS:
                         title = MediaApplication.getInstance().getAudioPlayer().currentAudioFolder.folderName;
                         break;
                     case PLAYLIST:
-                        break;
-                    case ARTIST:
                         break;
                 }
 

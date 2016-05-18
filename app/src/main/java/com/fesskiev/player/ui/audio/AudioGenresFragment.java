@@ -33,9 +33,6 @@ public class AudioGenresFragment extends GridFragment implements AudioContent, L
 
     private static final String TAG = AudioGenresFragment.class.getSimpleName();
 
-    private static final int GET_AUDIO_GENRES_LOADER = 1003;
-
-
     public static AudioGenresFragment newInstance() {
         return new AudioGenresFragment();
     }
@@ -53,7 +50,6 @@ public class AudioGenresFragment extends GridFragment implements AudioContent, L
 
                         Genre genre = (Genre) genres[position];
                         if (genre != null) {
-                            Log.d(TAG, "genre click: " + genre.toString());
 
                             Intent i = new Intent(getActivity(), TrackListActivity.class);
                             i.putExtra(Constants.EXTRA_CONTENT_TYPE, CONTENT_TYPE.GENRE);
@@ -71,13 +67,13 @@ public class AudioGenresFragment extends GridFragment implements AudioContent, L
 
     @Override
     public void fetchAudioContent() {
-        getActivity().getSupportLoaderManager().restartLoader(GET_AUDIO_GENRES_LOADER, null, this);
+        getActivity().getSupportLoaderManager().restartLoader(Constants.GET_AUDIO_GENRES_LOADER, null, this);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         switch (id) {
-            case GET_AUDIO_GENRES_LOADER:
+            case Constants.GET_AUDIO_GENRES_LOADER:
                 return new CursorLoader(
                         getActivity(),
                         MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
@@ -94,17 +90,25 @@ public class AudioGenresFragment extends GridFragment implements AudioContent, L
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        Log.d(TAG, "cursor genres " + cursor.getCount());
+        if (cursor.getCount() > 0) {
 
-        Set<Genre> genres = new TreeSet<>();
+            Set<Genre> genres = new TreeSet<>();
 
-        cursor.moveToPosition(-1);
-        while (cursor.moveToNext()) {
-            genres.add(new Genre(cursor));
+            cursor.moveToPosition(-1);
+            while (cursor.moveToNext()) {
+                genres.add(new Genre(cursor));
+            }
+
+            if (!genres.isEmpty()) {
+                ((AudioGenresAdapter) adapter).refresh(genres);
+            }
         }
+        destroyLoader();
+    }
 
-        if (!genres.isEmpty()) {
-            ((AudioGenresAdapter) adapter).refresh(genres);
-        }
+    private void destroyLoader() {
+        getActivity().getSupportLoaderManager().destroyLoader(Constants.GET_AUDIO_GENRES_LOADER);
     }
 
     @Override

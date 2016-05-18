@@ -158,7 +158,15 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
             case Constants.GET_PLAY_LIST_FILES_LOADER:
                 break;
             case Constants.GET_ARTIST_FILES_LOADER:
-                break;
+                return new CursorLoader(
+                        getActivity(),
+                        MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
+                        null,
+                        MediaCenterProvider.TRACK_ARTIST+ "=" + "'" + contentValue + "'",
+                        null,
+                        MediaCenterProvider.TRACK_NUMBER + " ASC"
+
+                );
         }
         return null;
     }
