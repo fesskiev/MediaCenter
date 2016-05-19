@@ -59,6 +59,7 @@ public class MediaCenterProvider extends ContentProvider {
     public static final String TRACK_COVER = "TrackCover";
     public static final String TRACK_NUMBER = "TrackNumber";
     public static final String TRACK_LENGTH = "TrackLength";
+    public static final String TRACK_IN_TRACK_LIST = "TrackInList";
 
     private static final int AUDIO_FOLDERS_QUERY = 1;
     private static final int AUDIO_TRACK_QUERY = 2;
@@ -93,6 +94,7 @@ public class MediaCenterProvider extends ContentProvider {
             TRACK_SAMPLE_RATE + " " + INTEGER_TYPE + " ," +
             TRACK_NUMBER + " " + INTEGER_TYPE + " ," +
             TRACK_LENGTH + " " + REAL_TYPE + " ," +
+            TRACK_IN_TRACK_LIST + " " + INTEGER_TYPE + " ," +
             TRACK_COVER + " " + TEXT_TYPE +
             ")";
 

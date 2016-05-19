@@ -11,8 +11,8 @@
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
         android:layout_marginStart="12sp"
-        android:tint="@color/accent"
         android:contentDescription="@string/app_name"
+        android:tint="@color/accent"
         tools:src="@drawable/ic_equalizer" />
 
     <LinearLayout
@@ -24,8 +24,8 @@
         android:orientation="vertical">
 
         <TextView
-            style="@style/TrackTitleTextAppearance"
             android:id="@+id/title"
+            style="@style/TrackTitleTextAppearance"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
@@ -33,8 +33,8 @@
             tools:text="The Best Music" />
 
         <TextView
-            style="@style/TrackDescTextAppearance"
             android:id="@+id/duration"
+            style="@style/TrackDescTextAppearance"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"

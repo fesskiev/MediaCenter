@@ -121,10 +121,6 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
                 getActivity().
                         getSupportLoaderManager().restartLoader(Constants.GET_FOLDERS_FILES_LOADER, null, this);
                 break;
-            case PLAYLIST:
-                getActivity().
-                        getSupportLoaderManager().restartLoader(Constants.GET_PLAY_LIST_FILES_LOADER, null, this);
-                break;
             case ARTIST:
                 getActivity().
                         getSupportLoaderManager().restartLoader(Constants.GET_ARTIST_FILES_LOADER, null, this);
@@ -155,14 +151,12 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
                         MediaCenterProvider.TRACK_NUMBER + " ASC"
 
                 );
-            case Constants.GET_PLAY_LIST_FILES_LOADER:
-                break;
             case Constants.GET_ARTIST_FILES_LOADER:
                 return new CursorLoader(
                         getActivity(),
                         MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
                         null,
-                        MediaCenterProvider.TRACK_ARTIST+ "=" + "'" + contentValue + "'",
+                        MediaCenterProvider.TRACK_ARTIST + "=" + "'" + contentValue + "'",
                         null,
                         MediaCenterProvider.TRACK_NUMBER + " ASC"
 
