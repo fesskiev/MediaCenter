@@ -11,6 +11,11 @@ import com.fesskiev.player.R;
 
 public class FetchAudioFoldersDialog extends AlertDialog {
 
+
+    public static FetchAudioFoldersDialog newInstance(Context context) {
+        return new FetchAudioFoldersDialog(context);
+    }
+
     private TextView folderNameText;
     private TextView audioTrackText;
 
@@ -31,13 +36,13 @@ public class FetchAudioFoldersDialog extends AlertDialog {
     }
 
     public void setFolderName(String folderName) {
-        if(folderNameText != null) {
+        if (folderNameText != null) {
             folderNameText.setText(folderName);
         }
     }
 
     public void setAudioTrackName(String trackName) {
-        if(audioTrackText != null) {
+        if (audioTrackText != null) {
             audioTrackText.setText(trackName);
         }
     }

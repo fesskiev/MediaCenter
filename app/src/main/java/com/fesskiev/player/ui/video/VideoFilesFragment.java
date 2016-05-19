@@ -1,4 +1,4 @@
-package com.fesskiev.player.ui;
+package com.fesskiev.player.ui.video;
 
 
 import android.content.BroadcastReceiver;
@@ -19,6 +19,7 @@ import com.fesskiev.player.R;
 import com.fesskiev.player.model.VideoFile;
 import com.fesskiev.player.model.VideoPlayer;
 import com.fesskiev.player.services.FileSystemIntentService;
+import com.fesskiev.player.ui.GridFragment;
 import com.fesskiev.player.ui.player.VideoPlayerActivity;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 
@@ -69,11 +70,6 @@ public class VideoFilesFragment extends GridFragment {
     }
 
     @Override
-    public void onRefresh() {
-
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
         unregisterVideoFolderBroadcastReceiver();
@@ -100,7 +96,6 @@ public class VideoFilesFragment extends GridFragment {
                             MediaApplication.getInstance().getVideoPlayer().videoFiles;
                     if (videoFiles != null) {
                         ((VideoFilesAdapter) adapter).refresh(videoFiles);
-                        swipeRefreshLayout.setRefreshing(false);
                     }
                     break;
             }

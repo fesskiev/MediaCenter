@@ -26,12 +26,12 @@ public class BitmapHelper {
     }
 
     public static void loadURLAvatar(final Context context, String url, final ImageView into, final OnBitmapLoad onBitmapLoad) {
-        Glide.with(context).load(url).asBitmap().
+        Glide.with(context.getApplicationContext()).load(url).asBitmap().
                 centerCrop().into(new BitmapImageViewTarget(into) {
             @Override
             protected void setResource(Bitmap resource) {
                 RoundedBitmapDrawable circularBitmapDrawable =
-                        RoundedBitmapDrawableFactory.create(context.getResources(), resource);
+                        RoundedBitmapDrawableFactory.create(context.getApplicationContext().getResources(), resource);
                 circularBitmapDrawable.setCircular(true);
 
                 into.setImageDrawable(circularBitmapDrawable);
@@ -42,18 +42,18 @@ public class BitmapHelper {
 
     public static void loadBitmapAvatar(final Context context, Bitmap bitmap, final ImageView into) {
         RoundedBitmapDrawable circularBitmapDrawable =
-                RoundedBitmapDrawableFactory.create(context.getResources(), bitmap);
+                RoundedBitmapDrawableFactory.create(context.getApplicationContext().getResources(), bitmap);
         circularBitmapDrawable.setCircular(true);
         into.setImageDrawable(circularBitmapDrawable);
     }
 
     public static void loadEmptyAvatar(final Context context, final ImageView into) {
-        Glide.with(context).load(R.drawable.icon_no_avatar).asBitmap().
+        Glide.with(context.getApplicationContext()).load(R.drawable.icon_no_avatar).asBitmap().
                 centerCrop().into(new BitmapImageViewTarget(into) {
             @Override
             protected void setResource(Bitmap resource) {
                 RoundedBitmapDrawable circularBitmapDrawable =
-                        RoundedBitmapDrawableFactory.create(context.getResources(), resource);
+                        RoundedBitmapDrawableFactory.create(context.getApplicationContext().getResources(), resource);
                 circularBitmapDrawable.setCircular(true);
 
                 into.setImageDrawable(circularBitmapDrawable);
@@ -63,48 +63,82 @@ public class BitmapHelper {
     }
 
     public static void loadURLBitmap(Context context, String url, ImageView into) {
-        Glide.with(context).load(url).into(into);
+        Glide.with(context.getApplicationContext()).load(url).into(into);
     }
 
     public static void loadAudioPlayerArtwork(Context context, AudioPlayer audioPlayer, ImageView placeholder) {
-        String artworkPath = audioPlayer.currentAudioFile.artworkPath;
-        if (artworkPath != null) {
-            Glide.with(context).load(artworkPath).into(placeholder);
+        String path = findAudioPlayerArtworkPath(audioPlayer);
+        if (path != null) {
+            Glide.with(context.getApplicationContext()).
+                    load(path).
+                    crossFade().
+                    into(placeholder);
         } else {
-            AudioFolder audioFolder = audioPlayer.currentAudioFolder;
-            if (audioFolder != null) {
-                File coverFile = audioFolder.folderImage;
-                if (coverFile != null) {
-                    Glide.with(context).load(coverFile).into(placeholder);
-                } else {
-                    Glide.with(context).load(R.drawable.no_cover_icon).into(placeholder);
-                }
-            }
+            Glide.with(context.getApplicationContext()).
+                    load(R.drawable.no_cover_icon).
+                    crossFade().
+                    into(placeholder);
         }
     }
 
-    public static void loadTrackListArtwork(Context context, AudioFolder audioFolder, AudioFile audioFile, ImageView placeholder) {
-        String artworkPath = audioFile.artworkPath;
+    private static String findAudioPlayerArtworkPath(AudioPlayer audioPlayer) {
+        String artworkPath = audioPlayer.currentAudioFile.artworkPath;
         if (artworkPath != null) {
-            Glide.with(context).load(artworkPath).into(placeholder);
-        } else {
-            if (audioFolder != null) {
-                File coverFile = audioFolder.folderImage;
-                if (coverFile != null) {
-                    Glide.with(context).load(coverFile).into(placeholder);
-                } else {
-                    Glide.with(context).load(R.drawable.no_cover_icon).into(placeholder);
-                }
+            return artworkPath;
+        }
+        AudioFolder audioFolder = audioPlayer.currentAudioFolder;
+        if (audioFolder != null) {
+            File coverFile = audioFolder.folderImage;
+            if (coverFile != null) {
+                return coverFile.getAbsolutePath();
             }
         }
+        return null;
+    }
+
+    public static void loadTrackListArtwork(Context context, AudioFolder audioFolder, AudioFile audioFile, ImageView placeholder) {
+        String path = findTrackListArtworkPath(audioFolder, audioFile);
+        if (path != null) {
+            Glide.with(context.getApplicationContext()).
+                    load(path).
+                    crossFade().
+                    transform(new CircleTransform(context.getApplicationContext())).
+                    into(placeholder);
+        } else {
+            Glide.with(context.getApplicationContext()).
+                    load(R.drawable.no_cover_icon).
+                    crossFade().
+                    transform(new CircleTransform(context.getApplicationContext())).
+                    into(placeholder);
+        }
+    }
+
+    private static String findTrackListArtworkPath(AudioFolder audioFolder, AudioFile audioFile) {
+        String artworkPath = audioFile.artworkPath;
+        if (artworkPath != null) {
+            return artworkPath;
+        }
+        if (audioFolder != null) {
+            File coverFile = audioFolder.folderImage;
+            if (coverFile != null) {
+                return coverFile.getAbsolutePath();
+            }
+        }
+        return null;
     }
 
     public static void loadAudioFolderArtwork(Context context, AudioFolder audioFolder, ImageView placeholder) {
         File coverFile = audioFolder.folderImage;
         if (coverFile != null) {
-            Glide.with(context).load(coverFile).into(placeholder);
+            Glide.with(context.getApplicationContext()).
+                    load(coverFile).
+                    crossFade().
+                    into(placeholder);
         } else {
-            Glide.with(context).load(R.drawable.no_cover_icon).into(placeholder);
+            Glide.with(context.getApplicationContext()).
+                    load(R.drawable.no_cover_icon).
+                    crossFade().
+                    into(placeholder);
         }
     }
 

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="false">
+
+    <item
+        android:duration="400"
+        android:drawable="@drawable/eq_1"/>
+
+    <item
+        android:duration="400"
+        android:drawable="@drawable/eq_2"/>
+
+    <item
+        android:duration="400"
+        android:drawable="@drawable/eq_3"/>
+
+    <item
+        android:duration="400"
+        android:drawable="@drawable/eq_4"/>
+
+    <item
+        android:duration="400"
+        android:drawable="@drawable/eq_5"/>
+
+    <item
+        android:duration="400"
+        android:drawable="@drawable/eq_6"/>
+
+    <item
+        android:duration="400"
+        android:drawable="@drawable/eq_7"/>
+
+    <item
+        android:duration="400"
+        android:drawable="@drawable/eq_8"/>
+
+    <item
+        android:duration="400"
+        android:drawable="@drawable/eq_9"/>
+
+    <item
+        android:duration="300"
+        android:drawable="@drawable/eq_10"/>
+
+    <item
+        android:duration="400"
+        android:drawable="@drawable/eq_11"/>
+
+    <item
+        android:duration="400"
+        android:drawable="@drawable/eq_12"/>
+
+    <item
+        android:duration="400"
+        android:drawable="@drawable/eq_13"/>
+
+    <item
+        android:duration="400"
+        android:drawable="@drawable/eq_14"/>
+
+    <item
+        android:duration="400"
+        android:drawable="@drawable/eq_15"/>
+
+    <item
+        android:duration="300"
+        android:drawable="@drawable/eq_16"/>
+
+    <item
+        android:duration="400"
+        android:drawable="@drawable/eq_17"/>
+
+    <item
+        android:duration="400"
+        android:drawable="@drawable/eq_18"/>
+
+    <item
+        android:duration="400"
+        android:drawable="@drawable/eq_19"/>
+
+    <item
+        android:duration="400"
+        android:drawable="@drawable/eq_20"/>
+
+</animation-list>

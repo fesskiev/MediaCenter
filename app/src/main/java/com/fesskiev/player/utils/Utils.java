@@ -2,9 +2,14 @@ package com.fesskiev.player.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
+import com.fesskiev.player.R;
 import com.vk.sdk.util.VKUtil;
 
 import java.text.SimpleDateFormat;
@@ -39,6 +44,13 @@ public class Utils {
         String[] fingerprints =
                 VKUtil.getCertificateFingerprint(context, context.getPackageName());
         Log.d(TAG, "fingerprint: " + Arrays.toString(fingerprints));
+    }
+
+    public static Snackbar showCustomSnackbar(View view, Context context, String text, int duration){
+        Snackbar snack = Snackbar.make(view, text, duration);
+        ViewGroup group = (ViewGroup) snack.getView();
+        group.setBackgroundColor(ContextCompat.getColor(context, R.color.primary_dark));
+        return snack;
     }
 
     public static String getDurationString(int seconds) {

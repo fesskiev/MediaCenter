@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <group android:id="@+id/menu_effects">
+        <item android:title="@string/drawer_title_effects">
+            <menu>
+                <group>
+                    <item
+                        android:id="@+id/equalizer"
+                        android:icon="@drawable/equalizer_icon"
+                        android:title="@string/drawer_item_eq"
+                        app:actionLayout="@layout/nav_drawer_eq_switch" />
+
+                    <item
+                        android:id="@+id/bass"
+                        android:icon="@drawable/icon_bass_boost"
+                        android:title="@string/drawer_item_bass"
+                        app:actionLayout="@layout/nav_drawer_bass_switch" />
+
+                    <item
+                        android:id="@+id/virtualizer"
+                        android:icon="@drawable/icon_bass_boost"
+                        android:title="@string/drawer_item_virtualizer"
+                        app:actionLayout="@layout/nav_drawer_bass_switch" />
+                </group>
+            </menu>
+        </item>
+    </group>
+</menu>

@@ -4,20 +4,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context="com.fesskiev.player.ui.vk.MusicVKActivity">
+    tools:context="ui.vk.MusicVKActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:elevation="0dp"
-        android:theme="@style/Theme.Player.AppBarOverlay">
+        android:theme="@style/Theme.Player.AppBarOverlay"
+        app:elevation="0dp">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
+            app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/Theme.Player.PopupOverlay" />
 
     </android.support.design.widget.AppBarLayout>
@@ -26,19 +26,18 @@
         android:id="@+id/content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="?android:attr/actionBarSize"/>
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
 
     <com.fesskiev.player.widgets.MaterialProgressBar
         android:id="@+id/progressBar"
         android:layout_width="match_parent"
         android:layout_height="8dp"
-        android:indeterminate="true"
         android:layout_gravity="bottom"
+        android:indeterminate="true"
         android:visibility="invisible"
         app:backgroundColour="@color/primary"
         app:duration="2000"
         app:progressColour="@color/accent" />
-
 
 </android.support.design.widget.CoordinatorLayout>

@@ -57,6 +57,7 @@ public class DatabaseHelper {
         dateValues.put(MediaCenterProvider.TRACK_LENGTH, audioFile.length);
         dateValues.put(MediaCenterProvider.TRACK_NUMBER, audioFile.trackNumber);
         dateValues.put(MediaCenterProvider.TRACK_SAMPLE_RATE, audioFile.sampleRate);
+        dateValues.put(MediaCenterProvider.TRACK_IN_TRACK_LIST, audioFile.inTrackList ? 1 : 0);
         dateValues.put(MediaCenterProvider.TRACK_COVER, audioFile.artworkPath);
 
         context.getContentResolver().update(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
@@ -79,6 +80,7 @@ public class DatabaseHelper {
         dateValues.put(MediaCenterProvider.TRACK_LENGTH, audioFile.length);
         dateValues.put(MediaCenterProvider.TRACK_NUMBER, audioFile.trackNumber);
         dateValues.put(MediaCenterProvider.TRACK_SAMPLE_RATE, audioFile.sampleRate);
+        dateValues.put(MediaCenterProvider.TRACK_IN_TRACK_LIST, audioFile.inTrackList ? 1 : 0);
         dateValues.put(MediaCenterProvider.TRACK_COVER, audioFile.artworkPath);
 
 

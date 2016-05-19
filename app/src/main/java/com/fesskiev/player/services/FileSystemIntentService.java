@@ -174,10 +174,8 @@ public class FileSystemIntentService extends IntentService {
                         e.printStackTrace();
                     }
 
-
                     DatabaseHelper.insertAudioFolder(getApplicationContext(), audioFolder);
 
-                    MediaApplication.getInstance().getAudioPlayer().audioFolders.add(audioFolder);
                 }
             }
         }

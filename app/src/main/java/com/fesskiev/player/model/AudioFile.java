@@ -44,6 +44,7 @@ public class AudioFile implements Comparable<AudioFile> {
     public String artworkPath;
     public int trackNumber;
     public int length;
+    public boolean inTrackList;
     private OnMp3TagListener listener;
 
     public AudioFile(Context context, File filePath, OnMp3TagListener listener) {
@@ -65,6 +66,7 @@ public class AudioFile implements Comparable<AudioFile> {
         sampleRate = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.TRACK_SAMPLE_RATE));
         artworkPath = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.TRACK_COVER));
         trackNumber = cursor.getInt(cursor.getColumnIndex(MediaCenterProvider.TRACK_NUMBER));
+        inTrackList = cursor.getInt(cursor.getColumnIndex(MediaCenterProvider.TRACK_IN_TRACK_LIST)) == 1;
         length = cursor.getInt(cursor.getColumnIndex(MediaCenterProvider.TRACK_LENGTH));
 
     }
@@ -225,9 +227,10 @@ public class AudioFile implements Comparable<AudioFile> {
                 ", genre='" + genre + '\'' +
                 ", bitrate='" + bitrate + '\'' +
                 ", sampleRate='" + sampleRate + '\'' +
-                ", artworkBinaryData=" + artworkPath +
+                ", artworkPath='" + artworkPath + '\'' +
                 ", trackNumber=" + trackNumber +
                 ", length=" + length +
+                ", inTrackList=" + inTrackList +
                 '}';
     }
 }

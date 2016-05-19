@@ -1,0 +1,88 @@
+<resources>
+    <string name="app_name">MediaCenter</string>
+
+    <string name="permission_read_external_storage">Разрешить чтение файлов</string>
+    <string name="button_ok">Да</string>
+
+    <string name="snack_exit_text">Выйти из приложения?</string>
+    <string name="snack_exit_action">Выход</string>
+
+    <string name="title_eq_activity">Equalizer</string>
+    <string name="title_music_vk_activity">Вконтакте музыка</string>
+    <string name="title_settings_activity">Настройки</string>
+    <string name="title_about_activity">Про нас</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="title_activity_equalizer">EqualizerActivity</string>
+    <string name="title_activity_music_vk">MusicVKActivity</string>
+
+    <string name="empty_music_file_artist">Артист не определен</string>
+    <string name="empty_music_file_title">Название не определено</string>
+    <string name="empty_music_file_album">Альбон не определен</string>
+    <string name="empty_music_file_genre">Жанр не определен</string>
+
+    <string name="drawer_item_about">Про нас</string>
+    <string name="drawer_item_settings">Настройки</string>
+    <string name="drawer_title_effects">Эффекты</string>
+    <string name="drawer_title_content">Контент</string>
+    <string name="drawer_item_bass">Bass Boost</string>
+    <string name="drawer_item_virtualizer">Virtualizer</string>
+    <string name="drawer_item_eq">Equalizer</string>
+    <string name="drawer_item_audio">Аудио</string>
+    <string name="drawer_item_video">Видео</string>
+
+    <string name="title_activity_vkplayer">VKPlayerActivity</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <string name="empty_first_name">Авторизируйтесь</string>
+    <string name="empty_last_name">Вконтакте</string>
+
+    <string name="vk_tab_title_user_music">Стена</string>
+    <string name="vk_tab_title_groups">Группы</string>
+    <string name="vk_tab_title_search">Поиск</string>
+
+    <string name="audio_tab_title_folders">Папки</string>
+    <string name="audio_tab_title_artist">Артист</string>
+    <string name="audio_tab_title_genres">Жанры</string>
+    <string name="audio_tab_title_playlist">Плейлист</string>
+    <string name="audio_tab_title_tracks">Треки</string>
+
+    <string name="dialog_download_title">Скачивание</string>
+    <string name="dialog_download_message">Скачать файл?</string>
+    <string name="dialog_download_ok">Да</string>
+    <string name="dialog_download_cancel">Нет</string>
+
+    <string name="hint_request">Запрос</string>
+    <string name="request_error">Пустой запрос</string>
+
+    <string name="hint_artist">Артист</string>
+    <string name="hint_title">Название</string>
+    <string name="hint_album">Альбом</string>
+    <string name="hint_genre">Жанр</string>
+
+    <string name="button_save_track_info_text">Сохранить</string>
+
+    <string name="dialog_delete_file_title">Удаление</string>
+    <string name="dialog_delete_file_message">Удалить файл?</string>
+    <string name="dialog_delete_file_ok">Да</string>
+    <string name="dialog_delete_file_cancel">Нет</string>
+
+    <string name="shackbar_delete_file">Файл удален</string>
+
+    <string name="dialog_fetch_audio_folder_name">Поскт папок....</string>
+    <string name="dialog_fetch_audio_track_name">Поиск треков....</string>
+
+    <string name="dialog_refresh_folders_title">Поиск музыки</string>
+    <string name="dialog_refresh_folders_message">Выполнить полный поиск по разделам?</string>
+    <string name="dialog_refresh_folders_ok">Да</string>
+    <string name="dialog_refresh_folders_cancel">Нет</string>
+
+    <string name="dialog_bass_boost_title">Выберите уровень:</string>
+
+    <string name="playback_control_folder_not_selected">Папка не выбрана</string>
+    <string name="playback_control_track_not_selected">Файл не выбран</string>
+
+    <string name="action_settings">Настройки</string>
+
+</resources>

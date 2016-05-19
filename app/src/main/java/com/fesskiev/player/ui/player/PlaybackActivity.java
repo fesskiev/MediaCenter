@@ -8,9 +8,10 @@ import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -22,7 +23,10 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
+import com.fesskiev.player.analytics.AnalyticsActivity;
+import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.model.AudioFile;
+import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.utils.BitmapHelper;
@@ -33,10 +37,11 @@ import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlaybackActivity extends AppCompatActivity {
+public class PlaybackActivity extends AnalyticsActivity {
 
     private static final String TAG = PlaybackActivity.class.getSimpleName();
 
+    private AudioPlayer audioPlayer;
     private BottomSheetBehavior bottomSheetBehavior;
     private TrackListAdapter adapter;
     private PlayPauseFloatingButton playPauseButton;
@@ -44,8 +49,9 @@ public class PlaybackActivity extends AppCompatActivity {
     private TextView track;
     private TextView artist;
     private ImageView cover;
+    private CardView emptyFolder;
+    private CardView emptyTrack;
     private View peakView;
-    private AudioPlayer audioPlayer;
     private int height;
     private boolean isShow;
 
@@ -65,6 +71,8 @@ public class PlaybackActivity extends AppCompatActivity {
         cover = (ImageView) findViewById(R.id.cover);
         durationText = (TextView) findViewById(R.id.duration);
 
+        emptyTrack = (CardView) findViewById(R.id.emptyTrackCard);
+        emptyFolder = (CardView) findViewById(R.id.emptyFolderCard);
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.trackListControl);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -97,7 +105,37 @@ public class PlaybackActivity extends AppCompatActivity {
         AudioFile audioFile = audioPlayer.currentAudioFile;
         if (audioFile != null) {
             setMusicFileInfo(audioFile);
+        } else {
+            showEmptyTrackCard();
         }
+
+        AudioFolder audioFolder = audioPlayer.currentAudioFolder;
+        if (audioFolder != null) {
+            setMusicFolderInfo();
+        } else {
+            showEmptyFolderCard();
+        }
+
+        com.github.clans.fab.FloatingActionButton clearPlaylist
+                = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.menu_clear_playlist);
+        clearPlaylist.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.wtf(TAG, "clear playlist");
+            }
+        });
+
+        com.github.clans.fab.FloatingActionButton addPlaylist
+                = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.menu_add_playlist);
+        addPlaylist.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.wtf(TAG, "add to playlist");
+                audioPlayer.currentAudioFile.inTrackList = true;
+                DatabaseHelper.updateAudioFile(getApplicationContext(),
+                        audioPlayer.currentAudioFile);
+            }
+        });
 
         playPauseButton = (PlayPauseFloatingButton) findViewById(R.id.playPauseFAB);
         playPauseButton.setOnClickListener(new View.OnClickListener() {
@@ -152,7 +190,32 @@ public class PlaybackActivity extends AppCompatActivity {
         }
     }
 
-    public void setMusicFileInfo(AudioFile audioFile) {
+    @Override
+    public String getActivityName() {
+        return this.getLocalClassName();
+    }
+
+    private void showEmptyFolderCard() {
+        emptyFolder.setVisibility(View.VISIBLE);
+    }
+
+    private void showEmptyTrackCard() {
+        emptyTrack.setVisibility(View.VISIBLE);
+    }
+
+    private void hideEmptyFolderCard() {
+        emptyFolder.setVisibility(View.GONE);
+    }
+
+    private void hideEmptyTrackCard() {
+        emptyTrack.setVisibility(View.GONE);
+    }
+
+    private void setMusicFolderInfo() {
+        adapter.refreshAdapter(audioPlayer.currentAudioFolder.audioFiles);
+    }
+
+    private void setMusicFileInfo(AudioFile audioFile) {
         track.setText(audioFile.title);
         artist.setText(audioFile.artist);
 
@@ -218,10 +281,12 @@ public class PlaybackActivity extends AppCompatActivity {
                     Log.w(TAG, "change current audio file");
                     setMusicFileInfo(audioPlayer.currentAudioFile);
                     adapter.notifyDataSetChanged();
+                    hideEmptyTrackCard();
                     break;
                 case AudioPlayer.ACTION_CHANGE_CURRENT_AUDIO_FOLDER:
                     Log.w(TAG, "change current audio folder");
-                    adapter.refreshAdapter(audioPlayer.currentAudioFolder.audioFiles);
+                    setMusicFolderInfo();
+                    hideEmptyFolderCard();
                     break;
             }
         }
@@ -251,7 +316,6 @@ public class PlaybackActivity extends AppCompatActivity {
             }
         }
 
-
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View v = LayoutInflater.from(parent.getContext())
@@ -266,8 +330,10 @@ public class PlaybackActivity extends AppCompatActivity {
             if (audioFile != null) {
                 holder.title.setText(audioFile.title);
                 holder.duration.setText(Utils.getDurationString(audioFile.length));
-                if (audioPlayer.isPlaying && audioPlayer.currentAudioFile.equals(audioFile)) {
+                if (audioPlayer.currentAudioFile != null &&
+                        audioPlayer.currentAudioFile.equals(audioFile)) {
                     holder.playEq.setVisibility(View.VISIBLE);
+
                     AnimationDrawable animation = (AnimationDrawable) ContextCompat.
                             getDrawable(getApplicationContext(), R.drawable.ic_equalizer);
                     holder.playEq.setImageDrawable(animation);

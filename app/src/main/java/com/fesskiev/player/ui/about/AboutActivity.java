@@ -4,15 +4,15 @@ import android.content.ComponentName;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.IntentCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.fesskiev.player.R;
+import com.fesskiev.player.analytics.AnalyticsActivity;
 import com.fesskiev.player.ui.MainActivity;
 import com.fesskiev.player.ui.vk.SearchAudioFragment;
 
-public class AboutActivity extends AppCompatActivity {
+public class AboutActivity extends AnalyticsActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,5 +40,10 @@ public class AboutActivity extends AppCompatActivity {
 
 
         }
+    }
+
+    @Override
+    public String getActivityName() {
+        return this.getLocalClassName();
     }
 }

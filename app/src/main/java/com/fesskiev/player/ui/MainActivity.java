@@ -7,19 +7,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -35,22 +30,22 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.db.MediaCenterProvider;
-import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.User;
 import com.fesskiev.player.services.FileObserverService;
-import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.ui.about.AboutActivity;
+import com.fesskiev.player.ui.audio.AudioFragment;
 import com.fesskiev.player.ui.equalizer.EqualizerActivity;
 import com.fesskiev.player.ui.player.PlaybackActivity;
 import com.fesskiev.player.ui.settings.SettingsActivity;
+import com.fesskiev.player.ui.video.VideoFilesFragment;
 import com.fesskiev.player.ui.vk.MusicVKActivity;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.CacheManager;
+import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.utils.http.URLHelper;
 import com.fesskiev.player.widgets.dialogs.BassBoostDialog;
 import com.vk.sdk.VKAccessToken;
@@ -59,24 +54,19 @@ import com.vk.sdk.VKScope;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKError;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
-
-public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener,
-        AudioFoldersFragment.OnAttachFolderFragmentListener, LoaderManager.LoaderCallbacks<Cursor> {
+public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private static final int PERMISSION_REQ = 0;
-    private static final int GET_AUDIO_FOLDERS_LOADER = 1001;
 
-    private NavigationView navigationView;
+    private NavigationView navigationViewEffects;
+    private DrawerLayout drawer;
     private AppSettingsManager settingsManager;
-    private Handler handler;
     private ImageView userPhoto;
     private ImageView logoutButton;
+    private ImageView headerAnimation;
     private TextView firstName;
     private TextView lastName;
     private boolean finish;
@@ -85,53 +75,58 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        handler = new Handler();
         settingsManager = AppSettingsManager.getInstance(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
+        drawer.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                ((AnimationDrawable) headerAnimation.getDrawable()).start();
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                ((AnimationDrawable) headerAnimation.getDrawable()).stop();
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+        });
         toggle.syncState();
 
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-        navigationView.setItemIconTintList(null);
+        setEffectsNavView();
+        setMainNavView();
 
-
-        SwitchCompat eqSwitch = (SwitchCompat)
-                navigationView.getMenu().findItem(R.id.equalizer).getActionView().findViewById(R.id.eq_switch);
-        eqSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.v(TAG, "EQ " + isChecked);
-            }
-        });
-
-        SwitchCompat bassSwitch = (SwitchCompat)
-                navigationView.getMenu().findItem(R.id.bass).getActionView().findViewById(R.id.bass_switch);
-        if (settingsManager.isBassBoostOn()) {
-            bassSwitch.setChecked(true);
+        registerBroadcastReceiver();
+        if (!settingsManager.isAuthTokenEmpty()) {
+            setUserInfo();
+        } else {
+            setEmptyUserInfo();
         }
-        bassSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    PlaybackService.changeBassBoostState(MainActivity.this, PlaybackService.BASS_BOOST_ON);
-                } else {
-                    PlaybackService.changeBassBoostState(MainActivity.this, PlaybackService.BASS_BOOST_OFF);
-                }
-                settingsManager.setBassBoostState(isChecked);
-            }
-        });
-        visibleBassBoostMenu(false);
 
+        checkPermission();
+    }
 
+    private void setMainNavView() {
+        NavigationView navigationViewMain = (NavigationView) findViewById(R.id.nav_view_main);
+        navigationViewMain.setNavigationItemSelectedListener(this);
+        navigationViewMain.setItemIconTintList(null);
         View headerLayout =
-                navigationView.inflateHeaderView(R.layout.nav_header_main);
+                navigationViewMain.inflateHeaderView(R.layout.nav_header_main);
+
 
         logoutButton = (ImageView) headerLayout.findViewById(R.id.logout);
         logoutButton.setOnClickListener(new View.OnClickListener() {
@@ -158,28 +153,43 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         });
         firstName = (TextView) headerLayout.findViewById(R.id.firstName);
         lastName = (TextView) headerLayout.findViewById(R.id.lastName);
-
-
-        if (savedInstanceState == null) {
-            FragmentTransaction transaction =
-                    getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.content, MainFragment.newInstance(),
-                    MainFragment.class.getName());
-            transaction.addToBackStack(null);
-            transaction.commit();
-        }
-
-        registerBroadcastReceiver();
-        if (!settingsManager.isAuthTokenEmpty()) {
-            setUserInfo();
-        } else {
-            setEmptyUserInfo();
-        }
     }
 
-    @Override
-    public void onAttachFolderFragment() {
-        checkPermission();
+    private void setEffectsNavView() {
+        navigationViewEffects = (NavigationView) findViewById(R.id.nav_view_effects);
+        navigationViewEffects.setNavigationItemSelectedListener(this);
+        View effectsHeaderLayout =
+                navigationViewEffects.inflateHeaderView(R.layout.nav_header_effects);
+
+        headerAnimation = (ImageView) effectsHeaderLayout.findViewById(R.id.effectHeaderAnimation);
+
+
+        SwitchCompat eqSwitch = (SwitchCompat)
+                navigationViewEffects.getMenu().findItem(R.id.equalizer).getActionView().findViewById(R.id.eq_switch);
+        eqSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.v(TAG, "EQ " + isChecked);
+            }
+        });
+
+        SwitchCompat bassSwitch = (SwitchCompat)
+                navigationViewEffects.getMenu().findItem(R.id.bass).getActionView().findViewById(R.id.bass_switch);
+        if (settingsManager.isBassBoostOn()) {
+            bassSwitch.setChecked(true);
+        }
+        bassSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    PlaybackService.changeBassBoostState(MainActivity.this, PlaybackService.BASS_BOOST_ON);
+                } else {
+                    PlaybackService.changeBassBoostState(MainActivity.this, PlaybackService.BASS_BOOST_OFF);
+                }
+                settingsManager.setBassBoostState(isChecked);
+            }
+        });
+        visibleBassBoostMenu(false);
     }
 
     private void setUserInfo() {
@@ -231,16 +241,17 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                     BassBoostDialog.getInstance(this);
                 }
                 break;
+            case R.id.virtualizer:
+                break;
+            case R.id.audio_content:
+                addAudioFragment(false);
+                break;
+            case R.id.video_content:
+                addVideoFilesFragment();
+                break;
         }
 
-
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-                drawer.closeDrawer(GravityCompat.START);
-            }
-        }, 500);
+        drawer.closeDrawer(GravityCompat.START);
 
         return true;
     }
@@ -248,14 +259,15 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
             hidePlayback();
             View view = findViewById(R.id.content);
             if (view != null) {
-                Snackbar.make(view, getString(R.string.snack_exit_text), Snackbar.LENGTH_LONG)
+                Utils.showCustomSnackbar(view, getApplicationContext(),
+                        getString(R.string.snack_exit_text),
+                        Snackbar.LENGTH_LONG)
                         .setAction(getString(R.string.snack_exit_action), new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -320,25 +332,29 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                     setUserProfile(context, intent);
                     break;
                 case PlaybackService.ACTION_PLAYBACK_BASS_BOOST_STATE:
-                    int bassBoostState =
-                            intent.getIntExtra(PlaybackService.PLAYBACK_EXTRA_BASS_BOOST_STATE, -1);
-                    if (bassBoostState != -1) {
-                        switch (bassBoostState) {
-                            case PlaybackService.BASS_BOOST_SUPPORT:
-                                visibleBassBoostMenu(true);
-                                break;
-                            case PlaybackService.BASS_BOOST_NOT_SUPPORT:
-                                visibleBassBoostMenu(false);
-                                break;
-                        }
-                    }
+                    setBassBoostState(intent);
                     break;
             }
         }
     };
 
+    private void setBassBoostState(Intent intent) {
+        int bassBoostState =
+                intent.getIntExtra(PlaybackService.PLAYBACK_EXTRA_BASS_BOOST_STATE, -1);
+        if (bassBoostState != -1) {
+            switch (bassBoostState) {
+                case PlaybackService.BASS_BOOST_SUPPORT:
+                    visibleBassBoostMenu(true);
+                    break;
+                case PlaybackService.BASS_BOOST_NOT_SUPPORT:
+                    visibleBassBoostMenu(false);
+                    break;
+            }
+        }
+    }
+
     private void visibleBassBoostMenu(boolean visible) {
-        navigationView.getMenu().findItem(R.id.bass).setVisible(visible);
+        navigationViewEffects.getMenu().findItem(R.id.bass).setVisible(visible);
     }
 
     private void setUserProfile(Context context, Intent intent) {
@@ -368,7 +384,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         } else {
             checkAppFirstStart();
             PlaybackService.startPlaybackService(this);
-
         }
     }
 
@@ -394,76 +409,65 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         if (settingsManager.isFirstStartApp()) {
             settingsManager.setFirstStartApp();
             saveDownloadFolderIcon();
-            FileSystemIntentService.startFileTreeService(this);
+            addAudioFragment(true);
         } else {
-            getSupportLoaderManager().initLoader(GET_AUDIO_FOLDERS_LOADER, null, this);
+            addAudioFragment(false);
         }
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        switch (id) {
-            case GET_AUDIO_FOLDERS_LOADER:
-                return new CursorLoader(
-                        this,
-                        MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
-                        null,
-                        null,
-                        null,
-                        null
+    private void addAudioFragment(boolean isFetchAudio) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
-                );
-            default:
-                return null;
+        VideoFilesFragment videoFilesFragment = (VideoFilesFragment) getSupportFragmentManager().
+                findFragmentByTag(VideoFilesFragment.class.getName());
+        if (videoFilesFragment != null && videoFilesFragment.isAdded()) {
+            Log.d(TAG, "hide video fragment");
+            transaction.hide(videoFilesFragment);
         }
-    }
 
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        if (cursor.getCount() > 0) {
-            List<AudioFolder> audioFolders = new ArrayList<>();
-
-            cursor.moveToPosition(-1);
-            while (cursor.moveToNext()) {
-                AudioFolder audioFolder = new AudioFolder(cursor);
-                audioFolders.add(audioFolder);
-            }
-
-            MediaApplication.getInstance().getAudioPlayer().audioFolders = audioFolders;
-
-            updateAudioFoldersFragment(audioFolders);
+        AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
+                findFragmentByTag(AudioFragment.class.getName());
+        if (audioFragment == null) {
+            Log.d(TAG, "audio fragment is null");
+            transaction.add(R.id.content, AudioFragment.newInstance(isFetchAudio),
+                    AudioFragment.class.getName());
+            transaction.addToBackStack(AudioFragment.class.getName());
+        } else {
+            Log.d(TAG, "audio fragment not null");
+            transaction.show(audioFragment);
         }
-        cursor.close();
-
-        FileObserverService.startFileObserverService(this);
+        transaction.commitAllowingStateLoss();
     }
 
-    private void updateAudioFoldersFragment(final List<AudioFolder> audioFolders) {
-        MainFragment mainFragment = (MainFragment) getSupportFragmentManager().
-                findFragmentByTag(MainFragment.class.getName());
-        if (mainFragment != null) {
-            List<Fragment> registeredFragments = mainFragment.getRegisteredFragments();
-            if (registeredFragments != null) {
-                for (Fragment fragment : registeredFragments) {
-                    if (fragment instanceof AudioFoldersFragment) {
-                        final AudioFoldersFragment audioFoldersFragment = (AudioFoldersFragment) fragment;
-                        Collections.sort(audioFolders);
-                        ((AudioFoldersFragment.AudioFoldersAdapter)
-                                audioFoldersFragment.getAdapter()).refresh(audioFolders);
-                        break;
-                    }
-                }
-            }
+    private void addVideoFilesFragment() {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+        AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
+                findFragmentByTag(AudioFragment.class.getName());
+        if (audioFragment != null && audioFragment.isAdded()) {
+            Log.d(TAG, "hide audio fragment");
+            transaction.hide(audioFragment);
         }
+
+        VideoFilesFragment videoFilesFragment = (VideoFilesFragment) getSupportFragmentManager().
+                findFragmentByTag(VideoFilesFragment.class.getName());
+        if (videoFilesFragment == null) {
+            Log.d(TAG, "video fragment is null");
+            transaction.add(R.id.content, VideoFilesFragment.newInstance(),
+                    VideoFilesFragment.class.getName());
+            transaction.addToBackStack(VideoFilesFragment.class.getName());
+        } else {
+            Log.d(TAG, "audio fragment not null");
+            transaction.show(videoFilesFragment);
+        }
+        transaction.commit();
     }
 
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
-    }
 
     private void showPermissionSnackbar() {
-        Snackbar.make(findViewById(R.id.content), R.string.permission_read_external_storage,
+        Utils.showCustomSnackbar(findViewById(R.id.content),
+                getApplicationContext(),
+                getString(R.string.permission_read_external_storage),
                 Snackbar.LENGTH_INDEFINITE)
                 .setAction(R.string.button_ok, new View.OnClickListener() {
                     @Override

@@ -18,6 +18,15 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Player">
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <meta-data
+            android:name="com.google.android.gms.analytics.globalConfigResource"
+            android:resource="@xml/global_tracker"/>
+
         <activity
             android:name=".ui.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -30,6 +39,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+
         <activity
             android:name=".ui.tracklist.TrackListActivity"
             android:launchMode="singleTop"
@@ -40,6 +51,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity" />
         </activity>
+
+
         <activity
             android:name=".ui.player.AudioPlayerActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -50,6 +63,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.tracklist.TrackListActivity" />
         </activity>
+
         <activity
             android:name=".ui.player.VideoPlayerActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -59,6 +73,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity" />
         </activity>
+
         <activity
             android:name=".ui.equalizer.EqualizerActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -68,6 +83,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.player.AudioPlayerActivity" />
         </activity>
+
         <activity
             android:name=".ui.vk.MusicVKActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -78,6 +94,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity" />
         </activity>
+
         <activity
             android:name=".ui.vk.GroupAudioActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -87,6 +104,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.vk.MusicVKActivity" />
         </activity>
+
         <activity
             android:name=".ui.about.AboutActivity"
             android:parentActivityName=".ui.MainActivity"
@@ -95,6 +113,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity" />
         </activity>
+
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -129,6 +148,26 @@
             android:name=".db.MediaCenterProvider"
             android:authorities="@string/authority"
             android:exported="false" />
+
+        <receiver android:name="com.google.android.gms.analytics.AnalyticsReceiver"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.analytics.ANALYTICS_DISPATCH" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name="com.google.android.gms.analytics.AnalyticsService"
+            android:enabled="true"
+            android:exported="false"/>
+
+        <receiver android:name="com.google.android.gms.analytics.CampaignTrackingReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.android.vending.INSTALL_REFERRER" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name="com.google.android.gms.analytics.CampaignTrackingService" />
 
     </application>
 

@@ -12,14 +12,14 @@ import android.view.ViewGroup;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioPlayer;
+import com.fesskiev.player.ui.player.HidingPlaybackFragment;
 import com.fesskiev.player.widgets.recycleview.GridDividerDecoration;
 import com.fesskiev.player.widgets.recycleview.HidingScrollListener;
 
-public abstract class GridFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public abstract class GridFragment extends HidingPlaybackFragment {
 
     public abstract RecyclerView.Adapter createAdapter();
 
-    protected SwipeRefreshLayout swipeRefreshLayout;
     protected RecyclerView.Adapter adapter;
     protected RecyclerView recyclerView;
 
@@ -30,8 +30,6 @@ public abstract class GridFragment extends Fragment implements SwipeRefreshLayou
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
-        swipeRefreshLayout.setOnRefreshListener(this);
 
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 3,
                 GridLayoutManager.VERTICAL, false);
@@ -57,20 +55,6 @@ public abstract class GridFragment extends Fragment implements SwipeRefreshLayou
 
             }
         });
-    }
-
-    private void hidePlaybackControl() {
-        AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-        if(audioPlayer.currentAudioFile != null) {
-            ((MainActivity) getActivity()).hidePlayback();
-        }
-    }
-
-    private void showPlaybackControl() {
-        AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-        if(audioPlayer.currentAudioFile != null) {
-            ((MainActivity) getActivity()).showPlayback();
-        }
     }
 
     public RecyclerView.Adapter getAdapter() {

@@ -6,12 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -21,6 +19,7 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
+import com.fesskiev.player.analytics.AnalyticsActivity;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
@@ -29,7 +28,7 @@ import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton;
 import com.fesskiev.player.widgets.cards.DescriptionCardView;
 
-public class AudioPlayerActivity extends AppCompatActivity implements Playable {
+public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
 
     private static final String TAG = AudioPlayerActivity.class.getSimpleName();
     public static final String EXTRA_IS_NEW_TRACK = "com.fesskiev.player.EXTRA_IS_NEW_TRACK";
@@ -37,7 +36,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
     private AudioPlayer audioPlayer;
     private PlayPauseFloatingButton playPauseButton;
     private DescriptionCardView cardDescription;
-    private CardView controlCard;
+
     private ImageView volumeLevel;
     private ImageView backdrop;
     private TextView trackTimeCount;
@@ -49,7 +48,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
     private TextView trackDescription;
     private SeekBar trackSeek;
     private SeekBar volumeSeek;
-    private Handler handler;
+
 
     public static void startPlayerActivity(Activity activity, boolean isNewTrack, View coverView) {
         ActivityOptionsCompat options = ActivityOptionsCompat.
@@ -75,11 +74,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
             }
         }
 
-        handler = new Handler();
-
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-
-        controlCard = (CardView) findViewById(R.id.controlCard);
 
         backdrop = (ImageView) findViewById(R.id.backdrop);
         volumeLevel = (ImageView) findViewById(R.id.volumeLevel);
@@ -196,6 +191,11 @@ public class AudioPlayerActivity extends AppCompatActivity implements Playable {
                 supportFinishAfterTransition();
             }
         });
+    }
+
+    @Override
+    public String getActivityName() {
+        return this.getLocalClassName();
     }
 
     private void translateFAB() {

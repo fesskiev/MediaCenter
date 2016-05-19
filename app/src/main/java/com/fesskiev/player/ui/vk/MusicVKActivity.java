@@ -21,6 +21,7 @@ import android.view.View;
 import com.fesskiev.player.R;
 import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.ui.MainActivity;
+import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.MaterialProgressBar;
 
 import java.util.List;
@@ -112,9 +113,9 @@ public class MusicVKActivity extends AppCompatActivity {
                 case RESTService.ACTION_SERVER_ERROR_RESULT:
                     String serverError =
                             intent.getStringExtra(RESTService.EXTRA_ERROR_MESSAGE);
-                    Snackbar.make(findViewById(R.id.content),
-                            serverError, Snackbar.LENGTH_LONG)
-                            .show();
+                    Utils.showCustomSnackbar(findViewById(R.id.content),
+                            getApplicationContext(),
+                            serverError, Snackbar.LENGTH_LONG).show();
                     hideProgressBar();
                     break;
             }

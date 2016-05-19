@@ -7,7 +7,7 @@
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
-        <item name="android:windowBackground">@drawable/weather_background</item>
+        <item name="android:windowBackground">@drawable/media_center_background</item>
         <item name="colorControlNormal">@color/white_text</item>
         <item name="colorControlActivated">@color/accent</item>
         <item name="colorControlHighlight">@color/white_text</item>
@@ -46,6 +46,15 @@
         <item name="android:paddingTop">24dp</item>
         <item name="android:paddingBottom">24dp</item>
         <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="CustomTabStyle" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/white_text</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:gravity">center</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textAllCaps">true</item>
     </style>
 
     <style name="DescriptionTextAppearance" parent="@android:style/TextAppearance">
@@ -142,6 +151,13 @@
         <item name="android:textSize">11sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:fontFamily">sans-serif-thin</item>
+    </style>
+
+    <style name="GenreNameTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/accent</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif</item>
     </style>
 
 </resources>
