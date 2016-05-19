@@ -51,6 +51,7 @@ dependencies {
     compile 'com.android.support:support-v4:23.4.0'
     compile 'com.google.android.gms:play-services-analytics:8.4.0'
     compile 'com.vk:androidsdk:+'
+    compile 'com.github.clans:fab:1.6.3'
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'com.android.volley:volley:1.0.0'
 }

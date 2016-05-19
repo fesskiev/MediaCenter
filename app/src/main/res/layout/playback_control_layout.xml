@@ -2,6 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="300dp"
@@ -157,6 +158,36 @@
 
     </LinearLayout>
 
+    <com.github.clans.fab.FloatingActionMenu
+        android:id="@+id/menu_playlist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        fab:menu_labels_ellipsize="end"
+        fab:menu_labels_position="left"
+        fab:menu_labels_singleLine="true"
+        fab:menu_openDirection="up">
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/menu_clear_playlist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/icon_menu_clear_playlist"
+            fab:fab_size="mini" />
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/menu_add_playlist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/icon_menu_add_playlist"
+            fab:fab_size="mini" />
+
+    </com.github.clans.fab.FloatingActionMenu>
+
+
     <com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton
         android:id="@+id/playPauseFAB"
         android:layout_width="wrap_content"
@@ -164,14 +195,5 @@
         android:layout_gravity="end"
         android:layout_marginEnd="@dimen/fab_margin" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/addToPlaylistButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/fab_margin"
-        android:layout_gravity="bottom|end"
-        android:src="@drawable/icon_add_playlist"
-        app:borderWidth="0dp"
-        app:elevation="@dimen/card_view_elevation"/>
 
 </FrameLayout>

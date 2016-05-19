@@ -116,10 +116,21 @@ public class PlaybackActivity extends AnalyticsActivity {
             showEmptyFolderCard();
         }
 
-        FloatingActionButton addToPlaylistButton = (FloatingActionButton) findViewById(R.id.addToPlaylistButton);
-        addToPlaylistButton.setOnClickListener(new View.OnClickListener() {
+        com.github.clans.fab.FloatingActionButton clearPlaylist
+                = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.menu_clear_playlist);
+        clearPlaylist.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.wtf(TAG, "clear playlist");
+            }
+        });
+
+        com.github.clans.fab.FloatingActionButton addPlaylist
+                = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.menu_add_playlist);
+        addPlaylist.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.wtf(TAG, "add to playlist");
                 audioPlayer.currentAudioFile.inTrackList = true;
                 DatabaseHelper.updateAudioFile(getApplicationContext(),
                         audioPlayer.currentAudioFile);
