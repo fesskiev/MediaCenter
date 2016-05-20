@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -43,6 +44,7 @@ public class AudioPlaylistFragment extends HidingPlaybackFragment implements Aud
     private AudioPlayer audioPlayer;
     private AudioTracksAdapter adapter;
     private List<AudioFile> audioFiles;
+    private CardView emptyPlaylistCard;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,14 +59,24 @@ public class AudioPlaylistFragment extends HidingPlaybackFragment implements Aud
         return inflater.inflate(R.layout.fragment_audio_playlist, container, false);
     }
 
+
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        emptyPlaylistCard = (CardView) view.findViewById(R.id.emptyPlaylistCard);
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false, 1000));
         adapter = new AudioTracksAdapter();
         recyclerView.setAdapter(adapter);
+    }
+
+    private void showEmptyCardPlaylist() {
+        emptyPlaylistCard.setVisibility(View.VISIBLE);
+    }
+
+    private void hideEmptyCardPlaylist() {
+        emptyPlaylistCard.setVisibility(View.GONE);
     }
 
     @Override
@@ -103,14 +115,12 @@ public class AudioPlaylistFragment extends HidingPlaybackFragment implements Aud
                 Log.wtf(TAG, "audio playlist file " + audioFile.toString());
             }
 
+            hideEmptyCardPlaylist();
             adapter.refreshAdapter(audioFiles);
+        } else {
+            Log.wtf(TAG, "showEmptyCardPlaylist");
+            showEmptyCardPlaylist();
         }
-
-        destroyLoader();
-    }
-
-    private void destroyLoader() {
-        getActivity().getSupportLoaderManager().destroyLoader(Constants.GET_AUDIO_PLAY_LIST_LOADER);
     }
 
     @Override

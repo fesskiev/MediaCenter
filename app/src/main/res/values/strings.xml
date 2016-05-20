@@ -83,6 +83,8 @@
     <string name="playback_control_folder_not_selected">Folder is not selected</string>
     <string name="playback_control_track_not_selected">File is not selected</string>
 
+    <string name="playlist_empty">Playlist empty</string>
+
     <string name="action_settings">Settings</string>
 
     <integer name="com_vk_sdk_AppId">5217689</integer>

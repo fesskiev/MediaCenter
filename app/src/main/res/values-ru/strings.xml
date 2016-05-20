@@ -83,6 +83,8 @@
     <string name="playback_control_folder_not_selected">Папка не выбрана</string>
     <string name="playback_control_track_not_selected">Файл не выбран</string>
 
+    <string name="playlist_empty">Плейлист пуст</string>
+
     <string name="action_settings">Настройки</string>
 
 </resources>
