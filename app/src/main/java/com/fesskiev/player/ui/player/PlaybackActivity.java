@@ -8,7 +8,6 @@ import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.CardView;
@@ -24,7 +23,6 @@ import android.widget.TextView;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.analytics.AnalyticsActivity;
-import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
@@ -115,27 +113,6 @@ public class PlaybackActivity extends AnalyticsActivity {
         } else {
             showEmptyFolderCard();
         }
-
-        com.github.clans.fab.FloatingActionButton clearPlaylist
-                = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.menu_clear_playlist);
-        clearPlaylist.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.wtf(TAG, "clear playlist");
-            }
-        });
-
-        com.github.clans.fab.FloatingActionButton addPlaylist
-                = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.menu_add_playlist);
-        addPlaylist.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.wtf(TAG, "add to playlist");
-                audioPlayer.currentAudioFile.inTrackList = true;
-                DatabaseHelper.updateAudioFile(getApplicationContext(),
-                        audioPlayer.currentAudioFile);
-            }
-        });
 
         playPauseButton = (PlayPauseFloatingButton) findViewById(R.id.playPauseFAB);
         playPauseButton.setOnClickListener(new View.OnClickListener() {

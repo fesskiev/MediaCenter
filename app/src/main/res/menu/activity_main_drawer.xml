@@ -1,36 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:id="@+id/menu_content">
+    <group
+        android:id="@+id/menu_content"
+        android:checkableBehavior="single">
         <item android:title="@string/drawer_title_content">
             <menu>
                 <group>
                     <item
                         android:id="@+id/audio_content"
                         android:icon="@drawable/item_audio_icon"
-                        android:title="@string/drawer_item_audio"/>
+                        android:title="@string/drawer_item_audio" />
 
                     <item
                         android:id="@+id/video_content"
                         android:icon="@drawable/item_video_icon"
-                        android:title="@string/drawer_item_video"/>
+                        android:title="@string/drawer_item_video" />
                 </group>
 
             </menu>
         </item>
     </group>
 
-    <group>
+    <group android:checkableBehavior="single">
         <item
-            android:id="@+id/empty1"
-            android:title="" />
+            android:id="@+id/playlist"
+            android:icon="@drawable/item_playlist_icon"
+            android:title="@string/drawer_item_playlist" />
     </group>
+
+
     <group>
         <item
-            android:id="@+id/empty2"
+            android:id="@+id/empty"
             android:title="" />
     </group>
 
-    <group android:id="@+id/menu_settings">
+    <group
+        android:id="@+id/menu_settings"
+        android:checkableBehavior="single">
 
         <item
             android:id="@+id/settings"
@@ -38,7 +45,9 @@
             android:title="@string/drawer_item_settings" />
     </group>
 
-    <group android:id="@+id/menu_about">
+    <group
+        android:id="@+id/menu_about"
+        android:checkableBehavior="single">
 
         <item
             android:id="@+id/about"

@@ -178,6 +178,8 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
             audioPlayer.sendBroadcastChangeAudioFolder();
             trackListAdapter.refreshAdapter(audioFiles);
         }
+
+        closeOpenCards();
     }
 
     @Override
@@ -222,13 +224,17 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
 
                             @Override
                             public void onEditClick() {
-
                                 showEditDialog(getAdapterPosition());
                             }
 
                             @Override
                             public void onClick() {
                                 startPlayerActivity(getAdapterPosition(), cover);
+                            }
+
+                            @Override
+                            public void onPlaylistClick() {
+                                addToPlaylist(getAdapterPosition());
                             }
 
                             @Override
@@ -240,6 +246,14 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
                                 }
                             }
                         });
+            }
+        }
+
+        private void addToPlaylist(int position){
+            AudioFile audioFile = audioFiles.get(position);
+            if (audioFile != null) {
+                audioFile.inTrackList = true;
+                DatabaseHelper.updateAudioFile(getContext(), audioFile);
             }
         }
 

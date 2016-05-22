@@ -155,4 +155,15 @@ public class DatabaseHelper {
 
         return paths;
     }
+
+    public static void clearPlaylist(Context context){
+
+        ContentValues dateValues = new ContentValues();
+        dateValues.put(MediaCenterProvider.TRACK_IN_TRACK_LIST, 0);
+
+        context.getContentResolver().update(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
+                dateValues,
+                null,
+                null);
+    }
 }

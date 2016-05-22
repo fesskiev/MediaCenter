@@ -1,4 +1,4 @@
-package com.fesskiev.player.ui.audio;
+package com.fesskiev.player.ui.playlist;
 
 
 import android.database.Cursor;
@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
+import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioPlayer;
@@ -33,12 +34,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class AudioPlaylistFragment extends HidingPlaybackFragment implements AudioContent, LoaderManager.LoaderCallbacks<Cursor> {
+public class PlaylistFragment extends HidingPlaybackFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private static final String TAG = AudioPlaylistFragment.class.getSimpleName();
+    private static final String TAG = PlaylistFragment.class.getSimpleName();
 
-    public static AudioPlaylistFragment newInstance() {
-        return new AudioPlaylistFragment();
+    public static PlaylistFragment newInstance() {
+        return new PlaylistFragment();
     }
 
     private AudioPlayer audioPlayer;
@@ -56,7 +57,7 @@ public class AudioPlaylistFragment extends HidingPlaybackFragment implements Aud
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_audio_playlist, container, false);
+        return inflater.inflate(R.layout.fragment_playlist, container, false);
     }
 
 
@@ -69,6 +70,17 @@ public class AudioPlaylistFragment extends HidingPlaybackFragment implements Aud
                 LinearLayoutManager.VERTICAL, false, 1000));
         adapter = new AudioTracksAdapter();
         recyclerView.setAdapter(adapter);
+
+        view.findViewById(R.id.menu_clear_playlist).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "clear click");
+                DatabaseHelper.clearPlaylist(getContext());
+            }
+        });
+
+        getActivity().getSupportLoaderManager().
+                restartLoader(Constants.GET_AUDIO_PLAY_LIST_LOADER, null, this);
     }
 
     private void showEmptyCardPlaylist() {
@@ -77,11 +89,6 @@ public class AudioPlaylistFragment extends HidingPlaybackFragment implements Aud
 
     private void hideEmptyCardPlaylist() {
         emptyPlaylistCard.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void fetchAudioContent() {
-        getActivity().getSupportLoaderManager().restartLoader(Constants.GET_AUDIO_PLAY_LIST_LOADER, null, this);
     }
 
     @Override
@@ -106,8 +113,8 @@ public class AudioPlaylistFragment extends HidingPlaybackFragment implements Aud
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         Log.wtf(TAG, "audio playlist size " + cursor.getCount());
+        List<AudioFile> audioFiles = new ArrayList<>();
         if (cursor.getCount() > 0) {
-            List<AudioFile> audioFiles = new ArrayList<>();
             cursor.moveToPosition(-1);
             while (cursor.moveToNext()) {
                 AudioFile audioFile = new AudioFile(cursor);
@@ -116,11 +123,10 @@ public class AudioPlaylistFragment extends HidingPlaybackFragment implements Aud
             }
 
             hideEmptyCardPlaylist();
-            adapter.refreshAdapter(audioFiles);
         } else {
-            Log.wtf(TAG, "showEmptyCardPlaylist");
             showEmptyCardPlaylist();
         }
+        adapter.refreshAdapter(audioFiles);
     }
 
     @Override

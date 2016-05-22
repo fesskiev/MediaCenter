@@ -11,6 +11,7 @@
     <string name="title_music_vk_activity">Вконтакте музыка</string>
     <string name="title_settings_activity">Настройки</string>
     <string name="title_about_activity">Про нас</string>
+    <string name="title_playlist_activity">Плейлист</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -31,6 +32,7 @@
     <string name="drawer_item_eq">Equalizer</string>
     <string name="drawer_item_audio">Аудио</string>
     <string name="drawer_item_video">Видео</string>
+    <string name="drawer_item_playlist">Плейлист</string>
 
     <string name="title_activity_vkplayer">VKPlayerActivity</string>
     <string name="title_activity_settings">SettingsActivity</string>
@@ -45,8 +47,6 @@
     <string name="audio_tab_title_folders">Папки</string>
     <string name="audio_tab_title_artist">Артист</string>
     <string name="audio_tab_title_genres">Жанры</string>
-    <string name="audio_tab_title_playlist">Плейлист</string>
-    <string name="audio_tab_title_tracks">Треки</string>
 
     <string name="dialog_download_title">Скачивание</string>
     <string name="dialog_download_message">Скачать файл?</string>

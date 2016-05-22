@@ -20,6 +20,8 @@ public class SlidingCardView extends FrameLayout {
 
         void onEditClick();
 
+        void onPlaylistClick();
+
         void onClick();
 
         void onAnimateChanged(SlidingCardView cardView, boolean open);
@@ -31,6 +33,7 @@ public class SlidingCardView extends FrameLayout {
     private OnSlidingCardListener listener;
     private ImageView editButton;
     private ImageView deleteButton;
+    private ImageView addPlaylist;
     private View slidingContainer;
     private float x1;
     private float x2;
@@ -58,6 +61,7 @@ public class SlidingCardView extends FrameLayout {
 
         editButton = (ImageView) view.findViewById(R.id.editButton);
         deleteButton = (ImageView) view.findViewById(R.id.deleteButton);
+        addPlaylist = (ImageView) view.findViewById(R.id.addPlaylistButton);
 
         slidingContainer = view.findViewById(R.id.slidingContainer);
 
@@ -70,15 +74,24 @@ public class SlidingCardView extends FrameLayout {
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
             if (isOpen) {
+                if (isPointInsideView(e.getRawX(), e.getRawY(), addPlaylist)) {
+                    if (listener != null) {
+                        listener.onPlaylistClick();
+                    }
+                    return true;
+                }
+
                 if (isPointInsideView(e.getRawX(), e.getRawY(), editButton)) {
                     if (listener != null) {
                         listener.onEditClick();
                     }
+                    return true;
                 }
                 if (isPointInsideView(e.getRawX(), e.getRawY(), deleteButton)) {
                     if (listener != null) {
                         listener.onDeleteClick();
                     }
+                    return true;
                 }
             } else {
                 if (listener != null) {
@@ -124,7 +137,7 @@ public class SlidingCardView extends FrameLayout {
     public void animateSlidingContainer(boolean open) {
         int marginInPixels = (int) getResources().getDimension(R.dimen.card_view_margin_start);
         isOpen = open;
-        float value = isOpen ? -slidingContainer.getWidth() / 3 : marginInPixels;
+        float value = isOpen ? -slidingContainer.getWidth() / 2 : marginInPixels;
         slidingContainer.
                 animate().
                 x(value).

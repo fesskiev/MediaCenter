@@ -3,7 +3,6 @@ package com.fesskiev.player.ui;
 
 import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -15,7 +14,6 @@ import android.support.v7.widget.AppCompatImageView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fesskiev.player.R;
@@ -35,7 +33,6 @@ public abstract class ViewPagerFragment extends Fragment {
 
     public abstract Fragment[] getPagerFragments();
 
-    private ColorStateList colorStateList;
     private ViewPagerAdapter adapter;
     private TabLayout tabLayout;
     protected ViewPager viewPager;

@@ -11,16 +11,17 @@
     <string name="title_music_vk_activity">VK Music</string>
     <string name="title_settings_activity">Settings</string>
     <string name="title_about_activity">About</string>
+    <string name="title_playlist_activity">Playlist</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="title_activity_equalizer">EqualizerActivity</string>
     <string name="title_activity_music_vk">MusicVKActivity</string>
 
-    <string name="empty_music_file_artist">artist isn\'t defined</string>
-    <string name="empty_music_file_title">title isn\'t defined</string>
-    <string name="empty_music_file_album">album isn\'t defined</string>
-    <string name="empty_music_file_genre">genre isn\'t defined</string>
+    <string name="empty_music_file_artist">artist is not defined</string>
+    <string name="empty_music_file_title">title is not defined</string>
+    <string name="empty_music_file_album">album is not defined</string>
+    <string name="empty_music_file_genre">genre is not defined</string>
 
     <string name="drawer_item_about">About</string>
     <string name="drawer_item_settings">Settings</string>
@@ -31,6 +32,7 @@
     <string name="drawer_item_eq">Equalizer</string>
     <string name="drawer_item_audio">Audio</string>
     <string name="drawer_item_video">Video</string>
+    <string name="drawer_item_playlist">Playlist</string>
 
     <string name="title_activity_vkplayer">VKPlayerActivity</string>
     <string name="title_activity_settings">SettingsActivity</string>
@@ -45,8 +47,6 @@
     <string name="audio_tab_title_folders">FOLDERS</string>
     <string name="audio_tab_title_artist">ARTIST</string>
     <string name="audio_tab_title_genres">GENRES</string>
-    <string name="audio_tab_title_playlist">PLAYLIST</string>
-    <string name="audio_tab_title_tracks">TRACKS</string>
 
     <string name="dialog_download_title">Download</string>
     <string name="dialog_download_message">Download this file?</string>

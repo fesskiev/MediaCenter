@@ -242,9 +242,9 @@ public class MediaCenterProvider extends ContentProvider {
         if (rows != 0) {
             getContext().getContentResolver().notifyChange(uri, null);
             return rows;
-        } else {
-            throw new SQLiteException("Delete error:" + uri);
         }
+
+        return 0;
     }
 
     @Override

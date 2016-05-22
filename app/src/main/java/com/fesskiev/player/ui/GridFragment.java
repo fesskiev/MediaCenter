@@ -1,17 +1,13 @@
 package com.fesskiev.player.ui;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.ui.player.HidingPlaybackFragment;
 import com.fesskiev.player.widgets.recycleview.GridDividerDecoration;
 import com.fesskiev.player.widgets.recycleview.HidingScrollListener;

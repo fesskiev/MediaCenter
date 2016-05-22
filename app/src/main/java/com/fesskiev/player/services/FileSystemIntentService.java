@@ -63,7 +63,7 @@ public class FileSystemIntentService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
             final String action = intent.getAction();
-            Log.d(TAG, "HANDLE INTENT: " + action);
+            Log.w(TAG, "HANDLE INTENT: " + action);
             switch (action) {
                 case ACTION_START_FILE_SYSTEM_SERVICE:
                     getAudioFolders();
@@ -94,16 +94,17 @@ public class FileSystemIntentService extends IntentService {
         MediaApplication.getInstance().getVideoPlayer().videoFiles.clear();
         String sdCardState = Environment.getExternalStorageState();
         if (sdCardState.equals(Environment.MEDIA_MOUNTED)) {
-
             sendStartFetchAudioBroadcast();
+            Log.w(TAG, "sendStartFetchAudioBroadcast");
 
             File root = Environment.getExternalStorageDirectory();
             walk(root.getAbsolutePath());
 
             sendEndFetchAudioBroadcast();
+            Log.w(TAG, "sendEndFetchAudioBroadcast");
 
         } else {
-            Log.wtf(TAG, "NO SD CARD");
+            Log.wtf(TAG, "NO SD CARD!");
         }
     }
 
@@ -111,6 +112,7 @@ public class FileSystemIntentService extends IntentService {
         File root = new File(path);
         File[] list = root.listFiles();
         if (list == null) {
+            Log.w(TAG, "Root is null");
             return;
         }
         for (File child : list) {
@@ -144,6 +146,7 @@ public class FileSystemIntentService extends IntentService {
             for (File directoryFile : directoryFiles) {
                 File[] filterFiles = directoryFile.listFiles(audioFilter());
                 if (filterFiles != null && filterFiles.length > 0) {
+                    Log.w(TAG, "audio folder created");
 
                     AudioFolder audioFolder = new AudioFolder();
 

@@ -37,6 +37,8 @@ import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.ui.about.AboutActivity;
 import com.fesskiev.player.ui.audio.AudioFragment;
+import com.fesskiev.player.ui.playlist.PlaylistActivity;
+import com.fesskiev.player.ui.playlist.PlaylistFragment;
 import com.fesskiev.player.ui.equalizer.EqualizerActivity;
 import com.fesskiev.player.ui.player.PlaybackActivity;
 import com.fesskiev.player.ui.settings.SettingsActivity;
@@ -249,6 +251,10 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             case R.id.video_content:
                 addVideoFilesFragment();
                 break;
+            case R.id.playlist:
+                startActivity(new Intent(this, PlaylistActivity.class));
+//                addPlaylistFragment();
+                break;
         }
 
         drawer.closeDrawer(GravityCompat.START);
@@ -418,12 +424,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private void addAudioFragment(boolean isFetchAudio) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
-        VideoFilesFragment videoFilesFragment = (VideoFilesFragment) getSupportFragmentManager().
-                findFragmentByTag(VideoFilesFragment.class.getName());
-        if (videoFilesFragment != null && videoFilesFragment.isAdded()) {
-            Log.d(TAG, "hide video fragment");
-            transaction.hide(videoFilesFragment);
-        }
+        hideVisibleFragment(transaction);
 
         AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
                 findFragmentByTag(AudioFragment.class.getName());
@@ -442,12 +443,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private void addVideoFilesFragment() {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
-        AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
-                findFragmentByTag(AudioFragment.class.getName());
-        if (audioFragment != null && audioFragment.isAdded()) {
-            Log.d(TAG, "hide audio fragment");
-            transaction.hide(audioFragment);
-        }
+        hideVisibleFragment(transaction);
 
         VideoFilesFragment videoFilesFragment = (VideoFilesFragment) getSupportFragmentManager().
                 findFragmentByTag(VideoFilesFragment.class.getName());
@@ -457,11 +453,55 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                     VideoFilesFragment.class.getName());
             transaction.addToBackStack(VideoFilesFragment.class.getName());
         } else {
-            Log.d(TAG, "audio fragment not null");
+            Log.d(TAG, "video fragment not null");
             transaction.show(videoFilesFragment);
         }
         transaction.commit();
     }
+
+    private void addPlaylistFragment() {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+        hideVisibleFragment(transaction);
+
+        PlaylistFragment playlistFragment = (PlaylistFragment) getSupportFragmentManager().
+                findFragmentByTag(PlaylistFragment.class.getName());
+        if (playlistFragment == null) {
+            Log.d(TAG, "playlist fragment is null");
+            transaction.add(R.id.content, PlaylistFragment.newInstance(),
+                    PlaylistFragment.class.getName());
+            transaction.addToBackStack(PlaylistFragment.class.getName());
+        } else {
+            Log.d(TAG, "playlist fragment not null");
+            transaction.show(playlistFragment);
+        }
+        transaction.commit();
+    }
+
+    private void hideVisibleFragment(FragmentTransaction transaction) {
+
+        AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
+                findFragmentByTag(AudioFragment.class.getName());
+        if (audioFragment != null && audioFragment.isAdded() && audioFragment.isVisible()) {
+            Log.d(TAG, "hide audio fragment");
+            transaction.hide(audioFragment);
+        }
+
+        VideoFilesFragment videoFilesFragment = (VideoFilesFragment) getSupportFragmentManager().
+                findFragmentByTag(VideoFilesFragment.class.getName());
+        if (videoFilesFragment != null && videoFilesFragment.isAdded() && videoFilesFragment.isVisible()) {
+            Log.d(TAG, "hide video fragment");
+            transaction.hide(videoFilesFragment);
+        }
+
+        PlaylistFragment playlistFragment = (PlaylistFragment) getSupportFragmentManager().
+                findFragmentByTag(PlaylistFragment.class.getName());
+        if (playlistFragment != null && playlistFragment.isAdded() && playlistFragment.isVisible()) {
+            Log.d(TAG, "hide playlist fragment");
+            transaction.hide(playlistFragment);
+        }
+    }
+
 
 
     private void showPermissionSnackbar() {
