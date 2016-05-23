@@ -179,11 +179,29 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
             trackListAdapter.refreshAdapter(audioFiles);
         }
 
-        closeOpenCards();
+        destroyLoader();
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+
+    }
+
+    private void destroyLoader() {
+        switch (contentType) {
+            case GENRE:
+                getActivity().
+                        getSupportLoaderManager().destroyLoader(Constants.GET_GENRE_FILES_LOADER);
+                break;
+            case FOLDERS:
+                getActivity().
+                        getSupportLoaderManager().destroyLoader(Constants.GET_FOLDERS_FILES_LOADER);
+                break;
+            case ARTIST:
+                getActivity().
+                        getSupportLoaderManager().destroyLoader(Constants.GET_ARTIST_FILES_LOADER);
+                break;
+        }
 
     }
 
@@ -249,11 +267,15 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
             }
         }
 
-        private void addToPlaylist(int position){
+        private void addToPlaylist(int position) {
             AudioFile audioFile = audioFiles.get(position);
             if (audioFile != null) {
                 audioFile.inTrackList = true;
                 DatabaseHelper.updateAudioFile(getContext(), audioFile);
+                Utils.showCustomSnackbar(getView(),
+                        getContext().getApplicationContext(),
+                        getString(R.string.add_to_playlist_text),
+                        Snackbar.LENGTH_SHORT).show();
             }
         }
 

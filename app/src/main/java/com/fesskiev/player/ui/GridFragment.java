@@ -1,6 +1,7 @@
 package com.fesskiev.player.ui;
 
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -18,10 +19,11 @@ public abstract class GridFragment extends HidingPlaybackFragment {
 
     protected RecyclerView.Adapter adapter;
     protected RecyclerView recyclerView;
+    private CardView emptyAudioContent;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_media_folders, container, false);
+        return inflater.inflate(R.layout.fragment_audio_grid, container, false);
     }
 
     @Override
@@ -51,7 +53,18 @@ public abstract class GridFragment extends HidingPlaybackFragment {
 
             }
         });
+
+        emptyAudioContent = (CardView) view.findViewById(R.id.emptyAudioContentCard);
     }
+
+    protected void showEmptyContentCard() {
+        emptyAudioContent.setVisibility(View.VISIBLE);
+    }
+
+    protected void hideEmptyContentCard() {
+        emptyAudioContent.setVisibility(View.GONE);
+    }
+
 
     public RecyclerView.Adapter getAdapter() {
         return adapter;

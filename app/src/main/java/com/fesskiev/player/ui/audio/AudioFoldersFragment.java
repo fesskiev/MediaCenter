@@ -138,9 +138,11 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent, 
 
                 FileObserverService.startFileObserverService(getActivity());
             }
-
-            destroyLoader();
+            hideEmptyContentCard();
+        } else {
+            showEmptyContentCard();
         }
+        destroyLoader();
     }
 
     @Override

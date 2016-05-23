@@ -74,7 +74,6 @@ public class PlaylistFragment extends HidingPlaybackFragment implements LoaderMa
         view.findViewById(R.id.menu_clear_playlist).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "clear click");
                 DatabaseHelper.clearPlaylist(getContext());
             }
         });
@@ -119,7 +118,6 @@ public class PlaylistFragment extends HidingPlaybackFragment implements LoaderMa
             while (cursor.moveToNext()) {
                 AudioFile audioFile = new AudioFile(cursor);
                 audioFiles.add(audioFile);
-                Log.wtf(TAG, "audio playlist file " + audioFile.toString());
             }
 
             hideEmptyCardPlaylist();

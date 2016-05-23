@@ -105,6 +105,9 @@ public class AudioArtistFragment extends GridFragment implements AudioContent, L
             if (!artists.isEmpty()) {
                 ((AudioArtistsAdapter) adapter).refresh(artists);
             }
+            hideEmptyContentCard();
+        } else {
+            showEmptyContentCard();
         }
         destroyLoader();
     }

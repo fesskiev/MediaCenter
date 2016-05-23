@@ -253,7 +253,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 break;
             case R.id.playlist:
                 startActivity(new Intent(this, PlaylistActivity.class));
-//                addPlaylistFragment();
                 break;
         }
 
@@ -459,25 +458,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         transaction.commit();
     }
 
-    private void addPlaylistFragment() {
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-
-        hideVisibleFragment(transaction);
-
-        PlaylistFragment playlistFragment = (PlaylistFragment) getSupportFragmentManager().
-                findFragmentByTag(PlaylistFragment.class.getName());
-        if (playlistFragment == null) {
-            Log.d(TAG, "playlist fragment is null");
-            transaction.add(R.id.content, PlaylistFragment.newInstance(),
-                    PlaylistFragment.class.getName());
-            transaction.addToBackStack(PlaylistFragment.class.getName());
-        } else {
-            Log.d(TAG, "playlist fragment not null");
-            transaction.show(playlistFragment);
-        }
-        transaction.commit();
-    }
-
     private void hideVisibleFragment(FragmentTransaction transaction) {
 
         AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
@@ -492,13 +472,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         if (videoFilesFragment != null && videoFilesFragment.isAdded() && videoFilesFragment.isVisible()) {
             Log.d(TAG, "hide video fragment");
             transaction.hide(videoFilesFragment);
-        }
-
-        PlaylistFragment playlistFragment = (PlaylistFragment) getSupportFragmentManager().
-                findFragmentByTag(PlaylistFragment.class.getName());
-        if (playlistFragment != null && playlistFragment.isAdded() && playlistFragment.isVisible()) {
-            Log.d(TAG, "hide playlist fragment");
-            transaction.hide(playlistFragment);
         }
     }
 

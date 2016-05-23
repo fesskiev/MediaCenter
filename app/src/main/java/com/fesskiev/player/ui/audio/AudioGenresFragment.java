@@ -103,6 +103,9 @@ public class AudioGenresFragment extends GridFragment implements AudioContent, L
             if (!genres.isEmpty()) {
                 ((AudioGenresAdapter) adapter).refresh(genres);
             }
+            hideEmptyContentCard();
+        } else {
+            showEmptyContentCard();
         }
         destroyLoader();
     }

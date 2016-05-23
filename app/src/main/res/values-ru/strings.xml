@@ -84,7 +84,10 @@
     <string name="playback_control_track_not_selected">Файл не выбран</string>
 
     <string name="playlist_empty">Плейлист пуст</string>
+    <string name="content_empty">Файлы не найдены</string>
 
     <string name="action_settings">Настройки</string>
+
+    <string name="add_to_playlist_text">Трек добавлен в плейлист</string>
 
 </resources>
