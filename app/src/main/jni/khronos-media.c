@@ -2,6 +2,7 @@
 #include <pthread.h>
 #include <assert.h>
 #include <SLES/OpenSLES.h>
+#include <SLES/OpenSLES_Android.h>
 #include<android/log.h>
 
 #define LOG_FORMAT(x, y)  __android_log_print(ANDROID_LOG_VERBOSE, "OpenSL ES", x, y)
@@ -24,6 +25,10 @@ SLMuteSoloItf uriPlayerMuteSolo = NULL;
 SLVolumeItf uriPlayerVolume = NULL;
 SLBassBoostItf uriBassBoost = NULL;
 SLVirtualizerItf uriVirtualizer = NULL;
+
+// buffer queue player interfaces
+SLObjectItf bufferPlayerObject = NULL;
+SLAndroidSimpleBufferQueueItf bufferPlayerQueue = NULL;
 
 JavaVM *gJavaVM;
 jobject gCallbackObject = NULL;
@@ -53,6 +58,26 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     gJavaVM = vm;
     return JNI_VERSION_1_6;
 }
+
+//void bufferQueuePlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
+//    assert(bq == bqPlayerBufferQueue);
+//    assert(NULL == context);
+//    // for streaming playback, replace this test by logic to find and fill the next buffer
+//    if (--nextCount > 0 && NULL != nextBuffer && 0 != nextSize) {
+//        SLresult result;
+//        // enqueue another buffer
+//        result = (*bqPlayerBufferQueue)->Enqueue(bqPlayerBufferQueue, nextBuffer, nextSize);
+//        // the most likely other result is SL_RESULT_BUFFER_INSUFFICIENT,
+//        // which for this code example would indicate a programming error
+//        if (SL_RESULT_SUCCESS != result) {
+//            pthread_mutex_unlock(&audioEngineLock);
+//        }
+//        (void)result;
+//    } else {
+//        releaseResampleBuf();
+//        pthread_mutex_unlock(&audioEngineLock);
+//    }
+//}
 
 JNIEXPORT void JNICALL
 Java_com_fesskiev_player_services_PlaybackService_registerCallback(JNIEnv *env, jobject instance) {
@@ -186,7 +211,7 @@ Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *e
 
     /* Data sinks for the audio player */
     SLDataSink audioSink;
-    SLDataLocator_OutputMix locator_outputmix;
+    SLDataLocator_OutputMix locatorOutputMix;
 
     SLPrefetchStatusItf prefetchItf = NULL;
     SLMetadataExtractionItf metadataItf = NULL;
@@ -195,9 +220,9 @@ Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *e
     const char *utf8 = (*env)->GetStringUTFChars(env, uri, NULL);
 
     /* Setup the data sink structure */
-    locator_outputmix.locatorType = SL_DATALOCATOR_OUTPUTMIX;
-    locator_outputmix.outputMix = outputMixObject;
-    audioSink.pLocator = (void *) &locator_outputmix;
+    locatorOutputMix.locatorType = SL_DATALOCATOR_OUTPUTMIX;
+    locatorOutputMix.outputMix = outputMixObject;
+    audioSink.pLocator = (void *) &locatorOutputMix;
     audioSink.pFormat = NULL;
 
     locatorUri.locatorType = SL_DATALOCATOR_URI;
@@ -724,4 +749,61 @@ Java_com_fesskiev_player_services_PlaybackService_setBassVirtualizerValue(JNIEnv
         SLresult result = (*uriVirtualizer)->SetStrength(uriVirtualizer, (SLuint16) value);
         checkError(result);
     }
+}
+
+JNIEXPORT void JNICALL
+Java_com_fesskiev_player_services_PlaybackService_createBufferQueueAudioPlayer(
+        JNIEnv *env, jclass type, jstring uri, jint sampleRate, jint samplesPerBuf) {
+
+    const char *utf8 = (*env)->GetStringUTFChars(env, uri, 0);
+
+    SLDataLocator_AndroidSimpleBufferQueue bufferQueue;
+    SLDataFormat_PCM formatPcm;
+    SLDataLocator_OutputMix locatorOutputMix;
+    SLDataSink audioSink;
+    SLDataSource audioSrc;
+
+    bufferQueue.locatorType = SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE;
+    bufferQueue.numBuffers = 2;
+
+    formatPcm.formatType = SL_DATAFORMAT_PCM;
+    formatPcm.numChannels = 1;
+    formatPcm.samplesPerSec = (SLuint32) sampleRate * 1000;
+    formatPcm.bitsPerSample = SL_PCMSAMPLEFORMAT_FIXED_16;
+    formatPcm.containerSize = SL_PCMSAMPLEFORMAT_FIXED_16;
+    formatPcm.channelMask = SL_SPEAKER_FRONT_CENTER;
+    formatPcm.endianness = SL_BYTEORDER_LITTLEENDIAN;
+
+    locatorOutputMix.locatorType = SL_DATALOCATOR_OUTPUTMIX;
+    locatorOutputMix.outputMix = outputMixObject;
+
+    audioSink.pLocator = (void *)&locatorOutputMix;
+
+    audioSrc.pLocator = (void *)&bufferQueue;
+    audioSrc.pFormat = (void *)&formatPcm;
+
+
+    const SLInterfaceID ids[2] = {SL_IID_BUFFERQUEUE,
+                                  SL_IID_VOLUME};
+
+    const SLboolean req[2] = {SL_BOOLEAN_TRUE,
+                              SL_BOOLEAN_TRUE};
+
+    SLresult result =(*engineEngine)->CreateAudioPlayer(engineEngine, &bufferPlayerObject,
+                                                        &audioSrc, &audioSink, 2, ids, req);
+    checkError(result);
+
+    result = (*bufferPlayerObject)->Realize(bufferPlayerObject, SL_BOOLEAN_FALSE);
+    checkError(result);
+
+    result = (*bufferPlayerObject)->GetInterface(bufferPlayerObject, SL_IID_BUFFERQUEUE,
+                                             &bufferPlayerQueue);
+    checkError(result);
+
+//    result = (*bufferPlayerQueue)->RegisterCallback(bufferPlayerQueue,
+//                                                    bufferQueuePlayerCallback, NULL);
+    checkError(result);
+
+
+    (*env)->ReleaseStringUTFChars(env, uri, uri);
 }
