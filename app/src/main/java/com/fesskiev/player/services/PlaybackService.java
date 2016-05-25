@@ -335,6 +335,7 @@ public class PlaybackService extends Service {
 
         createEngine();
         createUriAudioPlayer(path);
+//        createBufferQueueAudioPlayer(path);
         setEffects();
     }
 
