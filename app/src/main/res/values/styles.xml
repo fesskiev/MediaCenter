@@ -50,7 +50,7 @@
 
     <style name="CustomTabStyle" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/white_text</item>
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">13sp</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:gravity">center</item>
         <item name="android:singleLine">true</item>
@@ -60,6 +60,11 @@
     <style name="DescriptionTextAppearance" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/secondary_text</item>
         <item name="android:textSize">@dimen/text_size_description</item>
+        <item name="android:fontFamily">sans-serif-thin</item>
+    </style>
+    <style name="TrackDescriptionTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/secondary_text</item>
+        <item name="android:textSize">12sp</item>
         <item name="android:fontFamily">sans-serif-thin</item>
     </style>
 
@@ -165,5 +170,10 @@
         <item name="android:textStyle">bold</item>
         <item name="android:fontFamily">sans-serif</item>
     </style>
+
+    <style name="DividerStyle" parent="@android:style/TextAppearance">
+        <item name="android:background">@color/primary_light</item>
+    </style>
+
 
 </resources>

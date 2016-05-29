@@ -243,8 +243,17 @@ public class PlaybackActivity extends AnalyticsActivity {
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
                 case PlaybackService.ACTION_PLAYBACK_VALUES:
+                    int duration =
+                            intent.getIntExtra(PlaybackService.PLAYBACK_EXTRA_DURATION, 0);
                     int progress =
                             intent.getIntExtra(PlaybackService.PLAYBACK_EXTRA_PROGRESS, 0);
+                    int progressScale =
+                            intent.getIntExtra(PlaybackService.PLAYBACK_EXTRA_PROGRESS_SCALE, 0);
+
+                    audioPlayer.duration = duration;
+                    audioPlayer.progress = progress;
+                    audioPlayer.progressScale = progressScale;
+
                     durationText.setText(String.valueOf(Utils.getTimeFromMillisecondsString(progress)));
                     break;
                 case PlaybackService.ACTION_PLAYBACK_PLAYING_STATE:
@@ -307,8 +316,7 @@ public class PlaybackActivity extends AnalyticsActivity {
             if (audioFile != null) {
                 holder.title.setText(audioFile.title);
                 holder.duration.setText(Utils.getDurationString(audioFile.length));
-                if (audioPlayer.currentAudioFile != null &&
-                        audioPlayer.currentAudioFile.equals(audioFile)) {
+                if (audioPlayer.isTrackPlaying(audioFile)) {
                     holder.playEq.setVisibility(View.VISIBLE);
 
                     AnimationDrawable animation = (AnimationDrawable) ContextCompat.

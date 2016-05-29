@@ -41,8 +41,8 @@ public class PlayPauseFloatingButton extends FloatingActionButton {
         animate().translationX(x).setDuration(500);
         animate().translationY(y).setDuration(500);
 
-        animate().scaleX(1.5f);
-        animate().scaleY(1.5f);
+        animate().scaleX(1.4f);
+        animate().scaleY(1.4f);
     }
 
     public void returnFromPosition() {

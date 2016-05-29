@@ -5,6 +5,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.drawable.LayerDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -13,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -48,7 +51,8 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
     private TextView trackDescription;
     private SeekBar trackSeek;
     private SeekBar volumeSeek;
-
+    private int fabTranslateX;
+    private int fabTranslateY;
 
     public static void startPlayerActivity(Activity activity, boolean isNewTrack, View coverView) {
         ActivityOptionsCompat options = ActivityOptionsCompat.
@@ -178,7 +182,12 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
             createPlayer();
             play();
         } else {
-            translateFAB();
+            if (!audioPlayer.isPlaying) {
+                setPauseValues();
+                playPauseButton.setPlay(audioPlayer.isPlaying);
+            } else {
+                translateFAB();
+            }
         }
 
         registerPlaybackBroadcastReceiver();
@@ -198,14 +207,43 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         return this.getLocalClassName();
     }
 
+
+    private void setPauseValues() {
+        trackSeek.setProgress(audioPlayer.progressScale);
+        trackTimeTotal.setText(Utils.getTimeFromMillisecondsString(audioPlayer.duration));
+        trackTimeCount.setText(Utils.getTimeFromMillisecondsString(audioPlayer.progress));
+    }
+
     private void translateFAB() {
-//        final float centreX = controlCard.getX() - controlCard.getWidth() / 2;
-//        final float centreY = controlCard.getY() + controlCard.getHeight() / 2;
-//
-//        Log.d(TAG, "center X: " + centreX + " center Y: " + centreY);
+        final View holder = findViewById(R.id.holderButton);
+        ViewTreeObserver vto = holder.getViewTreeObserver();
+        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 
-        playPauseButton.translateToPosition(-400, 735);
+            @Override
+            public void onGlobalLayout() {
+                ViewTreeObserver obs = holder.getViewTreeObserver();
+                obs.removeOnGlobalLayoutListener(this);
 
+                int location[] = new int[2];
+                holder.getLocationOnScreen(location);
+                int viewX = location[0];
+                int viewY = location[1];
+
+                Log.d(TAG, "get width: " + holder.getWidth());
+
+                fabTranslateX = -(viewX / 2) - holder.getWidth();
+                fabTranslateY = viewY / 2;
+
+                Log.d(TAG, "center X: " + fabTranslateX + " center Y: " + fabTranslateY);
+
+                playPauseButton.translateToPosition(fabTranslateX, fabTranslateY);
+            }
+
+        });
+
+        if (fabTranslateX != 0 && fabTranslateY != 0) {
+            playPauseButton.translateToPosition(fabTranslateX, fabTranslateY);
+        }
     }
 
     private void setBackdropImage() {
@@ -320,6 +358,10 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
                             intent.getIntExtra(PlaybackService.PLAYBACK_EXTRA_PROGRESS, 0);
                     int progressScale =
                             intent.getIntExtra(PlaybackService.PLAYBACK_EXTRA_PROGRESS_SCALE, 0);
+
+                    audioPlayer.duration = duration;
+                    audioPlayer.progress = progress;
+                    audioPlayer.progressScale = progressScale;
 
                     trackSeek.setProgress(progressScale);
                     trackTimeTotal.setText(Utils.getTimeFromMillisecondsString(duration));

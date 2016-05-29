@@ -3,10 +3,12 @@ package com.fesskiev.player.ui.tracklist;
 
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
@@ -109,6 +111,14 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
         });
 
         fetchContentByType();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(trackListAdapter != null){
+            trackListAdapter.notifyDataSetChanged();
+        }
     }
 
     private void fetchContentByType() {
@@ -224,6 +234,7 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
             TextView title;
             TextView filePath;
             ImageView cover;
+            ImageView playEq;
 
             public ViewHolder(final View v) {
                 super(v);
@@ -232,6 +243,7 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
                 title = (TextView) v.findViewById(R.id.itemTitle);
                 filePath = (TextView) v.findViewById(R.id.filePath);
                 cover = (ImageView) v.findViewById(R.id.itemCover);
+                playEq = (ImageView) v.findViewById(R.id.playEq);
 
                 ((SlidingCardView) v).
                         setOnSlidingCardListener(new SlidingCardView.OnSlidingCardListener() {
@@ -276,16 +288,21 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
                         getContext().getApplicationContext(),
                         getString(R.string.add_to_playlist_text),
                         Snackbar.LENGTH_SHORT).show();
+                closeOpenCards();
             }
         }
 
         private void startPlayerActivity(int position, View cover) {
             AudioFile audioFile = audioFiles.get(position);
             if (audioFile != null) {
-                audioPlayer.setCurrentAudioFile(audioFile);
-                audioPlayer.position = position;
-
-                AudioPlayerActivity.startPlayerActivity(getActivity(), true, cover);
+                if(audioPlayer.isTrackPlaying(audioFile)){
+                    AudioPlayerActivity.startPlayerActivity(getActivity(), false, cover);
+                } else {
+                    audioPlayer.setCurrentAudioFile(audioFile);
+                    audioPlayer.position = position;
+                    AudioPlayerActivity.startPlayerActivity(getActivity(), true, cover);
+                    notifyDataSetChanged();
+                }
             }
         }
 
@@ -359,6 +376,22 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
             holder.duration.setText(Utils.getDurationString(audioFile.length));
             holder.title.setText(audioFile.title);
             holder.filePath.setText(audioFile.filePath.getName());
+
+            if (audioPlayer.isTrackPlaying(audioFile)) {
+                holder.playEq.setVisibility(View.VISIBLE);
+                AnimationDrawable animation = (AnimationDrawable) ContextCompat.
+                        getDrawable(getContext().getApplicationContext(), R.drawable.ic_equalizer);
+                holder.playEq.setImageDrawable(animation);
+                if (animation != null) {
+                    if (audioPlayer.isPlaying) {
+                        animation.start();
+                    } else {
+                        animation.stop();
+                    }
+                }
+            } else {
+                holder.playEq.setVisibility(View.INVISIBLE);
+            }
         }
 
         @Override

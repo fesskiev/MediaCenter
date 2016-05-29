@@ -34,20 +34,6 @@ SLAndroidSimpleBufferQueueItf bufferPlayerQueue = NULL;
 JavaVM *gJavaVM;
 jobject gCallbackObject = NULL;
 
-// 5 seconds of recorded audio at 16 kHz mono, 16-bit signed little endian
-#define RECORDER_FRAMES (16000 * 5)
-short recorderBuffer[RECORDER_FRAMES];
-FILE *file;
-
-//#define SL_PREFETCHSTATUS_UNKNOWN 0
-//#define SL_PREFETCHSTATUS_ERROR   ((SLuint32) -1)
-
-//static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-//static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
-//SLuint32 prefetch_status = SL_PREFETCHSTATUS_UNKNOWN;
-
-#define PREFETCHEVENT_ERROR_CANDIDATE \
-        (SL_PREFETCHEVENT_STATUSCHANGE | SL_PREFETCHEVENT_FILLLEVELCHANGE)
 
 void checkError(SLresult res) {
     if (res != SL_RESULT_SUCCESS) {
@@ -65,13 +51,6 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     return JNI_VERSION_1_6;
 }
 
-
-void bufferQueuePlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
-    LOG("bufferQueuePlayerCallback");
-    SLresult result = (*bufferPlayerQueue)->Enqueue(bufferPlayerQueue, recorderBuffer,
-                                                    RECORDER_FRAMES * sizeof(short));
-    checkError(result);
-}
 
 
 JNIEXPORT void JNICALL
@@ -743,86 +722,4 @@ Java_com_fesskiev_player_services_PlaybackService_setBassVirtualizerValue(JNIEnv
         SLresult result = (*uriVirtualizer)->SetStrength(uriVirtualizer, (SLuint16) value);
         checkError(result);
     }
-}
-
-JNIEXPORT void JNICALL
-Java_com_fesskiev_player_services_PlaybackService_createBufferQueueAudioPlayer(
-        JNIEnv *env, jclass type, jstring uri, jint sampleRate, jint samplesPerBuf) {
-
-    const char *utf8 = (*env)->GetStringUTFChars(env, uri, 0);
-    LOG("createBufferQueueAudioPlayer");
-
-
-    SLDataLocator_AndroidSimpleBufferQueue bufferQueue;
-    SLDataFormat_PCM formatPcm;
-    SLDataLocator_OutputMix locatorOutputMix;
-    SLDataSink audioSink;
-    SLDataSource audioSrc;
-
-    bufferQueue.locatorType = SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE;
-    bufferQueue.numBuffers = 2;
-
-    formatPcm.formatType = SL_DATAFORMAT_PCM;
-    formatPcm.numChannels = 1;
-    formatPcm.samplesPerSec = (SLuint32) sampleRate * 1000;
-    formatPcm.bitsPerSample = SL_PCMSAMPLEFORMAT_FIXED_16;
-    formatPcm.containerSize = SL_PCMSAMPLEFORMAT_FIXED_16;
-    formatPcm.channelMask = SL_SPEAKER_FRONT_CENTER;
-    formatPcm.endianness = SL_BYTEORDER_LITTLEENDIAN;
-
-    locatorOutputMix.locatorType = SL_DATALOCATOR_OUTPUTMIX;
-    locatorOutputMix.outputMix = outputMixObject;
-
-    audioSink.pLocator = (void *) &locatorOutputMix;
-
-    audioSrc.pLocator = (void *) &bufferQueue;
-    audioSrc.pFormat = (void *) &formatPcm;
-
-
-    const SLInterfaceID ids[2] = {SL_IID_BUFFERQUEUE,
-                                  SL_IID_VOLUME};
-
-    const SLboolean req[2] = {SL_BOOLEAN_TRUE,
-                              SL_BOOLEAN_TRUE};
-
-    SLresult result = (*engineEngine)->CreateAudioPlayer(engineEngine, &bufferPlayerObject,
-                                                         &audioSrc, &audioSink, 2, ids, req);
-    checkError(result);
-    LOG("createAudioPlayer");
-
-    result = (*bufferPlayerObject)->Realize(bufferPlayerObject, SL_BOOLEAN_FALSE);
-    checkError(result);
-
-    result = (*bufferPlayerObject)->GetInterface(bufferPlayerObject, SL_IID_PLAY, &queuePlayerPlay);
-    checkError(result);
-    LOG("get SL_IID_PLAY");
-
-    result = (*bufferPlayerObject)->GetInterface(bufferPlayerObject, SL_IID_BUFFERQUEUE,
-                                                 &bufferPlayerQueue);
-    LOG("get SL_IID_BUFFERQUEUE");
-    checkError(result);
-
-    result = (*bufferPlayerQueue)->RegisterCallback(bufferPlayerQueue,
-                                                    bufferQueuePlayerCallback, NULL);
-    checkError(result);
-
-    file = fopen(utf8, "rb");
-    if (NULL == file) {
-        LOG("cannot open pcm file to read");
-    } else {
-        LOG("open pcm file to read");
-    }
-
-    long numOfRecords = fread(recorderBuffer, sizeof(short), RECORDER_FRAMES, file);
-    LOG("read pcm file");
-
-    result = (*bufferPlayerQueue)->Enqueue(bufferPlayerQueue,
-                                           recorderBuffer, RECORDER_FRAMES * sizeof(short));
-    LOG("Enqueue");
-    checkError(result);
-
-    result = (*queuePlayerPlay)->SetPlayState(queuePlayerPlay, SL_PLAYSTATE_PLAYING);
-    checkError(result);
-
-    (*env)->ReleaseStringUTFChars(env, uri, uri);
 }

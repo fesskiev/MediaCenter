@@ -21,6 +21,9 @@ public class AudioPlayer {
     public AudioFile currentAudioFile;
     public int position;
     public int volume;
+    public int duration;
+    public int progress;
+    public int progressScale;
     public boolean isPlaying;
 
     public AudioPlayer(Context context) {
@@ -37,7 +40,7 @@ public class AudioPlayer {
     }
 
     public void next() {
-        if(currentAudioFolder == null){
+        if (currentAudioFolder == null) {
             return;
         }
         if (!lastPosition()) {
@@ -47,7 +50,7 @@ public class AudioPlayer {
     }
 
     public void previous() {
-        if(currentAudioFolder == null){
+        if (currentAudioFolder == null) {
             return;
         }
         if (position > 0) {
@@ -78,5 +81,13 @@ public class AudioPlayer {
         Intent intent = new Intent();
         intent.setAction(ACTION_CHANGE_CURRENT_AUDIO_FILE);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+    }
+
+
+    public boolean isTrackPlaying(AudioFile audioFile) {
+        if (audioFile == null || currentAudioFile == null) {
+            return false;
+        }
+        return currentAudioFile.equals(audioFile);
     }
 }

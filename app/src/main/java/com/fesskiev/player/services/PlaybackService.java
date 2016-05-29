@@ -5,9 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.AudioManager;
 import android.os.Binder;
-import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -144,8 +142,6 @@ public class PlaybackService extends Service {
     public native void createEngine();
 
     public native boolean createUriAudioPlayer(String uri);
-
-    public static native void createBufferQueueAudioPlayer(String uri, int sampleRate, int samplesPerBuf);
 
     public native void setPlayingUriAudioPlayer(boolean isPlaying);
 
@@ -312,19 +308,6 @@ public class PlaybackService extends Service {
         }
     };
 
-    private void createBufferQueueAudioPlayer(String path) {
-        int sampleRate = 0;
-        int bufSize = 0;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-            String nativeParam = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE);
-            sampleRate = Integer.parseInt(nativeParam);
-            nativeParam = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER);
-            bufSize = Integer.parseInt(nativeParam);
-        }
-        createBufferQueueAudioPlayer(path, sampleRate, bufSize);
-    }
-
 
     private void createPlayer(String path) {
         if (isPlaying()) {
@@ -335,7 +318,6 @@ public class PlaybackService extends Service {
 
         createEngine();
         createUriAudioPlayer(path);
-//        createBufferQueueAudioPlayer(path);
         setEffects();
     }
 
