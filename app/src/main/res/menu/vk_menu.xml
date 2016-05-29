@@ -9,10 +9,4 @@
         android:title="@string/drawer_item_settings"
         app:showAsAction="never" />
 
-    <item
-        android:id="@+id/vk_show_download_folder"
-        android:icon="@drawable/settings_icon"
-        android:title="@string/drawer_item_settings"
-        app:showAsAction="never" />
-
 </menu> 

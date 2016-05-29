@@ -14,7 +14,6 @@ import android.support.v4.content.IntentCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -57,8 +56,6 @@ public class MusicVKActivity extends AppCompatActivity {
                         switch (item.getItemId()) {
                             case R.id.vk_settings:
                                 break;
-                            case R.id.vk_show_download_folder:
-                                break;
                         }
                         return true;
                     }
@@ -97,15 +94,17 @@ public class MusicVKActivity extends AppCompatActivity {
     private void registerBroadcastReceiver() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(RESTService.ACTION_SERVER_ERROR_RESULT);
-        LocalBroadcastManager.getInstance(this).registerReceiver(serverErrorReceiver,
+        filter.addAction(RESTService.ACTION_INTERNET_CONNECTION_ERROR);
+        filter.addAction(RESTService.ACTION_INTERNET_CONNECTION_SLOW);
+        LocalBroadcastManager.getInstance(this).registerReceiver(errorsReceiver,
                 filter);
     }
 
     private void unregisterBroadcastReceiver() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(serverErrorReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(errorsReceiver);
     }
 
-    private BroadcastReceiver serverErrorReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver errorsReceiver = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -116,9 +115,27 @@ public class MusicVKActivity extends AppCompatActivity {
                     Utils.showCustomSnackbar(findViewById(R.id.content),
                             getApplicationContext(),
                             serverError, Snackbar.LENGTH_LONG).show();
-                    hideProgressBar();
+                    break;
+                case RESTService.ACTION_INTERNET_CONNECTION_ERROR:
+                    Utils.showCustomSnackbar(findViewById(R.id.content),
+                            getApplicationContext(),
+                            getString(R.string.shackbar_connection_error),
+                            Snackbar.LENGTH_INDEFINITE).setAction(getString(R.string.shackbar_connection_repeat),
+                            new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    makeRequestVKFiles();
+                                }
+                            }).show();
+                    break;
+                case RESTService.ACTION_INTERNET_CONNECTION_SLOW:
+                    Utils.showCustomSnackbar(findViewById(R.id.content),
+                            getApplicationContext(),
+                            getString(R.string.shackbar_connection_slow),
+                            Snackbar.LENGTH_LONG).show();
                     break;
             }
+            hideProgressBar();
         }
     };
 

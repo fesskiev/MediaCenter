@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -104,6 +105,9 @@ public class GroupAudioFragment extends Fragment {
     private void registerBroadcastReceiver() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(RESTService.ACTION_GROUP_POSTS_RESULT);
+        filter.addAction(RESTService.ACTION_INTERNET_CONNECTION_ERROR);
+        filter.addAction(RESTService.ACTION_INTERNET_CONNECTION_SLOW);
+        filter.addAction(RESTService.ACTION_SERVER_ERROR_RESULT);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(groupAudioReceiver,
                 filter);
     }
@@ -125,6 +129,31 @@ public class GroupAudioFragment extends Fragment {
                         adapter.refresh(groupPosts);
                         hideProgressBar();
                     }
+                    break;
+                case RESTService.ACTION_SERVER_ERROR_RESULT:
+                    String serverError =
+                            intent.getStringExtra(RESTService.EXTRA_ERROR_MESSAGE);
+                    Utils.showCustomSnackbar(getView(),
+                            getContext().getApplicationContext(),
+                            serverError, Snackbar.LENGTH_LONG).show();
+                    break;
+                case RESTService.ACTION_INTERNET_CONNECTION_ERROR:
+                    Utils.showCustomSnackbar(getView(),
+                            getContext().getApplicationContext(),
+                            getString(R.string.shackbar_connection_error),
+                            Snackbar.LENGTH_INDEFINITE).setAction(getString(R.string.shackbar_connection_repeat),
+                            new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    fetchPosts();
+                                }
+                            }).show();
+                    break;
+                case RESTService.ACTION_INTERNET_CONNECTION_SLOW:
+                    Utils.showCustomSnackbar(getView(),
+                            getContext().getApplicationContext(),
+                            getString(R.string.shackbar_connection_slow),
+                            Snackbar.LENGTH_LONG).show();
                     break;
             }
         }

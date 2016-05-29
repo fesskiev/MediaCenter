@@ -21,6 +21,7 @@ import com.fesskiev.player.model.User;
 import com.fesskiev.player.model.vk.Group;
 import com.fesskiev.player.model.vk.GroupPost;
 import com.fesskiev.player.model.vk.VKMusicFile;
+import com.fesskiev.player.utils.NetworkHelper;
 import com.fesskiev.player.utils.http.JSONHelper;
 import com.fesskiev.player.utils.http.JSONUTF8Request;
 
@@ -59,6 +60,10 @@ public class RESTService extends Service {
             "com.fesskiev.player.ACTION_GROUP_POSTS_RESULT";
     public static final String ACTION_SERVER_ERROR_RESULT =
             "com.fesskiev.player.ACTION_SERVER_ERROR_RESULT";
+    public static final String ACTION_INTERNET_CONNECTION_ERROR =
+            "com.fesskiev.player.ACTION_INTERNET_CONNECTION_ERROR";
+    public static final String ACTION_INTERNET_CONNECTION_SLOW =
+            "com.fesskiev.player.ACTION_INTERNET_CONNECTION_SLOW";
 
 
     public static final String EXTRA_REQUEST_URL
@@ -123,6 +128,14 @@ public class RESTService extends Service {
         String action = intent.getAction();
         String url = intent.getStringExtra(EXTRA_REQUEST_URL);
         Log.wtf(TAG, "HANDLE INTENT, action: " + action + " url: " + url);
+        if (!NetworkHelper.isConnected(getApplicationContext())) {
+            Log.wtf(TAG, "INTERNET CONNECTION ERROR");
+            sendInternetConnectionError();
+            return START_NOT_STICKY;
+        }
+        if (!NetworkHelper.isConnectedFast(getApplicationContext())) {
+            sendInternetConnectionSlow();
+        }
 
         switch (action) {
             case ACTION_GET_USER_AUDIO:
@@ -274,6 +287,18 @@ public class RESTService extends Service {
         Intent intent = new Intent();
         intent.setAction(ACTION_USER_PROFILE_RESULT);
         intent.putExtra(EXTRA_USER_PROFILE_RESULT, user);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+    }
+
+    private void sendInternetConnectionSlow() {
+        Intent intent = new Intent();
+        intent.setAction(ACTION_INTERNET_CONNECTION_SLOW);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+    }
+
+    private void sendInternetConnectionError() {
+        Intent intent = new Intent();
+        intent.setAction(ACTION_INTERNET_CONNECTION_ERROR);
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
     }
 

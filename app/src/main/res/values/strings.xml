@@ -70,6 +70,12 @@
 
     <string name="shackbar_delete_file">File has been deleted</string>
 
+    <string name="shackbar_connection_error">Internet connection error!</string>
+    <string name="shackbar_connection_slow">Internet connection slow!</string>
+
+    <string name="shackbar_connection_repeat">Repeat</string>
+
+
     <string name="dialog_fetch_audio_folder_name">Searching folders....</string>
     <string name="dialog_fetch_audio_track_name">Searching tracks....</string>
 
