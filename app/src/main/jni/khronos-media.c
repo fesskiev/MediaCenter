@@ -1,13 +1,11 @@
 #include <jni.h>
-#include <pthread.h>
 #include <stdio.h>
 #include <SLES/OpenSLES.h>
-#include <SLES/OpenSLES_Android.h>
 #include<android/log.h>
 
 #define LOG_FORMAT(x, y)  __android_log_print(ANDROID_LOG_VERBOSE, "OpenSL ES", x, y)
 #define LOG(x)  __android_log_print(ANDROID_LOG_VERBOSE, "OpenSL ES", x)
-#define MAX_NUMBER_INTERFACES 3
+#define MAX_NUMBER_INTERFACES 6
 
 // engine interfaces
 SLObjectItf engineObject = NULL;
@@ -26,10 +24,6 @@ SLVolumeItf uriPlayerVolume = NULL;
 SLBassBoostItf uriBassBoost = NULL;
 SLVirtualizerItf uriVirtualizer = NULL;
 
-// buffer queue player interfaces
-SLObjectItf bufferPlayerObject = NULL;
-SLPlayItf queuePlayerPlay = NULL;
-SLAndroidSimpleBufferQueueItf bufferPlayerQueue = NULL;
 
 JavaVM *gJavaVM;
 jobject gCallbackObject = NULL;
@@ -50,7 +44,6 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     gJavaVM = vm;
     return JNI_VERSION_1_6;
 }
-
 
 
 JNIEXPORT void JNICALL
@@ -139,39 +132,6 @@ void playStatusCallback(SLPlayItf play, void *context, SLuint32 event) {
     handlingCallback(event);
 }
 
-
-//void prefetch_callback(SLPrefetchStatusItf caller, void *context __unused, SLuint32 event) {
-//    LOG("prefetch_callback");
-//
-//    SLresult result;
-//    assert(context == NULL);
-//    SLpermille level;
-//    result = (*caller)->GetFillLevel(caller, &level);
-//    assert(SL_RESULT_SUCCESS == result);
-//    SLuint32 status;
-//    result = (*caller)->GetPrefetchStatus(caller, &status);
-//    assert(SL_RESULT_SUCCESS == result);
-//    SLuint32 new_prefetch_status;
-//    if ((event & PREFETCHEVENT_ERROR_CANDIDATE) == PREFETCHEVENT_ERROR_CANDIDATE
-//        && level == 0 && status == SL_PREFETCHSTATUS_UNDERFLOW) {
-//        new_prefetch_status = SL_PREFETCHSTATUS_ERROR;
-//    } else if (event == SL_PREFETCHEVENT_STATUSCHANGE &&
-//               status == SL_PREFETCHSTATUS_SUFFICIENTDATA) {
-//        new_prefetch_status = status;
-//    } else {
-//        return;
-//    }
-//    LOG("prefetch_callback status");
-//    int ok;
-//    ok = pthread_mutex_lock(&mutex);
-//    assert(ok == 0);
-//    prefetch_status = new_prefetch_status;
-//    ok = pthread_cond_signal(&cond);
-//    assert(ok == 0);
-//    ok = pthread_mutex_unlock(&mutex);
-//    assert(ok == 0);
-//}
-
 JNIEXPORT jboolean JNICALL
 Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *env,
                                                                        jobject instance,
@@ -186,9 +146,6 @@ Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *e
     /* Data sinks for the audio player */
     SLDataSink audioSink;
     SLDataLocator_OutputMix locatorOutputMix;
-
-    SLPrefetchStatusItf prefetchItf = NULL;
-    SLMetadataExtractionItf metadataItf = NULL;
 
     // convert Java string to UTF-8
     const char *utf8 = (*env)->GetStringUTFChars(env, uri, NULL);
@@ -208,16 +165,14 @@ Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *e
     audioSource.pFormat = (void *) &mime;
     audioSource.pLocator = (void *) &locatorUri;
 
-    const SLInterfaceID ids[7] = {SL_IID_SEEK,
+    const SLInterfaceID ids[6] = {SL_IID_PLAY,
+                                  SL_IID_SEEK,
                                   SL_IID_MUTESOLO,
                                   SL_IID_VOLUME,
                                   SL_IID_BASSBOOST,
-                                  SL_IID_VIRTUALIZER,
-                                  SL_IID_PREFETCHSTATUS,
-                                  SL_IID_METADATAEXTRACTION};
+                                  SL_IID_VIRTUALIZER};
 
-    const SLboolean req[7] = {SL_BOOLEAN_TRUE,
-                              SL_BOOLEAN_TRUE,
+    const SLboolean req[6] = {SL_BOOLEAN_TRUE,
                               SL_BOOLEAN_TRUE,
                               SL_BOOLEAN_TRUE,
                               SL_BOOLEAN_TRUE,
@@ -227,7 +182,7 @@ Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *e
 
     /* Create the audio player */
     result = (*engineEngine)->CreateAudioPlayer(engineEngine, &uriPlayerObject, &audioSource,
-                                                &audioSink, 7,
+                                                &audioSink, 6,
                                                 ids, req);
 
     (*env)->ReleaseStringUTFChars(env, uri, utf8);
@@ -254,41 +209,9 @@ Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *e
     checkError(result);
     result = (*uriPlayerObject)->GetInterface(uriPlayerObject, SL_IID_VIRTUALIZER, &uriVirtualizer);
     checkError(result);
-    result = (*uriPlayerObject)->GetInterface(uriPlayerObject, SL_IID_PREFETCHSTATUS, &prefetchItf);
-    checkError(result);
-    result = (*uriPlayerObject)->GetInterface(uriPlayerObject, SL_IID_METADATAEXTRACTION,
-                                              &metadataItf);
-    checkError(result);
-
-//    result = (*prefetchItf)->RegisterCallback(prefetchItf, prefetch_callback, NULL);
-//    checkError(result);
-//    result = (*prefetchItf)->SetCallbackEventsMask(prefetchItf,
-//                                                   SL_PREFETCHEVENT_STATUSCHANGE |
-//                                                   SL_PREFETCHEVENT_FILLLEVELCHANGE);
-//    checkError(result);
 
     result = (*uriPlayerPlay)->SetPlayState(uriPlayerPlay, SL_PLAYSTATE_PAUSED);
     checkError(result);
-
-//    pthread_mutex_lock(&mutex);
-//    while (prefetch_status == SL_PREFETCHSTATUS_UNKNOWN) {
-//        pthread_cond_wait(&cond, &mutex);
-//        __android_log_print(ANDROID_LOG_VERBOSE, "OpenSl native", "SL_PREFETCHSTATUS_UNKNOWN");
-//    }
-//
-//    pthread_mutex_unlock(&mutex);
-//    if (prefetch_status == SL_PREFETCHSTATUS_ERROR) {
-//        if (outputMixObject != NULL) {
-//            (*outputMixObject)->Destroy(outputMixObject);
-//            outputMixObject = NULL;
-//            eqOutputItf = NULL;
-//        }
-//        if (engineObject != NULL) {
-//            (*engineObject)->Destroy(engineObject);
-//            engineObject = NULL;
-//            engineEngine = NULL;
-//        }
-//    }
 
 
     result = (*uriPlayerPlay)->SetMarkerPosition(uriPlayerPlay, 2000);
@@ -304,34 +227,6 @@ Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *e
                                                                     SL_PLAYEVENT_HEADATNEWPOS |
                                                                     SL_PLAYEVENT_HEADATEND);
     checkError(result);
-
-    SLuint32 itemCount;
-    result = (*metadataItf)->GetItemCount(metadataItf, &itemCount);
-    checkError(result);
-
-    LOG_FORMAT("The value is %d", itemCount);
-
-    SLuint32 i, keySize, valueSize;
-    SLMetadataInfo *keyInfo, *value;
-    for (i = 0; i < itemCount; i++) {
-        keyInfo = NULL;
-        keySize = 0;
-        value = NULL;
-        valueSize = 0;
-        result = (*metadataItf)->GetKeySize(metadataItf, i, &keySize);
-        result = (*metadataItf)->GetValueSize(metadataItf, i, &valueSize);
-        keyInfo = (SLMetadataInfo *) malloc(keySize);
-        if (NULL != keyInfo) {
-            result = (*metadataItf)->GetKey(metadataItf, i, keySize, keyInfo);
-
-            __android_log_print(ANDROID_LOG_VERBOSE,
-                                "OpenSl native",
-                                "key[%d] size=%d, name=%s \tvalue size=%d \n", i, keyInfo->size,
-                                keyInfo->data, valueSize);
-            free(keyInfo);
-        }
-    }
-
 
     return JNI_TRUE;
 }
