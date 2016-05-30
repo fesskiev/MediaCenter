@@ -16,6 +16,12 @@ model {
 
         }
 
+        signingConfigs {
+            debug {
+                storeFile file("debug.keystore")
+            }
+        }
+
         buildTypes {
             release {
                 minifyEnabled = false
