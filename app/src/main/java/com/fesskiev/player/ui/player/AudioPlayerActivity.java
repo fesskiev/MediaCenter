@@ -5,13 +5,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.drawable.LayerDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -28,6 +25,7 @@ import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
+import com.fesskiev.player.widgets.MuteSoloButton;
 import com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton;
 import com.fesskiev.player.widgets.cards.DescriptionCardView;
 
@@ -40,7 +38,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
     private PlayPauseFloatingButton playPauseButton;
     private DescriptionCardView cardDescription;
 
-    private ImageView volumeLevel;
+    private MuteSoloButton muteSoloButton;
     private ImageView backdrop;
     private TextView trackTimeCount;
     private TextView trackTimeTotal;
@@ -51,8 +49,8 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
     private TextView trackDescription;
     private SeekBar trackSeek;
     private SeekBar volumeSeek;
-    private int fabTranslateX;
-    private int fabTranslateY;
+    private float fabTranslateX;
+    private float fabTranslateY;
 
     public static void startPlayerActivity(Activity activity, boolean isNewTrack, View coverView) {
         ActivityOptionsCompat options = ActivityOptionsCompat.
@@ -81,7 +79,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
 
         backdrop = (ImageView) findViewById(R.id.backdrop);
-        volumeLevel = (ImageView) findViewById(R.id.volumeLevel);
+        muteSoloButton = (MuteSoloButton) findViewById(R.id.muteSoloButton);
         trackTimeTotal = (TextView) findViewById(R.id.trackTimeTotal);
         trackTimeCount = (TextView) findViewById(R.id.trackTimeCount);
         artist = (TextView) findViewById(R.id.trackArtist);
@@ -118,6 +116,13 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
             }
         });
 
+        muteSoloButton.setOnMuteSoloListener(new MuteSoloButton.OnMuteSoloListener() {
+            @Override
+            public void onMuteStateChanged(boolean mute) {
+                PlaybackService.changeMuteSoloState(getApplicationContext(), mute);
+            }
+        });
+
         playPauseButton =
                 (PlayPauseFloatingButton) findViewById(R.id.playPauseFAB);
         playPauseButton.setOnClickListener(new View.OnClickListener() {
@@ -147,7 +152,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                PlaybackService.seekPlayback(AudioPlayerActivity.this, progress);
+                PlaybackService.seekPlayback(getApplicationContext(), progress);
             }
         });
 
@@ -229,10 +234,8 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
                 int viewX = location[0];
                 int viewY = location[1];
 
-                Log.d(TAG, "get width: " + holder.getWidth());
-
                 fabTranslateX = -(viewX / 2) - holder.getWidth();
-                fabTranslateY = viewY / 2;
+                fabTranslateY = (viewY / 2);
 
                 Log.d(TAG, "center X: " + fabTranslateX + " center Y: " + fabTranslateY);
 
@@ -252,13 +255,13 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
 
     @Override
     public void play() {
-        PlaybackService.startPlayback(AudioPlayerActivity.this);
+        PlaybackService.startPlayback(getApplicationContext());
         translateFAB();
     }
 
     @Override
     public void pause() {
-        PlaybackService.stopPlayback(AudioPlayerActivity.this);
+        PlaybackService.stopPlayback(getApplicationContext());
         playPauseButton.returnFromPosition();
     }
 
@@ -282,20 +285,26 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         resetIndicators();
         createPlayer();
         setBackdropImage();
+        resetMuteSolo();
+    }
+
+    private void resetMuteSolo(){
+        muteSoloButton.resetMuteSolo(audioPlayer.volume);
     }
 
     @Override
     public void createPlayer() {
-        PlaybackService.createPlayer(this, audioPlayer.currentAudioFile.filePath.getAbsolutePath());
+        PlaybackService.createPlayer(getApplicationContext(),
+                audioPlayer.currentAudioFile.filePath.getAbsolutePath());
     }
 
     private void setVolumeLevel() {
         volumeSeek.setProgress(audioPlayer.volume);
-        PlaybackService.volumePlayback(AudioPlayerActivity.this, audioPlayer.volume);
+        PlaybackService.volumePlayback(getApplicationContext(), audioPlayer.volume);
         if (audioPlayer.volume <= 45) {
-            volumeLevel.setImageResource(R.drawable.low_volume_icon);
+            muteSoloButton.setLowSoloState();
         } else {
-            volumeLevel.setImageResource(R.drawable.high_volume_icon);
+            muteSoloButton.setHighSoloState();
         }
     }
 

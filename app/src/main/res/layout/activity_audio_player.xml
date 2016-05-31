@@ -158,22 +158,29 @@
                             android:layout_width="48dp"
                             android:layout_height="48dp"
                             android:layout_alignParentStart="true"
+                            android:clickable="true"
                             android:contentDescription="@string/app_name"
+                            android:foreground="?android:attr/selectableItemBackground"
                             android:src="@drawable/previous_track_icon" />
 
-                        <View
+                        <com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton
                             android:id="@+id/holderButton"
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
-                            android:layout_centerInParent="true"
-                            android:contentDescription="@string/app_name" />
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentTop="true"
+                            android:layout_centerHorizontal="true"
+                            android:layout_marginLeft="@dimen/fab_margin"
+                            android:layout_marginRight="@dimen/fab_margin"
+                            android:visibility="invisible" />
 
                         <ImageView
                             android:id="@+id/nextTrack"
                             android:layout_width="48dp"
                             android:layout_height="48dp"
                             android:layout_alignParentEnd="true"
+                            android:clickable="true"
                             android:contentDescription="@string/app_name"
+                            android:foreground="?android:attr/selectableItemBackground"
                             android:src="@drawable/next_track_icon" />
 
                     </RelativeLayout>
@@ -222,7 +229,10 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:max="100" />
+                            android:max="100"
+                            android:progressDrawable="@drawable/seek_bar_progress"
+                            android:splitTrack="false"
+                            android:thumb="@drawable/seek_bar_thumb" />
 
                     </LinearLayout>
 
@@ -242,8 +252,8 @@
                         android:layout_marginTop="20dp"
                         android:orientation="horizontal">
 
-                        <ImageView
-                            android:id="@+id/volumeLevel"
+                        <com.fesskiev.player.widgets.MuteSoloButton
+                            android:id="@+id/muteSoloButton"
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:contentDescription="@string/app_name"
@@ -254,7 +264,10 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:max="100" />
+                            android:max="100"
+                            android:progressDrawable="@drawable/seek_bar_progress"
+                            android:splitTrack="false"
+                            android:thumb="@drawable/seek_bar_thumb" />
 
                     </LinearLayout>
 

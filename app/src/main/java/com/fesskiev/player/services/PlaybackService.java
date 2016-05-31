@@ -52,6 +52,8 @@ public class PlaybackService extends Service {
             "com.fesskiev.player.action.ACTION_PLAYBACK_PLAYING_STATE";
     public static final String ACTION_PLAYBACK_BASS_BOOST_STATE =
             "com.fesskiev.player.action.ACTION_PLAYBACK_BASS_BOOST_STATE";
+    public static final String ACTION_PLAYBACK_MUTE_SOLO_STATE =
+            "com.fesskiev.player.action.ACTION_PLAYBACK_MUTE_SOLO_STATE";
 
 
     public static final String PLAYBACK_EXTRA_MUSIC_FILE_PATH
@@ -72,6 +74,8 @@ public class PlaybackService extends Service {
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_BASS_BOOST_LEVEL";
     public static final String PLAYBACK_EXTRA_BASS_BOOST_STATE
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_BASS_BOOST_STATE";
+    public static final String PLAYBACK_EXTRA_MUTE_SOLO_STATE
+            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_MUTE_SOLO_STATE";
 
 
     private Timer timer;
@@ -82,6 +86,13 @@ public class PlaybackService extends Service {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_BASS_BOOST_STATE);
         intent.putExtra(PLAYBACK_EXTRA_BASS_BOOST_STATE, state);
+        context.startService(intent);
+    }
+
+    public static void changeMuteSoloState(Context context, boolean state) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_PLAYBACK_MUTE_SOLO_STATE);
+        intent.putExtra(PLAYBACK_EXTRA_MUTE_SOLO_STATE, state);
         context.startService(intent);
     }
 
@@ -158,6 +169,12 @@ public class PlaybackService extends Service {
     public native int getPosition();
 
     public native boolean isPlaying();
+
+    public native void setMuteUriAudioPlayer(boolean mute);
+
+    public native void enableStereoPositionUriAudioPlayer(boolean enable);
+
+    public native void setStereoPositionUriAudioPlayer(int permille);
 
     /***
      * EQ methods
@@ -274,11 +291,17 @@ public class PlaybackService extends Service {
                             break;
                     }
                     break;
+                case ACTION_PLAYBACK_MUTE_SOLO_STATE:
+                    boolean muteSoloState =
+                            intent.getBooleanExtra(PLAYBACK_EXTRA_MUTE_SOLO_STATE, false);
+                    muteSolo(muteSoloState);
+                    break;
             }
         }
 
         return START_NOT_STICKY;
     }
+
 
     private void registerHeadsetReceiver() {
         IntentFilter intentFilter = new IntentFilter();
@@ -308,6 +331,9 @@ public class PlaybackService extends Service {
         }
     };
 
+    private void muteSolo(boolean muteSoloState) {
+        setMuteUriAudioPlayer(muteSoloState);
+    }
 
     private void createPlayer(String path) {
         if (isPlaying()) {

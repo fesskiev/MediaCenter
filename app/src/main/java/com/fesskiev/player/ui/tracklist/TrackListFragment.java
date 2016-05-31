@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -55,6 +56,7 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
         return fragment;
     }
 
+    private Handler handler;
     private TrackListAdapter trackListAdapter;
     private AudioFolder audioFolder;
     private AudioPlayer audioPlayer;
@@ -71,6 +73,7 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
                     getArguments().getSerializable(Constants.EXTRA_CONTENT_TYPE);
             contentValue = getArguments().getString(Constants.EXTRA_CONTENT_TYPE_VALUE);
         }
+        handler = new Handler();
 
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
         audioFolder = audioPlayer.currentAudioFolder;
@@ -116,7 +119,7 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onResume() {
         super.onResume();
-        if(trackListAdapter != null){
+        if (trackListAdapter != null) {
             trackListAdapter.notifyDataSetChanged();
         }
     }
@@ -295,13 +298,12 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
         private void startPlayerActivity(int position, View cover) {
             AudioFile audioFile = audioFiles.get(position);
             if (audioFile != null) {
-                if(audioPlayer.isTrackPlaying(audioFile)){
+                if (audioPlayer.isTrackPlaying(audioFile)) {
                     AudioPlayerActivity.startPlayerActivity(getActivity(), false, cover);
                 } else {
                     audioPlayer.setCurrentAudioFile(audioFile);
                     audioPlayer.position = position;
                     AudioPlayerActivity.startPlayerActivity(getActivity(), true, cover);
-                    notifyDataSetChanged();
                 }
             }
         }
@@ -379,12 +381,17 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
 
             if (audioPlayer.isTrackPlaying(audioFile)) {
                 holder.playEq.setVisibility(View.VISIBLE);
-                AnimationDrawable animation = (AnimationDrawable) ContextCompat.
+                final AnimationDrawable animation = (AnimationDrawable) ContextCompat.
                         getDrawable(getContext().getApplicationContext(), R.drawable.ic_equalizer);
                 holder.playEq.setImageDrawable(animation);
                 if (animation != null) {
                     if (audioPlayer.isPlaying) {
-                        animation.start();
+                        holder.playEq.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                animation.start();
+                            }
+                        });
                     } else {
                         animation.stop();
                     }

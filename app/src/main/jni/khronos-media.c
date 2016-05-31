@@ -5,7 +5,6 @@
 
 #define LOG_FORMAT(x, y)  __android_log_print(ANDROID_LOG_VERBOSE, "OpenSL ES", x, y)
 #define LOG(x)  __android_log_print(ANDROID_LOG_VERBOSE, "OpenSL ES", x)
-#define MAX_NUMBER_INTERFACES 6
 
 // engine interfaces
 SLObjectItf engineObject = NULL;
@@ -71,24 +70,12 @@ Java_com_fesskiev_player_services_PlaybackService_createEngine(JNIEnv *env, jobj
     result = (*engineObject)->Realize(engineObject, SL_BOOLEAN_FALSE);
     checkError(result);
 
-    SLboolean required[MAX_NUMBER_INTERFACES];
-    SLInterfaceID iidArray[MAX_NUMBER_INTERFACES];
-
-    int i;
-    for (i = 0; i < MAX_NUMBER_INTERFACES; i++) {
-        required[i] = SL_BOOLEAN_FALSE;
-        iidArray[i] = SL_IID_NULL;
-    }
-
-    // get the engine interface, which is needed in order to create other objects
     result = (*engineObject)->GetInterface(engineObject, SL_IID_ENGINE, &engineEngine);
     checkError(result);
 
-    result = (*engineEngine)->CreateOutputMix(engineEngine, &outputMixObject, 0, iidArray,
-                                              required);
+    result = (*engineEngine)->CreateOutputMix(engineEngine, &outputMixObject, 0, NULL, NULL);
     checkError(result);
 
-    // realize the output mix
     result = (*outputMixObject)->Realize(outputMixObject, SL_BOOLEAN_FALSE);
     checkError(result);
 
@@ -615,6 +602,37 @@ Java_com_fesskiev_player_services_PlaybackService_setBassVirtualizerValue(JNIEnv
                                                                           jint value) {
     if (NULL != uriVirtualizer) {
         SLresult result = (*uriVirtualizer)->SetStrength(uriVirtualizer, (SLuint16) value);
+        checkError(result);
+    }
+}
+
+JNIEXPORT void JNICALL
+Java_com_fesskiev_player_services_PlaybackService_setMuteUriAudioPlayer(JNIEnv *env,
+                                                                        jobject instance,
+                                                                        jboolean mute) {
+    if (NULL != uriPlayerVolume) {
+        SLresult result = (*uriPlayerVolume)->SetMute(uriPlayerVolume, mute);
+        checkError(result);
+    }
+}
+
+JNIEXPORT void JNICALL
+Java_com_fesskiev_player_services_PlaybackService_enableStereoPositionUriAudioPlayer(JNIEnv *env,
+                                                                                     jobject instance,
+                                                                                     jboolean enable) {
+    if (NULL != uriPlayerVolume) {
+        SLresult result = (*uriPlayerVolume)->EnableStereoPosition(uriPlayerVolume, enable);
+        checkError(result);
+    }
+}
+
+JNIEXPORT void JNICALL
+Java_com_fesskiev_player_services_PlaybackService_setStereoPositionUriAudioPlayer(JNIEnv *env,
+                                                                                  jobject instance,
+                                                                                  jint permille) {
+    if (NULL != uriPlayerVolume) {
+        SLresult result = (*uriPlayerVolume)->SetStereoPosition(uriPlayerVolume,
+                                                                (SLpermille) permille);
         checkError(result);
     }
 }
