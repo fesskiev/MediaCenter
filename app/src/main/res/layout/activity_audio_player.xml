@@ -252,22 +252,30 @@
                         android:layout_marginTop="20dp"
                         android:orientation="horizontal">
 
-                        <com.fesskiev.player.widgets.MuteSoloButton
+                        <com.fesskiev.player.widgets.buttons.MuteSoloButton
                             android:id="@+id/muteSoloButton"
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:contentDescription="@string/app_name"
-                            android:src="@drawable/high_volume_icon" />
+                            tools:src="@drawable/high_volume_icon" />
 
                         <SeekBar
                             android:id="@+id/seekVolume"
-                            android:layout_width="match_parent"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
+                            android:layout_weight="1"
                             android:max="100"
                             android:progressDrawable="@drawable/seek_bar_progress"
                             android:splitTrack="false"
                             android:thumb="@drawable/seek_bar_thumb" />
+
+                        <com.fesskiev.player.widgets.buttons.RepeatButton
+                            android:id="@+id/repeatButton"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:contentDescription="@string/app_name"
+                            tools:src="@drawable/icon_repeat_off" />
 
                     </LinearLayout>
 

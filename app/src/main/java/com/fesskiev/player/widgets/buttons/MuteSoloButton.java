@@ -1,4 +1,4 @@
-package com.fesskiev.player.widgets;
+package com.fesskiev.player.widgets.buttons;
 
 import android.animation.Animator;
 import android.content.Context;
@@ -16,6 +16,7 @@ public class MuteSoloButton extends FrameLayout implements View.OnClickListener 
     }
 
     private final static int DURATION = 200;
+
     private OnMuteSoloListener listener;
     private boolean mute;
 

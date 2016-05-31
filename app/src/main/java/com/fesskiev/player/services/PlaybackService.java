@@ -54,6 +54,8 @@ public class PlaybackService extends Service {
             "com.fesskiev.player.action.ACTION_PLAYBACK_BASS_BOOST_STATE";
     public static final String ACTION_PLAYBACK_MUTE_SOLO_STATE =
             "com.fesskiev.player.action.ACTION_PLAYBACK_MUTE_SOLO_STATE";
+    public static final String ACTION_PLAYBACK_REPEAT_STATE =
+            "com.fesskiev.player.action.ACTION_PLAYBACK_REPEAT_STATE";
 
 
     public static final String PLAYBACK_EXTRA_MUSIC_FILE_PATH
@@ -76,6 +78,8 @@ public class PlaybackService extends Service {
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_BASS_BOOST_STATE";
     public static final String PLAYBACK_EXTRA_MUTE_SOLO_STATE
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_MUTE_SOLO_STATE";
+    public static final String PLAYBACK_EXTRA_REPEAT_STATE
+            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_REPEAT_STATE";
 
 
     private Timer timer;
@@ -86,6 +90,13 @@ public class PlaybackService extends Service {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_BASS_BOOST_STATE);
         intent.putExtra(PLAYBACK_EXTRA_BASS_BOOST_STATE, state);
+        context.startService(intent);
+    }
+
+    public static void changeRepeatState(Context context, boolean state) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_PLAYBACK_REPEAT_STATE);
+        intent.putExtra(PLAYBACK_EXTRA_REPEAT_STATE, state);
         context.startService(intent);
     }
 
@@ -298,12 +309,16 @@ public class PlaybackService extends Service {
                             intent.getBooleanExtra(PLAYBACK_EXTRA_MUTE_SOLO_STATE, false);
                     muteSolo(muteSoloState);
                     break;
+                case ACTION_PLAYBACK_REPEAT_STATE:
+                    boolean repeatState =
+                            intent.getBooleanExtra(PLAYBACK_EXTRA_REPEAT_STATE, false);
+                    repeat(repeatState);
+                    break;
             }
         }
 
         return START_NOT_STICKY;
     }
-
 
     private void registerHeadsetReceiver() {
         IntentFilter intentFilter = new IntentFilter();
@@ -332,6 +347,11 @@ public class PlaybackService extends Service {
             }
         }
     };
+
+    private void repeat(boolean repeatState) {
+        setLoopingUriAudioPlayer(repeatState);
+    }
+
 
     private void muteSolo(boolean muteSoloState) {
         setMuteUriAudioPlayer(muteSoloState);

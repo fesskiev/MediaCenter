@@ -25,8 +25,9 @@ import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
-import com.fesskiev.player.widgets.MuteSoloButton;
+import com.fesskiev.player.widgets.buttons.MuteSoloButton;
 import com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton;
+import com.fesskiev.player.widgets.buttons.RepeatButton;
 import com.fesskiev.player.widgets.cards.DescriptionCardView;
 
 public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
@@ -37,7 +38,6 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
     private AudioPlayer audioPlayer;
     private PlayPauseFloatingButton playPauseButton;
     private DescriptionCardView cardDescription;
-
     private MuteSoloButton muteSoloButton;
     private ImageView backdrop;
     private TextView trackTimeCount;
@@ -49,6 +49,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
     private TextView trackDescription;
     private SeekBar trackSeek;
     private SeekBar volumeSeek;
+    private View holder;
     private float fabTranslateX;
     private float fabTranslateY;
 
@@ -88,19 +89,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         genre = (TextView) findViewById(R.id.genre);
         album = (TextView) findViewById(R.id.album);
 
-        cardDescription = (DescriptionCardView) findViewById(R.id.cardDescription);
-        cardDescription.setOnCardAnimationListener(new DescriptionCardView.OnCardAnimationListener() {
-            @Override
-            public void animationStart() {
-
-            }
-
-            @Override
-            public void animationEnd() {
-                setTrackInformation();
-            }
-        });
-
+        holder = findViewById(R.id.holderButton);
 
         findViewById(R.id.previousTrack).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,10 +105,31 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
             }
         });
 
+        cardDescription = (DescriptionCardView) findViewById(R.id.cardDescription);
+        cardDescription.setOnCardAnimationListener(new DescriptionCardView.OnCardAnimationListener() {
+            @Override
+            public void animationStart() {
+
+            }
+
+            @Override
+            public void animationEnd() {
+                setTrackInformation();
+            }
+        });
+
         muteSoloButton.setOnMuteSoloListener(new MuteSoloButton.OnMuteSoloListener() {
             @Override
             public void onMuteStateChanged(boolean mute) {
                 PlaybackService.changeMuteSoloState(getApplicationContext(), mute);
+            }
+        });
+
+        ((RepeatButton) findViewById(R.id.repeatButton)).
+                setOnRepeatStateChangedListener(new RepeatButton.OnRepeatStateChangedListener() {
+            @Override
+            public void onRepeatStateChanged(boolean repeat) {
+                PlaybackService.changeRepeatState(getApplicationContext(), repeat);
             }
         });
 
@@ -220,14 +230,11 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
     }
 
     private void translateFAB() {
-        final View holder = findViewById(R.id.holderButton);
-        ViewTreeObserver vto = holder.getViewTreeObserver();
-        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        holder.getViewTreeObserver()
+                .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 
             @Override
             public void onGlobalLayout() {
-                ViewTreeObserver obs = holder.getViewTreeObserver();
-                obs.removeOnGlobalLayoutListener(this);
 
                 int location[] = new int[2];
                 holder.getLocationOnScreen(location);
@@ -240,8 +247,9 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
                 Log.d(TAG, "center X: " + fabTranslateX + " center Y: " + fabTranslateY);
 
                 playPauseButton.translateToPosition(fabTranslateX, fabTranslateY);
-            }
 
+                holder.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            }
         });
 
         if (fabTranslateX != 0 && fabTranslateY != 0) {
@@ -288,7 +296,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         resetMuteSolo();
     }
 
-    private void resetMuteSolo(){
+    private void resetMuteSolo() {
         muteSoloButton.resetMuteSolo(audioPlayer.volume);
     }
 
