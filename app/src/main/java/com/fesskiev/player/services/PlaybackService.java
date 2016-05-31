@@ -172,6 +172,8 @@ public class PlaybackService extends Service {
 
     public native void setMuteUriAudioPlayer(boolean mute);
 
+    public static native void setLoopingUriAudioPlayer(boolean isLooping);
+
     public native void enableStereoPositionUriAudioPlayer(boolean enable);
 
     public native void setStereoPositionUriAudioPlayer(int permille);

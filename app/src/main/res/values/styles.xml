@@ -12,8 +12,14 @@
         <item name="colorControlActivated">@color/accent</item>
         <item name="colorControlHighlight">@color/white_text</item>
         <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
+        <item name="switchStyle">@style/Custom.Widget.SwitchCompat</item>
     </style>
 
+    <style name="Custom.Widget.SwitchCompat" parent="Widget.AppCompat.CompoundButton.Switch" >
+        <item name="android:thumb">@drawable/switch_selector_thumb</item>
+        <item name="track">@android:color/transparent</item>
+        <item name="showText">false</item>
+    </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
@@ -164,7 +170,7 @@
         <item name="android:fontFamily">sans-serif-thin</item>
     </style>
 
-    <style name="GenreNameTextAppearance" parent="@android:style/TextAppearance">
+    <style name="AudioNameTextAppearance" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/accent</item>
         <item name="android:textSize">12sp</item>
         <item name="android:textStyle">bold</item>

@@ -6,15 +6,12 @@
 #define LOG_FORMAT(x, y)  __android_log_print(ANDROID_LOG_VERBOSE, "OpenSL ES", x, y)
 #define LOG(x)  __android_log_print(ANDROID_LOG_VERBOSE, "OpenSL ES", x)
 
-// engine interfaces
 SLObjectItf engineObject = NULL;
 SLEngineItf engineEngine = NULL;
 
-// output mix interfaces
 SLObjectItf outputMixObject = NULL;
 SLEqualizerItf eqOutputItf = NULL;
 
-// URI player interfaces
 SLObjectItf uriPlayerObject = NULL;
 SLPlayItf uriPlayerPlay = NULL;
 SLSeekItf uriPlayerSeek = NULL;
@@ -62,11 +59,9 @@ Java_com_fesskiev_player_services_PlaybackService_createEngine(JNIEnv *env, jobj
 
     SLresult result;
 
-    // create engine
     result = slCreateEngine(&engineObject, 0, NULL, 0, NULL, NULL);
     checkError(result);
 
-    // realize the engine
     result = (*engineObject)->Realize(engineObject, SL_BOOLEAN_FALSE);
     checkError(result);
 
@@ -125,19 +120,15 @@ Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *e
                                                                        jstring uri) {
     SLresult result;
 
-    /* Source of audio data to play */
     SLDataSource audioSource;
     SLDataLocator_URI locatorUri;
     SLDataFormat_MIME mime;
 
-    /* Data sinks for the audio player */
     SLDataSink audioSink;
     SLDataLocator_OutputMix locatorOutputMix;
 
-    // convert Java string to UTF-8
     const char *utf8 = (*env)->GetStringUTFChars(env, uri, NULL);
 
-    /* Setup the data sink structure */
     locatorOutputMix.locatorType = SL_DATALOCATOR_OUTPUTMIX;
     locatorOutputMix.outputMix = outputMixObject;
     audioSink.pLocator = (void *) &locatorOutputMix;
@@ -167,16 +158,13 @@ Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *e
                               SL_BOOLEAN_TRUE};
 
 
-    /* Create the audio player */
     result = (*engineEngine)->CreateAudioPlayer(engineEngine, &uriPlayerObject, &audioSource,
                                                 &audioSink, 6,
                                                 ids, req);
 
     (*env)->ReleaseStringUTFChars(env, uri, utf8);
 
-    // realize the player
     result = (*uriPlayerObject)->Realize(uriPlayerObject, SL_BOOLEAN_FALSE);
-    // this will always succeed on Android, but we check result for portability to other platforms
     if (SL_RESULT_SUCCESS != result) {
         (*uriPlayerObject)->Destroy(uriPlayerObject);
         uriPlayerObject = NULL;
@@ -268,14 +256,12 @@ Java_com_fesskiev_player_services_PlaybackService_releaseUriAudioPlayer(JNIEnv *
 JNIEXPORT void JNICALL
 Java_com_fesskiev_player_services_PlaybackService_releaseEngine(JNIEnv *env, jobject instance) {
 
-    // destroy output mix object, and invalidate all associated interfaces
     if (outputMixObject != NULL) {
         (*outputMixObject)->Destroy(outputMixObject);
         outputMixObject = NULL;
         eqOutputItf = NULL;
     }
 
-    // destroy engine object, and invalidate all associated interfaces
     if (engineObject != NULL) {
         (*engineObject)->Destroy(engineObject);
         engineObject = NULL;
@@ -633,6 +619,17 @@ Java_com_fesskiev_player_services_PlaybackService_setStereoPositionUriAudioPlaye
     if (NULL != uriPlayerVolume) {
         SLresult result = (*uriPlayerVolume)->SetStereoPosition(uriPlayerVolume,
                                                                 (SLpermille) permille);
+        checkError(result);
+    }
+}
+
+JNIEXPORT void JNICALL
+Java_com_fesskiev_player_services_PlaybackService_setLoopingUriAudioPlayer(JNIEnv *env, jclass type,
+                                                                           jboolean isLooping) {
+    if (NULL != uriPlayerSeek) {
+
+        SLresult result = (*uriPlayerSeek)->SetLoop(uriPlayerSeek, (SLboolean) isLooping, 0,
+                                                    SL_TIME_UNKNOWN);
         checkError(result);
     }
 }

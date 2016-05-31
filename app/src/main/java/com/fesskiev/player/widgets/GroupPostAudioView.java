@@ -70,7 +70,7 @@ public class GroupPostAudioView extends FrameLayout {
 
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
-        View v = inflater.inflate(R.layout.item_audio, viewGroup, false);
+        View v = inflater.inflate(R.layout.item_vk_audio, viewGroup, false);
 
         v.setOnClickListener(clickListener);
         v.setTag(downloadGroupAudioFile);

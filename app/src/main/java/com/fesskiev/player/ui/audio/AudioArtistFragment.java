@@ -19,7 +19,6 @@ import com.bumptech.glide.Glide;
 import com.fesskiev.player.R;
 import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.model.Artist;
-import com.fesskiev.player.model.Genre;
 import com.fesskiev.player.ui.GridFragment;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.player.ui.audio.utils.Constants;
@@ -136,15 +135,15 @@ public class AudioArtistFragment extends GridFragment implements AudioContent, L
             public ViewHolder(View v) {
                 super(v);
 
-                genreName = (TextView) v.findViewById(R.id.genreName);
-                cover = (ImageView) v.findViewById(R.id.genreCover);
+                genreName = (TextView) v.findViewById(R.id.audioName);
+                cover = (ImageView) v.findViewById(R.id.audioCover);
             }
         }
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_genre, parent, false);
+                    .inflate(R.layout.item_audio, parent, false);
 
             return new ViewHolder(v);
         }

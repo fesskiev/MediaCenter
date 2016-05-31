@@ -215,7 +215,7 @@ public abstract class RecyclerAudioFragment extends Fragment {
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_audio, parent, false);
+                    .inflate(R.layout.item_vk_audio, parent, false);
             return new ViewHolder(v);
         }
 
