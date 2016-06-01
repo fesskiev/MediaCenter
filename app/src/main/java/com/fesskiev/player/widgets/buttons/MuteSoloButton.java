@@ -5,11 +5,12 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import com.fesskiev.player.R;
 
 
-public class MuteSoloButton extends FrameLayout implements View.OnClickListener {
+public class MuteSoloButton extends ImageView implements View.OnClickListener {
 
     public interface OnMuteSoloListener {
         void onMuteStateChanged(boolean mute);
@@ -45,25 +46,17 @@ public class MuteSoloButton extends FrameLayout implements View.OnClickListener 
         this.listener = l;
     }
 
-    public void resetMuteSolo(int volume){
-        mute = false;
-        if (volume <= 45) {
-            setLowSoloState();
-        } else {
-            setHighSoloState();
-        }
-    }
 
     public void setMuteState() {
-        setBackgroundResource(R.drawable.icon_mute);
+        setImageResource(R.drawable.icon_mute);
     }
 
     public void setHighSoloState() {
-        setBackgroundResource(R.drawable.high_volume_icon);
+        setImageResource(R.drawable.high_volume_icon);
     }
 
     public void setLowSoloState() {
-        setBackgroundResource(R.drawable.low_volume_icon);
+        setImageResource(R.drawable.low_volume_icon);
     }
 
     @Override
@@ -129,6 +122,11 @@ public class MuteSoloButton extends FrameLayout implements View.OnClickListener 
     }
 
     private void changeState() {
+        animateHideButton();
+    }
+
+    public void changeState(boolean mute) {
+        this.mute = mute;
         animateHideButton();
     }
 }

@@ -6,10 +6,11 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import com.fesskiev.player.R;
 
-public class RepeatButton extends FrameLayout implements View.OnClickListener {
+public class RepeatButton extends ImageView implements View.OnClickListener {
 
     public interface OnRepeatStateChangedListener {
         void onRepeatStateChanged(boolean repeat);
@@ -45,11 +46,11 @@ public class RepeatButton extends FrameLayout implements View.OnClickListener {
     }
 
     public void setRepeatOn() {
-        setBackgroundResource(R.drawable.icon_repeat_on);
+        setImageResource(R.drawable.icon_repeat_on);
     }
 
     public void setRepeatOff() {
-        setBackgroundResource(R.drawable.icon_repeat_off);
+        setImageResource(R.drawable.icon_repeat_off);
     }
 
     @Override
@@ -114,6 +115,11 @@ public class RepeatButton extends FrameLayout implements View.OnClickListener {
     }
 
     private void changeState() {
+        animateHideButton();
+    }
+
+    public void changeState(boolean repeat) {
+        this.repeat = repeat;
         animateHideButton();
     }
 }

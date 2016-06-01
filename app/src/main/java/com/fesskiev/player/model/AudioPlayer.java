@@ -25,9 +25,11 @@ public class AudioPlayer {
     public int progress;
     public int progressScale;
     public boolean isPlaying;
+    public boolean mute;
+    public boolean repeat;
 
     public AudioPlayer(Context context) {
-        this.context = context;
+        this.context = context.getApplicationContext();
         this.audioFolders = new ArrayList<>();
         this.currentAudioFolder = new AudioFolder();
         this.volume = 100;

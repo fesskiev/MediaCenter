@@ -39,6 +39,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
     private PlayPauseFloatingButton playPauseButton;
     private DescriptionCardView cardDescription;
     private MuteSoloButton muteSoloButton;
+    private RepeatButton repeatButton;
     private ImageView backdrop;
     private TextView trackTimeCount;
     private TextView trackTimeTotal;
@@ -121,14 +122,23 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         muteSoloButton.setOnMuteSoloListener(new MuteSoloButton.OnMuteSoloListener() {
             @Override
             public void onMuteStateChanged(boolean mute) {
+                audioPlayer.mute = mute;
+
+                if (mute) {
+                    disableChangeVolume();
+                } else {
+                    enableChangeVolume();
+                }
+
                 PlaybackService.changeMuteSoloState(getApplicationContext(), mute);
             }
         });
 
-        ((RepeatButton) findViewById(R.id.repeatButton)).
-                setOnRepeatStateChangedListener(new RepeatButton.OnRepeatStateChangedListener() {
+        repeatButton = (RepeatButton) findViewById(R.id.repeatButton);
+        repeatButton.setOnRepeatStateChangedListener(new RepeatButton.OnRepeatStateChangedListener() {
             @Override
             public void onRepeatStateChanged(boolean repeat) {
+                audioPlayer.repeat = repeat;
                 PlaybackService.changeRepeatState(getApplicationContext(), repeat);
             }
         });
@@ -188,10 +198,6 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         });
 
 
-        setTrackInformation();
-        setVolumeLevel();
-        setBackdropImage();
-
         boolean isNewTrack = getIntent().getBooleanExtra(EXTRA_IS_NEW_TRACK, false);
         if (isNewTrack) {
             createPlayer();
@@ -204,6 +210,12 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
                 translateFAB();
             }
         }
+
+        setTrackInformation();
+        setVolumeLevel();
+        setBackdropImage();
+        setRepeat();
+        setMuteSolo();
 
         registerPlaybackBroadcastReceiver();
     }
@@ -230,29 +242,29 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
     }
 
     private void translateFAB() {
-        holder.getViewTreeObserver()
-                .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        if (fabTranslateX == 0 && fabTranslateY == 0) {
+            holder.getViewTreeObserver()
+                    .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 
-            @Override
-            public void onGlobalLayout() {
+                        @Override
+                        public void onGlobalLayout() {
 
-                int location[] = new int[2];
-                holder.getLocationOnScreen(location);
-                int viewX = location[0];
-                int viewY = location[1];
+                            int location[] = new int[2];
+                            holder.getLocationOnScreen(location);
+                            int viewX = location[0];
+                            int viewY = location[1];
 
-                fabTranslateX = -(viewX / 2) - holder.getWidth();
-                fabTranslateY = (viewY / 2);
+                            fabTranslateX = -(viewX / 2) - holder.getWidth();
+                            fabTranslateY = (viewY / 2);
 
-                Log.d(TAG, "center X: " + fabTranslateX + " center Y: " + fabTranslateY);
+                            Log.d(TAG, "center X: " + fabTranslateX + " center Y: " + fabTranslateY);
 
-                playPauseButton.translateToPosition(fabTranslateX, fabTranslateY);
+                            playPauseButton.translateToPosition(fabTranslateX, fabTranslateY);
 
-                holder.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-            }
-        });
-
-        if (fabTranslateX != 0 && fabTranslateY != 0) {
+                            holder.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        }
+                    });
+        } else {
             playPauseButton.translateToPosition(fabTranslateX, fabTranslateY);
         }
     }
@@ -275,35 +287,43 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
 
     @Override
     public void next() {
-        audioPlayer.next();
-        cardDescription.next();
-
-        reset();
+        if (!audioPlayer.repeat) {
+            audioPlayer.next();
+            cardDescription.next();
+            reset();
+        }
     }
 
     @Override
     public void previous() {
-        audioPlayer.previous();
-        cardDescription.previous();
-
-        reset();
+        if (!audioPlayer.repeat) {
+            audioPlayer.previous();
+            cardDescription.previous();
+            reset();
+        }
     }
 
     private void reset() {
         resetIndicators();
         createPlayer();
         setBackdropImage();
-        resetMuteSolo();
     }
 
-    private void resetMuteSolo() {
-        muteSoloButton.resetMuteSolo(audioPlayer.volume);
-    }
 
     @Override
     public void createPlayer() {
         PlaybackService.createPlayer(getApplicationContext(),
                 audioPlayer.currentAudioFile.filePath.getAbsolutePath());
+    }
+
+    private void setMuteSolo() {
+        muteSoloButton.changeState(audioPlayer.mute);
+        PlaybackService.changeMuteSoloState(getApplicationContext(), audioPlayer.mute);
+    }
+
+    private void setRepeat() {
+        repeatButton.changeState(audioPlayer.repeat);
+        PlaybackService.changeRepeatState(getApplicationContext(), audioPlayer.repeat);
     }
 
     private void setVolumeLevel() {
@@ -335,6 +355,14 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         sb.append("::");
         sb.append(currentAudioFile.bitrate);
         trackDescription.setText(sb.toString());
+    }
+
+    private void disableChangeVolume() {
+        volumeSeek.setEnabled(false);
+    }
+
+    private void enableChangeVolume() {
+        volumeSeek.setEnabled(true);
     }
 
     @Override
