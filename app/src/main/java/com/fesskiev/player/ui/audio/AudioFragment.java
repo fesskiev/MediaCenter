@@ -12,7 +12,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -127,8 +126,8 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
 
     private void registerAudioFolderBroadcastReceiver() {
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(FileSystemIntentService.ACTION_START_FETCH_AUDIO);
-        intentFilter.addAction(FileSystemIntentService.ACTION_END_FETCH_AUDIO);
+        intentFilter.addAction(FileSystemIntentService.ACTION_START_FETCH_MEDIA_CONTENT);
+        intentFilter.addAction(FileSystemIntentService.ACTION_END_FETCH_MEDIA_CONTENT);
         intentFilter.addAction(FileSystemIntentService.ACTION_AUDIO_FOLDER_NAME);
         intentFilter.addAction(FileSystemIntentService.ACTION_AUDIO_TRACK_NAME);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(audioFolderReceiver,
@@ -145,11 +144,11 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
-                case FileSystemIntentService.ACTION_START_FETCH_AUDIO:
+                case FileSystemIntentService.ACTION_START_FETCH_MEDIA_CONTENT:
                     audioFoldersDialog = FetchAudioFoldersDialog.newInstance(getActivity());
                     audioFoldersDialog.show();
                     break;
-                case FileSystemIntentService.ACTION_END_FETCH_AUDIO:
+                case FileSystemIntentService.ACTION_END_FETCH_MEDIA_CONTENT:
                     if (audioFoldersDialog != null) {
                         audioFoldersDialog.hide();
                     }

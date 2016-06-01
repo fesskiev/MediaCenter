@@ -32,8 +32,11 @@ public class FileSystemIntentService extends IntentService {
     private static final String ACTION_CHECK_DOWNLOAD_FOLDER_SERVICE =
             "com.fesskiev.player.action.ACTION_CHECK_DOWNLOAD_FOLDER_SERVICE";
 
-    public static final String ACTION_START_FETCH_AUDIO = "com.fesskiev.player.action.ACTION_START_FETCH_AUDIO";
-    public static final String ACTION_END_FETCH_AUDIO = "com.fesskiev.player.action.ACTION_END_FETCH_AUDIO";
+    public static final String ACTION_START_FETCH_MEDIA_CONTENT
+            = "com.fesskiev.player.action.ACTION_START_FETCH_MEDIA_CONTENT";
+    public static final String ACTION_END_FETCH_MEDIA_CONTENT
+            = "com.fesskiev.player.action.ACTION_END_FETCH_MEDIA_CONTENT";
+
     public static final String ACTION_AUDIO_FOLDER_NAME = "com.fesskiev.player.action.ACTION_AUDIO_FOLDER_NAME";
     public static final String ACTION_AUDIO_TRACK_NAME = "com.fesskiev.player.action.ACTION_AUDIO_TRACK_NAME";
 
@@ -66,7 +69,7 @@ public class FileSystemIntentService extends IntentService {
             Log.w(TAG, "HANDLE INTENT: " + action);
             switch (action) {
                 case ACTION_START_FILE_SYSTEM_SERVICE:
-                    getAudioFolders();
+                    getMediaContent();
                     break;
                 case ACTION_CHECK_DOWNLOAD_FOLDER_SERVICE:
                     checkAudioFolderService();
@@ -89,19 +92,17 @@ public class FileSystemIntentService extends IntentService {
         }
     }
 
-    private void getAudioFolders() {
+    private void getMediaContent() {
         MediaApplication.getInstance().getAudioPlayer().audioFolders.clear();
         MediaApplication.getInstance().getVideoPlayer().videoFiles.clear();
         String sdCardState = Environment.getExternalStorageState();
         if (sdCardState.equals(Environment.MEDIA_MOUNTED)) {
-            sendStartFetchAudioBroadcast();
-            Log.w(TAG, "sendStartFetchAudioBroadcast");
+            sendStartFetchMediaBroadcast();
 
             File root = Environment.getExternalStorageDirectory();
             walk(root.getAbsolutePath());
 
-            sendEndFetchAudioBroadcast();
-            Log.w(TAG, "sendEndFetchAudioBroadcast");
+            sendEndFetchMediaBroadcast();
 
         } else {
             Log.wtf(TAG, "NO SD CARD!");
@@ -117,35 +118,24 @@ public class FileSystemIntentService extends IntentService {
         }
         for (File child : list) {
             if (child.isDirectory()) {
-                checkAudioFilesFolder(child);
-//                checkVideoFiles(child);
+                checkMediaFilesFolder(child);
                 walk(child.getAbsolutePath());
             }
         }
     }
 
-    private void checkVideoFiles(File child) {
-        File[] moviesFiles = child.listFiles(videoFilter());
-        if (moviesFiles != null) {
-            for (File movieFile : moviesFiles) {
-                VideoFile videoFile = new VideoFile(movieFile.getAbsolutePath());
-                MediaApplication.getInstance().getVideoPlayer().videoFiles.add(videoFile);
-                sendVideoFoldersBroadcast();
-            }
-        }
-    }
 
     public boolean checkDownloadFolder(File file) {
         return file.getAbsolutePath().equals(CacheManager.CHECK_DOWNLOADS_FOLDER_PATH);
     }
 
 
-    private void checkAudioFilesFolder(File child) {
+    private void checkMediaFilesFolder(File child) {
         File[] directoryFiles = child.listFiles();
         if (directoryFiles != null) {
             for (File directoryFile : directoryFiles) {
-                File[] filterFiles = directoryFile.listFiles(audioFilter());
-                if (filterFiles != null && filterFiles.length > 0) {
+                File[] audioFiles = directoryFile.listFiles(audioFilter());
+                if (audioFiles != null && audioFiles.length > 0) {
                     Log.w(TAG, "audio folder created");
 
                     AudioFolder audioFolder = new AudioFolder();
@@ -165,9 +155,9 @@ public class FileSystemIntentService extends IntentService {
 
                     sendAudioFolderNameBroadcast(audioFolder.folderName);
 
-                    CountDownLatch latch = new CountDownLatch(filterFiles.length);
+                    CountDownLatch latch = new CountDownLatch(audioFiles.length);
 
-                    for (File file : filterFiles) {
+                    for (File file : audioFiles) {
                         new Thread(new FetchAudioInfo(audioFolder, file, latch)).start();
                     }
 
@@ -179,6 +169,16 @@ public class FileSystemIntentService extends IntentService {
 
                     DatabaseHelper.insertAudioFolder(getApplicationContext(), audioFolder);
 
+                }
+
+                File[] videoFiles = directoryFile.listFiles(videoFilter());
+                if (videoFiles != null) {
+                    for (File movieFile : videoFiles) {
+                        VideoFile videoFile = new VideoFile(movieFile.getAbsolutePath());
+                        Log.w(TAG, "create video file!: " + movieFile.getAbsolutePath());
+                        DatabaseHelper.insertVideoFile(getApplicationContext(), videoFile);
+                        sendVideoFoldersBroadcast();
+                    }
                 }
             }
         }
@@ -241,13 +241,13 @@ public class FileSystemIntentService extends IntentService {
         }
     }
 
-    public void sendStartFetchAudioBroadcast() {
-        Intent intent = new Intent(ACTION_START_FETCH_AUDIO);
+    public void sendStartFetchMediaBroadcast() {
+        Intent intent = new Intent(ACTION_START_FETCH_MEDIA_CONTENT);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
-    public void sendEndFetchAudioBroadcast() {
-        Intent intent = new Intent(ACTION_END_FETCH_AUDIO);
+    public void sendEndFetchMediaBroadcast() {
+        Intent intent = new Intent(ACTION_END_FETCH_MEDIA_CONTENT);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 

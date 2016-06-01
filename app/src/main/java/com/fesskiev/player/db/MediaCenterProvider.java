@@ -31,13 +31,26 @@ public class MediaCenterProvider extends ContentProvider {
 
     private static final String AUDIO_TRACKS_TABLE_NAME = "AudioTracks";
 
+    private static final String VIDEO_FILES_TABLE_NAME = "VideoFiles";
+
     public static final Uri AUDIO_FOLDERS_TABLE_CONTENT_URI =
             Uri.withAppendedPath(CONTENT_URI, AUDIO_FOLDERS_TABLE_NAME);
 
     public static final Uri AUDIO_TRACKS_TABLE_CONTENT_URI =
             Uri.withAppendedPath(CONTENT_URI, AUDIO_TRACKS_TABLE_NAME);
 
+    public static final Uri VIDEO_FILES_TABLE_CONTENT_URI =
+            Uri.withAppendedPath(CONTENT_URI, VIDEO_FILES_TABLE_NAME);
+
     public static final String ID = "ID";
+
+    /**
+     * video file constants
+     */
+    public static final String VIDEO_FILE_PATH = "VideoFilePath";
+    public static final String VIDEO_FRAME_PATH = "VideoFramePath";
+    public static final String VIDEO_DESCRIPTION = "VideoDescription";
+
     /**
      * audio folder constants
      */
@@ -63,12 +76,22 @@ public class MediaCenterProvider extends ContentProvider {
 
     private static final int AUDIO_FOLDERS_QUERY = 1;
     private static final int AUDIO_TRACK_QUERY = 2;
+    private static final int VIDEO_FILES_QUERY = 3;
     private static final int INVALID_URI = -1;
 
     private static final String KEY_TYPE = "TEXT NOT NULL";
     private static final String TEXT_TYPE = "TEXT";
     private static final String INTEGER_TYPE = "INTEGER";
     private static final String REAL_TYPE = "REAL";
+
+    public static final String CREATE_VIDEO_FILES_TABLE_SQL = "CREATE TABLE" + " " +
+            VIDEO_FILES_TABLE_NAME + " " +
+            "(" + " " +
+            ID + " " + KEY_TYPE + " ," +
+            VIDEO_FILE_PATH + " " + TEXT_TYPE + " ," +
+            VIDEO_FRAME_PATH + " " + TEXT_TYPE + " ," +
+            VIDEO_DESCRIPTION + " " + TEXT_TYPE +
+            ")";
 
 
     public static final String CREATE_AUDIO_FOLDERS_TABLE_SQL = "CREATE TABLE" + " " +
@@ -138,6 +161,18 @@ public class MediaCenterProvider extends ContentProvider {
                 "vnd.android.cursor.dir/vnd." +
                         AUTHORITY + "." +
                         AUDIO_TRACKS_TABLE_NAME);
+
+
+        uriMatcher.addURI(
+                AUTHORITY,
+                VIDEO_FILES_TABLE_NAME,
+                VIDEO_FILES_QUERY);
+
+        mimeTypes.put(
+                VIDEO_FILES_QUERY,
+                "vnd.android.cursor.dir/vnd." +
+                        AUTHORITY + "." +
+                        VIDEO_FILES_TABLE_NAME);
     }
 
     @Override
@@ -159,6 +194,9 @@ public class MediaCenterProvider extends ContentProvider {
                 break;
             case AUDIO_TRACK_QUERY:
                 tableName = AUDIO_TRACKS_TABLE_NAME;
+                break;
+            case VIDEO_FILES_QUERY:
+                tableName = VIDEO_FILES_TABLE_NAME;
                 break;
             case INVALID_URI:
                 throw new IllegalArgumentException("Query -- Invalid URI:" + uri);
@@ -196,6 +234,9 @@ public class MediaCenterProvider extends ContentProvider {
             case AUDIO_TRACK_QUERY:
                 tableName = AUDIO_TRACKS_TABLE_NAME;
                 break;
+            case VIDEO_FILES_QUERY:
+                tableName = VIDEO_FILES_TABLE_NAME;
+                break;
             case INVALID_URI:
                 throw new IllegalArgumentException("Query -- Invalid URI:" + uri);
 
@@ -227,6 +268,9 @@ public class MediaCenterProvider extends ContentProvider {
             case AUDIO_TRACK_QUERY:
                 tableName = AUDIO_TRACKS_TABLE_NAME;
                 break;
+            case VIDEO_FILES_QUERY:
+                tableName = VIDEO_FILES_TABLE_NAME;
+                break;
             case INVALID_URI:
                 throw new IllegalArgumentException("Query -- Invalid URI:" + uri);
 
@@ -256,6 +300,9 @@ public class MediaCenterProvider extends ContentProvider {
                 break;
             case AUDIO_TRACK_QUERY:
                 tableName = AUDIO_TRACKS_TABLE_NAME;
+                break;
+            case VIDEO_FILES_QUERY:
+                tableName = VIDEO_FILES_TABLE_NAME;
                 break;
             case INVALID_URI:
                 throw new IllegalArgumentException("Query -- Invalid URI:" + uri);
@@ -287,6 +334,7 @@ public class MediaCenterProvider extends ContentProvider {
         private void dropTables(SQLiteDatabase db) {
             db.execSQL("DROP TABLE IF EXISTS " + AUDIO_FOLDERS_TABLE_NAME);
             db.execSQL("DROP TABLE IF EXISTS " + AUDIO_TRACKS_TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + VIDEO_FILES_TABLE_NAME);
 
         }
 
@@ -300,6 +348,10 @@ public class MediaCenterProvider extends ContentProvider {
             Log.d(TAG, "create audio tracks database! " + CREATE_AUDIO_TRACKS_TABLE_SQL);
 
             db.execSQL(CREATE_AUDIO_TRACKS_TABLE_SQL);
+
+            Log.d(TAG, "create audio tracks database! " + CREATE_VIDEO_FILES_TABLE_SQL);
+
+            db.execSQL(CREATE_VIDEO_FILES_TABLE_SQL);
 
         }
 

@@ -7,6 +7,7 @@ import android.support.v4.content.ContentResolverCompat;
 
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
+import com.fesskiev.player.model.VideoFile;
 import com.fesskiev.player.utils.CacheManager;
 
 import java.util.ArrayList;
@@ -156,7 +157,7 @@ public class DatabaseHelper {
         return paths;
     }
 
-    public static void clearPlaylist(Context context){
+    public static void clearPlaylist(Context context) {
 
         ContentValues dateValues = new ContentValues();
         dateValues.put(MediaCenterProvider.TRACK_IN_TRACK_LIST, 0);
@@ -165,5 +166,19 @@ public class DatabaseHelper {
                 dateValues,
                 null,
                 null);
+    }
+
+
+    public static void insertVideoFile(Context context, VideoFile videoFile) {
+
+        ContentValues dateValues = new ContentValues();
+
+        dateValues.put(MediaCenterProvider.ID, videoFile.id);
+        dateValues.put(MediaCenterProvider.VIDEO_FILE_PATH, videoFile.filePath);
+        dateValues.put(MediaCenterProvider.VIDEO_FRAME_PATH, videoFile.framePath);
+        dateValues.put(MediaCenterProvider.VIDEO_DESCRIPTION, videoFile.description);
+
+        context.getContentResolver().insert(MediaCenterProvider.VIDEO_FILES_TABLE_CONTENT_URI,
+                dateValues);
     }
 }
