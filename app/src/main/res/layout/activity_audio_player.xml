@@ -198,7 +198,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/divider1"
-                        android:layout_marginTop="15dp"
+                        android:layout_marginTop="10dp"
                         android:orientation="vertical">
 
                         <LinearLayout
@@ -209,17 +209,25 @@
                             <TextView
                                 android:id="@+id/trackTimeCount"
                                 android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="0.5"
+                                android:gravity="start|bottom"
+                                tools:text="0:00" />
+
+                            <com.fesskiev.player.widgets.buttons.RepeatButton
+                                android:id="@+id/repeatButton"
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="0.5"
-                                android:gravity="start"
-                                tools:text="0:00" />
+                                android:contentDescription="@string/app_name"
+                                android:src="@drawable/icon_repeat_off" />
 
                             <TextView
                                 android:id="@+id/trackTimeTotal"
                                 android:layout_width="0dp"
-                                android:layout_height="wrap_content"
+                                android:layout_height="match_parent"
                                 android:layout_weight="0.5"
-                                android:gravity="end"
+                                android:gravity="end|bottom"
                                 tools:text="0:00" />
 
                         </LinearLayout>
@@ -263,24 +271,14 @@
 
                         <SeekBar
                             android:id="@+id/seekVolume"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_toEndOf="@+id/muteSoloButton"
-                            android:layout_toStartOf="@+id/repeatButton"
                             android:max="100"
                             android:layout_centerVertical="true"
                             android:progressDrawable="@drawable/seek_bar_progress"
                             android:splitTrack="false"
                             android:thumb="@drawable/seek_bar_thumb" />
-
-                        <com.fesskiev.player.widgets.buttons.RepeatButton
-                            android:id="@+id/repeatButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
-                            android:contentDescription="@string/app_name"
-                            android:src="@drawable/icon_repeat_off" />
 
                     </RelativeLayout>
 

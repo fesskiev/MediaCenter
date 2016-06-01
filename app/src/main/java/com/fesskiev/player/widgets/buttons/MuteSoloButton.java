@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -70,7 +71,8 @@ public class MuteSoloButton extends ImageView implements View.OnClickListener {
 
 
     private void animateShowButton() {
-        animate().scaleX(1).scaleY(1).setDuration(DURATION).setListener(new Animator.AnimatorListener() {
+        animate().scaleX(1).scaleY(1).setDuration(DURATION).setInterpolator(new LinearInterpolator()).
+                setListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
 
@@ -98,7 +100,8 @@ public class MuteSoloButton extends ImageView implements View.OnClickListener {
     }
 
     private void animateHideButton() {
-        animate().scaleX(0).scaleY(0).setDuration(DURATION).setListener(new Animator.AnimatorListener() {
+        animate().scaleX(0).scaleY(0).setDuration(DURATION).setInterpolator(new LinearInterpolator()).
+                setListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
 
@@ -127,6 +130,10 @@ public class MuteSoloButton extends ImageView implements View.OnClickListener {
 
     public void changeState(boolean mute) {
         this.mute = mute;
-        animateHideButton();
+        if (mute) {
+            setMuteState();
+        } else {
+            setHighSoloState();
+        }
     }
 }
