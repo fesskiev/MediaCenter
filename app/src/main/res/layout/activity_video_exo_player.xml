@@ -3,7 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
+    android:id="@+id/rootScreen"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:focusable="true"
+    android:keepScreenOn="true"
     tools:context=".ui.video.player.exo.VideoExoPlayerActivity">
 
     <com.google.android.exoplayer.AspectRatioFrameLayout
@@ -23,6 +26,23 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@android:color/black" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical">
+
+            <com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton
+                android:id="@+id/playPauseFAB"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/fab_margin"
+                android:layout_centerInParent="true"
+                app:backgroundTint="@android:color/transparent"
+                app:layout_anchor="@id/appbar"
+                app:layout_anchorGravity="bottom|right|end" />
+
+        </RelativeLayout>
 
     </com.google.android.exoplayer.AspectRatioFrameLayout>
 

@@ -3,11 +3,16 @@ package com.fesskiev.player.ui.video.player.exo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 
 import com.fesskiev.player.R;
+import com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton;
 import com.google.android.exoplayer.AspectRatioFrameLayout;
 import com.google.android.exoplayer.metadata.id3.Id3Frame;
 import com.google.android.exoplayer.text.Cue;
@@ -18,14 +23,17 @@ import java.util.List;
 public class VideoExoPlayerActivity extends AppCompatActivity implements SurfaceHolder.Callback,
         MediaExoPlayer.Listener, MediaExoPlayer.CaptionListener, MediaExoPlayer.Id3MetadataListener {
 
+    private static final String TAG = VideoExoPlayerActivity.class.getSimpleName();
+
     private MediaExoPlayer player;
+    private EventLogger eventLogger;
     private AspectRatioFrameLayout videoFrame;
     private SurfaceView surfaceView;
-    private Uri contentUri;
+    private PlayPauseFloatingButton playPauseFloatingButton;
     private View shutterView;
-    private EventLogger eventLogger;
-
+    private Uri contentUri;
     private long playerPosition;
+    private boolean isPlaying;
     private boolean playerNeedsPrepare;
 
     @Override
@@ -39,6 +47,89 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
         videoFrame = (AspectRatioFrameLayout) findViewById(R.id.video_frame);
         surfaceView = (SurfaceView) findViewById(R.id.surface_view);
         surfaceView.getHolder().addCallback(this);
+
+        playPauseFloatingButton = (PlayPauseFloatingButton) findViewById(R.id.playPauseFAB);
+        playPauseFloatingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isPlaying = !isPlaying;
+                playPauseFloatingButton.setPlay(isPlaying);
+            }
+        });
+        findViewById(R.id.rootScreen).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    showControlsVisibility();
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    v.performClick();
+                }
+                return true;
+            }
+        });
+        hideControlsVisibility();
+    }
+
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        }
+    }
+
+    private void hideControlsVisibility() {
+        Log.d(TAG, "hideControlsVisibility");
+        AlphaAnimation animation = new AlphaAnimation(1.0f, 0.0f);
+        animation.setDuration(2000);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                Log.d(TAG, "onAnimationStart");
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                playPauseFloatingButton.setVisibility(View.INVISIBLE);
+                Log.d(TAG, "onAnimationEnd");
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        playPauseFloatingButton.startAnimation(animation);
+
+    }
+
+    private void showControlsVisibility() {
+        Log.d(TAG, "showControlsVisibility");
+        AlphaAnimation animation = new AlphaAnimation(0.1f, 1.0f);
+        animation.setDuration(2000);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                Log.d(TAG, "onAnimationStart");
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                playPauseFloatingButton.setVisibility(View.VISIBLE);
+                Log.d(TAG, "onAnimationEnd");
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        playPauseFloatingButton.startAnimation(animation);
 
     }
 
@@ -134,8 +225,8 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
     @Override
     public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
                                    float pixelWidthAspectRatio) {
-        videoFrame.setAspectRatio(
-                height == 0 ? 1 : (width * pixelWidthAspectRatio) / height);
+        videoFrame.setAspectRatio(height == 0 ? 1 : (width * pixelWidthAspectRatio) / height);
         shutterView.setVisibility(View.GONE);
     }
+
 }
