@@ -12,16 +12,16 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <ImageView
             android:id="@+id/frameView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:contentDescription="@string/app_name"
             android:minHeight="@dimen/card_min_width"
-            android:scaleType="center"
+            android:scaleType="centerCrop"
             tools:src="@drawable/cover" />
 
         <TextView

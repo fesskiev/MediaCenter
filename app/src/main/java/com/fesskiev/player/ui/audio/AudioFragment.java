@@ -21,7 +21,7 @@ import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.ui.ViewPagerFragment;
 import com.fesskiev.player.ui.audio.utils.Constants;
 import com.fesskiev.player.utils.CacheManager;
-import com.fesskiev.player.widgets.dialogs.FetchAudioFoldersDialog;
+import com.fesskiev.player.widgets.dialogs.FetchMediaContentDialog;
 
 import java.util.List;
 
@@ -37,14 +37,15 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
     }
 
     private SwipeRefreshLayout swipeRefreshLayout;
-    private FetchAudioFoldersDialog audioFoldersDialog;
-    private boolean isFetchAudio;
+    private FetchMediaContentDialog mediaContentDialog;
+    private boolean isFetchMedia;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            isFetchAudio = getArguments().getBoolean(Constants.EXTRA_IS_FETCH_AUDIO);
+            isFetchMedia = getArguments().getBoolean(Constants.EXTRA_IS_FETCH_AUDIO);
+
         }
         setRetainInstance(true);
         registerAudioFolderBroadcastReceiver();
@@ -77,7 +78,7 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
             }
         });
 
-        if (isFetchAudio) {
+        if (isFetchMedia) {
             FileSystemIntentService.startFileTreeService(getContext());
         } else {
             new Handler().postDelayed(new Runnable() {
@@ -109,7 +110,7 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
                         CacheManager.clearImagesCache();
                         DatabaseHelper.resetDatabase(getActivity());
                         FileSystemIntentService.startFileTreeService(getActivity());
-                        isFetchAudio = true;
+                        isFetchMedia = true;
 
                     }
                 });
@@ -130,6 +131,7 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
         intentFilter.addAction(FileSystemIntentService.ACTION_END_FETCH_MEDIA_CONTENT);
         intentFilter.addAction(FileSystemIntentService.ACTION_AUDIO_FOLDER_NAME);
         intentFilter.addAction(FileSystemIntentService.ACTION_AUDIO_TRACK_NAME);
+        intentFilter.addAction(FileSystemIntentService.ACTION_VIDEO_FILE);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(audioFolderReceiver,
                 intentFilter);
     }
@@ -145,34 +147,41 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
                 case FileSystemIntentService.ACTION_START_FETCH_MEDIA_CONTENT:
-                    audioFoldersDialog = FetchAudioFoldersDialog.newInstance(getActivity());
-                    audioFoldersDialog.show();
+                    mediaContentDialog = FetchMediaContentDialog.newInstance(getActivity());
+                    mediaContentDialog.show();
                     break;
                 case FileSystemIntentService.ACTION_END_FETCH_MEDIA_CONTENT:
-                    if (audioFoldersDialog != null) {
-                        audioFoldersDialog.hide();
+                    if (mediaContentDialog != null) {
+                        mediaContentDialog.hide();
                     }
 
                     if (swipeRefreshLayout.isRefreshing()) {
                         swipeRefreshLayout.setRefreshing(false);
                     }
 
-                    if (isFetchAudio) {
+                    if (isFetchMedia) {
                         fetchAudioContent();
                     }
                     break;
                 case FileSystemIntentService.ACTION_AUDIO_FOLDER_NAME:
                     String folderName =
                             intent.getStringExtra(FileSystemIntentService.EXTRA_AUDIO_FOLDER_NAME);
-                    if (audioFoldersDialog != null) {
-                        audioFoldersDialog.setFolderName(folderName);
+                    if (mediaContentDialog != null) {
+                        mediaContentDialog.setFolderName(folderName);
                     }
                     break;
                 case FileSystemIntentService.ACTION_AUDIO_TRACK_NAME:
                     String trackName =
                             intent.getStringExtra(FileSystemIntentService.EXTRA_AUDIO_TRACK_NAME);
-                    if (audioFoldersDialog != null) {
-                        audioFoldersDialog.setAudioTrackName(trackName);
+                    if (mediaContentDialog != null) {
+                        mediaContentDialog.setFileName(trackName);
+                    }
+                    break;
+                case FileSystemIntentService.ACTION_VIDEO_FILE:
+                    String videoFileName =
+                            intent.getStringExtra(FileSystemIntentService.EXTRA_VIDEO_FILE_NAME);
+                    if (mediaContentDialog != null) {
+                        mediaContentDialog.setFileName(videoFileName);
                     }
                     break;
             }

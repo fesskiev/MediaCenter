@@ -23,7 +23,7 @@
             android:text="@string/dialog_fetch_audio_folder_name" />
 
         <TextView
-            android:id="@+id/fetchAudioName"
+            android:id="@+id/fetchFileName"
             style="@style/SecondNameTextAppearance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

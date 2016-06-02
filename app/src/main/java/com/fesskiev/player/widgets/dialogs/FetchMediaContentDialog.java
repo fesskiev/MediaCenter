@@ -9,18 +9,18 @@ import android.widget.TextView;
 import com.fesskiev.player.R;
 
 
-public class FetchAudioFoldersDialog extends AlertDialog {
+public class FetchMediaContentDialog extends AlertDialog {
 
 
-    public static FetchAudioFoldersDialog newInstance(Context context) {
-        return new FetchAudioFoldersDialog(context);
+    public static FetchMediaContentDialog newInstance(Context context) {
+        return new FetchMediaContentDialog(context);
     }
 
     private TextView folderNameText;
-    private TextView audioTrackText;
+    private TextView fileNameText;
 
 
-    public FetchAudioFoldersDialog(Context context) {
+    public FetchMediaContentDialog(Context context) {
         super(context);
     }
 
@@ -28,10 +28,10 @@ public class FetchAudioFoldersDialog extends AlertDialog {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.dialog_fetch_audio_folder);
+        setContentView(R.layout.dialog_fetch_media_content);
 
         folderNameText = (TextView) findViewById(R.id.fetchFolderName);
-        audioTrackText = (TextView) findViewById(R.id.fetchAudioName);
+        fileNameText = (TextView) findViewById(R.id.fetchFileName);
         setCancelable(false);
     }
 
@@ -41,9 +41,9 @@ public class FetchAudioFoldersDialog extends AlertDialog {
         }
     }
 
-    public void setAudioTrackName(String trackName) {
-        if (audioTrackText != null) {
-            audioTrackText.setText(trackName);
+    public void setFileName(String fileName) {
+        if (fileNameText != null) {
+            fileNameText.setText(fileName);
         }
     }
 }

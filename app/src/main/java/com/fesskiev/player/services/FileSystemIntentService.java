@@ -43,6 +43,8 @@ public class FileSystemIntentService extends IntentService {
     public static final String EXTRA_AUDIO_FOLDER_NAME = "com.fesskiev.player.action.EXTRA_AUDIO_FOLDER_NAME";
     public static final String EXTRA_AUDIO_TRACK_NAME = "com.fesskiev.player.action.EXTRA_AUDIO_TRACK_NAME";
 
+    public static final String EXTRA_VIDEO_FILE_NAME = "com.fesskiev.player.action.EXTRA_VIDEO_FILE_NAME";
+
 
     public FileSystemIntentService() {
         super(FileSystemIntentService.class.getName());
@@ -173,11 +175,11 @@ public class FileSystemIntentService extends IntentService {
 
                 File[] videoFiles = directoryFile.listFiles(videoFilter());
                 if (videoFiles != null) {
-                    for (File movieFile : videoFiles) {
-                        VideoFile videoFile = new VideoFile(movieFile.getAbsolutePath());
-                        Log.w(TAG, "create video file!: " + movieFile.getAbsolutePath());
+                    for (File f : videoFiles) {
+                        VideoFile videoFile = new VideoFile(f.getAbsolutePath());
+                        Log.w(TAG, "create video file!: " + f.getAbsolutePath());
                         DatabaseHelper.insertVideoFile(getApplicationContext(), videoFile);
-                        sendVideoFoldersBroadcast();
+                        sendVideoFileBroadcast(videoFile.description);
                     }
                 }
             }
@@ -263,8 +265,9 @@ public class FileSystemIntentService extends IntentService {
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
-    public void sendVideoFoldersBroadcast() {
+    public void sendVideoFileBroadcast(String fileName) {
         Intent intent = new Intent(ACTION_VIDEO_FILE);
+        intent.putExtra(EXTRA_VIDEO_FILE_NAME, fileName);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 

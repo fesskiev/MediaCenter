@@ -1,8 +1,10 @@
 package com.fesskiev.player.model;
 
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 
+import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.CacheManager;
 
@@ -17,6 +19,14 @@ public class VideoFile {
     public String filePath;
     public String framePath;
     public String description;
+
+    public VideoFile(Cursor cursor) {
+
+        id = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.ID));
+        filePath = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.VIDEO_FILE_PATH));
+        framePath = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.VIDEO_FRAME_PATH));
+        description = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.VIDEO_DESCRIPTION));
+    }
 
     public VideoFile(String path) {
         this.filePath = path;

@@ -37,10 +37,9 @@ import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.ui.about.AboutActivity;
 import com.fesskiev.player.ui.audio.AudioFragment;
-import com.fesskiev.player.ui.playlist.PlaylistActivity;
-import com.fesskiev.player.ui.playlist.PlaylistFragment;
 import com.fesskiev.player.ui.equalizer.EqualizerActivity;
 import com.fesskiev.player.ui.player.PlaybackActivity;
+import com.fesskiev.player.ui.playlist.PlaylistActivity;
 import com.fesskiev.player.ui.settings.SettingsActivity;
 import com.fesskiev.player.ui.video.VideoFilesFragment;
 import com.fesskiev.player.ui.vk.MusicVKActivity;
@@ -64,6 +63,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private static final int PERMISSION_REQ = 0;
 
     private NavigationView navigationViewEffects;
+    private NavigationView navigationViewMain;
     private DrawerLayout drawer;
     private AppSettingsManager settingsManager;
     private ImageView userPhoto;
@@ -120,10 +120,11 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         }
 
         checkPermission();
+        checkAudioContentItem();
     }
 
     private void setMainNavView() {
-        NavigationView navigationViewMain = (NavigationView) findViewById(R.id.nav_view_main);
+        navigationViewMain = (NavigationView) findViewById(R.id.nav_view_main);
         navigationViewMain.setNavigationItemSelectedListener(this);
         navigationViewMain.setItemIconTintList(null);
         View headerLayout =
@@ -226,6 +227,25 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         settingsManager.setUserId("");
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        clearItems();
+        if (isAudioFragmentShow()) {
+            checkAudioContentItem();
+        } else if (isVideoFragmentShow()) {
+            checkVideoContentItem();
+        }
+    }
+
+    private void clearItems() {
+        int size = navigationViewMain.getMenu().size();
+        for (int i = 0; i < size; i++) {
+            navigationViewMain.getMenu().getItem(i).setChecked(false);
+        }
+    }
+
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -246,9 +266,11 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             case R.id.virtualizer:
                 break;
             case R.id.audio_content:
+                checkAudioContentItem();
                 addAudioFragment(false);
                 break;
             case R.id.video_content:
+                checkVideoContentItem();
                 addVideoFilesFragment();
                 break;
             case R.id.playlist:
@@ -259,6 +281,16 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         drawer.closeDrawer(GravityCompat.START);
 
         return true;
+    }
+
+    private void checkAudioContentItem() {
+        navigationViewMain.getMenu().getItem(0).getSubMenu().getItem(0).setChecked(true);
+        navigationViewMain.getMenu().getItem(0).getSubMenu().getItem(1).setChecked(false);
+    }
+
+    private void checkVideoContentItem() {
+        navigationViewMain.getMenu().getItem(0).getSubMenu().getItem(0).setChecked(false);
+        navigationViewMain.getMenu().getItem(0).getSubMenu().getItem(1).setChecked(true);
     }
 
 
@@ -439,6 +471,18 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         transaction.commitAllowingStateLoss();
     }
 
+    private boolean isAudioFragmentShow() {
+        AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
+                findFragmentByTag(AudioFragment.class.getName());
+        return audioFragment != null && audioFragment.isAdded() && audioFragment.isVisible();
+    }
+
+    private boolean isVideoFragmentShow() {
+        VideoFilesFragment videoFragment = (VideoFilesFragment) getSupportFragmentManager().
+                findFragmentByTag(VideoFilesFragment.class.getName());
+        return videoFragment != null && videoFragment.isAdded() && videoFragment.isVisible();
+    }
+
     private void addVideoFilesFragment() {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
@@ -474,7 +518,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             transaction.hide(videoFilesFragment);
         }
     }
-
 
 
     private void showPermissionSnackbar() {

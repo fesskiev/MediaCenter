@@ -1,43 +1,53 @@
 package com.fesskiev.player.ui.video;
 
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
+import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.model.VideoFile;
 import com.fesskiev.player.model.VideoPlayer;
-import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.ui.GridFragment;
+import com.fesskiev.player.ui.player.VideoExoPlayerActivity;
 import com.fesskiev.player.ui.player.VideoPlayerActivity;
+import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class VideoFilesFragment extends GridFragment {
+public class VideoFilesFragment extends GridFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+
+    private static final String TAG = VideoFilesFragment.class.getSimpleName();
 
     public static VideoFilesFragment newInstance() {
         return new VideoFilesFragment();
     }
 
+    public static final int GET_VIDEO_FILES_LOADER = 3001;
+
+    private VideoPlayer videoPlayer;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        registerVideoFolderBroadcastReceiver();
+        videoPlayer = MediaApplication.getInstance().getVideoPlayer();
+        setRetainInstance(true);
     }
 
     @Override
@@ -46,21 +56,60 @@ public class VideoFilesFragment extends GridFragment {
 
         recyclerView.addOnItemTouchListener(new RecyclerItemTouchClickListener(getActivity(),
                 new RecyclerItemTouchClickListener.OnItemClickListener() {
-            @Override
-            public void onItemClick(View childView, int position) {
-                VideoPlayer videoPlayer = MediaApplication.getInstance().getVideoPlayer();
-                VideoFile videoFile = videoPlayer.videoFiles.get(position);
-                if (videoFile != null) {
-                    videoPlayer.currentVideoFile = videoFile;
-                    startActivity(new Intent(getActivity(), VideoPlayerActivity.class));
-                }
-            }
+                    @Override
+                    public void onItemClick(View childView, int position) {
+                        VideoFile videoFile = videoPlayer.videoFiles.get(position);
+                        if (videoFile != null) {
+                            videoPlayer.currentVideoFile = videoFile;
+                            startActivity(new Intent(getActivity(), VideoExoPlayerActivity.class));
+                        }
+                    }
 
-            @Override
-            public void onItemLongPress(View childView, int position) {
+                    @Override
+                    public void onItemLongPress(View childView, int position) {
 
+                    }
+                }));
+
+        getActivity().getSupportLoaderManager().restartLoader(GET_VIDEO_FILES_LOADER, null, this);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        switch (id) {
+            case GET_VIDEO_FILES_LOADER:
+                return new CursorLoader(
+                        getActivity(),
+                        MediaCenterProvider.VIDEO_FILES_TABLE_CONTENT_URI,
+                        null,
+                        null,
+                        null,
+                        null
+
+                );
+            default:
+                return null;
+        }
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        Log.d(TAG, "cursor video files: " + cursor.getCount());
+        if (cursor.getCount() > 0) {
+            List<VideoFile> videoFiles = new ArrayList<>();
+            cursor.moveToPosition(-1);
+            while (cursor.moveToNext()) {
+                videoFiles.add(new VideoFile(cursor));
             }
-        }));
+            if (!videoFiles.isEmpty()) {
+                videoPlayer.videoFiles = videoFiles;
+                ((VideoFilesAdapter) adapter).refresh(videoFiles);
+            }
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
 
     }
 
@@ -68,39 +117,6 @@ public class VideoFilesFragment extends GridFragment {
     public RecyclerView.Adapter createAdapter() {
         return new VideoFilesAdapter();
     }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        unregisterVideoFolderBroadcastReceiver();
-    }
-
-    private void registerVideoFolderBroadcastReceiver() {
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(FileSystemIntentService.ACTION_VIDEO_FILE);
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(videoFilesReceiver,
-                intentFilter);
-    }
-
-    private void unregisterVideoFolderBroadcastReceiver() {
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(videoFilesReceiver);
-    }
-
-    private BroadcastReceiver videoFilesReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case FileSystemIntentService.ACTION_VIDEO_FILE:
-                    List<VideoFile> videoFiles =
-                            MediaApplication.getInstance().getVideoPlayer().videoFiles;
-                    if (videoFiles != null) {
-                        ((VideoFilesAdapter) adapter).refresh(videoFiles);
-                    }
-                    break;
-            }
-        }
-    };
 
 
     private class VideoFilesAdapter extends RecyclerView.Adapter<VideoFilesAdapter.ViewHolder> {
@@ -136,8 +152,13 @@ public class VideoFilesFragment extends GridFragment {
         public void onBindViewHolder(ViewHolder holder, int position) {
             final VideoFile videoFile = videoFiles.get(position);
             if (videoFile != null) {
-                holder.frame.setImageBitmap(videoFile.frame);
                 holder.description.setText(videoFile.description);
+
+                if (videoFile.framePath != null) {
+                    BitmapHelper.loadURLBitmap(getContext(), videoFile.framePath, holder.frame);
+                } else {
+                    Glide.with(getContext()).load(R.drawable.no_cover_icon).into(holder.frame);
+                }
             }
         }
 

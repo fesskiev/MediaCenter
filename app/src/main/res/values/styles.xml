@@ -15,7 +15,7 @@
         <item name="switchStyle">@style/Custom.Widget.SwitchCompat</item>
     </style>
 
-    <style name="Custom.Widget.SwitchCompat" parent="Widget.AppCompat.CompoundButton.Switch" >
+    <style name="Custom.Widget.SwitchCompat" parent="Widget.AppCompat.CompoundButton.Switch">
         <item name="android:thumb">@drawable/switch_selector_thumb</item>
         <item name="track">@android:color/transparent</item>
         <item name="showText">false</item>
@@ -68,6 +68,7 @@
         <item name="android:textSize">@dimen/text_size_description</item>
         <item name="android:fontFamily">sans-serif-thin</item>
     </style>
+
     <style name="TrackDescriptionTextAppearance" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/secondary_text</item>
         <item name="android:textSize">12sp</item>
