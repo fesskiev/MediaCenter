@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.fesskiev.player.R;
-import com.fesskiev.player.ui.player.HidingPlaybackFragment;
+import com.fesskiev.player.ui.playback.HidingPlaybackFragment;
 import com.fesskiev.player.widgets.recycleview.GridDividerDecoration;
 import com.fesskiev.player.widgets.recycleview.HidingScrollListener;
 

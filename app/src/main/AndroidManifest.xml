@@ -48,7 +48,7 @@
                 android:value=".ui.MainActivity" />
         </activity>
         <activity
-            android:name=".ui.player.AudioPlayerActivity"
+            android:name=".ui.audio.player.AudioPlayerActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:launchMode="singleTop"
             android:parentActivityName=".ui.tracklist.TrackListActivity"
@@ -58,7 +58,7 @@
                 android:value=".ui.tracklist.TrackListActivity" />
         </activity>
         <activity
-            android:name=".ui.player.VideoPlayerActivity"
+            android:name=".ui.video.player.VideoPlayerActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait">
@@ -68,10 +68,9 @@
         </activity>
 
         <activity
-            android:name=".ui.player.VideoExoPlayerActivity"
+            android:name=".ui.video.player.exo.VideoExoPlayerActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:parentActivityName=".ui.MainActivity"
-            android:screenOrientation="portrait">
+            android:parentActivityName=".ui.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity" />
@@ -80,11 +79,11 @@
         <activity
             android:name=".ui.equalizer.EqualizerActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:parentActivityName=".ui.player.AudioPlayerActivity"
+            android:parentActivityName=".ui.audio.player.AudioPlayerActivity"
             android:screenOrientation="landscape">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.player.AudioPlayerActivity" />
+                android:value=".ui.audio.player.AudioPlayerActivity" />
         </activity>
         <activity
             android:name=".ui.vk.MusicVKActivity"

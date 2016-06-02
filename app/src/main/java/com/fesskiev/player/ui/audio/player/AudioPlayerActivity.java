@@ -1,4 +1,4 @@
-package com.fesskiev.player.ui.player;
+package com.fesskiev.player.ui.audio.player;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;

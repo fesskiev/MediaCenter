@@ -38,7 +38,7 @@ import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.ui.about.AboutActivity;
 import com.fesskiev.player.ui.audio.AudioFragment;
 import com.fesskiev.player.ui.equalizer.EqualizerActivity;
-import com.fesskiev.player.ui.player.PlaybackActivity;
+import com.fesskiev.player.ui.playback.PlaybackActivity;
 import com.fesskiev.player.ui.playlist.PlaylistActivity;
 import com.fesskiev.player.ui.settings.SettingsActivity;
 import com.fesskiev.player.ui.video.VideoFilesFragment;

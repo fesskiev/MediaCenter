@@ -1,4 +1,4 @@
-package com.fesskiev.player.ui.player;
+package com.fesskiev.player.ui.video.player;
 
 
 import android.animation.TimeAnimator;

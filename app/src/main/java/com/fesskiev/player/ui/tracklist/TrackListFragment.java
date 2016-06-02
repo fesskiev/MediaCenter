@@ -30,7 +30,7 @@ import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.player.ui.audio.utils.Constants;
-import com.fesskiev.player.ui.player.AudioPlayerActivity;
+import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.cards.SlidingCardView;
@@ -187,7 +187,9 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
                 AudioFile audioFile = new AudioFile(cursor);
                 audioFiles.add(audioFile);
             }
-            audioFolder.audioFiles = audioFiles;
+            if(audioFolder != null) {
+                audioFolder.audioFiles = audioFiles;
+            }
             audioPlayer.sendBroadcastChangeAudioFolder();
             trackListAdapter.refreshAdapter(audioFiles);
         }

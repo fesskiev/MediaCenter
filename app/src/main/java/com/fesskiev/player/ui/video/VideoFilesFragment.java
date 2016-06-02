@@ -3,6 +3,7 @@ package com.fesskiev.player.ui.video;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -22,8 +23,8 @@ import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.model.VideoFile;
 import com.fesskiev.player.model.VideoPlayer;
 import com.fesskiev.player.ui.GridFragment;
-import com.fesskiev.player.ui.player.VideoExoPlayerActivity;
-import com.fesskiev.player.ui.player.VideoPlayerActivity;
+import com.fesskiev.player.ui.video.player.exo.VideoExoPlayerActivity;
+import com.fesskiev.player.ui.video.utils.Constants;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 
@@ -38,8 +39,6 @@ public class VideoFilesFragment extends GridFragment implements LoaderManager.Lo
     public static VideoFilesFragment newInstance() {
         return new VideoFilesFragment();
     }
-
-    public static final int GET_VIDEO_FILES_LOADER = 3001;
 
     private VideoPlayer videoPlayer;
 
@@ -61,7 +60,7 @@ public class VideoFilesFragment extends GridFragment implements LoaderManager.Lo
                         VideoFile videoFile = videoPlayer.videoFiles.get(position);
                         if (videoFile != null) {
                             videoPlayer.currentVideoFile = videoFile;
-                            startActivity(new Intent(getActivity(), VideoExoPlayerActivity.class));
+                            startExoPlayerActivity(videoFile);
                         }
                     }
 
@@ -71,13 +70,19 @@ public class VideoFilesFragment extends GridFragment implements LoaderManager.Lo
                     }
                 }));
 
-        getActivity().getSupportLoaderManager().restartLoader(GET_VIDEO_FILES_LOADER, null, this);
+        getActivity().getSupportLoaderManager().restartLoader(Constants.GET_VIDEO_FILES_LOADER, null, this);
+    }
+
+    private void startExoPlayerActivity(VideoFile videoFile) {
+        Intent intent = new Intent(getContext(),
+                VideoExoPlayerActivity.class).setData(Uri.parse(videoFile.filePath));
+        startActivity(intent);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         switch (id) {
-            case GET_VIDEO_FILES_LOADER:
+            case Constants.GET_VIDEO_FILES_LOADER:
                 return new CursorLoader(
                         getActivity(),
                         MediaCenterProvider.VIDEO_FILES_TABLE_CONTENT_URI,

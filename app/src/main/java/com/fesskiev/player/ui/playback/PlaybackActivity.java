@@ -1,4 +1,4 @@
-package com.fesskiev.player.ui.player;
+package com.fesskiev.player.ui.playback;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -27,6 +27,7 @@ import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
+import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton;

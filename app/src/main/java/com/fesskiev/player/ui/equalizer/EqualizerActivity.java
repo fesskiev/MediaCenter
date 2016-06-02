@@ -9,7 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.fesskiev.player.R;
-import com.fesskiev.player.ui.player.AudioPlayerActivity;
+import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
 
 public class EqualizerActivity extends AppCompatActivity {
 
