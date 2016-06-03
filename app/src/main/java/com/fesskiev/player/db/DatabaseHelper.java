@@ -124,6 +124,7 @@ public class DatabaseHelper {
     public static void resetDatabase(Context context) {
         context.getContentResolver().delete(MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI, null, null);
         context.getContentResolver().delete(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI, null, null);
+        context.getContentResolver().delete(MediaCenterProvider.VIDEO_FILES_TABLE_CONTENT_URI, null, null);
     }
 
 

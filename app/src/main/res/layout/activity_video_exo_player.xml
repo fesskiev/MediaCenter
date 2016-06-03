@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootScreen"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/rootScreen"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:focusable="true"
     android:keepScreenOn="true"
     tools:context=".ui.video.player.exo.VideoExoPlayerActivity">
@@ -36,13 +36,23 @@
                 android:id="@+id/playPauseFAB"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/fab_margin"
                 android:layout_centerInParent="true"
                 app:backgroundTint="@android:color/transparent"
                 app:layout_anchor="@id/appbar"
                 app:layout_anchorGravity="bottom|right|end" />
 
         </RelativeLayout>
+
+        <SeekBar
+            android:id="@+id/seekVideo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="25dp"
+            android:max="100"
+            android:progressDrawable="@drawable/seek_bar_progress"
+            android:splitTrack="false"
+            android:thumb="@drawable/seek_bar_thumb" />
 
     </com.google.android.exoplayer.AspectRatioFrameLayout>
 

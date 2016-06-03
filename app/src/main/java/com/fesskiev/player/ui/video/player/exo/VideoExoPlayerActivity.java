@@ -10,15 +10,25 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.widget.SeekBar;
 
 import com.fesskiev.player.R;
+import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton;
 import com.google.android.exoplayer.AspectRatioFrameLayout;
+import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.metadata.id3.Id3Frame;
 import com.google.android.exoplayer.text.Cue;
+import com.google.android.exoplayer.util.PlayerControl;
 import com.google.android.exoplayer.util.Util;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 
 public class VideoExoPlayerActivity extends AppCompatActivity implements SurfaceHolder.Callback,
         MediaExoPlayer.Listener, MediaExoPlayer.CaptionListener, MediaExoPlayer.Id3MetadataListener {
@@ -26,15 +36,20 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
     private static final String TAG = VideoExoPlayerActivity.class.getSimpleName();
 
     private MediaExoPlayer player;
+    private PlayerControl control;
     private EventLogger eventLogger;
     private AspectRatioFrameLayout videoFrame;
     private SurfaceView surfaceView;
     private PlayPauseFloatingButton playPauseFloatingButton;
+    private SeekBar seekVideo;
     private View shutterView;
     private Uri contentUri;
     private long playerPosition;
     private boolean isPlaying;
     private boolean playerNeedsPrepare;
+    private int durationScale;
+
+    private Subscription subscription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,10 +67,36 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
         playPauseFloatingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isPlaying = !isPlaying;
                 playPauseFloatingButton.setPlay(isPlaying);
+                isPlaying = !isPlaying;
+                if (isPlaying) {
+                    control.pause();
+                } else {
+                    control.start();
+                }
+
             }
         });
+
+        seekVideo = (SeekBar) findViewById(R.id.seekVideo);
+        seekVideo.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                control.seekTo(durationScale * progress * 1000);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
         findViewById(R.id.rootScreen).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -96,6 +137,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
             @Override
             public void onAnimationEnd(Animation animation) {
                 playPauseFloatingButton.setVisibility(View.INVISIBLE);
+                seekVideo.setVisibility(View.INVISIBLE);
                 Log.d(TAG, "onAnimationEnd");
             }
 
@@ -105,7 +147,62 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
             }
         });
         playPauseFloatingButton.startAnimation(animation);
+        seekVideo.startAnimation(animation);
 
+    }
+
+    private void createTick() {
+        subscription = Observable
+                .interval(1, TimeUnit.SECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Long>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "tick onCompleted");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, "tick onError: " + e.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(Long number) {
+                        Log.d(TAG, "tick onNext: " + number.toString());
+                        updateProgressControls();
+                    }
+                });
+    }
+
+    private void updateProgressControls(){
+        playerPosition = control.getCurrentPosition();
+        durationScale = 100 / control.getDuration();
+        Log.d(TAG, "duration scale: " + durationScale);
+        if(durationScale != 0) {
+            seekVideo.setProgress((int) playerPosition / durationScale);
+        }
+    }
+
+    private void startTimer() {
+        Observable.timer(2, TimeUnit.SECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Long>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "onCompleted");
+                        hideControlsVisibility();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, "onError");
+                    }
+
+                    @Override
+                    public void onNext(Long number) {
+                        Log.d(TAG, "onNext: " + number.toString());
+                    }
+                });
     }
 
     private void showControlsVisibility() {
@@ -121,7 +218,9 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
             @Override
             public void onAnimationEnd(Animation animation) {
                 playPauseFloatingButton.setVisibility(View.VISIBLE);
+                seekVideo.setVisibility(View.VISIBLE);
                 Log.d(TAG, "onAnimationEnd");
+                startTimer();
             }
 
             @Override
@@ -130,6 +229,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
             }
         });
         playPauseFloatingButton.startAnimation(animation);
+        seekVideo.startAnimation(animation);
 
     }
 
@@ -171,9 +271,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
         if (player != null) {
             playerPosition = player.getCurrentPosition();
             player.release();
-            player = null;
             eventLogger.endSession();
-            eventLogger = null;
         }
     }
 
@@ -181,6 +279,10 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
     protected void onDestroy() {
         super.onDestroy();
         releasePlayer();
+        if (subscription != null && !subscription.isUnsubscribed()) {
+            subscription.unsubscribe();
+            Log.d(TAG, "unsubscribe");
+        }
     }
 
     @Override
@@ -215,6 +317,26 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
     @Override
     public void onStateChanged(boolean playWhenReady, int playbackState) {
 
+        switch (playbackState) {
+            case ExoPlayer.STATE_BUFFERING:
+                Log.wtf(TAG, "buffering");
+                break;
+            case ExoPlayer.STATE_ENDED:
+                Log.wtf(TAG, "ended");
+                break;
+            case ExoPlayer.STATE_IDLE:
+                Log.wtf(TAG, "idle");
+                break;
+            case ExoPlayer.STATE_PREPARING:
+                Log.wtf(TAG, "preparing");
+                break;
+            case ExoPlayer.STATE_READY:
+                control = player.getPlayerControl();
+                Log.wtf(TAG, "ready duration: " +
+                        Utils.getTimeFromMillisecondsString(control.getDuration()));
+                createTick();
+                break;
+        }
     }
 
     @Override
