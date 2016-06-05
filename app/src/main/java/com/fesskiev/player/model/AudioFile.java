@@ -26,7 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
-public class AudioFile implements Comparable<AudioFile> {
+public class AudioFile implements MediaFile, Comparable<AudioFile> {
 
     public interface OnMp3TagListener {
         void onFetchCompleted(AudioFile audioFile);
@@ -183,6 +183,21 @@ public class AudioFile implements Comparable<AudioFile> {
         if (listener != null) {
             listener.onFetchCompleted(this);
         }
+    }
+
+    @Override
+    public MEDIA_TYPE getMediaType() {
+        return MEDIA_TYPE.AUDIO;
+    }
+
+    @Override
+    public String getTitle() {
+        return title;
+    }
+
+    @Override
+    public String getArtworkPath() {
+        return artworkPath;
     }
 
     @Override

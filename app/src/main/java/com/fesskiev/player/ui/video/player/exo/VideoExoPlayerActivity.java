@@ -10,13 +10,17 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import com.fesskiev.player.R;
 import com.fesskiev.player.utils.Utils;
-import com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton;
+import com.fesskiev.player.widgets.buttons.PlayPauseButton;
 import com.google.android.exoplayer.AspectRatioFrameLayout;
 import com.google.android.exoplayer.ExoPlayer;
+import com.google.android.exoplayer.audio.AudioCapabilities;
+import com.google.android.exoplayer.audio.AudioCapabilitiesReceiver;
 import com.google.android.exoplayer.metadata.id3.Id3Frame;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.util.PlayerControl;
@@ -31,7 +35,10 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
 public class VideoExoPlayerActivity extends AppCompatActivity implements SurfaceHolder.Callback,
-        MediaExoPlayer.Listener, MediaExoPlayer.CaptionListener, MediaExoPlayer.Id3MetadataListener {
+        MediaExoPlayer.Listener,
+        MediaExoPlayer.CaptionListener,
+        MediaExoPlayer.Id3MetadataListener,
+        AudioCapabilitiesReceiver.Listener {
 
     private static final String TAG = VideoExoPlayerActivity.class.getSimpleName();
 
@@ -40,14 +47,22 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
     private EventLogger eventLogger;
     private AspectRatioFrameLayout videoFrame;
     private SurfaceView surfaceView;
-    private PlayPauseFloatingButton playPauseFloatingButton;
+    private PlayPauseButton playPauseButton;
     private SeekBar seekVideo;
     private View shutterView;
+    private View controlRoot;
+    private ImageView nextVideo;
+    private ImageView previousVideo;
+    private TextView videoTimeCount;
+    private TextView videoTimeTotal;
+
     private Uri contentUri;
     private long playerPosition;
     private boolean isPlaying;
     private boolean playerNeedsPrepare;
     private int durationScale;
+
+    private AudioCapabilitiesReceiver audioCapabilitiesReceiver;
 
     private Subscription subscription;
 
@@ -58,16 +73,21 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
 
         contentUri = getIntent().getData();
 
+        controlRoot = findViewById(R.id.controlRoot);
         shutterView = findViewById(R.id.shutter);
+        nextVideo = (ImageView) findViewById(R.id.nextVideo);
+        previousVideo = (ImageView) findViewById(R.id.previousVideo);
+        videoTimeCount = (TextView) findViewById(R.id.videoTimeCount);
+        videoTimeTotal = (TextView) findViewById(R.id.videoTimeTotal);
         videoFrame = (AspectRatioFrameLayout) findViewById(R.id.video_frame);
         surfaceView = (SurfaceView) findViewById(R.id.surface_view);
         surfaceView.getHolder().addCallback(this);
 
-        playPauseFloatingButton = (PlayPauseFloatingButton) findViewById(R.id.playPauseFAB);
-        playPauseFloatingButton.setOnClickListener(new View.OnClickListener() {
+        playPauseButton = (PlayPauseButton) findViewById(R.id.playPauseButton);
+        playPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playPauseFloatingButton.setPlay(isPlaying);
+                playPauseButton.setPlay(isPlaying);
                 isPlaying = !isPlaying;
                 if (isPlaying) {
                     control.pause();
@@ -80,20 +100,23 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
 
         seekVideo = (SeekBar) findViewById(R.id.seekVideo);
         seekVideo.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            int progress;
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                control.seekTo(durationScale * progress * 1000);
+                this.progress = progress;
+
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
 
+
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
+                control.seekTo(progress * durationScale);
             }
         });
 
@@ -108,6 +131,11 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
                 return true;
             }
         });
+
+        audioCapabilitiesReceiver = new AudioCapabilitiesReceiver(this, this);
+        audioCapabilitiesReceiver.register();
+
+        resetIndicators();
         hideControlsVisibility();
     }
 
@@ -136,8 +164,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                playPauseFloatingButton.setVisibility(View.INVISIBLE);
-                seekVideo.setVisibility(View.INVISIBLE);
+                controlRoot.setVisibility(View.INVISIBLE);
                 Log.d(TAG, "onAnimationEnd");
             }
 
@@ -146,9 +173,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
 
             }
         });
-        playPauseFloatingButton.startAnimation(animation);
-        seekVideo.startAnimation(animation);
-
+        controlRoot.startAnimation(animation);
     }
 
     private void createTick() {
@@ -174,11 +199,13 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
                 });
     }
 
-    private void updateProgressControls(){
+    private void updateProgressControls() {
+        videoTimeCount.
+                setText(Utils.getTimeFromMillisecondsString(control.getCurrentPosition()));
+
         playerPosition = control.getCurrentPosition();
-        durationScale = 100 / control.getDuration();
-        Log.d(TAG, "duration scale: " + durationScale);
-        if(durationScale != 0) {
+        durationScale = control.getDuration() / 100;
+        if (durationScale != 0) {
             seekVideo.setProgress((int) playerPosition / durationScale);
         }
     }
@@ -205,6 +232,12 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
                 });
     }
 
+    private void resetIndicators() {
+        videoTimeTotal.setText("0:00");
+        videoTimeCount.setText("0:00");
+        seekVideo.setProgress(0);
+    }
+
     private void showControlsVisibility() {
         Log.d(TAG, "showControlsVisibility");
         AlphaAnimation animation = new AlphaAnimation(0.1f, 1.0f);
@@ -217,8 +250,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                playPauseFloatingButton.setVisibility(View.VISIBLE);
-                seekVideo.setVisibility(View.VISIBLE);
+                controlRoot.setVisibility(View.VISIBLE);
                 Log.d(TAG, "onAnimationEnd");
                 startTimer();
             }
@@ -228,10 +260,9 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
 
             }
         });
-        playPauseFloatingButton.startAnimation(animation);
-        seekVideo.startAnimation(animation);
-
+        controlRoot.startAnimation(animation);
     }
+
 
     @Override
     protected void onStart() {
@@ -276,13 +307,14 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        releasePlayer();
+    protected void onStop() {
+        super.onStop();
         if (subscription != null && !subscription.isUnsubscribed()) {
             subscription.unsubscribe();
             Log.d(TAG, "unsubscribe");
         }
+        audioCapabilitiesReceiver.unregister();
+        releasePlayer();
     }
 
     @Override
@@ -332,11 +364,23 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
                 break;
             case ExoPlayer.STATE_READY:
                 control = player.getPlayerControl();
-                Log.wtf(TAG, "ready duration: " +
-                        Utils.getTimeFromMillisecondsString(control.getDuration()));
+                Log.wtf(TAG, "ready");
+                videoTimeTotal.setText(Utils.getTimeFromMillisecondsString(control.getDuration()));
                 createTick();
                 break;
         }
+    }
+
+    @Override
+    public void onAudioCapabilitiesChanged(AudioCapabilities audioCapabilities) {
+        if (player == null) {
+            return;
+        }
+        boolean backgrounded = player.getBackgrounded();
+        boolean playWhenReady = player.getPlayWhenReady();
+        releasePlayer();
+        preparePlayer(playWhenReady);
+        player.setBackgrounded(backgrounded);
     }
 
     @Override

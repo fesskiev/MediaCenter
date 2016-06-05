@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 
-public class VideoFile {
+public class VideoFile implements MediaFile {
 
     public String id;
     public String filePath;
@@ -72,6 +72,21 @@ public class VideoFile {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public MEDIA_TYPE getMediaType() {
+        return MEDIA_TYPE.VIDEO;
+    }
+
+    @Override
+    public String getTitle() {
+        return description;
+    }
+
+    @Override
+    public String getArtworkPath() {
+        return framePath;
     }
 
     @Override

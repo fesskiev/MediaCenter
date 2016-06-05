@@ -36,9 +36,9 @@ public class PlayPauseDrawable extends Drawable {
     private final Path rightPauseBar = new Path();
     private final Paint paint = new Paint();
     private final RectF bounds = new RectF();
-    private final float pauseBarWidth;
-    private final float pauseBarHeight;
-    private final float pauseBarDistance;
+    private float pauseBarWidth;
+    private float pauseBarHeight;
+    private float pauseBarDistance;
 
     private float width;
     private float height;
@@ -156,5 +156,17 @@ public class PlayPauseDrawable extends Drawable {
      */
     private static float lerp(float a, float b, float t) {
         return a + (b - a) * t;
+    }
+
+    public void setPauseBarWidth(float pauseBarWidth) {
+        this.pauseBarWidth = pauseBarWidth;
+    }
+
+    public void setPauseBarHeight(float pauseBarHeight) {
+        this.pauseBarHeight = pauseBarHeight;
+    }
+
+    public void setPauseBarDistance(float pauseBarDistance) {
+        this.pauseBarDistance = pauseBarDistance;
     }
 }

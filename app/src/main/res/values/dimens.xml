@@ -26,6 +26,10 @@
     <dimen name="pause_bar_distance">5dp</dimen>
     <dimen name="pause_bar_height">18dp</dimen>
 
+    <dimen name="pause_bar_big_width">12dp</dimen>
+    <dimen name="pause_bar_big_distance">10dp</dimen>
+    <dimen name="pause_bar_big_height">36dp</dimen>
+
     <dimen name="card_insets">4dp</dimen>
     <dimen name="card_min_width">110dp</dimen>
 

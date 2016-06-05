@@ -120,8 +120,10 @@ public class FileSystemIntentService extends IntentService {
         }
         for (File child : list) {
             if (child.isDirectory()) {
-                checkMediaFilesFolder(child);
+                checkAudioFilesFolder(child);
                 walk(child.getAbsolutePath());
+            } else if (child.isFile()) {
+                checkMediaFile(child);
             }
         }
     }
@@ -131,9 +133,21 @@ public class FileSystemIntentService extends IntentService {
         return file.getAbsolutePath().equals(CacheManager.CHECK_DOWNLOADS_FOLDER_PATH);
     }
 
+    private void checkMediaFile(File file) {
+        String path = file.getAbsolutePath().toLowerCase();
+        if (path.endsWith(".mp4") || path.endsWith(".ts") || path.endsWith(".mkv")) {
 
-    private void checkMediaFilesFolder(File child) {
+            VideoFile videoFile = new VideoFile(file.getAbsolutePath());
+            Log.w(TAG, "create video file!: " + file.getAbsolutePath());
+            DatabaseHelper.insertVideoFile(getApplicationContext(), videoFile);
+            sendVideoFileBroadcast(videoFile.description);
+        }
+    }
+
+
+    private void checkAudioFilesFolder(File child) {
         File[] directoryFiles = child.listFiles();
+
         if (directoryFiles != null) {
             for (File directoryFile : directoryFiles) {
                 File[] audioFiles = directoryFile.listFiles(audioFilter());
@@ -171,16 +185,6 @@ public class FileSystemIntentService extends IntentService {
 
                     DatabaseHelper.insertAudioFolder(getApplicationContext(), audioFolder);
 
-                }
-
-                File[] videoFiles = directoryFile.listFiles(videoFilter());
-                if (videoFiles != null) {
-                    for (File f : videoFiles) {
-                        VideoFile videoFile = new VideoFile(f.getAbsolutePath());
-                        Log.w(TAG, "create video file!: " + f.getAbsolutePath());
-                        DatabaseHelper.insertVideoFile(getApplicationContext(), videoFile);
-                        sendVideoFileBroadcast(videoFile.description);
-                    }
                 }
             }
         }
@@ -276,7 +280,9 @@ public class FileSystemIntentService extends IntentService {
         return new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 String lowercaseName = name.toLowerCase();
-                return lowercaseName.endsWith(".mp4") || lowercaseName.endsWith(".ts");
+                return lowercaseName.endsWith(".mp4") ||
+                        lowercaseName.endsWith(".ts") ||
+                        lowercaseName.endsWith(".mkv");
             }
         };
     }
