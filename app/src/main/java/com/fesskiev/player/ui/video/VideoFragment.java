@@ -19,12 +19,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.PopupMenu;
-import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.fesskiev.player.MediaApplication;
@@ -209,7 +206,6 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
         public class ViewHolder extends RecyclerView.ViewHolder {
 
             VideoCardView videoCard;
-
 
             public ViewHolder(View v) {
                 super(v);

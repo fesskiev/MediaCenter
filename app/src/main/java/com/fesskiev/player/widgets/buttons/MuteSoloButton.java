@@ -56,9 +56,14 @@ public class MuteSoloButton extends ImageView implements View.OnClickListener {
         setImageResource(R.drawable.high_volume_icon);
     }
 
+    public void setMediumSoloState() {
+        setImageResource(R.drawable.medium_volume_icon);
+    }
+
     public void setLowSoloState() {
         setImageResource(R.drawable.low_volume_icon);
     }
+
 
     @Override
     public void onClick(View v) {
