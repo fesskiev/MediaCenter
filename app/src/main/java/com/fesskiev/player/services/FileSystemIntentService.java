@@ -135,7 +135,10 @@ public class FileSystemIntentService extends IntentService {
 
     private void checkMediaFile(File file) {
         String path = file.getAbsolutePath().toLowerCase();
-        if (path.endsWith(".mp4") || path.endsWith(".ts") || path.endsWith(".mkv")) {
+        if (path.endsWith(".mp4") ||
+                path.endsWith(".avi") ||
+                path.endsWith(".ts") ||
+                path.endsWith(".mkv")) {
 
             VideoFile videoFile = new VideoFile(file.getAbsolutePath());
             Log.w(TAG, "create video file!: " + file.getAbsolutePath());

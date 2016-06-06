@@ -177,6 +177,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
     }
 
     private void createTick() {
+        unsubscribe();
         subscription = Observable
                 .interval(1, TimeUnit.SECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -211,7 +212,8 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
     }
 
     private void startTimer() {
-        Observable.timer(2, TimeUnit.SECONDS)
+        unsubscribe();
+        subscription = Observable.timer(2, TimeUnit.SECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Long>() {
                     @Override
@@ -306,13 +308,17 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
         }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
+    private void unsubscribe() {
         if (subscription != null && !subscription.isUnsubscribed()) {
             subscription.unsubscribe();
             Log.d(TAG, "unsubscribe");
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unsubscribe();
         audioCapabilitiesReceiver.unregister();
         releasePlayer();
     }
