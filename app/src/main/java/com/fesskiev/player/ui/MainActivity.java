@@ -33,6 +33,7 @@ import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.User;
 import com.fesskiev.player.services.FileObserverService;
+import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.ui.about.AboutActivity;
@@ -41,7 +42,7 @@ import com.fesskiev.player.ui.equalizer.EqualizerActivity;
 import com.fesskiev.player.ui.playback.PlaybackActivity;
 import com.fesskiev.player.ui.playlist.PlaylistActivity;
 import com.fesskiev.player.ui.settings.SettingsActivity;
-import com.fesskiev.player.ui.video.VideoFilesFragment;
+import com.fesskiev.player.ui.video.VideoFragment;
 import com.fesskiev.player.ui.vk.MusicVKActivity;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.BitmapHelper;
@@ -49,6 +50,7 @@ import com.fesskiev.player.utils.CacheManager;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.utils.http.URLHelper;
 import com.fesskiev.player.widgets.dialogs.BassBoostDialog;
+import com.fesskiev.player.widgets.dialogs.FetchMediaContentDialog;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKScope;
@@ -150,7 +152,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                     String[] vkScope = new String[]{VKScope.DIRECT, VKScope.AUDIO};
                     VKSdk.login(MainActivity.this, vkScope);
                 } else {
-                    startActivity(new Intent(MainActivity.this, MusicVKActivity.class));
+                    startActivity(new Intent(getApplicationContext(), MusicVKActivity.class));
                 }
             }
         });
@@ -185,9 +187,11 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    PlaybackService.changeBassBoostState(MainActivity.this, PlaybackService.BASS_BOOST_ON);
+                    PlaybackService.changeBassBoostState(getApplicationContext(),
+                            PlaybackService.BASS_BOOST_ON);
                 } else {
-                    PlaybackService.changeBassBoostState(MainActivity.this, PlaybackService.BASS_BOOST_OFF);
+                    PlaybackService.changeBassBoostState(getApplicationContext(),
+                            PlaybackService.BASS_BOOST_OFF);
                 }
                 settingsManager.setBassBoostState(isChecked);
             }
@@ -267,11 +271,11 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 break;
             case R.id.audio_content:
                 checkAudioContentItem();
-                addAudioFragment(false);
+                addAudioFragment();
                 break;
             case R.id.video_content:
                 checkVideoContentItem();
-                addVideoFilesFragment();
+                addVideoFragment();
                 break;
             case R.id.playlist:
                 startActivity(new Intent(this, PlaylistActivity.class));
@@ -336,6 +340,11 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         IntentFilter filter = new IntentFilter();
         filter.addAction(RESTService.ACTION_USER_PROFILE_RESULT);
         filter.addAction(PlaybackService.ACTION_PLAYBACK_BASS_BOOST_STATE);
+        filter.addAction(FileSystemIntentService.ACTION_START_FETCH_MEDIA_CONTENT);
+        filter.addAction(FileSystemIntentService.ACTION_END_FETCH_MEDIA_CONTENT);
+        filter.addAction(FileSystemIntentService.ACTION_AUDIO_FOLDER_NAME);
+        filter.addAction(FileSystemIntentService.ACTION_AUDIO_TRACK_NAME);
+        filter.addAction(FileSystemIntentService.ACTION_VIDEO_FILE);
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver,
                 filter);
     }
@@ -360,6 +369,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         audioPlayer.currentAudioFile = null;
     }
 
+    private FetchMediaContentDialog mediaContentDialog;
+
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 
         @Override
@@ -371,9 +382,55 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 case PlaybackService.ACTION_PLAYBACK_BASS_BOOST_STATE:
                     setBassBoostState(intent);
                     break;
+
+                case FileSystemIntentService.ACTION_START_FETCH_MEDIA_CONTENT:
+                    mediaContentDialog = FetchMediaContentDialog.newInstance(MainActivity.this);
+                    mediaContentDialog.show();
+                    break;
+                case FileSystemIntentService.ACTION_END_FETCH_MEDIA_CONTENT:
+                    if (mediaContentDialog != null) {
+                        mediaContentDialog.hide();
+                    }
+                    updateMediaContent();
+                    break;
+                case FileSystemIntentService.ACTION_AUDIO_FOLDER_NAME:
+                    String folderName =
+                            intent.getStringExtra(FileSystemIntentService.EXTRA_AUDIO_FOLDER_NAME);
+                    if (mediaContentDialog != null) {
+                        mediaContentDialog.setFolderName(folderName);
+                    }
+                    break;
+                case FileSystemIntentService.ACTION_AUDIO_TRACK_NAME:
+                    String trackName =
+                            intent.getStringExtra(FileSystemIntentService.EXTRA_AUDIO_TRACK_NAME);
+                    if (mediaContentDialog != null) {
+                        mediaContentDialog.setFileName(trackName);
+                    }
+                    break;
+                case FileSystemIntentService.ACTION_VIDEO_FILE:
+                    String videoFileName =
+                            intent.getStringExtra(FileSystemIntentService.EXTRA_VIDEO_FILE_NAME);
+                    if (mediaContentDialog != null) {
+                        mediaContentDialog.setFileName(videoFileName);
+                    }
+                    break;
             }
         }
     };
+
+    private void updateMediaContent(){
+        if (isAudioFragmentShow()) {
+            AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
+                    findFragmentByTag(AudioFragment.class.getName());
+            if (audioFragment != null) {
+                audioFragment.fetchAudioContent();
+            }
+        } else if (isVideoFragmentShow()) {
+            VideoFragment videoFragment = (VideoFragment) getSupportFragmentManager().
+                    findFragmentByTag(VideoFragment.class.getName());
+            videoFragment.fetchVideoContent();
+        }
+    }
 
     private void setBassBoostState(Intent intent) {
         int bassBoostState =
@@ -446,13 +503,14 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         if (settingsManager.isFirstStartApp()) {
             settingsManager.setFirstStartApp();
             saveDownloadFolderIcon();
-            addAudioFragment(true);
+            addAudioFragment();
+            FileSystemIntentService.startFetchMedia(getApplicationContext());
         } else {
-            addAudioFragment(false);
+            addAudioFragment();
         }
     }
 
-    private void addAudioFragment(boolean isFetchAudio) {
+    private void addAudioFragment() {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
         hideVisibleFragment(transaction);
@@ -461,7 +519,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 findFragmentByTag(AudioFragment.class.getName());
         if (audioFragment == null) {
             Log.d(TAG, "audio fragment is null");
-            transaction.add(R.id.content, AudioFragment.newInstance(isFetchAudio),
+            transaction.add(R.id.content, AudioFragment.newInstance(),
                     AudioFragment.class.getName());
             transaction.addToBackStack(AudioFragment.class.getName());
         } else {
@@ -478,26 +536,26 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     private boolean isVideoFragmentShow() {
-        VideoFilesFragment videoFragment = (VideoFilesFragment) getSupportFragmentManager().
-                findFragmentByTag(VideoFilesFragment.class.getName());
+        VideoFragment videoFragment = (VideoFragment) getSupportFragmentManager().
+                findFragmentByTag(VideoFragment.class.getName());
         return videoFragment != null && videoFragment.isAdded() && videoFragment.isVisible();
     }
 
-    private void addVideoFilesFragment() {
+    private void addVideoFragment() {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
         hideVisibleFragment(transaction);
 
-        VideoFilesFragment videoFilesFragment = (VideoFilesFragment) getSupportFragmentManager().
-                findFragmentByTag(VideoFilesFragment.class.getName());
-        if (videoFilesFragment == null) {
+        VideoFragment videoFragment = (VideoFragment) getSupportFragmentManager().
+                findFragmentByTag(VideoFragment.class.getName());
+        if (videoFragment == null) {
             Log.d(TAG, "video fragment is null");
-            transaction.add(R.id.content, VideoFilesFragment.newInstance(),
-                    VideoFilesFragment.class.getName());
-            transaction.addToBackStack(VideoFilesFragment.class.getName());
+            transaction.add(R.id.content, VideoFragment.newInstance(),
+                    VideoFragment.class.getName());
+            transaction.addToBackStack(VideoFragment.class.getName());
         } else {
             Log.d(TAG, "video fragment not null");
-            transaction.show(videoFilesFragment);
+            transaction.show(videoFragment);
         }
         transaction.commit();
     }
@@ -511,11 +569,11 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             transaction.hide(audioFragment);
         }
 
-        VideoFilesFragment videoFilesFragment = (VideoFilesFragment) getSupportFragmentManager().
-                findFragmentByTag(VideoFilesFragment.class.getName());
-        if (videoFilesFragment != null && videoFilesFragment.isAdded() && videoFilesFragment.isVisible()) {
+        VideoFragment videoFragment = (VideoFragment) getSupportFragmentManager().
+                findFragmentByTag(VideoFragment.class.getName());
+        if (videoFragment != null && videoFragment.isAdded() && videoFragment.isVisible()) {
             Log.d(TAG, "hide video fragment");
-            transaction.hide(videoFilesFragment);
+            transaction.hide(videoFragment);
         }
     }
 

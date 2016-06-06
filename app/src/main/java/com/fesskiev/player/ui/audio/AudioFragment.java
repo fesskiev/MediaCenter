@@ -1,15 +1,10 @@
 package com.fesskiev.player.ui.audio;
 
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.view.MotionEvent;
@@ -19,39 +14,29 @@ import com.fesskiev.player.R;
 import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.ui.ViewPagerFragment;
-import com.fesskiev.player.ui.audio.utils.Constants;
 import com.fesskiev.player.utils.CacheManager;
-import com.fesskiev.player.widgets.dialogs.FetchMediaContentDialog;
 
 import java.util.List;
 
 
 public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayout.OnRefreshListener {
 
-    public static AudioFragment newInstance(boolean isFetchAudio) {
-        AudioFragment fragment = new AudioFragment();
-        Bundle args = new Bundle();
-        args.putBoolean(Constants.EXTRA_IS_FETCH_AUDIO, isFetchAudio);
-        fragment.setArguments(args);
-        return fragment;
+    public static AudioFragment newInstance() {
+        return new AudioFragment();
     }
 
     private SwipeRefreshLayout swipeRefreshLayout;
-    private FetchMediaContentDialog mediaContentDialog;
-    private boolean isFetchMedia;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            isFetchMedia = getArguments().getBoolean(Constants.EXTRA_IS_FETCH_AUDIO);
-
-        }
         setRetainInstance(true);
-        registerAudioFolderBroadcastReceiver();
     }
 
-    private void fetchAudioContent() {
+    public void fetchAudioContent() {
+        if (swipeRefreshLayout.isRefreshing()) {
+            swipeRefreshLayout.setRefreshing(false);
+        }
         List<Fragment> fragments = getRegisteredFragments();
         for (Fragment fragment : fragments) {
             AudioContent audioContent = (AudioContent) fragment;
@@ -78,22 +63,12 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
             }
         });
 
-        if (isFetchMedia) {
-            FileSystemIntentService.startFileTreeService(getContext());
-        } else {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    fetchAudioContent();
-                }
-            }, 1000);
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        unregisterAudioFolderBroadcastReceiver();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                fetchAudioContent();
+            }
+        }, 1000);
     }
 
     @Override
@@ -108,9 +83,8 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
                     public void onClick(DialogInterface dialog, int which) {
 
                         CacheManager.clearImagesCache();
-                        DatabaseHelper.resetDatabase(getActivity());
-                        FileSystemIntentService.startFileTreeService(getActivity());
-                        isFetchMedia = true;
+                        DatabaseHelper.resetAudioContentDatabase(getActivity());
+                        FileSystemIntentService.startFetchAudio(getActivity());
 
                     }
                 });
@@ -125,68 +99,6 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
         builder.show();
     }
 
-    private void registerAudioFolderBroadcastReceiver() {
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(FileSystemIntentService.ACTION_START_FETCH_MEDIA_CONTENT);
-        intentFilter.addAction(FileSystemIntentService.ACTION_END_FETCH_MEDIA_CONTENT);
-        intentFilter.addAction(FileSystemIntentService.ACTION_AUDIO_FOLDER_NAME);
-        intentFilter.addAction(FileSystemIntentService.ACTION_AUDIO_TRACK_NAME);
-        intentFilter.addAction(FileSystemIntentService.ACTION_VIDEO_FILE);
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(audioFolderReceiver,
-                intentFilter);
-    }
-
-    private void unregisterAudioFolderBroadcastReceiver() {
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(audioFolderReceiver);
-    }
-
-
-    private BroadcastReceiver audioFolderReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case FileSystemIntentService.ACTION_START_FETCH_MEDIA_CONTENT:
-                    mediaContentDialog = FetchMediaContentDialog.newInstance(getActivity());
-                    mediaContentDialog.show();
-                    break;
-                case FileSystemIntentService.ACTION_END_FETCH_MEDIA_CONTENT:
-                    if (mediaContentDialog != null) {
-                        mediaContentDialog.hide();
-                    }
-
-                    if (swipeRefreshLayout.isRefreshing()) {
-                        swipeRefreshLayout.setRefreshing(false);
-                    }
-
-                    if (isFetchMedia) {
-                        fetchAudioContent();
-                    }
-                    break;
-                case FileSystemIntentService.ACTION_AUDIO_FOLDER_NAME:
-                    String folderName =
-                            intent.getStringExtra(FileSystemIntentService.EXTRA_AUDIO_FOLDER_NAME);
-                    if (mediaContentDialog != null) {
-                        mediaContentDialog.setFolderName(folderName);
-                    }
-                    break;
-                case FileSystemIntentService.ACTION_AUDIO_TRACK_NAME:
-                    String trackName =
-                            intent.getStringExtra(FileSystemIntentService.EXTRA_AUDIO_TRACK_NAME);
-                    if (mediaContentDialog != null) {
-                        mediaContentDialog.setFileName(trackName);
-                    }
-                    break;
-                case FileSystemIntentService.ACTION_VIDEO_FILE:
-                    String videoFileName =
-                            intent.getStringExtra(FileSystemIntentService.EXTRA_VIDEO_FILE_NAME);
-                    if (mediaContentDialog != null) {
-                        mediaContentDialog.setFileName(videoFileName);
-                    }
-                    break;
-            }
-        }
-    };
 
     @Override
     public int getResourceId() {

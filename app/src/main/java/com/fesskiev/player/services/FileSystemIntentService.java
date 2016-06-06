@@ -27,8 +27,13 @@ public class FileSystemIntentService extends IntentService {
 
     public static final String ACTION_VIDEO_FILE = "com.fesskiev.player.action.VIDEO_FILE";
 
-    private static final String ACTION_START_FILE_SYSTEM_SERVICE =
-            "com.fesskiev.player.action.ACTION_START_FILE_SYSTEM_SERVICE";
+    private static final String ACTION_START_FETCH_MEDIA_SERVICE =
+            "com.fesskiev.player.action.ACTION_FETCH_MEDIA_SERVICE";
+    private static final String ACTION_START_FETCH_AUDIO_SERVICE =
+            "com.fesskiev.player.action.ACTION_START_FETCH_AUDIO_SERVICE";
+    private static final String ACTION_START_FETCH_VIDEO_SERVICE =
+            "com.fesskiev.player.action.ACTION_START_FETCH_VIDEO_SERVICE";
+
     private static final String ACTION_CHECK_DOWNLOAD_FOLDER_SERVICE =
             "com.fesskiev.player.action.ACTION_CHECK_DOWNLOAD_FOLDER_SERVICE";
 
@@ -51,9 +56,21 @@ public class FileSystemIntentService extends IntentService {
     }
 
 
-    public static void startFileTreeService(Context context) {
+    public static void startFetchMedia(Context context) {
         Intent intent = new Intent(context, FileSystemIntentService.class);
-        intent.setAction(ACTION_START_FILE_SYSTEM_SERVICE);
+        intent.setAction(ACTION_START_FETCH_MEDIA_SERVICE);
+        context.startService(intent);
+    }
+
+    public static void startFetchAudio(Context context) {
+        Intent intent = new Intent(context, FileSystemIntentService.class);
+        intent.setAction(ACTION_START_FETCH_AUDIO_SERVICE);
+        context.startService(intent);
+    }
+
+    public static void startFetchVideo(Context context) {
+        Intent intent = new Intent(context, FileSystemIntentService.class);
+        intent.setAction(ACTION_START_FETCH_VIDEO_SERVICE);
         context.startService(intent);
     }
 
@@ -70,8 +87,14 @@ public class FileSystemIntentService extends IntentService {
             final String action = intent.getAction();
             Log.w(TAG, "HANDLE INTENT: " + action);
             switch (action) {
-                case ACTION_START_FILE_SYSTEM_SERVICE:
+                case ACTION_START_FETCH_MEDIA_SERVICE:
                     getMediaContent();
+                    break;
+                case ACTION_START_FETCH_VIDEO_SERVICE:
+                    getVideoContent();
+                    break;
+                case ACTION_START_FETCH_AUDIO_SERVICE:
+                    getAudioContent();
                     break;
                 case ACTION_CHECK_DOWNLOAD_FOLDER_SERVICE:
                     checkAudioFolderService();
@@ -94,6 +117,39 @@ public class FileSystemIntentService extends IntentService {
         }
     }
 
+    private void getAudioContent() {
+        MediaApplication.getInstance().getAudioPlayer().audioFolders.clear();
+        String sdCardState = Environment.getExternalStorageState();
+        if (sdCardState.equals(Environment.MEDIA_MOUNTED)) {
+            sendStartFetchMediaBroadcast();
+
+            File root = Environment.getExternalStorageDirectory();
+            walkAudio(root.getAbsolutePath());
+
+            sendEndFetchMediaBroadcast();
+
+        } else {
+            Log.wtf(TAG, "NO SD CARD!");
+        }
+
+    }
+
+    private void getVideoContent() {
+        MediaApplication.getInstance().getVideoPlayer().videoFiles.clear();
+        String sdCardState = Environment.getExternalStorageState();
+        if (sdCardState.equals(Environment.MEDIA_MOUNTED)) {
+            sendStartFetchMediaBroadcast();
+
+            File root = Environment.getExternalStorageDirectory();
+            walkVideo(root.getAbsolutePath());
+
+            sendEndFetchMediaBroadcast();
+
+        } else {
+            Log.wtf(TAG, "NO SD CARD!");
+        }
+    }
+
     private void getMediaContent() {
         MediaApplication.getInstance().getAudioPlayer().audioFolders.clear();
         MediaApplication.getInstance().getVideoPlayer().videoFiles.clear();
@@ -108,6 +164,34 @@ public class FileSystemIntentService extends IntentService {
 
         } else {
             Log.wtf(TAG, "NO SD CARD!");
+        }
+    }
+
+    public void walkAudio(String path) {
+        File root = new File(path);
+        File[] list = root.listFiles();
+        if (list == null) {
+            Log.w(TAG, "Root is null");
+            return;
+        }
+        for (File child : list) {
+            if (child.isDirectory()) {
+                checkAudioFilesFolder(child);
+                walkAudio(child.getAbsolutePath());
+            }
+        }
+    }
+
+    public void walkVideo(String path) {
+        File root = new File(path);
+        File[] list = root.listFiles();
+        if (list == null) {
+            Log.w(TAG, "Root is null");
+            return;
+        }
+        for (File child : list) {
+            checkMediaFile(child);
+            walkVideo(child.getAbsolutePath());
         }
     }
 
@@ -278,17 +362,6 @@ public class FileSystemIntentService extends IntentService {
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
-
-    private FilenameFilter videoFilter() {
-        return new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                String lowercaseName = name.toLowerCase();
-                return lowercaseName.endsWith(".mp4") ||
-                        lowercaseName.endsWith(".ts") ||
-                        lowercaseName.endsWith(".mkv");
-            }
-        };
-    }
 
     private FilenameFilter audioFilter() {
         return new FilenameFilter() {

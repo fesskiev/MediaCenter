@@ -5,7 +5,6 @@ public class Constants {
 
     public static final String EXTRA_CONTENT_TYPE = "com.fesskiev.player.EXTRA_CONTENT_TYPE";
     public static final String EXTRA_CONTENT_TYPE_VALUE = "com.fesskiev.player.EXTRA_CONTENT_TYPE_VALUE";
-    public static final String EXTRA_IS_FETCH_AUDIO = "com.fesskiev.player.EXTRA_IS_FETCH_AUDIO";
 
     public static final int GET_AUDIO_FOLDERS_LOADER = 1000;
     public static final int GET_AUDIO_ARTIST_LOADER = 1001;

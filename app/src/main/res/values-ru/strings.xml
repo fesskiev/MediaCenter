@@ -79,9 +79,18 @@
     <string name="dialog_fetch_audio_track_name">Поиск треков....</string>
 
     <string name="dialog_refresh_folders_title">Поиск музыки</string>
-    <string name="dialog_refresh_folders_message">Выполнить полный поиск по разделам?</string>
+    <string name="dialog_refresh_folders_message">Выполнить полный поиск музыки по разделам?</string>
     <string name="dialog_refresh_folders_ok">Да</string>
     <string name="dialog_refresh_folders_cancel">Нет</string>
+
+    <string name="dialog_refresh_video_title">Поиск видео</string>
+    <string name="dialog_refresh_video_message">Выполнить полный поиск видео по разделам?</string>
+    <string name="dialog_refresh_video_ok">Да</string>
+    <string name="dialog_refresh_video_cancel">Нет</string>
+
+    <string name="popup_menu_delete">Удалить</string>
+    <string name="popup_menu_add_playlist">В плейлист</string>
+
 
     <string name="dialog_bass_boost_title">Выберите уровень:</string>
 

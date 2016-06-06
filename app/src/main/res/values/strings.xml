@@ -79,10 +79,18 @@
     <string name="dialog_fetch_audio_folder_name">Searching folders....</string>
     <string name="dialog_fetch_audio_track_name">Searching tracks....</string>
 
-    <string name="dialog_refresh_folders_title">music search</string>
-    <string name="dialog_refresh_folders_message">Make a a full search?</string>
+    <string name="dialog_refresh_folders_title">Music search</string>
+    <string name="dialog_refresh_folders_message">Make a full music search?</string>
     <string name="dialog_refresh_folders_ok">Yes</string>
     <string name="dialog_refresh_folders_cancel">No</string>
+
+    <string name="dialog_refresh_video_title">Video serach</string>
+    <string name="dialog_refresh_video_message">Make a full video search</string>
+    <string name="dialog_refresh_video_ok">Yes</string>
+    <string name="dialog_refresh_video_cancel">No</string>
+
+    <string name="popup_menu_delete">Remove</string>
+    <string name="popup_menu_add_playlist">To playlist</string>
 
     <string name="dialog_bass_boost_title">Select level:</string>
 
