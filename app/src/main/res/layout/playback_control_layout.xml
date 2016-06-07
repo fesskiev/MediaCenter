@@ -27,34 +27,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <android.support.v7.widget.CardView
-                    android:id="@+id/emptyTrackCard"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_margin="@dimen/activity_horizontal_margin"
-                    android:visibility="gone"
-                    card_view:cardBackgroundColor="@android:color/white"
-                    card_view:cardCornerRadius="4dp"
-                    card_view:cardElevation="@dimen/card_view_elevation"
-                    card_view:cardPreventCornerOverlap="false"
-                    card_view:cardUseCompatPadding="false">
-
-                    <TextView
-                        style="@style/TrackDescBigTextAppearance"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:gravity="center"
-                        android:text="@string/playback_control_track_not_selected" />
-
-                </android.support.v7.widget.CardView>
 
                 <RelativeLayout
                     android:id="@+id/basicNavPlayerContainer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="@dimen/playback_controls_padding">
+
+                    <TextView
+                        android:id="@+id/emptyTrackCard"
+                        style="@style/TrackDescBigTextAppearance"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:gravity="center"
+                        android:text="@string/playback_control_track_not_selected"
+                        android:visibility="gone" />
+
 
                     <ImageView
                         android:id="@+id/cover"
@@ -120,28 +109,16 @@
                     android:layout_below="@+id/divider1"
                     android:layout_margin="8dp">
 
-                    <android.support.v7.widget.CardView
+                    <TextView
                         android:id="@+id/emptyFolderCard"
+                        style="@style/TrackDescBigTextAppearance"
                         android:layout_width="match_parent"
-                        android:layout_height="48dp"
+                        android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:layout_margin="@dimen/activity_horizontal_margin"
-                        android:visibility="gone"
-                        card_view:cardBackgroundColor="@android:color/white"
-                        card_view:cardCornerRadius="4dp"
-                        card_view:cardElevation="@dimen/card_view_elevation"
-                        card_view:cardPreventCornerOverlap="false"
-                        card_view:cardUseCompatPadding="false">
+                        android:gravity="center"
+                        android:text="@string/playback_control_folder_not_selected"
+                        android:visibility="gone" />
 
-                        <TextView
-                            style="@style/TrackDescBigTextAppearance"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_vertical"
-                            android:gravity="center"
-                            android:text="@string/playback_control_folder_not_selected" />
-
-                    </android.support.v7.widget.CardView>
 
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/trackListControl"

@@ -3,6 +3,7 @@ package com.fesskiev.player.ui.playlist;
 
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -26,7 +27,6 @@ import com.fesskiev.player.model.MediaFile;
 import com.fesskiev.player.model.VideoFile;
 import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.player.ui.audio.utils.Constants;
-import com.fesskiev.player.ui.playback.HidingPlaybackFragment;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class PlayListFragment extends HidingPlaybackFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class PlayListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = PlayListFragment.class.getSimpleName();
 

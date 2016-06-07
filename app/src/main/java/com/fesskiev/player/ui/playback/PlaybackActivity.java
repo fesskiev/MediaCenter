@@ -48,8 +48,8 @@ public class PlaybackActivity extends AnalyticsActivity {
     private TextView track;
     private TextView artist;
     private ImageView cover;
-    private CardView emptyFolder;
-    private CardView emptyTrack;
+    private View emptyFolder;
+    private View emptyTrack;
     private View peakView;
     private int height;
     private boolean isShow;
@@ -70,8 +70,8 @@ public class PlaybackActivity extends AnalyticsActivity {
         cover = (ImageView) findViewById(R.id.cover);
         durationText = (TextView) findViewById(R.id.duration);
 
-        emptyTrack = (CardView) findViewById(R.id.emptyTrackCard);
-        emptyFolder = (CardView) findViewById(R.id.emptyFolderCard);
+        emptyTrack = findViewById(R.id.emptyTrackCard);
+        emptyFolder = findViewById(R.id.emptyFolderCard);
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.trackListControl);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
