@@ -3,7 +3,6 @@ package com.fesskiev.player.ui.playlist;
 
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -23,8 +22,10 @@ import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioPlayer;
-import com.fesskiev.player.ui.audio.utils.Constants;
+import com.fesskiev.player.model.MediaFile;
+import com.fesskiev.player.model.VideoFile;
 import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
+import com.fesskiev.player.ui.audio.utils.Constants;
 import com.fesskiev.player.ui.playback.HidingPlaybackFragment;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
@@ -44,14 +45,14 @@ public class PlaylistFragment extends HidingPlaybackFragment implements LoaderMa
 
     private AudioPlayer audioPlayer;
     private AudioTracksAdapter adapter;
-    private List<AudioFile> audioFiles;
+    private List<MediaFile> mediaFiles;
     private CardView emptyPlaylistCard;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-        audioFiles = new ArrayList<>();
+        mediaFiles = new ArrayList<>();
     }
 
     @Override
@@ -62,7 +63,7 @@ public class PlaylistFragment extends HidingPlaybackFragment implements LoaderMa
 
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         emptyPlaylistCard = (CardView) view.findViewById(R.id.emptyPlaylistCard);
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycleView);
@@ -80,6 +81,8 @@ public class PlaylistFragment extends HidingPlaybackFragment implements LoaderMa
 
         getActivity().getSupportLoaderManager().
                 restartLoader(Constants.GET_AUDIO_PLAY_LIST_LOADER, null, this);
+        getActivity().getSupportLoaderManager().
+                restartLoader(Constants.GET_VIDEO_PLAY_LIST_LOADER, null, this);
     }
 
     private void showEmptyCardPlaylist() {
@@ -98,7 +101,17 @@ public class PlaylistFragment extends HidingPlaybackFragment implements LoaderMa
                         getActivity(),
                         MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
                         null,
-                        MediaCenterProvider.TRACK_IN_TRACK_LIST + "=1",
+                        MediaCenterProvider.TRACK_IN_PLAY_LIST + "=1",
+                        null,
+                        null
+
+                );
+            case Constants.GET_VIDEO_PLAY_LIST_LOADER:
+                return new CursorLoader(
+                        getActivity(),
+                        MediaCenterProvider.VIDEO_FILES_TABLE_CONTENT_URI,
+                        null,
+                        MediaCenterProvider.VIDEO_IN_PLAY_LIST + "=1",
                         null,
                         null
 
@@ -111,20 +124,42 @@ public class PlaylistFragment extends HidingPlaybackFragment implements LoaderMa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        Log.wtf(TAG, "audio playlist size " + cursor.getCount());
-        List<AudioFile> audioFiles = new ArrayList<>();
+        Log.wtf(TAG, "playlist size " + cursor.getCount());
         if (cursor.getCount() > 0) {
-            cursor.moveToPosition(-1);
-            while (cursor.moveToNext()) {
-                AudioFile audioFile = new AudioFile(cursor);
-                audioFiles.add(audioFile);
+            switch (loader.getId()) {
+                case Constants.GET_AUDIO_PLAY_LIST_LOADER:
+                    getAudioPlaylist(cursor);
+                    break;
+                case Constants.GET_VIDEO_PLAY_LIST_LOADER:
+                    getVideoPlaylist(cursor);
+                    break;
+                default:
+                    break;
             }
-
             hideEmptyCardPlaylist();
         } else {
             showEmptyCardPlaylist();
         }
+    }
+
+    private void getAudioPlaylist(Cursor cursor) {
+        List<MediaFile> audioFiles = new ArrayList<>();
+        cursor.moveToPosition(-1);
+        while (cursor.moveToNext()) {
+            AudioFile audioFile = new AudioFile(cursor);
+            audioFiles.add(audioFile);
+        }
         adapter.refreshAdapter(audioFiles);
+    }
+
+    private void getVideoPlaylist(Cursor cursor) {
+        List<MediaFile> videoFiles = new ArrayList<>();
+        cursor.moveToPosition(-1);
+        while (cursor.moveToNext()) {
+            VideoFile videoFile = new VideoFile(cursor);
+            videoFiles.add(videoFile);
+        }
+        adapter.refreshAdapter(videoFiles);
     }
 
     @Override
@@ -169,33 +204,38 @@ public class PlaylistFragment extends HidingPlaybackFragment implements LoaderMa
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
 
-            AudioFile audioFile = audioFiles.get(position);
+            MediaFile mediaFile = mediaFiles.get(position);
+            if(mediaFile != null){
+                BitmapHelper.loadArtwork(getActivity(), null, mediaFile, holder.cover);
 
-            BitmapHelper.loadTrackListArtwork(getActivity(), null, audioFile, holder.cover);
-
-            holder.duration.setText(Utils.getDurationString(audioFile.length));
-            holder.title.setText(audioFile.title);
-            holder.filePath.setText(audioFile.filePath.getName());
+                holder.duration.setText(Utils.getDurationString(mediaFile.getLength()));
+                holder.title.setText(mediaFile.getTitle());
+                holder.filePath.setText(mediaFile.getFilePath());
+            }
         }
 
         @Override
         public int getItemCount() {
-            return audioFiles.size();
+            return mediaFiles.size();
         }
 
-        public void refreshAdapter(List<AudioFile> newAudioFiles) {
-            audioFiles.clear();
-            audioFiles.addAll(newAudioFiles);
+        public void refreshAdapter(List<MediaFile> newMediaFiles) {
+            mediaFiles.addAll(newMediaFiles);
             notifyDataSetChanged();
         }
 
         private void startPlayerActivity(int position, View cover) {
-            AudioFile audioFile = audioFiles.get(position);
-            if (audioFile != null) {
-                audioPlayer.setCurrentAudioFile(audioFile);
-                audioPlayer.position = position;
-
-                AudioPlayerActivity.startPlayerActivity(getActivity(), true, cover);
+            MediaFile mediaFile = mediaFiles.get(position);
+            if (mediaFile != null) {
+                switch (mediaFile.getMediaType()){
+                    case VIDEO:
+                        break;
+                    case AUDIO:
+                        audioPlayer.setCurrentAudioFile((AudioFile) mediaFile);
+                        audioPlayer.position = position;
+                        AudioPlayerActivity.startPlayerActivity(getActivity(), true, cover);
+                        break;
+                }
             }
         }
     }

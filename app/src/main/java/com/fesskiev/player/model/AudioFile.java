@@ -206,6 +206,11 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
     }
 
     @Override
+    public String getFilePath() {
+        return filePath.getPath();
+    }
+
+    @Override
     public int getLength() {
         return length;
     }

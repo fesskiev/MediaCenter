@@ -97,6 +97,11 @@ public class VideoFile implements MediaFile {
     }
 
     @Override
+    public String getFilePath() {
+        return filePath.getPath();
+    }
+
+    @Override
     public int getLength() {
         return 0;
     }
