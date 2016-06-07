@@ -10,6 +10,7 @@ public class Constants {
     public static final int GET_AUDIO_ARTIST_LOADER = 1001;
     public static final int GET_AUDIO_GENRES_LOADER = 1002;
     public static final int GET_AUDIO_PLAY_LIST_LOADER = 1003;
+    public static final int GET_VIDEO_PLAY_LIST_LOADER = 1004;
 
 
     public static final int GET_FOLDERS_FILES_LOADER = 1100;

@@ -50,6 +50,7 @@ public class MediaCenterProvider extends ContentProvider {
     public static final String VIDEO_FILE_PATH = "VideoFilePath";
     public static final String VIDEO_FRAME_PATH = "VideoFramePath";
     public static final String VIDEO_DESCRIPTION = "VideoDescription";
+    public static final String VIDEO_IN_PLAY_LIST = "VideoInPlayList";
 
     /**
      * audio folder constants
@@ -72,7 +73,7 @@ public class MediaCenterProvider extends ContentProvider {
     public static final String TRACK_COVER = "TrackCover";
     public static final String TRACK_NUMBER = "TrackNumber";
     public static final String TRACK_LENGTH = "TrackLength";
-    public static final String TRACK_IN_TRACK_LIST = "TrackInList";
+    public static final String TRACK_IN_PLAY_LIST = "TrackInPlayList";
 
     private static final int AUDIO_FOLDERS_QUERY = 1;
     private static final int AUDIO_TRACK_QUERY = 2;
@@ -90,7 +91,8 @@ public class MediaCenterProvider extends ContentProvider {
             ID + " " + KEY_TYPE + " ," +
             VIDEO_FILE_PATH + " " + TEXT_TYPE + " ," +
             VIDEO_FRAME_PATH + " " + TEXT_TYPE + " ," +
-            VIDEO_DESCRIPTION + " " + TEXT_TYPE +
+            VIDEO_DESCRIPTION + " " + TEXT_TYPE + " ," +
+            VIDEO_IN_PLAY_LIST + " " + INTEGER_TYPE +
             ")";
 
 
@@ -117,7 +119,7 @@ public class MediaCenterProvider extends ContentProvider {
             TRACK_SAMPLE_RATE + " " + INTEGER_TYPE + " ," +
             TRACK_NUMBER + " " + INTEGER_TYPE + " ," +
             TRACK_LENGTH + " " + REAL_TYPE + " ," +
-            TRACK_IN_TRACK_LIST + " " + INTEGER_TYPE + " ," +
+            TRACK_IN_PLAY_LIST + " " + INTEGER_TYPE + " ," +
             TRACK_COVER + " " + TEXT_TYPE +
             ")";
 

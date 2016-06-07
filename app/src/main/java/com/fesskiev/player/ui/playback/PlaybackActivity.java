@@ -197,7 +197,7 @@ public class PlaybackActivity extends AnalyticsActivity {
         track.setText(audioFile.title);
         artist.setText(audioFile.artist);
 
-        BitmapHelper.loadTrackListArtwork(this, audioPlayer.currentAudioFolder, audioFile, cover);
+        BitmapHelper.loadArtwork(this, audioPlayer.currentAudioFolder, audioFile, cover);
 
     }
 

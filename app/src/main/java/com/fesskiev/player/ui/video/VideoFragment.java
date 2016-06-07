@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -28,15 +29,16 @@ import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.db.MediaCenterProvider;
+import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.VideoFile;
 import com.fesskiev.player.model.VideoPlayer;
 import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.ui.video.player.exo.VideoExoPlayerActivity;
 import com.fesskiev.player.ui.video.utils.Constants;
 import com.fesskiev.player.utils.BitmapHelper;
+import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.buttons.VideoCardView;
 import com.fesskiev.player.widgets.recycleview.GridDividerDecoration;
-import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +74,7 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 3,
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2,
                 GridLayoutManager.VERTICAL, false);
 
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.foldersGridView);
@@ -80,24 +82,8 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
         recyclerView.addItemDecoration(new GridDividerDecoration(getActivity()));
         adapter = new VideoFilesAdapter();
         recyclerView.setAdapter(adapter);
-        recyclerView.addOnItemTouchListener(new RecyclerItemTouchClickListener(getActivity(),
-                new RecyclerItemTouchClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View childView, int position) {
-                        VideoFile videoFile = videoPlayer.videoFiles.get(position);
-                        if (videoFile != null) {
-                            videoPlayer.currentVideoFile = videoFile;
-                            startExoPlayerActivity(videoFile);
-                        }
-                    }
 
-                    @Override
-                    public void onItemLongPress(View childView, int position) {
-
-                    }
-                }));
         emptyAudioContent = (CardView) view.findViewById(R.id.emptyAudioContentCard);
-
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         swipeRefreshLayout.setOnRefreshListener(this);
 
@@ -122,7 +108,7 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
 
     private void startExoPlayerActivity(VideoFile videoFile) {
         Intent intent = new Intent(getContext(),
-                VideoExoPlayerActivity.class).setData(Uri.parse(videoFile.filePath));
+                VideoExoPlayerActivity.class).setData(Uri.parse(videoFile.filePath.getAbsolutePath()));
         startActivity(intent);
     }
 
@@ -149,6 +135,12 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
                         dialog.cancel();
                     }
                 });
+        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
         builder.show();
     }
 
@@ -214,14 +206,27 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
                 videoCard.setOnVideoCardViewListener(new VideoCardView.OnVideoCardViewListener() {
                     @Override
                     public void onPopupMenuButtonCall(View view) {
-                        showPopupMenu(view);
+                        showPopupMenu(view, getAdapterPosition());
+                    }
+
+                    @Override
+                    public void onPlayButtonCall() {
+                        startVideoPlayer(getAdapterPosition());
                     }
                 });
 
             }
         }
 
-        private void showPopupMenu(final View view) {
+        private void startVideoPlayer(int position) {
+            VideoFile videoFile = videoPlayer.videoFiles.get(position);
+            if (videoFile != null) {
+                videoPlayer.currentVideoFile = videoFile;
+                startExoPlayerActivity(videoFile);
+            }
+        }
+
+        private void showPopupMenu(final View view, final int position) {
             final PopupMenu popupMenu = new PopupMenu(getActivity(), view);
             final Menu menu = popupMenu.getMenu();
             popupMenu.getMenuInflater().inflate(R.menu.menu_popup_item_video, menu);
@@ -230,10 +235,10 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
 
                     switch (item.getItemId()) {
                         case R.id.delete:
-                            deleteVideo();
+                            deleteVideo(position);
                             break;
                         case R.id.add_playlist:
-                            addToPlaylist();
+                            addToPlaylist(position);
                             break;
                     }
                     return true;
@@ -242,12 +247,20 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
             popupMenu.show();
         }
 
-        private void deleteVideo() {
+        private void deleteVideo(int position) {
 
         }
 
-        private void addToPlaylist() {
-
+        private void addToPlaylist(int position) {
+            VideoFile videoFile = videoPlayer.videoFiles.get(position);
+            if (videoFile != null) {
+                videoFile.inPlayList = true;
+                DatabaseHelper.updateVideoFile(getContext(), videoFile);
+                Utils.showCustomSnackbar(getView(),
+                        getContext().getApplicationContext(),
+                        getString(R.string.add_to_playlist_text),
+                        Snackbar.LENGTH_SHORT).show();
+            }
         }
 
 

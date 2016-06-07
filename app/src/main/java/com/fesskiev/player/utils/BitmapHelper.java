@@ -11,9 +11,9 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
+import com.fesskiev.player.model.MediaFile;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -96,8 +96,10 @@ public class BitmapHelper {
         return null;
     }
 
-    public static void loadTrackListArtwork(Context context, AudioFolder audioFolder, AudioFile audioFile, ImageView placeholder) {
-        String path = findTrackListArtworkPath(audioFolder, audioFile);
+    public static void loadArtwork(Context context, AudioFolder audioFolder,
+                                   MediaFile mediaFile, ImageView placeholder) {
+
+        String path = findArtworkPath(audioFolder, mediaFile);
         if (path != null) {
             Glide.with(context.getApplicationContext()).
                     load(path).
@@ -113,8 +115,8 @@ public class BitmapHelper {
         }
     }
 
-    private static String findTrackListArtworkPath(AudioFolder audioFolder, AudioFile audioFile) {
-        String artworkPath = audioFile.artworkPath;
+    private static String findArtworkPath(AudioFolder audioFolder, MediaFile mediaFile) {
+        String artworkPath = mediaFile.getArtworkPath();
         if (artworkPath != null) {
             return artworkPath;
         }

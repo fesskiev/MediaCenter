@@ -96,6 +96,12 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
                         dialog.cancel();
                     }
                 });
+        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
         builder.show();
     }
 

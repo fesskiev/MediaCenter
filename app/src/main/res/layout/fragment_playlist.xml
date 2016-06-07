@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.playlist.PlaylistFragment">
+    tools:context=".ui.playlist.PlayListFragment">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycleView"
@@ -42,6 +42,9 @@
         android:paddingBottom="10dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
+        fab:menu_colorNormal="@color/accent"
+        fab:menu_colorPressed="@color/accent"
+        fab:menu_colorRipple="@color/accent"
         fab:menu_labels_ellipsize="end"
         fab:menu_labels_position="left"
         fab:menu_labels_singleLine="true"
@@ -52,6 +55,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/icon_menu_clear_playlist"
+            fab:fab_colorNormal="@color/accent"
+            fab:fab_colorPressed="@color/accent"
+            fab:fab_colorRipple="@color/accent"
             fab:fab_size="mini" />
 
     </com.github.clans.fab.FloatingActionMenu>

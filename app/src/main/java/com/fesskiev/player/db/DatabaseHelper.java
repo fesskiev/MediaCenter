@@ -58,7 +58,7 @@ public class DatabaseHelper {
         dateValues.put(MediaCenterProvider.TRACK_LENGTH, audioFile.length);
         dateValues.put(MediaCenterProvider.TRACK_NUMBER, audioFile.trackNumber);
         dateValues.put(MediaCenterProvider.TRACK_SAMPLE_RATE, audioFile.sampleRate);
-        dateValues.put(MediaCenterProvider.TRACK_IN_TRACK_LIST, audioFile.inTrackList ? 1 : 0);
+        dateValues.put(MediaCenterProvider.TRACK_IN_PLAY_LIST, audioFile.inPlayList ? 1 : 0);
         dateValues.put(MediaCenterProvider.TRACK_COVER, audioFile.artworkPath);
 
         context.getContentResolver().update(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
@@ -81,7 +81,7 @@ public class DatabaseHelper {
         dateValues.put(MediaCenterProvider.TRACK_LENGTH, audioFile.length);
         dateValues.put(MediaCenterProvider.TRACK_NUMBER, audioFile.trackNumber);
         dateValues.put(MediaCenterProvider.TRACK_SAMPLE_RATE, audioFile.sampleRate);
-        dateValues.put(MediaCenterProvider.TRACK_IN_TRACK_LIST, audioFile.inTrackList ? 1 : 0);
+        dateValues.put(MediaCenterProvider.TRACK_IN_PLAY_LIST, audioFile.inPlayList ? 1 : 0);
         dateValues.put(MediaCenterProvider.TRACK_COVER, audioFile.artworkPath);
 
 
@@ -125,7 +125,7 @@ public class DatabaseHelper {
         context.getContentResolver().delete(MediaCenterProvider.VIDEO_FILES_TABLE_CONTENT_URI, null, null);
     }
 
-    public static void resetAudioContentDatabase(Context context){
+    public static void resetAudioContentDatabase(Context context) {
         context.getContentResolver().delete(MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI, null, null);
         context.getContentResolver().delete(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI, null, null);
     }
@@ -164,7 +164,7 @@ public class DatabaseHelper {
     public static void clearPlaylist(Context context) {
 
         ContentValues dateValues = new ContentValues();
-        dateValues.put(MediaCenterProvider.TRACK_IN_TRACK_LIST, 0);
+        dateValues.put(MediaCenterProvider.TRACK_IN_PLAY_LIST, 0);
 
         context.getContentResolver().update(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
                 dateValues,
@@ -178,11 +178,28 @@ public class DatabaseHelper {
         ContentValues dateValues = new ContentValues();
 
         dateValues.put(MediaCenterProvider.ID, videoFile.id);
-        dateValues.put(MediaCenterProvider.VIDEO_FILE_PATH, videoFile.filePath);
+        dateValues.put(MediaCenterProvider.VIDEO_FILE_PATH, videoFile.filePath.getAbsolutePath());
         dateValues.put(MediaCenterProvider.VIDEO_FRAME_PATH, videoFile.framePath);
         dateValues.put(MediaCenterProvider.VIDEO_DESCRIPTION, videoFile.description);
+        dateValues.put(MediaCenterProvider.VIDEO_IN_PLAY_LIST, videoFile.inPlayList ? 1 : 0);
 
         context.getContentResolver().insert(MediaCenterProvider.VIDEO_FILES_TABLE_CONTENT_URI,
                 dateValues);
+    }
+
+    public static void updateVideoFile(Context context, VideoFile videoFile) {
+
+        ContentValues dateValues = new ContentValues();
+
+        dateValues.put(MediaCenterProvider.ID, videoFile.id);
+        dateValues.put(MediaCenterProvider.VIDEO_FILE_PATH, videoFile.filePath.getAbsolutePath());
+        dateValues.put(MediaCenterProvider.VIDEO_FRAME_PATH, videoFile.framePath);
+        dateValues.put(MediaCenterProvider.VIDEO_DESCRIPTION, videoFile.description);
+        dateValues.put(MediaCenterProvider.VIDEO_IN_PLAY_LIST, videoFile.inPlayList ? 1 : 0);
+
+        context.getContentResolver().update(MediaCenterProvider.VIDEO_FILES_TABLE_CONTENT_URI,
+                dateValues,
+                MediaCenterProvider.VIDEO_FILE_PATH + "=" + "'" + videoFile.filePath + "'",
+                null);
     }
 }

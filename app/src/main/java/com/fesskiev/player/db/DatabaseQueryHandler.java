@@ -151,7 +151,7 @@ public class DatabaseQueryHandler extends AsyncQueryHandler {
         dateValues.put(MediaCenterProvider.TRACK_LENGTH, audioFile.length);
         dateValues.put(MediaCenterProvider.TRACK_NUMBER, audioFile.trackNumber);
         dateValues.put(MediaCenterProvider.TRACK_SAMPLE_RATE, audioFile.sampleRate);
-        dateValues.put(MediaCenterProvider.TRACK_IN_TRACK_LIST, audioFile.inTrackList ? 1 : 0);
+        dateValues.put(MediaCenterProvider.TRACK_IN_PLAY_LIST, audioFile.inPlayList ? 1 : 0);
         dateValues.put(MediaCenterProvider.TRACK_COVER, audioFile.artworkPath);
 
         startUpdate(0,
@@ -175,7 +175,7 @@ public class DatabaseQueryHandler extends AsyncQueryHandler {
         dateValues.put(MediaCenterProvider.TRACK_LENGTH, audioFile.length);
         dateValues.put(MediaCenterProvider.TRACK_NUMBER, audioFile.trackNumber);
         dateValues.put(MediaCenterProvider.TRACK_SAMPLE_RATE, audioFile.sampleRate);
-        dateValues.put(MediaCenterProvider.TRACK_IN_TRACK_LIST, audioFile.inTrackList ? 1 : 0);
+        dateValues.put(MediaCenterProvider.TRACK_IN_PLAY_LIST, audioFile.inPlayList ? 1 : 0);
         dateValues.put(MediaCenterProvider.TRACK_COVER, audioFile.artworkPath);
 
         startInsert(0,

@@ -7,5 +7,9 @@ public interface MediaFile {
 
     String getTitle();
 
+    String getFileName();
+
     String getArtworkPath();
+
+    int getLength();
 }

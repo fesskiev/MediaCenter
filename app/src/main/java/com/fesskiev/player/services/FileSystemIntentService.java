@@ -224,7 +224,7 @@ public class FileSystemIntentService extends IntentService {
                 path.endsWith(".ts") ||
                 path.endsWith(".mkv")) {
 
-            VideoFile videoFile = new VideoFile(file.getAbsolutePath());
+            VideoFile videoFile = new VideoFile(file);
             Log.w(TAG, "create video file!: " + file.getAbsolutePath());
             DatabaseHelper.insertVideoFile(getApplicationContext(), videoFile);
             sendVideoFileBroadcast(videoFile.description);

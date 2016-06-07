@@ -4,7 +4,6 @@ package com.fesskiev.player.widgets.buttons;
 import android.content.Context;
 import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -19,11 +18,14 @@ public class VideoCardView extends CardView {
     public interface OnVideoCardViewListener {
 
         void onPopupMenuButtonCall(View view);
+
+        void onPlayButtonCall();
     }
 
     private GestureDetector detector;
     private ImageView popupMenu;
     private ImageView frameView;
+    private ImageView playButton;
     private TextView description;
     private OnVideoCardViewListener listener;
 
@@ -49,6 +51,7 @@ public class VideoCardView extends CardView {
 
         popupMenu = (ImageView) view.findViewById(R.id.popupMenu);
         frameView = (ImageView) view.findViewById(R.id.frameView);
+        playButton = (ImageView) view.findViewById(R.id.playVideoButton);
         description = (TextView) view.findViewById(R.id.fileDescription);
 
         detector = new GestureDetector(getContext(), new GestureListener());
@@ -70,10 +73,14 @@ public class VideoCardView extends CardView {
 
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
-            Log.d("test", "onSingleTapUp");
             if (isPointInsideView(e.getRawX(), e.getRawY(), popupMenu)) {
                 if (listener != null) {
                     listener.onPopupMenuButtonCall(popupMenu);
+                }
+            }
+            if (isPointInsideView(e.getRawX(), e.getRawY(), playButton)) {
+                if (listener != null) {
+                    listener.onPlayButtonCall();
                 }
             }
             return true;
@@ -92,7 +99,6 @@ public class VideoCardView extends CardView {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        Log.d("test", "dispatchTouchEvent");
         detector.onTouchEvent(ev);
         return true;
     }

@@ -202,7 +202,7 @@ public class VideoPlayerActivity extends AnalyticsActivity implements SurfaceHol
         mediaExtractor = new MediaExtractor();
 
         try {
-            mediaExtractor.setDataSource(videoFile.filePath);
+            mediaExtractor.setDataSource(videoFile.filePath.getAbsolutePath());
             int tracks = mediaExtractor.getTrackCount();
 
             Log.d(TAG, "tracks: " + tracks);

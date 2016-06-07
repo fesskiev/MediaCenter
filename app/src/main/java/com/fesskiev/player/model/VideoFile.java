@@ -16,19 +16,21 @@ import java.util.UUID;
 public class VideoFile implements MediaFile {
 
     public String id;
-    public String filePath;
+    public File filePath;
     public String framePath;
     public String description;
+    public boolean inPlayList;
 
     public VideoFile(Cursor cursor) {
 
         id = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.ID));
-        filePath = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.VIDEO_FILE_PATH));
+        filePath = new File(cursor.getString(cursor.getColumnIndex(MediaCenterProvider.VIDEO_FILE_PATH)));
         framePath = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.VIDEO_FRAME_PATH));
         description = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.VIDEO_DESCRIPTION));
+        inPlayList = cursor.getInt(cursor.getColumnIndex(MediaCenterProvider.VIDEO_IN_PLAY_LIST)) == 1;
     }
 
-    public VideoFile(String path) {
+    public VideoFile(File path) {
         this.filePath = path;
 
         fetchVideoData();
@@ -38,11 +40,11 @@ public class VideoFile implements MediaFile {
         id = UUID.randomUUID().toString();
         try {
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-            retriever.setDataSource(filePath);
+            retriever.setDataSource(filePath.getAbsolutePath());
             saveFrame(retriever.getFrameAtTime());
 
             StringBuilder sb = new StringBuilder();
-            String name = new File(filePath).getName();
+            String name = filePath.getName();
             if (name.length() >= 14) {
                 String cutName = name.substring(name.length() - 14);
                 sb.append(cutName);
@@ -90,6 +92,16 @@ public class VideoFile implements MediaFile {
     }
 
     @Override
+    public String getFileName() {
+        return filePath.getName();
+    }
+
+    @Override
+    public int getLength() {
+        return 0;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -106,5 +118,16 @@ public class VideoFile implements MediaFile {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (filePath != null ? filePath.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "VideoFile{" +
+                "id='" + id + '\'' +
+                ", filePath='" + filePath + '\'' +
+                ", framePath='" + framePath + '\'' +
+                ", description='" + description + '\'' +
+                ", inPlayList=" + inPlayList +
+                '}';
     }
 }
