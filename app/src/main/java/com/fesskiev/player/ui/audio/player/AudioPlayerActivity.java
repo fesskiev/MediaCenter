@@ -313,7 +313,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
     @Override
     public void createPlayer() {
         PlaybackService.createPlayer(getApplicationContext(),
-                audioPlayer.currentAudioFile.filePath.getAbsolutePath());
+                audioPlayer.currentAudioFile.getFilePath());
     }
 
     private void setMuteSolo() {

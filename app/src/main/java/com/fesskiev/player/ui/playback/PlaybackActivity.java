@@ -90,7 +90,7 @@ public class PlaybackActivity extends AnalyticsActivity {
                         AudioFile audioFile = audioFiles.get(position);
                         if (audioFile != null) {
                             audioPlayer.setCurrentAudioFile(audioFile);
-                            PlaybackService.createPlayer(PlaybackActivity.this, audioFile.filePath.getAbsolutePath());
+                            PlaybackService.createPlayer(PlaybackActivity.this, audioFile.getFilePath());
                             PlaybackService.startPlayback(PlaybackActivity.this);
                         }
                     }

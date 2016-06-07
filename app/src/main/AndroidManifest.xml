@@ -122,7 +122,7 @@
                 android:value=".ui.MainActivity" />
         </activity>
         <activity
-            android:name=".ui.playlist.PlaylistActivity"
+            android:name=".ui.playlist.Playlist2Activity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait">

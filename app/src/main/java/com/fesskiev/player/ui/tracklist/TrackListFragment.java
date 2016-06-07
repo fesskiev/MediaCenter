@@ -342,7 +342,7 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
                                         Snackbar.LENGTH_LONG).show();
 
                                 DatabaseHelper.deleteAudioFile(getContext(),
-                                        audioFile.filePath.getAbsolutePath());
+                                        audioFile.getFilePath());
 
                                 trackListAdapter.removeItem(position);
 

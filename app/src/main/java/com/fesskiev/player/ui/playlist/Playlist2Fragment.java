@@ -35,12 +35,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class PlaylistFragment extends HidingPlaybackFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class Playlist2Fragment extends HidingPlaybackFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private static final String TAG = PlaylistFragment.class.getSimpleName();
+    private static final String TAG = Playlist2Fragment.class.getSimpleName();
 
-    public static PlaylistFragment newInstance() {
-        return new PlaylistFragment();
+    public static Playlist2Fragment newInstance() {
+        return new Playlist2Fragment();
     }
 
     private AudioPlayer audioPlayer;
@@ -139,6 +139,7 @@ public class PlaylistFragment extends HidingPlaybackFragment implements LoaderMa
             hideEmptyCardPlaylist();
         } else {
             showEmptyCardPlaylist();
+            adapter.clearAdapter();
         }
     }
 
@@ -221,6 +222,11 @@ public class PlaylistFragment extends HidingPlaybackFragment implements LoaderMa
 
         public void refreshAdapter(List<MediaFile> newMediaFiles) {
             mediaFiles.addAll(newMediaFiles);
+            notifyDataSetChanged();
+        }
+
+        public void clearAdapter() {
+            mediaFiles.clear();
             notifyDataSetChanged();
         }
 

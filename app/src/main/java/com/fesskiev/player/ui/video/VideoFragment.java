@@ -108,7 +108,7 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
 
     private void startExoPlayerActivity(VideoFile videoFile) {
         Intent intent = new Intent(getContext(),
-                VideoExoPlayerActivity.class).setData(Uri.parse(videoFile.filePath.getAbsolutePath()));
+                VideoExoPlayerActivity.class).setData(Uri.parse(videoFile.getFilePath()));
         startActivity(intent);
     }
 

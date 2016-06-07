@@ -76,7 +76,7 @@ public class DatabaseHelper {
         dateValues.put(MediaCenterProvider.TRACK_TITLE, audioFile.title);
         dateValues.put(MediaCenterProvider.TRACK_ALBUM, audioFile.album);
         dateValues.put(MediaCenterProvider.TRACK_GENRE, audioFile.genre);
-        dateValues.put(MediaCenterProvider.TRACK_PATH, audioFile.filePath.getAbsolutePath());
+        dateValues.put(MediaCenterProvider.TRACK_PATH, audioFile.getFilePath());
         dateValues.put(MediaCenterProvider.TRACK_BITRATE, audioFile.bitrate);
         dateValues.put(MediaCenterProvider.TRACK_LENGTH, audioFile.length);
         dateValues.put(MediaCenterProvider.TRACK_NUMBER, audioFile.trackNumber);
@@ -163,11 +163,21 @@ public class DatabaseHelper {
 
     public static void clearPlaylist(Context context) {
 
-        ContentValues dateValues = new ContentValues();
-        dateValues.put(MediaCenterProvider.TRACK_IN_PLAY_LIST, 0);
+        ContentValues contentValues;
+
+        contentValues = new ContentValues();
+        contentValues.put(MediaCenterProvider.TRACK_IN_PLAY_LIST, 0);
 
         context.getContentResolver().update(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
-                dateValues,
+                contentValues,
+                null,
+                null);
+
+        contentValues = new ContentValues();
+        contentValues.put(MediaCenterProvider.VIDEO_IN_PLAY_LIST, 0);
+
+        context.getContentResolver().update(MediaCenterProvider.VIDEO_FILES_TABLE_CONTENT_URI,
+                contentValues,
                 null,
                 null);
     }
@@ -178,7 +188,7 @@ public class DatabaseHelper {
         ContentValues dateValues = new ContentValues();
 
         dateValues.put(MediaCenterProvider.ID, videoFile.id);
-        dateValues.put(MediaCenterProvider.VIDEO_FILE_PATH, videoFile.filePath.getAbsolutePath());
+        dateValues.put(MediaCenterProvider.VIDEO_FILE_PATH, videoFile.getFilePath());
         dateValues.put(MediaCenterProvider.VIDEO_FRAME_PATH, videoFile.framePath);
         dateValues.put(MediaCenterProvider.VIDEO_DESCRIPTION, videoFile.description);
         dateValues.put(MediaCenterProvider.VIDEO_IN_PLAY_LIST, videoFile.inPlayList ? 1 : 0);
