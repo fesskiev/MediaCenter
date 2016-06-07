@@ -11,7 +11,7 @@ import android.view.View;
 import com.fesskiev.player.R;
 import com.fesskiev.player.ui.MainActivity;
 
-public class Playlist2Activity extends AppCompatActivity {
+public class PlayListActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,16 +25,16 @@ public class Playlist2Activity extends AppCompatActivity {
                 toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        navigateUpToFromChild(Playlist2Activity.this,
-                                IntentCompat.makeMainActivity(new ComponentName(Playlist2Activity.this,
+                        navigateUpToFromChild(PlayListActivity.this,
+                                IntentCompat.makeMainActivity(new ComponentName(PlayListActivity.this,
                                         MainActivity.class)));
                     }
                 });
             }
 
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.content, Playlist2Fragment.newInstance(),
-                    Playlist2Fragment.class.getName());
+            transaction.replace(R.id.content, PlayListFragment.newInstance(),
+                    PlayListFragment.class.getName());
             transaction.commit();
 
         }

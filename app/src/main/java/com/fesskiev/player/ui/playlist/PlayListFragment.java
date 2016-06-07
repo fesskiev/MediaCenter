@@ -35,12 +35,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class Playlist2Fragment extends HidingPlaybackFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class PlayListFragment extends HidingPlaybackFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private static final String TAG = Playlist2Fragment.class.getSimpleName();
+    private static final String TAG = PlayListFragment.class.getSimpleName();
 
-    public static Playlist2Fragment newInstance() {
-        return new Playlist2Fragment();
+    public static PlayListFragment newInstance() {
+        return new PlayListFragment();
     }
 
     private AudioPlayer audioPlayer;
