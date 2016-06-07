@@ -329,10 +329,12 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
     private void setVolumeLevel() {
         volumeSeek.setProgress(audioPlayer.volume);
         PlaybackService.volumePlayback(getApplicationContext(), audioPlayer.volume);
-        if (audioPlayer.volume <= 45) {
-            muteSoloButton.setLowSoloState();
-        } else {
+        if (audioPlayer.volume >= 60){
             muteSoloButton.setHighSoloState();
+        } else if(audioPlayer.volume >= 30){
+            muteSoloButton.setMediumSoloState();
+        } else {
+            muteSoloButton.setLowSoloState();
         }
     }
 

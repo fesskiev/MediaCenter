@@ -93,7 +93,8 @@ public class VideoCardView extends CardView {
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         Log.d("test", "dispatchTouchEvent");
-        return detector.onTouchEvent(ev);
+        detector.onTouchEvent(ev);
+        return true;
     }
 
 }
