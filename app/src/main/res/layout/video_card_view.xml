@@ -20,28 +20,39 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:contentDescription="@string/app_name"
-            android:minHeight="@dimen/card_min_width"
+            android:minHeight="140dp"
             android:scaleType="centerCrop"
             tools:src="@drawable/cover" />
 
         <TextView
             android:id="@+id/fileDescription"
+            style="@style/DescriptionVideoTextAppearance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:layout_margin="5dp"
+            android:layout_marginBottom="5dp"
             android:gravity="center"
-            android:textColor="@color/white_text"
-            android:textSize="10sp"
             tools:text="480x320" />
 
         <ImageView
             android:id="@+id/popupMenu"
             android:layout_width="28dp"
             android:layout_height="28dp"
-            android:layout_gravity="end|center_vertical"
+            android:layout_gravity="end|top"
+            android:layout_marginEnd="4dp"
+            android:layout_marginTop="4dp"
             android:contentDescription="@string/app_name"
+            android:tint="@color/white_text"
             android:src="@drawable/icon_popup_menu" />
+
+        <ImageView
+            android:id="@+id/playVideoButton"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_gravity="center"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/play_icon"
+            android:tint="@color/accent" />
 
     </FrameLayout>
 

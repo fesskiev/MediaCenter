@@ -69,6 +69,12 @@
         <item name="android:fontFamily">sans-serif-thin</item>
     </style>
 
+    <style name="DescriptionVideoTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/white_text</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
     <style name="VideoPlayerTextAppearance" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/secondary_text</item>
         <item name="android:textSize">16sp</item>
