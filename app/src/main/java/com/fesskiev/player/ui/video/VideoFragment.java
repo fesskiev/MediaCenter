@@ -42,6 +42,13 @@ import com.fesskiev.player.widgets.recycleview.GridDividerDecoration;
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
+
 
 public class VideoFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
         SwipeRefreshLayout.OnRefreshListener {
@@ -55,13 +62,13 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
     private VideoFilesAdapter adapter;
     private CardView emptyAudioContent;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private Subscription subscription;
     private VideoPlayer videoPlayer;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         videoPlayer = MediaApplication.getInstance().getVideoPlayer();
-        setRetainInstance(true);
     }
 
     @Override
@@ -122,8 +129,11 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        DatabaseHelper.resetVideoContentDatabase(getActivity());
-                        FileSystemIntentService.startFetchVideo(getActivity());
+                        subscription = getObservable()
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(getObserver());
+
                     }
                 });
         builder.setNegativeButton(R.string.dialog_refresh_video_cancel,
@@ -189,6 +199,45 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
 
     private void destroyLoader() {
         getActivity().getSupportLoaderManager().destroyLoader(Constants.GET_VIDEO_FILES_LOADER);
+    }
+
+    private Observable<Boolean> getObservable() {
+        return Observable.just(true).map(new Func1<Boolean, Boolean>() {
+            @Override
+            public Boolean call(Boolean result) {
+                DatabaseHelper.resetVideoContentDatabase(getActivity());
+                return result;
+            }
+        });
+    }
+
+    private Observer<Boolean> getObserver() {
+        return new Observer<Boolean>() {
+
+            @Override
+            public void onCompleted() {
+                FileSystemIntentService.startFetchVideo(getActivity());
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onNext(Boolean bool) {
+
+            }
+        };
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (subscription != null) {
+            subscription.unsubscribe();
+        }
     }
 
 

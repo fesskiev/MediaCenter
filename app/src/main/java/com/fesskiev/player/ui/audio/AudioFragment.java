@@ -18,6 +18,13 @@ import com.fesskiev.player.utils.CacheManager;
 
 import java.util.List;
 
+import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
+
 
 public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -26,23 +33,7 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
     }
 
     private SwipeRefreshLayout swipeRefreshLayout;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRetainInstance(true);
-    }
-
-    public void fetchAudioContent() {
-        if (swipeRefreshLayout.isRefreshing()) {
-            swipeRefreshLayout.setRefreshing(false);
-        }
-        List<Fragment> fragments = getRegisteredFragments();
-        for (Fragment fragment : fragments) {
-            AudioContent audioContent = (AudioContent) fragment;
-            audioContent.fetchAudioContent();
-        }
-    }
+    private Subscription subscription;
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -71,6 +62,17 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
         }, 1000);
     }
 
+    public void fetchAudioContent() {
+        if (swipeRefreshLayout.isRefreshing()) {
+            swipeRefreshLayout.setRefreshing(false);
+        }
+        List<Fragment> fragments = getRegisteredFragments();
+        for (Fragment fragment : fragments) {
+            AudioContent audioContent = (AudioContent) fragment;
+            audioContent.fetchAudioContent();
+        }
+    }
+
     @Override
     public void onRefresh() {
         AlertDialog.Builder builder =
@@ -82,9 +84,10 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        CacheManager.clearImagesCache();
-                        DatabaseHelper.resetAudioContentDatabase(getActivity());
-                        FileSystemIntentService.startFetchAudio(getActivity());
+                        subscription = getObservable()
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(getObserver());
 
                     }
                 });
@@ -103,6 +106,46 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
             }
         });
         builder.show();
+    }
+
+
+    private Observable<Boolean> getObservable() {
+        return Observable.just(true).map(new Func1<Boolean, Boolean>() {
+            @Override
+            public Boolean call(Boolean result) {
+                CacheManager.clearImagesCache();
+                DatabaseHelper.resetAudioContentDatabase(getActivity());
+                return result;
+            }
+        });
+    }
+
+    private Observer<Boolean> getObserver() {
+        return new Observer<Boolean>() {
+
+            @Override
+            public void onCompleted() {
+                FileSystemIntentService.startFetchAudio(getActivity());
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onNext(Boolean bool) {
+
+            }
+        };
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (subscription != null) {
+            subscription.unsubscribe();
+        }
     }
 
 
