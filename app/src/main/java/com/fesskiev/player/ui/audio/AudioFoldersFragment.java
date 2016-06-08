@@ -4,7 +4,6 @@ package com.fesskiev.player.ui.audio;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -23,7 +22,6 @@ import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
-import com.fesskiev.player.services.FileObserverService;
 import com.fesskiev.player.ui.GridFragment;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.player.ui.audio.utils.Constants;
@@ -52,7 +50,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent, 
     private List<AudioFolder> audioFolders;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         audioFolders = new ArrayList<>();
     }
@@ -122,9 +120,8 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent, 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         Log.d(TAG, "cursor folders " + cursor.getCount());
+        List<AudioFolder> audioFolders = new ArrayList<>();
         if (cursor.getCount() > 0) {
-            List<AudioFolder> audioFolders = new ArrayList<>();
-
             cursor.moveToPosition(-1);
             while (cursor.moveToNext()) {
                 AudioFolder audioFolder = new AudioFolder(cursor);
@@ -135,13 +132,13 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent, 
                 Collections.sort(audioFolders);
                 MediaApplication.getInstance().getAudioPlayer().audioFolders = audioFolders;
                 ((AudioFoldersAdapter) adapter).refresh(audioFolders);
-
-                FileObserverService.startFileObserverService(getActivity());
             }
             hideEmptyContentCard();
         } else {
             showEmptyContentCard();
         }
+
+        checkNeedShowPlayback(audioFolders);
         destroyLoader();
     }
 

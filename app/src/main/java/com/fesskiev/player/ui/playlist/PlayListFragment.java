@@ -47,6 +47,7 @@ public class PlayListFragment extends Fragment implements LoaderManager.LoaderCa
     private AudioTracksAdapter adapter;
     private List<MediaFile> mediaFiles;
     private CardView emptyPlaylistCard;
+    private int itemCount;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -75,6 +76,7 @@ public class PlayListFragment extends Fragment implements LoaderManager.LoaderCa
         view.findViewById(R.id.menu_clear_playlist).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                itemCount = 0;
                 DatabaseHelper.clearPlaylist(getContext());
             }
         });
@@ -126,6 +128,7 @@ public class PlayListFragment extends Fragment implements LoaderManager.LoaderCa
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         Log.wtf(TAG, "playlist size " + cursor.getCount());
         if (cursor.getCount() > 0) {
+            itemCount += cursor.getCount();
             switch (loader.getId()) {
                 case Constants.GET_AUDIO_PLAY_LIST_LOADER:
                     getAudioPlaylist(cursor);
@@ -136,6 +139,9 @@ public class PlayListFragment extends Fragment implements LoaderManager.LoaderCa
                 default:
                     break;
             }
+        }
+
+        if (itemCount > 0) {
             hideEmptyCardPlaylist();
         } else {
             showEmptyCardPlaylist();
@@ -206,7 +212,7 @@ public class PlayListFragment extends Fragment implements LoaderManager.LoaderCa
         public void onBindViewHolder(ViewHolder holder, int position) {
 
             MediaFile mediaFile = mediaFiles.get(position);
-            if(mediaFile != null){
+            if (mediaFile != null) {
                 BitmapHelper.loadArtwork(getActivity(), null, mediaFile, holder.cover);
 
                 holder.duration.setText(Utils.getDurationString(mediaFile.getLength()));
@@ -233,7 +239,7 @@ public class PlayListFragment extends Fragment implements LoaderManager.LoaderCa
         private void startPlayerActivity(int position, View cover) {
             MediaFile mediaFile = mediaFiles.get(position);
             if (mediaFile != null) {
-                switch (mediaFile.getMediaType()){
+                switch (mediaFile.getMediaType()) {
                     case VIDEO:
                         break;
                     case AUDIO:

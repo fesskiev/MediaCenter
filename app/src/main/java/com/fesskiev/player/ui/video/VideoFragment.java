@@ -29,7 +29,6 @@ import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.db.MediaCenterProvider;
-import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.VideoFile;
 import com.fesskiev.player.model.VideoPlayer;
 import com.fesskiev.player.services.FileSystemIntentService;
@@ -179,11 +178,17 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
         } else {
             showEmptyContentCard();
         }
+
+        destroyLoader();
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
+    }
+
+    private void destroyLoader() {
+        getActivity().getSupportLoaderManager().destroyLoader(Constants.GET_VIDEO_FILES_LOADER);
     }
 
 

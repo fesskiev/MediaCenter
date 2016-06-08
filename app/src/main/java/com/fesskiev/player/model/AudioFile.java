@@ -160,7 +160,7 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
         try {
 
             TagOptionSingleton.getInstance().setAndroid(true);
-            org.jaudiotagger.audio.AudioFile file = AudioFileIO.read(filePath.getAbsoluteFile());
+            org.jaudiotagger.audio.AudioFile file = AudioFileIO.read(filePath);
             AudioHeader audioHeader = file.getAudioHeader();
 
 

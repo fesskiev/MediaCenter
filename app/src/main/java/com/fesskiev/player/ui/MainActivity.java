@@ -391,6 +391,10 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                     if (mediaContentDialog != null) {
                         mediaContentDialog.hide();
                     }
+                    if (settingsManager.isFirstStartApp()) {
+                        settingsManager.setFirstStartApp();
+                        FileObserverService.startFileObserverService(getApplicationContext());
+                    }
                     updateMediaContent();
                     break;
                 case FileSystemIntentService.ACTION_AUDIO_FOLDER_NAME:
@@ -501,12 +505,12 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             settingsManager = AppSettingsManager.getInstance(getApplication());
         }
         if (settingsManager.isFirstStartApp()) {
-            settingsManager.setFirstStartApp();
             saveDownloadFolderIcon();
             addAudioFragment();
             FileSystemIntentService.startFetchMedia(getApplicationContext());
         } else {
             addAudioFragment();
+            FileObserverService.startFileObserverService(getApplicationContext());
         }
     }
 

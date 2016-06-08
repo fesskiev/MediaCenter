@@ -4,19 +4,24 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
 
 import com.fesskiev.player.utils.fileobserver.FolderFileObserver;
 
 public class FileObserverService extends Service {
 
+    private static final String TAG = FileObserverService.class.getSimpleName();
+
     private FolderFileObserver folderFileObserver;
 
     public static void startFileObserverService(Context context) {
+        Log.d(TAG, "startFileObserverService");
         Intent intent = new Intent(context, FileObserverService.class);
         context.startService(intent);
     }
 
     public static void stopFileObserverService(Context context) {
+        Log.d(TAG, "stopFileObserverService");
         Intent intent = new Intent(context, FileObserverService.class);
         context.stopService(intent);
     }
@@ -24,12 +29,14 @@ public class FileObserverService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.d(TAG, "create FileObserverService");
         folderFileObserver = new FolderFileObserver(getApplicationContext());
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "destroy FileObserverService");
         folderFileObserver.stopWatching();
 
     }
