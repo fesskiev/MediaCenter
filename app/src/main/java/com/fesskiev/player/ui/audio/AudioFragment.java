@@ -14,6 +14,7 @@ import com.fesskiev.player.R;
 import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.ui.ViewPagerFragment;
+import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.CacheManager;
 
 import java.util.List;
@@ -114,6 +115,7 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
             @Override
             public Boolean call(Boolean result) {
                 CacheManager.clearImagesCache();
+                BitmapHelper.saveDownloadFolderIcon(getActivity());
                 DatabaseHelper.resetAudioContentDatabase(getActivity());
                 return result;
             }

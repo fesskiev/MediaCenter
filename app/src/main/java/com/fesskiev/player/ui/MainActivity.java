@@ -494,18 +494,12 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                         this, Manifest.permission.RECORD_AUDIO);
     }
 
-    private void saveDownloadFolderIcon() {
-        BitmapHelper.saveBitmap(
-                BitmapHelper.getBitmapFromResource(getApplicationContext(), R.drawable.icon_folder_download),
-                CacheManager.getDownloadFolderIconPath());
-    }
-
     private void checkAppFirstStart() {
         if (settingsManager == null) {
             settingsManager = AppSettingsManager.getInstance(getApplication());
         }
         if (settingsManager.isFirstStartApp()) {
-            saveDownloadFolderIcon();
+            BitmapHelper.saveDownloadFolderIcon(getApplicationContext());
             addAudioFragment();
             FileSystemIntentService.startFetchMedia(getApplicationContext());
         } else {

@@ -201,4 +201,10 @@ public class BitmapHelper {
         return BitmapHelper.getBitmapFromPath(CacheManager.getUserPhotoPath().getAbsolutePath());
     }
 
+    public static void saveDownloadFolderIcon(Context context) {
+        BitmapHelper.saveBitmap(
+                BitmapHelper.getBitmapFromResource(context, R.drawable.icon_folder_download),
+                CacheManager.getDownloadFolderIconPath());
+    }
+
 }
