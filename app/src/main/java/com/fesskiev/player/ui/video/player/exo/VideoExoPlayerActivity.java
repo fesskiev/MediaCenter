@@ -3,30 +3,29 @@ package com.fesskiev.player.ui.video.player.exo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.widget.ImageView;
-import android.widget.SeekBar;
-import android.widget.TextView;
 
 import com.fesskiev.player.R;
 import com.fesskiev.player.utils.Utils;
-import com.fesskiev.player.widgets.buttons.PlayPauseButton;
+import com.fesskiev.player.widgets.controls.VideoControlView;
 import com.google.android.exoplayer.AspectRatioFrameLayout;
 import com.google.android.exoplayer.ExoPlayer;
+import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.audio.AudioCapabilitiesReceiver;
 import com.google.android.exoplayer.metadata.id3.Id3Frame;
 import com.google.android.exoplayer.text.Cue;
+import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.PlayerControl;
 import com.google.android.exoplayer.util.Util;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
@@ -42,25 +41,20 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
 
     private static final String TAG = VideoExoPlayerActivity.class.getSimpleName();
 
+    private static final int INTERVAL_SECONDS = 2;
+
     private MediaExoPlayer player;
     private PlayerControl control;
     private EventLogger eventLogger;
+    private VideoControlView videoControlView;
     private AspectRatioFrameLayout videoFrame;
     private SurfaceView surfaceView;
-    private PlayPauseButton playPauseButton;
-    private SeekBar seekVideo;
     private View shutterView;
-    private View controlRoot;
-    private ImageView nextVideo;
-    private ImageView previousVideo;
-    private TextView videoTimeCount;
-    private TextView videoTimeTotal;
-
     private Uri contentUri;
     private long playerPosition;
-    private boolean isPlaying;
-    private boolean playerNeedsPrepare;
     private int durationScale;
+    private int interval;
+    private boolean playerNeedsPrepare;
 
     private AudioCapabilitiesReceiver audioCapabilitiesReceiver;
 
@@ -73,50 +67,35 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
 
         contentUri = getIntent().getData();
 
-        controlRoot = findViewById(R.id.controlRoot);
         shutterView = findViewById(R.id.shutter);
-        nextVideo = (ImageView) findViewById(R.id.nextVideo);
-        previousVideo = (ImageView) findViewById(R.id.previousVideo);
-        videoTimeCount = (TextView) findViewById(R.id.videoTimeCount);
-        videoTimeTotal = (TextView) findViewById(R.id.videoTimeTotal);
         videoFrame = (AspectRatioFrameLayout) findViewById(R.id.video_frame);
         surfaceView = (SurfaceView) findViewById(R.id.surface_view);
         surfaceView.getHolder().addCallback(this);
 
-        playPauseButton = (PlayPauseButton) findViewById(R.id.playPauseButton);
-        playPauseButton.setOnClickListener(new View.OnClickListener() {
+        videoControlView = (VideoControlView) findViewById(R.id.videoPlayerControl);
+        videoControlView.setOnVideoPlayerControlListener(new VideoControlView.OnVideoPlayerControlListener() {
             @Override
-            public void onClick(View v) {
-                playPauseButton.setPlay(isPlaying);
-                isPlaying = !isPlaying;
+            public void playPauseButtonClick(boolean isPlaying) {
                 if (isPlaying) {
                     control.pause();
                 } else {
                     control.start();
                 }
-
-            }
-        });
-
-        seekVideo = (SeekBar) findViewById(R.id.seekVideo);
-        seekVideo.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            int progress;
-
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                this.progress = progress;
-
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
+            public void seekVideo(int progress) {
                 control.seekTo(progress * durationScale);
+            }
+
+            @Override
+            public void nextVideo() {
+
+            }
+
+            @Override
+            public void previousVideo() {
+
             }
         });
 
@@ -124,7 +103,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    showControlsVisibility();
+                    videoControlView.showControlsVisibility();
                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
                     v.performClick();
                 }
@@ -135,8 +114,62 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
         audioCapabilitiesReceiver = new AudioCapabilitiesReceiver(this, this);
         audioCapabilitiesReceiver.register();
 
-        resetIndicators();
-        hideControlsVisibility();
+        videoControlView.resetIndicators();
+        videoControlView.hideControlsVisibility();
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (Util.SDK_INT > 23) {
+            onShown();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (Util.SDK_INT <= 23 || player == null) {
+            onShown();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (Util.SDK_INT <= 23) {
+            onHidden();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (Util.SDK_INT > 23) {
+            onHidden();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unsubscribe();
+        audioCapabilitiesReceiver.unregister();
+        releasePlayer();
+    }
+
+
+    private void onShown() {
+        if (player == null) {
+            preparePlayer(true);
+        } else {
+            player.setBackgrounded(false);
+        }
+    }
+
+    private void onHidden() {
+        player.setBackgrounded(true);
     }
 
     public void onWindowFocusChanged(boolean hasFocus) {
@@ -152,32 +185,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
         }
     }
 
-    private void hideControlsVisibility() {
-        Log.d(TAG, "hideControlsVisibility");
-        AlphaAnimation animation = new AlphaAnimation(1.0f, 0.0f);
-        animation.setDuration(2000);
-        animation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                Log.d(TAG, "onAnimationStart");
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                controlRoot.setVisibility(View.INVISIBLE);
-                Log.d(TAG, "onAnimationEnd");
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-        controlRoot.startAnimation(animation);
-    }
-
     private void createTick() {
-        unsubscribe();
         subscription = Observable
                 .interval(1, TimeUnit.SECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -196,81 +204,28 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
                     public void onNext(Long number) {
                         Log.d(TAG, "tick onNext: " + number.toString());
                         updateProgressControls();
+                        if (videoControlView.isShowControls()) {
+                            interval += 1;
+                            if (interval == INTERVAL_SECONDS) {
+                                interval = 0;
+                                videoControlView.setShowControls(false);
+                                videoControlView.hideControlsVisibility();
+                            }
+                        }
                     }
                 });
     }
 
     private void updateProgressControls() {
-        videoTimeCount.
-                setText(Utils.getTimeFromMillisecondsString(control.getCurrentPosition()));
-
+        videoControlView.
+                setVideoTimeCount(Utils.getTimeFromMillisecondsString(control.getCurrentPosition()));
         playerPosition = control.getCurrentPosition();
         durationScale = control.getDuration() / 100;
         if (durationScale != 0) {
-            seekVideo.setProgress((int) playerPosition / durationScale);
+            videoControlView.setProgress((int) playerPosition / durationScale);
         }
     }
 
-    private void startTimer() {
-        unsubscribe();
-        subscription = Observable.timer(2, TimeUnit.SECONDS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Long>() {
-                    @Override
-                    public void onCompleted() {
-                        Log.d(TAG, "onCompleted");
-                        hideControlsVisibility();
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.d(TAG, "onError");
-                    }
-
-                    @Override
-                    public void onNext(Long number) {
-                        Log.d(TAG, "onNext: " + number.toString());
-                    }
-                });
-    }
-
-    private void resetIndicators() {
-        videoTimeTotal.setText("0:00");
-        videoTimeCount.setText("0:00");
-        seekVideo.setProgress(0);
-    }
-
-    private void showControlsVisibility() {
-        Log.d(TAG, "showControlsVisibility");
-        AlphaAnimation animation = new AlphaAnimation(0.1f, 1.0f);
-        animation.setDuration(2000);
-        animation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                Log.d(TAG, "onAnimationStart");
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                controlRoot.setVisibility(View.VISIBLE);
-                Log.d(TAG, "onAnimationEnd");
-                startTimer();
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-        controlRoot.startAnimation(animation);
-    }
-
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        preparePlayer(true);
-    }
 
     private MediaExoPlayer.RendererBuilder getRendererBuilder() {
         String userAgent = Util.getUserAgent(this, "MediaExoPlayer");
@@ -298,6 +253,70 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
 
         player.setSurface(surfaceView.getHolder().getSurface());
         player.setPlayWhenReady(playWhenReady);
+
+    }
+
+    private void configureTracks(int trackType) {
+        if (player == null) {
+            Log.e(TAG, "player null");
+            return;
+        }
+        int trackCount = player.getTrackCount(trackType);
+        if (trackCount == 0) {
+            Log.e(TAG, "track count 0");
+            return;
+        }
+
+        for (int i = 0; i < trackCount; i++) {
+            Log.e(TAG, "track: " + buildTrackName(player.getTrackFormat(trackType, i)));
+        }
+    }
+
+    private static String buildTrackName(MediaFormat format) {
+        if (format.adaptive) {
+            return "auto";
+        }
+        String trackName;
+        if (MimeTypes.isVideo(format.mimeType)) {
+            trackName = joinWithSeparator(joinWithSeparator(buildResolutionString(format),
+                    buildBitrateString(format)), buildTrackIdString(format));
+        } else if (MimeTypes.isAudio(format.mimeType)) {
+            trackName = joinWithSeparator(joinWithSeparator(joinWithSeparator(buildLanguageString(format),
+                    buildAudioPropertyString(format)), buildBitrateString(format)),
+                    buildTrackIdString(format));
+        } else {
+            trackName = joinWithSeparator(joinWithSeparator(buildLanguageString(format),
+                    buildBitrateString(format)), buildTrackIdString(format));
+        }
+        return trackName.length() == 0 ? "unknown" : trackName;
+    }
+
+    private static String buildResolutionString(MediaFormat format) {
+        return format.width == MediaFormat.NO_VALUE || format.height == MediaFormat.NO_VALUE
+                ? "" : format.width + "x" + format.height;
+    }
+
+    private static String buildAudioPropertyString(MediaFormat format) {
+        return format.channelCount == MediaFormat.NO_VALUE || format.sampleRate == MediaFormat.NO_VALUE
+                ? "" : format.channelCount + "ch, " + format.sampleRate + "Hz";
+    }
+
+    private static String buildLanguageString(MediaFormat format) {
+        return TextUtils.isEmpty(format.language) || "und".equals(format.language) ? ""
+                : format.language;
+    }
+
+    private static String buildBitrateString(MediaFormat format) {
+        return format.bitrate == MediaFormat.NO_VALUE ? ""
+                : String.format(Locale.US, "%.2fMbit", format.bitrate / 1000000f);
+    }
+
+    private static String joinWithSeparator(String first, String second) {
+        return first.length() == 0 ? second : (second.length() == 0 ? first : first + ", " + second);
+    }
+
+    private static String buildTrackIdString(MediaFormat format) {
+        return format.trackId == null ? "" : " (" + format.trackId + ")";
     }
 
     private void releasePlayer() {
@@ -313,14 +332,6 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
             subscription.unsubscribe();
             Log.d(TAG, "unsubscribe");
         }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        unsubscribe();
-        audioCapabilitiesReceiver.unregister();
-        releasePlayer();
     }
 
     @Override
@@ -371,8 +382,12 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
             case ExoPlayer.STATE_READY:
                 control = player.getPlayerControl();
                 Log.wtf(TAG, "ready");
-                videoTimeTotal.setText(Utils.getTimeFromMillisecondsString(control.getDuration()));
+                videoControlView.
+                        setVideoTimeTotal(Utils.getTimeFromMillisecondsString(control.getDuration()));
                 createTick();
+                configureTracks(MediaExoPlayer.TYPE_AUDIO);
+                configureTracks(MediaExoPlayer.TYPE_VIDEO);
+                configureTracks(MediaExoPlayer.TYPE_TEXT);
                 break;
         }
     }
