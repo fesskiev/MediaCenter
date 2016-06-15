@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.fesskiev.player.ui.video.player.exo;
+package com.fesskiev.player.ui.video.player;
 
 import android.media.MediaCodec.CryptoException;
 import android.os.SystemClock;

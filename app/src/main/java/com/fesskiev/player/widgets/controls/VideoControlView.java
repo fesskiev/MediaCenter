@@ -16,6 +16,9 @@ import com.fesskiev.player.widgets.buttons.PlayPauseButton;
 
 public class VideoControlView extends FrameLayout implements View.OnClickListener {
 
+    private static final int SHOW_TIME = 500;
+    private static final int HIDE_TIME = 1500;
+
     public interface OnVideoPlayerControlListener {
 
         void playPauseButtonClick(boolean isPlaying);
@@ -140,8 +143,8 @@ public class VideoControlView extends FrameLayout implements View.OnClickListene
     }
 
     public void hideControlsVisibility() {
-        AlphaAnimation animation = new AlphaAnimation(1.0f, 0.0f);
-        animation.setDuration(2000);
+        AlphaAnimation animation = new AlphaAnimation(0.5f, 0.0f);
+        animation.setDuration(HIDE_TIME);
         animation.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
@@ -163,8 +166,8 @@ public class VideoControlView extends FrameLayout implements View.OnClickListene
     }
 
     public void showControlsVisibility() {
-        AlphaAnimation animation = new AlphaAnimation(0.0f, 0.8f);
-        animation.setDuration(2000);
+        AlphaAnimation animation = new AlphaAnimation(0.0f, 0.5f);
+        animation.setDuration(SHOW_TIME);
         animation.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {

@@ -32,7 +32,7 @@ import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.model.VideoFile;
 import com.fesskiev.player.model.VideoPlayer;
 import com.fesskiev.player.services.FileSystemIntentService;
-import com.fesskiev.player.ui.video.player.exo.VideoExoPlayerActivity;
+import com.fesskiev.player.ui.video.player.VideoExoPlayerActivity;
 import com.fesskiev.player.ui.video.utils.Constants;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;

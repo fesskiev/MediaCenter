@@ -1,7 +1,9 @@
-package com.fesskiev.player.ui.video.player.exo;
+package com.fesskiev.player.ui.video.player;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -26,12 +28,8 @@ import com.google.android.exoplayer.util.Util;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
-
-import rx.Observable;
-import rx.Observer;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class VideoExoPlayerActivity extends AppCompatActivity implements SurfaceHolder.Callback,
         MediaExoPlayer.Listener,
@@ -58,7 +56,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
 
     private AudioCapabilitiesReceiver audioCapabilitiesReceiver;
 
-    private Subscription subscription;
+    private Timer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -154,7 +152,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
     @Override
     public void onDestroy() {
         super.onDestroy();
-        unsubscribe();
+        stopUpdateTimer();
         audioCapabilitiesReceiver.unregister();
         releasePlayer();
     }
@@ -185,36 +183,33 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
         }
     }
 
-    private void createTick() {
-        subscription = Observable
-                .interval(1, TimeUnit.SECONDS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Long>() {
-                    @Override
-                    public void onCompleted() {
-                        Log.d(TAG, "tick onCompleted");
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.d(TAG, "tick onError: " + e.getMessage());
-                    }
-
-                    @Override
-                    public void onNext(Long number) {
-                        Log.d(TAG, "tick onNext: " + number.toString());
-                        updateProgressControls();
-                        if (videoControlView.isShowControls()) {
-                            interval += 1;
-                            if (interval == INTERVAL_SECONDS) {
-                                interval = 0;
-                                videoControlView.setShowControls(false);
-                                videoControlView.hideControlsVisibility();
-                            }
-                        }
-                    }
-                });
+    private void startUpdateTimer() {
+        timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                handler.obtainMessage(1).sendToTarget();
+            }
+        }, 0, 1000);
     }
+
+    private void stopUpdateTimer() {
+        timer.cancel();
+    }
+
+    private Handler handler = new Handler() {
+        public void handleMessage(Message msg) {
+            updateProgressControls();
+            if (videoControlView.isShowControls()) {
+                interval += 1;
+                if (interval == INTERVAL_SECONDS) {
+                    interval = 0;
+                    videoControlView.setShowControls(false);
+                    videoControlView.hideControlsVisibility();
+                }
+            }
+        }
+    };
 
     private void updateProgressControls() {
         videoControlView.
@@ -327,13 +322,6 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
         }
     }
 
-    private void unsubscribe() {
-        if (subscription != null && !subscription.isUnsubscribed()) {
-            subscription.unsubscribe();
-            Log.d(TAG, "unsubscribe");
-        }
-    }
-
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         if (player != null) {
@@ -384,7 +372,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
                 Log.wtf(TAG, "ready");
                 videoControlView.
                         setVideoTimeTotal(Utils.getTimeFromMillisecondsString(control.getDuration()));
-                createTick();
+                startUpdateTimer();
                 configureTracks(MediaExoPlayer.TYPE_AUDIO);
                 configureTracks(MediaExoPlayer.TYPE_VIDEO);
                 configureTracks(MediaExoPlayer.TYPE_TEXT);
