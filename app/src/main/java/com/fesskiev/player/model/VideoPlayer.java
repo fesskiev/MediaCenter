@@ -12,4 +12,12 @@ public class VideoPlayer {
     public VideoPlayer() {
         this.videoFiles = new ArrayList<>();
     }
+
+    public void previous() {
+
+    }
+
+    public void next() {
+
+    }
 }

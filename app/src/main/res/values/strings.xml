@@ -104,6 +104,8 @@
 
     <string name="add_to_playlist_text">Track has been add to playlist</string>
 
+    <string name="snackbar_vk_auth_error">Auth error</string>
+
 
     <integer name="com_vk_sdk_AppId">5217689</integer>
 

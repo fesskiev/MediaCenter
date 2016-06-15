@@ -90,6 +90,6 @@ public class AudioPlayer {
         if (audioFile == null || currentAudioFile == null) {
             return false;
         }
-        return currentAudioFile.equals(audioFile);
+        return currentAudioFile.equals(audioFile) && isPlaying;
     }
 }

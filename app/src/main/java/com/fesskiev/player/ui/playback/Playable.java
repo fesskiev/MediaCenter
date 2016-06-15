@@ -1,4 +1,4 @@
-package com.fesskiev.player.ui.audio.player;
+package com.fesskiev.player.ui.playback;
 
 
 public interface Playable {

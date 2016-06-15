@@ -12,7 +12,10 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
+import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
+import com.fesskiev.player.model.VideoPlayer;
+import com.fesskiev.player.ui.playback.Playable;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.controls.VideoControlView;
 import com.google.android.exoplayer.AspectRatioFrameLayout;
@@ -35,7 +38,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
         MediaExoPlayer.Listener,
         MediaExoPlayer.CaptionListener,
         MediaExoPlayer.Id3MetadataListener,
-        AudioCapabilitiesReceiver.Listener {
+        AudioCapabilitiesReceiver.Listener, Playable {
 
     private static final String TAG = VideoExoPlayerActivity.class.getSimpleName();
 
@@ -48,6 +51,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
     private AspectRatioFrameLayout videoFrame;
     private SurfaceView surfaceView;
     private View shutterView;
+    private VideoPlayer videoPlayer;
     private Uri contentUri;
     private long playerPosition;
     private int durationScale;
@@ -63,6 +67,8 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_exo_player);
 
+        videoPlayer = MediaApplication.getInstance().getVideoPlayer();
+
         contentUri = getIntent().getData();
 
         shutterView = findViewById(R.id.shutter);
@@ -75,9 +81,9 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
             @Override
             public void playPauseButtonClick(boolean isPlaying) {
                 if (isPlaying) {
-                    control.pause();
+                    pause();
                 } else {
-                    control.start();
+                    play();
                 }
             }
 
@@ -88,12 +94,12 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
 
             @Override
             public void nextVideo() {
-
+                next();
             }
 
             @Override
             public void previousVideo() {
-
+                previous();
             }
         });
 
@@ -158,9 +164,35 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
     }
 
 
+    @Override
+    public void createPlayer() {
+        preparePlayer(true);
+    }
+
+    @Override
+    public void play() {
+        control.start();
+    }
+
+    @Override
+    public void pause() {
+        control.pause();
+    }
+
+    @Override
+    public void next() {
+        videoPlayer.next();
+
+    }
+
+    @Override
+    public void previous() {
+        videoPlayer.previous();
+    }
+
     private void onShown() {
         if (player == null) {
-            preparePlayer(true);
+            createPlayer();
         } else {
             player.setBackgrounded(false);
         }

@@ -54,11 +54,6 @@ public class PlaybackActivity extends AnalyticsActivity {
     private int height;
     private boolean isShow;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        registerPlaybackBroadcastReceiver();
-    }
 
     @Override
     public void onPostCreate(Bundle savedInstanceState) {
@@ -223,11 +218,25 @@ public class PlaybackActivity extends AnalyticsActivity {
         unregisterPlaybackBroadcastReceiver();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        unregisterPlaybackBroadcastReceiver();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerPlaybackBroadcastReceiver();
+    }
 
     private void registerPlaybackBroadcastReceiver() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(PlaybackService.ACTION_PLAYBACK_VALUES);
         filter.addAction(PlaybackService.ACTION_PLAYBACK_PLAYING_STATE);
+        filter.addAction(PlaybackService.ACTION_SONG_END);
+        filter.addAction(PlaybackService.ACTION_HEADSET_PLUG_IN);
+        filter.addAction(PlaybackService.ACTION_HEADSET_PLUG_OUT);
         filter.addAction(AudioPlayer.ACTION_CHANGE_CURRENT_AUDIO_FILE);
         filter.addAction(AudioPlayer.ACTION_CHANGE_CURRENT_AUDIO_FOLDER);
         LocalBroadcastManager.getInstance(this).registerReceiver(playbackReceiver, filter);
@@ -264,6 +273,23 @@ public class PlaybackActivity extends AnalyticsActivity {
                     playPauseButton.setPlay(audioPlayer.isPlaying);
                     adapter.notifyDataSetChanged();
                     break;
+                case PlaybackService.ACTION_SONG_END:
+                    Log.w(TAG, "action song end");
+                    audioPlayer.next();
+                    PlaybackService.createPlayer(getApplicationContext(),
+                            audioPlayer.currentAudioFile.getFilePath());
+                    PlaybackService.startPlayback(getApplicationContext());
+                    break;
+                case PlaybackService.ACTION_HEADSET_PLUG_IN:
+                    if(!audioPlayer.isPlaying){
+                        PlaybackService.startPlayback(getApplicationContext());
+                    }
+                    break;
+                case PlaybackService.ACTION_HEADSET_PLUG_OUT:
+                    if(audioPlayer.isPlaying){
+                        PlaybackService.stopPlayback(getApplicationContext());
+                    }
+                    break;
                 case AudioPlayer.ACTION_CHANGE_CURRENT_AUDIO_FILE:
                     Log.w(TAG, "change current audio file");
                     setMusicFileInfo(audioPlayer.currentAudioFile);
@@ -275,6 +301,7 @@ public class PlaybackActivity extends AnalyticsActivity {
                     setMusicFolderInfo();
                     hideEmptyFolderCard();
                     break;
+
             }
         }
     };

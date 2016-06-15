@@ -23,6 +23,7 @@ import com.fesskiev.player.analytics.AnalyticsActivity;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
+import com.fesskiev.player.ui.playback.Playable;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.buttons.MuteSoloButton;

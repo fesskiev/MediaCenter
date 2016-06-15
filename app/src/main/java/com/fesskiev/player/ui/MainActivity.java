@@ -636,7 +636,10 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             @Override
             public void onError(VKError error) {
                 Log.d(TAG, "auth fail: " + error.errorMessage);
-                finish();
+               Utils.showCustomSnackbar(getCurrentFocus(),
+                       getApplicationContext(),
+                       getString(R.string.snackbar_vk_auth_error),
+                       Snackbar.LENGTH_SHORT).show();
             }
         })) {
             super.onActivityResult(requestCode, resultCode, data);
