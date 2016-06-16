@@ -1,6 +1,7 @@
 package com.fesskiev.player;
 
 import android.app.Application;
+import android.content.ComponentCallbacks2;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -15,10 +16,9 @@ import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKAccessTokenTracker;
 import com.vk.sdk.VKSdk;
 
-import java.util.List;
-
-
 public class MediaApplication extends Application {
+
+    private static final String TAG = MediaApplication.class.getSimpleName();
 
     private static MediaApplication application;
     private RequestQueue requestQueue;
@@ -61,6 +61,33 @@ public class MediaApplication extends Application {
         Thread.setDefaultUncaughtExceptionHandler(uncaughtExceptionHandler);
     }
 
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        switch (level) {
+            case ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN:
+                Log.e(TAG, "TRIM_MEMORY_UI_HIDDEN");
+                break;
+            case ComponentCallbacks2.TRIM_MEMORY_BACKGROUND:
+                Log.e(TAG, "TRIM_MEMORY_BACKGROUND");
+                break;
+            case ComponentCallbacks2.TRIM_MEMORY_MODERATE:
+                Log.e(TAG, "TRIM_MEMORY_MODERATE");
+                break;
+            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_MODERATE:
+                Log.e(TAG, "TRIM_MEMORY_RUNNING_MODERATE");
+                break;
+            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW:
+                Log.e(TAG, "TRIM_MEMORY_RUNNING_LOW");
+                break;
+            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL:
+                Log.e(TAG, "TRIM_MEMORY_RUNNING_CRITICAL");
+                break;
+            case ComponentCallbacks2.TRIM_MEMORY_COMPLETE:
+                Log.e(TAG, "TRIM_MEMORY_COMPLETE");
+                break;
+        }
+    }
 
     public static synchronized MediaApplication getInstance() {
         return application;
