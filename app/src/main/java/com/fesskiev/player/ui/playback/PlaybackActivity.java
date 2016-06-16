@@ -161,6 +161,9 @@ public class PlaybackActivity extends AnalyticsActivity {
                 }
             });
         }
+
+        Log.wtf(TAG, "register playback broadcast");
+        registerPlaybackBroadcastReceiver();
     }
 
     @Override
@@ -212,22 +215,12 @@ public class PlaybackActivity extends AnalyticsActivity {
         }
     }
 
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.wtf(TAG, "unregister playback broadcast");
         unregisterPlaybackBroadcastReceiver();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        unregisterPlaybackBroadcastReceiver();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        registerPlaybackBroadcastReceiver();
     }
 
     private void registerPlaybackBroadcastReceiver() {

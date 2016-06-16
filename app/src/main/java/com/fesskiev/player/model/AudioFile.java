@@ -216,6 +216,11 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
     }
 
     @Override
+    public boolean exists() {
+        return filePath.exists();
+    }
+
+    @Override
     public int compareTo(AudioFile another) {
         if (this.trackNumber > another.trackNumber) {
             return 1;

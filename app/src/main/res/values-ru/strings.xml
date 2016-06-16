@@ -105,5 +105,6 @@
     <string name="add_to_playlist_text">Трек добавлен в плейлист</string>
 
     <string name="snackbar_vk_auth_error">Ошибка авторизации</string>
+    <string name="snackbar_file_not_exist">Файл не найден</string>
 
 </resources>

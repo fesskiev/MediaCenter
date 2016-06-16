@@ -292,6 +292,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
             audioPlayer.next();
             cardDescription.next();
             reset();
+            createPlayer();
         }
     }
 
@@ -301,12 +302,12 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
             audioPlayer.previous();
             cardDescription.previous();
             reset();
+            createPlayer();
         }
     }
 
     private void reset() {
         resetIndicators();
-        createPlayer();
         setBackdropImage();
     }
 
@@ -330,9 +331,9 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
     private void setVolumeLevel() {
         volumeSeek.setProgress(audioPlayer.volume);
         PlaybackService.volumePlayback(getApplicationContext(), audioPlayer.volume);
-        if (audioPlayer.volume >= 60){
+        if (audioPlayer.volume >= 60) {
             muteSoloButton.setHighSoloState();
-        } else if(audioPlayer.volume >= 30){
+        } else if (audioPlayer.volume >= 30) {
             muteSoloButton.setMediumSoloState();
         } else {
             muteSoloButton.setLowSoloState();
@@ -385,8 +386,6 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         filter.addAction(PlaybackService.ACTION_PLAYBACK_VALUES);
         filter.addAction(PlaybackService.ACTION_PLAYBACK_PLAYING_STATE);
         filter.addAction(PlaybackService.ACTION_SONG_END);
-        filter.addAction(PlaybackService.ACTION_HEADSET_PLUG_IN);
-        filter.addAction(PlaybackService.ACTION_HEADSET_PLUG_OUT);
         LocalBroadcastManager.getInstance(this).registerReceiver(playbackReceiver, filter);
     }
 
@@ -420,16 +419,10 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
                     playPauseButton.setPlay(audioPlayer.isPlaying);
                     break;
                 case PlaybackService.ACTION_SONG_END:
-                    next();
-                    play();
-                    break;
-                case PlaybackService.ACTION_HEADSET_PLUG_IN:
-                    break;
-                case PlaybackService.ACTION_HEADSET_PLUG_OUT:
-                    pause();
+                    cardDescription.next();
+                    reset();
                     break;
             }
         }
     };
-
 }

@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.PopupMenu;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.util.Util;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.db.DatabaseHelper;
@@ -68,6 +69,7 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
         videoPlayer = MediaApplication.getInstance().getVideoPlayer();
     }
 
@@ -275,8 +277,14 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
         private void startVideoPlayer(int position) {
             VideoFile videoFile = videoPlayer.videoFiles.get(position);
             if (videoFile != null) {
-                videoPlayer.currentVideoFile = videoFile;
-                startExoPlayerActivity(videoFile);
+                if(videoFile.exists()) {
+                    videoPlayer.currentVideoFile = videoFile;
+                    startExoPlayerActivity(videoFile);
+                } else {
+                    Utils.showCustomSnackbar(getView(),
+                            getContext(), getString(R.string.snackbar_file_not_exist),
+                            Snackbar.LENGTH_LONG).show();
+                }
             }
         }
 

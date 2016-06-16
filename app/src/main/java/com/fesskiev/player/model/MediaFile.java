@@ -14,4 +14,6 @@ public interface MediaFile {
     String getArtworkPath();
 
     int getLength();
+
+    boolean exists();
 }

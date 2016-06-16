@@ -106,6 +106,7 @@
 
     <string name="snackbar_vk_auth_error">Auth error</string>
 
+    <string name="snackbar_file_not_exist">File not exist</string>
 
     <integer name="com_vk_sdk_AppId">5217689</integer>
 
