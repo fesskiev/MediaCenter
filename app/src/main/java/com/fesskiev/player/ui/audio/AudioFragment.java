@@ -3,10 +3,10 @@ package com.fesskiev.player.ui.audio;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -60,13 +60,6 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
                 return false;
             }
         });
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                fetchAudioContent();
-            }
-        }, 1000);
     }
 
     public void fetchAudioContent() {
@@ -76,7 +69,7 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
         List<Fragment> fragments = getRegisteredFragments();
         for (Fragment fragment : fragments) {
             AudioContent audioContent = (AudioContent) fragment;
-            audioContent.fetchAudioContent();
+            audioContent.fetchAudioContent(getActivity());
         }
     }
 
@@ -188,6 +181,18 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
                 AudioArtistFragment.newInstance(),
                 AudioGenresFragment.newInstance(),
 
+        };
+    }
+
+    @Override
+    public OnInstantiateItemListener setOnInstantiateItemListener() {
+        return new OnInstantiateItemListener() {
+            @Override
+            public void instantiateItem(int position) {
+                if(position == LAST_ITEM_INSTANTIATE){
+                    fetchAudioContent();
+                }
+            }
         };
     }
 }

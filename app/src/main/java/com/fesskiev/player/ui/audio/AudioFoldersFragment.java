@@ -4,6 +4,7 @@ package com.fesskiev.player.ui.audio;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -47,6 +48,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent, 
     }
 
 
+    private FragmentActivity activity;
     private List<AudioFolder> audioFolders;
 
     @Override
@@ -95,8 +97,10 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent, 
     }
 
     @Override
-    public void fetchAudioContent() {
-        getActivity().getSupportLoaderManager().restartLoader(Constants.GET_AUDIO_FOLDERS_LOADER, null, this);
+    public void fetchAudioContent(FragmentActivity activity) {
+        this.activity = activity;
+        activity.getSupportLoaderManager().
+                restartLoader(Constants.GET_AUDIO_FOLDERS_LOADER, null, this);
     }
 
     @Override
@@ -104,7 +108,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent, 
         switch (id) {
             case Constants.GET_AUDIO_FOLDERS_LOADER:
                 return new CursorLoader(
-                        getActivity(),
+                        activity,
                         MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
                         null,
                         null,
@@ -148,7 +152,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent, 
     }
 
     private void destroyLoader() {
-        getActivity().getSupportLoaderManager().destroyLoader(Constants.GET_AUDIO_FOLDERS_LOADER);
+        activity.getSupportLoaderManager().destroyLoader(Constants.GET_AUDIO_FOLDERS_LOADER);
     }
 
     public class AudioFoldersAdapter extends

@@ -4,6 +4,7 @@ package com.fesskiev.player.ui.audio;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -37,6 +38,7 @@ public class AudioGenresFragment extends GridFragment implements AudioContent, L
         return new AudioGenresFragment();
     }
 
+    private FragmentActivity activity;
     private Object[] genres;
 
     @Override
@@ -66,8 +68,10 @@ public class AudioGenresFragment extends GridFragment implements AudioContent, L
     }
 
     @Override
-    public void fetchAudioContent() {
-        getActivity().getSupportLoaderManager().restartLoader(Constants.GET_AUDIO_GENRES_LOADER, null, this);
+    public void fetchAudioContent(FragmentActivity activity) {
+        this.activity = activity;
+        activity.getSupportLoaderManager().
+                restartLoader(Constants.GET_AUDIO_GENRES_LOADER, null, this);
     }
 
     @Override
@@ -75,7 +79,7 @@ public class AudioGenresFragment extends GridFragment implements AudioContent, L
         switch (id) {
             case Constants.GET_AUDIO_GENRES_LOADER:
                 return new CursorLoader(
-                        getActivity(),
+                        activity,
                         MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
                         new String[]{MediaCenterProvider.TRACK_GENRE, MediaCenterProvider.TRACK_COVER},
                         null,
@@ -111,7 +115,7 @@ public class AudioGenresFragment extends GridFragment implements AudioContent, L
     }
 
     private void destroyLoader() {
-        getActivity().getSupportLoaderManager().destroyLoader(Constants.GET_AUDIO_GENRES_LOADER);
+        activity.getSupportLoaderManager().destroyLoader(Constants.GET_AUDIO_GENRES_LOADER);
     }
 
     @Override

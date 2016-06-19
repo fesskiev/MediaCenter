@@ -1,7 +1,9 @@
 package com.fesskiev.player.ui.vk;
 
 
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.View;
 
 import com.fesskiev.player.R;
 import com.fesskiev.player.ui.ViewPagerFragment;
@@ -11,6 +13,12 @@ public class MusicVKFragment extends ViewPagerFragment {
 
     public static MusicVKFragment newInstance() {
         return new MusicVKFragment();
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setTitleTextSize(12);
     }
 
     @Override
@@ -45,4 +53,8 @@ public class MusicVKFragment extends ViewPagerFragment {
         };
     }
 
+    @Override
+    public OnInstantiateItemListener setOnInstantiateItemListener() {
+        return null;
+    }
 }
