@@ -143,14 +143,16 @@ Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *e
     audioSource.pFormat = (void *) &mime;
     audioSource.pLocator = (void *) &locatorUri;
 
-    const SLInterfaceID ids[6] = {SL_IID_PLAY,
+    const SLInterfaceID ids[7] = {SL_IID_PLAY,
                                   SL_IID_SEEK,
                                   SL_IID_MUTESOLO,
                                   SL_IID_VOLUME,
                                   SL_IID_BASSBOOST,
-                                  SL_IID_VIRTUALIZER};
+                                  SL_IID_VIRTUALIZER,
+                                  SL_IID_EQUALIZER};
 
-    const SLboolean req[6] = {SL_BOOLEAN_TRUE,
+    const SLboolean req[7] = {SL_BOOLEAN_TRUE,
+                              SL_BOOLEAN_TRUE,
                               SL_BOOLEAN_TRUE,
                               SL_BOOLEAN_TRUE,
                               SL_BOOLEAN_TRUE,
@@ -159,7 +161,7 @@ Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *e
 
 
     result = (*engineEngine)->CreateAudioPlayer(engineEngine, &uriPlayerObject, &audioSource,
-                                                &audioSink, 6,
+                                                &audioSink, 7,
                                                 ids, req);
 
     (*env)->ReleaseStringUTFChars(env, uri, utf8);
@@ -183,6 +185,8 @@ Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *e
     result = (*uriPlayerObject)->GetInterface(uriPlayerObject, SL_IID_BASSBOOST, &uriBassBoost);
     checkError(result);
     result = (*uriPlayerObject)->GetInterface(uriPlayerObject, SL_IID_VIRTUALIZER, &uriVirtualizer);
+    checkError(result);
+    result = (*uriPlayerObject)->GetInterface(uriPlayerObject, SL_IID_EQUALIZER, &eqOutputItf);
     checkError(result);
 
     result = (*uriPlayerPlay)->SetPlayState(uriPlayerPlay, SL_PLAYSTATE_PAUSED);

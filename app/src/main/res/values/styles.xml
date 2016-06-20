@@ -13,11 +13,18 @@
         <item name="colorControlHighlight">@color/white_text</item>
         <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
         <item name="switchStyle">@style/Custom.Widget.SwitchCompat</item>
+        <item name="seekBarStyle">@style/Custom.Widget.SeekBarStyle</item>
+    </style>
+
+    <style name="Custom.Widget.SeekBarStyle" parent="Widget.AppCompat.SeekBar">
+        <item name="android:progressDrawable">@drawable/seek_bar_progress</item>
+        <item name="android:thumb">@drawable/seek_bar_thumb</item>
+        <item name="android:splitTrack">false</item>
     </style>
 
     <style name="Custom.Widget.SwitchCompat" parent="Widget.AppCompat.CompoundButton.Switch">
         <item name="android:thumb">@drawable/switch_selector_thumb</item>
-        <item name="track">@android:color/transparent</item>
+        <item name="track">@drawable/switch_selector_track</item>
         <item name="showText">false</item>
     </style>
 

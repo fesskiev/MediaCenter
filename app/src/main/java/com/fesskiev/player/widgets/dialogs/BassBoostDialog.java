@@ -54,6 +54,8 @@ public class BassBoostDialog extends AlertDialog implements SeekBar.OnSeekBarCha
             if (value != -1) {
                 bassBoostBar.setProgress(value / 10);
                 bassBoostLevel.setText(String.valueOf(value / 10));
+            } else {
+                bassBoostBar.setProgress(0);
             }
         }
     }
@@ -76,4 +78,6 @@ public class BassBoostDialog extends AlertDialog implements SeekBar.OnSeekBarCha
         settingsManager.setBassBoostValue(seekBar.getProgress() * 10);
 
     }
+
+
 }

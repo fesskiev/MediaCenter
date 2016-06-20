@@ -7,14 +7,12 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 
@@ -92,13 +90,9 @@ public class EqualizerFragment extends Fragment implements SeekBar.OnSeekBarChan
                     = (PlaybackService.PlaybackServiceBinder) service;
             playbackService = binder.getService();
 
+            createEQState();
             getPresetsName();
             setPresetItems();
-
-            if(playbackService.isSupportedBassBoost()){
-                playbackService.setEnableBassBoost(true);
-                Log.d(TAG, "bass boost enable!");
-            }
         }
 
         @Override

@@ -2,139 +2,150 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="@dimen/activity_horizontal_margin"
+    android:background="@color/primary_light"
     android:orientation="horizontal"
-    android:weightSum="1">
+    android:padding="@dimen/activity_horizontal_margin">
+
+
+    <android.support.v7.widget.SwitchCompat
+        android:id="@+id/stateEqualizer"
+        android:layout_width="0dp"
+        android:layout_marginTop="15dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.1" />
+
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="horizontal">
 
-        <android.support.v7.widget.SwitchCompat
-            android:id="@+id/stateEqualizer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="20dp"
+            android:orientation="vertical">
+
+            <com.fesskiev.player.widgets.VerticalSeekBar
+                android:id="@+id/firstBandLevel"
+                style="@style/Custom.Widget.SeekBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:max="100" />
+
+            <TextView
+                style="@style/TrackTitleTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.1"
+                android:text="60Hz" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="20dp"
+            android:orientation="vertical">
+
+            <com.fesskiev.player.widgets.VerticalSeekBar
+                android:id="@+id/secondBandLevel"
+                style="@style/Custom.Widget.SeekBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <TextView
+                style="@style/TrackTitleTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.1"
+                android:max="100"
+                android:text="230Hz" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="20dp"
+            android:orientation="vertical">
+
+            <com.fesskiev.player.widgets.VerticalSeekBar
+                android:id="@+id/thirdBandLevel"
+                style="@style/Custom.Widget.SeekBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:max="100" />
+
+            <TextView
+                style="@style/TrackTitleTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.1"
+                android:text="910Hz" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="20dp"
+            android:orientation="vertical">
+
+            <com.fesskiev.player.widgets.VerticalSeekBar
+                android:id="@+id/fourthBandLevel"
+                style="@style/Custom.Widget.SeekBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:max="100" />
+
+            <TextView
+                style="@style/TrackTitleTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.1"
+                android:text="3.6KHz" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="20dp"
+            android:orientation="vertical">
+
+            <com.fesskiev.player.widgets.VerticalSeekBar
+                android:id="@+id/fifthBandLevel"
+                style="@style/Custom.Widget.SeekBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:max="100" />
+
+            <TextView
+                style="@style/TrackTitleTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.1"
+                android:text="14KHz" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_marginStart="25dp"
-        android:orientation="vertical">
 
-        <com.fesskiev.player.widgets.VerticalSeekBar
-            android:id="@+id/firstBandLevel"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:max="100" />
+    <Spinner
+        android:id="@+id/presets"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.3">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.1"
-            android:text="60Hz" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_marginStart="25dp"
-        android:orientation="vertical">
-
-        <com.fesskiev.player.widgets.VerticalSeekBar
-            android:id="@+id/secondBandLevel"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.1"
-            android:max="100"
-            android:text="230Hz" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_marginStart="25dp"
-        android:orientation="vertical">
-
-        <com.fesskiev.player.widgets.VerticalSeekBar
-            android:id="@+id/thirdBandLevel"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:max="100" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.1"
-            android:text="910Hz" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_marginStart="25dp"
-        android:orientation="vertical">
-
-        <com.fesskiev.player.widgets.VerticalSeekBar
-            android:id="@+id/fourthBandLevel"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:max="100" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.1"
-            android:text="3.6KHz" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_marginStart="25dp"
-        android:orientation="vertical">
-
-        <com.fesskiev.player.widgets.VerticalSeekBar
-            android:id="@+id/fifthBandLevel"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:max="100" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.1"
-            android:text="14KHz" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <Spinner
-            android:id="@+id/presets"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-        </Spinner>
-
-    </LinearLayout>
+    </Spinner>
 
 </LinearLayout>

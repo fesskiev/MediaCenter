@@ -46,7 +46,6 @@ import com.fesskiev.player.ui.video.VideoFragment;
 import com.fesskiev.player.ui.vk.MusicVKActivity;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.BitmapHelper;
-import com.fesskiev.player.utils.CacheManager;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.utils.http.URLHelper;
 import com.fesskiev.player.widgets.dialogs.BassBoostDialog;
@@ -64,6 +63,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
     private static final int PERMISSION_REQ = 0;
 
+    private FetchMediaContentDialog mediaContentDialog;
     private NavigationView navigationViewEffects;
     private NavigationView navigationViewMain;
     private DrawerLayout drawer;
@@ -369,7 +369,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         audioPlayer.currentAudioFile = null;
     }
 
-    private FetchMediaContentDialog mediaContentDialog;
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 
