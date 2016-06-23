@@ -188,7 +188,10 @@ public class PlaybackActivity extends AnalyticsActivity {
     }
 
     private void setMusicFolderInfo() {
-        adapter.refreshAdapter(audioPlayer.currentAudioFolder.audioFiles);
+        AudioFolder audioFolder = audioPlayer.currentAudioFolder;
+        if(audioFolder != null) {
+            adapter.refreshAdapter(audioFolder.audioFiles);
+        }
     }
 
     private void setMusicFileInfo(AudioFile audioFile) {

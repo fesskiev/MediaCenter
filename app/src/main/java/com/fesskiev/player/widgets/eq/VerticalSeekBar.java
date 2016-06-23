@@ -1,4 +1,4 @@
-package com.fesskiev.player.widgets;
+package com.fesskiev.player.widgets.eq;
 
 
 import android.content.Context;
@@ -29,6 +29,12 @@ public class VerticalSeekBar extends SeekBar {
     protected synchronized void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(heightMeasureSpec, widthMeasureSpec);
         setMeasuredDimension(getMeasuredHeight(), getMeasuredWidth());
+    }
+
+    @Override
+    public synchronized void setProgress(int progress) {
+        super.setProgress(progress);
+        onSizeChanged(getWidth(), getHeight(), 0, 0);
     }
 
     protected void onDraw(Canvas c) {

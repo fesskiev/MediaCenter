@@ -27,10 +27,12 @@ public class FolderFileObserver {
         public void run() {
 
             List<String> paths = DatabaseHelper.getFoldersPath(context);
-            for (String path : paths) {
-                RecursiveFileObserver fileObserver = new RecursiveFileObserver(context, path);
-                fileObserver.startWatching();
-                recursiveFileObservers.add(fileObserver);
+            if(paths != null) {
+                for (String path : paths) {
+                    RecursiveFileObserver fileObserver = new RecursiveFileObserver(context, path);
+                    fileObserver.startWatching();
+                    recursiveFileObservers.add(fileObserver);
+                }
             }
         }
     }

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:layout_marginStart="20dp"
+    android:orientation="vertical">
+
+    <com.fesskiev.player.widgets.eq.VerticalSeekBar
+        android:id="@+id/bandLevel"
+        style="@style/Custom.Widget.SeekBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/bandFrequency"
+        android:layout_centerHorizontal="true"
+        android:max="100" />
+
+    <TextView
+        android:id="@+id/bandFrequency"
+        style="@style/TrackTitleTextAppearance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        tools:text="6000Hz" />
+
+</RelativeLayout>

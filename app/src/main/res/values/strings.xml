@@ -108,6 +108,10 @@
 
     <string name="snackbar_file_not_exist">File not exist</string>
 
+    <string name="frequency_15">+15dB</string>
+    <string name="frequency_0">0dB</string>
+    <string name="frequency_minus_15">-15dB</string>
+
     <integer name="com_vk_sdk_AppId">5217689</integer>
 
     <string name="authority">com.fesskiev.player.authority</string>

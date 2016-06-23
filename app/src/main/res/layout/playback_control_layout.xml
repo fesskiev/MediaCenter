@@ -101,7 +101,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_below="@+id/basicNavPlayerContainer"
-                    android:background="@color/primary_text" />
+                    android:background="@color/primary_light" />
 
                 <FrameLayout
                     android:layout_width="match_parent"

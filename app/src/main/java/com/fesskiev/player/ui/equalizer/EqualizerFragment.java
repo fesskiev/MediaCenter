@@ -7,32 +7,37 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.SeekBar;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 
 import com.fesskiev.player.R;
 import com.fesskiev.player.services.PlaybackService;
-import com.fesskiev.player.widgets.VerticalSeekBar;
+import com.fesskiev.player.widgets.eq.EQBandView;
+import com.fesskiev.player.widgets.spinner.CustomSpinnerAdapter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 
-public class EqualizerFragment extends Fragment implements SeekBar.OnSeekBarChangeListener {
+public class EqualizerFragment extends Fragment {
 
     private static final String TAG = EqualizerFragment.class.getSimpleName();
 
-    private PlaybackService playbackService;
-    private Spinner presets;
-    private VerticalSeekBar[] bandsLevel;
     private List<String> presetList;
+    private List<EQBandView> bandViews;
+    private Spinner presets;
+    private LinearLayout bandRoot;
+    private PlaybackService playbackService;
+
 
     public static EqualizerFragment newInstance() {
         return new EqualizerFragment();
@@ -42,6 +47,7 @@ public class EqualizerFragment extends Fragment implements SeekBar.OnSeekBarChan
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         presetList = new ArrayList<>();
+        bandViews = new ArrayList<>();
 
         getActivity().
                 bindService(new Intent(getActivity(), PlaybackService.class),
@@ -58,19 +64,16 @@ public class EqualizerFragment extends Fragment implements SeekBar.OnSeekBarChan
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        SwitchCompat EQState = (SwitchCompat) view.findViewById(R.id.stateEqualizer);
+        EQState.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+                playbackService.setEnableEQ(checked);
+            }
+        });
+
         presets = (Spinner) view.findViewById(R.id.presets);
-
-        bandsLevel = new VerticalSeekBar[]{
-                (VerticalSeekBar) view.findViewById(R.id.firstBandLevel),
-                (VerticalSeekBar) view.findViewById(R.id.secondBandLevel),
-                (VerticalSeekBar) view.findViewById(R.id.thirdBandLevel),
-                (VerticalSeekBar) view.findViewById(R.id.fourthBandLevel),
-                (VerticalSeekBar) view.findViewById(R.id.fifthBandLevel)
-        };
-
-        for (VerticalSeekBar bandLevel : bandsLevel) {
-            bandLevel.setOnSeekBarChangeListener(this);
-        }
+        bandRoot = (LinearLayout) view.findViewById(R.id.bandRoot);
 
     }
 
@@ -91,7 +94,6 @@ public class EqualizerFragment extends Fragment implements SeekBar.OnSeekBarChan
             playbackService = binder.getService();
 
             createEQState();
-            getPresetsName();
             setPresetItems();
         }
 
@@ -102,35 +104,16 @@ public class EqualizerFragment extends Fragment implements SeekBar.OnSeekBarChan
     };
 
     private void getBandsLevel() {
-        int[] bandRange = playbackService.getBandLevelRange();
-        Log.d(TAG, "band range, min: " + bandRange[0] + " max: " + bandRange[1]);
-
-        int minRangeScale = bandRange[0] + 1500;
-        int maxRangeScale = bandRange[1] + 1500;
-        Log.d(TAG, "band range scale, min: " + minRangeScale + " max: " + maxRangeScale);
-
-
         int bandsNumber = playbackService.getNumberOfBands();
         for (int i = 0; i < bandsNumber; i++) {
             int bandLevel = playbackService.getBandLevel(i);
+
             Log.d(TAG, "band number: " + i + " level: " + bandLevel);
 
-            int scaleBandLevel = (bandLevel + 1500) / 100;
-            Log.d(TAG, "scale band level: " + scaleBandLevel);
-
-            bandsLevel[i].setProgress((int) scaleBandLevel);
-        }
-
-    }
-
-    private void getPresetsName() {
-        int presetNumber = playbackService.getNumberOfPreset();
-        for (int j = 0; j < presetNumber; j++) {
-            String presetName = playbackService.getPresetName(j);
-            Log.d(TAG, "preset name: " + presetName);
-            presetList.add(presetName);
+            bandViews.get(i).setBandLevel(bandLevel);
         }
     }
+
 
     private void createEQState() {
         int bandsNumber = playbackService.getNumberOfBands();
@@ -140,13 +123,26 @@ public class EqualizerFragment extends Fragment implements SeekBar.OnSeekBarChan
         Log.d(TAG, "band range, min: " + bandRange[0] + " max: " + bandRange[1]);
 
         for (int i = 0; i < bandsNumber; i++) {
-            int bandLevel = playbackService.getBandLevel(i);
             int[] freqRange = playbackService.getBandFrequencyRange(i);
             int centralFreq = playbackService.getCenterFrequency(i);
-            Log.d(TAG, "band level: " + bandLevel
-                    + " band freq range: " + Arrays.toString(freqRange)
-                    + " central freq: " + centralFreq);
+
+            Log.d(TAG, " band freq range: " + Arrays.toString(freqRange) + " central freq: " + centralFreq);
+
+            EQBandView bandView = new EQBandView(getContext());
+            bandView.setFrequencyText(String.valueOf(freqRange[0] / 1000));
+            bandView.setBandNumber(i);
+            bandView.setOnEQBandChangeListener(new EQBandView.OnEQBandChangeListener() {
+                @Override
+                public void onBandValueChanged(double value, int band) {
+                    Log.d(TAG, "band: " + band + " value: " + value);
+                    playbackService.setBandLevel(band, (int) value);
+                }
+            });
+
+            bandViews.add(bandView);
+            bandRoot.addView(bandView);
         }
+
 
         for (int j = 0; j < presetNumber; j++) {
             String presetName = playbackService.getPresetName(j);
@@ -156,14 +152,15 @@ public class EqualizerFragment extends Fragment implements SeekBar.OnSeekBarChan
     }
 
     private void setPresetItems() {
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_spinner_item, presetList);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        presets.setAdapter(adapter);
+
+        CustomSpinnerAdapter customSpinnerAdapter = new CustomSpinnerAdapter(getContext(),
+                presetList, R.color.secondary_text, R.color.secondary_text);
+
+        presets.setAdapter(customSpinnerAdapter);
         presets.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Log.d(TAG, "position: " + position + " name: " + presetList.get(position));
+                Log.e(TAG, "position: " + position + " name: " + presetList.get(position));
                 playbackService.usePreset(position);
                 getBandsLevel();
             }
@@ -173,35 +170,5 @@ public class EqualizerFragment extends Fragment implements SeekBar.OnSeekBarChan
 
             }
         });
-    }
-
-    @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        switch (seekBar.getId()) {
-            case R.id.bassBoostSeek:
-                playbackService.setBassBoostValue(progress);
-                break;
-        }
-    }
-
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
-
-    }
-
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
-        switch (seekBar.getId()) {
-            case R.id.firstBandLevel:
-                break;
-            case R.id.secondBandLevel:
-                break;
-            case R.id.thirdBandLevel:
-                break;
-            case R.id.fourthBandLevel:
-                break;
-            case R.id.fifthBandLevel:
-                break;
-        }
     }
 }

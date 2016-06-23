@@ -6,146 +6,66 @@
     android:orientation="horizontal"
     android:padding="@dimen/activity_horizontal_margin">
 
-
-    <android.support.v7.widget.SwitchCompat
-        android:id="@+id/stateEqualizer"
+    <RelativeLayout
         android:layout_width="0dp"
-        android:layout_marginTop="15dp"
         android:layout_height="wrap_content"
-        android:layout_weight="0.1" />
+        android:layout_marginTop="10dp"
+        android:layout_weight="0.1">
+
+        <android.support.v7.widget.SwitchCompat
+            android:id="@+id/stateEqualizer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="0.1"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/TrackTitleTextAppearance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:gravity="end"
+            android:text="@string/frequency_15" />
+
+        <TextView
+            style="@style/TrackTitleTextAppearance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="end"
+            android:text="@string/frequency_0" />
+
+        <TextView
+            style="@style/TrackTitleTextAppearance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:gravity="end"
+            android:text="@string/frequency_minus_15" />
+
+    </RelativeLayout>
 
 
     <LinearLayout
+        android:id="@+id/bandRoot"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1"
+        android:layout_weight="0.5"
         android:gravity="center"
-        android:orientation="horizontal">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginStart="20dp"
-            android:orientation="vertical">
-
-            <com.fesskiev.player.widgets.VerticalSeekBar
-                android:id="@+id/firstBandLevel"
-                style="@style/Custom.Widget.SeekBarStyle"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:max="100" />
-
-            <TextView
-                style="@style/TrackTitleTextAppearance"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0.1"
-                android:text="60Hz" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginStart="20dp"
-            android:orientation="vertical">
-
-            <com.fesskiev.player.widgets.VerticalSeekBar
-                android:id="@+id/secondBandLevel"
-                style="@style/Custom.Widget.SeekBarStyle"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-            <TextView
-                style="@style/TrackTitleTextAppearance"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0.1"
-                android:max="100"
-                android:text="230Hz" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginStart="20dp"
-            android:orientation="vertical">
-
-            <com.fesskiev.player.widgets.VerticalSeekBar
-                android:id="@+id/thirdBandLevel"
-                style="@style/Custom.Widget.SeekBarStyle"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:max="100" />
-
-            <TextView
-                style="@style/TrackTitleTextAppearance"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0.1"
-                android:text="910Hz" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginStart="20dp"
-            android:orientation="vertical">
-
-            <com.fesskiev.player.widgets.VerticalSeekBar
-                android:id="@+id/fourthBandLevel"
-                style="@style/Custom.Widget.SeekBarStyle"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:max="100" />
-
-            <TextView
-                style="@style/TrackTitleTextAppearance"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0.1"
-                android:text="3.6KHz" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginStart="20dp"
-            android:orientation="vertical">
-
-            <com.fesskiev.player.widgets.VerticalSeekBar
-                android:id="@+id/fifthBandLevel"
-                style="@style/Custom.Widget.SeekBarStyle"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:max="100" />
-
-            <TextView
-                style="@style/TrackTitleTextAppearance"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0.1"
-                android:text="14KHz" />
-
-        </LinearLayout>
-
-    </LinearLayout>
+        android:orientation="horizontal" />
 
 
     <Spinner
         android:id="@+id/presets"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="0.3">
-
-    </Spinner>
+        android:layout_weight="0.2" />
 
 </LinearLayout>
