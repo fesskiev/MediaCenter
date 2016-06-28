@@ -154,7 +154,7 @@ public class EqualizerFragment extends Fragment {
     private void setPresetItems() {
 
         CustomSpinnerAdapter customSpinnerAdapter = new CustomSpinnerAdapter(getContext(),
-                presetList, R.color.secondary_text, R.color.secondary_text);
+                presetList, R.color.primary_dark, R.color.primary_dark);
 
         presets.setAdapter(customSpinnerAdapter);
         presets.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {

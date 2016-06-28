@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:focusable="true"
     android:keepScreenOn="true"
-    tools:context=".ui.video.player.exo.VideoExoPlayerActivity">
+    tools:context=".ui.video.player.VideoExoPlayerActivity">
 
     <com.google.android.exoplayer.AspectRatioFrameLayout
         android:id="@+id/video_frame"
@@ -14,8 +14,8 @@
         android:layout_height="match_parent"
         android:layout_gravity="center">
 
-        <SurfaceView
-            android:id="@+id/surface_view"
+        <com.fesskiev.player.widgets.surfaces.VideoTextureView
+            android:id="@+id/video_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center" />

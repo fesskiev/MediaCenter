@@ -1,5 +1,6 @@
 package com.fesskiev.player.ui.video.player;
 
+import android.graphics.SurfaceTexture;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -8,8 +9,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
+import android.view.Surface;
+import android.view.TextureView;
 import android.view.View;
 
 import com.fesskiev.player.MediaApplication;
@@ -34,7 +35,7 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class VideoExoPlayerActivity extends AppCompatActivity implements SurfaceHolder.Callback,
+public class VideoExoPlayerActivity extends AppCompatActivity implements TextureView.SurfaceTextureListener,
         MediaExoPlayer.Listener,
         MediaExoPlayer.CaptionListener,
         MediaExoPlayer.Id3MetadataListener,
@@ -49,7 +50,8 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
     private EventLogger eventLogger;
     private VideoControlView videoControlView;
     private AspectRatioFrameLayout videoFrame;
-    private SurfaceView surfaceView;
+    private TextureView textureView;
+    private Surface surface;
     private View shutterView;
     private VideoPlayer videoPlayer;
     private Uri contentUri;
@@ -73,8 +75,10 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
 
         shutterView = findViewById(R.id.shutter);
         videoFrame = (AspectRatioFrameLayout) findViewById(R.id.video_frame);
-        surfaceView = (SurfaceView) findViewById(R.id.surface_view);
-        surfaceView.getHolder().addCallback(this);
+
+        textureView = (TextureView) findViewById(R.id.video_view);
+        textureView.setSurfaceTextureListener(this);
+
 
         videoControlView = (VideoControlView) findViewById(R.id.videoPlayerControl);
         videoControlView.setOnVideoPlayerControlListener(new VideoControlView.OnVideoPlayerControlListener() {
@@ -278,7 +282,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
             playerNeedsPrepare = false;
         }
 
-        player.setSurface(surfaceView.getHolder().getSurface());
+        player.setSurface(surface);
         player.setPlayWhenReady(playWhenReady);
 
     }
@@ -355,22 +359,29 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
     }
 
     @Override
-    public void surfaceCreated(SurfaceHolder holder) {
+    public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int i, int i1) {
+        surface = new Surface(surfaceTexture);
         if (player != null) {
-            player.setSurface(holder.getSurface());
+            player.setSurface(surface);
         }
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+    public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int i, int i1) {
 
     }
 
     @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
+    public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
         if (player != null) {
             player.blockingClearSurface();
         }
+        return true;
+    }
+
+    @Override
+    public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
+
     }
 
     @Override
@@ -435,5 +446,4 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Surface
         videoFrame.setAspectRatio(height == 0 ? 1 : (width * pixelWidthAspectRatio) / height);
         shutterView.setVisibility(View.GONE);
     }
-
 }

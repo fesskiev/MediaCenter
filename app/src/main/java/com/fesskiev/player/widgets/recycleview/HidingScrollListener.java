@@ -2,6 +2,7 @@ package com.fesskiev.player.widgets.recycleview;
 
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
 public abstract class HidingScrollListener extends RecyclerView.OnScrollListener {
 
@@ -32,8 +33,8 @@ public abstract class HidingScrollListener extends RecyclerView.OnScrollListener
     @Override
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         super.onScrolled(recyclerView, dx, dy);
-
-        int firstVisibleItem = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+        int firstVisibleItem = ((LinearLayoutManager)
+                recyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
 
         if (firstVisibleItem == 0) {
             if (!controlsVisible) {
