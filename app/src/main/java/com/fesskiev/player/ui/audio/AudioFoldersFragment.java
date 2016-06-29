@@ -26,7 +26,7 @@ import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.ui.GridFragment;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.player.ui.audio.utils.Constants;
-import com.fesskiev.player.ui.tracklist.TrackListActivity;
+import com.fesskiev.player.ui.audio.tracklist.TrackListActivity;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 import com.fesskiev.player.widgets.recycleview.helper.ItemTouchHelperAdapter;
@@ -74,6 +74,8 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent, 
                         AudioFolder audioFolder = audioFolders.get(position);
                         if (audioFolder != null) {
                             audioPlayer.currentAudioFolder = audioFolder;
+                            audioPlayer.currentAudioFolder.isSelected = true;
+                            DatabaseHelper.updateSelectedAudioFolder(getContext(), audioFolder);
 
                             Intent i = new Intent(getActivity(), TrackListActivity.class);
                             i.putExtra(Constants.EXTRA_CONTENT_TYPE, CONTENT_TYPE.FOLDERS);
@@ -134,7 +136,10 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent, 
 
             if (!audioFolders.isEmpty()) {
                 Collections.sort(audioFolders);
-                MediaApplication.getInstance().getAudioPlayer().audioFolders = audioFolders;
+
+                AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
+                audioPlayer.audioFolders = audioFolders;
+
                 ((AudioFoldersAdapter) adapter).refresh(audioFolders);
             }
             hideEmptyContentCard();

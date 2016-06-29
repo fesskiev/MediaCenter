@@ -51,6 +51,7 @@ public class MediaCenterProvider extends ContentProvider {
     public static final String VIDEO_FRAME_PATH = "VideoFramePath";
     public static final String VIDEO_DESCRIPTION = "VideoDescription";
     public static final String VIDEO_IN_PLAY_LIST = "VideoInPlayList";
+    public static final String VIDEO_SELECTED = "VideoSelected";
 
     /**
      * audio folder constants
@@ -59,6 +60,7 @@ public class MediaCenterProvider extends ContentProvider {
     public static final String FOLDER_COVER = "FolderCover";
     public static final String FOLDER_NAME = "FolderName";
     public static final String FOLDER_INDEX = "FolderIndex";
+    public static final String FOLDER_SELECTED = "FolderSelected";
 
     /**
      * audio file constants
@@ -74,6 +76,7 @@ public class MediaCenterProvider extends ContentProvider {
     public static final String TRACK_NUMBER = "TrackNumber";
     public static final String TRACK_LENGTH = "TrackLength";
     public static final String TRACK_IN_PLAY_LIST = "TrackInPlayList";
+    public static final String TRACK_SELECTED = "TrackSelected";
 
     private static final int AUDIO_FOLDERS_QUERY = 1;
     private static final int AUDIO_TRACK_QUERY = 2;
@@ -92,6 +95,7 @@ public class MediaCenterProvider extends ContentProvider {
             VIDEO_FILE_PATH + " " + TEXT_TYPE + " ," +
             VIDEO_FRAME_PATH + " " + TEXT_TYPE + " ," +
             VIDEO_DESCRIPTION + " " + TEXT_TYPE + " ," +
+            VIDEO_SELECTED + " " + INTEGER_TYPE + " ," +
             VIDEO_IN_PLAY_LIST + " " + INTEGER_TYPE +
             ")";
 
@@ -103,6 +107,7 @@ public class MediaCenterProvider extends ContentProvider {
             FOLDER_PATH + " " + TEXT_TYPE + " ," +
             FOLDER_NAME + " " + TEXT_TYPE + " ," +
             FOLDER_COVER + " " + TEXT_TYPE + " ," +
+            FOLDER_SELECTED + " " + INTEGER_TYPE + " ," +
             FOLDER_INDEX + " " + INTEGER_TYPE +
             ")";
 
@@ -120,6 +125,7 @@ public class MediaCenterProvider extends ContentProvider {
             TRACK_NUMBER + " " + INTEGER_TYPE + " ," +
             TRACK_LENGTH + " " + REAL_TYPE + " ," +
             TRACK_IN_PLAY_LIST + " " + INTEGER_TYPE + " ," +
+            TRACK_SELECTED + " " + INTEGER_TYPE + " ," +
             TRACK_COVER + " " + TEXT_TYPE +
             ")";
 

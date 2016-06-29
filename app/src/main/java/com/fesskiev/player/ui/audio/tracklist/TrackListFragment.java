@@ -1,4 +1,4 @@
-package com.fesskiev.player.ui.tracklist;
+package com.fesskiev.player.ui.audio.tracklist;
 
 
 import android.content.BroadcastReceiver;
@@ -226,10 +226,9 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
                 audioFiles.add(audioFile);
             }
             if (audioFolder != null) {
-                audioFolder.audioFiles = audioFiles;
+                audioPlayer.setCurrentAudioFolderFiles(audioFiles);
+                trackListAdapter.refreshAdapter(audioFiles);
             }
-            audioPlayer.sendBroadcastChangeAudioFolder();
-            trackListAdapter.refreshAdapter(audioFiles);
         }
 
         destroyLoader();
@@ -342,6 +341,10 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
                     if (audioPlayer.isTrackPlaying(audioFile)) {
                         AudioPlayerActivity.startPlayerActivity(getActivity(), false, cover);
                     } else {
+                        audioFile.isSelected = true;
+                        DatabaseHelper.updateSelectedAudioFile(getContext().getApplicationContext(),
+                                audioFile);
+
                         audioPlayer.setCurrentAudioFile(audioFile);
                         audioPlayer.position = position;
                         AudioPlayerActivity.startPlayerActivity(getActivity(), true, cover);

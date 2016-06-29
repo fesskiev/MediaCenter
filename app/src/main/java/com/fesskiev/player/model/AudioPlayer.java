@@ -33,12 +33,17 @@ public class AudioPlayer {
         this.audioFolders = new ArrayList<>();
         this.currentAudioFolder = new AudioFolder();
         this.volume = 100;
-    }
 
+    }
 
     public void setCurrentAudioFile(AudioFile audioFile) {
         this.currentAudioFile = audioFile;
         sendBroadcastChangeAudioFile();
+    }
+
+    public void setCurrentAudioFolderFiles(List<AudioFile> audioFiles) {
+        this.currentAudioFolder.audioFiles = audioFiles;
+        sendBroadcastChangeAudioFolder();
     }
 
     public void next() {
@@ -73,7 +78,7 @@ public class AudioPlayer {
         position--;
     }
 
-    public void sendBroadcastChangeAudioFolder() {
+    private void sendBroadcastChangeAudioFolder() {
         Intent intent = new Intent();
         intent.setAction(ACTION_CHANGE_CURRENT_AUDIO_FOLDER);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);

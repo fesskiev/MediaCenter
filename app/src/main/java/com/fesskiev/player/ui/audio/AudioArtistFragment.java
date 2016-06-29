@@ -23,7 +23,7 @@ import com.fesskiev.player.model.Artist;
 import com.fesskiev.player.ui.GridFragment;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.player.ui.audio.utils.Constants;
-import com.fesskiev.player.ui.tracklist.TrackListActivity;
+import com.fesskiev.player.ui.audio.tracklist.TrackListActivity;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 

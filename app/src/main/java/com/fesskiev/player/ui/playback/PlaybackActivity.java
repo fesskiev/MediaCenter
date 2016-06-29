@@ -6,11 +6,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.provider.MediaStore;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -23,6 +22,7 @@ import android.widget.TextView;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.analytics.AnalyticsActivity;
+import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
@@ -76,15 +76,14 @@ public class PlaybackActivity extends AnalyticsActivity {
                 new RecyclerItemTouchClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View childView, int position) {
-                        Log.d(TAG, "get adapter pos: " + position);
-                        if (position == -1) {
-                            return;
-                        }
 
                         List<AudioFile> audioFiles = adapter.getAudioFiles();
                         AudioFile audioFile = audioFiles.get(position);
                         if (audioFile != null) {
                             audioPlayer.setCurrentAudioFile(audioFile);
+                            audioFile.isSelected = true;
+                            DatabaseHelper.updateSelectedAudioFile(getApplicationContext(),
+                                    audioFile);
                             PlaybackService.createPlayer(PlaybackActivity.this, audioFile.getFilePath());
                             PlaybackService.startPlayback(PlaybackActivity.this);
                         }
@@ -95,20 +94,6 @@ public class PlaybackActivity extends AnalyticsActivity {
 
                     }
                 }));
-
-        AudioFile audioFile = audioPlayer.currentAudioFile;
-        if (audioFile != null) {
-            setMusicFileInfo(audioFile);
-        } else {
-            showEmptyTrackCard();
-        }
-
-        AudioFolder audioFolder = audioPlayer.currentAudioFolder;
-        if (audioFolder != null) {
-            setMusicFolderInfo();
-        } else {
-            showEmptyFolderCard();
-        }
 
         playPauseButton = (PlayPauseFloatingButton) findViewById(R.id.playPauseFAB);
         playPauseButton.setOnClickListener(new View.OnClickListener() {
@@ -121,28 +106,11 @@ public class PlaybackActivity extends AnalyticsActivity {
                 }
             }
         });
+        playPauseButton.setPlay(audioPlayer.isPlaying);
 
         View bottomSheet = findViewById(R.id.bottom_sheet);
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
         if (bottomSheetBehavior != null) {
-            bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-                @Override
-                public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                    switch (newState) {
-                        case BottomSheetBehavior.STATE_COLLAPSED:
-                            Log.d(TAG, "BottomSheetBehavior.STATE_COLLAPSED");
-                            break;
-                        case BottomSheetBehavior.STATE_EXPANDED:
-                            Log.d(TAG, "BottomSheetBehavior.STATE_EXPANDED");
-                            break;
-                    }
-                }
-
-                @Override
-                public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-
-                }
-            });
 
             peakView = findViewById(R.id.basicNavPlayerContainer);
             peakView.setOnClickListener(new View.OnClickListener() {
@@ -162,8 +130,35 @@ public class PlaybackActivity extends AnalyticsActivity {
             });
         }
 
-        Log.wtf(TAG, "register playback broadcast");
         registerPlaybackBroadcastReceiver();
+
+        fetchCurrentAudioFile();
+        fetchCurrentAudioFolder();
+    }
+
+    private void fetchCurrentAudioFile() {
+        AudioFile audioFile = DatabaseHelper.getSelectedAudioFile(getApplicationContext());
+        if (audioFile != null) {
+            audioPlayer.setCurrentAudioFile(audioFile);
+            PlaybackService.createPlayer(getApplicationContext(),
+                    audioPlayer.currentAudioFile.getFilePath());
+        } else {
+            showEmptyTrackCard();
+        }
+    }
+
+    private void fetchCurrentAudioFolder() {
+        AudioFolder audioFolder = DatabaseHelper.getSelectedAudioFolder(getApplicationContext());
+        if (audioFolder != null) {
+            audioPlayer.currentAudioFolder = audioFolder;
+            List<AudioFile> audioFiles =
+                    DatabaseHelper.getSelectedFolderAudioFiles(getApplicationContext(), audioFolder);
+            if (audioFiles != null) {
+                audioPlayer.setCurrentAudioFolderFiles(audioFiles);
+            }
+        } else {
+            showEmptyFolderCard();
+        }
     }
 
     @Override
@@ -189,7 +184,7 @@ public class PlaybackActivity extends AnalyticsActivity {
 
     private void setMusicFolderInfo() {
         AudioFolder audioFolder = audioPlayer.currentAudioFolder;
-        if(audioFolder != null) {
+        if (audioFolder != null) {
             adapter.refreshAdapter(audioFolder.audioFiles);
         }
     }
@@ -222,7 +217,6 @@ public class PlaybackActivity extends AnalyticsActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.wtf(TAG, "unregister playback broadcast");
         unregisterPlaybackBroadcastReceiver();
     }
 
@@ -277,12 +271,12 @@ public class PlaybackActivity extends AnalyticsActivity {
                     PlaybackService.startPlayback(getApplicationContext());
                     break;
                 case PlaybackService.ACTION_HEADSET_PLUG_IN:
-                    if(!audioPlayer.isPlaying){
+                    if (!audioPlayer.isPlaying) {
                         PlaybackService.startPlayback(getApplicationContext());
                     }
                     break;
                 case PlaybackService.ACTION_HEADSET_PLUG_OUT:
-                    if(audioPlayer.isPlaying){
+                    if (audioPlayer.isPlaying) {
                         PlaybackService.stopPlayback(getApplicationContext());
                     }
                     break;

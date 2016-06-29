@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.content.ContentResolverCompat;
+import android.util.Log;
 
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
@@ -26,6 +27,7 @@ public class DatabaseHelper {
         dateValues.put(MediaCenterProvider.FOLDER_COVER,
                 audioFolder.folderImage != null ? audioFolder.folderImage.getAbsolutePath() : null);
         dateValues.put(MediaCenterProvider.FOLDER_INDEX, audioFolder.index);
+        dateValues.put(MediaCenterProvider.FOLDER_SELECTED, audioFolder.isSelected ? 1 : 0);
 
         context.getContentResolver().insert(
                 MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
@@ -42,6 +44,62 @@ public class DatabaseHelper {
                 dateValues,
                 MediaCenterProvider.FOLDER_PATH + "=" + "'" + audioFolder.folderPath + "'",
                 null);
+    }
+
+    public static AudioFolder getSelectedAudioFolder(Context context) {
+        Cursor cursor = ContentResolverCompat.query(context.getContentResolver(),
+                MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
+                null,
+                MediaCenterProvider.FOLDER_SELECTED + "=" + "'" + 1 + "'",
+                null,
+                null,
+                null);
+        if (cursor.getCount() > 0) {
+            cursor.moveToPosition(0);
+            return new AudioFolder(cursor);
+
+        }
+        return null;
+    }
+
+    public static List<AudioFile> getSelectedFolderAudioFiles(Context context, AudioFolder audioFolder) {
+
+        Cursor cursor = ContentResolverCompat.query(context.getContentResolver(),
+                MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
+                null,
+                MediaCenterProvider.ID + "=" + "'" + audioFolder.id + "'",
+                null,
+                MediaCenterProvider.TRACK_NUMBER + " ASC",
+                null);
+        List<AudioFile> audioFiles = null;
+        if (cursor.getCount() > 0) {
+            audioFiles = new ArrayList<>();
+            cursor.moveToPosition(-1);
+            while (cursor.moveToNext()) {
+                audioFiles.add(new AudioFile(cursor));
+            }
+        }
+        cursor.close();
+        return audioFiles;
+    }
+
+    public static void updateSelectedAudioFolder(Context context, AudioFolder audioFolder) {
+        ContentValues clearValues = new ContentValues();
+        clearValues.put(MediaCenterProvider.FOLDER_SELECTED, 0);
+
+        context.getContentResolver().update(MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
+                clearValues,
+                null,
+                null);
+
+        ContentValues dateValues = new ContentValues();
+        dateValues.put(MediaCenterProvider.FOLDER_SELECTED, audioFolder.isSelected ? 1 : 0);
+
+        context.getContentResolver().update(MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
+                dateValues,
+                MediaCenterProvider.FOLDER_PATH + "=" + "'" + audioFolder.folderPath + "'",
+                null);
+
     }
 
     public static void updateAudioFile(Context context, AudioFile audioFile) {
@@ -82,6 +140,7 @@ public class DatabaseHelper {
         dateValues.put(MediaCenterProvider.TRACK_NUMBER, audioFile.trackNumber);
         dateValues.put(MediaCenterProvider.TRACK_SAMPLE_RATE, audioFile.sampleRate);
         dateValues.put(MediaCenterProvider.TRACK_IN_PLAY_LIST, audioFile.inPlayList ? 1 : 0);
+        dateValues.put(MediaCenterProvider.TRACK_SELECTED, audioFile.isSelected ? 1 : 0);
         dateValues.put(MediaCenterProvider.TRACK_COVER, audioFile.artworkPath);
 
 
@@ -99,10 +158,45 @@ public class DatabaseHelper {
                 null);
 
         boolean contain = cursor.getCount() > 0;
-
         cursor.close();
 
         return contain;
+    }
+
+    public static void updateSelectedAudioFile(Context context, AudioFile audioFile) {
+        ContentValues clearValues = new ContentValues();
+        clearValues.put(MediaCenterProvider.TRACK_SELECTED, 0);
+
+        context.getContentResolver().update(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
+                clearValues,
+                null,
+                null);
+
+        ContentValues dateValues = new ContentValues();
+        dateValues.put(MediaCenterProvider.TRACK_SELECTED, audioFile.isSelected ? 1 : 0);
+
+        context.getContentResolver().update(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
+                dateValues,
+                MediaCenterProvider.TRACK_PATH + "=" + "'" + audioFile.filePath + "'",
+                null);
+
+    }
+
+    public static AudioFile getSelectedAudioFile(Context context) {
+        Cursor cursor = ContentResolverCompat.query(context.getContentResolver(),
+                MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
+                null,
+                MediaCenterProvider.TRACK_SELECTED + "=" + "'" + 1 + "'",
+                null,
+                null,
+                null);
+        if (cursor.getCount() > 0) {
+            cursor.moveToPosition(0);
+            return new AudioFile(cursor);
+
+        }
+        cursor.close();
+        return null;
     }
 
     public static String getDownloadFolderID(Context context) {

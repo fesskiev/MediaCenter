@@ -1,4 +1,4 @@
-package com.fesskiev.player.ui.tracklist;
+package com.fesskiev.player.ui.audio.tracklist;
 
 import android.content.ComponentName;
 import android.os.Bundle;

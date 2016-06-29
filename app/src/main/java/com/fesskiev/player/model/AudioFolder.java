@@ -18,6 +18,7 @@ public class AudioFolder implements Comparable<AudioFolder> {
     public String id;
     public String folderName;
     public int index;
+    public boolean isSelected;
 
     public AudioFolder(Cursor cursor) {
         audioFiles = new ArrayList<>();
@@ -30,6 +31,7 @@ public class AudioFolder implements Comparable<AudioFolder> {
         folderImage = imagePath != null ? new File(imagePath) : null;
 
         index = cursor.getInt(cursor.getColumnIndex(MediaCenterProvider.FOLDER_INDEX));
+        isSelected = cursor.getInt(cursor.getColumnIndex(MediaCenterProvider.FOLDER_SELECTED)) == 1;
     }
 
     public AudioFolder() {
@@ -51,12 +53,12 @@ public class AudioFolder implements Comparable<AudioFolder> {
     @Override
     public String toString() {
         return "AudioFolder{" +
-                "audioFiles=" + audioFiles +
-                ", folderPath=" + folderPath +
+                "folderPath=" + folderPath +
                 ", folderImage=" + folderImage +
                 ", id='" + id + '\'' +
                 ", folderName='" + folderName + '\'' +
                 ", index=" + index +
+                ", isSelected=" + isSelected +
                 '}';
     }
 }

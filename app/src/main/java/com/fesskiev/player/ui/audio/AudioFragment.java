@@ -4,9 +4,11 @@ package com.fesskiev.player.ui.audio;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
+
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -48,6 +50,10 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
 
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.primary_light));
+        swipeRefreshLayout.setProgressViewOffset(false, 0,
+                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
+
         viewPager.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -60,6 +66,7 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
                 return false;
             }
         });
+
     }
 
     public void fetchAudioContent() {
