@@ -3,15 +3,11 @@ package com.fesskiev.player.ui.video;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
@@ -27,17 +23,15 @@ import android.view.ViewGroup;
 import android.widget.PopupMenu;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.util.Util;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.db.DatabaseHelper;
-import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.model.VideoFile;
 import com.fesskiev.player.model.VideoPlayer;
 import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.ui.video.player.VideoExoPlayerActivity;
-import com.fesskiev.player.ui.video.utils.Constants;
 import com.fesskiev.player.utils.BitmapHelper;
+import com.fesskiev.player.utils.RxUtils;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.buttons.VideoCardView;
 import com.fesskiev.player.widgets.recycleview.GridDividerDecoration;
@@ -45,16 +39,13 @@ import com.fesskiev.player.widgets.recycleview.GridDividerDecoration;
 import java.util.ArrayList;
 import java.util.List;
 
-import rx.Observable;
 import rx.Observer;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 
-public class VideoFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
-        SwipeRefreshLayout.OnRefreshListener {
+public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = VideoFragment.class.getSimpleName();
 
@@ -65,7 +56,7 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
     private VideoFilesAdapter adapter;
     private CardView emptyAudioContent;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private Subscription subscription;
+    private CompositeSubscription subscriptions;
     private VideoPlayer videoPlayer;
 
     @Override
@@ -73,6 +64,7 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         videoPlayer = MediaApplication.getInstance().getVideoPlayer();
+        subscriptions = new CompositeSubscription();
     }
 
     @Override
@@ -115,8 +107,32 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
         if (swipeRefreshLayout.isRefreshing()) {
             swipeRefreshLayout.setRefreshing(false);
         }
-        getActivity().
-                getSupportLoaderManager().restartLoader(Constants.GET_VIDEO_FILES_LOADER, null, this);
+        subscriptions.add(RxUtils.fromCallableObservable(DatabaseHelper.getVideoFiles())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<VideoFile>>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.wtf(TAG, "onCompleted:video:");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.wtf(TAG, "onError:video:");
+                    }
+
+                    @Override
+                    public void onNext(List<VideoFile> videoFiles) {
+                        Log.wtf(TAG, "onNext:video: " + videoFiles.size());
+                        if (!videoFiles.isEmpty()) {
+                            videoPlayer.videoFiles = videoFiles;
+                            adapter.refresh(videoFiles);
+                            hideEmptyContentCard();
+                        } else {
+                            showEmptyContentCard();
+                        }
+                    }
+                }));
     }
 
     private void startExoPlayerActivity(VideoFile videoFile) {
@@ -136,10 +152,26 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        subscription = getObservable()
+                        subscriptions.add(RxUtils
+                                .fromCallableObservable(DatabaseHelper.resetVideoContentDatabase())
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(getObserver());
+                                .subscribe(new Observer<Void>() {
+                                    @Override
+                                    public void onCompleted() {
+                                        FileSystemIntentService.startFetchVideo(getActivity());
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+
+                                    }
+
+                                    @Override
+                                    public void onNext(Void aVoid) {
+
+                                    }
+                                }));
 
                     }
                 });
@@ -161,90 +193,9 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        switch (id) {
-            case Constants.GET_VIDEO_FILES_LOADER:
-                return new CursorLoader(
-                        getActivity(),
-                        MediaCenterProvider.VIDEO_FILES_TABLE_CONTENT_URI,
-                        null,
-                        null,
-                        null,
-                        null
-
-                );
-            default:
-                return null;
-        }
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        Log.d(TAG, "cursor video files: " + cursor.getCount());
-        if (cursor.getCount() > 0) {
-            List<VideoFile> videoFiles = new ArrayList<>();
-            cursor.moveToPosition(-1);
-            while (cursor.moveToNext()) {
-                videoFiles.add(new VideoFile(cursor));
-            }
-            if (!videoFiles.isEmpty()) {
-                videoPlayer.videoFiles = videoFiles;
-                adapter.refresh(videoFiles);
-                hideEmptyContentCard();
-            }
-        } else {
-            showEmptyContentCard();
-        }
-
-        destroyLoader();
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
-    }
-
-    private void destroyLoader() {
-        getActivity().getSupportLoaderManager().destroyLoader(Constants.GET_VIDEO_FILES_LOADER);
-    }
-
-    private Observable<Boolean> getObservable() {
-        return Observable.just(true).map(new Func1<Boolean, Boolean>() {
-            @Override
-            public Boolean call(Boolean result) {
-                DatabaseHelper.resetVideoContentDatabase(getActivity());
-                return result;
-            }
-        });
-    }
-
-    private Observer<Boolean> getObserver() {
-        return new Observer<Boolean>() {
-
-            @Override
-            public void onCompleted() {
-                FileSystemIntentService.startFetchVideo(getActivity());
-
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-            }
-
-            @Override
-            public void onNext(Boolean bool) {
-
-            }
-        };
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
-        if (subscription != null) {
-            subscription.unsubscribe();
-        }
+        RxUtils.unsubscribe(subscriptions);
     }
 
 

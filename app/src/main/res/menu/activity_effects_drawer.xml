@@ -19,7 +19,7 @@
 
                     <item
                         android:id="@+id/virtualizer"
-                        android:icon="@drawable/icon_bass_boost"
+                        android:icon="@drawable/icon_virtualizer"
                         android:title="@string/drawer_item_virtualizer"
                         app:actionLayout="@layout/nav_drawer_bass_switch" />
                 </group>

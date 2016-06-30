@@ -2,12 +2,7 @@ package com.fesskiev.player.ui.audio;
 
 
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
@@ -20,7 +15,6 @@ import android.widget.TextView;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.db.DatabaseHelper;
-import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.ui.GridFragment;
@@ -28,6 +22,7 @@ import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.player.ui.audio.utils.Constants;
 import com.fesskiev.player.ui.audio.tracklist.TrackListActivity;
 import com.fesskiev.player.utils.BitmapHelper;
+import com.fesskiev.player.utils.RxUtils;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 import com.fesskiev.player.widgets.recycleview.helper.ItemTouchHelperAdapter;
 import com.fesskiev.player.widgets.recycleview.helper.ItemTouchHelperViewHolder;
@@ -37,8 +32,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import rx.Observer;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
-public class AudioFoldersFragment extends GridFragment implements AudioContent, LoaderManager.LoaderCallbacks<Cursor> {
+
+public class AudioFoldersFragment extends GridFragment implements AudioContent {
 
     private static final String TAG = AudioFoldersFragment.class.getSimpleName();
 
@@ -48,8 +48,8 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent, 
     }
 
 
-    private FragmentActivity activity;
     private List<AudioFolder> audioFolders;
+    private Subscription subscription;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -99,65 +99,45 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent, 
     }
 
     @Override
-    public void fetchAudioContent(FragmentActivity activity) {
-        this.activity = activity;
-        activity.getSupportLoaderManager().
-                restartLoader(Constants.GET_AUDIO_FOLDERS_LOADER, null, this);
+    public void fetchAudioContent() {
+        subscription = RxUtils.fromCallableObservable(DatabaseHelper.getAudioFolders())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<AudioFolder>>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.wtf(TAG, "onCompleted:folders:");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.wtf(TAG, "onError:folders:");
+                    }
+
+                    @Override
+                    public void onNext(List<AudioFolder> audioFolders) {
+                        Log.wtf(TAG, "onNext:folders: " + audioFolders.size());
+                        if (!audioFolders.isEmpty()) {
+                            Collections.sort(audioFolders);
+
+                            AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
+                            audioPlayer.audioFolders = audioFolders;
+
+                            ((AudioFoldersAdapter) adapter).refresh(audioFolders);
+                            hideEmptyContentCard();
+                        } else {
+                            showEmptyContentCard();
+                        }
+                        checkNeedShowPlayback(audioFolders);
+                    }
+                });
     }
+
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        switch (id) {
-            case Constants.GET_AUDIO_FOLDERS_LOADER:
-                return new CursorLoader(
-                        activity,
-                        MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
-                        null,
-                        null,
-                        null,
-                        null
-
-                );
-            default:
-                return null;
-        }
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        Log.d(TAG, "cursor folders " + cursor.getCount());
-        List<AudioFolder> audioFolders = new ArrayList<>();
-        if (cursor.getCount() > 0) {
-            cursor.moveToPosition(-1);
-            while (cursor.moveToNext()) {
-                AudioFolder audioFolder = new AudioFolder(cursor);
-                audioFolders.add(audioFolder);
-            }
-
-            if (!audioFolders.isEmpty()) {
-                Collections.sort(audioFolders);
-
-                AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-                audioPlayer.audioFolders = audioFolders;
-
-                ((AudioFoldersAdapter) adapter).refresh(audioFolders);
-            }
-            hideEmptyContentCard();
-        } else {
-            showEmptyContentCard();
-        }
-
-        checkNeedShowPlayback(audioFolders);
-        destroyLoader();
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
-    }
-
-    private void destroyLoader() {
-        activity.getSupportLoaderManager().destroyLoader(Constants.GET_AUDIO_FOLDERS_LOADER);
+    public void onDestroy() {
+        super.onDestroy();
+        RxUtils.unsubscribe(subscription);
     }
 
     public class AudioFoldersAdapter extends

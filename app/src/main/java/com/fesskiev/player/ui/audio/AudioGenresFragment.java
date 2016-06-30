@@ -2,12 +2,7 @@ package com.fesskiev.player.ui.audio;
 
 
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,19 +13,24 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.fesskiev.player.R;
-import com.fesskiev.player.db.MediaCenterProvider;
+import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.model.Genre;
 import com.fesskiev.player.ui.GridFragment;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.player.ui.audio.utils.Constants;
 import com.fesskiev.player.ui.audio.tracklist.TrackListActivity;
 import com.fesskiev.player.utils.BitmapHelper;
+import com.fesskiev.player.utils.RxUtils;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 
 import java.util.Set;
-import java.util.TreeSet;
 
-public class AudioGenresFragment extends GridFragment implements AudioContent, LoaderManager.LoaderCallbacks<Cursor> {
+import rx.Observer;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+public class AudioGenresFragment extends GridFragment implements AudioContent {
 
     private static final String TAG = AudioGenresFragment.class.getSimpleName();
 
@@ -38,8 +38,8 @@ public class AudioGenresFragment extends GridFragment implements AudioContent, L
         return new AudioGenresFragment();
     }
 
-    private FragmentActivity activity;
     private Object[] genres;
+    private Subscription subscription;
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -68,59 +68,40 @@ public class AudioGenresFragment extends GridFragment implements AudioContent, L
     }
 
     @Override
-    public void fetchAudioContent(FragmentActivity activity) {
-        this.activity = activity;
-        activity.getSupportLoaderManager().
-                restartLoader(Constants.GET_AUDIO_GENRES_LOADER, null, this);
+    public void fetchAudioContent() {
+
+        subscription = RxUtils.fromCallableObservable(DatabaseHelper.getGenres())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Set<Genre>>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.wtf(TAG, "onCompleted:genres:");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.wtf(TAG, "onError:genres:");
+                    }
+
+                    @Override
+                    public void onNext(Set<Genre> genres) {
+                        Log.wtf(TAG, "onNext:genres: " + genres.size());
+                        if (!genres.isEmpty()) {
+                            ((AudioGenresAdapter) adapter).refresh(genres);
+                            hideEmptyContentCard();
+                        } else {
+                            showEmptyContentCard();
+                        }
+                    }
+                });
     }
+
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        switch (id) {
-            case Constants.GET_AUDIO_GENRES_LOADER:
-                return new CursorLoader(
-                        activity,
-                        MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
-                        new String[]{MediaCenterProvider.TRACK_GENRE, MediaCenterProvider.TRACK_COVER},
-                        null,
-                        null,
-                        null
-
-                );
-            default:
-                return null;
-        }
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        Log.d(TAG, "cursor genres " + cursor.getCount());
-        if (cursor.getCount() > 0) {
-
-            Set<Genre> genres = new TreeSet<>();
-
-            cursor.moveToPosition(-1);
-            while (cursor.moveToNext()) {
-                genres.add(new Genre(cursor));
-            }
-
-            if (!genres.isEmpty()) {
-                ((AudioGenresAdapter) adapter).refresh(genres);
-            }
-            hideEmptyContentCard();
-        } else {
-            showEmptyContentCard();
-        }
-        destroyLoader();
-    }
-
-    private void destroyLoader() {
-        activity.getSupportLoaderManager().destroyLoader(Constants.GET_AUDIO_GENRES_LOADER);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
+    public void onDestroy() {
+        super.onDestroy();
+        RxUtils.unsubscribe(subscription);
     }
 
     @Override

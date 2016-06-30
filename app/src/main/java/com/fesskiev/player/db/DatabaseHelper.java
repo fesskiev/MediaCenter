@@ -4,15 +4,20 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.content.ContentResolverCompat;
-import android.util.Log;
 
+import com.fesskiev.player.MediaApplication;
+import com.fesskiev.player.model.Artist;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
+import com.fesskiev.player.model.Genre;
 import com.fesskiev.player.model.VideoFile;
 import com.fesskiev.player.utils.CacheManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.Callable;
 
 public class DatabaseHelper {
 
@@ -215,13 +220,28 @@ public class DatabaseHelper {
         return id;
     }
 
-    public static void resetVideoContentDatabase(Context context) {
-        context.getContentResolver().delete(MediaCenterProvider.VIDEO_FILES_TABLE_CONTENT_URI, null, null);
+    public static Callable<Void> resetVideoContentDatabase() {
+        return new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                MediaApplication.getInstance().
+                        getContentResolver().delete(MediaCenterProvider.VIDEO_FILES_TABLE_CONTENT_URI, null, null);
+                return null;
+            }
+        };
     }
 
-    public static void resetAudioContentDatabase(Context context) {
-        context.getContentResolver().delete(MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI, null, null);
-        context.getContentResolver().delete(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI, null, null);
+    public static Callable<Void>resetAudioContentDatabase() {
+        return new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                MediaApplication.getInstance().
+                        getContentResolver().delete(MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI, null, null);
+                MediaApplication.getInstance().
+                        getContentResolver().delete(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI, null, null);
+                return null;
+            }
+        };
     }
 
 
@@ -305,5 +325,137 @@ public class DatabaseHelper {
                 dateValues,
                 MediaCenterProvider.VIDEO_FILE_PATH + "=" + "'" + videoFile.filePath + "'",
                 null);
+    }
+
+
+    public static Callable<List<VideoFile>> getVideoFiles() {
+        return new Callable<List<VideoFile>>() {
+            @Override
+            public List<VideoFile> call() throws Exception {
+                return getVideoFilesFromDatabase();
+            }
+        };
+    }
+
+    private static List<VideoFile> getVideoFilesFromDatabase() {
+        Cursor cursor = MediaApplication.getInstance().getContentResolver().
+                query(MediaCenterProvider.VIDEO_FILES_TABLE_CONTENT_URI,
+                        null,
+                        null,
+                        null,
+                        null
+                );
+
+        if (cursor != null && cursor.getCount() > 0) {
+
+            List<VideoFile> videoFiles = new ArrayList<>();
+
+            cursor.moveToPosition(-1);
+            while (cursor.moveToNext()) {
+                videoFiles.add(new VideoFile(cursor));
+            }
+            cursor.close();
+            return videoFiles;
+        }
+        return null;
+    }
+
+
+    public static Callable<List<AudioFolder>> getAudioFolders() {
+        return new Callable<List<AudioFolder>>() {
+            @Override
+            public List<AudioFolder> call() throws Exception {
+                return getAudioFoldersFromDatabase();
+            }
+        };
+    }
+
+    private static List<AudioFolder> getAudioFoldersFromDatabase() {
+        Cursor cursor = MediaApplication.getInstance().getContentResolver().
+                query(MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
+                        null,
+                        null,
+                        null,
+                        null
+                );
+
+        if (cursor != null && cursor.getCount() > 0) {
+
+            List<AudioFolder> audioFolders = new ArrayList<>();
+
+            cursor.moveToPosition(-1);
+            while (cursor.moveToNext()) {
+                audioFolders.add(new AudioFolder(cursor));
+            }
+            cursor.close();
+            return audioFolders;
+        }
+        return null;
+    }
+
+
+    public static Callable<Set<Artist>> getArtists() {
+        return new Callable<Set<Artist>>() {
+            @Override
+            public Set<Artist> call() throws Exception {
+                return getArtistsFromDatabase();
+            }
+        };
+    }
+
+    private static Set<Artist> getArtistsFromDatabase() {
+        Cursor cursor = MediaApplication.getInstance().getContentResolver().
+                query(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
+                        new String[]{MediaCenterProvider.TRACK_ARTIST, MediaCenterProvider.TRACK_COVER},
+                        null,
+                        null,
+                        null
+                );
+
+        if (cursor != null && cursor.getCount() > 0) {
+
+            Set<Artist> artists = new TreeSet<>();
+
+            cursor.moveToPosition(-1);
+            while (cursor.moveToNext()) {
+                artists.add(new Artist(cursor));
+            }
+            cursor.close();
+            return artists;
+        }
+        return null;
+    }
+
+
+    public static Callable<Set<Genre>> getGenres() {
+        return new Callable<Set<Genre>>() {
+            @Override
+            public Set<Genre> call() throws Exception {
+                return getGenresFromDatabase();
+            }
+        };
+    }
+
+    private static Set<Genre> getGenresFromDatabase() {
+        Cursor cursor = MediaApplication.getInstance().getContentResolver().
+                query(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
+                        new String[]{MediaCenterProvider.TRACK_GENRE, MediaCenterProvider.TRACK_COVER},
+                        null,
+                        null,
+                        null
+                );
+
+        if (cursor != null && cursor.getCount() > 0) {
+
+            Set<Genre> genres = new TreeSet<>();
+
+            cursor.moveToPosition(-1);
+            while (cursor.moveToNext()) {
+                genres.add(new Genre(cursor));
+            }
+            cursor.close();
+            return genres;
+        }
+        return null;
     }
 }

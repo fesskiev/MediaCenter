@@ -18,14 +18,13 @@ import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.ui.ViewPagerFragment;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.CacheManager;
+import com.fesskiev.player.utils.RxUtils;
 
 import java.util.List;
 
-import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 
@@ -76,7 +75,7 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
         List<Fragment> fragments = getRegisteredFragments();
         for (Fragment fragment : fragments) {
             AudioContent audioContent = (AudioContent) fragment;
-            audioContent.fetchAudioContent(getActivity());
+            audioContent.fetchAudioContent();
         }
     }
 
@@ -91,10 +90,28 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        subscription = getObservable()
+                        subscription = RxUtils
+                                .fromCallableObservable(DatabaseHelper.resetAudioContentDatabase())
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(getObserver());
+                                .subscribe(new Observer<Void>() {
+                                    @Override
+                                    public void onCompleted() {
+                                        CacheManager.clearImagesCache();
+                                        BitmapHelper.saveDownloadFolderIcon(getActivity());
+                                        FileSystemIntentService.startFetchAudio(getActivity());
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+
+                                    }
+
+                                    @Override
+                                    public void onNext(Void aVoid) {
+
+                                    }
+                                });
 
                     }
                 });
@@ -113,39 +130,6 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
             }
         });
         builder.show();
-    }
-
-
-    private Observable<Boolean> getObservable() {
-        return Observable.just(true).map(new Func1<Boolean, Boolean>() {
-            @Override
-            public Boolean call(Boolean result) {
-                CacheManager.clearImagesCache();
-                BitmapHelper.saveDownloadFolderIcon(getActivity());
-                DatabaseHelper.resetAudioContentDatabase(getActivity());
-                return result;
-            }
-        });
-    }
-
-    private Observer<Boolean> getObserver() {
-        return new Observer<Boolean>() {
-
-            @Override
-            public void onCompleted() {
-                FileSystemIntentService.startFetchAudio(getActivity());
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-            }
-
-            @Override
-            public void onNext(Boolean bool) {
-
-            }
-        };
     }
 
     @Override

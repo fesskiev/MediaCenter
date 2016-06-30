@@ -2,12 +2,7 @@ package com.fesskiev.player.ui.audio;
 
 
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,20 +13,25 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.fesskiev.player.R;
-import com.fesskiev.player.db.MediaCenterProvider;
+import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.model.Artist;
 import com.fesskiev.player.ui.GridFragment;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.player.ui.audio.utils.Constants;
 import com.fesskiev.player.ui.audio.tracklist.TrackListActivity;
 import com.fesskiev.player.utils.BitmapHelper;
+import com.fesskiev.player.utils.RxUtils;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 
 import java.util.Set;
-import java.util.TreeSet;
+
+import rx.Observer;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 
-public class AudioArtistFragment extends GridFragment implements AudioContent, LoaderManager.LoaderCallbacks<Cursor> {
+public class AudioArtistFragment extends GridFragment implements AudioContent {
 
     private static final String TAG = AudioArtistFragment.class.getSimpleName();
 
@@ -39,8 +39,8 @@ public class AudioArtistFragment extends GridFragment implements AudioContent, L
         return new AudioArtistFragment();
     }
 
-    private FragmentActivity activity;
     private Object[] artists;
+    private Subscription subscription;
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -70,58 +70,39 @@ public class AudioArtistFragment extends GridFragment implements AudioContent, L
 
 
     @Override
-    public void fetchAudioContent(FragmentActivity activity) {
-        this.activity = activity;
-        activity.getSupportLoaderManager().
-                restartLoader(Constants.GET_AUDIO_ARTIST_LOADER, null, this);
+    public void fetchAudioContent() {
+        subscription = RxUtils.fromCallableObservable(DatabaseHelper.getArtists())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Set<Artist>>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.wtf(TAG, "onCompleted:artists:");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.wtf(TAG, "onError:artists:");
+                    }
+
+                    @Override
+                    public void onNext(Set<Artist> artists) {
+                        Log.wtf(TAG, "onNext:artists: " + artists.size());
+                        if (!artists.isEmpty()) {
+                            ((AudioArtistsAdapter) adapter).refresh(artists);
+                            hideEmptyContentCard();
+                        } else {
+                            showEmptyContentCard();
+                        }
+
+                    }
+                });
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        switch (id) {
-            case Constants.GET_AUDIO_ARTIST_LOADER:
-                return new CursorLoader(
-                        activity,
-                        MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
-                        new String[]{MediaCenterProvider.TRACK_ARTIST, MediaCenterProvider.TRACK_COVER},
-                        null,
-                        null,
-                        null
-
-                );
-            default:
-                return null;
-        }
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        Log.d(TAG, "cursor artists " + cursor.getCount());
-        if (cursor.getCount() > 0) {
-            Set<Artist> artists = new TreeSet<>();
-
-            cursor.moveToPosition(-1);
-            while (cursor.moveToNext()) {
-                artists.add(new Artist(cursor));
-            }
-
-            if (!artists.isEmpty()) {
-                ((AudioArtistsAdapter) adapter).refresh(artists);
-            }
-            hideEmptyContentCard();
-        } else {
-            showEmptyContentCard();
-        }
-        destroyLoader();
-    }
-
-    private void destroyLoader() {
-        activity.getSupportLoaderManager().destroyLoader(Constants.GET_AUDIO_ARTIST_LOADER);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
+    public void onDestroy() {
+        super.onDestroy();
+        RxUtils.unsubscribe(subscription);
     }
 
     @Override
