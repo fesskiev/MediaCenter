@@ -77,7 +77,7 @@ public class PlayListFragment extends Fragment implements LoaderManager.LoaderCa
             @Override
             public void onClick(View v) {
                 itemCount = 0;
-                DatabaseHelper.clearPlaylist(getContext());
+                DatabaseHelper.clearPlaylist();
             }
         });
 

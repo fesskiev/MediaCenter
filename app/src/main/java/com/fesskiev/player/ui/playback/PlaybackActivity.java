@@ -82,8 +82,7 @@ public class PlaybackActivity extends AnalyticsActivity {
                         if (audioFile != null) {
                             audioPlayer.setCurrentAudioFile(audioFile);
                             audioFile.isSelected = true;
-                            DatabaseHelper.updateSelectedAudioFile(getApplicationContext(),
-                                    audioFile);
+                            DatabaseHelper.updateSelectedAudioFile(audioFile);
                             PlaybackService.createPlayer(PlaybackActivity.this, audioFile.getFilePath());
                             PlaybackService.startPlayback(PlaybackActivity.this);
                         }
@@ -137,7 +136,7 @@ public class PlaybackActivity extends AnalyticsActivity {
     }
 
     private void fetchCurrentAudioFile() {
-        AudioFile audioFile = DatabaseHelper.getSelectedAudioFile(getApplicationContext());
+        AudioFile audioFile = DatabaseHelper.getSelectedAudioFile();
         if (audioFile != null) {
             audioPlayer.setCurrentAudioFile(audioFile);
             PlaybackService.createPlayer(getApplicationContext(),
@@ -148,11 +147,11 @@ public class PlaybackActivity extends AnalyticsActivity {
     }
 
     private void fetchCurrentAudioFolder() {
-        AudioFolder audioFolder = DatabaseHelper.getSelectedAudioFolder(getApplicationContext());
+        AudioFolder audioFolder = DatabaseHelper.getSelectedAudioFolder();
         if (audioFolder != null) {
             audioPlayer.currentAudioFolder = audioFolder;
             List<AudioFile> audioFiles =
-                    DatabaseHelper.getSelectedFolderAudioFiles(getApplicationContext(), audioFolder);
+                    DatabaseHelper.getSelectedFolderAudioFiles(audioFolder);
             if (audioFiles != null) {
                 audioPlayer.setCurrentAudioFolderFiles(audioFiles);
             }

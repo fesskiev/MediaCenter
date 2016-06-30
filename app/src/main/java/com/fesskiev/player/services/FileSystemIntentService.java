@@ -108,9 +108,9 @@ public class FileSystemIntentService extends IntentService {
         File root = new File(CacheManager.CHECK_DOWNLOADS_FOLDER_PATH);
         File[] list = root.listFiles();
         for (File child : list) {
-            if (!DatabaseHelper.containAudioTrack(getApplicationContext(), child.getAbsolutePath())) {
+            if (!DatabaseHelper.containAudioTrack(child.getAbsolutePath())) {
                 if (folderId == null) {
-                    folderId = DatabaseHelper.getDownloadFolderID(getApplicationContext());
+                    folderId = DatabaseHelper.getDownloadFolderID();
                 }
                 new Thread(new FetchDownloadAudioInfo(child, folderId)).start();
             }
@@ -226,7 +226,7 @@ public class FileSystemIntentService extends IntentService {
 
             VideoFile videoFile = new VideoFile(file);
             Log.w(TAG, "create video file!: " + file.getAbsolutePath());
-            DatabaseHelper.insertVideoFile(getApplicationContext(), videoFile);
+            DatabaseHelper.insertVideoFile(videoFile);
             sendVideoFileBroadcast(videoFile.description);
         }
     }
@@ -270,7 +270,7 @@ public class FileSystemIntentService extends IntentService {
                         e.printStackTrace();
                     }
 
-                    DatabaseHelper.insertAudioFolder(getApplicationContext(), audioFolder);
+                    DatabaseHelper.insertAudioFolder(audioFolder);
 
                 }
             }
@@ -295,7 +295,7 @@ public class FileSystemIntentService extends IntentService {
                         @Override
                         public void onFetchCompleted(AudioFile file) {
                             file.id = id;
-                            DatabaseHelper.insertAudioFile(getApplicationContext(), file);
+                            DatabaseHelper.insertAudioFile(file);
                         }
                     });
         }
@@ -322,7 +322,7 @@ public class FileSystemIntentService extends IntentService {
                         public void onFetchCompleted(AudioFile file) {
                             file.id = audioFolder.id;
 
-                            DatabaseHelper.insertAudioFile(getApplicationContext(), file);
+                            DatabaseHelper.insertAudioFile(file);
 
                             sendAudioTrackNameBroadcast(file.artist + "-" + file.title);
                             latch.countDown();

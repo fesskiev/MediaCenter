@@ -273,7 +273,7 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             VideoFile videoFile = videoPlayer.videoFiles.get(position);
             if (videoFile != null) {
                 videoFile.inPlayList = true;
-                DatabaseHelper.updateVideoFile(getContext(), videoFile);
+                DatabaseHelper.updateVideoFile(videoFile);
                 Utils.showCustomSnackbar(getView(),
                         getContext().getApplicationContext(),
                         getString(R.string.add_to_playlist_text),

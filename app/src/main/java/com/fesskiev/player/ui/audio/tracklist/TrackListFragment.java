@@ -325,7 +325,7 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
             AudioFile audioFile = audioFiles.get(position);
             if (audioFile != null) {
                 audioFile.inPlayList = true;
-                DatabaseHelper.updateAudioFile(getContext(), audioFile);
+                DatabaseHelper.updateAudioFile(audioFile);
                 Utils.showCustomSnackbar(getView(),
                         getContext().getApplicationContext(),
                         getString(R.string.add_to_playlist_text),
@@ -342,8 +342,7 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
                         AudioPlayerActivity.startPlayerActivity(getActivity(), false, cover);
                     } else {
                         audioFile.isSelected = true;
-                        DatabaseHelper.updateSelectedAudioFile(getContext().getApplicationContext(),
-                                audioFile);
+                        DatabaseHelper.updateSelectedAudioFile(audioFile);
 
                         audioPlayer.setCurrentAudioFile(audioFile);
                         audioPlayer.position = position;
@@ -391,8 +390,7 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
                                         getString(R.string.shackbar_delete_file),
                                         Snackbar.LENGTH_LONG).show();
 
-                                DatabaseHelper.deleteAudioFile(getContext(),
-                                        audioFile.getFilePath());
+                                DatabaseHelper.deleteAudioFile(audioFile.getFilePath());
 
                                 trackListAdapter.removeItem(position);
 

@@ -75,7 +75,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                         if (audioFolder != null) {
                             audioPlayer.currentAudioFolder = audioFolder;
                             audioPlayer.currentAudioFolder.isSelected = true;
-                            DatabaseHelper.updateSelectedAudioFolder(getContext(), audioFolder);
+                            DatabaseHelper.updateSelectedAudioFolder(audioFolder);
 
                             Intent i = new Intent(getActivity(), TrackListActivity.class);
                             i.putExtra(Constants.EXTRA_CONTENT_TYPE, CONTENT_TYPE.FOLDERS);
@@ -175,7 +175,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
             AudioFolder audioFolder = audioFolders.get(position);
             if (audioFolder != null) {
                 audioFolder.index = position;
-                DatabaseHelper.updateAudioFolderIndex(getActivity(), audioFolder);
+                DatabaseHelper.updateAudioFolderIndex(audioFolder);
             }
         }
 

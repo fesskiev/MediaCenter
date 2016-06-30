@@ -89,7 +89,7 @@ public class EditTrackDialog extends AlertDialog implements View.OnClickListener
     }
 
     private void updateAudioFileDatabase(AudioFile audioFile) {
-        DatabaseHelper.updateAudioFile(getContext(), audioFile);
+        DatabaseHelper.updateAudioFile(audioFile);
     }
 
     @Override

@@ -22,7 +22,7 @@ import java.util.concurrent.Callable;
 public class DatabaseHelper {
 
 
-    public static void insertAudioFolder(Context context, AudioFolder audioFolder) {
+    public static void insertAudioFolder(AudioFolder audioFolder) {
 
         ContentValues dateValues = new ContentValues();
 
@@ -34,25 +34,28 @@ public class DatabaseHelper {
         dateValues.put(MediaCenterProvider.FOLDER_INDEX, audioFolder.index);
         dateValues.put(MediaCenterProvider.FOLDER_SELECTED, audioFolder.isSelected ? 1 : 0);
 
-        context.getContentResolver().insert(
+        MediaApplication.getInstance().
+                getContentResolver().insert(
                 MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
                 dateValues);
 
     }
 
-    public static void updateAudioFolderIndex(Context context, AudioFolder audioFolder) {
+    public static void updateAudioFolderIndex(AudioFolder audioFolder) {
 
         ContentValues dateValues = new ContentValues();
         dateValues.put(MediaCenterProvider.FOLDER_INDEX, audioFolder.index);
 
-        context.getContentResolver().update(MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
+        MediaApplication.getInstance().
+                getContentResolver().update(MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
                 dateValues,
                 MediaCenterProvider.FOLDER_PATH + "=" + "'" + audioFolder.folderPath + "'",
                 null);
     }
 
-    public static AudioFolder getSelectedAudioFolder(Context context) {
-        Cursor cursor = ContentResolverCompat.query(context.getContentResolver(),
+    public static AudioFolder getSelectedAudioFolder() {
+        Cursor cursor = ContentResolverCompat.query(MediaApplication.getInstance().
+                        getContentResolver(),
                 MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
                 null,
                 MediaCenterProvider.FOLDER_SELECTED + "=" + "'" + 1 + "'",
@@ -67,9 +70,10 @@ public class DatabaseHelper {
         return null;
     }
 
-    public static List<AudioFile> getSelectedFolderAudioFiles(Context context, AudioFolder audioFolder) {
+    public static List<AudioFile> getSelectedFolderAudioFiles(AudioFolder audioFolder) {
 
-        Cursor cursor = ContentResolverCompat.query(context.getContentResolver(),
+        Cursor cursor = ContentResolverCompat.query(MediaApplication.getInstance().
+                        getContentResolver(),
                 MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
                 null,
                 MediaCenterProvider.ID + "=" + "'" + audioFolder.id + "'",
@@ -88,11 +92,12 @@ public class DatabaseHelper {
         return audioFiles;
     }
 
-    public static void updateSelectedAudioFolder(Context context, AudioFolder audioFolder) {
+    public static void updateSelectedAudioFolder(AudioFolder audioFolder) {
         ContentValues clearValues = new ContentValues();
         clearValues.put(MediaCenterProvider.FOLDER_SELECTED, 0);
 
-        context.getContentResolver().update(MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
+        MediaApplication.getInstance().
+                getContentResolver().update(MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
                 clearValues,
                 null,
                 null);
@@ -100,14 +105,15 @@ public class DatabaseHelper {
         ContentValues dateValues = new ContentValues();
         dateValues.put(MediaCenterProvider.FOLDER_SELECTED, audioFolder.isSelected ? 1 : 0);
 
-        context.getContentResolver().update(MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
+        MediaApplication.getInstance().
+                getContentResolver().update(MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
                 dateValues,
                 MediaCenterProvider.FOLDER_PATH + "=" + "'" + audioFolder.folderPath + "'",
                 null);
 
     }
 
-    public static void updateAudioFile(Context context, AudioFile audioFile) {
+    public static void updateAudioFile(AudioFile audioFile) {
 
         ContentValues dateValues = new ContentValues();
 
@@ -124,13 +130,14 @@ public class DatabaseHelper {
         dateValues.put(MediaCenterProvider.TRACK_IN_PLAY_LIST, audioFile.inPlayList ? 1 : 0);
         dateValues.put(MediaCenterProvider.TRACK_COVER, audioFile.artworkPath);
 
-        context.getContentResolver().update(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
+        MediaApplication.getInstance().
+                getContentResolver().update(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
                 dateValues,
                 MediaCenterProvider.TRACK_PATH + "=" + "'" + audioFile.filePath + "'",
                 null);
     }
 
-    public static void insertAudioFile(Context context, AudioFile audioFile) {
+    public static void insertAudioFile(AudioFile audioFile) {
 
         ContentValues dateValues = new ContentValues();
 
@@ -148,13 +155,14 @@ public class DatabaseHelper {
         dateValues.put(MediaCenterProvider.TRACK_SELECTED, audioFile.isSelected ? 1 : 0);
         dateValues.put(MediaCenterProvider.TRACK_COVER, audioFile.artworkPath);
 
-
-        context.getContentResolver().insert(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
+        MediaApplication.getInstance().
+                getContentResolver().insert(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
                 dateValues);
     }
 
-    public static boolean containAudioTrack(Context context, String path) {
-        Cursor cursor = ContentResolverCompat.query(context.getContentResolver(),
+    public static boolean containAudioTrack(String path) {
+        Cursor cursor = ContentResolverCompat.query(MediaApplication.getInstance().
+                        getContentResolver(),
                 MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
                 null,
                 MediaCenterProvider.TRACK_PATH + "=" + "'" + path + "'",
@@ -168,11 +176,12 @@ public class DatabaseHelper {
         return contain;
     }
 
-    public static void updateSelectedAudioFile(Context context, AudioFile audioFile) {
+    public static void updateSelectedAudioFile(AudioFile audioFile) {
         ContentValues clearValues = new ContentValues();
         clearValues.put(MediaCenterProvider.TRACK_SELECTED, 0);
 
-        context.getContentResolver().update(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
+        MediaApplication.getInstance().
+                getContentResolver().update(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
                 clearValues,
                 null,
                 null);
@@ -180,15 +189,17 @@ public class DatabaseHelper {
         ContentValues dateValues = new ContentValues();
         dateValues.put(MediaCenterProvider.TRACK_SELECTED, audioFile.isSelected ? 1 : 0);
 
-        context.getContentResolver().update(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
+        MediaApplication.getInstance().
+                getContentResolver().update(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
                 dateValues,
                 MediaCenterProvider.TRACK_PATH + "=" + "'" + audioFile.filePath + "'",
                 null);
 
     }
 
-    public static AudioFile getSelectedAudioFile(Context context) {
-        Cursor cursor = ContentResolverCompat.query(context.getContentResolver(),
+    public static AudioFile getSelectedAudioFile() {
+        Cursor cursor = ContentResolverCompat.query(MediaApplication.getInstance().
+                        getContentResolver(),
                 MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
                 null,
                 MediaCenterProvider.TRACK_SELECTED + "=" + "'" + 1 + "'",
@@ -204,8 +215,9 @@ public class DatabaseHelper {
         return null;
     }
 
-    public static String getDownloadFolderID(Context context) {
-        Cursor cursor = ContentResolverCompat.query(context.getContentResolver(),
+    public static String getDownloadFolderID() {
+        Cursor cursor = ContentResolverCompat.query(MediaApplication.getInstance().
+                        getContentResolver(),
                 MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
                 new String[]{MediaCenterProvider.ID},
                 MediaCenterProvider.FOLDER_PATH + "=" + "'" + CacheManager.CHECK_DOWNLOADS_FOLDER_PATH + "'",
@@ -245,15 +257,17 @@ public class DatabaseHelper {
     }
 
 
-    public static void deleteAudioFile(Context context, String path) {
-        context.getContentResolver().
+    public static void deleteAudioFile(String path) {
+        MediaApplication.getInstance().
+                getContentResolver().
                 delete(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
                         MediaCenterProvider.TRACK_PATH + "=" + "'" + path + "'",
                         null);
     }
 
-    public static List<String> getFoldersPath(Context context) {
-        Cursor cursor = ContentResolverCompat.query(context.getContentResolver(),
+    public static List<String> getFoldersPath() {
+        Cursor cursor = ContentResolverCompat.query(MediaApplication.getInstance().
+                        getContentResolver(),
                 MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI,
                 new String[]{MediaCenterProvider.FOLDER_PATH},
                 null,
@@ -275,14 +289,15 @@ public class DatabaseHelper {
         return paths;
     }
 
-    public static void clearPlaylist(Context context) {
+    public static void clearPlaylist() {
 
         ContentValues contentValues;
 
         contentValues = new ContentValues();
         contentValues.put(MediaCenterProvider.TRACK_IN_PLAY_LIST, 0);
 
-        context.getContentResolver().update(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
+        MediaApplication.getInstance().
+                getContentResolver().update(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
                 contentValues,
                 null,
                 null);
@@ -290,14 +305,15 @@ public class DatabaseHelper {
         contentValues = new ContentValues();
         contentValues.put(MediaCenterProvider.VIDEO_IN_PLAY_LIST, 0);
 
-        context.getContentResolver().update(MediaCenterProvider.VIDEO_FILES_TABLE_CONTENT_URI,
+        MediaApplication.getInstance().
+                getContentResolver().update(MediaCenterProvider.VIDEO_FILES_TABLE_CONTENT_URI,
                 contentValues,
                 null,
                 null);
     }
 
 
-    public static void insertVideoFile(Context context, VideoFile videoFile) {
+    public static void insertVideoFile(VideoFile videoFile) {
 
         ContentValues dateValues = new ContentValues();
 
@@ -307,11 +323,12 @@ public class DatabaseHelper {
         dateValues.put(MediaCenterProvider.VIDEO_DESCRIPTION, videoFile.description);
         dateValues.put(MediaCenterProvider.VIDEO_IN_PLAY_LIST, videoFile.inPlayList ? 1 : 0);
 
-        context.getContentResolver().insert(MediaCenterProvider.VIDEO_FILES_TABLE_CONTENT_URI,
+        MediaApplication.getInstance().
+                getContentResolver().insert(MediaCenterProvider.VIDEO_FILES_TABLE_CONTENT_URI,
                 dateValues);
     }
 
-    public static void updateVideoFile(Context context, VideoFile videoFile) {
+    public static void updateVideoFile(VideoFile videoFile) {
 
         ContentValues dateValues = new ContentValues();
 
@@ -321,7 +338,8 @@ public class DatabaseHelper {
         dateValues.put(MediaCenterProvider.VIDEO_DESCRIPTION, videoFile.description);
         dateValues.put(MediaCenterProvider.VIDEO_IN_PLAY_LIST, videoFile.inPlayList ? 1 : 0);
 
-        context.getContentResolver().update(MediaCenterProvider.VIDEO_FILES_TABLE_CONTENT_URI,
+        MediaApplication.getInstance().
+                getContentResolver().update(MediaCenterProvider.VIDEO_FILES_TABLE_CONTENT_URI,
                 dateValues,
                 MediaCenterProvider.VIDEO_FILE_PATH + "=" + "'" + videoFile.filePath + "'",
                 null);
