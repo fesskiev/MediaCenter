@@ -22,8 +22,10 @@ public class EQBandView extends FrameLayout {
     private OnEQBandChangeListener listener;
     private VerticalSeekBar seekBar;
     private TextView frequencyText;
+    private double scaleProgress;
     private int bandNumber;
     private int scale;
+
 
     public EQBandView(Context context) {
         super(context);
@@ -55,17 +57,16 @@ public class EQBandView extends FrameLayout {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 this.progress = progress;
                 scaleProgress(progress);
-
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
 
-
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
+
 
             }
         });
@@ -73,15 +74,15 @@ public class EQBandView extends FrameLayout {
         scale = 1500 / 50;
     }
 
+
     private void scaleProgress(int progress) {
-        double scaleProgress;
         if (progress > 50) {
             scaleProgress = (progress - 50) * scale;
         } else {
             scaleProgress = (progress - 50) * scale;
         }
 
-        if (listener != null) {
+        if (listener != null && seekBar.isTouch()) {
             listener.onBandValueChanged(scaleProgress, bandNumber);
         }
     }
@@ -96,7 +97,7 @@ public class EQBandView extends FrameLayout {
         setProgress(scaleProgress);
     }
 
-    private void setCenterProgress() {
+    public void setCenterProgress() {
         setProgress(50);
     }
 
@@ -119,5 +120,13 @@ public class EQBandView extends FrameLayout {
 
     public void setBandNumber(int bandNumber) {
         this.bandNumber = bandNumber;
+    }
+
+    public double getProgress() {
+        return scaleProgress;
+    }
+
+    public void enable(boolean enable){
+        seekBar.enable(enable);
     }
 }

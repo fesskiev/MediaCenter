@@ -107,4 +107,7 @@
     <string name="snackbar_vk_auth_error">Ошибка авторизации</string>
     <string name="snackbar_file_not_exist">Файл не найден</string>
 
+    <string name="preset_spinner_none">НЕ ВЫБРАН</string>
+    <string name="preset_spinner_custom">СВОЙ</string>
+
 </resources>

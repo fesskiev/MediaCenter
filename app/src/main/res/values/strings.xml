@@ -108,6 +108,9 @@
 
     <string name="snackbar_file_not_exist">File not exist</string>
 
+    <string name="preset_spinner_none">NONE</string>
+    <string name="preset_spinner_custom">CUSTOM</string>
+
     <string name="frequency_15">+15dB</string>
     <string name="frequency_0">0dB</string>
     <string name="frequency_minus_15">-15dB</string>

@@ -5,6 +5,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class AppSettingsManager {
 
     private static final String APP_SETTINGS_PREFERENCES = "com.fesskiev.player_settings_preferences";
@@ -14,8 +21,14 @@ public class AppSettingsManager {
     private static final String KEY_USER_FIRST_NAME = "com.fesskiev.player.KEY_USER_FIRST_NAME";
     private static final String KEY_USER_LAST_NAME = "com.fesskiev.player.KEY_USER_LAST_NAME";
     private static final String KEY_FIRST_START_APP = "com.fesskiev.player.KEY_FIRST_START_APP";
+
     private static final String KEY_BASS_BOOST_VALUE = "com.fesskiev.player.KEY_BASS_BOOST_VALUE";
     private static final String KEY_BASS_BOOST_STATE = "com.fesskiev.player.KEY_BASS_BOOST_STATE";
+
+    private static final String KEY_EQ_BANDS_LEVEL = "com.fesskiev.player.KEY_EQ_BANDS_LEVEL";
+    private static final String KEY_EQ_STATE = "com.fesskiev.player.KEY_EQ_STATE";
+    private static final String KEY_EQ_PRESET = "com.fesskiev.player.KEY_EQ_PRESET";
+    private static final String KEY_EQ_PRESET_STATE = "com.fesskiev.player.KEY_EQ_PRESET_STATE";
 
     private SharedPreferences sharedPreferences;
     private static AppSettingsManager appSettingsManager;
@@ -118,6 +131,79 @@ public class AppSettingsManager {
     public void setBassBoostState(boolean state) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(KEY_BASS_BOOST_STATE, state);
+        editor.apply();
+    }
+
+    public boolean isEQOn() {
+        return sharedPreferences.getBoolean(KEY_EQ_STATE, false);
+    }
+
+    public void setEQState(boolean state) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_EQ_STATE, state);
+        editor.apply();
+    }
+
+    public int getEQPresetValue() {
+        return sharedPreferences.getInt(KEY_EQ_PRESET, -1);
+    }
+
+    public void setEQPresetValue(int value) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(KEY_EQ_PRESET, value);
+        editor.apply();
+    }
+
+    public void setCustomBandsLevel(List<Double> levels) {
+        if(levels == null){
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(KEY_EQ_BANDS_LEVEL, "");
+            return;
+        }
+
+        JSONArray jsonArray = new JSONArray(levels);
+        try {
+
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("levels", jsonArray);
+
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(KEY_EQ_BANDS_LEVEL, jsonObject.toString());
+            editor.apply();
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<Double> getCustomBandsLevels() {
+        List<Double> bandsLevel = new ArrayList<>();
+
+        String bandsLevelString = sharedPreferences.getString(KEY_EQ_BANDS_LEVEL, "");
+
+        try {
+
+            JSONObject jsonObject = new JSONObject(bandsLevelString);
+            JSONArray jsonArray = jsonObject.getJSONArray("levels");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                double level = jsonArray.getDouble(i);
+                bandsLevel.add(level);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return bandsLevel;
+    }
+
+    public int getEQPresetState() {
+        return sharedPreferences.getInt(KEY_EQ_PRESET_STATE, 0);
+    }
+
+    public void setEQPresetState(int value) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(KEY_EQ_PRESET_STATE, value);
         editor.apply();
     }
 

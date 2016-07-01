@@ -10,8 +10,10 @@ import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.fesskiev.player.ui.equalizer.EqualizerFragment;
 import com.fesskiev.player.utils.AppSettingsManager;
 
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -371,7 +373,38 @@ public class PlaybackService extends Service {
 
     private void setEffects() {
         setBassBoost();
-//        setVirtualizer();
+        setEQ();
+    }
+
+    private void setEQ() {
+        if(settingsManager.isEQOn()) {
+            Log.d(TAG, "EQ ON");
+            setEnableEQ(true);
+            switch (settingsManager.getEQPresetState()) {
+                case EqualizerFragment.POSITION_CUSTOM_PRESET:
+                    Log.d(TAG, "set custom preset");
+                    setCustomPreset();
+                    break;
+                case EqualizerFragment.POSITION_PRESET:
+                    Log.d(TAG, "set preset");
+                    usePreset(settingsManager.getEQPresetValue() - EqualizerFragment.OFFSET);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    private void setCustomPreset() {
+        List<Double> levels = settingsManager.getCustomBandsLevels();
+        int bandsNumber = getNumberOfBands();
+        for (int i = 0; i < levels.size(); i++) {
+            if (i <= bandsNumber) {
+                double value = levels.get(i);
+                Log.wtf(TAG, "custom band value: " + value);
+                setBandLevel(i, (int) value);
+            }
+        }
     }
 
     private void setVirtualizer() {

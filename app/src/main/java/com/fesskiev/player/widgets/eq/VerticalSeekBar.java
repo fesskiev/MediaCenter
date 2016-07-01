@@ -9,6 +9,8 @@ import android.widget.SeekBar;
 
 public class VerticalSeekBar extends SeekBar {
 
+    private boolean touch;
+
     public VerticalSeekBar(Context context) {
         super(context);
     }
@@ -40,7 +42,6 @@ public class VerticalSeekBar extends SeekBar {
     protected void onDraw(Canvas c) {
         c.rotate(-90);
         c.translate(-getHeight(), 0);
-
         super.onDraw(c);
     }
 
@@ -52,11 +53,11 @@ public class VerticalSeekBar extends SeekBar {
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                touch = true;
             case MotionEvent.ACTION_MOVE:
             case MotionEvent.ACTION_UP:
                 int i = getMax() - (int) (getMax() * event.getY() / getHeight());
                 setProgress(i);
-                onSizeChanged(getWidth(), getHeight(), 0, 0);
                 break;
 
             case MotionEvent.ACTION_CANCEL:
@@ -65,4 +66,15 @@ public class VerticalSeekBar extends SeekBar {
         return true;
     }
 
+    public boolean isTouch() {
+        return touch;
+    }
+
+    public void enable(boolean enable) {
+        if (enable) {
+            setEnabled(true);
+        } else {
+            setEnabled(false);
+        }
+    }
 }

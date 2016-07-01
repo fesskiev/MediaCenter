@@ -30,7 +30,7 @@ void checkError(SLresult res) {
         LOG_FORMAT("%u SL failure\n", res);
     }
     else {
-        LOG_FORMAT("%d SL success, proceeding...\n", res);
+//        LOG_FORMAT("%d SL success, proceeding...\n", res);
     }
 }
 

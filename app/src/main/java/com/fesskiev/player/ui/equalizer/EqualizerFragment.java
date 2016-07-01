@@ -13,13 +13,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 
 import com.fesskiev.player.R;
 import com.fesskiev.player.services.PlaybackService;
+import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.widgets.eq.EQBandView;
 import com.fesskiev.player.widgets.spinner.CustomSpinnerAdapter;
 
@@ -32,11 +32,19 @@ public class EqualizerFragment extends Fragment {
 
     private static final String TAG = EqualizerFragment.class.getSimpleName();
 
+    public static final int POSITION_NONE = 0;
+    public static final int POSITION_CUSTOM_PRESET = 1;
+    public static final int POSITION_PRESET = 2;
+    public static final int OFFSET = 2;
+
+    private AppSettingsManager settingsManager;
     private List<String> presetList;
     private List<EQBandView> bandViews;
-    private Spinner presets;
+    private Spinner presetsSpinner;
+    private SwitchCompat EQState;
     private LinearLayout bandRoot;
     private PlaybackService playbackService;
+    private boolean customPreset;
 
 
     public static EqualizerFragment newInstance() {
@@ -46,6 +54,7 @@ public class EqualizerFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        settingsManager = AppSettingsManager.getInstance(getContext().getApplicationContext());
         presetList = new ArrayList<>();
         bandViews = new ArrayList<>();
 
@@ -64,23 +73,30 @@ public class EqualizerFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        SwitchCompat EQState = (SwitchCompat) view.findViewById(R.id.stateEqualizer);
+        EQState = (SwitchCompat) view.findViewById(R.id.stateEqualizer);
         EQState.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-                playbackService.setEnableEQ(checked);
+                enableEQ(checked);
+
             }
         });
 
-        presets = (Spinner) view.findViewById(R.id.presets);
+
+        presetsSpinner = (Spinner) view.findViewById(R.id.presets);
         bandRoot = (LinearLayout) view.findViewById(R.id.bandRoot);
 
     }
+
 
     public void onDestroy() {
         super.onDestroy();
         if (playbackService != null) {
             getActivity().unbindService(connection);
+        }
+
+        if (customPreset) {
+            saveBandsProgress();
         }
     }
 
@@ -93,8 +109,19 @@ public class EqualizerFragment extends Fragment {
                     = (PlaybackService.PlaybackServiceBinder) service;
             playbackService = binder.getService();
 
-            createEQState();
-            setPresetItems();
+            createEQBands();
+            setPresetSpinnerItems();
+            setBandsCenter();
+            if (settingsManager.isEQOn()) {
+                EQState.setChecked(true);
+                enableBands(true);
+                checkNeedPreset();
+
+            } else {
+                EQState.setChecked(false);
+                enableBands(false);
+                enablePresetsSpinner(false);
+            }
         }
 
         @Override
@@ -102,6 +129,22 @@ public class EqualizerFragment extends Fragment {
 
         }
     };
+
+    private void checkNeedPreset() {
+        switch (settingsManager.getEQPresetState()) {
+            case POSITION_NONE:
+                presetsSpinner.setSelection(POSITION_NONE, false);
+                break;
+            case POSITION_CUSTOM_PRESET:
+                presetsSpinner.setSelection(POSITION_CUSTOM_PRESET, false);
+                break;
+            case POSITION_PRESET:
+                presetsSpinner.setSelection(settingsManager.getEQPresetValue(), false);
+                break;
+            default:
+                break;
+        }
+    }
 
     private void getBandsLevel() {
         int bandsNumber = playbackService.getNumberOfBands();
@@ -115,7 +158,7 @@ public class EqualizerFragment extends Fragment {
     }
 
 
-    private void createEQState() {
+    private void createEQBands() {
         int bandsNumber = playbackService.getNumberOfBands();
         int presetNumber = playbackService.getNumberOfPreset();
         Log.d(TAG, "bands: " + bandsNumber + " presets: " + presetNumber);
@@ -134,7 +177,8 @@ public class EqualizerFragment extends Fragment {
             bandView.setOnEQBandChangeListener(new EQBandView.OnEQBandChangeListener() {
                 @Override
                 public void onBandValueChanged(double value, int band) {
-                    Log.d(TAG, "band: " + band + " value: " + value);
+                    customPreset = true;
+                    Log.d(TAG, "band changed: " + band + " value: " + value);
                     playbackService.setBandLevel(band, (int) value);
                 }
             });
@@ -143,7 +187,8 @@ public class EqualizerFragment extends Fragment {
             bandRoot.addView(bandView);
         }
 
-
+        presetList.add(POSITION_NONE, getString(R.string.preset_spinner_none));
+        presetList.add(POSITION_CUSTOM_PRESET, getString(R.string.preset_spinner_custom));
         for (int j = 0; j < presetNumber; j++) {
             String presetName = playbackService.getPresetName(j);
             Log.d(TAG, "preset name: " + presetName);
@@ -151,18 +196,33 @@ public class EqualizerFragment extends Fragment {
         }
     }
 
-    private void setPresetItems() {
+    private void setPresetSpinnerItems() {
 
         CustomSpinnerAdapter customSpinnerAdapter = new CustomSpinnerAdapter(getContext(),
                 presetList, R.color.primary_dark, R.color.primary_dark);
 
-        presets.setAdapter(customSpinnerAdapter);
-        presets.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        presetsSpinner.setAdapter(customSpinnerAdapter);
+        presetsSpinner.setSelection(0, false);
+        presetsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 Log.e(TAG, "position: " + position + " name: " + presetList.get(position));
-                playbackService.usePreset(position);
-                getBandsLevel();
+                switch (position) {
+                    case POSITION_NONE:
+                        setBandsCenter();
+                        enableEQ(false);
+                        EQState.setChecked(false);
+                        settingsManager.setEQPresetState(POSITION_NONE);
+                        break;
+                    case POSITION_CUSTOM_PRESET:
+                        setCustomPreset();
+                        settingsManager.setEQPresetState(POSITION_CUSTOM_PRESET);
+                        break;
+                    default:
+                        usePreset(position);
+                        settingsManager.setEQPresetState(POSITION_PRESET);
+                        break;
+                }
             }
 
             @Override
@@ -171,4 +231,57 @@ public class EqualizerFragment extends Fragment {
             }
         });
     }
+
+    private void enableEQ(boolean enable) {
+        playbackService.setEnableEQ(enable);
+        settingsManager.setEQState(enable);
+        enableBands(enable);
+        enablePresetsSpinner(enable);
+    }
+
+    private void usePreset(int position) {
+        customPreset = false;
+        playbackService.usePreset(position - OFFSET);
+        settingsManager.setEQPresetValue(position);
+        getBandsLevel();
+    }
+
+
+    private void saveBandsProgress() {
+        List<Double> levels = new ArrayList<>();
+        for (EQBandView bandView : bandViews) {
+            levels.add(bandView.getProgress());
+        }
+        settingsManager.setCustomBandsLevel(levels);
+    }
+
+    private void setCustomPreset() {
+        List<Double> levels = settingsManager.getCustomBandsLevels();
+        int bandsNumber = playbackService.getNumberOfBands();
+        for (int i = 0; i < levels.size(); i++) {
+            if (i <= bandsNumber) {
+                double value = levels.get(i);
+                Log.wtf(TAG, "custom band value: " + value);
+                playbackService.setBandLevel(i, (int) value);
+                bandViews.get(i).setBandLevel((int) value);
+            }
+        }
+    }
+
+    private void enableBands(boolean enable) {
+        for (EQBandView bandView : bandViews) {
+            bandView.enable(enable);
+        }
+    }
+
+    private void setBandsCenter() {
+        for (EQBandView bandView : bandViews) {
+            bandView.setCenterProgress();
+        }
+    }
+
+    private void enablePresetsSpinner(boolean enable) {
+        presetsSpinner.setEnabled(enable);
+    }
+
 }

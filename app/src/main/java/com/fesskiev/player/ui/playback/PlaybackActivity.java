@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -110,6 +109,19 @@ public class PlaybackActivity extends AnalyticsActivity {
         View bottomSheet = findViewById(R.id.bottom_sheet);
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
         if (bottomSheetBehavior != null) {
+            bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+                @Override
+                public void onStateChanged(View bottomSheet, int newState) {
+
+                }
+
+                @Override
+                public void onSlide(View bottomSheet, float slideOffset) {
+                    if(slideOffset < 0) {
+                        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                    }
+                }
+            });
 
             peakView = findViewById(R.id.basicNavPlayerContainer);
             peakView.setOnClickListener(new View.OnClickListener() {
