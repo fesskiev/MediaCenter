@@ -23,9 +23,6 @@ public class PlaybackService extends Service {
 
     private static final int END_SONG = 1;
 
-    public static final int BASS_BOOST_SUPPORT = 0;
-    public static final int BASS_BOOST_NOT_SUPPORT = 1;
-
     public static final String ACTION_HEADSET_PLUG_IN =
             "com.fesskiev.player.action.ACTION_HEADSET_PLUG_IN";
     public static final String ACTION_HEADSET_PLUG_OUT =
@@ -51,6 +48,8 @@ public class PlaybackService extends Service {
             "com.fesskiev.player.action.ACTION_PLAYBACK_PLAYING_STATE";
     public static final String ACTION_PLAYBACK_BASS_BOOST_STATE =
             "com.fesskiev.player.action.ACTION_PLAYBACK_BASS_BOOST_STATE";
+    public static final String ACTION_PLAYBACK_BASS_BOOST_SUPPORT =
+            "com.fesskiev.player.action.ACTION_PLAYBACK_BASS_BOOST_SUPPORT";
     public static final String ACTION_PLAYBACK_EQ_STATE =
             "com.fesskiev.player.action.ACTION_PLAYBACK_EQ_STATE";
     public static final String ACTION_PLAYBACK_MUTE_SOLO_STATE =
@@ -75,6 +74,8 @@ public class PlaybackService extends Service {
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_PLAYING";
     public static final String PLAYBACK_EXTRA_BASS_BOOST_LEVEL
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_BASS_BOOST_LEVEL";
+    public static final String PLAYBACK_EXTRA_BASS_BOOST_SUPPORT
+            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_BASS_BOOST_SUPPORT";
     public static final String PLAYBACK_EXTRA_BASS_BOOST_STATE
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_BASS_BOOST_STATE";
     public static final String PLAYBACK_EXTRA_EQ_STATE
@@ -426,18 +427,22 @@ public class PlaybackService extends Service {
     private void setBassBoost() {
         if (isSupportedBassBoost()) {
             Log.d(TAG, "bass boost supported");
-            sendBroadcastBassBoostState(BASS_BOOST_SUPPORT);
+            sendBroadcastBassBoostSupport(true);
             if (settingsManager != null && settingsManager.isBassBoostOn()) {
+                sendBroadcastBassBoostState(true);
+                setEnableBassBoost(true);
                 int value = settingsManager.getBassBoostValue();
-                if (value != -1 && isSupportedBassBoost()) {
-                    setEnableBassBoost(true);
+                if (value != -1) {
                     setBassBoostValue(value);
                     Log.d(TAG, "set bass boost effect: " + value);
                 }
+            } else {
+                setEnableBassBoost(false);
+                sendBroadcastBassBoostState(false);
             }
         } else {
-            sendBroadcastBassBoostState(BASS_BOOST_NOT_SUPPORT);
             Log.d(TAG, "bass boost not supported!");
+            sendBroadcastBassBoostSupport(false);
         }
     }
 
@@ -496,10 +501,17 @@ public class PlaybackService extends Service {
         timer.cancel();
     }
 
-    private void sendBroadcastBassBoostState(int state) {
+    private void sendBroadcastBassBoostState(boolean state) {
         Intent intent = new Intent();
         intent.setAction(ACTION_PLAYBACK_BASS_BOOST_STATE);
         intent.putExtra(PLAYBACK_EXTRA_BASS_BOOST_STATE, state);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+    }
+
+    private void sendBroadcastBassBoostSupport(boolean support) {
+        Intent intent = new Intent();
+        intent.setAction(ACTION_PLAYBACK_BASS_BOOST_SUPPORT);
+        intent.putExtra(PLAYBACK_EXTRA_BASS_BOOST_SUPPORT, support);
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
     }
 

@@ -23,7 +23,7 @@ public class BassBoostDialog extends AlertDialog implements SeekBar.OnSeekBarCha
     private SeekBar bassBoostBar;
 
     protected BassBoostDialog(Context context) {
-        super(context);
+        super(context, R.style.Custom_Widget_AlertDialog);
     }
 
     @Override
@@ -56,6 +56,7 @@ public class BassBoostDialog extends AlertDialog implements SeekBar.OnSeekBarCha
                 bassBoostLevel.setText(String.valueOf(value / 10));
             } else {
                 bassBoostBar.setProgress(0);
+                bassBoostLevel.setText(String.valueOf(0));
             }
         }
     }

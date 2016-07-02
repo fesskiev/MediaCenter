@@ -7,7 +7,7 @@
     <color name="primary_text">#212121</color>
     <color name="secondary_text">#727272</color>
     <color name="divider">#B6B6B6</color>
-
+    <color name="dialog_background">#7F97A2</color>
     <color name="white_text">#FFFFFF</color>
 
     <color name="red">#f74343</color>

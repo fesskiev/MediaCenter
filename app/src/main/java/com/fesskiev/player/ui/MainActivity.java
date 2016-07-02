@@ -69,6 +69,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private DrawerLayout drawer;
     private AppSettingsManager settingsManager;
     private SwitchCompat eqSwitch;
+    private SwitchCompat bassSwitch;
+    private SwitchCompat virtualizerSwitch;
     private ImageView userPhoto;
     private ImageView logoutButton;
     private ImageView headerAnimation;
@@ -170,8 +172,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         headerAnimation = (ImageView) effectsHeaderLayout.findViewById(R.id.effectHeaderAnimation);
 
 
-        eqSwitch = (SwitchCompat)
-                navigationViewEffects.getMenu().findItem(R.id.equalizer).getActionView().findViewById(R.id.eq_switch);
+        eqSwitch = (SwitchCompat) navigationViewEffects.getMenu().
+                findItem(R.id.equalizer).getActionView().findViewById(R.id.eq_switch);
         eqSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -181,11 +183,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             }
         });
 
-        SwitchCompat bassSwitch = (SwitchCompat)
-                navigationViewEffects.getMenu().findItem(R.id.bass).getActionView().findViewById(R.id.bass_switch);
-        if (settingsManager.isBassBoostOn()) {
-            bassSwitch.setChecked(true);
-        }
+        bassSwitch = (SwitchCompat) navigationViewEffects.getMenu().
+                findItem(R.id.bass).getActionView().findViewById(R.id.bass_switch);
         bassSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -194,7 +193,15 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 settingsManager.setBassBoostState(isChecked);
             }
         });
-        visibleBassBoostMenu(false);
+
+        virtualizerSwitch = (SwitchCompat) navigationViewEffects.getMenu().
+                findItem(R.id.virtualizer).getActionView().findViewById(R.id.virtualizer_switch);
+        virtualizerSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+            }
+        });
     }
 
     private void setUserInfo() {
@@ -338,6 +345,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         IntentFilter filter = new IntentFilter();
         filter.addAction(RESTService.ACTION_USER_PROFILE_RESULT);
         filter.addAction(PlaybackService.ACTION_PLAYBACK_BASS_BOOST_STATE);
+        filter.addAction(PlaybackService.ACTION_PLAYBACK_BASS_BOOST_SUPPORT);
         filter.addAction(PlaybackService.ACTION_PLAYBACK_EQ_STATE);
         filter.addAction(FileSystemIntentService.ACTION_START_FETCH_MEDIA_CONTENT);
         filter.addAction(FileSystemIntentService.ACTION_END_FETCH_MEDIA_CONTENT);
@@ -379,6 +387,9 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                     break;
                 case PlaybackService.ACTION_PLAYBACK_BASS_BOOST_STATE:
                     setBassBoostState(intent);
+                    break;
+                case PlaybackService.ACTION_PLAYBACK_BASS_BOOST_SUPPORT:
+                    setBassBoostSupport(intent);
                     break;
                 case PlaybackService.ACTION_PLAYBACK_EQ_STATE:
                     setEQState(intent);
@@ -423,7 +434,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     };
 
 
-
     private void updateMediaContent() {
         if (isAudioFragmentShow()) {
             AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
@@ -444,19 +454,16 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         eqSwitch.setChecked(eqState);
     }
 
+    private void setBassBoostSupport(Intent intent){
+        boolean bassBoostSupport =
+                intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_BASS_BOOST_SUPPORT, false);
+        visibleBassBoostMenu(bassBoostSupport);
+    }
+
     private void setBassBoostState(Intent intent) {
-        int bassBoostState =
-                intent.getIntExtra(PlaybackService.PLAYBACK_EXTRA_BASS_BOOST_STATE, -1);
-        if (bassBoostState != -1) {
-            switch (bassBoostState) {
-                case PlaybackService.BASS_BOOST_SUPPORT:
-                    visibleBassBoostMenu(true);
-                    break;
-                case PlaybackService.BASS_BOOST_NOT_SUPPORT:
-                    visibleBassBoostMenu(false);
-                    break;
-            }
-        }
+        boolean bassBoostState =
+                intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_BASS_BOOST_STATE, false);
+        bassSwitch.setChecked(bassBoostState);
     }
 
     private void visibleBassBoostMenu(boolean visible) {
