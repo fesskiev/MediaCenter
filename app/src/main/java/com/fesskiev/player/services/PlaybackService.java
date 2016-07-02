@@ -25,9 +25,6 @@ public class PlaybackService extends Service {
 
     public static final int BASS_BOOST_SUPPORT = 0;
     public static final int BASS_BOOST_NOT_SUPPORT = 1;
-    public static final int BASS_BOOST_ON = 2;
-    public static final int BASS_BOOST_OFF = 3;
-
 
     public static final String ACTION_HEADSET_PLUG_IN =
             "com.fesskiev.player.action.ACTION_HEADSET_PLUG_IN";
@@ -54,6 +51,8 @@ public class PlaybackService extends Service {
             "com.fesskiev.player.action.ACTION_PLAYBACK_PLAYING_STATE";
     public static final String ACTION_PLAYBACK_BASS_BOOST_STATE =
             "com.fesskiev.player.action.ACTION_PLAYBACK_BASS_BOOST_STATE";
+    public static final String ACTION_PLAYBACK_EQ_STATE =
+            "com.fesskiev.player.action.ACTION_PLAYBACK_EQ_STATE";
     public static final String ACTION_PLAYBACK_MUTE_SOLO_STATE =
             "com.fesskiev.player.action.ACTION_PLAYBACK_MUTE_SOLO_STATE";
     public static final String ACTION_PLAYBACK_REPEAT_STATE =
@@ -78,6 +77,8 @@ public class PlaybackService extends Service {
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_BASS_BOOST_LEVEL";
     public static final String PLAYBACK_EXTRA_BASS_BOOST_STATE
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_BASS_BOOST_STATE";
+    public static final String PLAYBACK_EXTRA_EQ_STATE
+            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_EQ_STATE";
     public static final String PLAYBACK_EXTRA_MUTE_SOLO_STATE
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_MUTE_SOLO_STATE";
     public static final String PLAYBACK_EXTRA_REPEAT_STATE
@@ -88,7 +89,14 @@ public class PlaybackService extends Service {
     private AppSettingsManager settingsManager;
     private int durationScale;
 
-    public static void changeBassBoostState(Context context, int state) {
+    public static void changeEQState(Context context, boolean state) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_PLAYBACK_EQ_STATE);
+        intent.putExtra(PLAYBACK_EXTRA_EQ_STATE, state);
+        context.startService(intent);
+    }
+
+    public static void changeBassBoostState(Context context, boolean state) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_BASS_BOOST_STATE);
         intent.putExtra(PLAYBACK_EXTRA_BASS_BOOST_STATE, state);
@@ -294,17 +302,12 @@ public class PlaybackService extends Service {
                     setBassBoostValue(bassBoostLevel);
                     break;
                 case ACTION_PLAYBACK_BASS_BOOST_STATE:
-                    int bassBoostState = intent.getIntExtra(PLAYBACK_EXTRA_BASS_BOOST_STATE, -1);
-                    switch (bassBoostState) {
-                        case BASS_BOOST_ON:
-                            setEnableBassBoost(true);
-                            Log.d(TAG, "bass boost ON");
-                            break;
-                        case BASS_BOOST_OFF:
-                            setEnableBassBoost(false);
-                            Log.d(TAG, "bass boost OFF");
-                            break;
-                    }
+                    boolean bassBoostState = intent.getBooleanExtra(PLAYBACK_EXTRA_BASS_BOOST_STATE, false);
+                    setEnableBassBoost(bassBoostState);
+                    break;
+                case ACTION_PLAYBACK_EQ_STATE:
+                    boolean eqState = intent.getBooleanExtra(PLAYBACK_EXTRA_EQ_STATE, false);
+                    setEnableEQ(eqState);
                     break;
                 case ACTION_PLAYBACK_MUTE_SOLO_STATE:
                     boolean muteSoloState =
@@ -392,6 +395,9 @@ public class PlaybackService extends Service {
                 default:
                     break;
             }
+            sendBroadcastEQState(true);
+        } else {
+            sendBroadcastEQState(false);
         }
     }
 
@@ -526,6 +532,14 @@ public class PlaybackService extends Service {
         Intent intent = new Intent();
         intent.setAction(ACTION_PLAYBACK_PLAYING_STATE);
         intent.putExtra(PLAYBACK_EXTRA_PLAYING, isPlaying);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+    }
+
+
+    public void sendBroadcastEQState(boolean state) {
+        Intent intent = new Intent();
+        intent.setAction(PlaybackService.ACTION_PLAYBACK_EQ_STATE);
+        intent.putExtra(PlaybackService.PLAYBACK_EXTRA_EQ_STATE, state);
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
     }
 

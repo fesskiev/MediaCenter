@@ -10,6 +10,7 @@ import com.fesskiev.player.model.Artist;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.Genre;
+import com.fesskiev.player.model.MediaFile;
 import com.fesskiev.player.model.VideoFile;
 import com.fesskiev.player.utils.CacheManager;
 
@@ -243,7 +244,7 @@ public class DatabaseHelper {
         };
     }
 
-    public static Callable<Void>resetAudioContentDatabase() {
+    public static Callable<Void> resetAudioContentDatabase() {
         return new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -476,4 +477,163 @@ public class DatabaseHelper {
         }
         return null;
     }
+
+    public static Callable<List<AudioFile>> getGenreTracks(final String contentValue) {
+        return new Callable<List<AudioFile>>() {
+            @Override
+            public List<AudioFile> call() throws Exception {
+                return getGenreTracksFromDatabase(contentValue);
+            }
+        };
+    }
+
+    private static List<AudioFile> getGenreTracksFromDatabase(String contentValue) {
+        Cursor cursor = MediaApplication.getInstance().getContentResolver().
+                query(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
+                        null,
+                        MediaCenterProvider.TRACK_GENRE + "=" + "'" + contentValue + "'",
+                        null,
+                        MediaCenterProvider.TRACK_NUMBER + " ASC"
+                );
+
+        if (cursor != null && cursor.getCount() > 0) {
+            List<AudioFile> audioFiles = new ArrayList<>();
+            cursor.moveToPosition(-1);
+            while (cursor.moveToNext()) {
+                AudioFile audioFile = new AudioFile(cursor);
+                audioFiles.add(audioFile);
+            }
+            cursor.close();
+            return audioFiles;
+
+        }
+        return null;
+    }
+
+    public static Callable<List<AudioFile>> getArtistTracks(final String contentValue) {
+        return new Callable<List<AudioFile>>() {
+            @Override
+            public List<AudioFile> call() throws Exception {
+                return getArtistTracksFromDatabase(contentValue);
+            }
+        };
+    }
+
+    private static List<AudioFile> getArtistTracksFromDatabase(String contentValue) {
+        Cursor cursor = MediaApplication.getInstance().getContentResolver().
+                query(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
+                        null,
+                        MediaCenterProvider.TRACK_ARTIST + "=" + "'" + contentValue + "'",
+                        null,
+                        MediaCenterProvider.TRACK_NUMBER + " ASC"
+                );
+
+        if (cursor != null && cursor.getCount() > 0) {
+            List<AudioFile> audioFiles = new ArrayList<>();
+            cursor.moveToPosition(-1);
+            while (cursor.moveToNext()) {
+                AudioFile audioFile = new AudioFile(cursor);
+                audioFiles.add(audioFile);
+            }
+            cursor.close();
+            return audioFiles;
+
+        }
+        return null;
+    }
+
+    public static Callable<List<AudioFile>> getFolderTracks(final String id) {
+        return new Callable<List<AudioFile>>() {
+            @Override
+            public List<AudioFile> call() throws Exception {
+                return getFolderTracksFromDatabase(id);
+            }
+        };
+    }
+
+    private static List<AudioFile> getFolderTracksFromDatabase(String id) {
+        Cursor cursor = MediaApplication.getInstance().getContentResolver().
+                query(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
+                        null,
+                        MediaCenterProvider.ID + "=" + "'" + id + "'",
+                        null,
+                        MediaCenterProvider.TRACK_NUMBER + " ASC"
+                );
+
+        if (cursor != null && cursor.getCount() > 0) {
+            List<AudioFile> audioFiles = new ArrayList<>();
+            cursor.moveToPosition(-1);
+            while (cursor.moveToNext()) {
+                AudioFile audioFile = new AudioFile(cursor);
+                audioFiles.add(audioFile);
+            }
+            cursor.close();
+            return audioFiles;
+
+        }
+        return null;
+    }
+
+    public static Callable<List<MediaFile>> getAudioFilesPlaylist() {
+        return new Callable<List<MediaFile>>() {
+            @Override
+            public List<MediaFile> call() throws Exception {
+                return getAudioFilePlaylistFromDatabase();
+            }
+        };
+    }
+
+    private static List<MediaFile> getAudioFilePlaylistFromDatabase() {
+        Cursor cursor = MediaApplication.getInstance().getContentResolver().
+                query(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
+                        null,
+                        MediaCenterProvider.TRACK_IN_PLAY_LIST + "=1",
+                        null,
+                        null
+                );
+
+        List<MediaFile> audioFiles = new ArrayList<>();
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToPosition(-1);
+            while (cursor.moveToNext()) {
+                AudioFile audioFile = new AudioFile(cursor);
+                audioFiles.add(audioFile);
+            }
+            cursor.close();
+        }
+        return audioFiles;
+    }
+
+    public static Callable<List<MediaFile>> getVideoFilesPlaylist() {
+        return new Callable<List<MediaFile>>() {
+            @Override
+            public List<MediaFile> call() throws Exception {
+                return getVideoFilePlaylistFromDatabase();
+            }
+        };
+    }
+
+    private static List<MediaFile> getVideoFilePlaylistFromDatabase() {
+        Cursor cursor = MediaApplication.getInstance().getContentResolver().
+                query(MediaCenterProvider.VIDEO_FILES_TABLE_CONTENT_URI,
+                        null,
+                        MediaCenterProvider.VIDEO_IN_PLAY_LIST + "=1",
+                        null,
+                        null
+                );
+
+        List<MediaFile> videoFiles = new ArrayList<>();
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToPosition(-1);
+            while (cursor.moveToNext()) {
+                VideoFile videoFile = new VideoFile(cursor);
+                videoFiles.add(videoFile);
+            }
+
+            cursor.close();
+        }
+        return videoFiles;
+    }
+
+
 }

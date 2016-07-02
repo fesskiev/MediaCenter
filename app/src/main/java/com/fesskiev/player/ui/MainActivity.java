@@ -68,6 +68,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private NavigationView navigationViewMain;
     private DrawerLayout drawer;
     private AppSettingsManager settingsManager;
+    private SwitchCompat eqSwitch;
     private ImageView userPhoto;
     private ImageView logoutButton;
     private ImageView headerAnimation;
@@ -169,12 +170,14 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         headerAnimation = (ImageView) effectsHeaderLayout.findViewById(R.id.effectHeaderAnimation);
 
 
-        SwitchCompat eqSwitch = (SwitchCompat)
+        eqSwitch = (SwitchCompat)
                 navigationViewEffects.getMenu().findItem(R.id.equalizer).getActionView().findViewById(R.id.eq_switch);
         eqSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.v(TAG, "EQ " + isChecked);
+
+                PlaybackService.changeEQState(getApplicationContext(), isChecked);
+                settingsManager.setEQState(isChecked);
             }
         });
 
@@ -186,13 +189,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         bassSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    PlaybackService.changeBassBoostState(getApplicationContext(),
-                            PlaybackService.BASS_BOOST_ON);
-                } else {
-                    PlaybackService.changeBassBoostState(getApplicationContext(),
-                            PlaybackService.BASS_BOOST_OFF);
-                }
+
+                PlaybackService.changeBassBoostState(getApplicationContext(), isChecked);
                 settingsManager.setBassBoostState(isChecked);
             }
         });
@@ -340,6 +338,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         IntentFilter filter = new IntentFilter();
         filter.addAction(RESTService.ACTION_USER_PROFILE_RESULT);
         filter.addAction(PlaybackService.ACTION_PLAYBACK_BASS_BOOST_STATE);
+        filter.addAction(PlaybackService.ACTION_PLAYBACK_EQ_STATE);
         filter.addAction(FileSystemIntentService.ACTION_START_FETCH_MEDIA_CONTENT);
         filter.addAction(FileSystemIntentService.ACTION_END_FETCH_MEDIA_CONTENT);
         filter.addAction(FileSystemIntentService.ACTION_AUDIO_FOLDER_NAME);
@@ -381,7 +380,9 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 case PlaybackService.ACTION_PLAYBACK_BASS_BOOST_STATE:
                     setBassBoostState(intent);
                     break;
-
+                case PlaybackService.ACTION_PLAYBACK_EQ_STATE:
+                    setEQState(intent);
+                    break;
                 case FileSystemIntentService.ACTION_START_FETCH_MEDIA_CONTENT:
                     mediaContentDialog = FetchMediaContentDialog.newInstance(MainActivity.this);
                     mediaContentDialog.show();
@@ -421,7 +422,9 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         }
     };
 
-    private void updateMediaContent(){
+
+
+    private void updateMediaContent() {
         if (isAudioFragmentShow()) {
             AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
                     findFragmentByTag(AudioFragment.class.getName());
@@ -433,6 +436,12 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                     findFragmentByTag(VideoFragment.class.getName());
             videoFragment.fetchVideoContent();
         }
+    }
+
+    private void setEQState(Intent intent) {
+        boolean eqState =
+                intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_EQ_STATE, false);
+        eqSwitch.setChecked(eqState);
     }
 
     private void setBassBoostState(Intent intent) {
@@ -635,10 +644,10 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             @Override
             public void onError(VKError error) {
                 Log.d(TAG, "auth fail: " + error.errorMessage);
-               Utils.showCustomSnackbar(getCurrentFocus(),
-                       getApplicationContext(),
-                       getString(R.string.snackbar_vk_auth_error),
-                       Snackbar.LENGTH_SHORT).show();
+                Utils.showCustomSnackbar(getCurrentFocus(),
+                        getApplicationContext(),
+                        getString(R.string.snackbar_vk_auth_error),
+                        Snackbar.LENGTH_SHORT).show();
             }
         })) {
             super.onActivityResult(requestCode, resultCode, data);

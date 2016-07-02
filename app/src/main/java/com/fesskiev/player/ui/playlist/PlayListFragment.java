@@ -1,12 +1,8 @@
 package com.fesskiev.player.ui.playlist;
 
 
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,22 +16,25 @@ import android.widget.TextView;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.db.DatabaseHelper;
-import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.MediaFile;
-import com.fesskiev.player.model.VideoFile;
 import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
-import com.fesskiev.player.ui.audio.utils.Constants;
 import com.fesskiev.player.utils.BitmapHelper;
+import com.fesskiev.player.utils.RxUtils;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 
-public class PlayListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+
+public class PlayListFragment extends Fragment {
 
     private static final String TAG = PlayListFragment.class.getSimpleName();
 
@@ -43,11 +42,11 @@ public class PlayListFragment extends Fragment implements LoaderManager.LoaderCa
         return new PlayListFragment();
     }
 
+    private Subscription subscription;
     private AudioPlayer audioPlayer;
     private AudioTracksAdapter adapter;
     private List<MediaFile> mediaFiles;
     private CardView emptyPlaylistCard;
-    private int itemCount;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -76,16 +75,52 @@ public class PlayListFragment extends Fragment implements LoaderManager.LoaderCa
         view.findViewById(R.id.menu_clear_playlist).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                itemCount = 0;
+
+                showEmptyCardPlaylist();
+
                 DatabaseHelper.clearPlaylist();
+                adapter.clearAdapter();
             }
         });
 
-        getActivity().getSupportLoaderManager().
-                restartLoader(Constants.GET_AUDIO_PLAY_LIST_LOADER, null, this);
-        getActivity().getSupportLoaderManager().
-                restartLoader(Constants.GET_VIDEO_PLAY_LIST_LOADER, null, this);
+        fetchPLayListFiles();
     }
+
+    private void fetchPLayListFiles() {
+        subscription = Observable.concat(
+                RxUtils.fromCallableObservable(DatabaseHelper.getAudioFilesPlaylist()),
+                RxUtils.fromCallableObservable(DatabaseHelper.getVideoFilesPlaylist()))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<MediaFile>>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.wtf(TAG, "onCompleted:play list:");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.wtf(TAG, "onError:play list");
+                    }
+
+                    @Override
+                    public void onNext(List<MediaFile> mediaFiles) {
+                        Log.wtf(TAG, "onNext:play list: " + mediaFiles.size());
+                        if(!mediaFiles.isEmpty()){
+                            hideEmptyCardPlaylist();
+                            adapter.refreshAdapter(mediaFiles);
+                        } else {
+                            showEmptyCardPlaylist();
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        RxUtils.unsubscribe(subscription);
+    }
+
 
     private void showEmptyCardPlaylist() {
         emptyPlaylistCard.setVisibility(View.VISIBLE);
@@ -93,85 +128,6 @@ public class PlayListFragment extends Fragment implements LoaderManager.LoaderCa
 
     private void hideEmptyCardPlaylist() {
         emptyPlaylistCard.setVisibility(View.GONE);
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        switch (id) {
-            case Constants.GET_AUDIO_PLAY_LIST_LOADER:
-                return new CursorLoader(
-                        getActivity(),
-                        MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
-                        null,
-                        MediaCenterProvider.TRACK_IN_PLAY_LIST + "=1",
-                        null,
-                        null
-
-                );
-            case Constants.GET_VIDEO_PLAY_LIST_LOADER:
-                return new CursorLoader(
-                        getActivity(),
-                        MediaCenterProvider.VIDEO_FILES_TABLE_CONTENT_URI,
-                        null,
-                        MediaCenterProvider.VIDEO_IN_PLAY_LIST + "=1",
-                        null,
-                        null
-
-                );
-            default:
-                return null;
-
-        }
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        Log.wtf(TAG, "playlist size " + cursor.getCount());
-        if (cursor.getCount() > 0) {
-            itemCount += cursor.getCount();
-            switch (loader.getId()) {
-                case Constants.GET_AUDIO_PLAY_LIST_LOADER:
-                    getAudioPlaylist(cursor);
-                    break;
-                case Constants.GET_VIDEO_PLAY_LIST_LOADER:
-                    getVideoPlaylist(cursor);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        if (itemCount > 0) {
-            hideEmptyCardPlaylist();
-        } else {
-            showEmptyCardPlaylist();
-            adapter.clearAdapter();
-        }
-    }
-
-    private void getAudioPlaylist(Cursor cursor) {
-        List<MediaFile> audioFiles = new ArrayList<>();
-        cursor.moveToPosition(-1);
-        while (cursor.moveToNext()) {
-            AudioFile audioFile = new AudioFile(cursor);
-            audioFiles.add(audioFile);
-        }
-        adapter.refreshAdapter(audioFiles);
-    }
-
-    private void getVideoPlaylist(Cursor cursor) {
-        List<MediaFile> videoFiles = new ArrayList<>();
-        cursor.moveToPosition(-1);
-        while (cursor.moveToNext()) {
-            VideoFile videoFile = new VideoFile(cursor);
-            videoFiles.add(videoFile);
-        }
-        adapter.refreshAdapter(videoFiles);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
     }
 
     private class AudioTracksAdapter extends RecyclerView.Adapter<AudioTracksAdapter.ViewHolder> {

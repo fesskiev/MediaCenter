@@ -6,19 +6,16 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +25,6 @@ import android.widget.TextView;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.db.DatabaseHelper;
-import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
@@ -37,6 +33,7 @@ import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.player.ui.audio.utils.Constants;
 import com.fesskiev.player.utils.BitmapHelper;
+import com.fesskiev.player.utils.RxUtils;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.cards.SlidingCardView;
 import com.fesskiev.player.widgets.dialogs.EditTrackDialog;
@@ -46,8 +43,14 @@ import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
-public class TrackListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+
+public class TrackListFragment extends Fragment {
 
     private static final String TAG = TrackListFragment.class.getSimpleName();
 
@@ -61,6 +64,7 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
         return fragment;
     }
 
+    private Subscription subscription;
     private TrackListAdapter trackListAdapter;
     private AudioFolder audioFolder;
     private AudioPlayer audioPlayer;
@@ -131,6 +135,7 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
     public void onDestroy() {
         super.onDestroy();
         unregisterPlaybackBroadcastReceiver();
+        RxUtils.unsubscribe(subscription);
     }
 
     private void notifyTrackStateChange() {
@@ -163,98 +168,49 @@ public class TrackListFragment extends Fragment implements LoaderManager.LoaderC
     };
 
     private void fetchContentByType() {
+
+        Observable<List<AudioFile>> audioFilesObservable = null;
+
         switch (contentType) {
             case GENRE:
-                getActivity().
-                        getSupportLoaderManager().restartLoader(Constants.GET_GENRE_FILES_LOADER, null, this);
+                audioFilesObservable = RxUtils.
+                        fromCallableObservable(DatabaseHelper.getGenreTracks(contentValue));
                 break;
             case FOLDERS:
-                getActivity().
-                        getSupportLoaderManager().restartLoader(Constants.GET_FOLDERS_FILES_LOADER, null, this);
+                audioFilesObservable = RxUtils.
+                        fromCallableObservable(DatabaseHelper.getFolderTracks(audioFolder.id));
                 break;
             case ARTIST:
-                getActivity().
-                        getSupportLoaderManager().restartLoader(Constants.GET_ARTIST_FILES_LOADER, null, this);
-                break;
-        }
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        switch (id) {
-            case Constants.GET_GENRE_FILES_LOADER:
-                return new CursorLoader(
-                        getActivity(),
-                        MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
-                        null,
-                        MediaCenterProvider.TRACK_GENRE + "=" + "'" + contentValue + "'",
-                        null,
-                        MediaCenterProvider.TRACK_NUMBER + " ASC"
-
-                );
-            case Constants.GET_FOLDERS_FILES_LOADER:
-                return new CursorLoader(
-                        getActivity(),
-                        MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
-                        null,
-                        MediaCenterProvider.ID + "=" + "'" + audioFolder.id + "'",
-                        null,
-                        MediaCenterProvider.TRACK_NUMBER + " ASC"
-
-                );
-            case Constants.GET_ARTIST_FILES_LOADER:
-                return new CursorLoader(
-                        getActivity(),
-                        MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI,
-                        null,
-                        MediaCenterProvider.TRACK_ARTIST + "=" + "'" + contentValue + "'",
-                        null,
-                        MediaCenterProvider.TRACK_NUMBER + " ASC"
-
-                );
-        }
-        return null;
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        if (cursor.getCount() > 0) {
-            List<AudioFile> audioFiles = new ArrayList<>();
-            cursor.moveToPosition(-1);
-            while (cursor.moveToNext()) {
-                AudioFile audioFile = new AudioFile(cursor);
-                audioFiles.add(audioFile);
-            }
-            if (audioFolder != null) {
-                audioPlayer.setCurrentAudioFolderFiles(audioFiles);
-                trackListAdapter.refreshAdapter(audioFiles);
-            }
-        }
-
-        destroyLoader();
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
-    }
-
-    private void destroyLoader() {
-        switch (contentType) {
-            case GENRE:
-                getActivity().
-                        getSupportLoaderManager().destroyLoader(Constants.GET_GENRE_FILES_LOADER);
-                break;
-            case FOLDERS:
-                getActivity().
-                        getSupportLoaderManager().destroyLoader(Constants.GET_FOLDERS_FILES_LOADER);
-                break;
-            case ARTIST:
-                getActivity().
-                        getSupportLoaderManager().destroyLoader(Constants.GET_ARTIST_FILES_LOADER);
+                audioFilesObservable = RxUtils.
+                        fromCallableObservable(DatabaseHelper.getArtistTracks(contentValue));
                 break;
         }
 
+        if (audioFilesObservable != null) {
+            subscription = audioFilesObservable
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<List<AudioFile>>() {
+                        @Override
+                        public void onCompleted() {
+                            Log.wtf(TAG, "onCompleted:track list:");
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            Log.wtf(TAG, "onError:track list:");
+                        }
+
+                        @Override
+                        public void onNext(List<AudioFile> audioFiles) {
+                            Log.wtf(TAG, "onNext:track list: " + audioFiles.size());
+                            if (audioFolder != null) {
+                                audioPlayer.setCurrentAudioFolderFiles(audioFiles);
+                                trackListAdapter.refreshAdapter(audioFiles);
+                            }
+                        }
+                    });
+        }
     }
 
     private void closeOpenCards() {

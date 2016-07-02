@@ -82,7 +82,6 @@ public class EqualizerFragment extends Fragment {
             }
         });
 
-
         presetsSpinner = (Spinner) view.findViewById(R.id.presets);
         bandRoot = (LinearLayout) view.findViewById(R.id.bandRoot);
 
@@ -237,7 +236,10 @@ public class EqualizerFragment extends Fragment {
         settingsManager.setEQState(enable);
         enableBands(enable);
         enablePresetsSpinner(enable);
+        playbackService.sendBroadcastEQState(enable);
     }
+
+
 
     private void usePreset(int position) {
         customPreset = false;
