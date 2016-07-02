@@ -19,6 +19,7 @@ import com.fesskiev.player.model.VideoPlayer;
 import com.fesskiev.player.ui.playback.Playable;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.controls.VideoControlView;
+import com.fesskiev.player.widgets.surfaces.VideoTextureView;
 import com.google.android.exoplayer.AspectRatioFrameLayout;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.MediaFormat;
@@ -76,8 +77,24 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
         shutterView = findViewById(R.id.shutter);
         videoFrame = (AspectRatioFrameLayout) findViewById(R.id.video_frame);
 
-        textureView = (TextureView) findViewById(R.id.video_view);
+        VideoTextureView textureView = (VideoTextureView) findViewById(R.id.video_view);
         textureView.setSurfaceTextureListener(this);
+        textureView.setOnVideoTextureListener(new VideoTextureView.OnVideoTextureListener() {
+            @Override
+            public void onZoom() {
+
+            }
+
+            @Override
+            public void onDrag() {
+
+            }
+
+            @Override
+            public void onTouch() {
+                videoControlView.showControlsVisibility();
+            }
+        });
 
 
         videoControlView = (VideoControlView) findViewById(R.id.videoPlayerControl);
@@ -107,17 +124,17 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
             }
         });
 
-        findViewById(R.id.rootScreen).setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    videoControlView.showControlsVisibility();
-                } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                    v.performClick();
-                }
-                return true;
-            }
-        });
+//        findViewById(R.id.rootScreen).setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+//                    videoControlView.showControlsVisibility();
+//                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+//                    v.performClick();
+//                }
+//                return true;
+//            }
+//        });
 
         audioCapabilitiesReceiver = new AudioCapabilitiesReceiver(this, this);
         audioCapabilitiesReceiver.register();

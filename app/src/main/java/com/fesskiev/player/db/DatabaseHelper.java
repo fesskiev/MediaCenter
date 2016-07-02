@@ -266,6 +266,14 @@ public class DatabaseHelper {
                         null);
     }
 
+    public static void deleteVideoFile(String path) {
+        MediaApplication.getInstance().
+                getContentResolver().
+                delete(MediaCenterProvider.VIDEO_FILES_TABLE_CONTENT_URI,
+                        MediaCenterProvider.VIDEO_FILE_PATH + "=" + "'" + path + "'",
+                        null);
+    }
+
     public static List<String> getFoldersPath() {
         Cursor cursor = ContentResolverCompat.query(MediaApplication.getInstance().
                         getContentResolver(),

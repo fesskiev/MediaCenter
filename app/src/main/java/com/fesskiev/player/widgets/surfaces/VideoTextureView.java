@@ -10,6 +10,16 @@ import android.view.TextureView;
 
 public class VideoTextureView extends TextureView {
 
+    public interface OnVideoTextureListener {
+
+        void onZoom();
+
+        void onDrag();
+
+        void onTouch();
+    }
+
+    private OnVideoTextureListener listener;
     private Matrix matrix = new Matrix();
     private Matrix savedMatrix = new Matrix();
     private PointF start = new PointF();
@@ -37,6 +47,9 @@ public class VideoTextureView extends TextureView {
         super(context, attrs, defStyleAttr);
     }
 
+    public void setOnVideoTextureListener(OnVideoTextureListener l) {
+        this.listener = l;
+    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -44,6 +57,9 @@ public class VideoTextureView extends TextureView {
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
+                if(listener != null){
+                    listener.onTouch();
+                }
 
                 savedMatrix.set(matrix);
 
@@ -74,6 +90,9 @@ public class VideoTextureView extends TextureView {
             case MotionEvent.ACTION_MOVE:
 
                 if (mode == DRAG) {
+                    if(listener != null){
+                        listener.onDrag();
+                    }
 
                     matrix.set(savedMatrix);
                     float dx = event.getX() - start.x;
@@ -83,6 +102,9 @@ public class VideoTextureView extends TextureView {
                     setTransform(matrix);
 
                 } else if (mode == ZOOM) {
+                    if(listener != null){
+                        listener.onZoom();
+                    }
 
                     float newDist = spacing(event);
                     if (newDist > 10f) {
@@ -118,7 +140,7 @@ public class VideoTextureView extends TextureView {
     private float spacing(MotionEvent event) {
         float x = event.getX(0) - event.getX(1);
         float y = event.getY(0) - event.getY(1);
-        return (float)Math.sqrt(x * x + y * y);
+        return (float) Math.sqrt(x * x + y * y);
     }
 
     /**

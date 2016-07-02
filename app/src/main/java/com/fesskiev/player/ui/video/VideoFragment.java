@@ -265,8 +265,39 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             popupMenu.show();
         }
 
-        private void deleteVideo(int position) {
+        private void deleteVideo(final int position) {
+            final VideoFile videoFile = videoPlayer.videoFiles.get(position);
+            if (videoFile != null) {
+                AlertDialog.Builder builder =
+                        new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
+                builder.setTitle(getString(R.string.dialog_delete_file_title));
+                builder.setMessage(R.string.dialog_delete_file_message);
+                builder.setPositiveButton(R.string.dialog_delete_file_ok,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (videoFile.filePath.delete()) {
+                                    Utils.showCustomSnackbar(getView(),
+                                            getContext(),
+                                            getString(R.string.shackbar_delete_file),
+                                            Snackbar.LENGTH_LONG).show();
 
+                                    DatabaseHelper.deleteVideoFile(videoFile.getFilePath());
+
+                                    adapter.removeItem(position);
+
+                                }
+                            }
+                        });
+                builder.setNegativeButton(R.string.dialog_delete_file_cancel,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+                builder.show();
+            }
         }
 
         private void addToPlaylist(int position) {
@@ -314,6 +345,11 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             videoFiles.clear();
             videoFiles.addAll(receiveVideoFiles);
             notifyDataSetChanged();
+        }
+
+        public void removeItem(int position) {
+            videoFiles.remove(position);
+            notifyItemRemoved(position);
         }
     }
 }

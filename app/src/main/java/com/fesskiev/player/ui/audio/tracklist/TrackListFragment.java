@@ -65,7 +65,7 @@ public class TrackListFragment extends Fragment {
     }
 
     private Subscription subscription;
-    private TrackListAdapter trackListAdapter;
+    private TrackListAdapter adapter;
     private AudioFolder audioFolder;
     private AudioPlayer audioPlayer;
     private List<AudioFile> audioFiles;
@@ -103,8 +103,8 @@ public class TrackListFragment extends Fragment {
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false, 1000));
-        trackListAdapter = new TrackListAdapter();
-        recyclerView.setAdapter(trackListAdapter);
+        adapter = new TrackListAdapter();
+        recyclerView.setAdapter(adapter);
         recyclerView.addOnScrollListener(new HidingScrollListener() {
             @Override
             public void onHide() {
@@ -139,8 +139,8 @@ public class TrackListFragment extends Fragment {
     }
 
     private void notifyTrackStateChange() {
-        if (trackListAdapter != null) {
-            trackListAdapter.notifyDataSetChanged();
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
         }
     }
 
@@ -206,7 +206,7 @@ public class TrackListFragment extends Fragment {
                             Log.wtf(TAG, "onNext:track list: " + audioFiles.size());
                             if (audioFolder != null) {
                                 audioPlayer.setCurrentAudioFolderFiles(audioFiles);
-                                trackListAdapter.refreshAdapter(audioFiles);
+                                adapter.refreshAdapter(audioFiles);
                             }
                         }
                     });
@@ -319,7 +319,7 @@ public class TrackListFragment extends Fragment {
                         new EditTrackDialog.OnEditTrackChangedListener() {
                             @Override
                             public void onEditTrackChanged(AudioFile audioFile) {
-                                trackListAdapter.updateItem(position, audioFile);
+                                adapter.updateItem(position, audioFile);
                             }
 
                             @Override
@@ -348,7 +348,7 @@ public class TrackListFragment extends Fragment {
 
                                 DatabaseHelper.deleteAudioFile(audioFile.getFilePath());
 
-                                trackListAdapter.removeItem(position);
+                                adapter.removeItem(position);
 
                             }
                         }
