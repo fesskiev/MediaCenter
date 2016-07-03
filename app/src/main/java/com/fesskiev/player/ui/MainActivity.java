@@ -48,8 +48,9 @@ import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.utils.http.URLHelper;
-import com.fesskiev.player.widgets.dialogs.BassBoostDialog;
+import com.fesskiev.player.widgets.dialogs.effects.BassBoostDialog;
 import com.fesskiev.player.widgets.dialogs.FetchMediaContentDialog;
+import com.fesskiev.player.widgets.dialogs.effects.VirtualizerDialog;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKScope;
@@ -199,7 +200,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         virtualizerSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
+                settingsManager.setVirtualizerState(isChecked);
             }
         });
     }
@@ -273,6 +274,9 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 }
                 break;
             case R.id.virtualizer:
+                if (settingsManager.isVirtualizerOn()) {
+                    VirtualizerDialog.getInstance(this);
+                }
                 break;
             case R.id.audio_content:
                 checkAudioContentItem();
@@ -346,6 +350,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         filter.addAction(RESTService.ACTION_USER_PROFILE_RESULT);
         filter.addAction(PlaybackService.ACTION_PLAYBACK_BASS_BOOST_STATE);
         filter.addAction(PlaybackService.ACTION_PLAYBACK_BASS_BOOST_SUPPORT);
+        filter.addAction(PlaybackService.ACTION_PLAYBACK_VIRTUALIZER_STATE);
+        filter.addAction(PlaybackService.ACTION_PLAYBACK_VIRTUALIZER_SUPPORT);
         filter.addAction(PlaybackService.ACTION_PLAYBACK_EQ_STATE);
         filter.addAction(FileSystemIntentService.ACTION_START_FETCH_MEDIA_CONTENT);
         filter.addAction(FileSystemIntentService.ACTION_END_FETCH_MEDIA_CONTENT);
@@ -390,6 +396,12 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                     break;
                 case PlaybackService.ACTION_PLAYBACK_BASS_BOOST_SUPPORT:
                     setBassBoostSupport(intent);
+                    break;
+                case PlaybackService.ACTION_PLAYBACK_VIRTUALIZER_STATE:
+                    setVirtualizerState(intent);
+                    break;
+                case PlaybackService.ACTION_PLAYBACK_VIRTUALIZER_SUPPORT:
+                    setVirtualizertSupport(intent);
                     break;
                 case PlaybackService.ACTION_PLAYBACK_EQ_STATE:
                     setEQState(intent);
@@ -454,7 +466,19 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         eqSwitch.setChecked(eqState);
     }
 
-    private void setBassBoostSupport(Intent intent){
+    private void setVirtualizertSupport(Intent intent) {
+        boolean virtualizerSupport =
+                intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_VIRTUALIZER_SUPPORT, false);
+        visibleVirtualizerMenu(virtualizerSupport);
+    }
+
+    private void setVirtualizerState(Intent intent) {
+        boolean virtualizerState =
+                intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_VIRTUALIZER_STATE, false);
+        virtualizerSwitch.setChecked(virtualizerState);
+    }
+
+    private void setBassBoostSupport(Intent intent) {
         boolean bassBoostSupport =
                 intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_BASS_BOOST_SUPPORT, false);
         visibleBassBoostMenu(bassBoostSupport);
@@ -468,6 +492,10 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
     private void visibleBassBoostMenu(boolean visible) {
         navigationViewEffects.getMenu().findItem(R.id.bass).setVisible(visible);
+    }
+
+    private void visibleVirtualizerMenu(boolean visible) {
+        navigationViewEffects.getMenu().findItem(R.id.virtualizer).setVisible(visible);
     }
 
     private void setUserProfile(Context context, Intent intent) {

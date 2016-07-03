@@ -7,12 +7,21 @@
     android:orientation="vertical">
 
     <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/effectIcon"
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:layout_alignParentStart="true"
         android:contentDescription="@string/app_name"
         android:tint="@color/white_text"
-        android:src="@drawable/icon_bass_boost" />
+        tools:src="@drawable/icon_bass_boost" />
+
+    <TextView
+        android:id="@+id/effectName"
+        style="@style/EffectDialogTitleTextAppearance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        tools:text="Bass Boost" />
 
     <RelativeLayout
         android:id="@+id/closeContainer"
@@ -45,8 +54,8 @@
             android:text="@string/dialog_bass_boost_title" />
 
         <SeekBar
-            style="@style/Custom.Widget.SeekBarStyle"
             android:id="@+id/bassBoostSeek"
+            style="@style/Custom.Widget.SeekBarStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"

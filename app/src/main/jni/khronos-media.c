@@ -587,9 +587,8 @@ Java_com_fesskiev_player_services_PlaybackService_setEnableVirtualizer(JNIEnv *e
 }
 
 JNIEXPORT void JNICALL
-Java_com_fesskiev_player_services_PlaybackService_setBassVirtualizerValue(JNIEnv *env,
-                                                                          jobject instance,
-                                                                          jint value) {
+Java_com_fesskiev_player_services_PlaybackService_setVirtualizerValue(JNIEnv *env, jobject instance,
+                                                                      jint value) {
     if (NULL != uriVirtualizer) {
         SLresult result = (*uriVirtualizer)->SetStrength(uriVirtualizer, (SLuint16) value);
         checkError(result);
@@ -637,3 +636,4 @@ Java_com_fesskiev_player_services_PlaybackService_setLoopingUriAudioPlayer(JNIEn
         checkError(result);
     }
 }
+

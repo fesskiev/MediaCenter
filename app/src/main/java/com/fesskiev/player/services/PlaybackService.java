@@ -29,8 +29,6 @@ public class PlaybackService extends Service {
             "com.fesskiev.player.action.ACTION_HEADSET_PLUG_OUT";
     public static final String ACTION_SONG_END =
             "com.fesskiev.player.action.ACTION_SONG_END";
-    public static final String ACTION_BASS_BOOST_LEVEL =
-            "com.fesskiev.player.action.ACTION_BASS_BOOST_LEVEL";
 
     public static final String ACTION_CREATE_PLAYER =
             "com.fesskiev.player.action.ACTION_CREATE_PLAYER";
@@ -46,10 +44,18 @@ public class PlaybackService extends Service {
             "com.fesskiev.player.action.ACTION_PLAYBACK_VOLUME";
     public static final String ACTION_PLAYBACK_PLAYING_STATE =
             "com.fesskiev.player.action.ACTION_PLAYBACK_PLAYING_STATE";
+    public static final String ACTION_BASS_BOOST_LEVEL =
+            "com.fesskiev.player.action.ACTION_BASS_BOOST_LEVEL";
     public static final String ACTION_PLAYBACK_BASS_BOOST_STATE =
             "com.fesskiev.player.action.ACTION_PLAYBACK_BASS_BOOST_STATE";
     public static final String ACTION_PLAYBACK_BASS_BOOST_SUPPORT =
             "com.fesskiev.player.action.ACTION_PLAYBACK_BASS_BOOST_SUPPORT";
+    public static final String ACTION_PLAYBACK_VIRTUALIZER_STATE =
+            "com.fesskiev.player.action.ACTION_PLAYBACK_VIRTUALIZER_STATE";
+    public static final String ACTION_PLAYBACK_VIRTUALIZER_SUPPORT =
+            "com.fesskiev.player.action.ACTION_PLAYBACK_VIRTUALIZER_SUPPORT";
+    public static final String ACTION_PLAYBACK_VIRTUALIZER_LEVEL =
+            "com.fesskiev.player.action.ACTION_PLAYBACK_VIRTUALIZER_LEVEL";
     public static final String ACTION_PLAYBACK_EQ_STATE =
             "com.fesskiev.player.action.ACTION_PLAYBACK_EQ_STATE";
     public static final String ACTION_PLAYBACK_MUTE_SOLO_STATE =
@@ -78,6 +84,12 @@ public class PlaybackService extends Service {
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_BASS_BOOST_SUPPORT";
     public static final String PLAYBACK_EXTRA_BASS_BOOST_STATE
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_BASS_BOOST_STATE";
+    public static final String PLAYBACK_EXTRA_VIRTUALIZER_LEVEL
+            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_VIRTUALIZER_LEVEL";
+    public static final String PLAYBACK_EXTRA_VIRTUALIZER_SUPPORT
+            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_VIRTUALIZER_SUPPORT";
+    public static final String PLAYBACK_EXTRA_VIRTUALIZER_STATE
+            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_VIRTUALIZER_STATE";
     public static final String PLAYBACK_EXTRA_EQ_STATE
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_EQ_STATE";
     public static final String PLAYBACK_EXTRA_MUTE_SOLO_STATE
@@ -97,10 +109,31 @@ public class PlaybackService extends Service {
         context.startService(intent);
     }
 
+    public static void changeVirtualizerState(Context context, boolean state) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_PLAYBACK_VIRTUALIZER_STATE);
+        intent.putExtra(PLAYBACK_EXTRA_BASS_BOOST_STATE, state);
+        context.startService(intent);
+    }
+
+    public static void changeVirtualizerLevel(Context context, int level) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_PLAYBACK_VIRTUALIZER_LEVEL);
+        intent.putExtra(PLAYBACK_EXTRA_BASS_BOOST_LEVEL, level);
+        context.startService(intent);
+    }
+
     public static void changeBassBoostState(Context context, boolean state) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_BASS_BOOST_STATE);
         intent.putExtra(PLAYBACK_EXTRA_BASS_BOOST_STATE, state);
+        context.startService(intent);
+    }
+
+    public static void changeBassBoostLevel(Context context, int level) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_BASS_BOOST_LEVEL);
+        intent.putExtra(PLAYBACK_EXTRA_BASS_BOOST_LEVEL, level);
         context.startService(intent);
     }
 
@@ -115,13 +148,6 @@ public class PlaybackService extends Service {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_MUTE_SOLO_STATE);
         intent.putExtra(PLAYBACK_EXTRA_MUTE_SOLO_STATE, state);
-        context.startService(intent);
-    }
-
-    public static void changeBassBoostLevel(Context context, int level) {
-        Intent intent = new Intent(context, PlaybackService.class);
-        intent.setAction(ACTION_BASS_BOOST_LEVEL);
-        intent.putExtra(PLAYBACK_EXTRA_BASS_BOOST_LEVEL, level);
         context.startService(intent);
     }
 
@@ -250,7 +276,7 @@ public class PlaybackService extends Service {
 
     public native void setEnableVirtualizer(boolean isEnable);
 
-    public native void setBassVirtualizerValue(int value);
+    public native void setVirtualizerValue(int value);
 
 
     /**
@@ -305,6 +331,14 @@ public class PlaybackService extends Service {
                 case ACTION_PLAYBACK_BASS_BOOST_STATE:
                     boolean bassBoostState = intent.getBooleanExtra(PLAYBACK_EXTRA_BASS_BOOST_STATE, false);
                     setEnableBassBoost(bassBoostState);
+                    break;
+                case ACTION_PLAYBACK_VIRTUALIZER_LEVEL:
+                    int virtualizerLevel = intent.getIntExtra(PLAYBACK_EXTRA_VIRTUALIZER_LEVEL, -1);
+                    setVirtualizerValue(virtualizerLevel);
+                    break;
+                case ACTION_PLAYBACK_VIRTUALIZER_STATE:
+                    boolean virtualizerState = intent.getBooleanExtra(PLAYBACK_EXTRA_VIRTUALIZER_STATE, false);
+                    setEnableVirtualizer(virtualizerState);
                     break;
                 case ACTION_PLAYBACK_EQ_STATE:
                     boolean eqState = intent.getBooleanExtra(PLAYBACK_EXTRA_EQ_STATE, false);
@@ -376,6 +410,7 @@ public class PlaybackService extends Service {
     }
 
     private void setEffects() {
+        setVirtualizer();
         setBassBoost();
         setEQ();
     }
@@ -417,10 +452,22 @@ public class PlaybackService extends Service {
     private void setVirtualizer() {
         if (isSupportedVirtualizer()) {
             Log.d(TAG, "virtualizer supported");
-            setEnableVirtualizer(true);
-            setBassVirtualizerValue(1000);
+            sendBroadcastVirtualizerSupport(true);
+            if (settingsManager != null && settingsManager.isVirtualizerOn()) {
+                sendBroadcastVirtualizerState(true);
+                setEnableVirtualizer(true);
+                int value = settingsManager.getVirtualizerValue();
+                if (value != -1) {
+                    setVirtualizerValue(1000);
+                    Log.d(TAG, "set vitrualizer effect: " + value);
+                }
+            } else {
+                setEnableVirtualizer(false);
+                sendBroadcastVirtualizerState(false);
+            }
         } else {
             Log.d(TAG, "bass boost not supported!");
+            sendBroadcastVirtualizerSupport(false);
         }
     }
 
@@ -512,6 +559,20 @@ public class PlaybackService extends Service {
         Intent intent = new Intent();
         intent.setAction(ACTION_PLAYBACK_BASS_BOOST_SUPPORT);
         intent.putExtra(PLAYBACK_EXTRA_BASS_BOOST_SUPPORT, support);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+    }
+
+    private void sendBroadcastVirtualizerSupport(boolean support) {
+        Intent intent = new Intent();
+        intent.setAction(ACTION_PLAYBACK_VIRTUALIZER_SUPPORT);
+        intent.putExtra(PLAYBACK_EXTRA_VIRTUALIZER_SUPPORT, support);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+    }
+
+    private void sendBroadcastVirtualizerState(boolean state) {
+        Intent intent = new Intent();
+        intent.setAction(ACTION_PLAYBACK_VIRTUALIZER_STATE);
+        intent.putExtra(PLAYBACK_EXTRA_VIRTUALIZER_STATE, state);
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
     }
 

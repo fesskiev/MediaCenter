@@ -30,6 +30,9 @@ public class AppSettingsManager {
     private static final String KEY_EQ_PRESET = "com.fesskiev.player.KEY_EQ_PRESET";
     private static final String KEY_EQ_PRESET_STATE = "com.fesskiev.player.KEY_EQ_PRESET_STATE";
 
+    private static final String KEY_VIRTUALIZER_VALUE = "com.fesskiev.player.KEY_VIRTUALIZER_VALUE";
+    private static final String KEY_VIRTUALIZER_STATE = "com.fesskiev.player.KEY_VIRTUALIZER_STATE";
+
     private SharedPreferences sharedPreferences;
     private static AppSettingsManager appSettingsManager;
 
@@ -113,6 +116,26 @@ public class AppSettingsManager {
         return TextUtils.isEmpty(getAuthToken());
     }
 
+
+    public int getVirtualizerValue() {
+        return sharedPreferences.getInt(KEY_VIRTUALIZER_VALUE, -1);
+    }
+
+    public void setVirtualizerValue(int value) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(KEY_VIRTUALIZER_VALUE, value);
+        editor.apply();
+    }
+
+    public boolean isVirtualizerOn() {
+        return sharedPreferences.getBoolean(KEY_VIRTUALIZER_STATE, false);
+    }
+
+    public void setVirtualizerState(boolean state) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_VIRTUALIZER_STATE, state);
+        editor.apply();
+    }
 
     public int getBassBoostValue() {
         return sharedPreferences.getInt(KEY_BASS_BOOST_VALUE, -1);
