@@ -125,14 +125,21 @@
         <service
             android:name=".services.FileSystemIntentService"
             android:exported="false" />
+
         <service
             android:name=".services.PlaybackService"
             android:exported="false" />
+
         <service
             android:name=".services.RESTService"
             android:exported="false" />
+
         <service
             android:name=".services.FileObserverService"
+            android:exported="false" />
+
+        <service
+            android:name=".services.MediaPlayerService"
             android:exported="false" />
 
         <provider

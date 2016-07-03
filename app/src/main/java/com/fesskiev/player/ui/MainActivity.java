@@ -34,6 +34,7 @@ import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.User;
 import com.fesskiev.player.services.FileObserverService;
 import com.fesskiev.player.services.FileSystemIntentService;
+import com.fesskiev.player.services.MediaPlayerService;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.ui.about.AboutActivity;
@@ -200,6 +201,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         virtualizerSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                PlaybackService.changeVirtualizerState(getApplicationContext(), isChecked);
                 settingsManager.setVirtualizerState(isChecked);
             }
         });
@@ -241,6 +244,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     @Override
     protected void onResume() {
         super.onResume();
+        MediaPlayerService.startMediaPlayerService(this);
         clearItems();
         if (isAudioFragmentShow()) {
             checkAudioContentItem();

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 
 import com.fesskiev.player.R;
+import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.utils.AppSettingsManager;
 
 public class VirtualizerDialog extends EffectDialog {
@@ -46,7 +47,7 @@ public class VirtualizerDialog extends EffectDialog {
 
     @Override
     public void getEffectValue(int value) {
-
+        PlaybackService.changeVirtualizerLevel(getContext(), value);
     }
 
     @Override
