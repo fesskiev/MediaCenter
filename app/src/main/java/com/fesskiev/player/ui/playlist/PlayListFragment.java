@@ -87,11 +87,15 @@ public class PlayListFragment extends Fragment {
     }
 
     private void fetchPLayListFiles() {
+
         subscription = Observable.concat(
                 RxUtils.fromCallableObservable(DatabaseHelper.getAudioFilesPlaylist()),
                 RxUtils.fromCallableObservable(DatabaseHelper.getVideoFilesPlaylist()))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<List<MediaFile>>() {
+
+                    int count;
+
                     @Override
                     public void onCompleted() {
                         Log.wtf(TAG, "onCompleted:play list:");
@@ -105,9 +109,12 @@ public class PlayListFragment extends Fragment {
                     @Override
                     public void onNext(List<MediaFile> mediaFiles) {
                         Log.wtf(TAG, "onNext:play list: " + mediaFiles.size());
+                        count += mediaFiles.size();
                         if(!mediaFiles.isEmpty()){
-                            hideEmptyCardPlaylist();
                             adapter.refreshAdapter(mediaFiles);
+                        }
+                        if(count > 0){
+                            hideEmptyCardPlaylist();
                         } else {
                             showEmptyCardPlaylist();
                         }

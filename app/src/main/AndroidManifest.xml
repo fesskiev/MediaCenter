@@ -139,7 +139,7 @@
             android:exported="false" />
 
         <service
-            android:name=".services.MediaPlayerService"
+            android:name=".services.MediaControlService"
             android:exported="false" />
 
         <provider

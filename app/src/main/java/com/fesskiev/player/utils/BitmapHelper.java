@@ -4,12 +4,15 @@ package com.fesskiev.player.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
@@ -21,11 +24,13 @@ import java.io.IOException;
 
 public class BitmapHelper {
 
-    public interface OnBitmapLoad {
+    public interface OnBitmapLoadListener {
         void onLoaded(Bitmap bitmap);
+
+        void onFailed();
     }
 
-    public static void loadURLAvatar(final Context context, String url, final ImageView into, final OnBitmapLoad onBitmapLoad) {
+    public static void loadURLAvatar(final Context context, String url, final ImageView into, final OnBitmapLoadListener listener) {
         Glide.with(context.getApplicationContext()).load(url).asBitmap().
                 centerCrop().into(new BitmapImageViewTarget(into) {
             @Override
@@ -35,9 +40,32 @@ public class BitmapHelper {
                 circularBitmapDrawable.setCircular(true);
 
                 into.setImageDrawable(circularBitmapDrawable);
-                onBitmapLoad.onLoaded(resource);
+                if (listener != null) {
+                    listener.onLoaded(resource);
+                }
             }
         });
+    }
+
+    public static void loadBitmap(final Context context, String url, final OnBitmapLoadListener listener) {
+        Glide.with(context)
+                .load(url)
+                .asBitmap()
+                .into(new SimpleTarget<Bitmap>(100, 100) {
+                    @Override
+                    public void onResourceReady(Bitmap resource, GlideAnimation glideAnimation) {
+                        if (listener != null) {
+                            listener.onLoaded(resource);
+                        }
+                    }
+
+                    @Override
+                    public void onLoadFailed(Exception e, Drawable errorDrawable) {
+                       if(listener != null){
+                            listener.onFailed();
+                        }
+                    }
+                });
     }
 
     public static void loadBitmapAvatar(final Context context, Bitmap bitmap, final ImageView into) {

@@ -34,7 +34,7 @@ import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.User;
 import com.fesskiev.player.services.FileObserverService;
 import com.fesskiev.player.services.FileSystemIntentService;
-import com.fesskiev.player.services.MediaPlayerService;
+import com.fesskiev.player.services.MediaControlService;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.ui.about.AboutActivity;
@@ -49,8 +49,8 @@ import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.utils.http.URLHelper;
-import com.fesskiev.player.widgets.dialogs.effects.BassBoostDialog;
 import com.fesskiev.player.widgets.dialogs.FetchMediaContentDialog;
+import com.fesskiev.player.widgets.dialogs.effects.BassBoostDialog;
 import com.fesskiev.player.widgets.dialogs.effects.VirtualizerDialog;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
@@ -128,6 +128,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
         checkPermission();
         checkAudioContentItem();
+
+        MediaControlService.startMediaPlayerService(this);
     }
 
     private void setMainNavView() {
@@ -240,11 +242,15 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         settingsManager.setUserId("");
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Log.d(TAG, "onNewIntent");
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
-        MediaPlayerService.startMediaPlayerService(this);
         clearItems();
         if (isAudioFragmentShow()) {
             checkAudioContentItem();
@@ -374,9 +380,10 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     protected void onDestroy() {
         super.onDestroy();
         unregisterBroadcastReceiver();
-        PlaybackService.destroyPlayer(this);
+        PlaybackService.destroyPlayer(getApplicationContext());
+        MediaControlService.stopNotificationService(getApplicationContext());
         resetAudioPlayer();
-        FileObserverService.stopFileObserverService(this);
+        FileObserverService.stopFileObserverService(getApplicationContext());
     }
 
     private void resetAudioPlayer() {
@@ -514,10 +521,15 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             settingsManager.setUserLastName(user.lastName);
 
             BitmapHelper.loadURLAvatar(context,
-                    user.photoUrl, userPhoto, new BitmapHelper.OnBitmapLoad() {
+                    user.photoUrl, userPhoto, new BitmapHelper.OnBitmapLoadListener() {
                         @Override
                         public void onLoaded(Bitmap bitmap) {
                             BitmapHelper.saveUserPhoto(bitmap);
+                        }
+
+                        @Override
+                        public void onFailed() {
+
                         }
                     });
         }

@@ -385,6 +385,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         IntentFilter filter = new IntentFilter();
         filter.addAction(PlaybackService.ACTION_PLAYBACK_VALUES);
         filter.addAction(PlaybackService.ACTION_PLAYBACK_PLAYING_STATE);
+        filter.addAction(AudioPlayer.ACTION_CHANGE_CURRENT_AUDIO_FILE);
         filter.addAction(PlaybackService.ACTION_SONG_END);
         LocalBroadcastManager.getInstance(this).registerReceiver(playbackReceiver, filter);
     }
@@ -419,6 +420,9 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
                     playPauseButton.setPlay(audioPlayer.isPlaying);
                     break;
                 case PlaybackService.ACTION_SONG_END:
+                    cardDescription.next();
+                    reset();
+                case AudioPlayer.ACTION_CHANGE_CURRENT_AUDIO_FILE:
                     cardDescription.next();
                     reset();
                     break;
