@@ -3,6 +3,7 @@ package com.fesskiev.player.utils.download;
 
 
 import com.fesskiev.player.utils.CacheManager;
+import com.fesskiev.player.utils.Utils;
 
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -40,7 +41,7 @@ public class DownloadManager implements Runnable {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        this.fileName = replaceSymbols(fileName);
+        this.fileName = Utils.replaceSymbols(fileName);
         size = -1;
         downloaded = 0;
         status = DOWNLOADING;
@@ -50,10 +51,6 @@ public class DownloadManager implements Runnable {
 
     public void setOnDownloadListener(OnDownloadListener listener) {
         this.listener = listener;
-    }
-
-    private String replaceSymbols(String fileName){
-        return fileName.replaceAll("['/]", "");
     }
 
 

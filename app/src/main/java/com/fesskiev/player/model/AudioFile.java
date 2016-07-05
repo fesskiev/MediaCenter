@@ -3,11 +3,13 @@ package com.fesskiev.player.model;
 import android.content.Context;
 import android.database.Cursor;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.fesskiev.player.R;
 import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.CacheManager;
+import com.fesskiev.player.utils.Utils;
 
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.AudioHeader;
@@ -52,6 +54,7 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
         this.context = context;
         this.filePath = filePath;
         this.listener = listener;
+        renameFileCorrect();
         getTrackInfo();
     }
 
@@ -72,6 +75,7 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
         length = cursor.getInt(cursor.getColumnIndex(MediaCenterProvider.TRACK_LENGTH));
 
     }
+
 
     private void parseMP3(org.jaudiotagger.audio.AudioFile file) {
         Tag tag = file.getTag();
@@ -123,6 +127,14 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
 
             fillEmptyFields();
         }
+    }
+
+    private void renameFileCorrect(){
+        File newPath = new File(filePath.getParent(), Utils.replaceSymbols(filePath.getName()));
+        Log.d("name", "new name: " + newPath.toString());
+        boolean rename = filePath.renameTo(newPath);
+        Log.d("name", "rename: " + rename);
+        filePath = newPath;
     }
 
     private void saveArtwork(Tag tag) {

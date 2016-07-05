@@ -135,7 +135,7 @@ public class MediaControlService extends Service {
                 = new NotificationCompat.Builder(getApplicationContext());
         notificationBuilder
                 .setStyle(new NotificationCompat.MediaStyle()
-                        .setShowActionsInCompactView(0, 1, 2, 3, 4))
+                        .setShowActionsInCompactView( 0, 2, 4, 1, 3))
                 .setColor(ContextCompat.getColor(getApplicationContext(), R.color.primary))
                 .setSmallIcon(R.drawable.icon_music)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)

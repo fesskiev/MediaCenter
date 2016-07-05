@@ -82,4 +82,8 @@ public class Utils {
                 InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
+    public static String replaceSymbols(String fileName){
+        return fileName.replaceAll("[|\\?*<\":>+/']", "");
+    }
+
 }

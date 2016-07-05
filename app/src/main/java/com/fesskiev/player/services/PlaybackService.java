@@ -12,6 +12,7 @@ import android.util.Log;
 
 import com.fesskiev.player.ui.equalizer.EqualizerFragment;
 import com.fesskiev.player.utils.AppSettingsManager;
+import com.fesskiev.player.utils.AudioFocusManager;
 
 import java.util.List;
 import java.util.Timer;
@@ -100,6 +101,7 @@ public class PlaybackService extends Service {
 
     private Timer timer;
     private AppSettingsManager settingsManager;
+    private AudioFocusManager audioFocusManager;
     private int durationScale;
 
     public static void changeEQState(Context context, boolean state) {
@@ -295,6 +297,7 @@ public class PlaybackService extends Service {
         super.onCreate();
         Log.d(TAG, "Create playback service!");
         settingsManager = AppSettingsManager.getInstance(getApplicationContext());
+        audioFocusManager = new AudioFocusManager();
 
         registerHeadsetReceiver();
         registerCallback();
