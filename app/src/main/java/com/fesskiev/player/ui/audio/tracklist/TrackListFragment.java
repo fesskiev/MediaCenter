@@ -146,7 +146,7 @@ public class TrackListFragment extends Fragment {
 
     private void registerPlaybackBroadcastReceiver() {
         IntentFilter filter = new IntentFilter();
-        filter.addAction(PlaybackService.ACTION_SONG_END);
+        filter.addAction(PlaybackService.ACTION_PLAYBACK_PLAYING_STATE);
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(playbackReceiver, filter);
     }
 
@@ -160,7 +160,7 @@ public class TrackListFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
-                case PlaybackService.ACTION_SONG_END:
+                case PlaybackService.ACTION_PLAYBACK_PLAYING_STATE:
                     notifyTrackStateChange();
                     break;
             }

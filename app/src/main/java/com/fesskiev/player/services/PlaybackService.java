@@ -298,6 +298,26 @@ public class PlaybackService extends Service {
         Log.d(TAG, "Create playback service!");
         settingsManager = AppSettingsManager.getInstance(getApplicationContext());
         audioFocusManager = new AudioFocusManager();
+        audioFocusManager.setOnAudioFocusManagerListener(
+                new AudioFocusManager.OnAudioFocusManagerListener() {
+                    @Override
+                    public void onFocusChanged(int state) {
+                        switch (state) {
+                            case AudioFocusManager.AUDIO_FOCUSED:
+                                Log.d(TAG, "onFocusChanged: FOCUSED");
+                                play();
+                                break;
+                            case AudioFocusManager.AUDIO_NO_FOCUS_CAN_DUCK:
+                                Log.d(TAG, "onFocusChanged: NO_FOCUS_CAN_DUCK");
+                                setVolumeUriAudioPlayer(500);
+                                break;
+                            case AudioFocusManager.AUDIO_NO_FOCUS_NO_DUCK:
+                                Log.d(TAG, "onFocusChanged: NO_FOCUS_NO_DUCK");
+                                stop();
+                                break;
+                        }
+                    }
+                });
 
         registerHeadsetReceiver();
         registerCallback();
@@ -419,7 +439,7 @@ public class PlaybackService extends Service {
     }
 
     private void setEQ() {
-        if(settingsManager.isEQOn()) {
+        if (settingsManager.isEQOn()) {
             Log.d(TAG, "EQ ON");
             setEnableEQ(true);
             switch (settingsManager.getEQPresetState()) {
@@ -514,6 +534,7 @@ public class PlaybackService extends Service {
             setPlayingUriAudioPlayer(true);
             startUpdateTimer();
             sendBroadcastPlayingState(true);
+            audioFocusManager.tryToGetAudioFocus();
         }
     }
 
@@ -533,6 +554,7 @@ public class PlaybackService extends Service {
             setPlayingUriAudioPlayer(false);
             stopUpdateTimer();
             sendBroadcastPlayingState(false);
+            audioFocusManager.giveUpAudioFocus();
         }
     }
 
