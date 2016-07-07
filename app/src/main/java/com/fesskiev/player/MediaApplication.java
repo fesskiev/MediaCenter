@@ -9,6 +9,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.VideoPlayer;
+import com.flurry.android.FlurryAgent;
 import com.google.android.gms.analytics.ExceptionReporter;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
@@ -48,6 +49,8 @@ public class MediaApplication extends Application {
         super.onCreate();
         application = this;
 
+        createFlurryAgent();
+
         audioPlayer = new AudioPlayer(getApplicationContext());
         videoPlayer = new VideoPlayer();
 
@@ -59,6 +62,12 @@ public class MediaApplication extends Application {
                 Thread.getDefaultUncaughtExceptionHandler(),
                 getApplicationContext());
         Thread.setDefaultUncaughtExceptionHandler(uncaughtExceptionHandler);
+    }
+
+    private void createFlurryAgent() {
+        new FlurryAgent.Builder()
+                .withLogEnabled(false)
+                .build(this, getString(R.string.flurry_key));
     }
 
     @Override
