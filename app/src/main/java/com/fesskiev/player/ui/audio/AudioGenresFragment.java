@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.fesskiev.player.R;
 import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.model.Genre;
@@ -140,9 +139,9 @@ public class AudioGenresFragment extends GridFragment implements AudioContent {
                 holder.genreName.setText(genre.name);
 
                 if (genre.artworkPath != null) {
-                    BitmapHelper.loadURLBitmap(getContext(), genre.artworkPath, holder.cover);
+                    BitmapHelper.loadURIBitmap(getContext(), genre.artworkPath, holder.cover);
                 } else {
-                    Glide.with(getContext()).load(R.drawable.no_cover_icon).into(holder.cover);
+                    BitmapHelper.loadNoCoverFolder(getContext(), holder.cover);
                 }
             }
         }

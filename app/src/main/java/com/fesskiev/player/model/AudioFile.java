@@ -3,7 +3,6 @@ package com.fesskiev.player.model;
 import android.content.Context;
 import android.database.Cursor;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.fesskiev.player.R;
 import com.fesskiev.player.db.MediaCenterProvider;
@@ -131,10 +130,10 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
 
     private void renameFileCorrect(){
         File newPath = new File(filePath.getParent(), Utils.replaceSymbols(filePath.getName()));
-        Log.d("name", "new name: " + newPath.toString());
         boolean rename = filePath.renameTo(newPath);
-        Log.d("name", "rename: " + rename);
-        filePath = newPath;
+        if(rename) {
+            filePath = newPath;
+        }
     }
 
     private void saveArtwork(Tag tag) {

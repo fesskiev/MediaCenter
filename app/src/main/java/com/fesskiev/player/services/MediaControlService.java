@@ -124,7 +124,7 @@ public class MediaControlService extends Service {
                         public void onFailed() {
                             createNotification(action, audioFile,
                                     BitmapHelper.getBitmapFromResource(getApplicationContext(),
-                                            R.drawable.no_cover_icon));
+                                            R.drawable.no_cover_track_icon));
                         }
                     });
         }
@@ -211,7 +211,7 @@ public class MediaControlService extends Service {
                 case PlaybackService.ACTION_PLAYBACK_PLAYING_STATE:
                     boolean isPlaying =
                             intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_PLAYING, false);
-                    Log.e(TAG, " onReceive playing: " + isPlaying);
+                    Log.e(TAG, "onReceive playing: " + isPlaying);
                     setPlayPauseState(isPlaying);
                     break;
             }

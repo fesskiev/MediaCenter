@@ -22,7 +22,7 @@
             android:contentDescription="@string/app_name"
             android:minHeight="@dimen/card_min_width"
             android:scaleType="center"
-            tools:src="@drawable/no_cover_icon" />
+            tools:src="@drawable/no_cover_track_icon"/>
 
         <TextView
             style="@style/AudioNameTextAppearance"

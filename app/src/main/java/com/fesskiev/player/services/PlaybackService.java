@@ -380,7 +380,7 @@ public class PlaybackService extends Service {
             }
         }
 
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
     private void registerHeadsetReceiver() {

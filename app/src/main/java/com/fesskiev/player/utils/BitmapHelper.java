@@ -61,7 +61,7 @@ public class BitmapHelper {
 
                     @Override
                     public void onLoadFailed(Exception e, Drawable errorDrawable) {
-                       if(listener != null){
+                        if (listener != null) {
                             listener.onFailed();
                         }
                     }
@@ -90,23 +90,46 @@ public class BitmapHelper {
         });
     }
 
-    public static void loadURLBitmap(Context context, String url, ImageView into) {
-        Glide.with(context.getApplicationContext()).load(url).into(into);
+    public static void loadURIBitmap(Context context, String uri, ImageView into) {
+        Glide.with(context.getApplicationContext()).
+                load(uri).
+                fitCenter().
+                crossFade().
+                into(into);
+    }
+
+
+    public static void loadNoCoverFolder(Context context, ImageView into) {
+        Glide.with(context).
+                load(R.drawable.no_cover_folder_icon).
+                fitCenter().
+                crossFade().
+                into(into);
     }
 
     public static void loadAudioPlayerArtwork(Context context, AudioPlayer audioPlayer, ImageView placeholder) {
         String path = findAudioPlayerArtworkPath(audioPlayer);
-        if (path != null) {
+        if (path == null && isDownloadFolder(audioPlayer.currentAudioFolder)) {
             Glide.with(context.getApplicationContext()).
-                    load(path).
+                    load(R.drawable.download_track_artwork).
                     crossFade().
+                    fitCenter().
                     into(placeholder);
         } else {
             Glide.with(context.getApplicationContext()).
-                    load(R.drawable.no_cover_icon).
+                    load(path).
                     crossFade().
+                    fitCenter().
                     into(placeholder);
         }
+    }
+
+
+    private static boolean isDownloadFolder(AudioFolder audioFolder) {
+        if (audioFolder.folderName != null) {
+            return audioFolder.folderName.equals("Downloads");
+        }
+        return false;
     }
 
     private static String findAudioPlayerArtworkPath(AudioPlayer audioPlayer) {
@@ -114,45 +137,33 @@ public class BitmapHelper {
         if (artworkPath != null) {
             return artworkPath;
         }
-        AudioFolder audioFolder = audioPlayer.currentAudioFolder;
-        if (audioFolder != null) {
-            File coverFile = audioFolder.folderImage;
-            if (coverFile != null) {
-                return coverFile.getAbsolutePath();
-            }
-        }
         return null;
     }
 
-    public static void loadArtwork(Context context, AudioFolder audioFolder,
-                                   MediaFile mediaFile, ImageView placeholder) {
+    public static void loadTrackListArtwork(Context context, MediaFile mediaFile, ImageView placeholder) {
 
-        String path = findArtworkPath(audioFolder, mediaFile);
+        String path = findArtworkPath(mediaFile);
         if (path != null) {
             Glide.with(context.getApplicationContext()).
                     load(path).
                     crossFade().
+                    fitCenter().
                     transform(new CircleTransform(context.getApplicationContext())).
                     into(placeholder);
         } else {
             Glide.with(context.getApplicationContext()).
-                    load(R.drawable.no_cover_icon).
+                    load(R.drawable.no_cover_track_icon).
                     crossFade().
+                    fitCenter().
                     transform(new CircleTransform(context.getApplicationContext())).
                     into(placeholder);
         }
     }
 
-    private static String findArtworkPath(AudioFolder audioFolder, MediaFile mediaFile) {
+    private static String findArtworkPath(MediaFile mediaFile) {
         String artworkPath = mediaFile.getArtworkPath();
         if (artworkPath != null) {
             return artworkPath;
-        }
-        if (audioFolder != null) {
-            File coverFile = audioFolder.folderImage;
-            if (coverFile != null) {
-                return coverFile.getAbsolutePath();
-            }
         }
         return null;
     }
@@ -163,12 +174,10 @@ public class BitmapHelper {
             Glide.with(context.getApplicationContext()).
                     load(coverFile).
                     crossFade().
+                    fitCenter().
                     into(placeholder);
         } else {
-            Glide.with(context.getApplicationContext()).
-                    load(R.drawable.no_cover_icon).
-                    crossFade().
-                    into(placeholder);
+            loadNoCoverFolder(context.getApplicationContext(), placeholder);
         }
     }
 

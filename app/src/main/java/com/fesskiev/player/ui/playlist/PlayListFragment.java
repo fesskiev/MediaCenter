@@ -176,7 +176,7 @@ public class PlayListFragment extends Fragment {
 
             MediaFile mediaFile = mediaFiles.get(position);
             if (mediaFile != null) {
-                BitmapHelper.loadArtwork(getActivity(), null, mediaFile, holder.cover);
+                BitmapHelper.loadTrackListArtwork(getActivity(), mediaFile, holder.cover);
 
                 holder.duration.setText(Utils.getDurationString(mediaFile.getLength()));
                 holder.title.setText(mediaFile.getTitle());
