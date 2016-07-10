@@ -10,7 +10,7 @@
     <string name="title_eq_activity">EQUALIZER</string>
     <string name="title_music_vk_activity">Вконтакте музыка</string>
     <string name="title_settings_activity">Настройки</string>
-    <string name="title_about_activity">Про нас</string>
+    <string name="title_about_activity">Про проект</string>
     <string name="title_playlist_activity">Плейлист</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -23,7 +23,8 @@
     <string name="empty_music_file_album">Альбон не определен</string>
     <string name="empty_music_file_genre">Жанр не определен</string>
 
-    <string name="drawer_item_about">Про нас</string>
+    <string name="drawer_item_donate">Поддержать проект</string>
+    <string name="drawer_item_about">Про проект</string>
     <string name="drawer_item_settings">Настройки</string>
     <string name="drawer_title_effects">Эффекты</string>
     <string name="drawer_title_content">Контент</string>

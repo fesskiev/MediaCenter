@@ -109,7 +109,8 @@ public class BitmapHelper {
 
     public static void loadAudioPlayerArtwork(Context context, AudioPlayer audioPlayer, ImageView placeholder) {
         String path = findAudioPlayerArtworkPath(audioPlayer);
-        if (path == null && isDownloadFolder(audioPlayer.currentAudioFolder)) {
+
+        if (path == null) {
             Glide.with(context.getApplicationContext()).
                     load(R.drawable.download_track_artwork).
                     crossFade().
@@ -122,14 +123,6 @@ public class BitmapHelper {
                     fitCenter().
                     into(placeholder);
         }
-    }
-
-
-    private static boolean isDownloadFolder(AudioFolder audioFolder) {
-        if (audioFolder.folderName != null) {
-            return audioFolder.folderName.equals("Downloads");
-        }
-        return false;
     }
 
     private static String findAudioPlayerArtworkPath(AudioPlayer audioPlayer) {

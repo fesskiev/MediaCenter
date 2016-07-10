@@ -27,13 +27,6 @@
             android:title="@string/drawer_item_playlist" />
     </group>
 
-
-    <group>
-        <item
-            android:id="@+id/empty"
-            android:title="" />
-    </group>
-
     <group
         android:id="@+id/menu_settings"
         android:checkableBehavior="single">
@@ -53,5 +46,13 @@
             android:icon="@drawable/icon_about"
             android:title="@string/drawer_item_about" />
     </group>
+
+    <group>
+        <item
+            android:id="@+id/donate"
+            android:icon="@drawable/icon_donate"
+            android:title="@string/drawer_item_donate" />
+    </group>
+
 
 </menu>

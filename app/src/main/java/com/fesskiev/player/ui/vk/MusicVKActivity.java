@@ -48,18 +48,6 @@ public class MusicVKActivity extends AppCompatActivity {
                                         MainActivity.class)));
                     }
                 });
-
-                toolbar.inflateMenu(R.menu.vk_menu);
-                toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        switch (item.getItemId()) {
-                            case R.id.vk_settings:
-                                break;
-                        }
-                        return true;
-                    }
-                });
             }
 
             progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
