@@ -138,10 +138,6 @@
             android:name=".services.FileObserverService"
             android:exported="false" />
 
-        <service
-            android:name=".services.MediaControlService"
-            android:exported="false" />
-
         <provider
             android:name=".db.MediaCenterProvider"
             android:authorities="@string/authority"

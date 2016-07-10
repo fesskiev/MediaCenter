@@ -111,9 +111,20 @@
     <string name="preset_spinner_none">NONE</string>
     <string name="preset_spinner_custom">CUSTOM</string>
 
+    <string name="about_version">Version</string>
+    <string name="about_contact">Contact us</string>
+    <string name="about_mail">Email</string>
+    <string name="about_vk">Vkontakte</string>
+
+    <string name="mail_subject">(Media Center) comment</string>
+    <string name="mail_chooser">(Media Center) send comment</string>
+
     <string name="frequency_15">+15dB</string>
     <string name="frequency_0">0dB</string>
     <string name="frequency_minus_15">-15dB</string>
+
+    <string name="vk_page">https://vk.com/fess_kiev</string>
+    <string name="mail_address">fesskiev@gmail.com</string>
 
     <integer name="com_vk_sdk_AppId">5217689</integer>
 

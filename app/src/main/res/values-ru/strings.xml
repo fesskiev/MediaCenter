@@ -110,4 +110,12 @@
     <string name="preset_spinner_none">НЕ ВЫБРАН</string>
     <string name="preset_spinner_custom">СВОЙ</string>
 
+    <string name="about_version">Версия</string>
+    <string name="about_contact">Обратная связь</string>
+    <string name="about_mail">Email</string>
+    <string name="about_vk">Вконтакте</string>
+
+    <string name="mail_subject">(Media Center) Отзыв</string>
+    <string name="mail_chooser">(Media Center) Отправить отзыв</string>
+
 </resources>

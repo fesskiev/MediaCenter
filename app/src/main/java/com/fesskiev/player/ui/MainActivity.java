@@ -34,7 +34,6 @@ import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.User;
 import com.fesskiev.player.services.FileObserverService;
 import com.fesskiev.player.services.FileSystemIntentService;
-import com.fesskiev.player.services.MediaControlService;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.ui.about.AboutActivity;
@@ -128,8 +127,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
         checkPermission();
         checkAudioContentItem();
-
-        MediaControlService.startMediaPlayerService(this);
     }
 
     private void setMainNavView() {
@@ -381,7 +378,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         super.onDestroy();
         unregisterBroadcastReceiver();
         PlaybackService.destroyPlayer(getApplicationContext());
-        MediaControlService.stopNotificationService(getApplicationContext());
         resetAudioPlayer();
         FileObserverService.stopFileObserverService(getApplicationContext());
     }

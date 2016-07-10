@@ -13,6 +13,7 @@ import android.util.Log;
 import com.fesskiev.player.ui.equalizer.EqualizerFragment;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.AudioFocusManager;
+import com.fesskiev.player.utils.AudioNotificationManager;
 
 import java.util.List;
 import java.util.Timer;
@@ -102,6 +103,7 @@ public class PlaybackService extends Service {
     private Timer timer;
     private AppSettingsManager settingsManager;
     private AudioFocusManager audioFocusManager;
+    private AudioNotificationManager audioNotificationManager;
     private int durationScale;
 
     public static void changeEQState(Context context, boolean state) {
@@ -153,10 +155,6 @@ public class PlaybackService extends Service {
         context.startService(intent);
     }
 
-    public static void startPlaybackService(Context context) {
-        Intent intent = new Intent(context, PlaybackService.class);
-        context.startService(intent);
-    }
 
     public static void createPlayer(Context context, String path) {
         Intent intent = new Intent(context, PlaybackService.class);
@@ -174,6 +172,11 @@ public class PlaybackService extends Service {
     public static void stopPlayback(Context context) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_STOP_PLAYBACK);
+        context.startService(intent);
+    }
+
+    public static void startPlaybackService(Context context) {
+        Intent intent = new Intent(context, PlaybackService.class);
         context.startService(intent);
     }
 
@@ -297,6 +300,7 @@ public class PlaybackService extends Service {
         super.onCreate();
         Log.d(TAG, "Create playback service!");
         settingsManager = AppSettingsManager.getInstance(getApplicationContext());
+        audioNotificationManager = new AudioNotificationManager(this, this);
         audioFocusManager = new AudioFocusManager();
         audioFocusManager.setOnAudioFocusManagerListener(
                 new AudioFocusManager.OnAudioFocusManagerListener() {
@@ -535,6 +539,7 @@ public class PlaybackService extends Service {
             startUpdateTimer();
             sendBroadcastPlayingState(true);
             audioFocusManager.tryToGetAudioFocus();
+            audioNotificationManager.setPlayPauseState(true);
         }
     }
 
@@ -555,6 +560,7 @@ public class PlaybackService extends Service {
             stopUpdateTimer();
             sendBroadcastPlayingState(false);
             audioFocusManager.giveUpAudioFocus();
+            audioNotificationManager.setPlayPauseState(false);
         }
     }
 
@@ -648,6 +654,7 @@ public class PlaybackService extends Service {
         stop();
         releaseUriAudioPlayer();
         releaseEngine();
+        audioNotificationManager.stopNotification();
         unregisterHeadsetReceiver();
         unregisterCallback();
     }
