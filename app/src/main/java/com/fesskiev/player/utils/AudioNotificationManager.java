@@ -45,6 +45,7 @@ public class AudioNotificationManager extends BroadcastReceiver {
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
         registerBroadcastReceiver();
 
+
         playbackService.startForeground(NOTIFICATION_ID,
                 createNotification(audioPlayer.currentAudioFile));
     }
@@ -126,6 +127,14 @@ public class AudioNotificationManager extends BroadcastReceiver {
     }
 
     private Notification createNotification(AudioFile audioFile) {
+        String artist, title;
+        if (audioFile != null) {
+            artist = audioFile.artist;
+            title = audioFile.title;
+        } else {
+            artist = context.getString(R.string.playback_control_track_not_selected);
+            title = context.getString(R.string.playback_control_track_not_selected);
+        }
         NotificationCompat.Builder notificationBuilder
                 = new NotificationCompat.Builder(context);
         notificationBuilder
@@ -136,8 +145,8 @@ public class AudioNotificationManager extends BroadcastReceiver {
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setContentIntent(createContentIntent())
                 .setUsesChronometer(false)
-                .setContentTitle(audioFile.title)
-                .setContentText(audioFile.artist);
+                .setContentTitle(artist)
+                .setContentText(title);
 
         notificationBuilder.addAction(generateAction(R.drawable.icon_previous_media_control,
                 "Previous", ACTION_MEDIA_CONTROL_PREVIOUS));
@@ -210,17 +219,18 @@ public class AudioNotificationManager extends BroadcastReceiver {
     }
 
     private void next() {
-        if (!audioPlayer.repeat) {
+        if (audioPlayer.currentAudioFile != null && !audioPlayer.repeat) {
             audioPlayer.next();
-            PlaybackService.createPlayer(context,
-                    audioPlayer.currentAudioFile.getFilePath());
-            PlaybackService.startPlayback(context);
-
+            if (audioPlayer.currentAudioFile != null) {
+                PlaybackService.createPlayer(context,
+                        audioPlayer.currentAudioFile.getFilePath());
+                PlaybackService.startPlayback(context);
+            }
         }
     }
 
     private void previous() {
-        if (!audioPlayer.repeat) {
+        if (audioPlayer.currentAudioFile != null && !audioPlayer.repeat) {
             audioPlayer.previous();
             PlaybackService.createPlayer(context,
                     audioPlayer.currentAudioFile.getFilePath());
