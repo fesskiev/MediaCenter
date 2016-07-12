@@ -18,7 +18,6 @@ public abstract class EffectDialog extends AlertDialog implements SeekBar.OnSeek
 
     public abstract void getEffectValue(int value);
 
-    public abstract void getSaveEffectValue(int value);
 
     private ImageView effectIcon;
     private TextView effectNameText;
@@ -64,7 +63,7 @@ public abstract class EffectDialog extends AlertDialog implements SeekBar.OnSeek
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-        getSaveEffectValue(seekBar.getProgress() * SCALE);
+
     }
 
     public void setEffectIcon(int resource) {

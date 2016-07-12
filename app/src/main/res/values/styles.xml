@@ -35,6 +35,8 @@
         <item name="android:thumb">@drawable/switch_selector_thumb</item>
         <item name="track">@drawable/switch_selector_track</item>
         <item name="showText">false</item>
+        <item name="android:textColor">@color/white_text</item>
+        <item name="android:textSize">12sp</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

@@ -6,7 +6,7 @@
         android:width="20dp"
         android:height="20dp" />
 
-    <solid android:color="@color/primary" />
+    <solid android:color="@color/primary_dark" />
 
     <stroke
         android:width="0dp"

@@ -46,11 +46,7 @@ public class BassBoostDialog extends EffectDialog {
 
     @Override
     public void getEffectValue(int value) {
-        PlaybackService.changeBassBoostLevel(getContext(), value);
-    }
-
-    @Override
-    public void getSaveEffectValue(int value) {
         settingsManager.setBassBoostValue(value);
+        PlaybackService.changeBassBoostLevel(getContext());
     }
 }

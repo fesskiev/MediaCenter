@@ -80,14 +80,10 @@ public class PlaybackService extends Service {
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_VOLUME";
     public static final String PLAYBACK_EXTRA_PLAYING
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_PLAYING";
-    public static final String PLAYBACK_EXTRA_BASS_BOOST_LEVEL
-            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_BASS_BOOST_LEVEL";
     public static final String PLAYBACK_EXTRA_BASS_BOOST_SUPPORT
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_BASS_BOOST_SUPPORT";
     public static final String PLAYBACK_EXTRA_BASS_BOOST_STATE
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_BASS_BOOST_STATE";
-    public static final String PLAYBACK_EXTRA_VIRTUALIZER_LEVEL
-            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_VIRTUALIZER_LEVEL";
     public static final String PLAYBACK_EXTRA_VIRTUALIZER_SUPPORT
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_VIRTUALIZER_SUPPORT";
     public static final String PLAYBACK_EXTRA_VIRTUALIZER_STATE
@@ -116,14 +112,13 @@ public class PlaybackService extends Service {
     public static void changeVirtualizerState(Context context, boolean state) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_VIRTUALIZER_STATE);
-        intent.putExtra(PLAYBACK_EXTRA_BASS_BOOST_STATE, state);
+        intent.putExtra(PLAYBACK_EXTRA_VIRTUALIZER_STATE, state);
         context.startService(intent);
     }
 
-    public static void changeVirtualizerLevel(Context context, int level) {
+    public static void changeVirtualizerLevel(Context context) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_VIRTUALIZER_LEVEL);
-        intent.putExtra(PLAYBACK_EXTRA_BASS_BOOST_LEVEL, level);
         context.startService(intent);
     }
 
@@ -134,10 +129,9 @@ public class PlaybackService extends Service {
         context.startService(intent);
     }
 
-    public static void changeBassBoostLevel(Context context, int level) {
+    public static void changeBassBoostLevel(Context context) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_BASS_BOOST_LEVEL);
-        intent.putExtra(PLAYBACK_EXTRA_BASS_BOOST_LEVEL, level);
         context.startService(intent);
     }
 
@@ -352,24 +346,15 @@ public class PlaybackService extends Service {
                     volume(volumeValue);
                     break;
                 case ACTION_BASS_BOOST_LEVEL:
-                    int bassBoostLevel = intent.getIntExtra(PLAYBACK_EXTRA_BASS_BOOST_LEVEL, -1);
-                    setBassBoostValue(bassBoostLevel);
-                    break;
                 case ACTION_PLAYBACK_BASS_BOOST_STATE:
-                    boolean bassBoostState = intent.getBooleanExtra(PLAYBACK_EXTRA_BASS_BOOST_STATE, false);
-                    setEnableBassBoost(bassBoostState);
+                    setBassBoost();
                     break;
                 case ACTION_PLAYBACK_VIRTUALIZER_LEVEL:
-                    int virtualizerLevel = intent.getIntExtra(PLAYBACK_EXTRA_VIRTUALIZER_LEVEL, -1);
-                    setVirtualizerValue(virtualizerLevel);
-                    break;
                 case ACTION_PLAYBACK_VIRTUALIZER_STATE:
-                    boolean virtualizerState = intent.getBooleanExtra(PLAYBACK_EXTRA_VIRTUALIZER_STATE, false);
-                    setEnableVirtualizer(virtualizerState);
+                    setVirtualizer();
                     break;
                 case ACTION_PLAYBACK_EQ_STATE:
-                    boolean eqState = intent.getBooleanExtra(PLAYBACK_EXTRA_EQ_STATE, false);
-                    setEnableEQ(eqState);
+                    setEQ();
                     break;
                 case ACTION_PLAYBACK_MUTE_SOLO_STATE:
                     boolean muteSoloState =

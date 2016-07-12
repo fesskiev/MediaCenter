@@ -47,11 +47,7 @@ public class VirtualizerDialog extends EffectDialog {
 
     @Override
     public void getEffectValue(int value) {
-        PlaybackService.changeVirtualizerLevel(getContext(), value);
-    }
-
-    @Override
-    public void getSaveEffectValue(int value) {
         settingsManager.setVirtualizerValue(value);
+        PlaybackService.changeVirtualizerLevel(getContext());
     }
 }
