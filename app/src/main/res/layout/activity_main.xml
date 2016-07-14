@@ -31,8 +31,8 @@
         android:layout_gravity="start"
         android:background="@android:color/white"
         android:fitsSystemWindows="true"
-        app:itemTextColor="@drawable/nav_item_state_list"
         app:itemBackground="@drawable/nav_item_background"
+        app:itemTextColor="@drawable/nav_item_state_list"
         app:menu="@menu/activity_main_drawer" />
 
     <android.support.design.widget.NavigationView

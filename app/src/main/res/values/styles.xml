@@ -14,6 +14,7 @@
         <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
         <item name="switchStyle">@style/Custom.Widget.SwitchCompat</item>
         <item name="seekBarStyle">@style/Custom.Widget.SeekBarStyle</item>
+        <item name="android:scrollbarThumbVertical">@android:color/transparent</item>
     </style>
 
     <style name="Custom.Widget.AlertDialog" parent="@android:style/Theme.Dialog">

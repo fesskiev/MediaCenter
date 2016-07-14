@@ -29,11 +29,8 @@ public class AudioNotificationManager extends BroadcastReceiver {
 
     public static final String ACTION_MEDIA_CONTROL_PLAY = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_PLAY";
     public static final String ACTION_MEDIA_CONTROL_PAUSE = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_PAUSE";
-    public static final String ACTION_MEDIA_CONTROL_REWIND = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_REWIND";
-    public static final String ACTION_MEDIA_CONTROL_FAST_FORWARD = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_FAST_FORWARD";
     public static final String ACTION_MEDIA_CONTROL_NEXT = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_NEXT";
     public static final String ACTION_MEDIA_CONTROL_PREVIOUS = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_PREVIOUS";
-    public static final String ACTION_MEDIA_CONTROL_STOP = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_STOP";
 
     private Context context;
     private AudioPlayer audioPlayer;
@@ -45,20 +42,20 @@ public class AudioNotificationManager extends BroadcastReceiver {
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
         registerBroadcastReceiver();
 
-
         playbackService.startForeground(NOTIFICATION_ID,
-                createNotification(audioPlayer.currentAudioFile));
+                buildNotification(null,
+                        audioPlayer.currentAudioFile,
+                        BitmapHelper.getBitmapFromResource(context,
+                                R.drawable.download_track_artwork),
+                        false));
     }
 
     private void registerBroadcastReceiver() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_MEDIA_CONTROL_PLAY);
-        filter.addAction(ACTION_MEDIA_CONTROL_STOP);
         filter.addAction(ACTION_MEDIA_CONTROL_PAUSE);
         filter.addAction(ACTION_MEDIA_CONTROL_NEXT);
         filter.addAction(ACTION_MEDIA_CONTROL_PREVIOUS);
-        filter.addAction(ACTION_MEDIA_CONTROL_FAST_FORWARD);
-        filter.addAction(ACTION_MEDIA_CONTROL_REWIND);
         playbackService.registerReceiver(this, filter);
     }
 
@@ -75,7 +72,7 @@ public class AudioNotificationManager extends BroadcastReceiver {
         unregisterBroadcastReceiver();
     }
 
-    private void buildNotification(final NotificationCompat.Action action) {
+    private void changeNotification(final NotificationCompat.Action action, final boolean isPlaying) {
 
         final AudioFile audioFile = audioPlayer.currentAudioFile;
         if (audioFile != null) {
@@ -83,50 +80,32 @@ public class AudioNotificationManager extends BroadcastReceiver {
                     new BitmapHelper.OnBitmapLoadListener() {
                         @Override
                         public void onLoaded(Bitmap bitmap) {
-                            createNotification(action, audioFile, bitmap);
+                            createNotification(buildNotification(action,
+                                    audioFile,
+                                    bitmap,
+                                    isPlaying));
                         }
 
                         @Override
                         public void onFailed() {
-                            createNotification(action, audioFile,
+                            createNotification(buildNotification(action,
+                                    audioFile,
                                     BitmapHelper.getBitmapFromResource(context,
-                                            R.drawable.no_cover_track_icon));
+                                            R.drawable.download_track_artwork),
+                                    isPlaying));
                         }
                     });
         }
     }
 
-    private void createNotification(NotificationCompat.Action action, AudioFile audioFile, Bitmap bitmap) {
-        NotificationCompat.Builder notificationBuilder
-                = new NotificationCompat.Builder(context);
-        notificationBuilder
-                .setStyle(new NotificationCompat.MediaStyle()
-                        .setShowActionsInCompactView(0, 2, 4, 1, 3))
-                .setColor(ContextCompat.getColor(context, R.color.primary))
-                .setSmallIcon(R.drawable.icon_music)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setContentIntent(createContentIntent())
-                .setUsesChronometer(false)
-                .setContentTitle(audioFile.title)
-                .setContentText(audioFile.artist)
-                .setLargeIcon(bitmap);
-
-        notificationBuilder.addAction(generateAction(R.drawable.icon_previous_media_control,
-                "Previous", ACTION_MEDIA_CONTROL_PREVIOUS));
-        notificationBuilder.addAction(generateAction(R.drawable.icon_rewind_media_control,
-                "Rewind", ACTION_MEDIA_CONTROL_REWIND));
-        notificationBuilder.addAction(action);
-        notificationBuilder.addAction(generateAction(R.drawable.icon_fast_forward_media_control,
-                "Fast Forward", ACTION_MEDIA_CONTROL_FAST_FORWARD));
-        notificationBuilder.addAction(generateAction(R.drawable.icon_next_media_control,
-                "Next", ACTION_MEDIA_CONTROL_NEXT));
-
+    private void createNotification(Notification notification) {
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build());
+        notificationManager.notify(NOTIFICATION_ID, notification);
     }
 
-    private Notification createNotification(AudioFile audioFile) {
+    private Notification buildNotification(NotificationCompat.Action action,
+                                           AudioFile audioFile, Bitmap bitmap, boolean isPlaying) {
         String artist, title;
         if (audioFile != null) {
             artist = audioFile.artist;
@@ -139,23 +118,35 @@ public class AudioNotificationManager extends BroadcastReceiver {
                 = new NotificationCompat.Builder(context);
         notificationBuilder
                 .setStyle(new NotificationCompat.MediaStyle()
-                        .setShowActionsInCompactView(0, 2, 4, 1, 3))
+                        .setShowActionsInCompactView(0, 1, 2))
                 .setColor(ContextCompat.getColor(context, R.color.primary))
                 .setSmallIcon(R.drawable.icon_music)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setContentIntent(createContentIntent())
-                .setUsesChronometer(false)
                 .setContentTitle(artist)
-                .setContentText(title);
+                .setContentText(title)
+                .setLargeIcon(bitmap);
+
+        if (isPlaying) {
+            notificationBuilder
+                    .setWhen(System.currentTimeMillis() - audioPlayer.progress)
+                    .setShowWhen(true)
+                    .setUsesChronometer(true);
+        } else {
+            notificationBuilder
+                    .setWhen(0)
+                    .setShowWhen(false)
+                    .setUsesChronometer(false);
+        }
 
         notificationBuilder.addAction(generateAction(R.drawable.icon_previous_media_control,
                 "Previous", ACTION_MEDIA_CONTROL_PREVIOUS));
-        notificationBuilder.addAction(generateAction(R.drawable.icon_rewind_media_control,
-                "Rewind", ACTION_MEDIA_CONTROL_REWIND));
-        notificationBuilder.addAction(generateAction(R.drawable.icon_play_media_control,
-                "Play", ACTION_MEDIA_CONTROL_PLAY));
-        notificationBuilder.addAction(generateAction(R.drawable.icon_fast_forward_media_control,
-                "Fast Forward", ACTION_MEDIA_CONTROL_FAST_FORWARD));
+        if (action != null) {
+            notificationBuilder.addAction(action);
+        } else {
+            notificationBuilder.addAction(generateAction(R.drawable.icon_play_media_control,
+                    "Play", ACTION_MEDIA_CONTROL_PLAY));
+        }
         notificationBuilder.addAction(generateAction(R.drawable.icon_next_media_control,
                 "Next", ACTION_MEDIA_CONTROL_NEXT));
 
@@ -165,11 +156,11 @@ public class AudioNotificationManager extends BroadcastReceiver {
 
     public void setPlayPauseState(boolean isPlaying) {
         if (isPlaying) {
-            buildNotification(generateAction(R.drawable.icon_pause_media_control,
-                    "Pause", ACTION_MEDIA_CONTROL_PAUSE));
+            changeNotification(generateAction(R.drawable.icon_pause_media_control,
+                    "Pause", ACTION_MEDIA_CONTROL_PAUSE), true);
         } else {
-            buildNotification(generateAction(R.drawable.icon_play_media_control,
-                    "Play", ACTION_MEDIA_CONTROL_PLAY));
+            changeNotification(generateAction(R.drawable.icon_play_media_control,
+                    "Play", ACTION_MEDIA_CONTROL_PLAY), false);
         }
     }
 
@@ -196,26 +187,13 @@ public class AudioNotificationManager extends BroadcastReceiver {
             case ACTION_MEDIA_CONTROL_PAUSE:
                 pause();
                 break;
-            case ACTION_MEDIA_CONTROL_FAST_FORWARD:
-                fastForward();
-                break;
-            case ACTION_MEDIA_CONTROL_REWIND:
-                rewind();
-                break;
             case ACTION_MEDIA_CONTROL_PREVIOUS:
                 previous();
                 break;
             case ACTION_MEDIA_CONTROL_NEXT:
                 next();
                 break;
-            case ACTION_MEDIA_CONTROL_STOP:
-                stop();
-                break;
         }
-    }
-
-    private void stop() {
-
     }
 
     private void next() {
@@ -236,14 +214,6 @@ public class AudioNotificationManager extends BroadcastReceiver {
                     audioPlayer.currentAudioFile.getFilePath());
             PlaybackService.startPlayback(context);
         }
-    }
-
-    private void rewind() {
-
-    }
-
-    private void fastForward() {
-
     }
 
     private void play() {

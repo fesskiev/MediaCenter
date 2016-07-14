@@ -269,7 +269,7 @@ public class PlaybackActivity extends AnalyticsActivity {
                     break;
                 case PlaybackService.ACTION_PLAYBACK_PLAYING_STATE:
                     boolean isPlaying = intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_PLAYING, false);
-                    Log.w(TAG, "playback activity is plying");
+                    Log.w(TAG, "playback activity is plying: " + isPlaying);
                     audioPlayer.isPlaying = isPlaying;
                     playPauseButton.setPlay(audioPlayer.isPlaying);
                     adapter.notifyDataSetChanged();

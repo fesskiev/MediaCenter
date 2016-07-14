@@ -445,6 +445,7 @@ public class PlaybackService extends Service {
             }
             sendBroadcastEQState(true);
         } else {
+            setEnableEQ(false);
             sendBroadcastEQState(false);
         }
     }
