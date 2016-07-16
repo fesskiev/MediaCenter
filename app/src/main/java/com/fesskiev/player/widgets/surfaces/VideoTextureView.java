@@ -29,7 +29,6 @@ public class VideoTextureView extends TextureView {
     private float d = 0f;
     private float newRot = 0f;
 
-
     private int mode = NONE;
     private static final int NONE = 0;
     private static final int DRAG = 1;
@@ -57,7 +56,7 @@ public class VideoTextureView extends TextureView {
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                if(listener != null){
+                if (listener != null) {
                     listener.onTouch();
                 }
 
@@ -89,20 +88,22 @@ public class VideoTextureView extends TextureView {
                 break;
             case MotionEvent.ACTION_MOVE:
 
-                if (mode == DRAG) {
-                    if(listener != null){
-                        listener.onDrag();
-                    }
-
-                    matrix.set(savedMatrix);
-                    float dx = event.getX() - start.x;
-                    float dy = event.getY() - start.y;
-
-                    matrix.postTranslate(dx, dy);
-                    setTransform(matrix);
-
-                } else if (mode == ZOOM) {
-                    if(listener != null){
+//                if (mode == DRAG) {
+//                    if (listener != null) {
+//                        listener.onDrag();
+//                    }
+//
+//                    matrix.set(savedMatrix);
+//                    float dx = event.getX() - start.x;
+//                    float dy = event.getY() - start.y;
+//
+//
+//                    matrix.postTranslate(dx, dy);
+//                    setTransform(matrix);
+//
+//                } else
+                if (mode == ZOOM) {
+                    if (listener != null) {
                         listener.onZoom();
                     }
 
@@ -113,19 +114,19 @@ public class VideoTextureView extends TextureView {
                         matrix.postScale(scale, scale, mid.x, mid.y);
 
                     }
-                    if (lastEvent != null && event.getPointerCount() == 3) {
-                        newRot = rotation(event);
-                        float r = newRot - d;
-                        float[] values = new float[9];
-                        matrix.getValues(values);
-                        float tx = values[2];
-                        float ty = values[5];
-                        float sx = values[0];
-                        float xc = (getWidth() / 2) * sx;
-                        float yc = (getHeight() / 2) * sx;
-                        matrix.postRotate(r, tx + xc, ty + yc);
-
-                    }
+//                    if (lastEvent != null && event.getPointerCount() == 3) {
+//                        newRot = rotation(event);
+//                        float r = newRot - d;
+//                        float[] values = new float[9];
+//                        matrix.getValues(values);
+//                        float tx = values[2];
+//                        float ty = values[5];
+//                        float sx = values[0];
+//                        float xc = (getWidth() / 2) * sx;
+//                        float yc = (getHeight() / 2) * sx;
+//                        matrix.postRotate(r, tx + xc, ty + yc);
+//
+//                    }
                     setTransform(matrix);
                 }
                 break;

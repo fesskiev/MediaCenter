@@ -1,36 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.fesskiev.player.widgets.layouts.ElasticDragDismissFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rootScreen"
+    android:id="@+id/drag_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:focusable="true"
     android:keepScreenOn="true"
+    app:dragDismissDistance="400dp"
+    app:dragDismissScale="0.95"
     tools:context=".ui.video.player.VideoExoPlayerActivity">
 
-    <com.google.android.exoplayer.AspectRatioFrameLayout
-        android:id="@+id/video_frame"
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center">
+        android:fillViewport="true">
 
-        <com.fesskiev.player.widgets.surfaces.VideoTextureView
-            android:id="@+id/video_view"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="center" />
+            android:orientation="vertical">
 
-        <View
-            android:id="@+id/shutter"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@android:color/black" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
 
-        <com.fesskiev.player.widgets.controls.VideoControlView
-            android:id="@+id/videoPlayerControl"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
 
-    </com.google.android.exoplayer.AspectRatioFrameLayout>
+                    <com.fesskiev.player.widgets.surfaces.VideoTextureView
+                        android:id="@+id/video_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center" />
 
-</FrameLayout>
+                    <View
+                        android:id="@+id/shutter"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@color/secondary_text" />
+
+                </FrameLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="8dp"
+                android:layout_weight="1.5">
+
+                <android.support.v7.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    card_view:cardBackgroundColor="@color/white_text"
+                    card_view:cardCornerRadius="4dp"
+                    card_view:cardElevation="@dimen/card_view_elevation"
+                    card_view:cardPreventCornerOverlap="false"
+                    card_view:cardUseCompatPadding="false">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <com.fesskiev.player.widgets.controls.VideoControlView
+                            android:id="@+id/videoPlayerControl"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="15dp" />
+
+                        <View
+                            android:id="@+id/divider1"
+                            style="@style/DividerStyle"
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_below="@+id/videoPlayerControl"
+                            android:layout_marginTop="10dp" />
+
+                    </RelativeLayout>
+
+                </android.support.v7.widget.CardView>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </android.support.v4.widget.NestedScrollView>
+
+</com.fesskiev.player.widgets.layouts.ElasticDragDismissFrameLayout>
+

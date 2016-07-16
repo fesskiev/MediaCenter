@@ -169,4 +169,8 @@ public class PlayPauseDrawable extends Drawable {
     public void setPauseBarDistance(float pauseBarDistance) {
         this.pauseBarDistance = pauseBarDistance;
     }
+
+    public void setColor(int color) {
+        paint.setColor(color);
+    }
 }

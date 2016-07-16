@@ -2,11 +2,10 @@ package com.fesskiev.player.widgets.controls;
 
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.widget.FrameLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -16,8 +15,6 @@ import com.fesskiev.player.widgets.buttons.PlayPauseButton;
 
 public class VideoControlView extends FrameLayout implements View.OnClickListener {
 
-    private static final int SHOW_TIME = 500;
-    private static final int HIDE_TIME = 1500;
 
     public interface OnVideoPlayerControlListener {
 
@@ -36,8 +33,6 @@ public class VideoControlView extends FrameLayout implements View.OnClickListene
     private TextView videoTimeCount;
     private TextView videoTimeTotal;
     private boolean isPlaying;
-    private boolean showControls;
-
 
     public VideoControlView(Context context) {
         super(context);
@@ -64,6 +59,7 @@ public class VideoControlView extends FrameLayout implements View.OnClickListene
         findViewById(R.id.nextVideo).setOnClickListener(this);
         findViewById(R.id.previousVideo).setOnClickListener(this);
         playPauseButton = (PlayPauseButton) view.findViewById(R.id.playPauseButton);
+        playPauseButton.setColor(ContextCompat.getColor(context, R.color.primary));
         playPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -122,14 +118,6 @@ public class VideoControlView extends FrameLayout implements View.OnClickListene
         this.listener = l;
     }
 
-    public void setShowControls(boolean showControls) {
-        this.showControls = showControls;
-    }
-
-    public boolean isShowControls() {
-        return showControls;
-    }
-
     public void setVideoTimeTotal(String time) {
         videoTimeTotal.setText(time);
     }
@@ -142,51 +130,6 @@ public class VideoControlView extends FrameLayout implements View.OnClickListene
         seekVideo.setProgress(progress);
     }
 
-    public void hideControlsVisibility() {
-        AlphaAnimation animation = new AlphaAnimation(0.5f, 0.0f);
-        animation.setDuration(HIDE_TIME);
-        animation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                setVisibility(View.INVISIBLE);
-                showControls = false;
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-        startAnimation(animation);
-    }
-
-    public void showControlsVisibility() {
-        AlphaAnimation animation = new AlphaAnimation(0.0f, 0.5f);
-        animation.setDuration(SHOW_TIME);
-        animation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                setVisibility(View.VISIBLE);
-                showControls = true;
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-        startAnimation(animation);
-    }
 
     public void resetIndicators() {
         videoTimeTotal.setText("0:00");

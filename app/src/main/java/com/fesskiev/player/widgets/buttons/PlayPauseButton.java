@@ -72,4 +72,9 @@ public class PlayPauseButton extends ImageView {
         animatorSet.playTogether(pausePlayAnim);
         animatorSet.start();
     }
+
+    public void setColor(int color){
+        drawable.setColor(color);
+    }
+
 }

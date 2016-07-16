@@ -7,8 +7,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.transition.TransitionInflater;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
@@ -19,8 +19,8 @@ import com.fesskiev.player.model.VideoPlayer;
 import com.fesskiev.player.ui.playback.Playable;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.controls.VideoControlView;
+import com.fesskiev.player.widgets.layouts.ElasticDragDismissFrameLayout;
 import com.fesskiev.player.widgets.surfaces.VideoTextureView;
-import com.google.android.exoplayer.AspectRatioFrameLayout;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.audio.AudioCapabilities;
@@ -44,26 +44,21 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
 
     private static final String TAG = VideoExoPlayerActivity.class.getSimpleName();
 
-    private static final int INTERVAL_SECONDS = 2;
-
     private MediaExoPlayer player;
+    private AudioCapabilitiesReceiver audioCapabilitiesReceiver;
     private PlayerControl control;
     private EventLogger eventLogger;
     private VideoControlView videoControlView;
-    private AspectRatioFrameLayout videoFrame;
-    private TextureView textureView;
+    private ElasticDragDismissFrameLayout dragFrameLayout;
     private Surface surface;
     private View shutterView;
+    private Timer timer;
     private VideoPlayer videoPlayer;
     private Uri contentUri;
     private long playerPosition;
     private int durationScale;
-    private int interval;
     private boolean playerNeedsPrepare;
 
-    private AudioCapabilitiesReceiver audioCapabilitiesReceiver;
-
-    private Timer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,27 +70,23 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
         contentUri = getIntent().getData();
 
         shutterView = findViewById(R.id.shutter);
-        videoFrame = (AspectRatioFrameLayout) findViewById(R.id.video_frame);
+
+        dragFrameLayout = (ElasticDragDismissFrameLayout) findViewById(R.id.drag_layout);
+        dragFrameLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+        dragFrameLayout.addListener(
+                new ElasticDragDismissFrameLayout.SystemChromeFader(this) {
+                    @Override
+                    public void onDragDismissed() {
+
+                        Log.d(TAG, "translation: " + dragFrameLayout.getTranslationY());
+
+                    }
+                });
 
         VideoTextureView textureView = (VideoTextureView) findViewById(R.id.video_view);
         textureView.setSurfaceTextureListener(this);
-        textureView.setOnVideoTextureListener(new VideoTextureView.OnVideoTextureListener() {
-            @Override
-            public void onZoom() {
-
-            }
-
-            @Override
-            public void onDrag() {
-
-            }
-
-            @Override
-            public void onTouch() {
-                videoControlView.showControlsVisibility();
-            }
-        });
-
 
         videoControlView = (VideoControlView) findViewById(R.id.videoPlayerControl);
         videoControlView.setOnVideoPlayerControlListener(new VideoControlView.OnVideoPlayerControlListener() {
@@ -124,23 +115,10 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
             }
         });
 
-//        findViewById(R.id.rootScreen).setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-//                    videoControlView.showControlsVisibility();
-//                } else if (event.getAction() == MotionEvent.ACTION_UP) {
-//                    v.performClick();
-//                }
-//                return true;
-//            }
-//        });
-
         audioCapabilitiesReceiver = new AudioCapabilitiesReceiver(this, this);
         audioCapabilitiesReceiver.register();
 
         videoControlView.resetIndicators();
-        videoControlView.hideControlsVisibility();
     }
 
 
@@ -223,18 +201,19 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
         player.setBackgrounded(true);
     }
 
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-        }
-    }
+//    @Override
+//    public void onWindowFocusChanged(boolean hasFocus) {
+//        super.onWindowFocusChanged(hasFocus);
+//        if (hasFocus) {
+//            getWindow().getDecorView().setSystemUiVisibility(
+//                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+//                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+//                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+//                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+//                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+//                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+//        }
+//    }
 
     private void startUpdateTimer() {
         timer = new Timer();
@@ -253,14 +232,6 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
     private Handler handler = new Handler() {
         public void handleMessage(Message msg) {
             updateProgressControls();
-            if (videoControlView.isShowControls()) {
-                interval += 1;
-                if (interval == INTERVAL_SECONDS) {
-                    interval = 0;
-                    videoControlView.setShowControls(false);
-                    videoControlView.hideControlsVisibility();
-                }
-            }
         }
     };
 
@@ -460,7 +431,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
     @Override
     public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
                                    float pixelWidthAspectRatio) {
-        videoFrame.setAspectRatio(height == 0 ? 1 : (width * pixelWidthAspectRatio) / height);
+//        videoFrame.setAspectRatio(height == 0 ? 1 : (width * pixelWidthAspectRatio) / height);
         shutterView.setVisibility(View.GONE);
     }
 }
