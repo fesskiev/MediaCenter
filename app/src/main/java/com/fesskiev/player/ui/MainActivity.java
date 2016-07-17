@@ -44,6 +44,7 @@ import com.fesskiev.player.ui.playlist.PlayListActivity;
 import com.fesskiev.player.ui.settings.SettingsActivity;
 import com.fesskiev.player.ui.video.VideoFragment;
 import com.fesskiev.player.ui.vk.MusicVKActivity;
+import com.fesskiev.player.utils.AnimationUtils;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
@@ -83,6 +84,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        AnimationUtils.setupSlideWindowAnimations(this);
+
         settingsManager = AppSettingsManager.getInstance(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -243,6 +246,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         Log.d(TAG, "onNewIntent");
+
     }
 
     @Override
@@ -267,13 +271,16 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     public boolean onNavigationItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.settings:
-                startActivity(new Intent(this, SettingsActivity.class));
+                startActivity(new Intent(this, SettingsActivity.class),
+                        AnimationUtils.createBundle(this));
                 break;
             case R.id.about:
-                startActivity(new Intent(this, AboutActivity.class));
+                startActivity(new Intent(this, AboutActivity.class),
+                        AnimationUtils.createBundle(this));
                 break;
             case R.id.equalizer:
-                startActivity(new Intent(this, EqualizerActivity.class));
+                startActivity(new Intent(this, EqualizerActivity.class),
+                        AnimationUtils.createBundle(this));
                 break;
             case R.id.bass:
                 if (settingsManager.isBassBoostOn()) {
@@ -294,7 +301,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 addVideoFragment();
                 break;
             case R.id.playlist:
-                startActivity(new Intent(this, PlayListActivity.class));
+                startActivity(new Intent(this, PlayListActivity.class),
+                        AnimationUtils.createBundle(this));
                 break;
         }
 

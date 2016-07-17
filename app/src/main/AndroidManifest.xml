@@ -60,6 +60,7 @@
 
         <activity
             android:name=".ui.video.player.VideoExoPlayerActivity"
+            android:theme="@style/Base.Theme.Player.VideoExoPlayer"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:parentActivityName=".ui.MainActivity">
             <meta-data

@@ -15,6 +15,20 @@
         <item name="switchStyle">@style/Custom.Widget.SwitchCompat</item>
         <item name="seekBarStyle">@style/Custom.Widget.SeekBarStyle</item>
         <item name="android:scrollbarThumbVertical">@android:color/transparent</item>
+        <item name="android:windowContentTransitions">true</item>
+        <item name="android:windowAllowEnterTransitionOverlap">false</item>
+        <item name="android:windowAllowReturnTransitionOverlap">false</item>
+    </style>
+
+    <style name="Base.Theme.Player.VideoExoPlayer">
+        <item name="android:windowEnterTransition">@transition/about_enter</item>
+        <item name="android:windowReturnTransition">@transition/about_return</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
     </style>
 
     <style name="Custom.Widget.AlertDialog" parent="@android:style/Theme.Dialog">
@@ -244,6 +258,7 @@
     <style name="DividerStyle" parent="@android:style/TextAppearance">
         <item name="android:background">@color/primary_light</item>
     </style>
+
 
 
 </resources>

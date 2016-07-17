@@ -126,6 +126,8 @@
     <string name="mail_subject">(Media Center) comment</string>
     <string name="mail_chooser">(Media Center) send comment</string>
 
+    <string name="shared_cover_name">cover</string>
+
     <string name="frequency_15">+15dB</string>
     <string name="frequency_0">0dB</string>
     <string name="frequency_minus_15">-15dB</string>

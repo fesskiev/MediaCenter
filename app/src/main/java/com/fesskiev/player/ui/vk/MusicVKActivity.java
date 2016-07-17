@@ -1,7 +1,6 @@
 package com.fesskiev.player.ui.vk;
 
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -10,22 +9,20 @@ import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.IntentCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.MenuItem;
 import android.view.View;
 
 import com.fesskiev.player.R;
+import com.fesskiev.player.analytics.AnalyticsActivity;
 import com.fesskiev.player.services.RESTService;
-import com.fesskiev.player.ui.MainActivity;
+
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.MaterialProgressBar;
 
 import java.util.List;
 
-public class MusicVKActivity extends AppCompatActivity {
+public class MusicVKActivity extends AnalyticsActivity {
 
     private static final String TAG = MusicVKActivity.class.getName();
     private MaterialProgressBar progressBar;
@@ -39,15 +36,8 @@ public class MusicVKActivity extends AppCompatActivity {
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             if (toolbar != null) {
                 toolbar.setTitle(getString(R.string.title_music_vk_activity));
-                toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
-                toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        navigateUpToFromChild(MusicVKActivity.this,
-                                IntentCompat.makeMainActivity(new ComponentName(MusicVKActivity.this,
-                                        MainActivity.class)));
-                    }
-                });
+                setSupportActionBar(toolbar);
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             }
 
             progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
@@ -65,6 +55,17 @@ public class MusicVKActivity extends AppCompatActivity {
                 makeRequestVKFiles();
             }
         }, 1500);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+    @Override
+    public String getActivityName() {
+        return this.getLocalClassName();
     }
 
     @Override

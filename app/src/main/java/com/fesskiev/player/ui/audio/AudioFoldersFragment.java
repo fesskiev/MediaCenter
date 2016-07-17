@@ -3,6 +3,8 @@ package com.fesskiev.player.ui.audio;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
@@ -21,9 +23,9 @@ import com.fesskiev.player.ui.GridFragment;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.player.ui.audio.utils.Constants;
 import com.fesskiev.player.ui.audio.tracklist.TrackListActivity;
+import com.fesskiev.player.utils.AnimationUtils;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.RxUtils;
-import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 import com.fesskiev.player.widgets.recycleview.helper.ItemTouchHelperAdapter;
 import com.fesskiev.player.widgets.recycleview.helper.ItemTouchHelperViewHolder;
 import com.fesskiev.player.widgets.recycleview.helper.SimpleItemTouchHelperCallback;
@@ -61,34 +63,10 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback((ItemTouchHelperAdapter) adapter);
+        ItemTouchHelper.Callback callback =
+                new SimpleItemTouchHelperCallback((ItemTouchHelperAdapter) adapter);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
-
-        recyclerView.addOnItemTouchListener(new RecyclerItemTouchClickListener(getActivity(),
-                new RecyclerItemTouchClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View childView, int position) {
-                        AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-
-                        AudioFolder audioFolder = audioFolders.get(position);
-                        if (audioFolder != null) {
-                            audioPlayer.currentAudioFolder = audioFolder;
-                            audioPlayer.currentAudioFolder.isSelected = true;
-                            DatabaseHelper.updateSelectedAudioFolder(audioFolder);
-
-                            Intent i = new Intent(getActivity(), TrackListActivity.class);
-                            i.putExtra(Constants.EXTRA_CONTENT_TYPE, CONTENT_TYPE.FOLDERS);
-                            startActivity(i);
-                        }
-                    }
-
-                    @Override
-                    public void onItemLongPress(View childView, int position) {
-
-                    }
-                }));
-
 
     }
 
@@ -140,12 +118,10 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
         RxUtils.unsubscribe(subscription);
     }
 
-    public class AudioFoldersAdapter extends
-            RecyclerView.Adapter<AudioFoldersAdapter.ViewHolder> implements ItemTouchHelperAdapter {
+    public class AudioFoldersAdapter extends RecyclerView.Adapter<AudioFoldersAdapter.ViewHolder>
+            implements ItemTouchHelperAdapter {
 
-
-        public class ViewHolder extends RecyclerView.ViewHolder implements
-                ItemTouchHelperViewHolder {
+        public class ViewHolder extends RecyclerView.ViewHolder implements ItemTouchHelperViewHolder {
 
             TextView albumName;
             ImageView cover;
@@ -155,6 +131,23 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
 
                 albumName = (TextView) v.findViewById(R.id.audioName);
                 cover = (ImageView) v.findViewById(R.id.audioCover);
+                v.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
+
+                        AudioFolder audioFolder = audioFolders.get(getAdapterPosition());
+                        if (audioFolder != null) {
+                            audioPlayer.currentAudioFolder = audioFolder;
+                            audioPlayer.currentAudioFolder.isSelected = true;
+                            DatabaseHelper.updateSelectedAudioFolder(audioFolder);
+
+                            Intent i = new Intent(getActivity(), TrackListActivity.class);
+                            i.putExtra(Constants.EXTRA_CONTENT_TYPE, CONTENT_TYPE.FOLDERS);
+                            startActivity(i, AnimationUtils.createBundle(getActivity()));
+                        }
+                    }
+                });
 
             }
 

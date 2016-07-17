@@ -57,7 +57,8 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
 
     public static void startPlayerActivity(Activity activity, boolean isNewTrack, View coverView) {
         ActivityOptionsCompat options = ActivityOptionsCompat.
-                makeSceneTransitionAnimation(activity, coverView, "cover");
+                makeSceneTransitionAnimation(activity, coverView,
+                        activity.getString(R.string.shared_cover_name));
         activity.startActivity(new Intent(activity, AudioPlayerActivity.class).
                 putExtra(AudioPlayerActivity.EXTRA_IS_NEW_TRACK, isNewTrack), options.toBundle());
     }
@@ -69,13 +70,9 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         if (savedInstanceState == null) {
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             if (toolbar != null) {
-                toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
-                toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        hideWithAnimation();
-                    }
-                });
+                setSupportActionBar(toolbar);
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setDisplayShowTitleEnabled(false);
             }
         }
 
@@ -367,6 +364,12 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
 
     private void enableChangeVolume() {
         volumeSeek.setEnabled(true);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     @Override

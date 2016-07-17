@@ -1,17 +1,14 @@
 package com.fesskiev.player.ui.vk;
 
-import android.content.ComponentName;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.IntentCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 
 import com.fesskiev.player.R;
+import com.fesskiev.player.analytics.AnalyticsActivity;
 import com.fesskiev.player.model.vk.Group;
 
-public class GroupAudioActivity extends AppCompatActivity {
+public class GroupAudioActivity extends AnalyticsActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,18 +18,11 @@ public class GroupAudioActivity extends AppCompatActivity {
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             if (toolbar != null) {
                 Group group = getIntent().getExtras().getParcelable(GroupsFragment.GROUP_EXTRA);
-                if(group != null){
+                if (group != null) {
                     toolbar.setTitle(group.name);
 
-                    toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
-                    toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            navigateUpToFromChild(GroupAudioActivity.this,
-                                    IntentCompat.makeMainActivity(new ComponentName(GroupAudioActivity.this,
-                                            MusicVKActivity.class)));
-                        }
-                    });
+                    setSupportActionBar(toolbar);
+                    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
                     FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                     transaction.replace(R.id.content, GroupAudioFragment.newInstance(group),
@@ -42,5 +32,16 @@ public class GroupAudioActivity extends AppCompatActivity {
             }
         }
 
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+    @Override
+    public String getActivityName() {
+        return this.getLocalClassName();
     }
 }

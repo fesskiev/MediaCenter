@@ -81,7 +81,12 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
                     public void onDragDismissed() {
 
                         Log.d(TAG, "translation: " + dragFrameLayout.getTranslationY());
-
+                        if (dragFrameLayout.getTranslationY() > 0) {
+                            getWindow().setReturnTransition(
+                                    TransitionInflater.from(VideoExoPlayerActivity.this)
+                                            .inflateTransition(R.transition.about_return_downward));
+                            finishAfterTransition();
+                        }
                     }
                 });
 

@@ -74,7 +74,7 @@
                 android:layout_centerVertical="true"
                 android:contentDescription="@string/app_name"
                 android:scaleType="fitCenter"
-                android:transitionName="cover"
+                android:transitionName="@string/shared_cover_name"
                 tools:src="@drawable/cover" />
 
             <LinearLayout
