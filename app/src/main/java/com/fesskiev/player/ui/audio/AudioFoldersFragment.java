@@ -3,8 +3,6 @@ package com.fesskiev.player.ui.audio;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.util.Pair;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
@@ -23,7 +21,6 @@ import com.fesskiev.player.ui.GridFragment;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.player.ui.audio.utils.Constants;
 import com.fesskiev.player.ui.audio.tracklist.TrackListActivity;
-import com.fesskiev.player.utils.AnimationUtils;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.RxUtils;
 import com.fesskiev.player.widgets.recycleview.helper.ItemTouchHelperAdapter;
@@ -144,7 +141,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
 
                             Intent i = new Intent(getActivity(), TrackListActivity.class);
                             i.putExtra(Constants.EXTRA_CONTENT_TYPE, CONTENT_TYPE.FOLDERS);
-                            startActivity(i, AnimationUtils.createBundle(getActivity()));
+                            startActivity(i);
                         }
                     }
                 });

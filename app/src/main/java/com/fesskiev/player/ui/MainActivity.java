@@ -17,6 +17,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.SwitchCompat;
@@ -69,6 +70,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private NavigationView navigationViewEffects;
     private NavigationView navigationViewMain;
     private DrawerLayout drawer;
+    private Toolbar toolbar;
     private AppSettingsManager settingsManager;
     private SwitchCompat eqSwitch;
     private SwitchCompat bassSwitch;
@@ -88,8 +90,9 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
         settingsManager = AppSettingsManager.getInstance(this);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        animateToolbar();
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -279,8 +282,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                         AnimationUtils.createBundle(this));
                 break;
             case R.id.equalizer:
-                startActivity(new Intent(this, EqualizerActivity.class),
-                        AnimationUtils.createBundle(this));
+                startActivity(new Intent(this, EqualizerActivity.class));
                 break;
             case R.id.bass:
                 if (settingsManager.isBassBoostOn()) {
@@ -580,6 +582,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 findFragmentByTag(AudioFragment.class.getName());
         if (audioFragment == null) {
             Log.d(TAG, "audio fragment is null");
+
             transaction.add(R.id.content, AudioFragment.newInstance(),
                     AudioFragment.class.getName());
             transaction.addToBackStack(AudioFragment.class.getName());
@@ -712,4 +715,20 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private void makeRequestUserProfile() {
         RESTService.fetchUserProfile(this, URLHelper.getUserProfileURL(settingsManager.getUserId()));
     }
+
+    private void animateToolbar() {
+        View view = toolbar.getChildAt(0);
+        if (view != null && view instanceof TextView) {
+            TextView title = (TextView) view;
+            title.setAlpha(0f);
+            title.setScaleX(0.6f);
+            title.animate()
+                    .alpha(1f)
+                    .scaleX(1f)
+                    .setStartDelay(300)
+                    .setDuration(900)
+                    .setInterpolator(new FastOutSlowInInterpolator());
+        }
+    }
+
 }

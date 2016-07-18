@@ -35,6 +35,7 @@ public class AudioNotificationManager extends BroadcastReceiver {
     private Context context;
     private AudioPlayer audioPlayer;
     private PlaybackService playbackService;
+    private int progress;
 
     public AudioNotificationManager(Context context, PlaybackService playbackService) {
         this.context = context.getApplicationContext();
@@ -129,7 +130,7 @@ public class AudioNotificationManager extends BroadcastReceiver {
 
         if (isPlaying) {
             notificationBuilder
-                    .setWhen(System.currentTimeMillis() - audioPlayer.progress)
+                    .setWhen(System.currentTimeMillis() - progress)
                     .setShowWhen(true)
                     .setUsesChronometer(true);
         } else {
@@ -216,6 +217,11 @@ public class AudioNotificationManager extends BroadcastReceiver {
         }
     }
 
+    public void seekToPosition(int progress) {
+        this.progress = progress;
+        setPlayPauseState(audioPlayer.isPlaying);
+    }
+
     private void play() {
         PlaybackService.startPlayback(context);
     }
@@ -224,4 +230,7 @@ public class AudioNotificationManager extends BroadcastReceiver {
         PlaybackService.stopPlayback(context);
     }
 
+    public void setProgress(int progress) {
+        this.progress = progress;
+    }
 }

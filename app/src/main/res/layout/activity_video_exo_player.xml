@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/drag_layout"
+    android:id="@+id/dragLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:focusable="true"
@@ -32,7 +32,7 @@
                     android:layout_height="match_parent">
 
                     <com.fesskiev.player.widgets.surfaces.VideoTextureView
-                        android:id="@+id/video_view"
+                        android:id="@+id/videoView"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_gravity="center" />
@@ -80,6 +80,104 @@
                             android:layout_height="1dp"
                             android:layout_below="@+id/videoPlayerControl"
                             android:layout_marginTop="10dp" />
+
+                        <LinearLayout
+                            android:id="@+id/otherControlsContainer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/divider1"
+                            android:layout_marginTop="10dp">
+
+                            <ImageView
+                                android:id="@+id/fullScreenVideoButton"
+                                android:layout_width="0dp"
+                                android:layout_height="36dp"
+                                android:layout_weight="1"
+                                android:contentDescription="@string/app_name"
+                                android:gravity="center"
+                                android:src="@drawable/icon_full_screen_video" />
+
+                        </LinearLayout>
+
+                        <View
+                            android:id="@+id/divider2"
+                            style="@style/DividerStyle"
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_below="@+id/otherControlsContainer"
+                            android:layout_marginTop="10dp" />
+
+                        <LinearLayout
+                            android:id="@+id/tracksContainer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/divider2"
+                            android:layout_margin="10dp"
+                            android:baselineAligned="false">
+
+                            <RelativeLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:background="@drawable/spinner_border"
+                                android:orientation="horizontal">
+
+                                <Spinner
+                                    android:id="@+id/audioTracks"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_centerVertical="true"
+                                    android:layout_gravity="center"
+                                    android:layout_marginStart="5dp"
+                                    android:background="@android:color/transparent"
+                                    android:gravity="center"
+                                    android:spinnerMode="dropdown" />
+
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_gravity="center"
+                                    android:layout_marginEnd="5dp"
+                                    android:contentDescription="@string/app_name"
+                                    android:src="@drawable/drop_down_icon" />
+
+                            </RelativeLayout>
+
+
+                            <RelativeLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:background="@drawable/spinner_border"
+                                android:orientation="horizontal">
+
+                                <Spinner
+                                    android:id="@+id/videoTracks"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_centerVertical="true"
+                                    android:layout_gravity="center"
+                                    android:layout_marginStart="5dp"
+                                    android:background="@android:color/transparent"
+                                    android:gravity="center"
+                                    android:spinnerMode="dropdown" />
+
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_gravity="center"
+                                    android:layout_marginEnd="5dp"
+                                    android:contentDescription="@string/app_name"
+                                    android:src="@drawable/drop_down_icon" />
+
+                            </RelativeLayout>
+
+                        </LinearLayout>
+
 
                     </RelativeLayout>
 

@@ -516,6 +516,7 @@ public class PlaybackService extends Service {
 
     private void seek(int seekValue) {
         setSeekUriAudioPlayer(seekValue * durationScale);
+        audioNotificationManager.seekToPosition(seekValue * durationScale);
     }
 
     private void play() {
@@ -532,6 +533,7 @@ public class PlaybackService extends Service {
     private void createValuesScale() {
         int duration = getDuration();
         int progress = getPosition();
+        audioNotificationManager.setProgress(progress);
         if (duration > 0) {
             durationScale = duration / 100;
             int progressScale = progress / durationScale;

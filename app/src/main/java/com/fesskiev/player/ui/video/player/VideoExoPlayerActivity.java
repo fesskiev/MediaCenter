@@ -12,6 +12,8 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Spinner;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
@@ -20,6 +22,7 @@ import com.fesskiev.player.ui.playback.Playable;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.controls.VideoControlView;
 import com.fesskiev.player.widgets.layouts.ElasticDragDismissFrameLayout;
+import com.fesskiev.player.widgets.spinner.CustomSpinnerAdapter;
 import com.fesskiev.player.widgets.surfaces.VideoTextureView;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.MediaFormat;
@@ -31,6 +34,7 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.PlayerControl;
 import com.google.android.exoplayer.util.Util;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Timer;
@@ -52,6 +56,8 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
     private ElasticDragDismissFrameLayout dragFrameLayout;
     private Surface surface;
     private View shutterView;
+    private Spinner audioTracksSpinner;
+    private Spinner videoTracksSpinner;
     private Timer timer;
     private VideoPlayer videoPlayer;
     private Uri contentUri;
@@ -71,7 +77,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
 
         shutterView = findViewById(R.id.shutter);
 
-        dragFrameLayout = (ElasticDragDismissFrameLayout) findViewById(R.id.drag_layout);
+        dragFrameLayout = (ElasticDragDismissFrameLayout) findViewById(R.id.dragLayout);
         dragFrameLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
@@ -80,7 +86,6 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
                     @Override
                     public void onDragDismissed() {
 
-                        Log.d(TAG, "translation: " + dragFrameLayout.getTranslationY());
                         if (dragFrameLayout.getTranslationY() > 0) {
                             getWindow().setReturnTransition(
                                     TransitionInflater.from(VideoExoPlayerActivity.this)
@@ -90,7 +95,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
                     }
                 });
 
-        VideoTextureView textureView = (VideoTextureView) findViewById(R.id.video_view);
+        VideoTextureView textureView = (VideoTextureView) findViewById(R.id.videoView);
         textureView.setSurfaceTextureListener(this);
 
         videoControlView = (VideoControlView) findViewById(R.id.videoPlayerControl);
@@ -120,12 +125,14 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
             }
         });
 
+        audioTracksSpinner = (Spinner) findViewById(R.id.audioTracks);
+        videoTracksSpinner = (Spinner) findViewById(R.id.videoTracks);
+
         audioCapabilitiesReceiver = new AudioCapabilitiesReceiver(this, this);
         audioCapabilitiesReceiver.register();
 
         videoControlView.resetIndicators();
     }
-
 
     @Override
     public void onStart() {
@@ -206,20 +213,6 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
         player.setBackgrounded(true);
     }
 
-//    @Override
-//    public void onWindowFocusChanged(boolean hasFocus) {
-//        super.onWindowFocusChanged(hasFocus);
-//        if (hasFocus) {
-//            getWindow().getDecorView().setSystemUiVisibility(
-//                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-//                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-//                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-//                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-//                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-//        }
-//    }
-
     private void startUpdateTimer() {
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
@@ -280,20 +273,76 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
 
     }
 
-    private void configureTracks(int trackType) {
+    private void createAudioTracksSpinner() {
+        List<String> audioTracks = configureTracks(MediaExoPlayer.TYPE_AUDIO);
+        if (audioTracks != null) {
+
+            for (String track : audioTracks) {
+                Log.d(TAG, "audio track : " + track);
+            }
+
+            CustomSpinnerAdapter customSpinnerAdapter = new CustomSpinnerAdapter(getApplicationContext(),
+                    audioTracks, R.color.primary_dark, R.color.primary_dark);
+
+            audioTracksSpinner.setAdapter(customSpinnerAdapter);
+            audioTracksSpinner.setSelection(0, false);
+            audioTracksSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+
+                }
+            });
+        }
+    }
+
+    private void createVideoTracksSpinner() {
+        List<String> videoTracks = configureTracks(MediaExoPlayer.TYPE_VIDEO);
+        if (videoTracks != null) {
+
+            for (String track : videoTracks) {
+                Log.d(TAG, "video track : " + track);
+            }
+
+            CustomSpinnerAdapter customSpinnerAdapter = new CustomSpinnerAdapter(getApplicationContext(),
+                    videoTracks, R.color.primary_dark, R.color.primary_dark);
+
+            videoTracksSpinner.setAdapter(customSpinnerAdapter);
+            videoTracksSpinner.setSelection(0, false);
+            videoTracksSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+
+                }
+            });
+        }
+    }
+
+    private List<String> configureTracks(int trackType) {
         if (player == null) {
-            Log.e(TAG, "player null");
-            return;
+            return null;
         }
         int trackCount = player.getTrackCount(trackType);
         if (trackCount == 0) {
-            Log.e(TAG, "track count 0");
-            return;
+            return null;
         }
 
+        List<String> tracksName = new ArrayList<>();
+
         for (int i = 0; i < trackCount; i++) {
-            Log.e(TAG, "track: " + buildTrackName(player.getTrackFormat(trackType, i)));
+            tracksName.add(buildTrackName(player.getTrackFormat(trackType, i)));
         }
+
+        return tracksName;
     }
 
     private static String buildTrackName(MediaFormat format) {
@@ -409,9 +458,8 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
                 videoControlView.
                         setVideoTimeTotal(Utils.getTimeFromMillisecondsString(control.getDuration()));
                 startUpdateTimer();
-                configureTracks(MediaExoPlayer.TYPE_AUDIO);
-                configureTracks(MediaExoPlayer.TYPE_VIDEO);
-                configureTracks(MediaExoPlayer.TYPE_TEXT);
+                createAudioTracksSpinner();
+                createVideoTracksSpinner();
                 break;
         }
     }

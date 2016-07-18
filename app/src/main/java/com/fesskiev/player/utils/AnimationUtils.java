@@ -28,7 +28,7 @@ public class AnimationUtils {
 
     public static Slide getSlideTransaction(Activity activity) {
         Slide slideTransition = new Slide(Gravity.START);
-        slideTransition.setDuration(activity.getResources().getInteger(R.integer.anim_duration_long));
+        slideTransition.setDuration(activity.getResources().getInteger(R.integer.anim_duration_medium));
         return slideTransition;
     }
 

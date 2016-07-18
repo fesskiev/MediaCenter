@@ -33,7 +33,7 @@
         android:startDelay="200"
         android:duration="200">
         <targets>
-            <target android:targetId="@id/video_view" />
+            <target android:targetId="@id/videoView" />
             <target android:targetId="@id/foldersGridView" />
         </targets>
     </fade>
