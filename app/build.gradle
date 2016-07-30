@@ -1,19 +1,25 @@
-apply plugin: 'com.android.model.application'
-apply plugin: 'com.google.gms.google-services'
-
-model {
+apply plugin: 'com.android.application'
     android {
         compileSdkVersion 24
-        buildToolsVersion "24.0.0"
+        buildToolsVersion "24.0.1"
 
         defaultConfig {
             applicationId = "com.fesskiev.player"
-            vectorDrawables.useSupportLibrary = true
-            minSdkVersion.apiLevel = 21
-            targetSdkVersion.apiLevel = 23
+            minSdkVersion 21
+            targetSdkVersion 24
             versionCode = 1
             versionName = "1.0.0"
+            externalNativeBuild {
+                cmake {
 
+                    abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a',
+                            'x86', 'x86_64',
+                            'mips', 'mips64'
+                }
+            }
+            jackOptions {
+                enabled true
+            }
         }
 
         signingConfigs {
@@ -30,23 +36,20 @@ model {
             }
         }
 
-        ndk {
-            platformVersion = 21
-            moduleName = "khronos-media"
-            toolchain = 'clang'
-            stl = 'c++_static'
-            cppFlags.add('-std=c++11')
-            ldLibs.addAll(["android", "log", "OpenSLES"])
-            abiFilters.addAll(['armeabi', 'armeabi-v7a', 'arm64-v8a',
-                               'x86', 'x86_64',
-                               'mips', 'mips64'])
+        externalNativeBuild {
+            cmake {
+                path 'src/main/jni/CMakeLists.txt'
+            }
         }
 
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_1_8
+            targetCompatibility JavaVersion.VERSION_1_8
+        }
     }
-}
 
 ext {
-    supportLibVersion = '24.0.0'
+    supportLibVersion = '24.1.1'
 }
 
 dependencies {
@@ -60,7 +63,6 @@ dependencies {
     compile "com.android.support:design:${supportLibVersion}"
     compile "com.android.support:palette-v7:${supportLibVersion}"
     compile "com.android.support:support-v4:${supportLibVersion}"
-    compile 'com.google.android.gms:play-services-analytics:8.4.0'
     compile 'com.vk:androidsdk:+'
     compile 'com.github.clans:fab:1.6.3'
     compile 'com.github.bumptech.glide:glide:3.7.0'

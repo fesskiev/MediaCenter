@@ -185,7 +185,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
-                PlaybackService.changeEQState(getApplicationContext(), isChecked);
+                PlaybackService.changeEQState(getApplicationContext());
                 settingsManager.setEQState(isChecked);
             }
         });
@@ -196,7 +196,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
-                PlaybackService.changeBassBoostState(getApplicationContext(), isChecked);
+                PlaybackService.changeBassBoostState(getApplicationContext());
                 settingsManager.setBassBoostState(isChecked);
             }
         });
@@ -207,7 +207,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
-                PlaybackService.changeVirtualizerState(getApplicationContext(), isChecked);
+                PlaybackService.changeVirtualizerState(getApplicationContext());
                 settingsManager.setVirtualizerState(isChecked);
             }
         });

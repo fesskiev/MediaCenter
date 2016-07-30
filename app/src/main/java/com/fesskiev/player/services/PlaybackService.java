@@ -102,17 +102,15 @@ public class PlaybackService extends Service {
     private AudioNotificationManager audioNotificationManager;
     private int durationScale;
 
-    public static void changeEQState(Context context, boolean state) {
+    public static void changeEQState(Context context) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_EQ_STATE);
-        intent.putExtra(PLAYBACK_EXTRA_EQ_STATE, state);
         context.startService(intent);
     }
 
-    public static void changeVirtualizerState(Context context, boolean state) {
+    public static void changeVirtualizerState(Context context) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_VIRTUALIZER_STATE);
-        intent.putExtra(PLAYBACK_EXTRA_VIRTUALIZER_STATE, state);
         context.startService(intent);
     }
 
@@ -122,10 +120,9 @@ public class PlaybackService extends Service {
         context.startService(intent);
     }
 
-    public static void changeBassBoostState(Context context, boolean state) {
+    public static void changeBassBoostState(Context context) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_BASS_BOOST_STATE);
-        intent.putExtra(PLAYBACK_EXTRA_BASS_BOOST_STATE, state);
         context.startService(intent);
     }
 
@@ -230,6 +227,8 @@ public class PlaybackService extends Service {
      */
 
     public native void setEnableEQ(boolean isEnable);
+
+    public native boolean isEQEnabled();
 
     public native void usePreset(int presetValue);
 
@@ -422,22 +421,22 @@ public class PlaybackService extends Service {
     }
 
     private void setEffects() {
+        setEQ();
         setVirtualizer();
         setBassBoost();
-        setEQ();
     }
 
     private void setEQ() {
         if (settingsManager.isEQOn()) {
-            Log.d(TAG, "EQ ON");
             setEnableEQ(true);
+            Log.d(TAG, "EQ ON");
             switch (settingsManager.getEQPresetState()) {
                 case EqualizerFragment.POSITION_CUSTOM_PRESET:
                     Log.d(TAG, "set custom preset");
                     setCustomPreset();
                     break;
                 case EqualizerFragment.POSITION_PRESET:
-                    Log.d(TAG, "set preset");
+                    Log.d(TAG, "set preset: " + (settingsManager.getEQPresetValue() - EqualizerFragment.OFFSET));
                     usePreset(settingsManager.getEQPresetValue() - EqualizerFragment.OFFSET);
                     break;
                 default:
@@ -445,9 +444,12 @@ public class PlaybackService extends Service {
             }
             sendBroadcastEQState(true);
         } else {
+            Log.d(TAG, "EQ OFF");
             setEnableEQ(false);
             sendBroadcastEQState(false);
         }
+
+        Log.d(TAG, "EQ IS ON: " + isEQEnabled());
     }
 
     private void setCustomPreset() {
@@ -479,7 +481,7 @@ public class PlaybackService extends Service {
                 sendBroadcastVirtualizerState(false);
             }
         } else {
-            Log.d(TAG, "bass boost not supported!");
+            Log.d(TAG, "virtualizer not supported!");
             sendBroadcastVirtualizerSupport(false);
         }
     }

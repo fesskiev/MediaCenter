@@ -68,11 +68,19 @@ Java_com_fesskiev_player_services_PlaybackService_createEngine(JNIEnv *env, jobj
     result = (*engineObject)->GetInterface(engineObject, SL_IID_ENGINE, &engineEngine);
     checkError(result);
 
-    result = (*engineEngine)->CreateOutputMix(engineEngine, &outputMixObject, 0, NULL, NULL);
+    const SLInterfaceID ids[1] = {SL_IID_VIRTUALIZER};
+
+    const SLboolean req[1] = {SL_BOOLEAN_TRUE};
+
+    result = (*engineEngine)->CreateOutputMix(engineEngine, &outputMixObject, 1, ids, req);
     checkError(result);
 
     result = (*outputMixObject)->Realize(outputMixObject, SL_BOOLEAN_FALSE);
     checkError(result);
+
+    result = (*outputMixObject)->GetInterface(outputMixObject, SL_IID_VIRTUALIZER, &uriVirtualizer);
+    checkError(result);
+
 
 }
 
@@ -143,16 +151,14 @@ Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *e
     audioSource.pFormat = (void *) &mime;
     audioSource.pLocator = (void *) &locatorUri;
 
-    const SLInterfaceID ids[7] = {SL_IID_PLAY,
+    const SLInterfaceID ids[6] = {SL_IID_PLAY,
                                   SL_IID_SEEK,
                                   SL_IID_MUTESOLO,
                                   SL_IID_VOLUME,
                                   SL_IID_BASSBOOST,
-                                  SL_IID_VIRTUALIZER,
                                   SL_IID_EQUALIZER};
 
-    const SLboolean req[7] = {SL_BOOLEAN_TRUE,
-                              SL_BOOLEAN_TRUE,
+    const SLboolean req[6] = {SL_BOOLEAN_TRUE,
                               SL_BOOLEAN_TRUE,
                               SL_BOOLEAN_TRUE,
                               SL_BOOLEAN_TRUE,
@@ -161,7 +167,7 @@ Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *e
 
 
     result = (*engineEngine)->CreateAudioPlayer(engineEngine, &uriPlayerObject, &audioSource,
-                                                &audioSink, 7,
+                                                &audioSink, 6,
                                                 ids, req);
 
     (*env)->ReleaseStringUTFChars(env, uri, utf8);
@@ -183,8 +189,6 @@ Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *e
     result = (*uriPlayerObject)->GetInterface(uriPlayerObject, SL_IID_VOLUME, &uriPlayerVolume);
     checkError(result);
     result = (*uriPlayerObject)->GetInterface(uriPlayerObject, SL_IID_BASSBOOST, &uriBassBoost);
-    checkError(result);
-    result = (*uriPlayerObject)->GetInterface(uriPlayerObject, SL_IID_VIRTUALIZER, &uriVirtualizer);
     checkError(result);
     result = (*uriPlayerObject)->GetInterface(uriPlayerObject, SL_IID_EQUALIZER, &eqOutputItf);
     checkError(result);
@@ -263,7 +267,6 @@ Java_com_fesskiev_player_services_PlaybackService_releaseEngine(JNIEnv *env, job
     if (outputMixObject != NULL) {
         (*outputMixObject)->Destroy(outputMixObject);
         outputMixObject = NULL;
-        eqOutputItf = NULL;
     }
 
     if (engineObject != NULL) {
@@ -328,6 +331,20 @@ Java_com_fesskiev_player_services_PlaybackService_setEnableEQ(JNIEnv *env, jobje
                                                                            : SL_BOOLEAN_FALSE);
         checkError(result);
     }
+}
+
+JNIEXPORT jboolean JNICALL
+Java_com_fesskiev_player_services_PlaybackService_isEQEnabled(JNIEnv *env, jobject instance) {
+
+    if (NULL != eqOutputItf) {
+        SLboolean enabled = SL_BOOLEAN_FALSE;
+        SLresult result = (*eqOutputItf)->IsEnabled(eqOutputItf, &enabled);
+        checkError(result);
+        return (jboolean) enabled;
+    }
+
+    return JNI_FALSE;
+
 }
 
 JNIEXPORT void JNICALL
