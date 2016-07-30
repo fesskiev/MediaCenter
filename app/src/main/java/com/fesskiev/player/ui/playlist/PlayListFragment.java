@@ -1,12 +1,12 @@
 package com.fesskiev.player.ui.playlist;
 
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,35 +25,24 @@ import com.fesskiev.player.utils.RxUtils;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
 import rx.Observable;
-import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
 
 public class PlayListFragment extends Fragment {
 
-    private static final String TAG = PlayListFragment.class.getSimpleName();
-
     public static PlayListFragment newInstance() {
         return new PlayListFragment();
     }
 
     private Subscription subscription;
-    private AudioPlayer audioPlayer;
     private AudioTracksAdapter adapter;
-    private List<MediaFile> mediaFiles;
     private CardView emptyPlaylistCard;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-        mediaFiles = new ArrayList<>();
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -69,55 +58,31 @@ public class PlayListFragment extends Fragment {
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false, 1000));
-        adapter = new AudioTracksAdapter();
+        adapter = new AudioTracksAdapter(getActivity());
         recyclerView.setAdapter(adapter);
 
-        view.findViewById(R.id.menu_clear_playlist).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        view.findViewById(R.id.menu_clear_playlist).setOnClickListener(v -> {
 
-                showEmptyCardPlaylist();
+            showEmptyCardPlaylist();
 
-                DatabaseHelper.clearPlaylist();
-                adapter.clearAdapter();
-            }
+            DatabaseHelper.clearPlaylist();
+            adapter.clearAdapter();
         });
 
         fetchPLayListFiles();
     }
 
     private void fetchPLayListFiles() {
-
         subscription = Observable.concat(
-                RxUtils.fromCallableObservable(DatabaseHelper.getAudioFilesPlaylist()),
-                RxUtils.fromCallableObservable(DatabaseHelper.getVideoFilesPlaylist()))
+                RxUtils.fromCallable(DatabaseHelper.getAudioFilesPlaylist()),
+                RxUtils.fromCallable(DatabaseHelper.getVideoFilesPlaylist()))
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<List<MediaFile>>() {
-
-                    int count;
-
-                    @Override
-                    public void onCompleted() {
-                        Log.wtf(TAG, "onCompleted:play list:");
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.wtf(TAG, "onError:play list");
-                    }
-
-                    @Override
-                    public void onNext(List<MediaFile> mediaFiles) {
-                        Log.wtf(TAG, "onNext:play list: " + mediaFiles.size());
-                        count += mediaFiles.size();
-                        if(!mediaFiles.isEmpty()){
-                            adapter.refreshAdapter(mediaFiles);
-                        }
-                        if(count > 0){
-                            hideEmptyCardPlaylist();
-                        } else {
-                            showEmptyCardPlaylist();
-                        }
+                .subscribe(mediaFiles -> {
+                    if (!mediaFiles.isEmpty()) {
+                        adapter.refreshAdapter(mediaFiles);
+                        hideEmptyCardPlaylist();
+                    } else {
+                        showEmptyCardPlaylist();
                     }
                 });
     }
@@ -137,8 +102,16 @@ public class PlayListFragment extends Fragment {
         emptyPlaylistCard.setVisibility(View.GONE);
     }
 
-    private class AudioTracksAdapter extends RecyclerView.Adapter<AudioTracksAdapter.ViewHolder> {
 
+    private static class AudioTracksAdapter extends RecyclerView.Adapter<AudioTracksAdapter.ViewHolder> {
+
+        private WeakReference<Activity> activity;
+        private List<MediaFile> mediaFiles;
+
+        public AudioTracksAdapter(Activity activity) {
+            this.activity = new WeakReference<>(activity);
+            this.mediaFiles = new ArrayList<>();
+        }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -149,12 +122,7 @@ public class PlayListFragment extends Fragment {
 
             public ViewHolder(View v) {
                 super(v);
-                v.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        startPlayerActivity(getAdapterPosition(), cover);
-                    }
-                });
+                v.setOnClickListener(v1 -> startPlayerActivity(getAdapterPosition(), cover));
 
                 duration = (TextView) v.findViewById(R.id.itemDuration);
                 title = (TextView) v.findViewById(R.id.itemTitle);
@@ -176,7 +144,10 @@ public class PlayListFragment extends Fragment {
 
             MediaFile mediaFile = mediaFiles.get(position);
             if (mediaFile != null) {
-                BitmapHelper.loadTrackListArtwork(getActivity(), mediaFile, holder.cover);
+                Activity act = activity.get();
+                if (act != null) {
+                    BitmapHelper.loadTrackListArtwork(act, mediaFile, holder.cover);
+                }
 
                 holder.duration.setText(Utils.getDurationString(mediaFile.getLength()));
                 holder.title.setText(mediaFile.getTitle());
@@ -206,9 +177,13 @@ public class PlayListFragment extends Fragment {
                     case VIDEO:
                         break;
                     case AUDIO:
-                        audioPlayer.setCurrentAudioFile((AudioFile) mediaFile);
-                        audioPlayer.position = position;
-                        AudioPlayerActivity.startPlayerActivity(getActivity(), true, cover);
+                        Activity act = activity.get();
+                        if (act != null) {
+                            AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
+                            audioPlayer.setCurrentAudioFile((AudioFile) mediaFile);
+                            audioPlayer.position = position;
+                            AudioPlayerActivity.startPlayerActivity(act, true, cover);
+                        }
                         break;
                 }
             }

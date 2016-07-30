@@ -1,15 +1,16 @@
 package com.fesskiev.player.utils;
 
 
+
+
 import java.util.concurrent.Callable;
 
 import rx.Observable;
-import rx.Subscriber;
 import rx.Subscription;
 
 public class RxUtils {
 
-    public static <T> Observable<T> fromCallableObservable(Callable<T> callable) {
+    public static <T> Observable<T> fromCallable(Callable<T> callable) {
         return Observable.fromCallable(callable);
     }
 

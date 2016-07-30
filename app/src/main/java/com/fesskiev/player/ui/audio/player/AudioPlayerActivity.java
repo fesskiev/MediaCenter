@@ -10,7 +10,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
@@ -33,7 +32,6 @@ import com.fesskiev.player.widgets.cards.DescriptionCardView;
 
 public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
 
-    private static final String TAG = AudioPlayerActivity.class.getSimpleName();
     public static final String EXTRA_IS_NEW_TRACK = "com.fesskiev.player.EXTRA_IS_NEW_TRACK";
 
     private AudioPlayer audioPlayer;
@@ -90,19 +88,9 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
 
         holder = findViewById(R.id.holderButton);
 
-        findViewById(R.id.previousTrack).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                previous();
-            }
-        });
+        findViewById(R.id.previousTrack).setOnClickListener(v -> previous());
 
-        findViewById(R.id.nextTrack).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                next();
-            }
-        });
+        findViewById(R.id.nextTrack).setOnClickListener(v -> next());
 
         cardDescription = (DescriptionCardView) findViewById(R.id.cardDescription);
         cardDescription.setOnCardAnimationListener(new DescriptionCardView.OnCardAnimationListener() {
@@ -117,40 +105,31 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
             }
         });
 
-        muteSoloButton.setOnMuteSoloListener(new MuteSoloButton.OnMuteSoloListener() {
-            @Override
-            public void onMuteStateChanged(boolean mute) {
-                audioPlayer.mute = mute;
+        muteSoloButton.setOnMuteSoloListener(mute -> {
+            audioPlayer.mute = mute;
 
-                if (mute) {
-                    disableChangeVolume();
-                } else {
-                    enableChangeVolume();
-                }
-
-                PlaybackService.changeMuteSoloState(getApplicationContext(), mute);
+            if (mute) {
+                disableChangeVolume();
+            } else {
+                enableChangeVolume();
             }
+
+            PlaybackService.changeMuteSoloState(getApplicationContext(), mute);
         });
 
         repeatButton = (RepeatButton) findViewById(R.id.repeatButton);
-        repeatButton.setOnRepeatStateChangedListener(new RepeatButton.OnRepeatStateChangedListener() {
-            @Override
-            public void onRepeatStateChanged(boolean repeat) {
-                audioPlayer.repeat = repeat;
-                PlaybackService.changeRepeatState(getApplicationContext(), repeat);
-            }
+        repeatButton.setOnRepeatStateChangedListener(repeat -> {
+            audioPlayer.repeat = repeat;
+            PlaybackService.changeRepeatState(getApplicationContext(), repeat);
         });
 
         playPauseButton =
                 (PlayPauseFloatingButton) findViewById(R.id.playPauseFAB);
-        playPauseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (audioPlayer.isPlaying) {
-                    pause();
-                } else {
-                    play();
-                }
+        playPauseButton.setOnClickListener(v -> {
+            if (audioPlayer.isPlaying) {
+                pause();
+            } else {
+                play();
             }
         });
 
@@ -254,8 +233,6 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
 
                             fabTranslateX = -(viewX / 2) - holder.getWidth();
                             fabTranslateY = (viewY / 2);
-
-                            Log.d(TAG, "center X: " + fabTranslateX + " center Y: " + fabTranslateY);
 
                             playPauseButton.translateToPosition(fabTranslateX, fabTranslateY);
 

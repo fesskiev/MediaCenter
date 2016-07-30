@@ -3,7 +3,6 @@ package com.fesskiev.player.ui.audio.tracklist;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.AnimationDrawable;
@@ -15,7 +14,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +30,7 @@ import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.player.ui.audio.utils.Constants;
+import com.fesskiev.player.utils.AppLog;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.RxUtils;
 import com.fesskiev.player.utils.Utils;
@@ -44,16 +43,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import rx.Observable;
-import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 
 public class TrackListFragment extends Fragment {
-
-    private static final String TAG = TrackListFragment.class.getSimpleName();
-
 
     public static TrackListFragment newInstance(CONTENT_TYPE contentType, String contentValue) {
         TrackListFragment fragment = new TrackListFragment();
@@ -66,9 +61,7 @@ public class TrackListFragment extends Fragment {
 
     private Subscription subscription;
     private TrackListAdapter adapter;
-    private AudioFolder audioFolder;
     private AudioPlayer audioPlayer;
-    private List<AudioFile> audioFiles;
     private List<SlidingCardView> openCards;
     private CONTENT_TYPE contentType;
     private String contentValue;
@@ -83,8 +76,6 @@ public class TrackListFragment extends Fragment {
         }
 
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-        audioFolder = audioPlayer.currentAudioFolder;
-        audioFiles = new ArrayList<>();
         openCards = new ArrayList<>();
 
         registerPlaybackBroadcastReceiver();
@@ -122,13 +113,14 @@ public class TrackListFragment extends Fragment {
             }
         });
 
+
         fetchContentByType();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        notifyTrackStateChange();
+        notifyTrackStateChangePosition();
     }
 
     @Override
@@ -141,6 +133,12 @@ public class TrackListFragment extends Fragment {
     private void notifyTrackStateChange() {
         if (adapter != null) {
             adapter.notifyDataSetChanged();
+        }
+    }
+
+    private void notifyTrackStateChangePosition() {
+        if (adapter != null) {
+            adapter.notifyItemChanged(audioPlayer.position);
         }
     }
 
@@ -168,21 +166,21 @@ public class TrackListFragment extends Fragment {
     };
 
     private void fetchContentByType() {
-
+        AudioFolder audioFolder = audioPlayer.currentAudioFolder;
         Observable<List<AudioFile>> audioFilesObservable = null;
 
         switch (contentType) {
             case GENRE:
                 audioFilesObservable = RxUtils.
-                        fromCallableObservable(DatabaseHelper.getGenreTracks(contentValue));
+                        fromCallable(DatabaseHelper.getGenreTracks(contentValue));
                 break;
             case FOLDERS:
                 audioFilesObservable = RxUtils.
-                        fromCallableObservable(DatabaseHelper.getFolderTracks(audioFolder.id));
+                        fromCallable(DatabaseHelper.getFolderTracks(audioFolder.id));
                 break;
             case ARTIST:
                 audioFilesObservable = RxUtils.
-                        fromCallableObservable(DatabaseHelper.getArtistTracks(contentValue));
+                        fromCallable(DatabaseHelper.getArtistTracks(contentValue));
                 break;
         }
 
@@ -190,24 +188,11 @@ public class TrackListFragment extends Fragment {
             subscription = audioFilesObservable
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Observer<List<AudioFile>>() {
-                        @Override
-                        public void onCompleted() {
-                            Log.wtf(TAG, "onCompleted:track list:");
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            Log.wtf(TAG, "onError:track list:");
-                        }
-
-                        @Override
-                        public void onNext(List<AudioFile> audioFiles) {
-                            Log.wtf(TAG, "onNext:track list: " + audioFiles.size());
-                            if (audioFolder != null) {
-                                audioPlayer.setCurrentAudioFolderFiles(audioFiles);
-                                adapter.refreshAdapter(audioFiles);
-                            }
+                    .subscribe(audioFiles -> {
+                        AppLog.INFO("onNext:track list: " + audioFiles.size());
+                        if (audioFolder != null) {
+                            audioPlayer.setCurrentAudioFolderFiles(audioFiles);
+                            adapter.refreshAdapter(audioFiles);
                         }
                     });
         }
@@ -225,6 +210,12 @@ public class TrackListFragment extends Fragment {
 
 
     private class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.ViewHolder> {
+
+        private List<AudioFile> audioFiles;
+
+        public TrackListAdapter() {
+            this.audioFiles = new ArrayList<>();
+        }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -337,29 +328,21 @@ public class TrackListFragment extends Fragment {
             builder.setTitle(getString(R.string.dialog_delete_file_title));
             builder.setMessage(R.string.dialog_delete_file_message);
             builder.setPositiveButton(R.string.dialog_delete_file_ok,
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (audioFile.filePath.delete()) {
-                                Utils.showCustomSnackbar(getView(),
-                                        getContext(),
-                                        getString(R.string.shackbar_delete_file),
-                                        Snackbar.LENGTH_LONG).show();
+                    (dialog, which) -> {
+                        if (audioFile.filePath.delete()) {
+                            Utils.showCustomSnackbar(getView(),
+                                    getContext(),
+                                    getString(R.string.shackbar_delete_file),
+                                    Snackbar.LENGTH_LONG).show();
 
-                                DatabaseHelper.deleteAudioFile(audioFile.getFilePath());
+                            DatabaseHelper.deleteAudioFile(audioFile.getFilePath());
 
-                                adapter.removeItem(position);
+                            adapter.removeItem(position);
 
-                            }
                         }
                     });
             builder.setNegativeButton(R.string.dialog_delete_file_cancel,
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    });
+                    (dialog, which) -> dialog.cancel());
             builder.show();
         }
 
@@ -389,12 +372,7 @@ public class TrackListFragment extends Fragment {
                 holder.playEq.setImageDrawable(animation);
                 if (animation != null) {
                     if (audioPlayer.isPlaying) {
-                        holder.playEq.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                animation.start();
-                            }
-                        });
+                        holder.playEq.post(animation::start);
                     } else {
                         animation.stop();
                     }

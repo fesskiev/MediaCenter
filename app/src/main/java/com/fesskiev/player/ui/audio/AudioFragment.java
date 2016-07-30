@@ -1,7 +1,6 @@
 package com.fesskiev.player.ui.audio;
 
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -22,7 +21,6 @@ import com.fesskiev.player.utils.RxUtils;
 
 import java.util.List;
 
-import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -53,17 +51,14 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
         swipeRefreshLayout.setProgressViewOffset(false, 0,
                 (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
 
-        viewPager.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                swipeRefreshLayout.setEnabled(false);
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_UP:
-                        swipeRefreshLayout.setEnabled(true);
-                        break;
-                }
-                return false;
+        viewPager.setOnTouchListener((v, event) -> {
+            swipeRefreshLayout.setEnabled(false);
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_UP:
+                    swipeRefreshLayout.setEnabled(true);
+                    break;
             }
+            return false;
         });
 
     }
@@ -86,49 +81,25 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
         builder.setTitle(getString(R.string.dialog_refresh_folders_title));
         builder.setMessage(R.string.dialog_refresh_folders_message);
         builder.setPositiveButton(R.string.dialog_refresh_folders_ok,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                (dialog, which) -> subscription = RxUtils
+                        .fromCallable(DatabaseHelper.resetAudioContentDatabase())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(aVoid ->{
 
-                        subscription = RxUtils
-                                .fromCallableObservable(DatabaseHelper.resetAudioContentDatabase())
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(new Observer<Void>() {
-                                    @Override
-                                    public void onCompleted() {
-                                        CacheManager.clearImagesCache();
-                                        BitmapHelper.saveDownloadFolderIcon(getActivity());
-                                        FileSystemIntentService.startFetchAudio(getActivity());
-                                    }
+                            CacheManager.clearImagesCache();
+                            BitmapHelper.saveDownloadFolderIcon(getActivity());
+                            FileSystemIntentService.startFetchAudio(getActivity());
 
-                                    @Override
-                                    public void onError(Throwable e) {
+                        }));
 
-                                    }
 
-                                    @Override
-                                    public void onNext(Void aVoid) {
-
-                                    }
-                                });
-
-                    }
-                });
         builder.setNegativeButton(R.string.dialog_refresh_folders_cancel,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        swipeRefreshLayout.setRefreshing(false);
-                        dialog.cancel();
-                    }
+                (dialog, which) -> {
+                    swipeRefreshLayout.setRefreshing(false);
+                    dialog.cancel();
                 });
-        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        });
+        builder.setOnCancelListener(dialog -> swipeRefreshLayout.setRefreshing(false));
         builder.show();
     }
 
@@ -177,12 +148,9 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
 
     @Override
     public OnInstantiateItemListener setOnInstantiateItemListener() {
-        return new OnInstantiateItemListener() {
-            @Override
-            public void instantiateItem(int position) {
-                if(position == LAST_ITEM_INSTANTIATE){
-                    fetchAudioContent();
-                }
+        return position -> {
+            if(position == LAST_ITEM_INSTANTIATE){
+                fetchAudioContent();
             }
         };
     }

@@ -25,7 +25,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -144,26 +143,21 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
 
         logoutButton = (ImageView) headerLayout.findViewById(R.id.logout);
-        logoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setEmptyUserInfo();
-                clearUserInfo();
-                logoutHide();
-            }
+        logoutButton.setOnClickListener(v -> {
+            setEmptyUserInfo();
+            clearUserInfo();
+            logoutHide();
         });
 
 
         userPhoto = (ImageView) headerLayout.findViewById(R.id.photo);
-        userPhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (settingsManager.isAuthTokenEmpty()) {
-                    String[] vkScope = new String[]{VKScope.DIRECT, VKScope.AUDIO};
-                    VKSdk.login(MainActivity.this, vkScope);
-                } else {
-                    startActivity(new Intent(getApplicationContext(), MusicVKActivity.class));
-                }
+        userPhoto.setOnClickListener(v -> {
+
+            if (settingsManager.isAuthTokenEmpty()) {
+                String[] vkScope = new String[]{VKScope.DIRECT, VKScope.AUDIO};
+                VKSdk.login(MainActivity.this, vkScope);
+            } else {
+                startActivity(new Intent(getApplicationContext(), MusicVKActivity.class));
             }
         });
         firstName = (TextView) headerLayout.findViewById(R.id.firstName);
@@ -181,35 +175,26 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
         eqSwitch = (SwitchCompat) navigationViewEffects.getMenu().
                 findItem(R.id.equalizer).getActionView().findViewById(R.id.eq_switch);
-        eqSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        eqSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
 
-                PlaybackService.changeEQState(getApplicationContext());
-                settingsManager.setEQState(isChecked);
-            }
+            PlaybackService.changeEQState(getApplicationContext());
+            settingsManager.setEQState(isChecked);
         });
 
         bassSwitch = (SwitchCompat) navigationViewEffects.getMenu().
                 findItem(R.id.bass).getActionView().findViewById(R.id.bass_switch);
-        bassSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        bassSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
 
-                PlaybackService.changeBassBoostState(getApplicationContext());
-                settingsManager.setBassBoostState(isChecked);
-            }
+            PlaybackService.changeBassBoostState(getApplicationContext());
+            settingsManager.setBassBoostState(isChecked);
         });
 
         virtualizerSwitch = (SwitchCompat) navigationViewEffects.getMenu().
                 findItem(R.id.virtualizer).getActionView().findViewById(R.id.virtualizer_switch);
-        virtualizerSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        virtualizerSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
 
-                PlaybackService.changeVirtualizerState(getApplicationContext());
-                settingsManager.setVirtualizerState(isChecked);
-            }
+            PlaybackService.changeVirtualizerState(getApplicationContext());
+            settingsManager.setVirtualizerState(isChecked);
         });
     }
 
@@ -335,12 +320,9 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 Utils.showCustomSnackbar(view, getApplicationContext(),
                         getString(R.string.snack_exit_text),
                         Snackbar.LENGTH_LONG)
-                        .setAction(getString(R.string.snack_exit_action), new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                finish = true;
-                                finish();
-                            }
+                        .setAction(getString(R.string.snack_exit_action), v -> {
+                            finish = true;
+                            finish();
                         }).setCallback(new Snackbar.Callback() {
 
                     @Override
@@ -647,12 +629,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 getApplicationContext(),
                 getString(R.string.permission_read_external_storage),
                 Snackbar.LENGTH_INDEFINITE)
-                .setAction(R.string.button_ok, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        requestPermissions();
-                    }
-                })
+                .setAction(R.string.button_ok, view -> requestPermissions())
                 .show();
     }
 

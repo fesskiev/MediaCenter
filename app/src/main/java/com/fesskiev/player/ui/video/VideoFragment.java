@@ -1,7 +1,6 @@
 package com.fesskiev.player.ui.video;
 
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,11 +12,9 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
@@ -30,6 +27,7 @@ import com.fesskiev.player.model.VideoFile;
 import com.fesskiev.player.model.VideoPlayer;
 import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.ui.video.player.VideoExoPlayerActivity;
+import com.fesskiev.player.utils.AppLog;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.RxUtils;
 import com.fesskiev.player.utils.Utils;
@@ -39,15 +37,12 @@ import com.fesskiev.player.widgets.recycleview.GridDividerDecoration;
 import java.util.ArrayList;
 import java.util.List;
 
-import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
 
 public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
-
-    private static final String TAG = VideoFragment.class.getSimpleName();
 
     public static VideoFragment newInstance() {
         return new VideoFragment();
@@ -107,30 +102,17 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         if (swipeRefreshLayout.isRefreshing()) {
             swipeRefreshLayout.setRefreshing(false);
         }
-        subscriptions.add(RxUtils.fromCallableObservable(DatabaseHelper.getVideoFiles())
+        subscriptions.add(RxUtils.fromCallable(DatabaseHelper.getVideoFiles())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<List<VideoFile>>() {
-                    @Override
-                    public void onCompleted() {
-                        Log.wtf(TAG, "onCompleted:video:");
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.wtf(TAG, "onError:video:");
-                    }
-
-                    @Override
-                    public void onNext(List<VideoFile> videoFiles) {
-                        Log.wtf(TAG, "onNext:video: " + videoFiles.size());
-                        if (!videoFiles.isEmpty()) {
-                            videoPlayer.videoFiles = videoFiles;
-                            adapter.refresh(videoFiles);
-                            hideEmptyContentCard();
-                        } else {
-                            showEmptyContentCard();
-                        }
+                .subscribe(videoFiles -> {
+                    AppLog.INFO("onNext:video: " + videoFiles.size());
+                    if (!videoFiles.isEmpty()) {
+                        videoPlayer.videoFiles = videoFiles;
+                        adapter.refresh(videoFiles);
+                        hideEmptyContentCard();
+                    } else {
+                        showEmptyContentCard();
                     }
                 }));
     }
@@ -148,47 +130,18 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         builder.setTitle(getString(R.string.dialog_refresh_video_title));
         builder.setMessage(R.string.dialog_refresh_video_message);
         builder.setPositiveButton(R.string.dialog_refresh_video_ok,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                (dialog, which) -> subscriptions.add(RxUtils
+                        .fromCallable(DatabaseHelper.resetVideoContentDatabase())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(aVoid -> FileSystemIntentService.startFetchVideo(getActivity()))));
 
-                        subscriptions.add(RxUtils
-                                .fromCallableObservable(DatabaseHelper.resetVideoContentDatabase())
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(new Observer<Void>() {
-                                    @Override
-                                    public void onCompleted() {
-                                        FileSystemIntentService.startFetchVideo(getActivity());
-                                    }
-
-                                    @Override
-                                    public void onError(Throwable e) {
-
-                                    }
-
-                                    @Override
-                                    public void onNext(Void aVoid) {
-
-                                    }
-                                }));
-
-                    }
-                });
         builder.setNegativeButton(R.string.dialog_refresh_video_cancel,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        swipeRefreshLayout.setRefreshing(false);
-                        dialog.cancel();
-                    }
+                (dialog, which) -> {
+                    swipeRefreshLayout.setRefreshing(false);
+                    dialog.cancel();
                 });
-        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        });
+        builder.setOnCancelListener(dialog -> swipeRefreshLayout.setRefreshing(false));
         builder.show();
     }
 
@@ -233,7 +186,7 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         private void startVideoPlayer(int position) {
             VideoFile videoFile = videoPlayer.videoFiles.get(position);
             if (videoFile != null) {
-                if(videoFile.exists()) {
+                if (videoFile.exists()) {
                     videoPlayer.currentVideoFile = videoFile;
                     startExoPlayerActivity(videoFile);
                 } else {
@@ -248,19 +201,17 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             final PopupMenu popupMenu = new PopupMenu(getActivity(), view);
             final Menu menu = popupMenu.getMenu();
             popupMenu.getMenuInflater().inflate(R.menu.menu_popup_item_video, menu);
-            popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                public boolean onMenuItemClick(MenuItem item) {
+            popupMenu.setOnMenuItemClickListener(item -> {
 
-                    switch (item.getItemId()) {
-                        case R.id.delete:
-                            deleteVideo(position);
-                            break;
-                        case R.id.add_playlist:
-                            addToPlaylist(position);
-                            break;
-                    }
-                    return true;
+                switch (item.getItemId()) {
+                    case R.id.delete:
+                        deleteVideo(position);
+                        break;
+                    case R.id.add_playlist:
+                        addToPlaylist(position);
+                        break;
                 }
+                return true;
             });
             popupMenu.show();
         }
@@ -273,29 +224,21 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 builder.setTitle(getString(R.string.dialog_delete_file_title));
                 builder.setMessage(R.string.dialog_delete_file_message);
                 builder.setPositiveButton(R.string.dialog_delete_file_ok,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (videoFile.filePath.delete()) {
-                                    Utils.showCustomSnackbar(getView(),
-                                            getContext(),
-                                            getString(R.string.shackbar_delete_file),
-                                            Snackbar.LENGTH_LONG).show();
+                        (dialog, which) -> {
+                            if (videoFile.filePath.delete()) {
+                                Utils.showCustomSnackbar(getView(),
+                                        getContext(),
+                                        getString(R.string.shackbar_delete_file),
+                                        Snackbar.LENGTH_LONG).show();
 
-                                    DatabaseHelper.deleteVideoFile(videoFile.getFilePath());
+                                DatabaseHelper.deleteVideoFile(videoFile.getFilePath());
 
-                                    adapter.removeItem(position);
+                                adapter.removeItem(position);
 
-                                }
                             }
                         });
                 builder.setNegativeButton(R.string.dialog_delete_file_cancel,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        });
+                        (dialog, which) -> dialog.cancel());
                 builder.show();
             }
         }

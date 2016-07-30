@@ -1,11 +1,11 @@
 package com.fesskiev.player.ui.audio;
 
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,17 +21,19 @@ import com.fesskiev.player.ui.GridFragment;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.player.ui.audio.utils.Constants;
 import com.fesskiev.player.ui.audio.tracklist.TrackListActivity;
+import com.fesskiev.player.utils.AppLog;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.RxUtils;
 import com.fesskiev.player.widgets.recycleview.helper.ItemTouchHelperAdapter;
 import com.fesskiev.player.widgets.recycleview.helper.ItemTouchHelperViewHolder;
 import com.fesskiev.player.widgets.recycleview.helper.SimpleItemTouchHelperCallback;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import rx.Observer;
+
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -39,22 +41,11 @@ import rx.schedulers.Schedulers;
 
 public class AudioFoldersFragment extends GridFragment implements AudioContent {
 
-    private static final String TAG = AudioFoldersFragment.class.getSimpleName();
-
-
     public static AudioFoldersFragment newInstance() {
         return new AudioFoldersFragment();
     }
 
-
-    private List<AudioFolder> audioFolders;
     private Subscription subscription;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        audioFolders = new ArrayList<>();
-    }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -70,41 +61,28 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
 
     @Override
     public RecyclerView.Adapter createAdapter() {
-        return new AudioFoldersAdapter();
+        return new AudioFoldersAdapter(getActivity());
     }
 
     @Override
     public void fetchAudioContent() {
-        subscription = RxUtils.fromCallableObservable(DatabaseHelper.getAudioFolders())
+        subscription = RxUtils.fromCallable(DatabaseHelper.getAudioFolders())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<List<AudioFolder>>() {
-                    @Override
-                    public void onCompleted() {
-                        Log.wtf(TAG, "onCompleted:folders:");
+                .subscribe(audioFolders -> {
+                    AppLog.INFO("onNext:folders: " + audioFolders.size());
+                    if (!audioFolders.isEmpty()) {
+                        Collections.sort(audioFolders);
+
+                        AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
+                        audioPlayer.audioFolders = audioFolders;
+
+                        ((AudioFoldersAdapter) adapter).refresh(audioFolders);
+                        hideEmptyContentCard();
+                    } else {
+                        showEmptyContentCard();
                     }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.wtf(TAG, "onError:folders:");
-                    }
-
-                    @Override
-                    public void onNext(List<AudioFolder> audioFolders) {
-                        Log.wtf(TAG, "onNext:folders: " + audioFolders.size());
-                        if (!audioFolders.isEmpty()) {
-                            Collections.sort(audioFolders);
-
-                            AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-                            audioPlayer.audioFolders = audioFolders;
-
-                            ((AudioFoldersAdapter) adapter).refresh(audioFolders);
-                            hideEmptyContentCard();
-                        } else {
-                            showEmptyContentCard();
-                        }
-                        checkNeedShowPlayback(audioFolders);
-                    }
+                    checkNeedShowPlayback(audioFolders);
                 });
     }
 
@@ -115,8 +93,16 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
         RxUtils.unsubscribe(subscription);
     }
 
-    public class AudioFoldersAdapter extends RecyclerView.Adapter<AudioFoldersAdapter.ViewHolder>
+    private static class AudioFoldersAdapter extends RecyclerView.Adapter<AudioFoldersAdapter.ViewHolder>
             implements ItemTouchHelperAdapter {
+
+        private WeakReference<Activity> activity;
+        private List<AudioFolder> audioFolders;
+
+        public AudioFoldersAdapter(Activity activity) {
+            this.activity = new WeakReference<>(activity);
+            audioFolders = new ArrayList<>();
+        }
 
         public class ViewHolder extends RecyclerView.ViewHolder implements ItemTouchHelperViewHolder {
 
@@ -128,20 +114,20 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
 
                 albumName = (TextView) v.findViewById(R.id.audioName);
                 cover = (ImageView) v.findViewById(R.id.audioCover);
-                v.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
+                v.setOnClickListener(view -> {
+                    AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
 
-                        AudioFolder audioFolder = audioFolders.get(getAdapterPosition());
-                        if (audioFolder != null) {
-                            audioPlayer.currentAudioFolder = audioFolder;
-                            audioPlayer.currentAudioFolder.isSelected = true;
-                            DatabaseHelper.updateSelectedAudioFolder(audioFolder);
+                    AudioFolder audioFolder = audioFolders.get(getAdapterPosition());
+                    if (audioFolder != null) {
+                        audioPlayer.currentAudioFolder = audioFolder;
+                        audioPlayer.currentAudioFolder.isSelected = true;
+                        DatabaseHelper.updateSelectedAudioFolder(audioFolder);
 
-                            Intent i = new Intent(getActivity(), TrackListActivity.class);
+                        Activity act = activity.get();
+                        if (act != null) {
+                            Intent i = new Intent(act, TrackListActivity.class);
                             i.putExtra(Constants.EXTRA_CONTENT_TYPE, CONTENT_TYPE.FOLDERS);
-                            startActivity(i);
+                            act.startActivity(i);
                         }
                     }
                 });
@@ -194,9 +180,13 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
 
             AudioFolder audioFolder = audioFolders.get(position);
             if (audioFolder != null) {
-                BitmapHelper.loadAudioFolderArtwork(getActivity(), audioFolder, holder.cover);
-
                 holder.albumName.setText(audioFolder.folderName);
+
+                Activity act = activity.get();
+                if (act != null) {
+                    BitmapHelper.loadAudioFolderArtwork(act.getApplicationContext(),
+                            audioFolder, holder.cover);
+                }
             }
         }
 

@@ -234,26 +234,20 @@ public class DatabaseHelper {
     }
 
     public static Callable<Void> resetVideoContentDatabase() {
-        return new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                MediaApplication.getInstance().
-                        getContentResolver().delete(MediaCenterProvider.VIDEO_FILES_TABLE_CONTENT_URI, null, null);
-                return null;
-            }
+        return () -> {
+            MediaApplication.getInstance().
+                    getContentResolver().delete(MediaCenterProvider.VIDEO_FILES_TABLE_CONTENT_URI, null, null);
+            return null;
         };
     }
 
     public static Callable<Void> resetAudioContentDatabase() {
-        return new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                MediaApplication.getInstance().
-                        getContentResolver().delete(MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI, null, null);
-                MediaApplication.getInstance().
-                        getContentResolver().delete(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI, null, null);
-                return null;
-            }
+        return () -> {
+            MediaApplication.getInstance().
+                    getContentResolver().delete(MediaCenterProvider.AUDIO_FOLDERS_TABLE_CONTENT_URI, null, null);
+            MediaApplication.getInstance().
+                    getContentResolver().delete(MediaCenterProvider.AUDIO_TRACKS_TABLE_CONTENT_URI, null, null);
+            return null;
         };
     }
 
@@ -356,12 +350,7 @@ public class DatabaseHelper {
 
 
     public static Callable<List<VideoFile>> getVideoFiles() {
-        return new Callable<List<VideoFile>>() {
-            @Override
-            public List<VideoFile> call() throws Exception {
-                return getVideoFilesFromDatabase();
-            }
-        };
+        return DatabaseHelper::getVideoFilesFromDatabase;
     }
 
     private static List<VideoFile> getVideoFilesFromDatabase() {
@@ -389,12 +378,7 @@ public class DatabaseHelper {
 
 
     public static Callable<List<AudioFolder>> getAudioFolders() {
-        return new Callable<List<AudioFolder>>() {
-            @Override
-            public List<AudioFolder> call() throws Exception {
-                return getAudioFoldersFromDatabase();
-            }
-        };
+        return DatabaseHelper::getAudioFoldersFromDatabase;
     }
 
     private static List<AudioFolder> getAudioFoldersFromDatabase() {
@@ -422,12 +406,7 @@ public class DatabaseHelper {
 
 
     public static Callable<Set<Artist>> getArtists() {
-        return new Callable<Set<Artist>>() {
-            @Override
-            public Set<Artist> call() throws Exception {
-                return getArtistsFromDatabase();
-            }
-        };
+        return DatabaseHelper::getArtistsFromDatabase;
     }
 
     private static Set<Artist> getArtistsFromDatabase() {
@@ -455,12 +434,7 @@ public class DatabaseHelper {
 
 
     public static Callable<Set<Genre>> getGenres() {
-        return new Callable<Set<Genre>>() {
-            @Override
-            public Set<Genre> call() throws Exception {
-                return getGenresFromDatabase();
-            }
-        };
+        return DatabaseHelper::getGenresFromDatabase;
     }
 
     private static Set<Genre> getGenresFromDatabase() {
@@ -487,12 +461,7 @@ public class DatabaseHelper {
     }
 
     public static Callable<List<AudioFile>> getGenreTracks(final String contentValue) {
-        return new Callable<List<AudioFile>>() {
-            @Override
-            public List<AudioFile> call() throws Exception {
-                return getGenreTracksFromDatabase(contentValue);
-            }
-        };
+        return () -> getGenreTracksFromDatabase(contentValue);
     }
 
     private static List<AudioFile> getGenreTracksFromDatabase(String contentValue) {
@@ -519,12 +488,7 @@ public class DatabaseHelper {
     }
 
     public static Callable<List<AudioFile>> getArtistTracks(final String contentValue) {
-        return new Callable<List<AudioFile>>() {
-            @Override
-            public List<AudioFile> call() throws Exception {
-                return getArtistTracksFromDatabase(contentValue);
-            }
-        };
+        return () -> getArtistTracksFromDatabase(contentValue);
     }
 
     private static List<AudioFile> getArtistTracksFromDatabase(String contentValue) {
@@ -551,12 +515,7 @@ public class DatabaseHelper {
     }
 
     public static Callable<List<AudioFile>> getFolderTracks(final String id) {
-        return new Callable<List<AudioFile>>() {
-            @Override
-            public List<AudioFile> call() throws Exception {
-                return getFolderTracksFromDatabase(id);
-            }
-        };
+        return () -> getFolderTracksFromDatabase(id);
     }
 
     private static List<AudioFile> getFolderTracksFromDatabase(String id) {
@@ -583,12 +542,7 @@ public class DatabaseHelper {
     }
 
     public static Callable<List<MediaFile>> getAudioFilesPlaylist() {
-        return new Callable<List<MediaFile>>() {
-            @Override
-            public List<MediaFile> call() throws Exception {
-                return getAudioFilePlaylistFromDatabase();
-            }
-        };
+        return DatabaseHelper::getAudioFilePlaylistFromDatabase;
     }
 
     private static List<MediaFile> getAudioFilePlaylistFromDatabase() {
@@ -613,12 +567,7 @@ public class DatabaseHelper {
     }
 
     public static Callable<List<MediaFile>> getVideoFilesPlaylist() {
-        return new Callable<List<MediaFile>>() {
-            @Override
-            public List<MediaFile> call() throws Exception {
-                return getVideoFilePlaylistFromDatabase();
-            }
-        };
+        return DatabaseHelper::getVideoFilePlaylistFromDatabase;
     }
 
     private static List<MediaFile> getVideoFilePlaylistFromDatabase() {

@@ -1,10 +1,9 @@
 package com.fesskiev.player.ui.audio;
 
 
+import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,80 +17,39 @@ import com.fesskiev.player.ui.GridFragment;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.player.ui.audio.utils.Constants;
 import com.fesskiev.player.ui.audio.tracklist.TrackListActivity;
+import com.fesskiev.player.utils.AppLog;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.RxUtils;
-import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 
+import java.lang.ref.WeakReference;
 import java.util.Set;
 
-import rx.Observer;
+
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class AudioGenresFragment extends GridFragment implements AudioContent {
 
-    private static final String TAG = AudioGenresFragment.class.getSimpleName();
-
     public static AudioGenresFragment newInstance() {
         return new AudioGenresFragment();
     }
 
-    private Object[] genres;
     private Subscription subscription;
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        recyclerView.addOnItemTouchListener(new RecyclerItemTouchClickListener(getActivity(),
-                new RecyclerItemTouchClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View childView, int position) {
-
-                        Genre genre = (Genre) genres[position];
-                        if (genre != null) {
-
-                            Intent i = new Intent(getActivity(), TrackListActivity.class);
-                            i.putExtra(Constants.EXTRA_CONTENT_TYPE, CONTENT_TYPE.GENRE);
-                            i.putExtra(Constants.EXTRA_CONTENT_TYPE_VALUE, genre.name);
-                            startActivity(i);
-                        }
-                    }
-
-                    @Override
-                    public void onItemLongPress(View childView, int position) {
-
-                    }
-                }));
-    }
 
     @Override
     public void fetchAudioContent() {
 
-        subscription = RxUtils.fromCallableObservable(DatabaseHelper.getGenres())
+        subscription = RxUtils.fromCallable(DatabaseHelper.getGenres())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Set<Genre>>() {
-                    @Override
-                    public void onCompleted() {
-                        Log.wtf(TAG, "onCompleted:genres:");
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.wtf(TAG, "onError:genres:");
-                    }
-
-                    @Override
-                    public void onNext(Set<Genre> genres) {
-                        Log.wtf(TAG, "onNext:genres: " + genres.size());
-                        if (!genres.isEmpty()) {
-                            ((AudioGenresAdapter) adapter).refresh(genres);
-                            hideEmptyContentCard();
-                        } else {
-                            showEmptyContentCard();
-                        }
+                .subscribe(genres -> {
+                    AppLog.INFO("onNext:genres: " + genres.size());
+                    if (!genres.isEmpty()) {
+                        ((AudioGenresAdapter) adapter).refresh(genres);
+                        hideEmptyContentCard();
+                    } else {
+                        showEmptyContentCard();
                     }
                 });
     }
@@ -105,11 +63,18 @@ public class AudioGenresFragment extends GridFragment implements AudioContent {
 
     @Override
     public RecyclerView.Adapter createAdapter() {
-        return new AudioGenresAdapter();
+        return new AudioGenresAdapter(getActivity());
     }
 
 
-    public class AudioGenresAdapter extends RecyclerView.Adapter<AudioGenresAdapter.ViewHolder> {
+    private static class AudioGenresAdapter extends RecyclerView.Adapter<AudioGenresAdapter.ViewHolder> {
+
+        private WeakReference<Activity> activity;
+        private Object[] genres;
+
+        public AudioGenresAdapter(Activity activity) {
+            this.activity = new WeakReference<>(activity);
+        }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -121,6 +86,19 @@ public class AudioGenresFragment extends GridFragment implements AudioContent {
 
                 genreName = (TextView) v.findViewById(R.id.audioName);
                 cover = (ImageView) v.findViewById(R.id.audioCover);
+
+                v.setOnClickListener(view -> {
+                    Genre genre = (Genre) genres[getAdapterPosition()];
+                    if (genre != null) {
+                        Activity act = activity.get();
+                        if (act != null) {
+                            Intent i = new Intent(act, TrackListActivity.class);
+                            i.putExtra(Constants.EXTRA_CONTENT_TYPE, CONTENT_TYPE.GENRE);
+                            i.putExtra(Constants.EXTRA_CONTENT_TYPE_VALUE, genre.name);
+                            act.startActivity(i);
+                        }
+                    }
+                });
             }
         }
 
@@ -137,11 +115,14 @@ public class AudioGenresFragment extends GridFragment implements AudioContent {
             Genre genre = (Genre) genres[position];
             if (genre != null) {
                 holder.genreName.setText(genre.name);
-
-                if (genre.artworkPath != null) {
-                    BitmapHelper.loadURIBitmap(getContext(), genre.artworkPath, holder.cover);
-                } else {
-                    BitmapHelper.loadNoCoverFolder(getContext(), holder.cover);
+                Activity act = activity.get();
+                if (act != null) {
+                    if (genre.artworkPath != null) {
+                        BitmapHelper.loadURIBitmap(act.getApplicationContext(),
+                                genre.artworkPath, holder.cover);
+                    } else {
+                        BitmapHelper.loadNoCoverFolder(act.getApplicationContext(), holder.cover);
+                    }
                 }
             }
         }

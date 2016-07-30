@@ -1,10 +1,9 @@
 package com.fesskiev.player.ui.audio;
 
 
+import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,13 +17,13 @@ import com.fesskiev.player.ui.GridFragment;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.player.ui.audio.utils.Constants;
 import com.fesskiev.player.ui.audio.tracklist.TrackListActivity;
+import com.fesskiev.player.utils.AppLog;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.RxUtils;
-import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 
+import java.lang.ref.WeakReference;
 import java.util.Set;
 
-import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -32,68 +31,24 @@ import rx.schedulers.Schedulers;
 
 public class AudioArtistFragment extends GridFragment implements AudioContent {
 
-    private static final String TAG = AudioArtistFragment.class.getSimpleName();
-
     public static AudioArtistFragment newInstance() {
         return new AudioArtistFragment();
     }
 
-    private Object[] artists;
     private Subscription subscription;
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        recyclerView.addOnItemTouchListener(new RecyclerItemTouchClickListener(getActivity(),
-                new RecyclerItemTouchClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View childView, int position) {
-
-                        Artist artist = (Artist) artists[position];
-                        if (artist != null) {
-
-                            Intent i = new Intent(getActivity(), TrackListActivity.class);
-                            i.putExtra(Constants.EXTRA_CONTENT_TYPE, CONTENT_TYPE.ARTIST);
-                            i.putExtra(Constants.EXTRA_CONTENT_TYPE_VALUE, artist.name);
-                            startActivity(i);
-                        }
-                    }
-
-                    @Override
-                    public void onItemLongPress(View childView, int position) {
-
-                    }
-                }));
-    }
-
-
-    @Override
     public void fetchAudioContent() {
-        subscription = RxUtils.fromCallableObservable(DatabaseHelper.getArtists())
+        subscription = RxUtils.fromCallable(DatabaseHelper.getArtists())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Set<Artist>>() {
-                    @Override
-                    public void onCompleted() {
-                        Log.wtf(TAG, "onCompleted:artists:");
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.wtf(TAG, "onError:artists:");
-                    }
-
-                    @Override
-                    public void onNext(Set<Artist> artists) {
-                        Log.wtf(TAG, "onNext:artists: " + artists.size());
-                        if (!artists.isEmpty()) {
-                            ((AudioArtistsAdapter) adapter).refresh(artists);
-                            hideEmptyContentCard();
-                        } else {
-                            showEmptyContentCard();
-                        }
-
+                .subscribe(artists -> {
+                    AppLog.INFO("onNext:artists: " + artists.size());
+                    if (!artists.isEmpty()) {
+                        ((AudioArtistsAdapter) adapter).refresh(artists);
+                        hideEmptyContentCard();
+                    } else {
+                        showEmptyContentCard();
                     }
                 });
     }
@@ -106,10 +61,17 @@ public class AudioArtistFragment extends GridFragment implements AudioContent {
 
     @Override
     public RecyclerView.Adapter createAdapter() {
-        return new AudioArtistsAdapter();
+        return new AudioArtistsAdapter(getActivity());
     }
 
-    public class AudioArtistsAdapter extends RecyclerView.Adapter<AudioArtistsAdapter.ViewHolder> {
+    private static class AudioArtistsAdapter extends RecyclerView.Adapter<AudioArtistsAdapter.ViewHolder> {
+
+        private WeakReference<Activity> activity;
+        private Object[] artists;
+
+        public AudioArtistsAdapter(Activity activity) {
+            this.activity = new WeakReference<>(activity);
+        }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -121,6 +83,19 @@ public class AudioArtistFragment extends GridFragment implements AudioContent {
 
                 genreName = (TextView) v.findViewById(R.id.audioName);
                 cover = (ImageView) v.findViewById(R.id.audioCover);
+
+                v.setOnClickListener(view -> {
+                    Artist artist = (Artist) artists[getAdapterPosition()];
+                    if (artist != null) {
+                        Activity act = activity.get();
+                        if (act != null) {
+                            Intent i = new Intent(act, TrackListActivity.class);
+                            i.putExtra(Constants.EXTRA_CONTENT_TYPE, CONTENT_TYPE.ARTIST);
+                            i.putExtra(Constants.EXTRA_CONTENT_TYPE_VALUE, artist.name);
+                            act.startActivity(i);
+                        }
+                    }
+                });
             }
         }
 
@@ -138,10 +113,14 @@ public class AudioArtistFragment extends GridFragment implements AudioContent {
             if (artist != null) {
                 holder.genreName.setText(artist.name);
 
-                if (artist.artworkPath != null) {
-                    BitmapHelper.loadURIBitmap(getContext(), artist.artworkPath, holder.cover);
-                } else {
-                    BitmapHelper.loadNoCoverFolder(getContext(), holder.cover);
+                Activity act = activity.get();
+                if (act != null) {
+                    if (artist.artworkPath != null) {
+                        BitmapHelper.loadURIBitmap(act.getApplicationContext(),
+                                artist.artworkPath, holder.cover);
+                    } else {
+                        BitmapHelper.loadNoCoverFolder(act.getApplicationContext(), holder.cover);
+                    }
                 }
             }
         }
