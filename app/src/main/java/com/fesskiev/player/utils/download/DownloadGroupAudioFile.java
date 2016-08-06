@@ -3,7 +3,7 @@ package com.fesskiev.player.utils.download;
 
 import android.app.Activity;
 
-import com.fesskiev.player.model.vk.VKMusicFile;
+import com.fesskiev.player.ui.vk.data.model.Audio;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
 public class DownloadGroupAudioFile implements DownloadManager.OnDownloadListener {
 
     private Activity activity;
-    private VKMusicFile vkMusicFile;
+    private Audio audio;
     private DownloadManager downloadManager;
 
     public interface OnDownloadAudioListener {
@@ -20,9 +20,9 @@ public class DownloadGroupAudioFile implements DownloadManager.OnDownloadListene
 
     private OnDownloadAudioListener listener;
 
-    public DownloadGroupAudioFile(Activity activity, VKMusicFile vkMusicFile) {
+    public DownloadGroupAudioFile(Activity activity, Audio audio) {
         this.activity = activity;
-        this.vkMusicFile = vkMusicFile;
+        this.audio = audio;
     }
 
     public void setOnDownloadAudioListener(OnDownloadAudioListener listener) {
@@ -30,17 +30,16 @@ public class DownloadGroupAudioFile implements DownloadManager.OnDownloadListene
     }
 
     public void startDownload() {
-        String fileName = vkMusicFile.artist + "-" + vkMusicFile.title;
-        downloadManager = new DownloadManager(vkMusicFile.url, fileName);
+        String fileName = audio.getArtist() + "-" + audio.getTitle();
+        downloadManager = new DownloadManager(audio.getUrl(), fileName);
         downloadManager.setOnDownloadListener(this);
         progressOnUiThread();
     }
 
-    public static List<DownloadGroupAudioFile> getDownloadGroupAudioFiles(Activity activity, List<VKMusicFile> vkMusicFiles) {
+    public static List<DownloadGroupAudioFile> getDownloadGroupAudioFiles(Activity activity, List<Audio> audios) {
         List<DownloadGroupAudioFile> downloadGroupAudioFiles = new ArrayList<>();
-        for (VKMusicFile vkMusicFile : vkMusicFiles) {
-            DownloadGroupAudioFile downloadGroupAudioFile = new DownloadGroupAudioFile(activity, vkMusicFile);
-            downloadGroupAudioFiles.add(downloadGroupAudioFile);
+        for (Audio audio : audios) {
+            downloadGroupAudioFiles.add(new DownloadGroupAudioFile(activity, audio));
         }
         return downloadGroupAudioFiles;
     }
@@ -57,12 +56,7 @@ public class DownloadGroupAudioFile implements DownloadManager.OnDownloadListene
     }
 
     private void progressOnUiThread() {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                progress();
-            }
-        });
+        activity.runOnUiThread(this::progress);
     }
 
     private void progress() {
@@ -71,8 +65,8 @@ public class DownloadGroupAudioFile implements DownloadManager.OnDownloadListene
         }
     }
 
-    public VKMusicFile getVkMusicFile() {
-        return vkMusicFile;
+    public Audio getAudio() {
+        return audio;
     }
 
     public DownloadManager getDownloadManager() {

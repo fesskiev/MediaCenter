@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="ui.vk.MusicVKActivity">
+    tools:context=".ui.vk.VkontakteActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -27,17 +27,5 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-
-
-    <com.fesskiev.player.widgets.MaterialProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="match_parent"
-        android:layout_height="8dp"
-        android:layout_gravity="bottom"
-        android:indeterminate="true"
-        android:visibility="invisible"
-        app:backgroundColour="@color/primary"
-        app:duration="2000"
-        app:progressColour="@color/accent" />
 
 </android.support.design.widget.CoordinatorLayout>

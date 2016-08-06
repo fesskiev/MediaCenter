@@ -1,14 +1,9 @@
 package com.fesskiev.player.ui.vk;
 
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
-import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -19,17 +14,19 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.vk.VKMusicFile;
-import com.fesskiev.player.services.RESTService;
-import com.fesskiev.player.utils.AppSettingsManager;
+import com.fesskiev.player.ui.vk.data.source.DataRepository;
+import com.fesskiev.player.utils.AppLog;
+import com.fesskiev.player.utils.RxUtils;
 import com.fesskiev.player.utils.Utils;
-import com.fesskiev.player.utils.download.DownloadAudioFile;
-import com.fesskiev.player.utils.http.URLHelper;
+import com.fesskiev.player.utils.download.DownloadFile;
 import com.fesskiev.player.widgets.recycleview.HidingScrollListener;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.List;
+
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 
 public class SearchAudioFragment extends RecyclerAudioFragment implements TextWatcher, View.OnClickListener {
@@ -39,16 +36,9 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
     }
 
     private FloatingActionButton searchButton;
+    private Subscription subscription;
     private TextInputLayout requestLayout;
-    private AppSettingsManager settingsManager;
     private String requestString;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        registerBroadcastReceiver();
-        settingsManager = AppSettingsManager.getInstance(getActivity());
-    }
 
 
     @Override
@@ -82,36 +72,11 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
 
     }
 
-
-    private void registerBroadcastReceiver() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(RESTService.ACTION_SEARCH_AUDIO_RESULT);
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(audioReceiver,
-                filter);
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        RxUtils.unsubscribe(subscription);
     }
-
-    private void unregisterBroadcastReceiver() {
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(audioReceiver);
-    }
-
-    private BroadcastReceiver audioReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case RESTService.ACTION_SEARCH_AUDIO_RESULT:
-                    List<VKMusicFile> vkMusicFiles =
-                            intent.getParcelableArrayListExtra(RESTService.EXTRA_AUDIO_RESULT);
-                    if (vkMusicFiles != null) {
-                        hideProgressBar();
-                        audioAdapter.refresh(DownloadAudioFile.
-                                getDownloadAudioFiles(getActivity(), audioAdapter, vkMusicFiles));
-                    }
-                    break;
-            }
-        }
-    };
-
 
     @Override
     public void onClick(View v) {
@@ -151,21 +116,31 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
 
     @Override
     public void fetchAudio(int offset) {
-        if(requestString != null) {
+        if (requestString != null) {
             try {
                 String encodeString = URLEncoder.encode(requestString, "UTF-8");
-                RESTService.fetchSearchAudio(getActivity(),
-                        URLHelper.getSearchAudioURL(settingsManager.getAuthToken(), encodeString , 20, offset));
+
+                showProgressBar();
+                DataRepository repository = DataRepository.getInstance();
+                subscription = repository.getSearchMusicFiles(requestString, offset)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(musicFilesResponse -> {
+                            hideProgressBar();
+                            if (musicFilesResponse != null) {
+                                audioAdapter.refresh(DownloadFile.
+                                        getDownloadFiles(getActivity(), audioAdapter,
+                                                musicFilesResponse.getAudioFiles().getMusicFilesList()));
+                            }
+                        }, throwable -> {
+                            hideProgressBar();
+                            AppLog.ERROR(throwable.getMessage());
+                        });
+
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        unregisterBroadcastReceiver();
     }
 
     private void hideViews() {

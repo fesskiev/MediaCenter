@@ -2,26 +2,15 @@ package com.fesskiev.player.model;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.media.MediaMetadataRetriever;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.fesskiev.player.R;
 import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.CacheManager;
 import com.fesskiev.player.utils.Utils;
-
-import org.jaudiotagger.audio.AudioFileIO;
-import org.jaudiotagger.audio.AudioHeader;
-import org.jaudiotagger.audio.exceptions.CannotReadException;
-import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
-import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
-import org.jaudiotagger.tag.FieldKey;
-import org.jaudiotagger.tag.Tag;
-import org.jaudiotagger.tag.TagException;
-import org.jaudiotagger.tag.TagOptionSingleton;
-import org.jaudiotagger.tag.flac.FlacTag;
-import org.jaudiotagger.tag.id3.ID3v24Frames;
-import org.jaudiotagger.tag.images.Artwork;
 
 import java.io.File;
 import java.io.IOException;
@@ -75,82 +64,25 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
 
     }
 
-
-    private void parseMP3(org.jaudiotagger.audio.AudioFile file) {
-        Tag tag = file.getTag();
-        if (tag != null && tag.hasCommonFields()) {
-            if (tag.hasField(ID3v24Frames.FRAME_ID_ARTIST)) {
-                artist = tag.getFirst(ID3v24Frames.FRAME_ID_ARTIST);
-            }
-            if (tag.hasField(ID3v24Frames.FRAME_ID_TITLE)) {
-                title = tag.getFirst(ID3v24Frames.FRAME_ID_TITLE);
-            }
-            if (tag.hasField(ID3v24Frames.FRAME_ID_ALBUM)) {
-                album = tag.getFirst(ID3v24Frames.FRAME_ID_ALBUM);
-            }
-            if (tag.hasField(ID3v24Frames.FRAME_ID_GENRE)) {
-                genre = tag.getFirst(ID3v24Frames.FRAME_ID_GENRE);
-            }
-            if (tag.hasField(ID3v24Frames.FRAME_ID_TRACK)) {
-                String number = tag.getFirst(ID3v24Frames.FRAME_ID_TRACK);
-                if (!number.equals("null") && !TextUtils.isEmpty(number)) {
-                    trackNumber = Integer.valueOf(number);
-                }
-            }
-
-            saveArtwork(tag);
-        }
-
-        fillEmptyFields();
-    }
-
-    private void parseLossless(org.jaudiotagger.audio.AudioFile file) {
-        FlacTag flacTag = (FlacTag) file.getTag();
-        if (flacTag != null && flacTag.hasCommonFields()) {
-
-            title = flacTag.getFirst(FieldKey.TITLE);
-            artist = flacTag.getFirst(FieldKey.ARTIST);
-            album = flacTag.getFirst(FieldKey.ALBUM);
-            genre = flacTag.getFirst(FieldKey.GENRE);
-            String number = flacTag.getFirst(FieldKey.TRACK);
-            if (!TextUtils.isEmpty(number)) {
-                try {
-                    trackNumber = Integer.valueOf(number);
-                } catch (NumberFormatException e) {
-                    trackNumber = 0;
-                    e.printStackTrace();
-                }
-            }
-
-            saveArtwork(flacTag);
-
-            fillEmptyFields();
-        }
-    }
-
-    private void renameFileCorrect(){
+    private void renameFileCorrect() {
         File newPath = new File(filePath.getParent(), Utils.replaceSymbols(filePath.getName()));
         boolean rename = filePath.renameTo(newPath);
-        if(rename) {
+        if (rename) {
             filePath = newPath;
         }
     }
 
-    private void saveArtwork(Tag tag) {
-        Artwork artwork = tag.getFirstArtwork();
-        if (artwork != null) {
-            try {
+    private void saveArtwork(byte[] data) {
+        try {
+            File path = File.createTempFile(UUID.randomUUID().toString(),
+                    ".png", new File(CacheManager.IMAGES_CACHE_PATH));
 
-                File path = File.createTempFile(UUID.randomUUID().toString(),
-                        ".png", new File(CacheManager.IMAGES_CACHE_PATH));
+            BitmapHelper.saveBitmap(data, path);
 
-                BitmapHelper.saveBitmap(artwork.getBinaryData(), path);
+            artworkPath = path.getAbsolutePath();
 
-                artworkPath = path.getAbsolutePath();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -170,32 +102,45 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
     }
 
     private void getTrackInfo() {
-        try {
-
-            TagOptionSingleton.getInstance().setAndroid(true);
-            org.jaudiotagger.audio.AudioFile file = AudioFileIO.read(filePath);
-            AudioHeader audioHeader = file.getAudioHeader();
-
-
-            bitrate = audioHeader.getBitRate() + " kbps "
-                    + (audioHeader.isVariableBitRate() ? "(VBR)" : "(CBR)");
-            sampleRate = audioHeader.getSampleRateAsNumber() + " Hz";
-            length = audioHeader.getTrackLength();
-
-            if (audioHeader.isLossless()) {
-                parseLossless(file);
-            } else {
-                parseMP3(file);
-            }
-
-        } catch (CannotReadException |
-                IOException | TagException | ReadOnlyFileException | InvalidAudioFrameException e) {
-            e.printStackTrace();
-            fillEmptyFields();
-        }
+        parseMetadata();
         if (listener != null) {
             listener.onFetchCompleted(this);
         }
+    }
+
+    private void parseMetadata() {
+
+        MediaMetadataRetriever metadataRetriever = new MediaMetadataRetriever();
+        metadataRetriever.setDataSource(filePath.getAbsolutePath());
+
+        artist = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+        title = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+        album = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+        genre = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE);
+        bitrate = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE) + " kbps";
+
+        String tracksValue = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_NUM_TRACKS);
+        if (tracksValue != null) {
+            trackNumber = Integer.valueOf(tracksValue);
+        }
+
+        String lengthValue = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+        if (lengthValue != null) {
+            length = Integer.valueOf(lengthValue);
+        }
+
+        long seconds = length / 1000;
+        long fileSize = filePath.length();
+        if (fileSize != 0) {
+            sampleRate = (fileSize / seconds) + " Hz";
+        }
+
+        byte[] artwork = metadataRetriever.getEmbeddedPicture();
+        if (artwork != null) {
+            saveArtwork(artwork);
+        }
+
+        fillEmptyFields();
     }
 
     @Override

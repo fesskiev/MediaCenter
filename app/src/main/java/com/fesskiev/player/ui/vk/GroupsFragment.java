@@ -1,13 +1,9 @@
 package com.fesskiev.player.ui.vk;
 
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -17,41 +13,35 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.vk.Group;
-import com.fesskiev.player.services.RESTService;
-import com.fesskiev.player.utils.AppSettingsManager;
+import com.fesskiev.player.ui.vk.data.model.Group;
+import com.fesskiev.player.ui.vk.data.source.DataRepository;
+import com.fesskiev.player.utils.AppLog;
 import com.fesskiev.player.utils.BitmapHelper;
-import com.fesskiev.player.utils.http.URLHelper;
+import com.fesskiev.player.utils.RxUtils;
+import com.fesskiev.player.widgets.MaterialProgressBar;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
 
 public class GroupsFragment extends Fragment {
-
 
     public static GroupsFragment newInstance() {
         return new GroupsFragment();
     }
 
     public static final String GROUP_EXTRA = "com.fesskiev.player.GROUP_EXTRA";
+
+    private Subscription subscription;
     private GroupsAdapter groupsAdapter;
+    private MaterialProgressBar progressBar;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        registerBroadcastReceiver();
-
-        fetchGroups();
-    }
-
-    public void fetchGroups() {
-        AppSettingsManager appSettingsManager = AppSettingsManager.getInstance(getActivity());
-        RESTService.fetchGroups(getActivity(), URLHelper.getUserGroupsURL(appSettingsManager.getAuthToken(),
-                appSettingsManager.getUserId()));
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -62,7 +52,10 @@ public class GroupsFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycleView);
+
+        progressBar = (MaterialProgressBar) view.findViewById(R.id.progressBar);
+
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false, 1000));
         groupsAdapter = new GroupsAdapter();
@@ -85,44 +78,47 @@ public class GroupsFragment extends Fragment {
 
     }
 
-    private void startGroupAudioActivity(Group group) {
-        Intent intent = new Intent(getActivity(), GroupAudioActivity.class);
-        intent.putExtra(GROUP_EXTRA, group);
-        startActivity(intent);
-    }
-
-
-    private void registerBroadcastReceiver() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(RESTService.ACTION_GROUPS_RESULT);
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(groupReceiver,
-                filter);
-    }
-
-    private void unregisterBroadcastReceiver() {
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(groupReceiver);
-    }
-
-
-    private BroadcastReceiver groupReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case RESTService.ACTION_GROUPS_RESULT:
-                    List<Group> groups = intent.getParcelableArrayListExtra(RESTService.EXTRA_GROUPS_RESULT);
-                    if (groups != null) {
-                        groupsAdapter.refresh(groups);
+    public void fetchGroups() {
+        showProgressBar();
+        DataRepository repository = DataRepository.getInstance();
+        subscription = repository.getGroups()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(groupsResponse -> {
+                    if (groupsResponse != null) {
+                        hideProgressBar();
+                        groupsAdapter.refresh(groupsResponse.getGroups().getGroupsList());
                     }
-                    break;
-            }
+                }, throwable -> {
+                    hideProgressBar();
+                    AppLog.ERROR(throwable.getMessage());});
+
+    }
+
+    public void showProgressBar() {
+        if(progressBar != null) {
+            progressBar.setVisibility(View.VISIBLE);
         }
-    };
+    }
+
+    public void hideProgressBar() {
+        if(progressBar != null) {
+            progressBar.setVisibility(View.GONE);
+        }
+    }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        unregisterBroadcastReceiver();
+        RxUtils.unsubscribe(subscription);
+    }
+
+
+
+    private void startGroupAudioActivity(Group group) {
+        Intent intent = new Intent(getActivity(), GroupAudioActivity.class);
+        intent.putExtra(GROUP_EXTRA, group);
+        startActivity(intent);
     }
 
     private class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.ViewHolder> {
@@ -164,11 +160,11 @@ public class GroupsFragment extends Fragment {
             Group group = groups.get(position);
             if (group != null) {
 
-                holder.groupName.setText(group.name);
-                holder.screenName.setText(group.screenName);
-                holder.groupType.setText(group.type);
+                holder.groupName.setText(group.getName());
+                holder.screenName.setText(group.getScreenName());
+                holder.groupType.setText(group.getType());
 
-                BitmapHelper.loadURIBitmap(getActivity(), group.photoMediumURL, holder.coverGroup);
+                BitmapHelper.loadURIBitmap(getActivity(), group.getPhotoMediumURL(), holder.coverGroup);
 
             }
         }

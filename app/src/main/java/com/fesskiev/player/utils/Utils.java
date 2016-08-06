@@ -31,7 +31,7 @@ public class Utils {
         );
     }
 
-    public static String getDateStringFromSeconds(long seconds){
+    public static String getDateStringFromSeconds(long seconds) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
         return dateFormat.format(new Date(seconds * 1000));
     }
@@ -46,15 +46,15 @@ public class Utils {
         Log.d(TAG, "fingerprint: " + Arrays.toString(fingerprints));
     }
 
-    public static Snackbar showCustomSnackbar(View view, Context context, String text, int duration){
+    public static Snackbar showCustomSnackbar(View view, Context context, String text, int duration) {
         Snackbar snack = Snackbar.make(view, text, duration);
         ViewGroup group = (ViewGroup) snack.getView();
         group.setBackgroundColor(ContextCompat.getColor(context, R.color.primary_dark));
         return snack;
     }
 
-    public static String getDurationString(int seconds) {
-
+    public static String getDurationString(int millis) {
+        int seconds = millis / 1000;
         int hours = seconds / 3600;
         int minutes = (seconds % 3600) / 60;
         seconds = seconds % 60;
@@ -82,7 +82,7 @@ public class Utils {
                 InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
-    public static String replaceSymbols(String fileName){
+    public static String replaceSymbols(String fileName) {
         return fileName.replaceAll("[|\\?*<\":>+/']", "");
     }
 

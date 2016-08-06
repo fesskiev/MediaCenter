@@ -31,11 +31,10 @@ import android.widget.TextView;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioPlayer;
-import com.fesskiev.player.model.User;
+import com.fesskiev.player.ui.vk.data.model.User;
 import com.fesskiev.player.services.FileObserverService;
 import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.services.PlaybackService;
-import com.fesskiev.player.services.RESTService;
 import com.fesskiev.player.ui.about.AboutActivity;
 import com.fesskiev.player.ui.audio.AudioFragment;
 import com.fesskiev.player.ui.equalizer.EqualizerActivity;
@@ -43,12 +42,14 @@ import com.fesskiev.player.ui.playback.PlaybackActivity;
 import com.fesskiev.player.ui.playlist.PlayListActivity;
 import com.fesskiev.player.ui.settings.SettingsActivity;
 import com.fesskiev.player.ui.video.VideoFragment;
-import com.fesskiev.player.ui.vk.MusicVKActivity;
+import com.fesskiev.player.ui.vk.VkontakteActivity;
+import com.fesskiev.player.ui.vk.data.source.DataRepository;
 import com.fesskiev.player.utils.AnimationUtils;
+import com.fesskiev.player.utils.AppLog;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.BitmapHelper;
+import com.fesskiev.player.utils.RxUtils;
 import com.fesskiev.player.utils.Utils;
-import com.fesskiev.player.utils.http.URLHelper;
 import com.fesskiev.player.widgets.dialogs.FetchMediaContentDialog;
 import com.fesskiev.player.widgets.dialogs.effects.BassBoostDialog;
 import com.fesskiev.player.widgets.dialogs.effects.VirtualizerDialog;
@@ -58,6 +59,10 @@ import com.vk.sdk.VKScope;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKError;
 
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
 
 public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -65,6 +70,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
     private static final int PERMISSION_REQ = 0;
 
+    private Subscription subscription;
     private FetchMediaContentDialog mediaContentDialog;
     private NavigationView navigationViewEffects;
     private NavigationView navigationViewMain;
@@ -157,7 +163,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 String[] vkScope = new String[]{VKScope.DIRECT, VKScope.AUDIO};
                 VKSdk.login(MainActivity.this, vkScope);
             } else {
-                startActivity(new Intent(getApplicationContext(), MusicVKActivity.class));
+                startActivity(new Intent(getApplicationContext(), VkontakteActivity.class));
             }
         });
         firstName = (TextView) headerLayout.findViewById(R.id.firstName);
@@ -346,7 +352,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
     private void registerBroadcastReceiver() {
         IntentFilter filter = new IntentFilter();
-        filter.addAction(RESTService.ACTION_USER_PROFILE_RESULT);
         filter.addAction(PlaybackService.ACTION_PLAYBACK_BASS_BOOST_STATE);
         filter.addAction(PlaybackService.ACTION_PLAYBACK_BASS_BOOST_SUPPORT);
         filter.addAction(PlaybackService.ACTION_PLAYBACK_VIRTUALIZER_STATE);
@@ -372,6 +377,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         PlaybackService.destroyPlayer(getApplicationContext());
         resetAudioPlayer();
         FileObserverService.stopFileObserverService(getApplicationContext());
+
+        RxUtils.unsubscribe(subscription);
     }
 
     private void resetAudioPlayer() {
@@ -387,9 +394,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         @Override
         public void onReceive(final Context context, Intent intent) {
             switch (intent.getAction()) {
-                case RESTService.ACTION_USER_PROFILE_RESULT:
-                    setUserProfile(context, intent);
-                    break;
                 case PlaybackService.ACTION_PLAYBACK_BASS_BOOST_STATE:
                     setBassBoostState(intent);
                     break;
@@ -497,31 +501,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         navigationViewEffects.getMenu().findItem(R.id.virtualizer).setVisible(visible);
     }
 
-    private void setUserProfile(Context context, Intent intent) {
-        User user = intent.getParcelableExtra(RESTService.EXTRA_USER_PROFILE_RESULT);
-        if (user != null) {
-
-            firstName.setText(user.firstName);
-            lastName.setText(user.lastName);
-
-
-            settingsManager.setUserFirstName(user.firstName);
-            settingsManager.setUserLastName(user.lastName);
-
-            BitmapHelper.loadURLAvatar(context,
-                    user.photoUrl, userPhoto, new BitmapHelper.OnBitmapLoadListener() {
-                        @Override
-                        public void onLoaded(Bitmap bitmap) {
-                            BitmapHelper.saveUserPhoto(bitmap);
-                        }
-
-                        @Override
-                        public void onFailed() {
-
-                        }
-                    });
-        }
-    }
 
     private void checkPermission() {
         if (!checkPermissions()) {
@@ -673,7 +652,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 logoutShow();
 
                 makeRequestUserProfile();
-                startActivity(new Intent(MainActivity.this, MusicVKActivity.class));
             }
 
             @Override
@@ -689,8 +667,42 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         }
     }
 
+
     private void makeRequestUserProfile() {
-        RESTService.fetchUserProfile(this, URLHelper.getUserProfileURL(settingsManager.getUserId()));
+        DataRepository repository = DataRepository.getInstance();
+        subscription = repository.getUser()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(userResponse -> {
+                    setUserProfile(userResponse.getUser());
+                    startActivity(new Intent(MainActivity.this, VkontakteActivity.class));
+                }, throwable -> {AppLog.ERROR(throwable.getMessage());});
+    }
+
+    private void setUserProfile(User user) {
+        if (user != null) {
+
+            AppLog.ERROR(user.toString());
+
+            firstName.setText(user.getFirstName());
+            lastName.setText(user.getLastName());
+
+            settingsManager.setUserFirstName(user.getFirstName());
+            settingsManager.setUserLastName(user.getLastName());
+
+            BitmapHelper.loadURLAvatar(getApplicationContext(),
+                    user.getPhotoUrl(), userPhoto, new BitmapHelper.OnBitmapLoadListener() {
+                        @Override
+                        public void onLoaded(Bitmap bitmap) {
+                            BitmapHelper.saveUserPhoto(bitmap);
+                        }
+
+                        @Override
+                        public void onFailed() {
+
+                        }
+                    });
+        }
     }
 
     private void animateToolbar() {

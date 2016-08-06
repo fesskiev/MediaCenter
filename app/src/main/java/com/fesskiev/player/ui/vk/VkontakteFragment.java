@@ -8,11 +8,13 @@ import android.view.View;
 import com.fesskiev.player.R;
 import com.fesskiev.player.ui.ViewPagerFragment;
 
+import java.util.List;
 
-public class MusicVKFragment extends ViewPagerFragment {
 
-    public static MusicVKFragment newInstance() {
-        return new MusicVKFragment();
+public class VkontakteFragment extends ViewPagerFragment {
+
+    public static VkontakteFragment newInstance() {
+        return new VkontakteFragment();
     }
 
     @Override
@@ -55,6 +57,28 @@ public class MusicVKFragment extends ViewPagerFragment {
 
     @Override
     public OnInstantiateItemListener setOnInstantiateItemListener() {
-        return null;
+        return position -> {
+            if(position == LAST_ITEM_INSTANTIATE){
+               requestVKFiles();
+            }
+        };
+    }
+
+    private void requestVKFiles() {
+        VkontakteFragment vkontakteFragment = (VkontakteFragment)
+                getActivity().getSupportFragmentManager().
+                findFragmentByTag(VkontakteFragment.class.getName());
+        if (vkontakteFragment != null) {
+            List<Fragment> registeredFragments = vkontakteFragment.getRegisteredFragments();
+            if (registeredFragments != null) {
+                for (Fragment fragment : registeredFragments) {
+                    if (fragment instanceof RecyclerAudioFragment) {
+                        ((RecyclerAudioFragment) fragment).fetchAudio(0);
+                    } else if (fragment instanceof GroupsFragment) {
+                        ((GroupsFragment) fragment).fetchGroups();
+                    }
+                }
+            }
+        }
     }
 }

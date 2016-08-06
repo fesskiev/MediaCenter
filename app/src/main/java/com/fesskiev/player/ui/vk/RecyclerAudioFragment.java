@@ -1,7 +1,6 @@
 package com.fesskiev.player.ui.vk;
 
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -20,8 +19,9 @@ import android.widget.TextView;
 
 import com.fesskiev.player.R;
 import com.fesskiev.player.utils.Utils;
-import com.fesskiev.player.utils.download.DownloadAudioFile;
+import com.fesskiev.player.utils.download.DownloadFile;
 import com.fesskiev.player.utils.download.DownloadManager;
+import com.fesskiev.player.widgets.MaterialProgressBar;
 import com.fesskiev.player.widgets.recycleview.EndlessScrollListener;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
@@ -38,6 +38,7 @@ public abstract class RecyclerAudioFragment extends Fragment {
     protected AudioAdapter audioAdapter;
     protected RecyclerView recyclerView;
     protected int audioOffset;
+    private MaterialProgressBar progressBar;
     private int selectedPosition;
     private boolean isListenerAttached;
 
@@ -48,6 +49,10 @@ public abstract class RecyclerAudioFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        progressBar = (MaterialProgressBar) view.findViewById(R.id.progressBar);
+
         recyclerView = (RecyclerView) view.findViewById(R.id.recycleView);
         ScrollingLinearLayoutManager layoutManager = new ScrollingLinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false, 1000);
@@ -73,14 +78,12 @@ public abstract class RecyclerAudioFragment extends Fragment {
                 @Override
                 public void onItemClick(View childView, int position) {
                     selectedPosition = position;
-                    List<DownloadAudioFile> downloadAudioFiles = audioAdapter.getDownloadAudioFiles();
-                    if (downloadAudioFiles != null) {
-                        DownloadAudioFile downloadAudioFile = downloadAudioFiles.get(position);
-                        if (downloadAudioFile != null) {
-                            if (downloadAudioFile.getDownloadManager() == null) {
-                                downloadFileDialog(downloadAudioFile, position);
-                            } else {
-
+                    List<DownloadFile> downloadFiles = audioAdapter.getDownloadFiles();
+                    if (downloadFiles != null) {
+                        DownloadFile downloadFile = downloadFiles.get(position);
+                        if (downloadFile != null) {
+                            if (downloadFile.getDownloadManager() == null) {
+                                downloadFileDialog(downloadFile, position);
                             }
                         }
                     }
@@ -106,44 +109,42 @@ public abstract class RecyclerAudioFragment extends Fragment {
         }
     }
 
-    private void downloadFileDialog(final DownloadAudioFile musicFile, final int position) {
+    private void downloadFileDialog(final DownloadFile musicFile, final int position) {
         AlertDialog.Builder builder =
                 new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
         builder.setTitle(getString(R.string.dialog_download_title));
         builder.setMessage(R.string.dialog_download_message);
         builder.setPositiveButton(R.string.dialog_download_ok,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        musicFile.downloadMusicFile(position);
-                        removeTouchListener();
-                    }
+                (dialog, which) -> {
+                    musicFile.downloadMusicFile(position);
+                    removeTouchListener();
                 });
         builder.setNegativeButton(R.string.dialog_download_cancel,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        addTouchListener();
-                        dialog.cancel();
-                    }
+                (dialog, which) -> {
+                    addTouchListener();
+                    dialog.cancel();
                 });
         builder.show();
     }
 
     public void showProgressBar() {
-        ((MusicVKActivity)getActivity()).showProgressBar();
+        if(progressBar != null) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
     }
 
     public void hideProgressBar() {
-        ((MusicVKActivity)getActivity()).hideProgressBar();
+        if(progressBar != null) {
+            progressBar.setVisibility(View.GONE);
+        }
     }
 
     protected class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.ViewHolder> {
 
-        private List<DownloadAudioFile> downloadAudioFiles;
+        private List<DownloadFile> downloadFiles;
 
         public AudioAdapter() {
-            this.downloadAudioFiles = new ArrayList<>();
+            this.downloadFiles = new ArrayList<>();
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -177,12 +178,12 @@ public abstract class RecyclerAudioFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-                DownloadAudioFile downloadAudioFile =
-                        audioAdapter.getDownloadAudioFiles().get(selectedPosition);
+                DownloadFile downloadFile =
+                        audioAdapter.getDownloadFiles().get(selectedPosition);
                 switch (v.getId()) {
                     case R.id.startPauseDownloadButton:
-                        if (downloadAudioFile != null) {
-                            DownloadManager downloadManager = downloadAudioFile.getDownloadManager();
+                        if (downloadFile != null) {
+                            DownloadManager downloadManager = downloadFile.getDownloadManager();
                             switch (downloadManager.getStatus()) {
                                 case DownloadManager.PAUSED:
                                     downloadManager.resume();
@@ -191,12 +192,12 @@ public abstract class RecyclerAudioFragment extends Fragment {
                                     downloadManager.pause();
                                     break;
                             }
-                            downloadAudioFile.updateAdapter();
+                            downloadFile.updateAdapter();
                         }
                         break;
                     case R.id.cancelDownloadButton:
-                        if (downloadAudioFile != null) {
-                            DownloadManager downloadManager = downloadAudioFile.getDownloadManager();
+                        if (downloadFile != null) {
+                            DownloadManager downloadManager = downloadFile.getDownloadManager();
                             downloadManager.cancel();
                             if (downloadManager.removeFile()) {
                                 Utils.showCustomSnackbar(getView(),
@@ -222,14 +223,14 @@ public abstract class RecyclerAudioFragment extends Fragment {
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
 
-            DownloadAudioFile downloadAudioFile = downloadAudioFiles.get(position);
-            if (downloadAudioFile != null) {
+            DownloadFile downloadFile = downloadFiles.get(position);
+            if (downloadFile != null) {
 
-                holder.artist.setText(Html.fromHtml(downloadAudioFile.getVkMusicFile().artist));
-                holder.title.setText(Html.fromHtml(downloadAudioFile.getVkMusicFile().title));
-                holder.duration.setText(Utils.getTimeFromSecondsString(downloadAudioFile.getVkMusicFile().duration));
+                holder.artist.setText(Html.fromHtml(downloadFile.getAudio().getArtist()));
+                holder.title.setText(Html.fromHtml(downloadFile.getAudio().getTitle()));
+                holder.duration.setText(Utils.getTimeFromSecondsString(downloadFile.getAudio().getDuration()));
 
-                DownloadManager downloadManager = downloadAudioFile.getDownloadManager();
+                DownloadManager downloadManager = downloadFile.getDownloadManager();
                 if (downloadManager != null) {
                     switch (downloadManager.getStatus()) {
                         case DownloadManager.DOWNLOADING:
@@ -267,18 +268,18 @@ public abstract class RecyclerAudioFragment extends Fragment {
             }
         }
 
-        public void refresh(List<DownloadAudioFile> downloadAudioFiles) {
-            this.downloadAudioFiles.addAll(downloadAudioFiles);
+        public void refresh(List<DownloadFile> downloadFiles) {
+            this.downloadFiles.addAll(downloadFiles);
             notifyDataSetChanged();
         }
 
         @Override
         public int getItemCount() {
-            return downloadAudioFiles.size();
+            return downloadFiles.size();
         }
 
-        public List<DownloadAudioFile> getDownloadAudioFiles() {
-            return downloadAudioFiles;
+        public List<DownloadFile> getDownloadFiles() {
+            return downloadFiles;
         }
     }
 

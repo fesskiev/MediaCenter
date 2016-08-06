@@ -79,7 +79,7 @@
                     android:layout_weight="1"
                     android:drawableStart="@drawable/icon_share"
                     android:gravity="center"
-                    android:singleLine="true"
+                    android:maxLines="1"
                     tools:text="20" />
 
                 <TextView
@@ -89,7 +89,7 @@
                     android:layout_weight="1"
                     android:drawableStart="@drawable/icon_like"
                     android:gravity="center"
-                    android:singleLine="true"
+                    android:maxLines="1"
                     tools:text="200" />
 
             </LinearLayout>

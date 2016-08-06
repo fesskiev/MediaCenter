@@ -1,15 +1,27 @@
-package com.fesskiev.player.model;
+package com.fesskiev.player.ui.vk.data.model;
 
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+
 public class User implements Parcelable {
 
-    public int uid;
-    public String firstName;
-    public String lastName;
-    public String photoUrl;
+    @SerializedName("uid")
+    @Expose
+    private int uid;
+    @SerializedName("first_name")
+    @Expose
+    private String firstName;
+    @SerializedName("last_name")
+    @Expose
+    private String lastName;
+    @SerializedName("photo_200")
+    @Expose
+    private String photoUrl;
 
     public User() {
 
@@ -44,6 +56,22 @@ public class User implements Parcelable {
         out.writeString(firstName);
         out.writeString(lastName);
         out.writeString(photoUrl);
+    }
+
+    public int getUid() {
+        return uid;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
     }
 
     @Override

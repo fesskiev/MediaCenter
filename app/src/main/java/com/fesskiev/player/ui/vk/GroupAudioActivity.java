@@ -6,7 +6,7 @@ import android.support.v7.widget.Toolbar;
 
 import com.fesskiev.player.R;
 import com.fesskiev.player.analytics.AnalyticsActivity;
-import com.fesskiev.player.model.vk.Group;
+import com.fesskiev.player.ui.vk.data.model.Group;
 
 public class GroupAudioActivity extends AnalyticsActivity {
 
@@ -19,7 +19,7 @@ public class GroupAudioActivity extends AnalyticsActivity {
             if (toolbar != null) {
                 Group group = getIntent().getExtras().getParcelable(GroupsFragment.GROUP_EXTRA);
                 if (group != null) {
-                    toolbar.setTitle(group.name);
+                    toolbar.setTitle(group.getName());
 
                     setSupportActionBar(toolbar);
                     getSupportActionBar().setDisplayHomeAsUpEnabled(true);

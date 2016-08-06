@@ -322,49 +322,51 @@ public class PlaybackService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        String action = intent.getAction();
-        if (action != null) {
-            Log.d(TAG, "playback service handle intent: " + action);
-            switch (action) {
-                case ACTION_CREATE_PLAYER:
-                    String musicFilePath = intent.getStringExtra(PLAYBACK_EXTRA_MUSIC_FILE_PATH);
-                    createPlayer(musicFilePath);
-                    break;
-                case ACTION_START_PLAYBACK:
-                    play();
-                    break;
-                case ACTION_STOP_PLAYBACK:
-                    stop();
-                    break;
-                case ACTION_PLAYBACK_SEEK:
-                    int seekValue = intent.getIntExtra(PLAYBACK_EXTRA_SEEK, -1);
-                    seek(seekValue);
-                    break;
-                case ACTION_PLAYBACK_VOLUME:
-                    int volumeValue = intent.getIntExtra(PLAYBACK_EXTRA_VOLUME, -1);
-                    volume(volumeValue);
-                    break;
-                case ACTION_BASS_BOOST_LEVEL:
-                case ACTION_PLAYBACK_BASS_BOOST_STATE:
-                    setBassBoost();
-                    break;
-                case ACTION_PLAYBACK_VIRTUALIZER_LEVEL:
-                case ACTION_PLAYBACK_VIRTUALIZER_STATE:
-                    setVirtualizer();
-                    break;
-                case ACTION_PLAYBACK_EQ_STATE:
-                    setEQ();
-                    break;
-                case ACTION_PLAYBACK_MUTE_SOLO_STATE:
-                    boolean muteSoloState =
-                            intent.getBooleanExtra(PLAYBACK_EXTRA_MUTE_SOLO_STATE, false);
-                    muteSolo(muteSoloState);
-                    break;
-                case ACTION_PLAYBACK_REPEAT_STATE:
-                    boolean repeatState =
-                            intent.getBooleanExtra(PLAYBACK_EXTRA_REPEAT_STATE, false);
-                    repeat(repeatState);
-                    break;
+        if (intent != null) {
+            String action = intent.getAction();
+            if (action != null) {
+                Log.d(TAG, "playback service handle intent: " + action);
+                switch (action) {
+                    case ACTION_CREATE_PLAYER:
+                        String musicFilePath = intent.getStringExtra(PLAYBACK_EXTRA_MUSIC_FILE_PATH);
+                        createPlayer(musicFilePath);
+                        break;
+                    case ACTION_START_PLAYBACK:
+                        play();
+                        break;
+                    case ACTION_STOP_PLAYBACK:
+                        stop();
+                        break;
+                    case ACTION_PLAYBACK_SEEK:
+                        int seekValue = intent.getIntExtra(PLAYBACK_EXTRA_SEEK, -1);
+                        seek(seekValue);
+                        break;
+                    case ACTION_PLAYBACK_VOLUME:
+                        int volumeValue = intent.getIntExtra(PLAYBACK_EXTRA_VOLUME, -1);
+                        volume(volumeValue);
+                        break;
+                    case ACTION_BASS_BOOST_LEVEL:
+                    case ACTION_PLAYBACK_BASS_BOOST_STATE:
+                        setBassBoost();
+                        break;
+                    case ACTION_PLAYBACK_VIRTUALIZER_LEVEL:
+                    case ACTION_PLAYBACK_VIRTUALIZER_STATE:
+                        setVirtualizer();
+                        break;
+                    case ACTION_PLAYBACK_EQ_STATE:
+                        setEQ();
+                        break;
+                    case ACTION_PLAYBACK_MUTE_SOLO_STATE:
+                        boolean muteSoloState =
+                                intent.getBooleanExtra(PLAYBACK_EXTRA_MUTE_SOLO_STATE, false);
+                        muteSolo(muteSoloState);
+                        break;
+                    case ACTION_PLAYBACK_REPEAT_STATE:
+                        boolean repeatState =
+                                intent.getBooleanExtra(PLAYBACK_EXTRA_REPEAT_STATE, false);
+                        repeat(repeatState);
+                        break;
+                }
             }
         }
 

@@ -43,12 +43,14 @@ public class AudioArtistFragment extends GridFragment implements AudioContent {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(artists -> {
-                    AppLog.INFO("onNext:artists: " + artists.size());
-                    if (!artists.isEmpty()) {
-                        ((AudioArtistsAdapter) adapter).refresh(artists);
-                        hideEmptyContentCard();
-                    } else {
-                        showEmptyContentCard();
+                    if(artists!= null) {
+                        AppLog.INFO("onNext:artists: " + artists.size());
+                        if (!artists.isEmpty()) {
+                            ((AudioArtistsAdapter) adapter).refresh(artists);
+                            hideEmptyContentCard();
+                        } else {
+                            showEmptyContentCard();
+                        }
                     }
                 });
     }

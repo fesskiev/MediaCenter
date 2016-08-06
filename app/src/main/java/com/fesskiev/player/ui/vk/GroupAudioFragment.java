@@ -1,18 +1,13 @@
 package com.fesskiev.player.ui.vk;
 
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,25 +15,35 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.vk.Group;
-import com.fesskiev.player.model.vk.GroupPost;
-import com.fesskiev.player.services.RESTService;
+import com.fesskiev.player.ui.vk.data.model.Audio;
+import com.fesskiev.player.ui.vk.data.model.Group;
+import com.fesskiev.player.ui.vk.data.model.GroupPost;
+import com.fesskiev.player.ui.vk.data.source.DataRepository;
+
+import com.fesskiev.player.utils.AppLog;
 import com.fesskiev.player.utils.BitmapHelper;
+import com.fesskiev.player.utils.RxUtils;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.utils.download.DownloadGroupAudioFile;
-import com.fesskiev.player.utils.http.URLHelper;
 import com.fesskiev.player.widgets.GroupPostAudioView;
 import com.fesskiev.player.widgets.MaterialProgressBar;
 import com.fesskiev.player.widgets.recycleview.EndlessScrollListener;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 
 public class GroupAudioFragment extends Fragment {
 
     private static final String GROUP_BUNDLE = "com.fesskiev.player.GROUP_BUNDLE";
 
+    private Subscription subscription;
     private Group group;
     private GroupPostsAdapter adapter;
     private MaterialProgressBar progressBar;
@@ -58,7 +63,6 @@ public class GroupAudioFragment extends Fragment {
         if (getArguments() != null) {
             group = getArguments().getParcelable(GROUP_BUNDLE);
         }
-        registerBroadcastReceiver();
     }
 
 
@@ -90,86 +94,49 @@ public class GroupAudioFragment extends Fragment {
     }
 
     private void fetchPosts() {
-        RESTService.fetchGroupPost(getActivity(), URLHelper.getGroupPostURL(group.gid, 20, postsOffset));
         showProgressBar();
+        DataRepository repository = DataRepository.getInstance();
+        subscription = repository.getGroupPots(group.getId(), postsOffset)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(groupPostsResponse -> {
+                    if (groupPostsResponse != null) {
+                        getGroupDownloadAudioFiles(groupPostsResponse.getGroupPostList());
+                        adapter.refresh(groupPostsResponse.getGroupPostList());
+                        hideProgressBar();
+                    }
+                }, throwable -> {
+                    AppLog.ERROR(throwable.getMessage());
+                });
     }
 
     private void showProgressBar() {
-        progressBar.setVisibility(View.VISIBLE);
+        if (progressBar != null) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
     }
 
     private void hideProgressBar() {
-        progressBar.setVisibility(View.INVISIBLE);
-    }
-
-    private void registerBroadcastReceiver() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(RESTService.ACTION_GROUP_POSTS_RESULT);
-        filter.addAction(RESTService.ACTION_INTERNET_CONNECTION_ERROR);
-        filter.addAction(RESTService.ACTION_INTERNET_CONNECTION_SLOW);
-        filter.addAction(RESTService.ACTION_SERVER_ERROR_RESULT);
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(groupAudioReceiver,
-                filter);
-    }
-
-    private void unregisterBroadcastReceiver() {
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(groupAudioReceiver);
-    }
-
-    private BroadcastReceiver groupAudioReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case RESTService.ACTION_GROUP_POSTS_RESULT:
-                    ArrayList<GroupPost> groupPosts =
-                            intent.getParcelableArrayListExtra(RESTService.EXTRA_GROUP_POSTS);
-                    if (groupPosts != null) {
-                        getGroupDownloadAudioFiles(groupPosts);
-                        adapter.refresh(groupPosts);
-                        hideProgressBar();
-                    }
-                    break;
-                case RESTService.ACTION_SERVER_ERROR_RESULT:
-                    String serverError =
-                            intent.getStringExtra(RESTService.EXTRA_ERROR_MESSAGE);
-                    Utils.showCustomSnackbar(getView(),
-                            getContext().getApplicationContext(),
-                            serverError, Snackbar.LENGTH_LONG).show();
-                    break;
-                case RESTService.ACTION_INTERNET_CONNECTION_ERROR:
-                    Utils.showCustomSnackbar(getView(),
-                            getContext().getApplicationContext(),
-                            getString(R.string.shackbar_connection_error),
-                            Snackbar.LENGTH_INDEFINITE).setAction(getString(R.string.shackbar_connection_repeat),
-                            new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    fetchPosts();
-                                }
-                            }).show();
-                    break;
-                case RESTService.ACTION_INTERNET_CONNECTION_SLOW:
-                    Utils.showCustomSnackbar(getView(),
-                            getContext().getApplicationContext(),
-                            getString(R.string.shackbar_connection_slow),
-                            Snackbar.LENGTH_LONG).show();
-                    break;
-            }
+        if (progressBar != null) {
+            progressBar.setVisibility(View.INVISIBLE);
         }
-    };
+    }
 
-    private void getGroupDownloadAudioFiles(ArrayList<GroupPost> groupPosts) {
+
+    private void getGroupDownloadAudioFiles(List<GroupPost> groupPosts) {
         for (GroupPost groupPost : groupPosts) {
-            groupPost.downloadGroupAudioFiles =
-                    DownloadGroupAudioFile.getDownloadGroupAudioFiles(getActivity(), groupPost.musicFiles);
+            List<Audio> audios = groupPost.getAudio();
+            if (audios != null) {
+                groupPost.setDownloadGroupAudioFiles(
+                        DownloadGroupAudioFile.getDownloadGroupAudioFiles(getActivity(), audios));
+            }
         }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        unregisterBroadcastReceiver();
+        RxUtils.unsubscribe(subscription);
     }
 
     private class GroupPostsAdapter extends RecyclerView.Adapter<GroupPostsAdapter.ViewHolder> {
@@ -209,7 +176,7 @@ public class GroupAudioFragment extends Fragment {
                     case R.id.openCloseButton:
                         GroupPost groupPost = groupPosts.get(getAdapterPosition());
                         if (groupPost != null) {
-                            groupPost.openAudioItems = !groupPost.openAudioItems;
+                            groupPost.setOpenMusicItems(!groupPost.isOpenMusicItems());
                             adapter.notifyItemChanged(getAdapterPosition());
                         }
                         break;
@@ -229,28 +196,29 @@ public class GroupAudioFragment extends Fragment {
             GroupPost groupPost = groupPosts.get(position);
             if (groupPost != null) {
 
-                holder.postText.setText(Html.fromHtml(groupPost.text));
-                holder.likes.setText(String.valueOf(groupPost.likes));
-                holder.shares.setText(String.valueOf(groupPost.reposts));
-                holder.time.setText(Utils.getDateStringFromSeconds(groupPost.date));
+                holder.postText.setText(Html.fromHtml(groupPost.getText()));
+                holder.likes.setText(String.valueOf(groupPost.getLikes().getCount()));
+                holder.shares.setText(String.valueOf(groupPost.getReposts().getCount()));
+                holder.time.setText(Utils.getDateStringFromSeconds(groupPost.getDate()));
 
-                if (groupPost.photo != null) {
+                if (groupPost.getAttachments().get(0).getPhoto() != null) {
                     holder.postCover.setVisibility(View.VISIBLE);
 
-                    BitmapHelper.loadURIBitmap(getActivity(), groupPost.photo, holder.postCover);
+                    BitmapHelper.loadURIBitmap(getActivity(),
+                            groupPost.getAttachments().get(0).getPhoto().getPhoto604(), holder.postCover);
                 } else {
                     holder.postCover.setVisibility(View.GONE);
                 }
 
-                if (!groupPost.musicFiles.isEmpty()) {
+                if (groupPost.getAttachments() != null) {
                     holder.openCloseButton.setVisibility(View.VISIBLE);
                 } else {
                     holder.openCloseButton.setVisibility(View.GONE);
                 }
 
-                if (groupPost.openAudioItems) {
+                if (groupPost.isOpenMusicItems()) {
                     holder.openCloseButton.setImageResource(R.drawable.icon_up);
-                    holder.audioCardView.createAudioItems(groupPost.downloadGroupAudioFiles);
+                    holder.audioCardView.createAudioItems(groupPost.getDownloadGroupAudioFiles());
                 } else {
                     holder.openCloseButton.setImageResource(R.drawable.icon_down);
                     holder.audioCardView.removeAudioItems();
@@ -263,7 +231,7 @@ public class GroupAudioFragment extends Fragment {
             return groupPosts.size();
         }
 
-        public void refresh(ArrayList<GroupPost> groupPosts) {
+        public void refresh(List<GroupPost> groupPosts) {
             this.groupPosts.addAll(groupPosts);
             notifyDataSetChanged();
         }

@@ -291,12 +291,9 @@ public class FileSystemIntentService extends IntentService {
         public void run() {
 
             new AudioFile(getApplicationContext(), file,
-                    new AudioFile.OnMp3TagListener() {
-                        @Override
-                        public void onFetchCompleted(AudioFile file) {
-                            file.id = id;
-                            DatabaseHelper.insertAudioFile(file);
-                        }
+                    file1 -> {
+                        file1.id = id;
+                        DatabaseHelper.insertAudioFile(file1);
                     });
         }
     }
@@ -317,17 +314,14 @@ public class FileSystemIntentService extends IntentService {
         public void run() {
 
             final AudioFile audioFile = new AudioFile(getApplicationContext(), file,
-                    new AudioFile.OnMp3TagListener() {
-                        @Override
-                        public void onFetchCompleted(AudioFile file) {
-                            file.id = audioFolder.id;
+                    file1 -> {
+                        file1.id = audioFolder.id;
 
-                            DatabaseHelper.insertAudioFile(file);
+                        DatabaseHelper.insertAudioFile(file1);
 
-                            sendAudioTrackNameBroadcast(file.artist + "-" + file.title);
-                            latch.countDown();
+                        sendAudioTrackNameBroadcast(file1.artist + "-" + file1.title);
+                        latch.countDown();
 
-                        }
                     });
 
             audioFolder.audioFiles.add(audioFile);
@@ -364,20 +358,16 @@ public class FileSystemIntentService extends IntentService {
 
 
     private FilenameFilter audioFilter() {
-        return new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                String lowercaseName = name.toLowerCase();
-                return lowercaseName.endsWith(".mp3") || lowercaseName.endsWith(".flac");
-            }
+        return (dir, name) -> {
+            String lowercaseName = name.toLowerCase();
+            return lowercaseName.endsWith(".mp3") || lowercaseName.endsWith(".flac");
         };
     }
 
     private FilenameFilter folderImageFilter() {
-        return new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                String lowercaseName = name.toLowerCase();
-                return (lowercaseName.endsWith(".png") || lowercaseName.endsWith(".jpg"));
-            }
+        return (dir, name) -> {
+            String lowercaseName = name.toLowerCase();
+            return (lowercaseName.endsWith(".png") || lowercaseName.endsWith(".jpg"));
         };
     }
 }

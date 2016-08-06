@@ -4,9 +4,6 @@ import android.app.Application;
 import android.content.ComponentCallbacks2;
 import android.util.Log;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.Volley;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.VideoPlayer;
 import com.flurry.android.FlurryAgent;
@@ -18,12 +15,13 @@ public class MediaApplication extends Application {
 
     private static final String TAG = MediaApplication.class.getSimpleName();
 
+    public static synchronized MediaApplication getInstance() {
+        return application;
+    }
+
     private static MediaApplication application;
-    private RequestQueue requestQueue;
     private AudioPlayer audioPlayer;
     private VideoPlayer videoPlayer;
-
-
 
     private VKAccessTokenTracker vkAccessTokenTracker = new VKAccessTokenTracker() {
         @Override
@@ -87,31 +85,6 @@ public class MediaApplication extends Application {
             case ComponentCallbacks2.TRIM_MEMORY_COMPLETE:
                 Log.e(TAG, "TRIM_MEMORY_COMPLETE");
                 break;
-        }
-    }
-
-    public static synchronized MediaApplication getInstance() {
-        return application;
-    }
-
-    public RequestQueue getRequestQueue() {
-        if (requestQueue == null) {
-            requestQueue = Volley.newRequestQueue(getApplicationContext());
-        }
-
-        return requestQueue;
-    }
-
-
-    public <T> void addToRequestQueue(Request<T> req) {
-        req.setTag(MediaApplication.class.getSimpleName());
-        getRequestQueue().add(req);
-    }
-
-
-    public void cancelPendingRequests() {
-        if (requestQueue != null) {
-            requestQueue.cancelAll(MediaApplication.class.getSimpleName());
         }
     }
 

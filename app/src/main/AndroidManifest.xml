@@ -73,7 +73,7 @@
                 android:value=".ui.audio.player.AudioPlayerActivity" />
         </activity>
         <activity
-            android:name=".ui.vk.MusicVKActivity"
+            android:name=".ui.vk.VkontakteActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:launchMode="singleTop"
             android:parentActivityName=".ui.MainActivity"
@@ -85,11 +85,11 @@
         <activity
             android:name=".ui.vk.GroupAudioActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:parentActivityName=".ui.vk.MusicVKActivity"
+            android:parentActivityName=".ui.vk.VkontakteActivity"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.vk.MusicVKActivity" />
+                android:value=".ui.vk.VkontakteActivity" />
         </activity>
         <activity
             android:name=".ui.about.AboutActivity"
@@ -124,10 +124,6 @@
 
         <service
             android:name=".services.PlaybackService"
-            android:exported="false" />
-
-        <service
-            android:name=".services.RESTService"
             android:exported="false" />
 
         <service
