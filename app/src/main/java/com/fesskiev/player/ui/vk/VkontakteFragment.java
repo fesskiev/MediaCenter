@@ -2,6 +2,7 @@ package com.fesskiev.player.ui.vk;
 
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
@@ -58,8 +59,8 @@ public class VkontakteFragment extends ViewPagerFragment {
     @Override
     public OnInstantiateItemListener setOnInstantiateItemListener() {
         return position -> {
-            if(position == LAST_ITEM_INSTANTIATE){
-               requestVKFiles();
+            if (position == LAST_ITEM_INSTANTIATE) {
+                new Handler().postDelayed(this::requestVKFiles, 500);
             }
         };
     }
@@ -67,7 +68,7 @@ public class VkontakteFragment extends ViewPagerFragment {
     private void requestVKFiles() {
         VkontakteFragment vkontakteFragment = (VkontakteFragment)
                 getActivity().getSupportFragmentManager().
-                findFragmentByTag(VkontakteFragment.class.getName());
+                        findFragmentByTag(VkontakteFragment.class.getName());
         if (vkontakteFragment != null) {
             List<Fragment> registeredFragments = vkontakteFragment.getRegisteredFragments();
             if (registeredFragments != null) {

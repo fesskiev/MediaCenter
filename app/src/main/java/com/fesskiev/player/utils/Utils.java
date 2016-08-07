@@ -53,8 +53,7 @@ public class Utils {
         return snack;
     }
 
-    public static String getDurationString(int millis) {
-        int seconds = millis / 1000;
+    public static String getDurationString(int seconds) {
         int hours = seconds / 3600;
         int minutes = (seconds % 3600) / 60;
         seconds = seconds % 60;

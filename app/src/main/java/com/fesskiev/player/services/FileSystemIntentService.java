@@ -313,16 +313,14 @@ public class FileSystemIntentService extends IntentService {
         @Override
         public void run() {
 
-            final AudioFile audioFile = new AudioFile(getApplicationContext(), file,
-                    file1 -> {
-                        file1.id = audioFolder.id;
+            final AudioFile audioFile = new AudioFile(getApplicationContext(), file, audioFile1 -> {
+                audioFile1.id = audioFolder.id;
 
-                        DatabaseHelper.insertAudioFile(file1);
+                DatabaseHelper.insertAudioFile(audioFile1);
 
-                        sendAudioTrackNameBroadcast(file1.artist + "-" + file1.title);
-                        latch.countDown();
-
-                    });
+                sendAudioTrackNameBroadcast(audioFile1.artist + "-" + audioFile1.title);
+                latch.countDown();
+            });
 
             audioFolder.audioFiles.add(audioFile);
         }

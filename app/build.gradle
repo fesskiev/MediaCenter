@@ -1,12 +1,15 @@
 apply plugin: 'com.android.application'
+apply plugin: 'me.tatarka.retrolambda'
+
     android {
-        compileSdkVersion 24
+        compileSdkVersion 23
         buildToolsVersion "24.0.1"
+
 
         defaultConfig {
             applicationId = "com.fesskiev.player"
             minSdkVersion 21
-            targetSdkVersion 24
+            targetSdkVersion 23
             versionCode = 1
             versionName = "1.0.0"
             externalNativeBuild {
@@ -15,10 +18,6 @@ apply plugin: 'com.android.application'
                             'x86', 'x86_64',
                             'mips', 'mips64'
                 }
-            }
-
-            jackOptions {
-                enabled true
             }
         }
 
@@ -49,13 +48,12 @@ apply plugin: 'com.android.application'
     }
 
 ext {
-    supportLibVersion = '24.1.1'
+    supportLibVersion = '23.4.0'
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile files('libs/jaudiotagger-2.2.5.jar')
-
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile files('libs/jaudiotagger-2.2.4.jar')
 
     compile "com.android.support:appcompat-v7:${supportLibVersion}"
     compile "com.android.support:recyclerview-v7:${supportLibVersion}"
@@ -63,6 +61,7 @@ dependencies {
     compile "com.android.support:design:${supportLibVersion}"
     compile "com.android.support:palette-v7:${supportLibVersion}"
     compile "com.android.support:support-v4:${supportLibVersion}"
+    compile 'com.mpatric:mp3agic:0.8.4'
     compile 'com.vk:androidsdk:+'
     compile 'com.github.clans:fab:1.6.3'
     compile 'com.github.bumptech.glide:glide:3.7.0'
@@ -73,6 +72,6 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.4.1'
     compile 'com.squareup.retrofit2:retrofit:2.0.2'
     compile 'com.squareup.retrofit2:converter-gson:2.0.2'
-    compile group: 'com.squareup.retrofit2', name: 'adapter-rxjava', version: '2.1.0'
+    compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
 
 }

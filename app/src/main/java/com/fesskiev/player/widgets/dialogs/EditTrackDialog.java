@@ -14,6 +14,11 @@ import android.widget.EditText;
 import com.fesskiev.player.R;
 import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.model.AudioFile;
+import com.mpatric.mp3agic.ID3v2;
+import com.mpatric.mp3agic.ID3v24Tag;
+import com.mpatric.mp3agic.InvalidDataException;
+import com.mpatric.mp3agic.Mp3File;
+import com.mpatric.mp3agic.UnsupportedTagException;
 
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
@@ -94,7 +99,40 @@ public class EditTrackDialog extends AlertDialog implements View.OnClickListener
 
     @Override
     public void onClick(View v) {
+        editTrackTagger();
+    }
+
+    private void editTrackMP3Agic() {
         try {
+            Mp3File mp3file = new Mp3File(audioFile.filePath);
+            ID3v2 id3v2Tag;
+            if (mp3file.hasId3v2Tag()) {
+                id3v2Tag = mp3file.getId3v2Tag();
+            } else {
+                id3v2Tag = new ID3v24Tag();
+                mp3file.setId3v2Tag(id3v2Tag);
+            }
+
+            id3v2Tag.setArtist(this.audioFile.artist);
+            id3v2Tag.setTitle(this.audioFile.title);
+            id3v2Tag.setAlbum(this.audioFile.album);
+//            id3v2Tag.setGenreDescription(this.audioFile.genre);
+            mp3file.setId3v2Tag(id3v2Tag);
+
+
+            updateAudioFileDatabase(this.audioFile);
+
+            listener.onEditTrackChanged(this.audioFile);
+
+        } catch (IOException | UnsupportedTagException | InvalidDataException e) {
+            e.printStackTrace();
+            listener.onEditTrackError();
+        }
+    }
+
+    private void editTrackTagger() {
+        try {
+
             TagOptionSingleton.getInstance().setAndroid(true);
             org.jaudiotagger.audio.AudioFile audioFile = AudioFileIO.read(this.audioFile.filePath);
             audioFile.setTag(new ID3v23Tag());

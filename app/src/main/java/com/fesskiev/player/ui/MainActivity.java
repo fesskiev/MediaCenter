@@ -13,6 +13,8 @@ import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -542,13 +544,10 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
                 findFragmentByTag(AudioFragment.class.getName());
         if (audioFragment == null) {
-            Log.d(TAG, "audio fragment is null");
-
             transaction.add(R.id.content, AudioFragment.newInstance(),
                     AudioFragment.class.getName());
             transaction.addToBackStack(AudioFragment.class.getName());
         } else {
-            Log.d(TAG, "audio fragment not null");
             transaction.show(audioFragment);
         }
         transaction.commitAllowingStateLoss();
@@ -574,34 +573,26 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         VideoFragment videoFragment = (VideoFragment) getSupportFragmentManager().
                 findFragmentByTag(VideoFragment.class.getName());
         if (videoFragment == null) {
-            Log.d(TAG, "video fragment is null");
             transaction.add(R.id.content, VideoFragment.newInstance(),
                     VideoFragment.class.getName());
             transaction.addToBackStack(VideoFragment.class.getName());
         } else {
-            Log.d(TAG, "video fragment not null");
             transaction.show(videoFragment);
         }
         transaction.commit();
     }
 
     private void hideVisibleFragment(FragmentTransaction transaction) {
-
-        AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
-                findFragmentByTag(AudioFragment.class.getName());
-        if (audioFragment != null && audioFragment.isAdded() && audioFragment.isVisible()) {
-            Log.d(TAG, "hide audio fragment");
-            transaction.hide(audioFragment);
-        }
-
-        VideoFragment videoFragment = (VideoFragment) getSupportFragmentManager().
-                findFragmentByTag(VideoFragment.class.getName());
-        if (videoFragment != null && videoFragment.isAdded() && videoFragment.isVisible()) {
-            Log.d(TAG, "hide video fragment");
-            transaction.hide(videoFragment);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        for (int entry = 0; entry < fragmentManager.getBackStackEntryCount(); entry++) {
+            Fragment fragment =
+                    fragmentManager.findFragmentByTag(fragmentManager.getBackStackEntryAt(entry).getName());
+            if (fragment != null && fragment.isAdded() && fragment.isVisible()) {
+                transaction.hide(fragment);
+                break;
+            }
         }
     }
-
 
     private void showPermissionSnackbar() {
         Utils.showCustomSnackbar(findViewById(R.id.content),

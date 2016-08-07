@@ -4,13 +4,30 @@ import android.content.Context;
 import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.fesskiev.player.R;
 import com.fesskiev.player.db.MediaCenterProvider;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.CacheManager;
 import com.fesskiev.player.utils.Utils;
+import com.mpatric.mp3agic.ID3v1;
+import com.mpatric.mp3agic.ID3v2;
+import com.mpatric.mp3agic.InvalidDataException;
+import com.mpatric.mp3agic.Mp3File;
+import com.mpatric.mp3agic.UnsupportedTagException;
+
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.AudioHeader;
+import org.jaudiotagger.audio.exceptions.CannotReadException;
+import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
+import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
+import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.Tag;
+import org.jaudiotagger.tag.TagException;
+import org.jaudiotagger.tag.TagOptionSingleton;
+import org.jaudiotagger.tag.flac.FlacTag;
+import org.jaudiotagger.tag.id3.ID3v24Frames;
+import org.jaudiotagger.tag.images.Artwork;
 
 import java.io.File;
 import java.io.IOException;
@@ -86,6 +103,23 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
         }
     }
 
+    private void saveArtwork(Tag tag) {
+        Artwork artwork = tag.getFirstArtwork();
+        if (artwork != null) {
+            try {
+                File path = File.createTempFile(UUID.randomUUID().toString(),
+                        ".png", new File(CacheManager.IMAGES_CACHE_PATH));
+
+                BitmapHelper.saveBitmap(artwork.getBinaryData(), path);
+
+                artworkPath = path.getAbsolutePath();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private void fillEmptyFields() {
         if (artist == null || TextUtils.isEmpty(artist)) {
             artist = context.getString(R.string.empty_music_file_artist);
@@ -102,46 +136,136 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
     }
 
     private void getTrackInfo() {
-        parseMetadata();
+        parseMetadataTagger();
         if (listener != null) {
             listener.onFetchCompleted(this);
         }
     }
 
-    private void parseMetadata() {
+    private void parseMetadataMP3Agic() {
+        try {
 
-        MediaMetadataRetriever metadataRetriever = new MediaMetadataRetriever();
-        metadataRetriever.setDataSource(filePath.getAbsolutePath());
+            Mp3File mp3file = new Mp3File(filePath);
 
-        artist = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-        title = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-        album = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
-        genre = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE);
-        bitrate = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE) + " kbps";
+            length = (int) mp3file.getLengthInSeconds();
+            bitrate = mp3file.getBitrate() + " kbps " + (mp3file.isVbr() ? "(VBR)" : "(CBR)");
+            sampleRate = mp3file.getSampleRate() + " Hz";
 
-        String tracksValue = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_NUM_TRACKS);
-        if (tracksValue != null) {
-            trackNumber = Integer.valueOf(tracksValue);
+            if (mp3file.hasId3v2Tag()) {
+                ID3v2 id3v2Tag = mp3file.getId3v2Tag();
+
+                String track = id3v2Tag.getTrack();
+                if (track != null && !TextUtils.isEmpty(track)) {
+                    trackNumber = Integer.valueOf(Utils.replaceSymbols(track));
+                }
+
+                artist = id3v2Tag.getArtist();
+                title = id3v2Tag.getTitle();
+                album = id3v2Tag.getAlbum();
+                genre = id3v2Tag.getGenreDescription();
+
+                byte[] albumImageData = id3v2Tag.getAlbumImage();
+                if (albumImageData != null) {
+                    saveArtwork(albumImageData);
+                }
+            } else if (mp3file.hasId3v1Tag()) {
+                ID3v1 id3v1Tag = mp3file.getId3v1Tag();
+
+                String track = id3v1Tag.getTrack();
+                if (track != null && !TextUtils.isEmpty(track)) {
+                    trackNumber = Integer.valueOf(Utils.replaceSymbols(track));
+                }
+
+                artist = id3v1Tag.getArtist();
+                title = id3v1Tag.getTitle();
+                album = id3v1Tag.getAlbum();
+                genre = id3v1Tag.getGenreDescription();
+            }
+
+        } catch (IOException | UnsupportedTagException | InvalidDataException e) {
+            e.printStackTrace();
+        } finally {
+            fillEmptyFields();
         }
+    }
 
-        String lengthValue = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-        if (lengthValue != null) {
-            length = Integer.valueOf(lengthValue);
+    private void parseMetadataTagger() {
+        try {
+            TagOptionSingleton.getInstance().setAndroid(true);
+            org.jaudiotagger.audio.AudioFile file = AudioFileIO.read(filePath);
+            AudioHeader audioHeader = file.getAudioHeader();
+
+            bitrate = audioHeader.getBitRate() + " kbps " + (audioHeader.isVariableBitRate() ? "(VBR)" : "(CBR)");
+            sampleRate = audioHeader.getSampleRateAsNumber() + " Hz";
+            length = audioHeader.getTrackLength();
+
+            if (audioHeader.isLossless()) {
+                parseLossless(file);
+            } else {
+                parseMP3(file);
+            }
+
+        } catch (CannotReadException | IOException | TagException
+                | ReadOnlyFileException | InvalidAudioFrameException e) {
+            e.printStackTrace();
+        } finally {
+            fillEmptyFields();
         }
+    }
 
-        long seconds = length / 1000;
-        long fileSize = filePath.length();
-        if (fileSize != 0) {
-            sampleRate = (fileSize / seconds) + " Hz";
-        }
 
-        byte[] artwork = metadataRetriever.getEmbeddedPicture();
-        if (artwork != null) {
-            saveArtwork(artwork);
+    private void parseMP3(org.jaudiotagger.audio.AudioFile file) {
+        Tag tag = file.getTag();
+        if (tag != null && tag.hasCommonFields()) {
+            if (tag.hasField(ID3v24Frames.FRAME_ID_ARTIST)) {
+                artist = tag.getFirst(ID3v24Frames.FRAME_ID_ARTIST);
+            }
+            if (tag.hasField(ID3v24Frames.FRAME_ID_TITLE)) {
+                title = tag.getFirst(ID3v24Frames.FRAME_ID_TITLE);
+            }
+            if (tag.hasField(ID3v24Frames.FRAME_ID_ALBUM)) {
+                album = tag.getFirst(ID3v24Frames.FRAME_ID_ALBUM);
+            }
+            if (tag.hasField(ID3v24Frames.FRAME_ID_GENRE)) {
+                genre = tag.getFirst(ID3v24Frames.FRAME_ID_GENRE);
+            }
+            if (tag.hasField(ID3v24Frames.FRAME_ID_TRACK)) {
+                String number = tag.getFirst(ID3v24Frames.FRAME_ID_TRACK);
+                if (!number.equals("null") && !TextUtils.isEmpty(number)) {
+                    trackNumber = Integer.valueOf(number);
+                }
+            }
+
+            saveArtwork(tag);
         }
 
         fillEmptyFields();
     }
+
+    private void parseLossless(org.jaudiotagger.audio.AudioFile file) {
+        FlacTag flacTag = (FlacTag) file.getTag();
+        if (flacTag != null && flacTag.hasCommonFields()) {
+
+            title = flacTag.getFirst(FieldKey.TITLE);
+            artist = flacTag.getFirst(FieldKey.ARTIST);
+            album = flacTag.getFirst(FieldKey.ALBUM);
+            genre = flacTag.getFirst(FieldKey.GENRE);
+            String number = flacTag.getFirst(FieldKey.TRACK);
+            if (!TextUtils.isEmpty(number)) {
+                try {
+                    trackNumber = Integer.valueOf(number);
+                } catch (NumberFormatException e) {
+                    trackNumber = 0;
+                    e.printStackTrace();
+                }
+            }
+
+            saveArtwork(flacTag);
+
+            fillEmptyFields();
+        }
+    }
+
 
     @Override
     public MEDIA_TYPE getMediaType() {
