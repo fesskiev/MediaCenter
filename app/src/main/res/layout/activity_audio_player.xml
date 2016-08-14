@@ -81,7 +81,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentStart="true"
-                        android:singleLine="true"
+                        android:maxLines="1"
                         tools:text="Changes" />
 
                     <TextView
@@ -91,7 +91,7 @@
                         android:layout_height="wrap_content"
                         android:layout_toEndOf="@+id/album"
                         android:gravity="end"
-                        android:singleLine="true"
+                        android:maxLines="1"
                         tools:text="Drum and Bass" />
 
                     <LinearLayout
@@ -107,7 +107,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
-                            android:singleLine="true"
+                            android:maxLines="1"
                             tools:text="Synkro" />
 
                         <TextView
@@ -116,7 +116,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
-                            android:singleLine="true"
+                            android:maxLines="1"
                             tools:text="Overture" />
 
                     </LinearLayout>
@@ -130,7 +130,7 @@
                         android:layout_below="@+id/mainInfoContainer"
                         android:layout_marginTop="10dp"
                         android:gravity="start"
-                        android:singleLine="true"
+                        android:maxLines="1"
                         tools:text="MP3::44Khz::320kbps" />
 
                 </RelativeLayout>
@@ -150,10 +150,104 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
+                    <View
+                        android:id="@+id/divider0"
+                        style="@style/DividerStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="10dp" />
+
+                    <LinearLayout
+                        android:id="@+id/trackTimeControl"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/divider0"
+                        android:baselineAligned="false"
+                        android:orientation="horizontal">
+
+                        <RelativeLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <TextView
+                                android:id="@+id/trackTimeCount"
+                                style="@style/DescriptionTextAppearance"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerVertical="true"
+                                android:layout_marginEnd="10dp"
+                                android:layout_toStartOf="@+id/timerImage"
+                                android:maxLines="1"
+                                android:text="@string/timer_zero" />
+
+                            <ImageView
+                                android:id="@+id/timerImage"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerInParent="true"
+                                android:contentDescription="@string/app_name"
+                                android:src="@drawable/icon_timer" />
+
+                            <TextView
+                                android:id="@+id/trackTimeTotal"
+                                style="@style/DescriptionTextAppearance"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerVertical="true"
+                                android:layout_marginStart="10dp"
+                                android:layout_toEndOf="@+id/timerImage"
+                                android:text="@string/timer_zero" />
+
+                        </RelativeLayout>
+
+                        <View
+                            style="@style/DividerStyle"
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent" />
+
+                        <RelativeLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <com.fesskiev.player.widgets.buttons.MuteSoloButton
+                                android:id="@+id/muteSoloButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerInParent="true"
+                                android:contentDescription="@string/app_name"
+                                android:src="@drawable/high_volume_icon" />
+
+                            <TextView
+                                android:id="@+id/volumeLevel"
+                                style="@style/DescriptionTextAppearance"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerVertical="true"
+                                android:layout_marginStart="10dp"
+                                android:layout_toEndOf="@+id/muteSoloButton"
+                                android:maxLines="1"
+                                tools:text="100" />
+
+                        </RelativeLayout>
+
+                    </LinearLayout>
+
+                    <View
+                        android:id="@+id/divider1"
+                        style="@style/DividerStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_below="@+id/trackTimeControl"
+                        android:layout_marginBottom="10dp"
+                        android:layout_marginTop="10dp" />
+
                     <LinearLayout
                         android:id="@+id/trackIndicators"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_below="@+id/divider1"
                         android:orientation="horizontal">
 
                         <ImageView
@@ -166,6 +260,7 @@
                             android:foreground="?android:attr/selectableItemBackground"
                             android:src="@drawable/previous_track_icon" />
 
+
                         <com.fesskiev.player.widgets.buttons.RepeatButton
                             android:id="@+id/repeatButton"
                             android:layout_width="0dp"
@@ -174,14 +269,6 @@
                             android:contentDescription="@string/app_name"
                             android:src="@drawable/icon_repeat_off" />
 
-
-                        <com.fesskiev.player.widgets.buttons.MuteSoloButton
-                            android:id="@+id/muteSoloButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="0.5"
-                            android:contentDescription="@string/app_name"
-                            android:src="@drawable/high_volume_icon" />
 
                         <ImageView
                             android:id="@+id/nextTrack"
@@ -195,13 +282,20 @@
 
                     </LinearLayout>
 
+                    <View
+                        android:id="@+id/divider2"
+                        style="@style/DividerStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_below="@+id/trackIndicators"
+                        android:layout_marginTop="10dp" />
+
                     <RelativeLayout
                         android:id="@+id/controlTrack"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/trackIndicators"
+                        android:layout_below="@+id/divider2"
                         android:layout_marginTop="15dp">
-
 
                         <com.fesskiev.player.widgets.controls.AudioControlView
                             android:id="@+id/audioControl"
@@ -209,64 +303,7 @@
                             android:layout_height="wrap_content"
                             android:layout_centerInParent="true" />
 
-
                     </RelativeLayout>
-
-                    <View
-                        android:id="@+id/divider1"
-                        style="@style/DividerStyle"
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_below="@+id/controlTrack"
-                        android:layout_marginTop="15dp" />
-
-                    <LinearLayout
-                        android:id="@+id/trackTimeControl"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@+id/divider1"
-                        android:layout_marginTop="10dp"
-                        android:orientation="vertical">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:id="@+id/trackTimeCount"
-                                android:layout_width="0dp"
-                                android:layout_height="match_parent"
-                                android:layout_weight="0.5"
-                                android:gravity="start|bottom"
-                                tools:text="0:00" />
-
-                            <TextView
-                                android:id="@+id/trackTimeTotal"
-                                android:layout_width="0dp"
-                                android:layout_height="match_parent"
-                                android:layout_weight="0.5"
-                                android:gravity="end|bottom"
-                                tools:text="0:00" />
-
-                        </LinearLayout>
-
-                        <SeekBar
-                            android:id="@+id/seekSong"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:max="100" />
-
-                    </LinearLayout>
-
-                    <View
-                        android:id="@+id/divider2"
-                        style="@style/DividerStyle"
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_below="@+id/trackTimeControl"
-                        android:layout_marginTop="15dp" />
 
                 </RelativeLayout>
 

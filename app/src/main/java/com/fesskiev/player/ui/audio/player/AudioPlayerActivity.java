@@ -43,11 +43,11 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
     private TextView trackTimeCount;
     private TextView trackTimeTotal;
     private TextView artist;
+    private TextView volumeLevel;
     private TextView title;
     private TextView genre;
     private TextView album;
     private TextView trackDescription;
-    private SeekBar trackSeek;
 
     public static void startPlayerActivity(Activity activity, boolean isNewTrack, View coverView) {
         ActivityOptionsCompat options = ActivityOptionsCompat.
@@ -81,6 +81,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         trackDescription = (TextView) findViewById(R.id.trackDescription);
         genre = (TextView) findViewById(R.id.genre);
         album = (TextView) findViewById(R.id.album);
+        volumeLevel = (TextView) findViewById(R.id.volumeLevel);
 
         findViewById(R.id.previousTrack).setOnClickListener(v -> previous());
 
@@ -142,32 +143,12 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
             @Override
             public void onSeekStateChanged(int seek, boolean change) {
                 if (change) {
-
+                    Log.d("test", "seek: " + seek);
+                    PlaybackService.seekPlayback(getApplicationContext(), seek);
                 }
                 scrollView.setEnableScrolling(!change);
             }
         });
-
-        trackSeek = (SeekBar) findViewById(R.id.seekSong);
-        trackSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            int progress;
-
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                this.progress = progress;
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                PlaybackService.seekPlayback(getApplicationContext(), progress);
-            }
-        });
-
 
         boolean isNewTrack = getIntent().getBooleanExtra(EXTRA_IS_NEW_TRACK, false);
         if (isNewTrack) {
@@ -196,7 +177,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
 
 
     private void setPauseValues() {
-        trackSeek.setProgress(audioPlayer.progressScale);
+        controlView.setSeekValue(audioPlayer.progressScale);
         trackTimeTotal.setText(Utils.getTimeFromMillisecondsString(audioPlayer.duration));
         trackTimeCount.setText(Utils.getTimeFromMillisecondsString(audioPlayer.progress));
     }
@@ -259,11 +240,13 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
     }
 
     private void setVolumeLevel() {
-        controlView.setVolumeValue(audioPlayer.volume);
-        PlaybackService.volumePlayback(getApplicationContext(), audioPlayer.volume);
-        if (audioPlayer.volume >= 60) {
+        int volume = audioPlayer.volume;
+        volumeLevel.setText(String.valueOf(volume));
+        controlView.setVolumeValue(volume);
+        PlaybackService.volumePlayback(getApplicationContext(), volume);
+        if (volume >= 60) {
             muteSoloButton.setHighSoloState();
-        } else if (audioPlayer.volume >= 30) {
+        } else if (volume >= 30) {
             muteSoloButton.setMediumSoloState();
         } else {
             muteSoloButton.setLowSoloState();
@@ -271,9 +254,9 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
     }
 
     private void resetIndicators() {
-        trackTimeTotal.setText("0:00");
-        trackTimeCount.setText("0:00");
-        trackSeek.setProgress(0);
+        trackTimeTotal.setText(getString(R.string.timer_zero));
+        trackTimeCount.setText(getString(R.string.timer_zero));
+        controlView.setSeekValue(0);
     }
 
 
@@ -292,11 +275,11 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
     }
 
     private void disableChangeVolume() {
-
+        controlView.setEnableChangeVolume(false);
     }
 
     private void enableChangeVolume() {
-
+        controlView.setEnableChangeVolume(true);
     }
 
 
@@ -343,7 +326,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
                     audioPlayer.progress = progress;
                     audioPlayer.progressScale = progressScale;
 
-                    trackSeek.setProgress(progressScale);
+                    controlView.setSeekValue(progressScale);
                     trackTimeTotal.setText(Utils.getTimeFromMillisecondsString(duration));
                     trackTimeCount.setText(Utils.getTimeFromMillisecondsString(progress));
                     break;

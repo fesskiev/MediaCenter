@@ -135,6 +135,8 @@
     <string name="vk_page">https://vk.com/fess_kiev</string>
     <string name="mail_address">fesskiev@gmail.com</string>
 
+    <string name="timer_zero">0:00</string>
+
     <integer name="com_vk_sdk_AppId">5217689</integer>
 
     <string name="flurry_key">77NCCTNCQ8Q32WSD5CV7</string>

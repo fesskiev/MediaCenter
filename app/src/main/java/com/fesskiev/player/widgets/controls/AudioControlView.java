@@ -23,7 +23,7 @@ public class AudioControlView extends FrameLayout {
     }
 
     private OnAudioControlListener listener;
-    private AudioVolumeSeekView audioVolume;
+    private AudioVolumeSeekView volumeSeekView;
     private PlayPauseButton playPauseButton;
 
     public AudioControlView(Context context) {
@@ -46,8 +46,8 @@ public class AudioControlView extends FrameLayout {
                 Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.audio_control_layout, this, true);
 
-        audioVolume = (AudioVolumeSeekView) view.findViewById(R.id.audioVolumeControl);
-        audioVolume.setListener(new AudioVolumeSeekView.OnAudioVolumeSeekListener() {
+        volumeSeekView = (AudioVolumeSeekView) view.findViewById(R.id.audioVolumeControl);
+        volumeSeekView.setListener(new AudioVolumeSeekView.OnAudioVolumeSeekListener() {
             @Override
             public void changeVolumeStart(int volume) {
                 if (listener != null) {
@@ -64,14 +64,14 @@ public class AudioControlView extends FrameLayout {
 
             @Override
             public void changeSeekStart(int seek) {
-                if(listener != null){
+                if (listener != null) {
                     listener.onSeekStateChanged(seek, true);
                 }
             }
 
             @Override
             public void changeSeekFinish() {
-                if(listener != null){
+                if (listener != null) {
                     listener.onSeekStateChanged(0, false);
                 }
             }
@@ -86,8 +86,16 @@ public class AudioControlView extends FrameLayout {
         });
     }
 
+    public void setEnableChangeVolume(boolean enable) {
+        volumeSeekView.setEnableChangeVolume(enable);
+    }
+
     public void setVolumeValue(int value) {
-        audioVolume.setVolumeValue(value);
+        volumeSeekView.setVolumeValue(value);
+    }
+
+    public void setSeekValue(int value) {
+        volumeSeekView.setSeekValue(value);
     }
 
 

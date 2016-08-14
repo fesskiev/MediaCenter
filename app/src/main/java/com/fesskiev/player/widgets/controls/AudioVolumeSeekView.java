@@ -45,13 +45,13 @@ public class AudioVolumeSeekView extends View {
     private int lineRadius;
     private int markSize;
     private int circleStrokeWidth;
-    private int textStrokeWidth;
     private float volumeStrokeWidth;
     private float seekStrokeWidth;
     private float progressVolume;
     private float progressSeek;
     private boolean checkVolume;
     private boolean checkSeek;
+    private boolean enableChangeVolume;
 
 
     public AudioVolumeSeekView(Context context) {
@@ -89,7 +89,6 @@ public class AudioVolumeSeekView extends View {
         radiusVolume = (int) dipToPixels(context, 80);
         radiusSeek = (int) dipToPixels(context, 135);
         lineRadius = (int) dipToPixels(context, 135);
-        textStrokeWidth = (int) dipToPixels(context, 60);
         circleStrokeWidth = (int) dipToPixels(context, 10);
         markSize = (int) dipToPixels(context, 50);
 
@@ -113,6 +112,8 @@ public class AudioVolumeSeekView extends View {
         progressPaint.setStrokeWidth(circleStrokeWidth);
 
         setBackgroundColor(Color.TRANSPARENT);
+
+        enableChangeVolume = true;
 
     }
 
@@ -153,7 +154,9 @@ public class AudioVolumeSeekView extends View {
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 checkSeek = checkTouchSeek(event);
-                checkVolume = checkTouchVolume(event);
+                if (enableChangeVolume) {
+                    checkVolume = checkTouchVolume(event);
+                }
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (checkSeek) {
@@ -196,13 +199,16 @@ public class AudioVolumeSeekView extends View {
     }
 
     private void incrementSeekProgress(MotionEvent event) {
-        progressSeek = (int) ((Math.toDegrees(Math.atan2(event.getX() - 360.0,
+        int angle = (int) ((Math.toDegrees(Math.atan2(event.getX() - 360.0,
                 360.0 - event.getY())) + 360.0) % 360.0);
+
+        progressSeek = angle;
+        float scaleValue = angle * (100f / 360);
 
         invalidate();
 
         if (listener != null) {
-            listener.changeSeekStart(0);
+            listener.changeSeekStart((int) scaleValue);
         }
     }
 
@@ -249,8 +255,16 @@ public class AudioVolumeSeekView extends View {
 
     public void setVolumeValue(int value) {
         progressVolume = value * 3.6f;
-        postInvalidate();
+        invalidate();
     }
 
+    public void setSeekValue(int value) {
+        progressSeek = value * 3.6f;
+        invalidate();
+    }
+
+    public void setEnableChangeVolume(boolean enable) {
+        enableChangeVolume = enable;
+    }
 
 }
