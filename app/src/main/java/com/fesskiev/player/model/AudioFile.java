@@ -2,7 +2,6 @@ package com.fesskiev.player.model;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.media.MediaMetadataRetriever;
 import android.text.TextUtils;
 
 import com.fesskiev.player.R;
@@ -35,7 +34,7 @@ import java.util.UUID;
 
 public class AudioFile implements MediaFile, Comparable<AudioFile> {
 
-    public interface OnMp3TagListener {
+    public interface OnAudioTagListener {
         void onFetchCompleted(AudioFile audioFile);
     }
 
@@ -53,9 +52,9 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
     public int length;
     public boolean inPlayList;
     public boolean isSelected;
-    private OnMp3TagListener listener;
+    private OnAudioTagListener listener;
 
-    public AudioFile(Context context, File filePath, OnMp3TagListener listener) {
+    public AudioFile(Context context, File filePath, OnAudioTagListener listener) {
         this.context = context;
         this.filePath = filePath;
         this.listener = listener;

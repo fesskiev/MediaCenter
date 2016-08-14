@@ -106,13 +106,15 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(videoFiles -> {
-                    AppLog.INFO("onNext:video: " + videoFiles.size());
-                    if (!videoFiles.isEmpty()) {
-                        videoPlayer.videoFiles = videoFiles;
-                        adapter.refresh(videoFiles);
-                        hideEmptyContentCard();
-                    } else {
-                        showEmptyContentCard();
+                    if (videoFiles != null) {
+                        AppLog.INFO("onNext:video: " + videoFiles.size());
+                        if (!videoFiles.isEmpty()) {
+                            videoPlayer.videoFiles = videoFiles;
+                            adapter.refresh(videoFiles);
+                            hideEmptyContentCard();
+                        } else {
+                            showEmptyContentCard();
+                        }
                     }
                 }));
     }

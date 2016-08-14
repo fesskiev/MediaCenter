@@ -60,16 +60,13 @@ public class VideoControlView extends FrameLayout implements View.OnClickListene
         findViewById(R.id.previousVideo).setOnClickListener(this);
         playPauseButton = (PlayPauseButton) view.findViewById(R.id.playPauseButton);
         playPauseButton.setColor(ContextCompat.getColor(context, R.color.primary));
-        playPauseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playPauseButton.setPlay(isPlaying);
-                isPlaying = !isPlaying;
-                if (listener != null) {
-                    listener.playPauseButtonClick(isPlaying);
-                }
-
+        playPauseButton.setOnClickListener(v -> {
+            playPauseButton.setPlay(isPlaying);
+            isPlaying = !isPlaying;
+            if (listener != null) {
+                listener.playPauseButtonClick(isPlaying);
             }
+
         });
 
         seekVideo = (SeekBar) findViewById(R.id.seekVideo);

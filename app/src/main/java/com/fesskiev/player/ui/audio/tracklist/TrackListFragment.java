@@ -120,7 +120,7 @@ public class TrackListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        notifyTrackStateChangePosition();
+        notifyTrackStateChanged();
     }
 
     @Override
@@ -130,15 +130,10 @@ public class TrackListFragment extends Fragment {
         RxUtils.unsubscribe(subscription);
     }
 
-    private void notifyTrackStateChange() {
+
+    private void notifyTrackStateChanged() {
         if (adapter != null) {
             adapter.notifyDataSetChanged();
-        }
-    }
-
-    private void notifyTrackStateChangePosition() {
-        if (adapter != null) {
-            adapter.notifyItemChanged(audioPlayer.position);
         }
     }
 
@@ -159,7 +154,7 @@ public class TrackListFragment extends Fragment {
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
                 case PlaybackService.ACTION_PLAYBACK_PLAYING_STATE:
-                    notifyTrackStateChange();
+                    notifyTrackStateChanged();
                     break;
             }
         }

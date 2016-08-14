@@ -6,12 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -26,16 +25,17 @@ import com.fesskiev.player.ui.playback.Playable;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.buttons.MuteSoloButton;
-import com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton;
 import com.fesskiev.player.widgets.buttons.RepeatButton;
 import com.fesskiev.player.widgets.cards.DescriptionCardView;
+import com.fesskiev.player.widgets.controls.AudioControlView;
+import com.fesskiev.player.widgets.utils.DisabledScrollView;
 
 public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
 
     public static final String EXTRA_IS_NEW_TRACK = "com.fesskiev.player.EXTRA_IS_NEW_TRACK";
 
     private AudioPlayer audioPlayer;
-    private PlayPauseFloatingButton playPauseButton;
+    private AudioControlView controlView;
     private DescriptionCardView cardDescription;
     private MuteSoloButton muteSoloButton;
     private RepeatButton repeatButton;
@@ -48,10 +48,6 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
     private TextView album;
     private TextView trackDescription;
     private SeekBar trackSeek;
-    private SeekBar volumeSeek;
-    private View holder;
-    private float fabTranslateX;
-    private float fabTranslateY;
 
     public static void startPlayerActivity(Activity activity, boolean isNewTrack, View coverView) {
         ActivityOptionsCompat options = ActivityOptionsCompat.
@@ -85,8 +81,6 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         trackDescription = (TextView) findViewById(R.id.trackDescription);
         genre = (TextView) findViewById(R.id.genre);
         album = (TextView) findViewById(R.id.album);
-
-        holder = findViewById(R.id.holderButton);
 
         findViewById(R.id.previousTrack).setOnClickListener(v -> previous());
 
@@ -123,13 +117,34 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
             PlaybackService.changeRepeatState(getApplicationContext(), repeat);
         });
 
-        playPauseButton =
-                (PlayPauseFloatingButton) findViewById(R.id.playPauseFAB);
-        playPauseButton.setOnClickListener(v -> {
-            if (audioPlayer.isPlaying) {
-                pause();
-            } else {
-                play();
+        final DisabledScrollView scrollView = (DisabledScrollView) findViewById(R.id.scrollView);
+
+        controlView = (AudioControlView) findViewById(R.id.audioControl);
+        controlView.setOnAudioControlListener(new AudioControlView.OnAudioControlListener() {
+            @Override
+            public void onPlayStateChanged() {
+                if (audioPlayer.isPlaying) {
+                    pause();
+                } else {
+                    play();
+                }
+            }
+
+            @Override
+            public void onVolumeStateChanged(int volume, boolean change) {
+                if (change) {
+                    audioPlayer.volume = volume;
+                    setVolumeLevel();
+                }
+                scrollView.setEnableScrolling(!change);
+            }
+
+            @Override
+            public void onSeekStateChanged(int seek, boolean change) {
+                if (change) {
+
+                }
+                scrollView.setEnableScrolling(!change);
             }
         });
 
@@ -154,27 +169,6 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         });
 
 
-        volumeSeek = (SeekBar) findViewById(R.id.seekVolume);
-        volumeSeek.setProgress(100);
-        volumeSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                audioPlayer.volume = progress;
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                setVolumeLevel();
-            }
-        });
-
-
         boolean isNewTrack = getIntent().getBooleanExtra(EXTRA_IS_NEW_TRACK, false);
         if (isNewTrack) {
             createPlayer();
@@ -182,9 +176,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         } else {
             if (!audioPlayer.isPlaying) {
                 setPauseValues();
-                playPauseButton.setPlay(audioPlayer.isPlaying);
-            } else {
-                translateFAB();
+                controlView.setPlay(audioPlayer.isPlaying);
             }
         }
 
@@ -195,15 +187,6 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         setMuteSolo();
 
         registerPlaybackBroadcastReceiver();
-    }
-
-    private void hideWithAnimation() {
-        playPauseButton.hide(new FloatingActionButton.OnVisibilityChangedListener() {
-            @Override
-            public void onHidden(FloatingActionButton fab) {
-                supportFinishAfterTransition();
-            }
-        });
     }
 
     @Override
@@ -218,31 +201,6 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         trackTimeCount.setText(Utils.getTimeFromMillisecondsString(audioPlayer.progress));
     }
 
-    private void translateFAB() {
-        if (fabTranslateX == 0 && fabTranslateY == 0) {
-            holder.getViewTreeObserver()
-                    .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-
-                        @Override
-                        public void onGlobalLayout() {
-
-                            int location[] = new int[2];
-                            holder.getLocationOnScreen(location);
-                            int viewX = location[0];
-                            int viewY = location[1];
-
-                            fabTranslateX = -(viewX / 2) - holder.getWidth();
-                            fabTranslateY = (viewY / 2);
-
-                            playPauseButton.translateToPosition(fabTranslateX, fabTranslateY);
-
-                            holder.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        }
-                    });
-        } else {
-            playPauseButton.translateToPosition(fabTranslateX, fabTranslateY);
-        }
-    }
 
     private void setBackdropImage() {
         BitmapHelper.loadAudioPlayerArtwork(this, audioPlayer, backdrop);
@@ -251,13 +209,11 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
     @Override
     public void play() {
         PlaybackService.startPlayback(getApplicationContext());
-        translateFAB();
     }
 
     @Override
     public void pause() {
         PlaybackService.stopPlayback(getApplicationContext());
-        playPauseButton.returnFromPosition();
     }
 
     @Override
@@ -303,7 +259,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
     }
 
     private void setVolumeLevel() {
-        volumeSeek.setProgress(audioPlayer.volume);
+        controlView.setVolumeValue(audioPlayer.volume);
         PlaybackService.volumePlayback(getApplicationContext(), audioPlayer.volume);
         if (audioPlayer.volume >= 60) {
             muteSoloButton.setHighSoloState();
@@ -336,22 +292,18 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
     }
 
     private void disableChangeVolume() {
-        volumeSeek.setEnabled(false);
+
     }
 
     private void enableChangeVolume() {
-        volumeSeek.setEnabled(true);
+
     }
+
 
     @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
-    }
-
-    @Override
-    public void onBackPressed() {
-        hideWithAnimation();
     }
 
     @Override
@@ -397,7 +349,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
                     break;
                 case PlaybackService.ACTION_PLAYBACK_PLAYING_STATE:
                     audioPlayer.isPlaying = intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_PLAYING, false);
-                    playPauseButton.setPlay(audioPlayer.isPlaying);
+                    controlView.setPlay(audioPlayer.isPlaying);
                     break;
                 case PlaybackService.ACTION_SONG_END:
                     cardDescription.next();
