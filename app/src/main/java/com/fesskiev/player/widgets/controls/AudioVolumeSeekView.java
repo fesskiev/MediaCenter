@@ -2,12 +2,13 @@ package com.fesskiev.player.widgets.controls;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.support.v4.content.ContextCompat;
-import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -31,8 +32,11 @@ public class AudioVolumeSeekView extends View {
     }
 
     private OnAudioVolumeSeekListener listener;
+    private Slider seekSlider;
+    private Slider volumeSlider;
     private Paint linePaint;
     private Paint progressPaint;
+    private Paint circleFillPaint;
     private Paint circlePaint;
     private RectF volumeRect;
     private RectF seekRect;
@@ -42,6 +46,7 @@ public class AudioVolumeSeekView extends View {
     private int height;
     private int radiusVolume;
     private int radiusSeek;
+
     private int lineRadius;
     private int markSize;
     private int circleStrokeWidth;
@@ -84,12 +89,15 @@ public class AudioVolumeSeekView extends View {
 
         a.recycle();
 
-        volumeStrokeWidth = (int) dipToPixels(context, 60);
-        seekStrokeWidth = (int) dipToPixels(context, 5);
+        seekSlider = new Slider(dipToPixels(context, 20), R.drawable.icon_time_control);
+        volumeSlider = new Slider(dipToPixels(context, 20), R.drawable.icon_volume_control);
+
+        volumeStrokeWidth = (int) dipToPixels(context, 80);
+        seekStrokeWidth = (int) dipToPixels(context, 25);
         radiusVolume = (int) dipToPixels(context, 80);
         radiusSeek = (int) dipToPixels(context, 135);
         lineRadius = (int) dipToPixels(context, 135);
-        circleStrokeWidth = (int) dipToPixels(context, 10);
+        circleStrokeWidth = (int) dipToPixels(context, 15);
         markSize = (int) dipToPixels(context, 50);
 
         linePaint = new Paint();
@@ -103,6 +111,12 @@ public class AudioVolumeSeekView extends View {
         circlePaint.setColor(circleColor);
         circlePaint.setAntiAlias(true);
         circlePaint.setStrokeWidth(circleStrokeWidth);
+
+        circleFillPaint = new Paint();
+        circleFillPaint.setStyle(Paint.Style.FILL);
+        circleFillPaint.setColor(progressColor);
+        circleFillPaint.setAntiAlias(true);
+        circleFillPaint.setStrokeWidth(circleStrokeWidth);
 
         progressPaint = new Paint();
         progressPaint.setStyle(Paint.Style.STROKE);
@@ -153,9 +167,13 @@ public class AudioVolumeSeekView extends View {
         int action = event.getAction() & MotionEvent.ACTION_MASK;
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                checkSeek = checkTouchSeek(event);
+                if (inCircle(event.getX(), event.getY(), seekSlider.x, seekSlider.y, seekSlider.radius)) {
+                    checkSeek = true;
+                }
                 if (enableChangeVolume) {
-                    checkVolume = checkTouchVolume(event);
+                    if (inCircle(event.getX(), event.getY(), volumeSlider.x, volumeSlider.y, volumeSlider.radius)) {
+                        checkVolume = true;
+                    }
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -164,7 +182,7 @@ public class AudioVolumeSeekView extends View {
                     return true;
                 }
                 if (checkVolume) {
-                    incrementTouchProgress(event);
+                    incrementVolumeProgress(event);
                     return true;
                 }
                 break;
@@ -184,19 +202,6 @@ public class AudioVolumeSeekView extends View {
         return true;
     }
 
-    private boolean checkTouchSeek(MotionEvent event) {
-        double dist = Math.sqrt(Math.pow(event.getX() - seekRect.centerX(), 2)
-                + Math.pow(event.getY() - seekRect.centerY(), 2));
-        return Math.abs(dist - radiusSeek) <= 150 &&
-                seekRect.contains(event.getX(), event.getY());
-    }
-
-    private boolean checkTouchVolume(MotionEvent event) {
-        double dist = Math.sqrt(Math.pow(event.getX() - volumeRect.centerX(), 2)
-                + Math.pow(event.getY() - volumeRect.centerY(), 2));
-        return Math.abs(dist - radiusVolume) <= 150 &&
-                volumeRect.contains(event.getX(), event.getY());
-    }
 
     private void incrementSeekProgress(MotionEvent event) {
         int angle = (int) ((Math.toDegrees(Math.atan2(event.getX() - 360.0,
@@ -212,10 +217,47 @@ public class AudioVolumeSeekView extends View {
         }
     }
 
-    private void incrementTouchProgress(MotionEvent event) {
+
+    private int checkTouchSector(int angle) {
+        if (angle >= 0 && angle < 44) {
+            return 0;
+        } else if (angle >= 44 && angle < 90) {
+            return 1;
+        } else if (angle >= 90 && angle < 135) {
+            return 2;
+        } else if (angle >= 135 && angle < 180) {
+            return 3;
+        } else if (angle >= 180 && angle < 225) {
+            return 4;
+        } else if (angle >= 225 && angle < 270) {
+            return 5;
+        } else if (angle >= 270 && angle < 315) {
+            return 6;
+        } else if (angle >= 315 && angle < 360) {
+            return 7;
+        }
+        return -1;
+    }
+
+    private int previousSector;
+
+    private boolean isEndTouch(int angle) {
+        int sector = checkTouchSector(angle);
+        if ((previousSector - sector) > 5) {
+            return true;
+        }
+        previousSector = sector;
+        return false;
+    }
+
+
+    private void incrementVolumeProgress(MotionEvent event) {
         int angle = (int) ((Math.toDegrees(Math.atan2(event.getX() - 360.0,
                 360.0 - event.getY())) + 360.0) % 360.0);
 
+        if (isEndTouch(angle)) {
+            return;
+        }
         progressVolume = angle;
         float scaleValue = angle * (100f / 360);
 
@@ -245,11 +287,34 @@ public class AudioVolumeSeekView extends View {
             canvas.drawLine(startX, startY, stopX, stopY, linePaint);
         }
 
+        /****************************************************************************/
+
         canvas.drawCircle(cx, cy, radiusVolume, circlePaint);
         canvas.drawArc(volumeRect, 270, progressVolume, false, progressPaint);
 
+        volumeSlider.x = (float) (cx + radiusVolume * Math.cos(Math.toRadians(270 + progressVolume)));
+        volumeSlider.y = (float) (cy + radiusVolume * Math.sin(Math.toRadians(270 + progressVolume)));
+
+        canvas.drawCircle(volumeSlider.x, volumeSlider.y, volumeSlider.radius, circleFillPaint);
+        canvas.drawBitmap(volumeSlider.bitmap, (volumeSlider.x - (volumeSlider.radius / 2)) - 10,
+                (volumeSlider.y - (volumeSlider.radius / 2)) - 10, null);
+
+        /****************************************************************************/
+
         canvas.drawCircle(cx, cy, radiusSeek, circlePaint);
         canvas.drawArc(seekRect, 270, progressSeek, false, progressPaint);
+
+        seekSlider.x = (float) (cx + radiusSeek * Math.cos(Math.toRadians(270 + progressSeek)));
+        seekSlider.y = (float) (cy + radiusSeek * Math.sin(Math.toRadians(270 + progressSeek)));
+
+        canvas.drawCircle(seekSlider.x, seekSlider.y, seekSlider.radius, circleFillPaint);
+        canvas.drawBitmap(seekSlider.bitmap, (seekSlider.x - (seekSlider.radius / 2)) - 10,
+                (seekSlider.y - (seekSlider.radius / 2)) - 10, null);
+
+    }
+
+    public boolean inCircle(float x, float y, float centerX, float centerY, float radius) {
+        return (float) Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2)) < radius;
 
     }
 
@@ -265,6 +330,20 @@ public class AudioVolumeSeekView extends View {
 
     public void setEnableChangeVolume(boolean enable) {
         enableChangeVolume = enable;
+    }
+
+
+    private class Slider {
+
+        Bitmap bitmap;
+        float radius;
+        float x;
+        float y;
+
+        public Slider(float radius, int res) {
+            this.radius = radius;
+            bitmap = BitmapFactory.decodeResource(getResources(), res);
+        }
     }
 
 }

@@ -143,7 +143,6 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
             @Override
             public void onSeekStateChanged(int seek, boolean change) {
                 if (change) {
-                    Log.d("test", "seek: " + seek);
                     PlaybackService.seekPlayback(getApplicationContext(), seek);
                 }
                 scrollView.setEnableScrolling(!change);
