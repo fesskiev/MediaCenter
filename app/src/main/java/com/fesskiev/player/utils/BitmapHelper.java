@@ -98,6 +98,15 @@ public class BitmapHelper {
                 into(into);
     }
 
+    public static void loadCircleURIBitmap(Context context, String uri, ImageView into) {
+        Glide.with(context.getApplicationContext()).
+                load(uri).
+                fitCenter().
+                transform(new CircleTransform(context.getApplicationContext())).
+                crossFade().
+                into(into);
+    }
+
 
     public static void loadNoCoverFolder(Context context, ImageView into) {
         Glide.with(context).

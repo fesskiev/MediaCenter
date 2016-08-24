@@ -43,6 +43,7 @@ public class AudioPlayer {
 
     public void setCurrentAudioFolderFiles(List<AudioFile> audioFiles) {
         this.currentAudioFolder.audioFiles = audioFiles;
+        this.position = 0;
         sendBroadcastChangeAudioFolder();
     }
 

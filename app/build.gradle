@@ -2,14 +2,14 @@ apply plugin: 'com.android.application'
 apply plugin: 'me.tatarka.retrolambda'
 
     android {
-        compileSdkVersion 23
+        compileSdkVersion 24
         buildToolsVersion "24.0.1"
 
 
         defaultConfig {
             applicationId = "com.fesskiev.player"
             minSdkVersion 21
-            targetSdkVersion 23
+            targetSdkVersion 24
             versionCode = 1
             versionName = "1.0.0"
             externalNativeBuild {
@@ -18,6 +18,10 @@ apply plugin: 'me.tatarka.retrolambda'
                             'x86', 'x86_64',
                             'mips', 'mips64'
                 }
+            }
+
+            jackOptions {
+                enabled false
             }
         }
 
@@ -48,7 +52,7 @@ apply plugin: 'me.tatarka.retrolambda'
     }
 
 ext {
-    supportLibVersion = '23.4.0'
+    supportLibVersion = '24.2.0'
 }
 
 dependencies {

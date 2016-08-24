@@ -164,7 +164,7 @@ public class GroupsFragment extends Fragment {
                 holder.screenName.setText(group.getScreenName());
                 holder.groupType.setText(group.getType());
 
-                BitmapHelper.loadURIBitmap(getActivity(), group.getPhotoMediumURL(), holder.coverGroup);
+                BitmapHelper.loadCircleURIBitmap(getActivity(), group.getPhotoMediumURL(), holder.coverGroup);
 
             }
         }

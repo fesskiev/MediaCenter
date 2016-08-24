@@ -162,7 +162,7 @@ public abstract class ViewPagerFragment extends Fragment {
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             Fragment fragment = (Fragment) super.instantiateItem(container, position);
-            registeredFragments.add(position, fragment);
+            registeredFragments.add(fragment);
 
             if (listener != null) {
                 listener.instantiateItem(position);

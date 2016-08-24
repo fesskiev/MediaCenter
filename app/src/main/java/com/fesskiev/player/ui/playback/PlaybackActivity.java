@@ -49,7 +49,7 @@ public class PlaybackActivity extends AnalyticsActivity {
     private View emptyTrack;
     private View peakView;
     private int height;
-    private boolean isShow;
+    private boolean isShow = true;
 
     @Override
     public void onPostCreate(Bundle savedInstanceState) {
@@ -106,14 +106,16 @@ public class PlaybackActivity extends AnalyticsActivity {
             bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
                 @Override
                 public void onStateChanged(View bottomSheet, int newState) {
-
+                    switch (newState){
+                        case BottomSheetBehavior.STATE_HIDDEN:
+                            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                            break;
+                    }
                 }
 
                 @Override
                 public void onSlide(View bottomSheet, float slideOffset) {
-                    if(slideOffset < 0) {
-                        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                    }
+
                 }
             });
 
@@ -126,6 +128,7 @@ public class PlaybackActivity extends AnalyticsActivity {
             peakView.post(() -> {
                 int marginTop = getResources().getDimensionPixelSize(R.dimen.bottom_sheet_margin_top);
                 height = peakView.getHeight() + marginTop;
+                bottomSheetBehavior.setPeekHeight(height);
             });
         }
 
@@ -200,7 +203,6 @@ public class PlaybackActivity extends AnalyticsActivity {
         if (!isShow) {
             bottomSheetBehavior.setPeekHeight(height);
             isShow = true;
-            peakView.requestLayout();
         }
     }
 
@@ -208,7 +210,6 @@ public class PlaybackActivity extends AnalyticsActivity {
         if (isShow) {
             bottomSheetBehavior.setPeekHeight(0);
             isShow = false;
-            peakView.requestLayout();
         }
     }
 

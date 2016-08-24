@@ -121,7 +121,7 @@ public class AudioNotificationManager extends BroadcastReceiver {
                 .setStyle(new NotificationCompat.MediaStyle()
                         .setShowActionsInCompactView(0, 1, 2))
                 .setColor(ContextCompat.getColor(context, R.color.primary))
-                .setSmallIcon(R.drawable.icon_music)
+                .setSmallIcon(R.drawable.icon_notification)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setContentIntent(createContentIntent())
                 .setContentTitle(artist)
