@@ -24,7 +24,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -53,6 +52,7 @@ import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.RxUtils;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.dialogs.FetchMediaContentDialog;
+import com.fesskiev.player.widgets.dialogs.PermissionDialog;
 import com.fesskiev.player.widgets.dialogs.effects.BassBoostDialog;
 import com.fesskiev.player.widgets.dialogs.effects.VirtualizerDialog;
 import com.vk.sdk.VKAccessToken;
@@ -68,12 +68,11 @@ import rx.schedulers.Schedulers;
 
 public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    private static final String TAG = MainActivity.class.getSimpleName();
-
     private static final int PERMISSION_REQ = 0;
 
     private Subscription subscription;
     private FetchMediaContentDialog mediaContentDialog;
+    private PermissionDialog permissionDialog;
     private NavigationView navigationViewEffects;
     private NavigationView navigationViewMain;
     private DrawerLayout drawer;
@@ -241,7 +240,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        Log.d(TAG, "onNewIntent");
 
     }
 
@@ -290,10 +288,12 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             case R.id.audio_content:
                 checkAudioContentItem();
                 addAudioFragment();
+                showPlayback();
                 break;
             case R.id.video_content:
                 checkVideoContentItem();
                 addVideoFragment();
+                hidePlayback();
                 break;
             case R.id.playlist:
                 startActivity(new Intent(this, PlayListActivity.class),
@@ -506,7 +506,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
     private void checkPermission() {
         if (!checkPermissions()) {
-            showPermissionSnackbar();
+            showPermissionDialog();
         } else {
             checkAppFirstStart();
             PlaybackService.startPlaybackService(this);
@@ -528,12 +528,12 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         }
         if (settingsManager.isFirstStartApp()) {
             BitmapHelper.saveDownloadFolderIcon(getApplicationContext());
-            addAudioFragment();
             FileSystemIntentService.startFetchMedia(getApplicationContext());
+            hidePlayback();
         } else {
-            addAudioFragment();
             FileObserverService.startFileObserverService(getApplicationContext());
         }
+        addAudioFragment();
     }
 
     private void addAudioFragment() {
@@ -594,13 +594,22 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         }
     }
 
-    private void showPermissionSnackbar() {
-        Utils.showCustomSnackbar(findViewById(R.id.content),
-                getApplicationContext(),
-                getString(R.string.permission_read_external_storage),
-                Snackbar.LENGTH_INDEFINITE)
-                .setAction(R.string.button_ok, view -> requestPermissions())
-                .show();
+    //TODO add cancel granted permission later
+    private void showPermissionDialog() {
+        permissionDialog = PermissionDialog.newInstance(MainActivity.this);
+        permissionDialog.setOnPermissionDialogListener(new PermissionDialog.OnPermissionDialogListener() {
+            @Override
+            public void onPermissionGranted() {
+                requestPermissions();
+            }
+
+            @Override
+            public void onPermissionCancel() {
+                permissionDialog.hide();
+                finish();
+            }
+        });
+        permissionDialog.show();
     }
 
     private void requestPermissions() {
@@ -618,6 +627,9 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         switch (requestCode) {
             case PERMISSION_REQ:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (permissionDialog != null) {
+                        permissionDialog.hide();
+                    }
                     checkAppFirstStart();
                     PlaybackService.startPlaybackService(this);
                 } else {
@@ -634,7 +646,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         if (!VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
             @Override
             public void onResult(VKAccessToken res) {
-                Log.d(TAG, "auth success: " + res.accessToken);
 
                 settingsManager.setAuthToken(res.accessToken);
                 settingsManager.setAuthSecret(res.secret);
@@ -647,7 +658,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
             @Override
             public void onError(VKError error) {
-                Log.d(TAG, "auth fail: " + error.errorMessage);
                 Utils.showCustomSnackbar(getCurrentFocus(),
                         getApplicationContext(),
                         getString(R.string.snackbar_vk_auth_error),
@@ -667,7 +677,9 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 .subscribe(userResponse -> {
                     setUserProfile(userResponse.getUser());
                     startActivity(new Intent(MainActivity.this, VkontakteActivity.class));
-                }, throwable -> {AppLog.ERROR(throwable.getMessage());});
+                }, throwable -> {
+                    AppLog.ERROR(throwable.getMessage());
+                });
     }
 
     private void setUserProfile(User user) {

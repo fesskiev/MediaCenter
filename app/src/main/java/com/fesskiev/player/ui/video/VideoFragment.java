@@ -12,6 +12,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -37,9 +38,9 @@ import com.fesskiev.player.widgets.recycleview.GridDividerDecoration;
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
-import rx.subscriptions.CompositeSubscription;
 
 
 public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -51,7 +52,7 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     private VideoFilesAdapter adapter;
     private CardView emptyAudioContent;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private CompositeSubscription subscriptions;
+    private Subscription subscription;
     private VideoPlayer videoPlayer;
 
     @Override
@@ -59,7 +60,6 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         videoPlayer = MediaApplication.getInstance().getVideoPlayer();
-        subscriptions = new CompositeSubscription();
     }
 
     @Override
@@ -87,6 +87,11 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         swipeRefreshLayout.setProgressViewOffset(false, 0,
                 (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         fetchVideoContent();
     }
 
@@ -99,24 +104,24 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     }
 
     public void fetchVideoContent() {
-        if (swipeRefreshLayout.isRefreshing()) {
-            swipeRefreshLayout.setRefreshing(false);
-        }
-        subscriptions.add(RxUtils.fromCallable(DatabaseHelper.getVideoFiles())
+        Log.d("test", "fetchVideoContent");
+        RxUtils.unsubscribe(subscription);
+        subscription = RxUtils.fromCallable(DatabaseHelper.getVideoFiles())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(videoFiles -> {
-                    if (videoFiles != null) {
-                        AppLog.INFO("onNext:video: " + videoFiles.size());
-                        if (!videoFiles.isEmpty()) {
-                            videoPlayer.videoFiles = videoFiles;
-                            adapter.refresh(videoFiles);
-                            hideEmptyContentCard();
-                        } else {
-                            showEmptyContentCard();
-                        }
+                    if (videoFiles != null && !videoFiles.isEmpty()) {
+                        videoPlayer.videoFiles = videoFiles;
+                        adapter.refresh(videoFiles);
+                        hideEmptyContentCard();
+                    } else {
+                        showEmptyContentCard();
                     }
-                }));
+                    AppLog.INFO("onNext:video: " + (videoFiles == null ? "null" : videoFiles.size()));
+                });
+        if (swipeRefreshLayout.isRefreshing()) {
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
     private void startExoPlayerActivity(VideoFile videoFile) {
@@ -132,11 +137,14 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         builder.setTitle(getString(R.string.dialog_refresh_video_title));
         builder.setMessage(R.string.dialog_refresh_video_message);
         builder.setPositiveButton(R.string.dialog_refresh_video_ok,
-                (dialog, which) -> subscriptions.add(RxUtils
-                        .fromCallable(DatabaseHelper.resetVideoContentDatabase())
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(aVoid -> FileSystemIntentService.startFetchVideo(getActivity()))));
+                (dialog, which) -> {
+                    RxUtils.unsubscribe(subscription);
+                    subscription = RxUtils
+                            .fromCallable(DatabaseHelper.resetVideoContentDatabase())
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(aVoid -> FileSystemIntentService.startFetchVideo(getActivity()));
+                       });
 
         builder.setNegativeButton(R.string.dialog_refresh_video_cancel,
                 (dialog, which) -> {
@@ -148,9 +156,9 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        RxUtils.unsubscribe(subscriptions);
+    public void onPause() {
+        super.onPause();
+        RxUtils.unsubscribe(subscription);
     }
 
 
@@ -295,6 +303,7 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         public void removeItem(int position) {
             videoFiles.remove(position);
             notifyItemRemoved(position);
+            notifyItemRangeChanged(position, getItemCount());
         }
     }
 }

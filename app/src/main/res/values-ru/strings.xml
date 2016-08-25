@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">MediaCenter</string>
 
-    <string name="permission_read_external_storage">Разрешить чтение файлов</string>
+    <string name="permission_read_external_storage">Для корректной работы приложения необходимы следующие разрешения: доступ к файловой системе, запись аудио</string>
     <string name="button_ok">Да</string>
 
     <string name="snack_exit_text">Выйти из приложения?</string>
@@ -88,6 +88,9 @@
     <string name="dialog_refresh_video_message">Выполнить полный поиск видео по разделам?</string>
     <string name="dialog_refresh_video_ok">Да</string>
     <string name="dialog_refresh_video_cancel">Нет</string>
+
+    <string name="dialog_permission_ok">ДА</string>
+    <string name="dialog_permission_cancel">НЕТ</string>
 
     <string name="popup_menu_delete">Удалить</string>
     <string name="popup_menu_add_playlist">В плейлист</string>

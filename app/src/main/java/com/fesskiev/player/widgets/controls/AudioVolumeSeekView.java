@@ -203,7 +203,7 @@ public class AudioVolumeSeekView extends View {
         progressSeek = angle;
         float scaleValue = angle * (100f / 360);
 
-        Log.d("test", "angle: " + angle + " x: " + dx + " y: " + dy);
+//        Log.d("test", "angle: " + angle + " x: " + dx + " y: " + dy);
 
         invalidate();
 
@@ -241,7 +241,7 @@ public class AudioVolumeSeekView extends View {
 
         float angle = (float) ((Math.toDegrees(Math.atan2(dx - 360.0, 360.0 - dy)) + 360.0) % 360.0);
 
-        Log.w("test", "volume progress: x: " + dx + " y: " + dy + " angle: " + angle);
+//        Log.w("test", "volume progress: x: " + dx + " y: " + dy + " angle: " + angle);
 
         float scaleValue = angle * (100f / 360);
 
@@ -290,11 +290,11 @@ public class AudioVolumeSeekView extends View {
         canvas.drawCircle(cx, cy, radiusSeek, circlePaint);
         canvas.drawArc(seekRect, 270, progressSeek, false, progressPaint);
 
-        seekSlider.x = (float) (cx + (radiusSeek * Math.cos(Math.toRadians(270f + progressSeek))));
-        seekSlider.y = (float) (cy + (radiusSeek * Math.sin(Math.toRadians(270f + progressSeek))));
+        seekSlider.x = (float) (cx + radiusSeek * Math.cos(Math.toRadians(270f + progressSeek)));
+        seekSlider.y = (float) (cy + radiusSeek * Math.sin(Math.toRadians(270f + progressSeek)));
 
 
-        Log.d("test", "draw volume x: " + volumeSlider.x + " y: " + volumeSlider.y);
+//        Log.d("test", "draw volume x: " + volumeSlider.x + " y: " + volumeSlider.y);
 
         canvas.drawCircle(seekSlider.x, seekSlider.y, seekSlider.radius, circleFillPaint);
         canvas.drawBitmap(seekSlider.bitmap, (seekSlider.x - (seekSlider.radius / 2)) - 10,

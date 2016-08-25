@@ -90,6 +90,9 @@
     <string name="dialog_refresh_video_ok">Yes</string>
     <string name="dialog_refresh_video_cancel">No</string>
 
+    <string name="dialog_permission_ok">YES</string>
+    <string name="dialog_permission_cancel">NO</string>
+
     <string name="popup_menu_delete">Remove</string>
     <string name="popup_menu_add_playlist">To playlist</string>
 

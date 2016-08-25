@@ -19,10 +19,7 @@
         android:layout_margin="@dimen/activity_horizontal_margin"
         android:visibility="gone"
         card_view:cardBackgroundColor="@android:color/white"
-        card_view:cardCornerRadius="4dp"
-        card_view:cardElevation="@dimen/card_view_elevation"
-        card_view:cardPreventCornerOverlap="false"
-        card_view:cardUseCompatPadding="false">
+        card_view:cardCornerRadius="4dp">
 
         <TextView
             style="@style/EmptyPlaylistTextAppearance"
