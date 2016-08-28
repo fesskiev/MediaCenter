@@ -9,7 +9,7 @@
     <!-- MODIFY_AUDIO_SETTINGS is needed to use audio effects such as environmental reverb -->
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name=".MediaApplication"
@@ -19,7 +19,6 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Player">
-
         <activity
             android:name=".ui.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -48,21 +47,39 @@
             android:launchMode="singleTop"
             android:parentActivityName=".ui.audio.tracklist.TrackListActivity"
             android:screenOrientation="portrait">
+
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.audio.tracklist.TrackListActivity" />
         </activity>
 
         <activity
-            android:name=".ui.video.player.VideoExoPlayerActivity"
-            android:theme="@style/Base.Theme.Player.VideoExoPlayer"
+            android:name=".ui.audio.player.AudioURIActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:parentActivityName=".ui.MainActivity">
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait">
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="audio/*" />
+            </intent-filter>
+
+        </activity>
+
+        <activity
+            android:name=".ui.video.player.VideoExoPlayerActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:parentActivityName=".ui.MainActivity"
+            android:theme="@style/Base.Theme.Player.VideoExoPlayer">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity" />
         </activity>
-
         <activity
             android:name=".ui.equalizer.EqualizerActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -118,27 +135,21 @@
                 android:value=".ui.MainActivity" />
         </activity>
 
-        <service
-            android:name=".services.FileSystemIntentService"
-            android:exported="false" />
-
-        <service
-            android:name=".services.PlaybackService"
-            android:exported="false" />
-
-        <service
-            android:name=".services.FileObserverService"
-            android:exported="false" />
-
-        <provider
-            android:name=".db.MediaCenterProvider"
-            android:authorities="@string/authority"
-            android:exported="false" />
-
         <activity
             android:name="com.vk.sdk.VKServiceActivity"
             android:label="ServiceActivity"
             android:theme="@style/VK.Transparent" />
+
+        <service
+            android:name=".services.FileSystemIntentService"
+            android:exported="false" />
+        <service
+            android:name=".services.PlaybackService"
+            android:exported="false" />
+        <service
+            android:name=".services.FileObserverService"
+            android:exported="false" />
+
 
     </application>
 

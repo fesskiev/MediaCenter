@@ -8,7 +8,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.fesskiev.player.MediaApplication;
-import com.fesskiev.player.db.DatabaseHelper;
+import com.fesskiev.player.db.MediaDataSource;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.VideoFile;
@@ -104,13 +104,15 @@ public class FileSystemIntentService extends IntentService {
     }
 
     private void checkAudioFolderService() {
+        MediaDataSource dataSource = MediaApplication.getInstance().getMediaDataSource();
         String folderId = null;
         File root = new File(CacheManager.CHECK_DOWNLOADS_FOLDER_PATH);
         File[] list = root.listFiles();
         for (File child : list) {
-            if (!DatabaseHelper.containAudioTrack(child.getAbsolutePath())) {
+
+            if (!dataSource.containAudioTrack(child.getAbsolutePath())) {
                 if (folderId == null) {
-                    folderId = DatabaseHelper.getDownloadFolderID();
+                    folderId = dataSource.getDownloadFolderID();
                 }
                 new Thread(new FetchDownloadAudioInfo(child, folderId)).start();
             }
@@ -226,7 +228,7 @@ public class FileSystemIntentService extends IntentService {
 
             VideoFile videoFile = new VideoFile(file);
             Log.w(TAG, "create video file!: " + file.getAbsolutePath());
-            DatabaseHelper.insertVideoFile(videoFile);
+            MediaDataSource.getInstance().insertVideoFile(videoFile);
             sendVideoFileBroadcast(videoFile.description);
         }
     }
@@ -270,7 +272,7 @@ public class FileSystemIntentService extends IntentService {
                         e.printStackTrace();
                     }
 
-                    DatabaseHelper.insertAudioFolder(audioFolder);
+                    MediaApplication.getInstance().getMediaDataSource().insertAudioFolder(audioFolder);
 
                 }
             }
@@ -291,9 +293,10 @@ public class FileSystemIntentService extends IntentService {
         public void run() {
 
             new AudioFile(getApplicationContext(), file,
-                    file1 -> {
-                        file1.id = id;
-                        DatabaseHelper.insertAudioFile(file1);
+                    audioFile -> {
+                        audioFile.id = id;
+                        MediaApplication.getInstance().getMediaDataSource().insertAudioFile(audioFile);
+
                     });
         }
     }
@@ -316,7 +319,7 @@ public class FileSystemIntentService extends IntentService {
             final AudioFile audioFile = new AudioFile(getApplicationContext(), file, audioFile1 -> {
                 audioFile1.id = audioFolder.id;
 
-                DatabaseHelper.insertAudioFile(audioFile1);
+                MediaApplication.getInstance().getMediaDataSource().insertAudioFile(audioFile1);
 
                 sendAudioTrackNameBroadcast(audioFile1.artist + "-" + audioFile1.title);
                 latch.countDown();

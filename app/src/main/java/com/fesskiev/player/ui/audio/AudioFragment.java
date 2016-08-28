@@ -11,8 +11,8 @@ import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.ui.ViewPagerFragment;
 import com.fesskiev.player.utils.BitmapHelper;
@@ -82,7 +82,7 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
         builder.setMessage(R.string.dialog_refresh_folders_message);
         builder.setPositiveButton(R.string.dialog_refresh_folders_ok,
                 (dialog, which) -> subscription = RxUtils
-                        .fromCallable(DatabaseHelper.resetAudioContentDatabase())
+                        .fromCallable(MediaApplication.getInstance().getMediaDataSource().resetAudioContentDatabase())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(aVoid ->{

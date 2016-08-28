@@ -22,7 +22,6 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
@@ -166,16 +165,13 @@ public class TrackListFragment extends Fragment {
 
         switch (contentType) {
             case GENRE:
-                audioFilesObservable = RxUtils.
-                        fromCallable(DatabaseHelper.getGenreTracks(contentValue));
+                audioFilesObservable = MediaApplication.getInstance().getMediaDataSource().getGenreTracksFromDB(contentValue);
                 break;
             case FOLDERS:
-                audioFilesObservable = RxUtils.
-                        fromCallable(DatabaseHelper.getFolderTracks(audioFolder.id));
+                audioFilesObservable = MediaApplication.getInstance().getMediaDataSource().getFolderTracksFromDB(audioFolder.id);
                 break;
             case ARTIST:
-                audioFilesObservable = RxUtils.
-                        fromCallable(DatabaseHelper.getArtistTracks(contentValue));
+                audioFilesObservable = MediaApplication.getInstance().getMediaDataSource().getArtistTracksFromDB(contentValue);
                 break;
         }
 
@@ -267,7 +263,7 @@ public class TrackListFragment extends Fragment {
             AudioFile audioFile = audioFiles.get(position);
             if (audioFile != null) {
                 audioFile.inPlayList = true;
-                DatabaseHelper.updateAudioFile(audioFile);
+                MediaApplication.getInstance().getMediaDataSource().updateAudioFile(audioFile);
                 Utils.showCustomSnackbar(getView(),
                         getContext().getApplicationContext(),
                         getString(R.string.add_to_playlist_text),
@@ -284,7 +280,7 @@ public class TrackListFragment extends Fragment {
                         AudioPlayerActivity.startPlayerActivity(getActivity(), false, cover);
                     } else {
                         audioFile.isSelected = true;
-                        DatabaseHelper.updateSelectedAudioFile(audioFile);
+                        MediaApplication.getInstance().getMediaDataSource().updateSelectedAudioFile(audioFile);
 
                         audioPlayer.setCurrentAudioFile(audioFile);
                         audioPlayer.position = position;
@@ -330,7 +326,9 @@ public class TrackListFragment extends Fragment {
                                     getString(R.string.shackbar_delete_file),
                                     Snackbar.LENGTH_LONG).show();
 
-                            DatabaseHelper.deleteAudioFile(audioFile.getFilePath());
+                            MediaApplication.getInstance()
+                                    .getMediaDataSource()
+                                    .deleteAudioFile(audioFile.getFilePath());
 
                             adapter.removeItem(position);
 

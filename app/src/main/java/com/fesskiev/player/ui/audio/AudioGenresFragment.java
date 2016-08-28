@@ -10,8 +10,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.model.Genre;
 import com.fesskiev.player.ui.GridFragment;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
@@ -22,7 +22,8 @@ import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.RxUtils;
 
 import java.lang.ref.WeakReference;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 
 import rx.Subscription;
@@ -40,7 +41,7 @@ public class AudioGenresFragment extends GridFragment implements AudioContent {
     @Override
     public void fetchAudioContent() {
 
-        subscription = RxUtils.fromCallable(DatabaseHelper.getGenres())
+        subscription = MediaApplication.getInstance().getMediaDataSource().getGenresFromDB()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(genres -> {
@@ -72,9 +73,10 @@ public class AudioGenresFragment extends GridFragment implements AudioContent {
     private static class AudioGenresAdapter extends RecyclerView.Adapter<AudioGenresAdapter.ViewHolder> {
 
         private WeakReference<Activity> activity;
-        private Object[] genres;
+        private List<Genre> genres;
 
         public AudioGenresAdapter(Activity activity) {
+            this.genres = new ArrayList<>();
             this.activity = new WeakReference<>(activity);
         }
 
@@ -90,7 +92,7 @@ public class AudioGenresFragment extends GridFragment implements AudioContent {
                 cover = (ImageView) v.findViewById(R.id.audioCover);
 
                 v.setOnClickListener(view -> {
-                    Genre genre = (Genre) genres[getAdapterPosition()];
+                    Genre genre = genres.get(getAdapterPosition());
                     if (genre != null) {
                         Activity act = activity.get();
                         if (act != null) {
@@ -114,7 +116,7 @@ public class AudioGenresFragment extends GridFragment implements AudioContent {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            Genre genre = (Genre) genres[position];
+            Genre genre = genres.get(position);
             if (genre != null) {
                 holder.genreName.setText(genre.name);
                 Activity act = activity.get();
@@ -132,13 +134,14 @@ public class AudioGenresFragment extends GridFragment implements AudioContent {
         @Override
         public int getItemCount() {
             if (genres != null) {
-                return genres.length;
+                return genres.size();
             }
             return 0;
         }
 
-        public void refresh(Set<Genre> receiveGenres) {
-            genres = receiveGenres.toArray();
+        public void refresh(List<Genre> receiveGenres) {
+            genres.clear();
+            genres.addAll(receiveGenres);
             notifyDataSetChanged();
         }
     }

@@ -1,10 +1,10 @@
 package com.fesskiev.player.utils.fileobserver;
 
 
-import android.content.Context;
 import android.os.FileObserver;
 import android.util.Log;
 
+import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.utils.CacheManager;
 
@@ -17,14 +17,12 @@ public class RecursiveFileObserver extends FileObserver {
 
     private static final String TAG = RecursiveFileObserver.class.getName();
 
-    private Context context;
     private List<SingleFileObserver> observers;
     private String path;
     private int mask;
 
-    public RecursiveFileObserver(Context context, String path) {
+    public RecursiveFileObserver(String path) {
         this(path, DELETE | CREATE | DELETE_SELF);
-        this.context = context;
     }
 
     public RecursiveFileObserver(String path, int mask) {
@@ -82,7 +80,9 @@ public class RecursiveFileObserver extends FileObserver {
             case FileObserver.CREATE:
                 Log.d(TAG, "event create: " + path);
                 if (CacheManager.CHECK_DOWNLOADS_FOLDER_PATH.equals(path)) {
-                    FileSystemIntentService.startCheckDownloadFolderService(context);
+                    FileSystemIntentService
+                            .startCheckDownloadFolderService(MediaApplication.getInstance()
+                                    .getApplicationContext());
                 }
                 break;
             case FileObserver.DELETE:

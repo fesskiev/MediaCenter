@@ -12,7 +12,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,7 +22,6 @@ import android.widget.PopupMenu;
 import com.bumptech.glide.Glide;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.model.VideoFile;
 import com.fesskiev.player.model.VideoPlayer;
 import com.fesskiev.player.services.FileSystemIntentService;
@@ -104,9 +102,8 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     }
 
     public void fetchVideoContent() {
-        Log.d("test", "fetchVideoContent");
         RxUtils.unsubscribe(subscription);
-        subscription = RxUtils.fromCallable(DatabaseHelper.getVideoFiles())
+        subscription = MediaApplication.getInstance().getMediaDataSource().getVideoFilesFromDB()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(videoFiles -> {
@@ -140,11 +137,11 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 (dialog, which) -> {
                     RxUtils.unsubscribe(subscription);
                     subscription = RxUtils
-                            .fromCallable(DatabaseHelper.resetVideoContentDatabase())
+                            .fromCallable(MediaApplication.getInstance().getMediaDataSource().resetVideoContentDatabase())
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(aVoid -> FileSystemIntentService.startFetchVideo(getActivity()));
-                       });
+                });
 
         builder.setNegativeButton(R.string.dialog_refresh_video_cancel,
                 (dialog, which) -> {
@@ -241,7 +238,9 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                                         getString(R.string.shackbar_delete_file),
                                         Snackbar.LENGTH_LONG).show();
 
-                                DatabaseHelper.deleteVideoFile(videoFile.getFilePath());
+                                MediaApplication.getInstance()
+                                        .getMediaDataSource()
+                                        .deleteVideoFile(videoFile.getFilePath());
 
                                 adapter.removeItem(position);
 
@@ -257,7 +256,7 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             VideoFile videoFile = videoPlayer.videoFiles.get(position);
             if (videoFile != null) {
                 videoFile.inPlayList = true;
-                DatabaseHelper.updateVideoFile(videoFile);
+                MediaApplication.getInstance().getMediaDataSource().updateVideoFile(videoFile);
                 Utils.showCustomSnackbar(getView(),
                         getContext().getApplicationContext(),
                         getString(R.string.add_to_playlist_text),

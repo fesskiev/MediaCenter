@@ -20,14 +20,16 @@ import android.widget.TextView;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.analytics.AnalyticsActivity;
-import com.fesskiev.player.db.DatabaseHelper;
+import com.fesskiev.player.db.MediaDataSource;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.player.utils.AppLog;
+import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.BitmapHelper;
+import com.fesskiev.player.utils.RxUtils;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
@@ -35,8 +37,15 @@ import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+
 public class PlaybackActivity extends AnalyticsActivity {
 
+    private Subscription subscription;
     private AudioPlayer audioPlayer;
     private BottomSheetBehavior bottomSheetBehavior;
     private TrackListAdapter adapter;
@@ -78,7 +87,7 @@ public class PlaybackActivity extends AnalyticsActivity {
                         if (audioFile != null) {
                             audioPlayer.setCurrentAudioFile(audioFile);
                             audioFile.isSelected = true;
-                            DatabaseHelper.updateSelectedAudioFile(audioFile);
+                            MediaApplication.getInstance().getMediaDataSource().updateSelectedAudioFile(audioFile);
                             PlaybackService.createPlayer(PlaybackActivity.this, audioFile.getFilePath());
                             PlaybackService.startPlayback(PlaybackActivity.this);
                         }
@@ -106,7 +115,7 @@ public class PlaybackActivity extends AnalyticsActivity {
             bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
                 @Override
                 public void onStateChanged(View bottomSheet, int newState) {
-                    switch (newState){
+                    switch (newState) {
                         case BottomSheetBehavior.STATE_HIDDEN:
                             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
                             break;
@@ -134,34 +143,51 @@ public class PlaybackActivity extends AnalyticsActivity {
 
         registerPlaybackBroadcastReceiver();
 
-        fetchCurrentAudioFile();
-        fetchCurrentAudioFolder();
+
+        fetchSelectedFiles();
     }
 
-    private void fetchCurrentAudioFile() {
-        AudioFile audioFile = DatabaseHelper.getSelectedAudioFile();
-        if (audioFile != null) {
-            audioPlayer.setCurrentAudioFile(audioFile);
-            PlaybackService.createPlayer(getApplicationContext(),
-                    audioPlayer.currentAudioFile.getFilePath());
-        } else {
-            showEmptyTrackCard();
+
+    private void fetchSelectedFiles() {
+        MediaDataSource dataSource = MediaApplication.getInstance().getMediaDataSource();
+        if (dataSource != null) {
+            subscription = Observable.zip(
+                    dataSource.getSelectedAudioFolder()
+                            .observeOn(AndroidSchedulers.mainThread()),
+                    dataSource.getSelectedAudioFile()
+                            .observeOn(AndroidSchedulers.mainThread()),
+                    (audioFolder, audioFile) -> {
+                        if (audioFolder != null) {
+                            audioPlayer.currentAudioFolder = audioFolder;
+                        } else {
+                            showEmptyFolderCard();
+                        }
+                        if (audioFile != null) {
+                            audioPlayer.setCurrentAudioFile(audioFile);
+                            PlaybackService.createPlayer(getApplicationContext(), audioFile.getFilePath());
+                        } else {
+                            showEmptyTrackCard();
+                        }
+                        return audioFolder;
+                    })
+                    .flatMap(audioFolder -> {
+                        if (audioFolder != null) {
+                            return dataSource.getSelectedFolderAudioFiles(audioFolder);
+                        }
+                        return null;
+                    })
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnNext(audioFiles -> {
+
+                        if (audioFiles != null && !audioFiles.isEmpty()) {
+                            audioPlayer.setCurrentAudioFolderFiles(audioFiles);
+                        } else {
+                            showEmptyTrackCard();
+                        }
+                    }).subscribe();
         }
     }
 
-    private void fetchCurrentAudioFolder() {
-        AudioFolder audioFolder = DatabaseHelper.getSelectedAudioFolder();
-        if (audioFolder != null) {
-            audioPlayer.currentAudioFolder = audioFolder;
-            List<AudioFile> audioFiles =
-                    DatabaseHelper.getSelectedFolderAudioFiles(audioFolder);
-            if (audioFiles != null) {
-                audioPlayer.setCurrentAudioFolderFiles(audioFiles);
-            }
-        } else {
-            showEmptyFolderCard();
-        }
-    }
 
     @Override
     public String getActivityName() {
@@ -218,6 +244,7 @@ public class PlaybackActivity extends AnalyticsActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterPlaybackBroadcastReceiver();
+        RxUtils.unsubscribe(subscription);
     }
 
     private void registerPlaybackBroadcastReceiver() {
@@ -264,7 +291,7 @@ public class PlaybackActivity extends AnalyticsActivity {
                     adapter.notifyDataSetChanged();
                     break;
                 case PlaybackService.ACTION_SONG_END:
-                    AppLog.INFO( "action song end");
+                    AppLog.INFO("action song end");
                     audioPlayer.next();
                     PlaybackService.createPlayer(getApplicationContext(),
                             audioPlayer.currentAudioFile.getFilePath());
@@ -281,13 +308,13 @@ public class PlaybackActivity extends AnalyticsActivity {
                     }
                     break;
                 case AudioPlayer.ACTION_CHANGE_CURRENT_AUDIO_FILE:
-                    AppLog.INFO( "change current audio file");
+                    AppLog.INFO("change current audio file");
                     setMusicFileInfo(audioPlayer.currentAudioFile);
                     adapter.notifyDataSetChanged();
                     hideEmptyTrackCard();
                     break;
                 case AudioPlayer.ACTION_CHANGE_CURRENT_AUDIO_FOLDER:
-                    AppLog.INFO( "change current audio folder");
+                    AppLog.INFO("change current audio folder");
                     setMusicFolderInfo();
                     hideEmptyFolderCard();
                     break;

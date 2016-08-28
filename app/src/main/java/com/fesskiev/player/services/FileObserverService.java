@@ -30,7 +30,7 @@ public class FileObserverService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "create FileObserverService");
-        folderFileObserver = new FolderFileObserver(getApplicationContext());
+        folderFileObserver = new FolderFileObserver();
     }
 
     @Override

@@ -15,11 +15,12 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.db.DatabaseHelper;
+import com.fesskiev.player.db.MediaDataSource;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.MediaFile;
 import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
+import com.fesskiev.player.utils.AppLog;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.RxUtils;
 import com.fesskiev.player.utils.Utils;
@@ -65,7 +66,7 @@ public class PlayListFragment extends Fragment {
 
             showEmptyCardPlaylist();
 
-            DatabaseHelper.clearPlaylist();
+            MediaApplication.getInstance().getMediaDataSource().clearPlaylist();
             adapter.clearAdapter();
         });
 
@@ -73,11 +74,13 @@ public class PlayListFragment extends Fragment {
     }
 
     private void fetchPLayListFiles() {
+        MediaDataSource dataSource = MediaApplication.getInstance().getMediaDataSource();
         subscription = Observable.concat(
-                RxUtils.fromCallable(DatabaseHelper.getAudioFilesPlaylist()),
-                RxUtils.fromCallable(DatabaseHelper.getVideoFilesPlaylist()))
+                dataSource.getAudioFilePlaylistFromDB(),
+                dataSource.getVideoFilePlaylistFromDB())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(mediaFiles -> {
+                    AppLog.DEBUG("size: " + mediaFiles.size());
                     if (!mediaFiles.isEmpty()) {
                         adapter.refreshAdapter(mediaFiles);
                         hideEmptyCardPlaylist();

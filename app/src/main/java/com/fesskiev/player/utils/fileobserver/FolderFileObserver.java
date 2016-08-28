@@ -1,46 +1,44 @@
 package com.fesskiev.player.utils.fileobserver;
 
 
-import android.content.Context;
-
-import com.fesskiev.player.db.DatabaseHelper;
+import com.fesskiev.player.MediaApplication;
+import com.fesskiev.player.utils.RxUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.Subscription;
+
 public class FolderFileObserver {
 
-    private Context context;
+    private Subscription subscription;
     private static List<RecursiveFileObserver> recursiveFileObservers;
 
-    public FolderFileObserver(Context context) {
-        this.context = context;
+    public FolderFileObserver() {
         recursiveFileObservers = new ArrayList<>();
 
-        new Thread(new FolderObserver()).start();
+        subscription = MediaApplication
+                .getInstance()
+                .getMediaDataSource()
+                .getFoldersPath()
+                .subscribe(paths -> {
+                    RxUtils.RxLog("create folder observer!");
+                    if (paths != null) {
+                        for (String path : paths) {
+                            RecursiveFileObserver fileObserver = new RecursiveFileObserver(path);
+                            fileObserver.startWatching();
+                            recursiveFileObservers.add(fileObserver);
+                        }
+                    }
+                });
     }
 
-
-    private class FolderObserver implements Runnable {
-
-        @Override
-        public void run() {
-
-            List<String> paths = DatabaseHelper.getFoldersPath();
-            if(paths != null) {
-                for (String path : paths) {
-                    RecursiveFileObserver fileObserver = new RecursiveFileObserver(context, path);
-                    fileObserver.startWatching();
-                    recursiveFileObservers.add(fileObserver);
-                }
-            }
-        }
-    }
 
     public void stopWatching() {
         for (RecursiveFileObserver recursiveFileObserver : recursiveFileObservers) {
             recursiveFileObserver.stopWatching();
         }
         recursiveFileObservers = null;
+        RxUtils.unsubscribe(subscription);
     }
 }

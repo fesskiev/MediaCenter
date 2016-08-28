@@ -10,8 +10,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.model.Artist;
 import com.fesskiev.player.ui.GridFragment;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
@@ -22,7 +22,8 @@ import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.RxUtils;
 
 import java.lang.ref.WeakReference;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -39,11 +40,11 @@ public class AudioArtistFragment extends GridFragment implements AudioContent {
 
     @Override
     public void fetchAudioContent() {
-        subscription = RxUtils.fromCallable(DatabaseHelper.getArtists())
+        subscription = MediaApplication.getInstance().getMediaDataSource().getArtistsFromDB()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(artists -> {
-                    if(artists!= null) {
+                    if (artists != null) {
                         AppLog.INFO("onNext:artists: " + artists.size());
                         if (!artists.isEmpty()) {
                             ((AudioArtistsAdapter) adapter).refresh(artists);
@@ -69,9 +70,10 @@ public class AudioArtistFragment extends GridFragment implements AudioContent {
     private static class AudioArtistsAdapter extends RecyclerView.Adapter<AudioArtistsAdapter.ViewHolder> {
 
         private WeakReference<Activity> activity;
-        private Object[] artists;
+        private List<Artist> artists;
 
         public AudioArtistsAdapter(Activity activity) {
+            this.artists = new ArrayList<>();
             this.activity = new WeakReference<>(activity);
         }
 
@@ -87,7 +89,7 @@ public class AudioArtistFragment extends GridFragment implements AudioContent {
                 cover = (ImageView) v.findViewById(R.id.audioCover);
 
                 v.setOnClickListener(view -> {
-                    Artist artist = (Artist) artists[getAdapterPosition()];
+                    Artist artist = artists.get(getAdapterPosition());
                     if (artist != null) {
                         Activity act = activity.get();
                         if (act != null) {
@@ -111,7 +113,7 @@ public class AudioArtistFragment extends GridFragment implements AudioContent {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            Artist artist = (Artist) artists[position];
+            Artist artist = artists.get(position);
             if (artist != null) {
                 holder.genreName.setText(artist.name);
 
@@ -130,13 +132,14 @@ public class AudioArtistFragment extends GridFragment implements AudioContent {
         @Override
         public int getItemCount() {
             if (artists != null) {
-                return artists.length;
+                return artists.size();
             }
             return 0;
         }
 
-        public void refresh(Set<Artist> receiveArtists) {
-            artists = receiveArtists.toArray();
+        public void refresh(List<Artist> receiveArtists) {
+            artists.clear();
+            artists.addAll(receiveArtists);
             notifyDataSetChanged();
         }
     }

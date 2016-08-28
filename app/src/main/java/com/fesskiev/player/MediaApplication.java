@@ -2,10 +2,11 @@ package com.fesskiev.player;
 
 import android.app.Application;
 import android.content.ComponentCallbacks2;
-import android.util.Log;
 
+import com.fesskiev.player.db.MediaDataSource;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.model.VideoPlayer;
+import com.fesskiev.player.utils.AppLog;
 import com.flurry.android.FlurryAgent;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKAccessTokenTracker;
@@ -13,23 +14,19 @@ import com.vk.sdk.VKSdk;
 
 public class MediaApplication extends Application {
 
-    private static final String TAG = MediaApplication.class.getSimpleName();
 
-    public static synchronized MediaApplication getInstance() {
-        return application;
-    }
-
-    private static MediaApplication application;
+    private static MediaApplication INSTANCE;
     private AudioPlayer audioPlayer;
     private VideoPlayer videoPlayer;
+    private MediaDataSource mediaDataSource;
 
     private VKAccessTokenTracker vkAccessTokenTracker = new VKAccessTokenTracker() {
         @Override
         public void onVKAccessTokenChanged(VKAccessToken oldToken, VKAccessToken newToken) {
             if (newToken == null) {
-                Log.e(MediaApplication.class.getName(), "VK TOKEN INVALID");
+                AppLog.INFO("VK TOKEN INVALID");
             } else {
-                Log.e(MediaApplication.class.getName(), "VK TOKEN VALID");
+                AppLog.INFO("VK TOKEN VALID");
             }
         }
     };
@@ -42,16 +39,21 @@ public class MediaApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        application = this;
+        INSTANCE = this;
 
-        createFlurryAgent();
+        mediaDataSource = MediaDataSource.getInstance();
 
-        audioPlayer = new AudioPlayer(getApplicationContext());
+        audioPlayer = new AudioPlayer();
         videoPlayer = new VideoPlayer();
 
         vkAccessTokenTracker.startTracking();
         VKSdk.initialize(this);
 
+        createFlurryAgent();
+    }
+
+    public static synchronized MediaApplication getInstance() {
+        return INSTANCE;
     }
 
     private void createFlurryAgent() {
@@ -65,25 +67,25 @@ public class MediaApplication extends Application {
         super.onTrimMemory(level);
         switch (level) {
             case ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN:
-                Log.e(TAG, "TRIM_MEMORY_UI_HIDDEN");
+                AppLog.INFO("TRIM_MEMORY_UI_HIDDEN");
                 break;
             case ComponentCallbacks2.TRIM_MEMORY_BACKGROUND:
-                Log.e(TAG, "TRIM_MEMORY_BACKGROUND");
+                AppLog.INFO("TRIM_MEMORY_BACKGROUND");
                 break;
             case ComponentCallbacks2.TRIM_MEMORY_MODERATE:
-                Log.e(TAG, "TRIM_MEMORY_MODERATE");
+                AppLog.INFO("TRIM_MEMORY_MODERATE");
                 break;
             case ComponentCallbacks2.TRIM_MEMORY_RUNNING_MODERATE:
-                Log.e(TAG, "TRIM_MEMORY_RUNNING_MODERATE");
+                AppLog.INFO("TRIM_MEMORY_RUNNING_MODERATE");
                 break;
             case ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW:
-                Log.e(TAG, "TRIM_MEMORY_RUNNING_LOW");
+                AppLog.INFO("TRIM_MEMORY_RUNNING_LOW");
                 break;
             case ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL:
-                Log.e(TAG, "TRIM_MEMORY_RUNNING_CRITICAL");
+                AppLog.INFO("TRIM_MEMORY_RUNNING_CRITICAL");
                 break;
             case ComponentCallbacks2.TRIM_MEMORY_COMPLETE:
-                Log.e(TAG, "TRIM_MEMORY_COMPLETE");
+                AppLog.INFO("TRIM_MEMORY_COMPLETE");
                 break;
         }
     }
@@ -96,4 +98,7 @@ public class MediaApplication extends Application {
         return videoPlayer;
     }
 
+    public MediaDataSource getMediaDataSource() {
+        return mediaDataSource;
+    }
 }

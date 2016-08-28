@@ -14,7 +14,6 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.ui.GridFragment;
@@ -66,7 +65,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
 
     @Override
     public void fetchAudioContent() {
-        subscription = RxUtils.fromCallable(DatabaseHelper.getAudioFolders())
+        subscription = MediaApplication.getInstance().getMediaDataSource().getAudioFoldersFromDB()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(audioFolders -> {
@@ -123,7 +122,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                     if (audioFolder != null) {
                         audioPlayer.currentAudioFolder = audioFolder;
                         audioPlayer.currentAudioFolder.isSelected = true;
-                        DatabaseHelper.updateSelectedAudioFolder(audioFolder);
+                        MediaApplication.getInstance().getMediaDataSource().updateSelectedAudioFolder(audioFolder);
 
                         Activity act = activity.get();
                         if (act != null) {
@@ -153,7 +152,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
             AudioFolder audioFolder = audioFolders.get(position);
             if (audioFolder != null) {
                 audioFolder.index = position;
-                DatabaseHelper.updateAudioFolderIndex(audioFolder);
+                MediaApplication.getInstance().getMediaDataSource().updateAudioFolderIndex(audioFolder);
             }
         }
 

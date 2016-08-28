@@ -5,7 +5,7 @@ import android.database.Cursor;
 import android.text.TextUtils;
 
 import com.fesskiev.player.R;
-import com.fesskiev.player.db.MediaCenterProvider;
+import com.fesskiev.player.db.MediaDatabaseHelper;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.CacheManager;
 import com.fesskiev.player.utils.Utils;
@@ -54,6 +54,10 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
     public boolean isSelected;
     private OnAudioTagListener listener;
 
+    public AudioFile() {
+        fillEmptyFields();
+    }
+
     public AudioFile(Context context, File filePath, OnAudioTagListener listener) {
         this.context = context;
         this.filePath = filePath;
@@ -64,19 +68,19 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
 
     public AudioFile(Cursor cursor) {
 
-        id = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.ID));
-        filePath = new File(cursor.getString(cursor.getColumnIndex(MediaCenterProvider.TRACK_PATH)));
-        artist = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.TRACK_ARTIST));
-        title = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.TRACK_TITLE));
-        album = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.TRACK_ALBUM));
-        genre = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.TRACK_GENRE));
-        bitrate = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.TRACK_BITRATE));
-        sampleRate = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.TRACK_SAMPLE_RATE));
-        artworkPath = cursor.getString(cursor.getColumnIndex(MediaCenterProvider.TRACK_COVER));
-        trackNumber = cursor.getInt(cursor.getColumnIndex(MediaCenterProvider.TRACK_NUMBER));
-        inPlayList = cursor.getInt(cursor.getColumnIndex(MediaCenterProvider.TRACK_IN_PLAY_LIST)) == 1;
-        isSelected = cursor.getInt(cursor.getColumnIndex(MediaCenterProvider.TRACK_SELECTED)) == 1;
-        length = cursor.getInt(cursor.getColumnIndex(MediaCenterProvider.TRACK_LENGTH));
+        id = cursor.getString(cursor.getColumnIndex(MediaDatabaseHelper.ID));
+        filePath = new File(cursor.getString(cursor.getColumnIndex(MediaDatabaseHelper.TRACK_PATH)));
+        artist = cursor.getString(cursor.getColumnIndex(MediaDatabaseHelper.TRACK_ARTIST));
+        title = cursor.getString(cursor.getColumnIndex(MediaDatabaseHelper.TRACK_TITLE));
+        album = cursor.getString(cursor.getColumnIndex(MediaDatabaseHelper.TRACK_ALBUM));
+        genre = cursor.getString(cursor.getColumnIndex(MediaDatabaseHelper.TRACK_GENRE));
+        bitrate = cursor.getString(cursor.getColumnIndex(MediaDatabaseHelper.TRACK_BITRATE));
+        sampleRate = cursor.getString(cursor.getColumnIndex(MediaDatabaseHelper.TRACK_SAMPLE_RATE));
+        artworkPath = cursor.getString(cursor.getColumnIndex(MediaDatabaseHelper.TRACK_COVER));
+        trackNumber = cursor.getInt(cursor.getColumnIndex(MediaDatabaseHelper.TRACK_NUMBER));
+        inPlayList = cursor.getInt(cursor.getColumnIndex(MediaDatabaseHelper.TRACK_IN_PLAY_LIST)) == 1;
+        isSelected = cursor.getInt(cursor.getColumnIndex(MediaDatabaseHelper.TRACK_SELECTED)) == 1;
+        length = cursor.getInt(cursor.getColumnIndex(MediaDatabaseHelper.TRACK_LENGTH));
 
     }
 

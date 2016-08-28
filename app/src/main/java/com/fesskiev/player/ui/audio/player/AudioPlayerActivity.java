@@ -9,10 +9,8 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
@@ -22,6 +20,7 @@ import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.playback.Playable;
+import com.fesskiev.player.utils.AppLog;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.buttons.MuteSoloButton;
@@ -29,6 +28,7 @@ import com.fesskiev.player.widgets.buttons.RepeatButton;
 import com.fesskiev.player.widgets.cards.DescriptionCardView;
 import com.fesskiev.player.widgets.controls.AudioControlView;
 import com.fesskiev.player.widgets.utils.DisabledScrollView;
+
 
 public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
 
@@ -70,6 +70,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
             }
         }
 
+
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
 
         backdrop = (ImageView) findViewById(R.id.backdrop);
@@ -84,7 +85,6 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         volumeLevel = (TextView) findViewById(R.id.volumeLevel);
 
         findViewById(R.id.previousTrack).setOnClickListener(v -> previous());
-
         findViewById(R.id.nextTrack).setOnClickListener(v -> next());
 
         cardDescription = (DescriptionCardView) findViewById(R.id.cardDescription);
@@ -149,24 +149,39 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
             }
         });
 
-        boolean isNewTrack = getIntent().getBooleanExtra(EXTRA_IS_NEW_TRACK, false);
-        if (isNewTrack) {
-            createPlayer();
-            play();
-        } else {
-            if (!audioPlayer.isPlaying) {
-                setPauseValues();
-                controlView.setPlay(audioPlayer.isPlaying);
+
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Intent intent = getIntent();
+        if (intent.hasExtra(EXTRA_IS_NEW_TRACK)) {
+            boolean isNewTrack = intent.getBooleanExtra(EXTRA_IS_NEW_TRACK, false);
+            if (isNewTrack) {
+                createPlayer();
+                play();
+            } else {
+                if (!audioPlayer.isPlaying) {
+                    setPauseValues();
+                    controlView.setPlay(audioPlayer.isPlaying);
+                }
             }
         }
 
-        setTrackInformation();
-        setVolumeLevel();
-        setBackdropImage();
-        setRepeat();
-        setMuteSolo();
-
+        setAudioTrackValues();
         registerPlaybackBroadcastReceiver();
+    }
+
+    protected void setAudioTrackValues() {
+        if (audioPlayer.currentAudioFile != null) {
+            setTrackInformation();
+            setVolumeLevel();
+            setBackdropImage();
+            setRepeat();
+            setMuteSolo();
+        }
     }
 
     @Override
@@ -295,7 +310,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
     }
 
 
-    private void registerPlaybackBroadcastReceiver() {
+    protected void registerPlaybackBroadcastReceiver() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(PlaybackService.ACTION_PLAYBACK_VALUES);
         filter.addAction(PlaybackService.ACTION_PLAYBACK_PLAYING_STATE);
@@ -304,7 +319,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         LocalBroadcastManager.getInstance(this).registerReceiver(playbackReceiver, filter);
     }
 
-    private void unregisterPlaybackBroadcastReceiver() {
+    protected void unregisterPlaybackBroadcastReceiver() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(playbackReceiver);
     }
 

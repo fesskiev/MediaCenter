@@ -11,8 +11,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 
+import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.db.DatabaseHelper;
 import com.fesskiev.player.model.AudioFile;
 import com.mpatric.mp3agic.ID3v2;
 import com.mpatric.mp3agic.ID3v24Tag;
@@ -94,7 +94,7 @@ public class EditTrackDialog extends AlertDialog implements View.OnClickListener
     }
 
     private void updateAudioFileDatabase(AudioFile audioFile) {
-        DatabaseHelper.updateAudioFile(audioFile);
+        MediaApplication.getInstance().getMediaDataSource().updateAudioFile(audioFile);
     }
 
     @Override

@@ -15,9 +15,13 @@
         <item name="switchStyle">@style/Custom.Widget.SwitchCompat</item>
         <item name="seekBarStyle">@style/Custom.Widget.SeekBarStyle</item>
         <item name="android:scrollbarThumbVertical">@android:color/transparent</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowContentTransitions">true</item>
-        <item name="android:windowAllowEnterTransitionOverlap">false</item>
-        <item name="android:windowAllowReturnTransitionOverlap">false</item>
+        <item name="android:windowAllowEnterTransitionOverlap">true</item>
+        <item name="android:windowAllowReturnTransitionOverlap">true</item>
+        <item name="android:windowSharedElementEnterTransition">@android:transition/move</item>
+        <item name="android:windowSharedElementExitTransition">@android:transition/move</item>
     </style>
 
     <style name="Base.Theme.Player.VideoExoPlayer">
@@ -265,6 +269,12 @@
         <item name="android:background">@color/primary_light</item>
     </style>
 
-
+    <style name="Edit.Button" parent="android:style/Widget.Material.Button">
+        <item name="android:background">@drawable/raised_button_background</item>
+        <item name="android:textColor">@color/primary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
 
 </resources>

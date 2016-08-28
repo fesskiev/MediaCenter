@@ -385,9 +385,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
     private void resetAudioPlayer() {
         AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-        audioPlayer.isPlaying = false;
-        audioPlayer.currentAudioFolder = null;
-        audioPlayer.currentAudioFile = null;
+        audioPlayer.resetAudioPlayer();
     }
 
 

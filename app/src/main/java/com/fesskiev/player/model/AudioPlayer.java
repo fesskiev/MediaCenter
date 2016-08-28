@@ -1,9 +1,10 @@
 package com.fesskiev.player.model;
 
 
-import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
+
+import com.fesskiev.player.MediaApplication;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,6 @@ public class AudioPlayer {
     public static final String ACTION_CHANGE_CURRENT_AUDIO_FILE
             = "com.fesskiev.player.ACTION_CHANGE_CURRENT_AUDIO_FILE";
 
-    private Context context;
     public List<AudioFolder> audioFolders;
     public AudioFolder currentAudioFolder;
     public AudioFile currentAudioFile;
@@ -28,8 +28,7 @@ public class AudioPlayer {
     public boolean mute;
     public boolean repeat;
 
-    public AudioPlayer(Context context) {
-        this.context = context.getApplicationContext();
+    public AudioPlayer() {
         this.audioFolders = new ArrayList<>();
         this.currentAudioFolder = new AudioFolder();
         this.volume = 100;
@@ -82,13 +81,13 @@ public class AudioPlayer {
     private void sendBroadcastChangeAudioFolder() {
         Intent intent = new Intent();
         intent.setAction(ACTION_CHANGE_CURRENT_AUDIO_FOLDER);
-        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+        LocalBroadcastManager.getInstance(MediaApplication.getInstance().getApplicationContext()).sendBroadcast(intent);
     }
 
     private void sendBroadcastChangeAudioFile() {
         Intent intent = new Intent();
         intent.setAction(ACTION_CHANGE_CURRENT_AUDIO_FILE);
-        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+        LocalBroadcastManager.getInstance(MediaApplication.getInstance().getApplicationContext()).sendBroadcast(intent);
     }
 
 
@@ -97,5 +96,11 @@ public class AudioPlayer {
             return false;
         }
         return currentAudioFile.equals(audioFile) && isPlaying;
+    }
+
+    public void resetAudioPlayer(){
+        isPlaying = false;
+        currentAudioFolder = null;
+        currentAudioFile = null;
     }
 }
