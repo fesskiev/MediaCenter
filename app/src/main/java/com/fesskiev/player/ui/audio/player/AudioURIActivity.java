@@ -44,6 +44,8 @@ public class AudioURIActivity extends AudioPlayerActivity {
                                 PlaybackService.startPlaybackService(getApplicationContext());
                                 PlaybackService.createPlayer(getApplicationContext(), audioFile.getFilePath());
                                 PlaybackService.startPlayback(getApplicationContext());
+
+                                RxUtils.unsubscribe(subscription);
                             }
                         });
 

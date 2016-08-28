@@ -29,6 +29,7 @@ public class FolderFileObserver {
                             fileObserver.startWatching();
                             recursiveFileObservers.add(fileObserver);
                         }
+                        RxUtils.unsubscribe(subscription);
                     }
                 });
     }
@@ -39,6 +40,5 @@ public class FolderFileObserver {
             recursiveFileObserver.stopWatching();
         }
         recursiveFileObservers = null;
-        RxUtils.unsubscribe(subscription);
     }
 }

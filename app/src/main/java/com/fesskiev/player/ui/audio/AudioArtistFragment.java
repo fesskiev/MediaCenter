@@ -52,6 +52,7 @@ public class AudioArtistFragment extends GridFragment implements AudioContent {
                         } else {
                             showEmptyContentCard();
                         }
+                        RxUtils.unsubscribe(subscription);
                     }
                 });
     }

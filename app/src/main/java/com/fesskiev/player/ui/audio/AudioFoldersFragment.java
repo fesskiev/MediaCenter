@@ -83,6 +83,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                             showEmptyContentCard();
                         }
                         checkNeedShowPlayback(audioFolders);
+                        RxUtils.unsubscribe(subscription);
                     }
                 });
     }

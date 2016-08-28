@@ -185,6 +185,7 @@ public class TrackListFragment extends Fragment {
                             audioPlayer.setCurrentAudioFolderFiles(audioFiles);
                             adapter.refreshAdapter(audioFiles);
                         }
+                        RxUtils.unsubscribe(subscription);
                     });
         }
     }

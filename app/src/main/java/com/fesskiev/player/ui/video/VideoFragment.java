@@ -115,6 +115,7 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                         showEmptyContentCard();
                     }
                     AppLog.INFO("onNext:video: " + (videoFiles == null ? "null" : videoFiles.size()));
+                    RxUtils.unsubscribe(subscription);
                 });
         if (swipeRefreshLayout.isRefreshing()) {
             swipeRefreshLayout.setRefreshing(false);

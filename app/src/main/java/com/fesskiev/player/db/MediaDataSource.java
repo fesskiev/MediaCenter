@@ -13,6 +13,7 @@ import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.Genre;
 import com.fesskiev.player.model.MediaFile;
 import com.fesskiev.player.model.VideoFile;
+import com.fesskiev.player.utils.AppLog;
 import com.fesskiev.player.utils.CacheManager;
 import com.squareup.sqlbrite.BriteDatabase;
 import com.squareup.sqlbrite.SqlBrite;
@@ -123,7 +124,7 @@ public class MediaDataSource {
 
         String sql = MediaDatabaseHelper.FOLDER_PATH + "=" + "'" + audioFolder.folderPath + "'";
 
-        briteDatabase.update(MediaDatabaseHelper.AUDIO_FOLDERS_TABLE_NAME, values, sql, null);
+        briteDatabase.update(MediaDatabaseHelper.AUDIO_FOLDERS_TABLE_NAME, values, sql);
     }
 
     public void updateVideoFile(VideoFile videoFile) {
@@ -174,10 +175,11 @@ public class MediaDataSource {
 
     public boolean containAudioTrack(String path) {
 
-        String sql = String.format("SELECT * FROM %s WHERE %s", MediaDatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
+        String sql = String.format("SELECT * FROM %s WHERE %s",
+                MediaDatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
                 MediaDatabaseHelper.TRACK_PATH + "=" + "'" + path + "'");
 
-        Cursor cursor = briteDatabase.query(MediaDatabaseHelper.AUDIO_TRACKS_TABLE_NAME, sql);
+        Cursor cursor = briteDatabase.query(sql);
 
         boolean contain = cursor.getCount() > 0;
         cursor.close();
@@ -192,7 +194,7 @@ public class MediaDataSource {
                 MediaDatabaseHelper.AUDIO_FOLDERS_TABLE_NAME,
                 MediaDatabaseHelper.FOLDER_PATH + "=" + "'" + CacheManager.CHECK_DOWNLOADS_FOLDER_PATH + "'");
 
-        Cursor cursor = briteDatabase.query(MediaDatabaseHelper.AUDIO_FOLDERS_TABLE_NAME, sql);
+        Cursor cursor = briteDatabase.query(sql);
 
         cursor.moveToFirst();
         String id = cursor.getString(cursor.getColumnIndex(MediaDatabaseHelper.ID));
@@ -240,13 +242,13 @@ public class MediaDataSource {
     }
 
     public Callable<Integer> resetVideoContentDatabase() {
-        return () -> briteDatabase.delete(MediaDatabaseHelper.VIDEO_FILES_TABLE_NAME, null, null);
+        return () -> briteDatabase.delete(MediaDatabaseHelper.VIDEO_FILES_TABLE_NAME, null);
     }
 
     public Callable<Integer> resetAudioContentDatabase() {
         return () -> {
-            briteDatabase.delete(MediaDatabaseHelper.AUDIO_TRACKS_TABLE_NAME, null, null);
-            return briteDatabase.delete(MediaDatabaseHelper.AUDIO_FOLDERS_TABLE_NAME, null, null);
+            briteDatabase.delete(MediaDatabaseHelper.AUDIO_TRACKS_TABLE_NAME, null);
+            return briteDatabase.delete(MediaDatabaseHelper.AUDIO_FOLDERS_TABLE_NAME, null);
         };
     }
 
@@ -254,16 +256,14 @@ public class MediaDataSource {
 
         briteDatabase.delete(
                 MediaDatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
-                MediaDatabaseHelper.TRACK_PATH + "=" + "'" + path + "'",
-                null);
+                MediaDatabaseHelper.TRACK_PATH + "=" + "'" + path + "'");
     }
 
     public void deleteVideoFile(String path) {
 
         briteDatabase.delete(
                 MediaDatabaseHelper.VIDEO_FILES_TABLE_NAME,
-                MediaDatabaseHelper.VIDEO_FILE_PATH + "=" + "'" + path + "'",
-                null);
+                MediaDatabaseHelper.VIDEO_FILE_PATH + "=" + "'" + path + "'");
     }
 
     public Observable<List<String>> getFoldersPath() {

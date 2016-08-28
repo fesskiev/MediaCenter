@@ -149,13 +149,6 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
             }
         });
 
-
-
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
         Intent intent = getIntent();
         if (intent.hasExtra(EXTRA_IS_NEW_TRACK)) {
             boolean isNewTrack = intent.getBooleanExtra(EXTRA_IS_NEW_TRACK, false);
@@ -172,6 +165,8 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
 
         setAudioTrackValues();
         registerPlaybackBroadcastReceiver();
+
+
     }
 
     protected void setAudioTrackValues() {

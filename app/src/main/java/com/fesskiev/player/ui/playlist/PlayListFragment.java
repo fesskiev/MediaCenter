@@ -87,6 +87,7 @@ public class PlayListFragment extends Fragment {
                     } else {
                         showEmptyCardPlaylist();
                     }
+                    RxUtils.unsubscribe(subscription);
                 });
     }
 

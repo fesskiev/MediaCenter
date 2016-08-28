@@ -184,6 +184,7 @@ public class PlaybackActivity extends AnalyticsActivity {
                         } else {
                             showEmptyTrackCard();
                         }
+                        RxUtils.unsubscribe(subscription);
                     }).subscribe();
         }
     }

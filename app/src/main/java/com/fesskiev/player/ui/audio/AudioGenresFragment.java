@@ -53,6 +53,7 @@ public class AudioGenresFragment extends GridFragment implements AudioContent {
                         } else {
                             showEmptyContentCard();
                         }
+                        RxUtils.unsubscribe(subscription);
                     }
                 });
     }
