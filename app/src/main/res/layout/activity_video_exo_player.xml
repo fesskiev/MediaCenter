@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.fesskiev.player.widgets.layouts.ElasticDragDismissFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.fesskiev.player.widgets.layouts.DragFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -8,8 +8,6 @@
     android:layout_height="match_parent"
     android:focusable="true"
     android:keepScreenOn="true"
-    app:dragDismissDistance="400dp"
-    app:dragDismissScale="0.95"
     tools:context=".ui.video.player.VideoExoPlayerActivity">
 
     <android.support.v4.widget.NestedScrollView
@@ -28,8 +26,10 @@
                 android:layout_weight="1">
 
                 <FrameLayout
+                    android:id="@+id/videoViewParent"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:animateLayoutChanges="true">
 
                     <com.fesskiev.player.widgets.surfaces.VideoTextureView
                         android:id="@+id/videoView"
@@ -48,10 +48,9 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/ControlContainer"
+                android:id="@+id/controlContainer"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_margin="8dp"
                 android:layout_weight="1.5">
 
                 <android.support.v7.widget.CardView
@@ -189,5 +188,5 @@
 
     </android.support.v4.widget.NestedScrollView>
 
-</com.fesskiev.player.widgets.layouts.ElasticDragDismissFrameLayout>
+</com.fesskiev.player.widgets.layouts.DragFrameLayout>
 

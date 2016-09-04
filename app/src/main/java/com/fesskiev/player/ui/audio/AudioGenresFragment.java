@@ -119,16 +119,9 @@ public class AudioGenresFragment extends GridFragment implements AudioContent {
         public void onBindViewHolder(ViewHolder holder, int position) {
             Genre genre = genres.get(position);
             if (genre != null) {
+
                 holder.genreName.setText(genre.name);
-                Activity act = activity.get();
-                if (act != null) {
-                    if (genre.artworkPath != null) {
-                        BitmapHelper.loadURIBitmap(act.getApplicationContext(),
-                                genre.artworkPath, holder.cover);
-                    } else {
-                        BitmapHelper.loadNoCoverFolder(act.getApplicationContext(), holder.cover);
-                    }
-                }
+                BitmapHelper.getInstance().loadAudioGenresFolderArtwork(genre, holder.cover);
             }
         }
 

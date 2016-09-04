@@ -67,7 +67,7 @@ public class VideoFile implements MediaFile {
             File path = File.createTempFile(UUID.randomUUID().toString(),
                     ".png", new File(CacheManager.IMAGES_CACHE_PATH));
 
-            BitmapHelper.saveBitmap(bitmap, path);
+            BitmapHelper.getInstance().saveBitmap(bitmap, path);
 
             framePath = path.getAbsolutePath();
 
@@ -109,6 +109,11 @@ public class VideoFile implements MediaFile {
     @Override
     public boolean exists() {
         return filePath.exists();
+    }
+
+    @Override
+    public boolean isDownloaded() {
+        return false;
     }
 
     @Override

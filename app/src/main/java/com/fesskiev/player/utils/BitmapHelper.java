@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.widget.ImageView;
@@ -13,9 +14,13 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
+import com.fesskiev.player.model.Artist;
+import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioFolder;
 import com.fesskiev.player.model.AudioPlayer;
+import com.fesskiev.player.model.Genre;
 import com.fesskiev.player.model.MediaFile;
 
 import java.io.File;
@@ -30,13 +35,28 @@ public class BitmapHelper {
         void onFailed();
     }
 
-    public static void loadURLAvatar(final Context context, String url, final ImageView into, final OnBitmapLoadListener listener) {
-        Glide.with(context.getApplicationContext()).load(url).asBitmap().
+    private static BitmapHelper INSTANCE;
+    private Context context;
+
+    public static BitmapHelper getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new BitmapHelper();
+        }
+        return INSTANCE;
+    }
+
+    private BitmapHelper() {
+        context = MediaApplication.getInstance().getApplicationContext();
+    }
+
+
+    public void loadURLAvatar(String url, final ImageView into, final OnBitmapLoadListener listener) {
+        Glide.with(context).load(url).asBitmap().
                 centerCrop().into(new BitmapImageViewTarget(into) {
             @Override
             protected void setResource(Bitmap resource) {
                 RoundedBitmapDrawable circularBitmapDrawable =
-                        RoundedBitmapDrawableFactory.create(context.getApplicationContext().getResources(), resource);
+                        RoundedBitmapDrawableFactory.create(context.getResources(), resource);
                 circularBitmapDrawable.setCircular(true);
 
                 into.setImageDrawable(circularBitmapDrawable);
@@ -47,7 +67,7 @@ public class BitmapHelper {
         });
     }
 
-    public static void loadBitmap(final Context context, String url, final OnBitmapLoadListener listener) {
+    public void loadBitmap(String url, final OnBitmapLoadListener listener) {
         Glide.with(context)
                 .load(url)
                 .asBitmap()
@@ -68,20 +88,20 @@ public class BitmapHelper {
                 });
     }
 
-    public static void loadBitmapAvatar(final Context context, Bitmap bitmap, final ImageView into) {
+    public void loadBitmapAvatar(Bitmap bitmap, final ImageView into) {
         RoundedBitmapDrawable circularBitmapDrawable =
-                RoundedBitmapDrawableFactory.create(context.getApplicationContext().getResources(), bitmap);
+                RoundedBitmapDrawableFactory.create(context.getResources(), bitmap);
         circularBitmapDrawable.setCircular(true);
         into.setImageDrawable(circularBitmapDrawable);
     }
 
-    public static void loadEmptyAvatar(final Context context, final ImageView into) {
-        Glide.with(context.getApplicationContext()).load(R.drawable.icon_no_avatar).asBitmap().
+    public void loadEmptyAvatar(final ImageView into) {
+        Glide.with(context).load(R.drawable.icon_no_avatar).asBitmap().
                 centerCrop().into(new BitmapImageViewTarget(into) {
             @Override
             protected void setResource(Bitmap resource) {
                 RoundedBitmapDrawable circularBitmapDrawable =
-                        RoundedBitmapDrawableFactory.create(context.getApplicationContext().getResources(), resource);
+                        RoundedBitmapDrawableFactory.create(context.getResources(), resource);
                 circularBitmapDrawable.setCircular(true);
 
                 into.setImageDrawable(circularBitmapDrawable);
@@ -90,79 +110,97 @@ public class BitmapHelper {
         });
     }
 
-    public static void loadURIBitmap(Context context, String uri, ImageView into) {
-        Glide.with(context.getApplicationContext()).
-                load(uri).
-                fitCenter().
-                crossFade().
-                into(into);
-    }
-
-    public static void loadCircleURIBitmap(Context context, String uri, ImageView into) {
-        Glide.with(context.getApplicationContext()).
-                load(uri).
-                fitCenter().
-                transform(new CircleTransform(context.getApplicationContext())).
-                crossFade().
-                into(into);
-    }
-
-
-    public static void loadNoCoverFolder(Context context, ImageView into) {
+    public void loadURIBitmap(String uri, ImageView into) {
         Glide.with(context).
-                load(R.drawable.no_cover_folder_icon).
+                load(uri).
                 fitCenter().
                 crossFade().
                 into(into);
     }
 
-    public static void loadAudioPlayerArtwork(Context context, AudioPlayer audioPlayer, ImageView placeholder) {
-        String path = findAudioPlayerArtworkPath(audioPlayer);
-
-        if (path == null) {
-            Glide.with(context.getApplicationContext()).
-                    load(R.drawable.download_track_artwork).
-                    crossFade().
-                    fitCenter().
-                    into(placeholder);
-        } else {
-            Glide.with(context.getApplicationContext()).
-                    load(path).
-                    crossFade().
-                    fitCenter().
-                    into(placeholder);
-        }
+    public void loadCircleURIBitmap(String uri, ImageView into) {
+        Glide.with(context).
+                load(uri).
+                fitCenter().
+                transform(new CircleTransform(context)).
+                crossFade().
+                into(into);
     }
 
-    private static String findAudioPlayerArtworkPath(AudioPlayer audioPlayer) {
-        String artworkPath = audioPlayer.currentAudioFile.artworkPath;
-        if (artworkPath != null) {
-            return artworkPath;
+
+    public boolean loadAudioPlayerArtwork(ImageView imageView) {
+        MediaApplication application = MediaApplication.getInstance();
+        AudioPlayer audioPlayer = application.getAudioPlayer();
+
+        AudioFile audioFile = audioPlayer.currentAudioFile;
+        if (audioFile.isDownloaded()) {
+            String mediaArtworkPath = findMediaFileArtworkPath(audioFile);
+            if (mediaArtworkPath == null) {
+                return false;
+            }
         }
-        return null;
-    }
 
-    public static void loadTrackListArtwork(Context context, MediaFile mediaFile, ImageView placeholder) {
-
-        String path = findArtworkPath(mediaFile);
-        if (path != null) {
-            Glide.with(context.getApplicationContext()).
-                    load(path).
+        String mediaArtworkPath = findMediaFileArtworkPath(audioFile);
+        if (mediaArtworkPath != null) {
+            Glide.with(context).
+                    load(mediaArtworkPath).
                     crossFade().
                     fitCenter().
-                    transform(new CircleTransform(context.getApplicationContext())).
-                    into(placeholder);
-        } else {
-            Glide.with(context.getApplicationContext()).
+                    into(imageView);
+            return true;
+        }
+
+        String folderArtworkPath = findAudioFolderArtworkPath(audioPlayer.currentAudioFolder);
+        if (folderArtworkPath != null) {
+            Glide.with(context).
+                    load(folderArtworkPath).
+                    crossFade().
+                    fitCenter().
+                    into(imageView);
+            return true;
+        }
+
+        return false;
+    }
+
+
+    public void loadTrackListArtwork(MediaFile mediaFile, ImageView imageView) {
+        MediaApplication application = MediaApplication.getInstance();
+        AudioPlayer audioPlayer = application.getAudioPlayer();
+
+        String mediaArtworkPath = findMediaFileArtworkPath(mediaFile);
+        if (mediaArtworkPath != null) {
+            Glide.with(context).
+                    load(mediaArtworkPath).
+                    crossFade().
+                    fitCenter().
+                    transform(new CircleTransform(context)).
+                    into(imageView);
+            return;
+        }
+
+        String folderArtworkPath = findAudioFolderArtworkPath(audioPlayer.currentAudioFolder);
+        if (folderArtworkPath != null) {
+            Glide.with(context).
+                    load(folderArtworkPath).
+                    crossFade().
+                    fitCenter().
+                    transform(new CircleTransform(context)).
+                    into(imageView);
+            return;
+        }
+
+        if (mediaFile instanceof AudioFile) {
+            Glide.with(context).
                     load(R.drawable.no_cover_track_icon).
                     crossFade().
                     fitCenter().
-                    transform(new CircleTransform(context.getApplicationContext())).
-                    into(placeholder);
+                    transform(new CircleTransform(context)).
+                    into(imageView);
         }
     }
 
-    private static String findArtworkPath(MediaFile mediaFile) {
+    private String findMediaFileArtworkPath(MediaFile mediaFile) {
         String artworkPath = mediaFile.getArtworkPath();
         if (artworkPath != null) {
             return artworkPath;
@@ -170,20 +208,71 @@ public class BitmapHelper {
         return null;
     }
 
-    public static void loadAudioFolderArtwork(Context context, AudioFolder audioFolder, ImageView placeholder) {
-        File coverFile = audioFolder.folderImage;
+    private String findAudioFolderArtworkPath(AudioFolder audioFolder) {
+        File artworkFile = audioFolder.folderImage;
+        if (artworkFile != null) {
+            return artworkFile.getAbsolutePath();
+        }
+        return null;
+    }
+
+
+    public void loadAudioArtistsFolderArtwork(Artist artist, ImageView imageView) {
+
+        String path = artist.artworkPath;
+        if (path != null) {
+            Glide.with(context).
+                    load(path).
+                    crossFade().
+                    fitCenter().
+                    into(imageView);
+        } else {
+            Glide.with(context).
+                    load(R.drawable.no_cover_folder_icon).
+                    fitCenter().
+                    crossFade().
+                    into(imageView);
+        }
+
+    }
+
+    public void loadAudioGenresFolderArtwork(Genre genre, ImageView imageView) {
+
+        String path = genre.artworkPath;
+        if (path != null) {
+            Glide.with(context).
+                    load(path).
+                    crossFade().
+                    fitCenter().
+                    into(imageView);
+        } else {
+            Glide.with(context).
+                    load(R.drawable.no_cover_folder_icon).
+                    fitCenter().
+                    crossFade().
+                    into(imageView);
+        }
+    }
+
+    public void loadAudioFolderArtwork(AudioFolder audioFolder, ImageView placeholder) {
+
+        String coverFile = findAudioFolderArtworkPath(audioFolder);
         if (coverFile != null) {
-            Glide.with(context.getApplicationContext()).
+            Glide.with(context).
                     load(coverFile).
                     crossFade().
                     fitCenter().
                     into(placeholder);
         } else {
-            loadNoCoverFolder(context.getApplicationContext(), placeholder);
+            Glide.with(context).
+                    load(R.drawable.no_cover_folder_icon).
+                    fitCenter().
+                    crossFade().
+                    into(placeholder);
         }
     }
 
-    public static void saveBitmap(Bitmap bitmap, File path) {
+    public void saveBitmap(Bitmap bitmap, File path) {
         FileOutputStream out = null;
         try {
             out = new FileOutputStream(path);
@@ -201,7 +290,7 @@ public class BitmapHelper {
         }
     }
 
-    public static void saveBitmap(byte[] data, File path) {
+    public void saveBitmap(byte[] data, File path) {
         FileOutputStream out = null;
         try {
             out = new FileOutputStream(path);
@@ -222,28 +311,33 @@ public class BitmapHelper {
         }
     }
 
-    public static Bitmap getBitmapFromPath(String path) {
+    public Bitmap getBitmapFromPath(String path) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         return BitmapFactory.decodeFile(path, options);
     }
 
-    public static Bitmap getBitmapFromResource(Context context, int resource) {
+    public Bitmap getBitmapFromResource(int resource) {
         return BitmapFactory.decodeResource(context.getResources(), resource);
     }
 
-    public static void saveUserPhoto(Bitmap bitmap) {
-        BitmapHelper.saveBitmap(bitmap, CacheManager.getUserPhotoPath());
+    public void saveUserPhoto(Bitmap bitmap) {
+        saveBitmap(bitmap, CacheManager.getUserPhotoPath());
     }
 
-    public static Bitmap getUserPhoto() {
-        return BitmapHelper.getBitmapFromPath(CacheManager.getUserPhotoPath().getAbsolutePath());
+    public Bitmap getUserPhoto() {
+        return getBitmapFromPath(CacheManager.getUserPhotoPath().getAbsolutePath());
     }
 
-    public static void saveDownloadFolderIcon(Context context) {
-        BitmapHelper.saveBitmap(
-                BitmapHelper.getBitmapFromResource(context, R.drawable.icon_folder_download),
+    public void saveDownloadFolderIcon() {
+        saveBitmap(getBitmapFromResource(R.drawable.icon_folder_download),
                 CacheManager.getDownloadFolderIconPath());
+    }
+
+    public Bitmap createBitmapColor() {
+        Bitmap bitmap = Bitmap.createBitmap(256, 256, Bitmap.Config.ARGB_8888);
+        bitmap.eraseColor(ContextCompat.getColor(context, R.color.primary));
+        return bitmap;
     }
 
 }

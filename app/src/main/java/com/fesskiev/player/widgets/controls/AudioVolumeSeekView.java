@@ -10,13 +10,11 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 
 import com.fesskiev.player.R;
+import com.fesskiev.player.utils.Utils;
 
 
 public class AudioVolumeSeekView extends View {
@@ -85,14 +83,14 @@ public class AudioVolumeSeekView extends View {
 
         a.recycle();
 
-        seekSlider = new Slider(dipToPixels(context, 20), R.drawable.icon_time_control);
-        volumeSlider = new Slider(dipToPixels(context, 20), R.drawable.icon_volume_control);
+        seekSlider = new Slider(Utils.dipToPixels(context, 20), R.drawable.icon_time_control);
+        volumeSlider = new Slider(Utils.dipToPixels(context, 20), R.drawable.icon_volume_control);
 
-        radiusVolume = (int) dipToPixels(context, 80);
-        radiusSeek = (int) dipToPixels(context, 135);
-        lineRadius = (int) dipToPixels(context, 135);
-        circleStrokeWidth = (int) dipToPixels(context, 15);
-        markSize = (int) dipToPixels(context, 50);
+        radiusVolume = (int) Utils.dipToPixels(context, 80);
+        radiusSeek = (int) Utils.dipToPixels(context, 135);
+        lineRadius = (int) Utils.dipToPixels(context, 135);
+        circleStrokeWidth = (int) Utils.dipToPixels(context, 15);
+        markSize = (int) Utils.dipToPixels(context, 50);
 
         linePaint = new Paint();
         linePaint.setColor(circleColor);
@@ -127,11 +125,6 @@ public class AudioVolumeSeekView extends View {
 
     public void setListener(OnAudioVolumeSeekListener l) {
         this.listener = l;
-    }
-
-    public static float dipToPixels(Context context, float dipValue) {
-        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics);
     }
 
 

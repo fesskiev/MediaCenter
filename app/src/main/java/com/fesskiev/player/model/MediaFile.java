@@ -16,4 +16,6 @@ public interface MediaFile {
     int getLength();
 
     boolean exists();
+
+    boolean isDownloaded();
 }

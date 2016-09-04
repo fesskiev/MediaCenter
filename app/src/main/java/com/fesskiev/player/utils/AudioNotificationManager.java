@@ -46,8 +46,7 @@ public class AudioNotificationManager extends BroadcastReceiver {
         playbackService.startForeground(NOTIFICATION_ID,
                 buildNotification(null,
                         audioPlayer.currentAudioFile,
-                        BitmapHelper.getBitmapFromResource(context,
-                                R.drawable.download_track_artwork),
+                        BitmapHelper.getInstance().createBitmapColor(),
                         false));
     }
 
@@ -77,7 +76,7 @@ public class AudioNotificationManager extends BroadcastReceiver {
 
         final AudioFile audioFile = audioPlayer.currentAudioFile;
         if (audioFile != null) {
-            BitmapHelper.loadBitmap(context, audioFile.getArtworkPath(),
+            BitmapHelper.getInstance().loadBitmap(audioFile.getArtworkPath(),
                     new BitmapHelper.OnBitmapLoadListener() {
                         @Override
                         public void onLoaded(Bitmap bitmap) {
@@ -91,8 +90,7 @@ public class AudioNotificationManager extends BroadcastReceiver {
                         public void onFailed() {
                             createNotification(buildNotification(action,
                                     audioFile,
-                                    BitmapHelper.getBitmapFromResource(context,
-                                            R.drawable.download_track_artwork),
+                                    BitmapHelper.getInstance().createBitmapColor(),
                                     isPlaying));
                         }
                     });
@@ -120,13 +118,14 @@ public class AudioNotificationManager extends BroadcastReceiver {
         notificationBuilder
                 .setStyle(new NotificationCompat.MediaStyle()
                         .setShowActionsInCompactView(0, 1, 2))
+                .setLargeIcon(bitmap)
                 .setColor(ContextCompat.getColor(context, R.color.primary))
                 .setSmallIcon(R.drawable.icon_notification)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setContentIntent(createContentIntent())
                 .setContentTitle(artist)
-                .setContentText(title)
-                .setLargeIcon(bitmap);
+                .setContentText(title);
+
 
         if (isPlaying) {
             notificationBuilder

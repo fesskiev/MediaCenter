@@ -40,5 +40,6 @@ public class FolderFileObserver {
             recursiveFileObserver.stopWatching();
         }
         recursiveFileObservers = null;
+        RxUtils.unsubscribe(subscription);
     }
 }

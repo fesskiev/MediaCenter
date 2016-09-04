@@ -116,17 +116,9 @@ public class AudioArtistFragment extends GridFragment implements AudioContent {
         public void onBindViewHolder(ViewHolder holder, int position) {
             Artist artist = artists.get(position);
             if (artist != null) {
-                holder.genreName.setText(artist.name);
 
-                Activity act = activity.get();
-                if (act != null) {
-                    if (artist.artworkPath != null) {
-                        BitmapHelper.loadURIBitmap(act.getApplicationContext(),
-                                artist.artworkPath, holder.cover);
-                    } else {
-                        BitmapHelper.loadNoCoverFolder(act.getApplicationContext(), holder.cover);
-                    }
-                }
+                holder.genreName.setText(artist.name);
+                BitmapHelper.getInstance().loadAudioArtistsFolderArtwork(artist, holder.cover);
             }
         }
 

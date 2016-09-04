@@ -25,14 +25,13 @@
     </style>
 
     <style name="Base.Theme.Player.VideoExoPlayer">
-        <item name="android:windowEnterTransition">@transition/about_enter</item>
-        <item name="android:windowReturnTransition">@transition/about_return</item>
         <item name="android:colorBackgroundCacheHint">@null</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
     <style name="Custom.Widget.AlertDialog" parent="@android:style/Theme.Dialog">

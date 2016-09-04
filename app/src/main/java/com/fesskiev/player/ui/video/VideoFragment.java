@@ -285,8 +285,8 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 holder.videoCard.setDescription(videoFile.description);
 
                 if (videoFile.framePath != null) {
-                    BitmapHelper.loadURIBitmap(getContext(),
-                            videoFile.framePath, holder.videoCard.getFrameView());
+                    BitmapHelper.getInstance().loadURIBitmap(videoFile.framePath,
+                            holder.videoCard.getFrameView());
                 } else {
                     Glide.with(getContext()).
                             load(R.drawable.no_cover_track_icon).into(holder.videoCard.getFrameView());

@@ -141,6 +141,8 @@ public class ElasticDragDismissFrameLayout extends FrameLayout {
     @Override
     public void onNestedScroll(View target, int dxConsumed, int dyConsumed,
                                int dxUnconsumed, int dyUnconsumed) {
+        Log.d("test_", "onNestedScroll:x: " + dxConsumed + " y: " + dyConsumed + " dxUn: " + dxUnconsumed
+                + " dyUnc: " + dxUnconsumed);
         dragScale(dyUnconsumed);
     }
 

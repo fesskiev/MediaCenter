@@ -7,18 +7,20 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.FrameLayout;
 import android.widget.Spinner;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.VideoPlayer;
 import com.fesskiev.player.ui.playback.Playable;
+import com.fesskiev.player.utils.AppLog;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.controls.VideoControlView;
 import com.fesskiev.player.widgets.layouts.ElasticDragDismissFrameLayout;
@@ -77,23 +79,29 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
 
         shutterView = findViewById(R.id.shutter);
 
-        dragFrameLayout = (ElasticDragDismissFrameLayout) findViewById(R.id.dragLayout);
-        dragFrameLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
-        dragFrameLayout.addListener(
-                new ElasticDragDismissFrameLayout.SystemChromeFader(this) {
-                    @Override
-                    public void onDragDismissed() {
-
-                        if (dragFrameLayout.getTranslationY() > 0) {
-                            getWindow().setReturnTransition(
-                                    TransitionInflater.from(VideoExoPlayerActivity.this)
-                                            .inflateTransition(R.transition.about_return_downward));
-                            finishAfterTransition();
-                        }
-                    }
-                });
+//        dragFrameLayout = (ElasticDragDismissFrameLayout) findViewById(R.id.dragLayout);
+//        dragFrameLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+//                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+//                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+//        dragFrameLayout.addListener(
+//                new ElasticDragDismissFrameLayout.SystemChromeFader(this) {
+//                    @Override
+//                    public void onDragDismissed() {
+//
+////                        if (dragFrameLayout.getTranslationY() > 0) {
+////                            getWindow().setReturnTransition(
+////                                    TransitionInflater.from(VideoExoPlayerActivity.this)
+////                                            .inflateTransition(R.transition.about_return_downward));
+////                            finishAfterTransition();
+////                        }
+//                    }
+//
+//                    @Override
+//                    public void onDrag(float elasticOffset, float elasticOffsetPixels, float rawOffset, float rawOffsetPixels) {
+//                        AppLog.DEBUG("elasticOffset: " + elasticOffset + " elastPixel: " + elasticOffsetPixels +
+//                        " rawOffset: " + rawOffset + " rawInPixel: " + rawOffsetPixels);
+//                    }
+//                });
 
         VideoTextureView textureView = (VideoTextureView) findViewById(R.id.videoView);
         textureView.setSurfaceTextureListener(this);
@@ -132,6 +140,13 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
         audioCapabilitiesReceiver.register();
 
         videoControlView.resetIndicators();
+
+        findViewById(R.id.fullScreenVideoButton).setOnClickListener(view -> {
+            FrameLayout layout = (FrameLayout) findViewById(R.id.videoViewParent);
+            ViewGroup.LayoutParams params = layout.getLayoutParams();
+            params.height = 2600;
+            layout.requestLayout();
+        });
     }
 
     @Override

@@ -27,7 +27,6 @@ import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.player.utils.AppLog;
-import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.RxUtils;
 import com.fesskiev.player.utils.Utils;
@@ -38,10 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import rx.Observable;
-import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 
 public class PlaybackActivity extends AnalyticsActivity {
 
@@ -222,7 +219,7 @@ public class PlaybackActivity extends AnalyticsActivity {
         track.setText(audioFile.title);
         artist.setText(audioFile.artist);
 
-        BitmapHelper.loadTrackListArtwork(this, audioFile, cover);
+        BitmapHelper.getInstance().loadTrackListArtwork(audioFile, cover);
 
     }
 

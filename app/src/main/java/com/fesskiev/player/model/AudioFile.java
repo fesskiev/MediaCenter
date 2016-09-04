@@ -97,7 +97,7 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
             File path = File.createTempFile(UUID.randomUUID().toString(),
                     ".png", new File(CacheManager.IMAGES_CACHE_PATH));
 
-            BitmapHelper.saveBitmap(data, path);
+            BitmapHelper.getInstance().saveBitmap(data, path);
 
             artworkPath = path.getAbsolutePath();
 
@@ -113,7 +113,7 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
                 File path = File.createTempFile(UUID.randomUUID().toString(),
                         ".png", new File(CacheManager.IMAGES_CACHE_PATH));
 
-                BitmapHelper.saveBitmap(artwork.getBinaryData(), path);
+                BitmapHelper.getInstance().saveBitmap(artwork.getBinaryData(), path);
 
                 artworkPath = path.getAbsolutePath();
 
@@ -303,6 +303,11 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
     @Override
     public boolean exists() {
         return filePath.exists();
+    }
+
+    @Override
+    public boolean isDownloaded() {
+        return filePath.getAbsolutePath().startsWith(CacheManager.CHECK_DOWNLOADS_FOLDER_PATH);
     }
 
     @Override

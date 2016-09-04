@@ -183,12 +183,8 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
             AudioFolder audioFolder = audioFolders.get(position);
             if (audioFolder != null) {
                 holder.albumName.setText(audioFolder.folderName);
+                BitmapHelper.getInstance().loadAudioFolderArtwork(audioFolder, holder.cover);
 
-                Activity act = activity.get();
-                if (act != null) {
-                    BitmapHelper.loadAudioFolderArtwork(act.getApplicationContext(),
-                            audioFolder, holder.cover);
-                }
             }
         }
 

@@ -206,7 +206,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     private void setUserInfo() {
-        BitmapHelper.loadBitmapAvatar(this, BitmapHelper.getUserPhoto(), userPhoto);
+        BitmapHelper.getInstance()
+                .loadBitmapAvatar(BitmapHelper.getInstance().getUserPhoto(), userPhoto);
 
         firstName.setText(settingsManager.getUserFirstName());
         lastName.setText(settingsManager.getUserLastName());
@@ -223,7 +224,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     private void setEmptyUserInfo() {
-        BitmapHelper.loadEmptyAvatar(this, userPhoto);
+        BitmapHelper.getInstance().loadEmptyAvatar(userPhoto);
 
         firstName.setText(getString(R.string.empty_first_name));
         lastName.setText(getString(R.string.empty_last_name));
@@ -525,7 +526,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             settingsManager = AppSettingsManager.getInstance(getApplication());
         }
         if (settingsManager.isFirstStartApp()) {
-            BitmapHelper.saveDownloadFolderIcon(getApplicationContext());
+            BitmapHelper.getInstance().saveDownloadFolderIcon();
             FileSystemIntentService.startFetchMedia(getApplicationContext());
             hidePlayback();
         } else {
@@ -691,11 +692,11 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             settingsManager.setUserFirstName(user.getFirstName());
             settingsManager.setUserLastName(user.getLastName());
 
-            BitmapHelper.loadURLAvatar(getApplicationContext(),
-                    user.getPhotoUrl(), userPhoto, new BitmapHelper.OnBitmapLoadListener() {
+            BitmapHelper.getInstance().loadURLAvatar(user.getPhotoUrl(),
+                    userPhoto, new BitmapHelper.OnBitmapLoadListener() {
                         @Override
                         public void onLoaded(Bitmap bitmap) {
-                            BitmapHelper.saveUserPhoto(bitmap);
+                            BitmapHelper.getInstance().saveUserPhoto(bitmap);
                         }
 
                         @Override

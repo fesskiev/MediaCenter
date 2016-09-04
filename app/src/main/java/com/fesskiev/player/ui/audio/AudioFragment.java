@@ -88,7 +88,7 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
                         .subscribe(aVoid ->{
 
                             CacheManager.clearImagesCache();
-                            BitmapHelper.saveDownloadFolderIcon(getActivity());
+                            BitmapHelper.getInstance().saveDownloadFolderIcon();
                             FileSystemIntentService.startFetchAudio(getActivity());
 
                         }));

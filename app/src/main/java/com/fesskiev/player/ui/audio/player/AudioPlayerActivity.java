@@ -6,9 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.Toolbar;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -20,7 +23,6 @@ import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.playback.Playable;
-import com.fesskiev.player.utils.AppLog;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.buttons.MuteSoloButton;
@@ -39,6 +41,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
     private DescriptionCardView cardDescription;
     private MuteSoloButton muteSoloButton;
     private RepeatButton repeatButton;
+    private AppBarLayout appBarLayout;
     private ImageView backdrop;
     private TextView trackTimeCount;
     private TextView trackTimeTotal;
@@ -73,6 +76,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
 
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
 
+        appBarLayout = (AppBarLayout) findViewById(R.id.appBarLayout);
         backdrop = (ImageView) findViewById(R.id.backdrop);
         muteSoloButton = (MuteSoloButton) findViewById(R.id.muteSoloButton);
         trackTimeTotal = (TextView) findViewById(R.id.trackTimeTotal);
@@ -193,7 +197,21 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
 
 
     private void setBackdropImage() {
-        BitmapHelper.loadAudioPlayerArtwork(this, audioPlayer, backdrop);
+        boolean load = BitmapHelper.getInstance().loadAudioPlayerArtwork(backdrop);
+
+        CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
+        if (!load) {
+            TypedValue tv = new TypedValue();
+            if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+                lp.height = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
+                appBarLayout.setExpanded(false);
+                backdrop.setVisibility(View.GONE);
+            }
+        } else {
+            lp.height = getResources().getDimensionPixelSize(R.dimen.app_bar_height);
+            appBarLayout.setExpanded(true);
+            backdrop.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override

@@ -204,8 +204,8 @@ public class GroupAudioFragment extends Fragment {
                 if (groupPost.getAttachments().get(0).getPhoto() != null) {
                     holder.postCover.setVisibility(View.VISIBLE);
 
-                    BitmapHelper.loadURIBitmap(getActivity(),
-                            groupPost.getAttachments().get(0).getPhoto().getPhoto604(), holder.postCover);
+                    BitmapHelper.getInstance().loadURIBitmap(groupPost.getAttachments().get(0).getPhoto().getPhoto604(),
+                            holder.postCover);
                 } else {
                     holder.postCover.setVisibility(View.GONE);
                 }

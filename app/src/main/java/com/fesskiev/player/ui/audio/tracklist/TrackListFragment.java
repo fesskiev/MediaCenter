@@ -353,7 +353,7 @@ public class TrackListFragment extends Fragment {
 
             AudioFile audioFile = audioFiles.get(position);
 
-            BitmapHelper.loadTrackListArtwork(getContext(), audioFile, holder.cover);
+            BitmapHelper.getInstance().loadTrackListArtwork(audioFile, holder.cover);
 
             holder.duration.setText(Utils.getDurationString(audioFile.length));
             holder.title.setText(audioFile.title);
