@@ -76,8 +76,7 @@ public class AudioNotificationManager extends BroadcastReceiver {
 
         final AudioFile audioFile = audioPlayer.currentAudioFile;
         if (audioFile != null) {
-            BitmapHelper.getInstance().loadBitmap(audioFile.getArtworkPath(),
-                    new BitmapHelper.OnBitmapLoadListener() {
+            BitmapHelper.getInstance().loadNotificationArtwork(new BitmapHelper.OnBitmapLoadListener() {
                         @Override
                         public void onLoaded(Bitmap bitmap) {
                             createNotification(buildNotification(action,

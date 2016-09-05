@@ -36,6 +36,7 @@ public class BitmapHelper {
     }
 
     private static BitmapHelper INSTANCE;
+    private AudioPlayer audioPlayer;
     private Context context;
 
     public static BitmapHelper getInstance() {
@@ -47,6 +48,7 @@ public class BitmapHelper {
 
     private BitmapHelper() {
         context = MediaApplication.getInstance().getApplicationContext();
+        audioPlayer = MediaApplication.getInstance().getAudioPlayer();
     }
 
 
@@ -67,9 +69,30 @@ public class BitmapHelper {
         });
     }
 
-    public void loadBitmap(String url, final OnBitmapLoadListener listener) {
+    private String findNotificationArtworkPath() {
+        AudioFile audioFile = audioPlayer.currentAudioFile;
+        if (audioFile.isDownloaded()) {
+            String mediaArtworkPath = findMediaFileArtworkPath(audioFile);
+            if (mediaArtworkPath == null) {
+                return null;
+            }
+        }
+
+        String mediaArtworkPath = findMediaFileArtworkPath(audioFile);
+        if (mediaArtworkPath != null) {
+            return mediaArtworkPath;
+        }
+
+        String folderArtworkPath = findAudioFolderArtworkPath(audioPlayer.currentAudioFolder);
+        if (folderArtworkPath != null) {
+            return folderArtworkPath;
+        }
+        return null;
+    }
+
+    public void loadNotificationArtwork(final OnBitmapLoadListener listener) {
         Glide.with(context)
-                .load(url)
+                .load(findNotificationArtworkPath())
                 .asBitmap()
                 .into(new SimpleTarget<Bitmap>(100, 100) {
                     @Override
@@ -129,9 +152,6 @@ public class BitmapHelper {
 
 
     public boolean loadAudioPlayerArtwork(ImageView imageView) {
-        MediaApplication application = MediaApplication.getInstance();
-        AudioPlayer audioPlayer = application.getAudioPlayer();
-
         AudioFile audioFile = audioPlayer.currentAudioFile;
         if (audioFile.isDownloaded()) {
             String mediaArtworkPath = findMediaFileArtworkPath(audioFile);
@@ -165,8 +185,6 @@ public class BitmapHelper {
 
 
     public void loadTrackListArtwork(MediaFile mediaFile, ImageView imageView) {
-        MediaApplication application = MediaApplication.getInstance();
-        AudioPlayer audioPlayer = application.getAudioPlayer();
 
         String mediaArtworkPath = findMediaFileArtworkPath(mediaFile);
         if (mediaArtworkPath != null) {
