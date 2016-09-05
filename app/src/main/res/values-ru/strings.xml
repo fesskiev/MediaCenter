@@ -125,6 +125,8 @@
     <string name="settings_searching_files">Фоновый поиск файлов</string>
     <string name="settings_wifi_download">Скачивание только по Wi-Fi</string>
 
+    <string name="search_hint">Поиск музыки</string>
+
 
     <string name="mail_subject">(Media Center) Отзыв</string>
     <string name="mail_chooser">(Media Center) Отправить отзыв</string>
