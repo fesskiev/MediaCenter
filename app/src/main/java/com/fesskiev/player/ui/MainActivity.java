@@ -24,6 +24,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -32,7 +33,6 @@ import android.widget.TextView;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.model.AudioPlayer;
-import com.fesskiev.player.ui.vk.data.model.User;
 import com.fesskiev.player.services.FileObserverService;
 import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.services.PlaybackService;
@@ -41,9 +41,11 @@ import com.fesskiev.player.ui.audio.AudioFragment;
 import com.fesskiev.player.ui.equalizer.EqualizerActivity;
 import com.fesskiev.player.ui.playback.PlaybackActivity;
 import com.fesskiev.player.ui.playlist.PlayListActivity;
+import com.fesskiev.player.ui.search.SearchActivity;
 import com.fesskiev.player.ui.settings.SettingsActivity;
 import com.fesskiev.player.ui.video.VideoFragment;
 import com.fesskiev.player.ui.vk.VkontakteActivity;
+import com.fesskiev.player.ui.vk.data.model.User;
 import com.fesskiev.player.ui.vk.data.source.DataRepository;
 import com.fesskiev.player.utils.AnimationUtils;
 import com.fesskiev.player.utils.AppLog;
@@ -242,6 +244,22 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_search:
+                startActivity(new Intent(this, SearchActivity.class));
+                break;
+        }
+        return true;
     }
 
     @Override

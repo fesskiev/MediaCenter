@@ -10,6 +10,8 @@
     <color name="dialog_background">#7F97A2</color>
     <color name="white_text">#FFFFFF</color>
 
+    <color name="search_background">#33B6B6B6</color>
+
     <color name="red">#f74343</color>
 
     <color name="grid_state_pressed">#1Affffff</color>
