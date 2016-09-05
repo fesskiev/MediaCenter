@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="?android:actionBarSize"
         android:outlineProvider="bounds"
-        android:transitionGroup="false"
+        android:elevation="4dp"
         android:theme="@style/SearchViewTheme">
 
         <SearchView
@@ -17,6 +17,23 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:iconifiedByDefault="false" />
+
+        <FrameLayout
+            android:id="@+id/searchback_container"
+            android:layout_width="96dp"
+            android:layout_height="match_parent"
+            android:paddingStart="12dp"
+            android:background="@android:color/transparent">
+
+            <ImageButton
+                android:contentDescription="@string/app_name"
+                android:id="@+id/searchback"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="?android:selectableItemBackgroundBorderless"
+                android:src="@drawable/icon_menu_search"/>
+
+        </FrameLayout>
 
     </FrameLayout>
 

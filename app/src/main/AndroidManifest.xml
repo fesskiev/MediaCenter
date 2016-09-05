@@ -139,7 +139,7 @@
             android:name=".ui.search.SearchActivity"
             android:launchMode="singleTop"
             android:parentActivityName=".ui.MainActivity"
-            android:theme="@style/Theme.Player.Search"
+            android:theme="@style/Base.Theme.Player.Search"
             android:screenOrientation="portrait">
 
             <intent-filter>

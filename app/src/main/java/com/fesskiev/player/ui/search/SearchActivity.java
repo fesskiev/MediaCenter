@@ -58,7 +58,9 @@ public class SearchActivity extends AppCompatActivity {
             }
         });
         searchView.setOnQueryTextFocusChangeListener((v, hasFocus) -> {
-
+            if (!hasFocus) {
+                searchView.setIconified(true);
+            }
         });
     }
 }
