@@ -5,11 +5,11 @@
     android:orientation="vertical">
 
     <FrameLayout
-        android:id="@+id/search_toolbar"
+        android:id="@+id/searchToolbar"
         android:layout_width="match_parent"
         android:layout_height="?android:actionBarSize"
-        android:outlineProvider="bounds"
         android:elevation="4dp"
+        android:outlineProvider="bounds"
         android:theme="@style/SearchViewTheme">
 
         <SearchView
@@ -19,19 +19,34 @@
             android:iconifiedByDefault="false" />
 
         <FrameLayout
-            android:id="@+id/searchback_container"
             android:layout_width="96dp"
             android:layout_height="match_parent"
-            android:paddingStart="12dp"
-            android:background="@android:color/transparent">
+            android:background="@android:color/transparent"
+            android:paddingStart="12dp">
 
             <ImageButton
-                android:contentDescription="@string/app_name"
-                android:id="@+id/searchback"
+                android:id="@+id/backIcon"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:background="?android:selectableItemBackgroundBorderless"
-                android:src="@drawable/icon_menu_search"/>
+                android:contentDescription="@string/app_name"
+                android:src="?attr/homeAsUpIndicator"
+                android:transitionName="@string/shared_search_back" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/resultsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="?android:actionBarSize"
+            android:background="@color/primary"
+            android:elevation="4dp">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycleView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
         </FrameLayout>
 

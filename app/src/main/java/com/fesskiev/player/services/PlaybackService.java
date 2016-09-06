@@ -296,23 +296,20 @@ public class PlaybackService extends Service {
         audioNotificationManager = new AudioNotificationManager(this, this);
         audioFocusManager = new AudioFocusManager();
         audioFocusManager.setOnAudioFocusManagerListener(
-                new AudioFocusManager.OnAudioFocusManagerListener() {
-                    @Override
-                    public void onFocusChanged(int state) {
-                        switch (state) {
-                            case AudioFocusManager.AUDIO_FOCUSED:
-                                Log.d(TAG, "onFocusChanged: FOCUSED");
-                                play();
-                                break;
-                            case AudioFocusManager.AUDIO_NO_FOCUS_CAN_DUCK:
-                                Log.d(TAG, "onFocusChanged: NO_FOCUS_CAN_DUCK");
-                                setVolumeUriAudioPlayer(500);
-                                break;
-                            case AudioFocusManager.AUDIO_NO_FOCUS_NO_DUCK:
-                                Log.d(TAG, "onFocusChanged: NO_FOCUS_NO_DUCK");
-                                stop();
-                                break;
-                        }
+                state -> {
+                    switch (state) {
+                        case AudioFocusManager.AUDIO_FOCUSED:
+                            Log.d(TAG, "onFocusChanged: FOCUSED");
+                            play();
+                            break;
+                        case AudioFocusManager.AUDIO_NO_FOCUS_CAN_DUCK:
+                            Log.d(TAG, "onFocusChanged: NO_FOCUS_CAN_DUCK");
+                            setVolumeUriAudioPlayer(500);
+                            break;
+                        case AudioFocusManager.AUDIO_NO_FOCUS_NO_DUCK:
+                            Log.d(TAG, "onFocusChanged: NO_FOCUS_NO_DUCK");
+                            stop();
+                            break;
                     }
                 });
 

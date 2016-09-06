@@ -9,6 +9,7 @@ import com.fesskiev.player.R;
 import com.fesskiev.player.analytics.AnalyticsActivity;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.player.ui.audio.utils.Constants;
+import com.fesskiev.player.utils.AnimationUtils;
 
 public class TrackListActivity extends AnalyticsActivity {
 
@@ -16,6 +17,7 @@ public class TrackListActivity extends AnalyticsActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_track_list);
+        AnimationUtils.setupWindowAnimations(this);
 
         if (savedInstanceState == null) {
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

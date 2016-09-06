@@ -34,7 +34,7 @@ public abstract class GridFragment extends HidingPlaybackFragment {
 
         recyclerView = (RecyclerView) view.findViewById(R.id.foldersGridView);
         recyclerView.setLayoutManager(gridLayoutManager);
-        recyclerView.addItemDecoration(new GridDividerDecoration(getActivity()));
+        recyclerView.addItemDecoration(new GridDividerDecoration(getContext().getApplicationContext()));
         adapter = createAdapter();
         recyclerView.setAdapter(adapter);
         recyclerView.addOnScrollListener(new HidingScrollListener() {

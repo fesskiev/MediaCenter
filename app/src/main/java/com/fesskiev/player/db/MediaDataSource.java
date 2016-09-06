@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.model.Artist;
@@ -420,6 +421,35 @@ public class MediaDataSource {
 
         return briteDatabase.createQuery(MediaDatabaseHelper.AUDIO_TRACKS_TABLE_NAME, sql)
                 .mapToOne(AudioFile::new);
+    }
+
+    public Observable<List<AudioFile>> getSearchAudioFiles(String query) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT * FROM ");
+        sql.append(MediaDatabaseHelper.AUDIO_TRACKS_TABLE_NAME);
+        sql.append(" WHERE ");
+        sql.append(MediaDatabaseHelper.TRACK_ARTIST);
+        sql.append(" LIKE ");
+        sql.append("'");
+        sql.append(query);
+        sql.append("%'");
+        sql.append(" OR ");
+        sql.append(MediaDatabaseHelper.TRACK_ARTIST);
+        sql.append(" LIKE ");
+        sql.append("'%");
+        sql.append(query);
+        sql.append("%'");
+        sql.append(" OR ");
+        sql.append(MediaDatabaseHelper.TRACK_ARTIST);
+        sql.append(" LIKE ");
+        sql.append("'%");
+        sql.append(query);
+        sql.append("'");
+
+        Log.e("test", "sql: " + sql.toString());
+
+        return briteDatabase.createQuery(MediaDatabaseHelper.AUDIO_TRACKS_TABLE_NAME, sql.toString())
+                .mapToList(AudioFile::new);
     }
 
 }

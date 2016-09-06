@@ -296,9 +296,10 @@ public class PlaybackActivity extends AnalyticsActivity {
                     PlaybackService.startPlayback(getApplicationContext());
                     break;
                 case PlaybackService.ACTION_HEADSET_PLUG_IN:
-                    if (!audioPlayer.isPlaying) {
-                        PlaybackService.startPlayback(getApplicationContext());
-                    }
+                    //TODO settings start playback if plug in
+//                    if (!audioPlayer.isPlaying) {
+//                        PlaybackService.startPlayback(getApplicationContext());
+//                    }
                     break;
                 case PlaybackService.ACTION_HEADSET_PLUG_OUT:
                     if (audioPlayer.isPlaying) {

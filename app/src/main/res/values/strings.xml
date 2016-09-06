@@ -131,7 +131,8 @@
 
     <string name="search_hint">Search Track</string>
 
-    <string name="shared_cover_name">cover</string>
+    <string name="shared_cover_name" translatable="false">cover</string>
+    <string name="shared_search_back" translatable="false">search_back</string>
 
     <string name="frequency_15">+15dB</string>
     <string name="frequency_0">0dB</string>

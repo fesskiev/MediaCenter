@@ -2,6 +2,7 @@ package com.fesskiev.player.ui;
 
 
 import android.Manifest;
+import android.app.ActivityOptions;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -94,7 +95,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        AnimationUtils.setupSlideWindowAnimations(this);
+//        AnimationUtils.setupWindowAnimations(this);
 
         settingsManager = AppSettingsManager.getInstance(this);
 
@@ -256,7 +257,10 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_search:
-                startActivity(new Intent(this, SearchActivity.class));
+                View searchMenuView = toolbar.findViewById(R.id.menu_search);
+                Bundle options = ActivityOptions.makeSceneTransitionAnimation(this, searchMenuView,
+                        getString(R.string.shared_search_back)).toBundle();
+                startActivity(new Intent(this, SearchActivity.class), options);
                 break;
         }
         return true;

@@ -6,8 +6,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
+import android.transition.Explode;
 import android.transition.Fade;
 import android.transition.Slide;
+import android.transition.Transition;
 import android.view.Gravity;
 import android.view.View;
 
@@ -20,16 +22,31 @@ import java.util.List;
 
 public class AnimationUtils {
 
-    public static void setupSlideWindowAnimations(Activity activity) {
+    public static void setupWindowAnimations(Activity activity) {
         Slide slideTransition = getSlideTransaction(activity);
-        activity.getWindow().setReenterTransition(slideTransition);
-        activity.getWindow().setExitTransition(slideTransition);
+        Explode explodeTransition = getExplodeTransition(activity);
+        Fade fadeTransaction = getFadeTransaction(activity);
+
+        activity.getWindow().setReenterTransition(explodeTransition);
+        activity.getWindow().setReturnTransition(fadeTransaction);
     }
 
-    public static Slide getSlideTransaction(Activity activity) {
+    private static Fade getFadeTransaction(Activity activity) {
+        Fade fade = new Fade();
+        fade.setDuration(activity.getResources().getInteger(R.integer.anim_duration_medium));
+        return fade;
+    }
+
+    private static Slide getSlideTransaction(Activity activity) {
         Slide slideTransition = new Slide(Gravity.START);
         slideTransition.setDuration(activity.getResources().getInteger(R.integer.anim_duration_medium));
         return slideTransition;
+    }
+
+    private static Explode getExplodeTransition(Activity activity) {
+        Explode explode = new Explode();
+        explode.setDuration(activity.getResources().getInteger(R.integer.anim_duration_medium));
+        return explode;
     }
 
     public static Bundle createBundle(Activity activity){
