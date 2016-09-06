@@ -1,7 +1,6 @@
 package com.fesskiev.player.ui.search;
 
 
-
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Intent;
@@ -12,11 +11,12 @@ import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.transition.Transition;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.SearchView;
+import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
@@ -24,6 +24,9 @@ import com.fesskiev.player.db.MediaDataSource;
 import com.fesskiev.player.model.AudioFile;
 import com.fesskiev.player.utils.RxUtils;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -42,7 +45,7 @@ public class SearchActivity extends AppCompatActivity {
         findViewById(R.id.backIcon).setOnClickListener(v -> onBackPressed());
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycleView);
-        recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(getApplicationContext(),
+        recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false, 1000));
 
         adapter = new SearchAdapter(this);
@@ -55,10 +58,8 @@ public class SearchActivity extends AppCompatActivity {
 
     @Override
     protected void onNewIntent(Intent intent) {
-        Log.d("test_", "onNewIntent");
         if (intent.hasExtra(SearchManager.QUERY)) {
             String query = intent.getStringExtra(SearchManager.QUERY);
-            Log.d("test_", "onNewIntent: " + query);
             if (!TextUtils.isEmpty(query)) {
                 searchView.setQuery(query, false);
             }
@@ -66,8 +67,8 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    protected void onStop() {
+        super.onStop();
         RxUtils.unsubscribe(subscription);
     }
 
@@ -83,33 +84,30 @@ public class SearchActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                Log.d("test_", "QueryTextSubmit: " + query);
                 querySearch(query);
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String query) {
-                Log.d("test_", "onQueryTextChange: " + query);
+                querySearch(query);
                 return true;
             }
         });
         searchView.setOnQueryTextFocusChangeListener((v, hasFocus) -> {
-            Log.d("test_", "TextFocusChangeListener: " + hasFocus);
+
         });
     }
 
     private void querySearch(String query) {
         MediaDataSource dataSource = MediaApplication.getInstance().getMediaDataSource();
+        RxUtils.unsubscribe(subscription);
         subscription = dataSource
                 .getSearchAudioFiles(query)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(audioFiles -> {
-                    Log.d("test_", "search result: " + audioFiles.size());
-                    for(AudioFile audioFile : audioFiles) {
-                        Log.d("test_", "search: " + audioFile.title);
-                    }
+                    adapter.refreshAdapter(audioFiles);
                 }, throwable -> {
 
                 });
@@ -120,60 +118,78 @@ public class SearchActivity extends AppCompatActivity {
         getWindow()
                 .getEnterTransition()
                 .addListener(new Transition.TransitionListener() {
-            @Override
-            public void onTransitionStart(Transition transition) {
+                    @Override
+                    public void onTransitionStart(Transition transition) {
 
-            }
+                    }
 
-            @Override
-            public void onTransitionEnd(Transition transition) {
-                searchView.requestFocus();
-            }
+                    @Override
+                    public void onTransitionEnd(Transition transition) {
+                        searchView.requestFocus();
+                    }
 
-            @Override
-            public void onTransitionCancel(Transition transition) {
+                    @Override
+                    public void onTransitionCancel(Transition transition) {
 
-            }
+                    }
 
-            @Override
-            public void onTransitionPause(Transition transition) {
+                    @Override
+                    public void onTransitionPause(Transition transition) {
 
-            }
+                    }
 
-            @Override
-            public void onTransitionResume(Transition transition) {
+                    @Override
+                    public void onTransitionResume(Transition transition) {
 
-            }
-        });
+                    }
+                });
     }
 
     private static class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder> {
 
+        private Activity activity;
+        private List<AudioFile> audioFiles;
+
 
         public SearchAdapter(Activity activity) {
-
+            this.activity = activity;
+            this.audioFiles = new ArrayList<>();
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
 
+            TextView searchTitle;
+
             public ViewHolder(View v) {
                 super(v);
+                searchTitle = (TextView) v.findViewById(R.id.itemSearch);
             }
         }
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return null;
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_search, parent, false);
+            return new ViewHolder(v);
         }
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-
+            AudioFile audioFile = audioFiles.get(position);
+            if(audioFile != null){
+                holder.searchTitle.setText(audioFile.title);
+            }
         }
 
         @Override
         public int getItemCount() {
-            return 0;
+            return audioFiles.size();
+        }
+
+        public void refreshAdapter(List<AudioFile> queryResult) {
+            audioFiles.clear();
+            audioFiles.addAll(queryResult);
+            notifyDataSetChanged();
         }
     }
 }
