@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -22,9 +23,15 @@ import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.db.MediaDataSource;
 import com.fesskiev.player.model.AudioFile;
+import com.fesskiev.player.model.AudioPlayer;
+import com.fesskiev.player.model.MediaFile;
+import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
+import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.RxUtils;
+import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,13 +91,13 @@ public class SearchActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                querySearch(query);
+                querySearch(query, false);
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String query) {
-                querySearch(query);
+                querySearch(query, true);
                 return true;
             }
         });
@@ -99,7 +106,7 @@ public class SearchActivity extends AppCompatActivity {
         });
     }
 
-    private void querySearch(String query) {
+    private void querySearch(String query, boolean search) {
         MediaDataSource dataSource = MediaApplication.getInstance().getMediaDataSource();
         RxUtils.unsubscribe(subscription);
         subscription = dataSource
@@ -107,7 +114,7 @@ public class SearchActivity extends AppCompatActivity {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(audioFiles -> {
-                    adapter.refreshAdapter(audioFiles);
+                    adapter.refreshAdapter(audioFiles, search);
                 }, throwable -> {
 
                 });
@@ -145,50 +152,132 @@ public class SearchActivity extends AppCompatActivity {
                 });
     }
 
-    private static class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder> {
+    private static class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-        private Activity activity;
-        private List<AudioFile> audioFiles;
+        private static final int VIEW_TYPE_SEARCH = 0;
+        private static final int VIEW_TYPE_RESULT = 1;
+
+        private WeakReference<Activity> activity;
+        private List<MediaFile> mediaFiles;
+        private boolean search;
 
 
         public SearchAdapter(Activity activity) {
-            this.activity = activity;
-            this.audioFiles = new ArrayList<>();
+            this.activity = new WeakReference<>(activity);
+            this.mediaFiles = new ArrayList<>();
         }
 
-        public class ViewHolder extends RecyclerView.ViewHolder {
+        public class SearchViewHolder extends RecyclerView.ViewHolder {
 
             TextView searchTitle;
 
-            public ViewHolder(View v) {
+            public SearchViewHolder(View v) {
                 super(v);
                 searchTitle = (TextView) v.findViewById(R.id.itemSearch);
             }
         }
 
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_search, parent, false);
-            return new ViewHolder(v);
-        }
+        public class ResultViewHolder extends RecyclerView.ViewHolder {
 
-        @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
-            AudioFile audioFile = audioFiles.get(position);
-            if(audioFile != null){
-                holder.searchTitle.setText(audioFile.title);
+            TextView duration;
+            TextView title;
+            TextView filePath;
+            ImageView cover;
+
+            public ResultViewHolder(View v) {
+                super(v);
+                v.setOnClickListener(v1 -> startPlayerActivity(getAdapterPosition(), cover));
+                duration = (TextView) v.findViewById(R.id.itemDuration);
+                title = (TextView) v.findViewById(R.id.itemTitle);
+                filePath = (TextView) v.findViewById(R.id.filePath);
+                cover = (ImageView) v.findViewById(R.id.itemCover);
             }
         }
 
         @Override
-        public int getItemCount() {
-            return audioFiles.size();
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v;
+            switch (viewType) {
+                case VIEW_TYPE_SEARCH:
+                    v = LayoutInflater.from(parent.getContext())
+                            .inflate(R.layout.item_search, parent, false);
+                    return new SearchViewHolder(v);
+                case VIEW_TYPE_RESULT:
+                    v = LayoutInflater.from(parent.getContext())
+                            .inflate(R.layout.item_audio_track, parent, false);
+                    return new ResultViewHolder(v);
+
+            }
+            return null;
         }
 
-        public void refreshAdapter(List<AudioFile> queryResult) {
-            audioFiles.clear();
-            audioFiles.addAll(queryResult);
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+            switch (getItemViewType(position)) {
+                case VIEW_TYPE_SEARCH:
+                    createSearchItem((SearchViewHolder) holder, position);
+                    break;
+                case VIEW_TYPE_RESULT:
+                    createResultItem((ResultViewHolder) holder, position);
+                    break;
+            }
+        }
+
+        private void startPlayerActivity(int position, View cover) {
+            MediaFile mediaFile = mediaFiles.get(position);
+            if (mediaFile != null) {
+                switch (mediaFile.getMediaType()) {
+                    case VIDEO:
+                        break;
+                    case AUDIO:
+                        Activity act = activity.get();
+                        if (act != null) {
+                            AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
+                            audioPlayer.setCurrentAudioFile((AudioFile) mediaFile);
+                            audioPlayer.position = position;
+                            AudioPlayerActivity.startPlayerActivity(act, true, cover);
+                        }
+                        break;
+                }
+            }
+        }
+
+        private void createResultItem(ResultViewHolder holder, int position) {
+            MediaFile mediaFile = mediaFiles.get(position);
+            if (mediaFile != null) {
+
+                BitmapHelper.getInstance().loadTrackListArtwork(mediaFile, holder.cover);
+
+                holder.duration.setText(Utils.getDurationString(mediaFile.getLength()));
+                holder.title.setText(mediaFile.getTitle());
+                holder.filePath.setText(mediaFile.getFilePath());
+            }
+        }
+
+        private void createSearchItem(SearchViewHolder holder, int position) {
+            MediaFile mediaFile = mediaFiles.get(position);
+            if (mediaFile != null) {
+                holder.searchTitle.setText(mediaFile.getTitle());
+            }
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            if (search) {
+                return VIEW_TYPE_SEARCH;
+            }
+            return VIEW_TYPE_RESULT;
+        }
+
+        @Override
+        public int getItemCount() {
+            return mediaFiles.size();
+        }
+
+        public void refreshAdapter(List<AudioFile> queryResult, boolean search) {
+            this.search = search;
+            mediaFiles.clear();
+            mediaFiles.addAll(queryResult);
             notifyDataSetChanged();
         }
     }

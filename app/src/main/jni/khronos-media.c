@@ -1,5 +1,6 @@
 #include <jni.h>
 #include <stdio.h>
+#include <fcntl.h>
 #include <SLES/OpenSLES.h>
 #include<android/log.h>
 
@@ -19,6 +20,7 @@ SLMuteSoloItf uriPlayerMuteSolo = NULL;
 SLVolumeItf uriPlayerVolume = NULL;
 SLBassBoostItf uriBassBoost = NULL;
 SLVirtualizerItf uriVirtualizer = NULL;
+SLPrefetchStatusItf uriPrefetchItf = NULL;
 
 
 JavaVM *gJavaVM;
@@ -151,14 +153,16 @@ Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *e
     audioSource.pFormat = (void *) &mime;
     audioSource.pLocator = (void *) &locatorUri;
 
-    const SLInterfaceID ids[6] = {SL_IID_PLAY,
+    const SLInterfaceID ids[7] = {SL_IID_PLAY,
                                   SL_IID_SEEK,
                                   SL_IID_MUTESOLO,
                                   SL_IID_VOLUME,
                                   SL_IID_BASSBOOST,
-                                  SL_IID_EQUALIZER};
+                                  SL_IID_EQUALIZER,
+                                  SL_IID_PREFETCHSTATUS};
 
-    const SLboolean req[6] = {SL_BOOLEAN_TRUE,
+    const SLboolean req[7] = {SL_BOOLEAN_TRUE,
+                              SL_BOOLEAN_TRUE,
                               SL_BOOLEAN_TRUE,
                               SL_BOOLEAN_TRUE,
                               SL_BOOLEAN_TRUE,
@@ -167,7 +171,7 @@ Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *e
 
 
     result = (*engineEngine)->CreateAudioPlayer(engineEngine, &uriPlayerObject, &audioSource,
-                                                &audioSink, 6,
+                                                &audioSink, 7,
                                                 ids, req);
 
     (*env)->ReleaseStringUTFChars(env, uri, utf8);
@@ -192,9 +196,18 @@ Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *e
     checkError(result);
     result = (*uriPlayerObject)->GetInterface(uriPlayerObject, SL_IID_EQUALIZER, &eqOutputItf);
     checkError(result);
+    result = (*uriPlayerObject)->GetInterface(uriPlayerObject, SL_IID_PREFETCHSTATUS, &uriPrefetchItf);
+    checkError(result);
 
     result = (*uriPlayerPlay)->SetPlayState(uriPlayerPlay, SL_PLAYSTATE_PAUSED);
     checkError(result);
+
+    /* Wait until there's data to play */
+    SLuint32 prefetchStatus = SL_PREFETCHSTATUS_UNDERFLOW;
+    while (prefetchStatus != SL_PREFETCHSTATUS_SUFFICIENTDATA) {
+        usleep(100 * 1000);
+        (*uriPrefetchItf)->GetPrefetchStatus(uriPrefetchItf, &prefetchStatus);
+    }
 
 
     result = (*uriPlayerPlay)->SetMarkerPosition(uriPlayerPlay, 2000);
