@@ -92,6 +92,7 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 querySearch(query, false);
+                Utils.hideKeyboard(SearchActivity.this);
                 return true;
             }
 
@@ -115,8 +116,6 @@ public class SearchActivity extends AppCompatActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(audioFiles -> {
                     adapter.refreshAdapter(audioFiles, search);
-                }, throwable -> {
-
                 });
     }
 

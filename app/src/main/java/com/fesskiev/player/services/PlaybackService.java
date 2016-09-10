@@ -561,7 +561,7 @@ public class PlaybackService extends Service {
             public void run() {
                 createValuesScale();
             }
-        }, 0, 1000);
+        }, 1000, 1000);
     }
 
     private void stopUpdateTimer() {
