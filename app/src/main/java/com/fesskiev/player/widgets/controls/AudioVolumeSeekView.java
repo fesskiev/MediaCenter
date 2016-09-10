@@ -9,7 +9,10 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -51,6 +54,8 @@ public class AudioVolumeSeekView extends View {
     private boolean checkVolume;
     private boolean checkSeek;
     private boolean enableChangeVolume;
+
+    private GestureDetectorCompat gestureDetector;
 
 
     public AudioVolumeSeekView(Context context) {
@@ -117,6 +122,8 @@ public class AudioVolumeSeekView extends View {
         progressPaint.setAntiAlias(true);
         progressPaint.setStrokeWidth(circleStrokeWidth);
 
+        gestureDetector = new GestureDetectorCompat(context, gestureListener);
+
         setBackgroundColor(Color.TRANSPARENT);
 
         enableChangeVolume = true;
@@ -141,18 +148,54 @@ public class AudioVolumeSeekView extends View {
     }
 
 
+    private final GestureDetector.SimpleOnGestureListener
+            gestureListener = new GestureDetector.SimpleOnGestureListener() {
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            Log.d("test1", "onSingleTapUp");
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            Log.d("test1", "onFling");
+            return true;
+        }
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            Log.d("test1", "onDown");
+            return true;
+        }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            Log.d("test1", "onDoubleTap");
+            return true;
+        }
+
+    };
+
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        int action = event.getAction() & MotionEvent.ACTION_MASK;
+        gestureDetector.onTouchEvent(event);
+        int action = event.getActionMasked();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
 
-                if (inCircle(event.getX(), event.getY(), seekSlider.x, seekSlider.y, seekSlider.radius)) {
+                final float x1 = event.getX();
+                final float y1 = event.getY();
+
+                if (inCircle(x1, y1, seekSlider.x, seekSlider.y, seekSlider.radius)) {
                     checkSeek = true;
+                    setSeekProgress(x1, y1);
                 }
                 if (enableChangeVolume) {
-                    if (inCircle(event.getX(), event.getY(), volumeSlider.x, volumeSlider.y, volumeSlider.radius)) {
+                    if (inCircle(x1, y1, volumeSlider.x, volumeSlider.y, volumeSlider.radius)) {
                         checkVolume = true;
+                        setVolumeProgress(x1, y1);
                     }
                 }
                 break;
@@ -172,6 +215,7 @@ public class AudioVolumeSeekView extends View {
 
                 break;
             case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
                 if (listener != null) {
                     if (checkVolume) {
                         listener.changeVolumeFinish();
@@ -189,14 +233,11 @@ public class AudioVolumeSeekView extends View {
 
 
     private void setSeekProgress(float dx, float dy) {
-
-        dx += 10;
-        dy += 10;
         float angle = (float) ((Math.toDegrees(Math.atan2(dx - 360.0, 360.0 - dy)) + 360.0) % 360.0);
         progressSeek = angle;
         float scaleValue = angle * (100f / 360);
 
-//        Log.d("test", "angle: " + angle + " x: " + dx + " y: " + dy);
+        Log.d("test", "angle: " + angle + " x: " + dx + " y: " + dy);
 
         invalidate();
 
@@ -206,35 +247,10 @@ public class AudioVolumeSeekView extends View {
     }
 
 
-    private int checkTouchSector(float angle) {
-        if (angle >= 0f && angle < 44f) {
-            return 0;
-        } else if (angle >= 44f && angle < 90f) {
-            return 1;
-        } else if (angle >= 90f && angle < 135f) {
-            return 2;
-        } else if (angle >= 135f && angle < 180f) {
-            return 3;
-        } else if (angle >= 180f && angle < 225f) {
-            return 4;
-        } else if (angle >= 225f && angle < 270f) {
-            return 5;
-        } else if (angle >= 270f && angle < 315f) {
-            return 6;
-        } else if (angle >= 315f && angle < 360f) {
-            return 7;
-        }
-        return -1;
-    }
-
-
     private void setVolumeProgress(float dx, float dy) {
-        dx += 10;
-        dy += 10;
-
         float angle = (float) ((Math.toDegrees(Math.atan2(dx - 360.0, 360.0 - dy)) + 360.0) % 360.0);
 
-//        Log.w("test", "volume progress: x: " + dx + " y: " + dy + " angle: " + angle);
+        Log.w("test", "volume progress: x: " + dx + " y: " + dy + " angle: " + angle);
 
         float scaleValue = angle * (100f / 360);
 
@@ -308,6 +324,27 @@ public class AudioVolumeSeekView extends View {
     public void setSeekValue(int value) {
         progressSeek = value * 3.6f;
         invalidate();
+    }
+
+    private int checkTouchSector(float angle) {
+        if (angle >= 0f && angle < 44f) {
+            return 0;
+        } else if (angle >= 44f && angle < 90f) {
+            return 1;
+        } else if (angle >= 90f && angle < 135f) {
+            return 2;
+        } else if (angle >= 135f && angle < 180f) {
+            return 3;
+        } else if (angle >= 180f && angle < 225f) {
+            return 4;
+        } else if (angle >= 225f && angle < 270f) {
+            return 5;
+        } else if (angle >= 270f && angle < 315f) {
+            return 6;
+        } else if (angle >= 315f && angle < 360f) {
+            return 7;
+        }
+        return -1;
     }
 
     public void setEnableChangeVolume(boolean enable) {

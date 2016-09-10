@@ -64,6 +64,15 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_audio_player);
+
+
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+//                        | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE);
+
         if (savedInstanceState == null) {
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             if (toolbar != null) {
@@ -203,7 +212,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         if (!load) {
             TypedValue tv = new TypedValue();
             if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-                lp.height = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
+                lp.height = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
                 appBarLayout.setExpanded(false);
                 backdrop.setVisibility(View.GONE);
             }

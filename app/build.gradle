@@ -12,13 +12,11 @@ android {
         targetSdkVersion 24
         versionCode = 1
         versionName = "1.0.0"
-        ndk {
-            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
-        }
         externalNativeBuild {
             cmake {
-                arguments '-DANDROID_STL=gnustl_static', '-DANDROID_TOOLCHAIN=gcc',
-                        '-DABDRIOID_PLATFORM=21'
+                abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a',
+                        'x86', 'x86_64',
+                        'mips', 'mips64'
             }
         }
 

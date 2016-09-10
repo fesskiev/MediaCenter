@@ -315,6 +315,8 @@ public class PlaybackService extends Service {
 
         registerHeadsetReceiver();
         registerCallback();
+
+        createEngine();
     }
 
     @Override
@@ -412,10 +414,9 @@ public class PlaybackService extends Service {
             stop();
         }
         releaseUriAudioPlayer();
-        releaseEngine();
 
-        createEngine();
         createUriAudioPlayer(path);
+
         setEffects();
     }
 
