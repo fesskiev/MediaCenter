@@ -177,6 +177,11 @@ public class AudioVolumeSeekView extends View {
 
     };
 
+    private float posX;
+    private float posY;
+
+    private float lastTouchX;
+    private float lastTouchY;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -185,31 +190,46 @@ public class AudioVolumeSeekView extends View {
         switch (action) {
             case MotionEvent.ACTION_DOWN:
 
-                final float x1 = event.getX();
-                final float y1 = event.getY();
-
-                if (inCircle(x1, y1, seekSlider.x, seekSlider.y, seekSlider.radius)) {
-                    checkSeek = true;
-                    setSeekProgress(x1, y1);
-                }
-                if (enableChangeVolume) {
-                    if (inCircle(x1, y1, volumeSlider.x, volumeSlider.y, volumeSlider.radius)) {
-                        checkVolume = true;
-                        setVolumeProgress(x1, y1);
-                    }
-                }
-                break;
-            case MotionEvent.ACTION_MOVE:
-
                 final float x = event.getX();
                 final float y = event.getY();
 
+                // Remember where we started
+                lastTouchX = x;
+                lastTouchY = y;
+
+                if (inCircle(x, y, seekSlider.x, seekSlider.y, seekSlider.radius)) {
+                    checkSeek = true;
+                }
+                if (enableChangeVolume) {
+                    if (inCircle(x, y, volumeSlider.x, volumeSlider.y, volumeSlider.radius)) {
+                        checkVolume = true;
+                    }
+                }
+
+                break;
+            case MotionEvent.ACTION_MOVE:
+
+                final float x1 = event.getX();
+                final float y1 = event.getY();
+
+                // Calculate the distance moved
+                final float dx = x1 - lastTouchX;
+                final float dy = y1 - lastTouchY;
+
+                // Move the object
+                posX += dx;
+                posY += dy;
+
+                // Remember this touch position for the next move event
+                lastTouchX = x1;
+                lastTouchY = y1;
+
                 if (checkSeek) {
-                    setSeekProgress(x, y);
+                    setSeekProgress(posX, posY);
                     return true;
                 }
                 if (checkVolume) {
-                    setVolumeProgress(x, y);
+                    setVolumeProgress(posX, posY);
                     return true;
                 }
 
