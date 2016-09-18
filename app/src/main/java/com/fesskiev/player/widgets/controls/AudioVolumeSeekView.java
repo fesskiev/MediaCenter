@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PointF;
 import android.graphics.RectF;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GestureDetectorCompat;
@@ -55,6 +56,9 @@ public class AudioVolumeSeekView extends View {
     private boolean checkSeek;
     private boolean enableChangeVolume;
 
+    private float cx;
+    private float cy;
+
     private GestureDetectorCompat gestureDetector;
 
 
@@ -88,8 +92,6 @@ public class AudioVolumeSeekView extends View {
 
         a.recycle();
 
-        seekSlider = new Slider(Utils.dipToPixels(context, 20), R.drawable.icon_time_control);
-        volumeSlider = new Slider(Utils.dipToPixels(context, 20), R.drawable.icon_volume_control);
 
         radiusVolume = (int) Utils.dipToPixels(context, 80);
         radiusSeek = (int) Utils.dipToPixels(context, 135);
@@ -130,6 +132,7 @@ public class AudioVolumeSeekView extends View {
 
     }
 
+
     public void setListener(OnAudioVolumeSeekListener l) {
         this.listener = l;
     }
@@ -145,29 +148,23 @@ public class AudioVolumeSeekView extends View {
         seekRect = new RectF(w / 2 - radiusSeek, h / 2 - radiusSeek,
                 w / 2 + radiusSeek, h / 2 + radiusSeek);
 
+        cx = getWidth() / 2f;
+        cy = getHeight() / 2f;
+
+
+        seekSlider = new Slider(Utils.dipToPixels(getContext(), 20), R.drawable.icon_time_control);
+        seekSlider.x = (float) (cx + radiusSeek * Math.sin(Math.toDegrees(progressSeek)));
+        seekSlider.y = (float) (cy - radiusSeek * Math.cos(Math.toDegrees(progressSeek)));
+
+
+        volumeSlider = new Slider(Utils.dipToPixels(getContext(), 20), R.drawable.icon_volume_control);
+        volumeSlider.x = (float) (cx + radiusVolume * Math.sin(Math.toDegrees(progressVolume)));
+        volumeSlider.y = (float) (cy - radiusVolume * Math.cos(Math.toDegrees(progressVolume)));
     }
 
 
     private final GestureDetector.SimpleOnGestureListener
             gestureListener = new GestureDetector.SimpleOnGestureListener() {
-
-        @Override
-        public boolean onSingleTapUp(MotionEvent e) {
-            Log.d("test1", "onSingleTapUp");
-            return true;
-        }
-
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            Log.d("test1", "onFling");
-            return true;
-        }
-
-        @Override
-        public boolean onDown(MotionEvent e) {
-            Log.d("test1", "onDown");
-            return true;
-        }
 
         @Override
         public boolean onDoubleTap(MotionEvent e) {
@@ -177,25 +174,18 @@ public class AudioVolumeSeekView extends View {
 
     };
 
-    private float posX;
-    private float posY;
-
-    private float lastTouchX;
-    private float lastTouchY;
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         gestureDetector.onTouchEvent(event);
         int action = event.getActionMasked();
+
+        float x = event.getX();
+        float y = event.getY();
+
+        Log.e("test", "TOUCH:X: " + x + " Y: " + y);
+
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-
-                final float x = event.getX();
-                final float y = event.getY();
-
-                // Remember where we started
-                lastTouchX = x;
-                lastTouchY = y;
 
                 if (inCircle(x, y, seekSlider.x, seekSlider.y, seekSlider.radius)) {
                     checkSeek = true;
@@ -209,28 +199,11 @@ public class AudioVolumeSeekView extends View {
                 break;
             case MotionEvent.ACTION_MOVE:
 
-                final float x1 = event.getX();
-                final float y1 = event.getY();
-
-                // Calculate the distance moved
-                final float dx = x1 - lastTouchX;
-                final float dy = y1 - lastTouchY;
-
-                // Move the object
-                posX += dx;
-                posY += dy;
-
-                // Remember this touch position for the next move event
-                lastTouchX = x1;
-                lastTouchY = y1;
-
                 if (checkSeek) {
-                    setSeekProgress(posX, posY);
-                    return true;
+                    setSeekProgress(x, y);
                 }
                 if (checkVolume) {
-                    setVolumeProgress(posX, posY);
-                    return true;
+                    setVolumeProgress(x, y);
                 }
 
                 break;
@@ -248,38 +221,69 @@ public class AudioVolumeSeekView extends View {
                 checkSeek = false;
                 break;
         }
+
+        postInvalidate();
         return true;
+    }
+
+    public double angleBetween2Lines(float centerX, float centerY, float x1,
+                                     float y1, float x2, float y2) {
+        double angle1 = Math.atan2(y1 - centerY, x1 - centerX);
+        double angle2 = Math.atan2(y2 - centerY, x2 - centerX);
+        return angle1 - angle2;
     }
 
 
     private void setSeekProgress(float dx, float dy) {
-        float angle = (float) ((Math.toDegrees(Math.atan2(dx - 360.0, 360.0 - dy)) + 360.0) % 360.0);
+
+        float angle = (float) Math.toDegrees(angleBetween2Lines(cx, cy, 0, 0, dx, dy)) * -1;
+        if (angle < 0) {
+            angle += 360;
+        }
+
         progressSeek = angle;
+
+        Log.w("test", "seek dx: " + dx + " dy: " + dy + " angle: "
+                + angle + " startX: " + seekSlider.x + " startY: " + seekSlider.y);
         float scaleValue = angle * (100f / 360);
-
-        Log.d("test", "angle: " + angle + " x: " + dx + " y: " + dy);
-
-        invalidate();
 
         if (listener != null) {
             listener.changeSeekStart((int) scaleValue);
         }
     }
 
+    boolean end;
 
     private void setVolumeProgress(float dx, float dy) {
-        float angle = (float) ((Math.toDegrees(Math.atan2(dx - 360.0, 360.0 - dy)) + 360.0) % 360.0);
 
-        Log.w("test", "volume progress: x: " + dx + " y: " + dy + " angle: " + angle);
+        float angle = (float) Math.toDegrees(angleBetween2Lines(cx, cy, 0, 0, dx, dy)) * -1;
+        if (angle < 0) {
+            angle += 360;
+        }
+
+        Log.w("test", "volume dx: " + dx + " dy: " + dy + " angle: " + angle);
 
         float scaleValue = angle * (100f / 360);
 
-        progressVolume = angle;
+        Log.w("test", "volume scale: x: " + scaleValue);
+        if (end && (scaleValue > 80 && scaleValue < 98)) {
+            end = false;
+        } else if ((int) scaleValue > 98) {
+            Log.w("test", "END!");
+            if (listener != null && !end) {
+                listener.changeVolumeStart(100);
+            }
+            end = true;
+        }
 
-        invalidate();
 
-        if (listener != null) {
-            listener.changeVolumeStart((int) scaleValue);
+        if (!end) {
+
+            progressVolume = angle;
+
+            if (listener != null) {
+                listener.changeVolumeStart((int) scaleValue);
+            }
         }
     }
 
@@ -287,8 +291,6 @@ public class AudioVolumeSeekView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        float cx = getWidth() / 2f;
-        float cy = getHeight() / 2f;
 
         for (int i = 0; i < 360; i += 45) {
             float angle = (float) Math.toRadians(i);
@@ -305,10 +307,11 @@ public class AudioVolumeSeekView extends View {
         /****************************************************************************/
 
         canvas.drawCircle(cx, cy, radiusVolume, circlePaint);
-        canvas.drawArc(volumeRect, 270, progressVolume, false, progressPaint);
+        canvas.drawArc(volumeRect, 270f, progressVolume, false, progressPaint);
 
-        volumeSlider.x = (float) (cx + radiusVolume * Math.cos(Math.toRadians(270f + progressVolume)));
-        volumeSlider.y = (float) (cy + radiusVolume * Math.sin(Math.toRadians(270f + progressVolume)));
+        volumeSlider.x = (float) (cx + radiusVolume * Math.sin(Math.toRadians(progressVolume)));
+        volumeSlider.y = (float) (cy - radiusVolume * Math.cos(Math.toRadians(progressVolume)));
+
 
         canvas.drawCircle(volumeSlider.x, volumeSlider.y, volumeSlider.radius, circleFillPaint);
         canvas.drawBitmap(volumeSlider.bitmap, (volumeSlider.x - (volumeSlider.radius / 2)) - 10,
@@ -317,13 +320,11 @@ public class AudioVolumeSeekView extends View {
         /****************************************************************************/
 
         canvas.drawCircle(cx, cy, radiusSeek, circlePaint);
-        canvas.drawArc(seekRect, 270, progressSeek, false, progressPaint);
+        canvas.drawArc(seekRect, 270f, progressSeek, false, progressPaint);
 
-        seekSlider.x = (float) (cx + radiusSeek * Math.cos(Math.toRadians(270f + progressSeek)));
-        seekSlider.y = (float) (cy + radiusSeek * Math.sin(Math.toRadians(270f + progressSeek)));
+        seekSlider.x = (float) (cx + radiusSeek * Math.sin(Math.toRadians(progressSeek)));
+        seekSlider.y = (float) (cy - radiusSeek * Math.cos(Math.toRadians(progressSeek)));
 
-
-//        Log.d("test", "draw volume x: " + volumeSlider.x + " y: " + volumeSlider.y);
 
         canvas.drawCircle(seekSlider.x, seekSlider.y, seekSlider.radius, circleFillPaint);
         canvas.drawBitmap(seekSlider.bitmap, (seekSlider.x - (seekSlider.radius / 2)) - 10,
@@ -346,27 +347,6 @@ public class AudioVolumeSeekView extends View {
         invalidate();
     }
 
-    private int checkTouchSector(float angle) {
-        if (angle >= 0f && angle < 44f) {
-            return 0;
-        } else if (angle >= 44f && angle < 90f) {
-            return 1;
-        } else if (angle >= 90f && angle < 135f) {
-            return 2;
-        } else if (angle >= 135f && angle < 180f) {
-            return 3;
-        } else if (angle >= 180f && angle < 225f) {
-            return 4;
-        } else if (angle >= 225f && angle < 270f) {
-            return 5;
-        } else if (angle >= 270f && angle < 315f) {
-            return 6;
-        } else if (angle >= 315f && angle < 360f) {
-            return 7;
-        }
-        return -1;
-    }
-
     public void setEnableChangeVolume(boolean enable) {
         enableChangeVolume = enable;
     }
@@ -378,6 +358,7 @@ public class AudioVolumeSeekView extends View {
         float radius;
         float x;
         float y;
+
 
         public Slider(float radius, int res) {
             this.radius = radius;

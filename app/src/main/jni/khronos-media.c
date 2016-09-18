@@ -210,10 +210,10 @@ Java_com_fesskiev_player_services_PlaybackService_createUriAudioPlayer(JNIEnv *e
     }
 
 
-    result = (*uriPlayerPlay)->SetMarkerPosition(uriPlayerPlay, 2000);
-    checkError(result);
-    result = (*uriPlayerPlay)->SetPositionUpdatePeriod(uriPlayerPlay, 500);
-    checkError(result);
+//    result = (*uriPlayerPlay)->SetMarkerPosition(uriPlayerPlay, 2000);
+//    checkError(result);
+//    result = (*uriPlayerPlay)->SetPositionUpdatePeriod(uriPlayerPlay, 1000);
+//    checkError(result);
 
 
     result = (*uriPlayerPlay)->RegisterCallback(uriPlayerPlay,

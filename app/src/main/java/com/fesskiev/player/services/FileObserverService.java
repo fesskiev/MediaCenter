@@ -27,10 +27,10 @@ public class FileObserverService extends Service {
     }
 
     @Override
-    public void onCreate() {
-        super.onCreate();
+    public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "create FileObserverService");
         folderFileObserver = new FolderFileObserver();
+        return START_STICKY;
     }
 
     @Override
