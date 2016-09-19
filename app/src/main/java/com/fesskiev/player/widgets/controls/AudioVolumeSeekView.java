@@ -43,7 +43,6 @@ public class AudioVolumeSeekView extends View {
     private RectF volumeRect;
     private RectF seekRect;
 
-
     private int radiusVolume;
     private int radiusSeek;
     private int lineRadius;
@@ -151,15 +150,8 @@ public class AudioVolumeSeekView extends View {
         cx = getWidth() / 2f;
         cy = getHeight() / 2f;
 
-
         seekSlider = new Slider(Utils.dipToPixels(getContext(), 20), R.drawable.icon_time_control);
-        seekSlider.x = (float) (cx + radiusSeek * Math.sin(Math.toDegrees(progressSeek)));
-        seekSlider.y = (float) (cy - radiusSeek * Math.cos(Math.toDegrees(progressSeek)));
-
-
         volumeSlider = new Slider(Utils.dipToPixels(getContext(), 20), R.drawable.icon_volume_control);
-        volumeSlider.x = (float) (cx + radiusVolume * Math.sin(Math.toDegrees(progressVolume)));
-        volumeSlider.y = (float) (cy - radiusVolume * Math.cos(Math.toDegrees(progressVolume)));
     }
 
 
@@ -181,8 +173,6 @@ public class AudioVolumeSeekView extends View {
 
         float x = event.getX();
         float y = event.getY();
-
-        Log.e("test", "TOUCH:X: " + x + " Y: " + y);
 
         switch (action) {
             case MotionEvent.ACTION_DOWN:
@@ -233,57 +223,36 @@ public class AudioVolumeSeekView extends View {
         return angle1 - angle2;
     }
 
-
-    private void setSeekProgress(float dx, float dy) {
-
-        float angle = (float) Math.toDegrees(angleBetween2Lines(cx, cy, 0, 0, dx, dy)) * -1;
+    private float getAngle(float x, float y) {
+        float angle = (float) Math.toDegrees(angleBetween2Lines(cx, cy, 0, 0, x, y)) * -1;
+        angle -= 45;
         if (angle < 0) {
             angle += 360;
         }
+        return angle;
+    }
 
-        progressSeek = angle;
 
-        Log.w("test", "seek dx: " + dx + " dy: " + dy + " angle: "
-                + angle + " startX: " + seekSlider.x + " startY: " + seekSlider.y);
-        float scaleValue = angle * (100f / 360);
+    private void setSeekProgress(float dx, float dy) {
+
+        progressSeek = getAngle(dx, dy);
+
+        float scaleValue = progressSeek * (100f / 360);
 
         if (listener != null) {
             listener.changeSeekStart((int) scaleValue);
         }
     }
 
-    boolean end;
 
     private void setVolumeProgress(float dx, float dy) {
 
-        float angle = (float) Math.toDegrees(angleBetween2Lines(cx, cy, 0, 0, dx, dy)) * -1;
-        if (angle < 0) {
-            angle += 360;
-        }
+        progressVolume = getAngle(dx, dy);
 
-        Log.w("test", "volume dx: " + dx + " dy: " + dy + " angle: " + angle);
+        float scaleValue = progressVolume * (100f / 360);
 
-        float scaleValue = angle * (100f / 360);
-
-        Log.w("test", "volume scale: x: " + scaleValue);
-        if (end && (scaleValue > 80 && scaleValue < 98)) {
-            end = false;
-        } else if ((int) scaleValue > 98) {
-            Log.w("test", "END!");
-            if (listener != null && !end) {
-                listener.changeVolumeStart(100);
-            }
-            end = true;
-        }
-
-
-        if (!end) {
-
-            progressVolume = angle;
-
-            if (listener != null) {
-                listener.changeVolumeStart((int) scaleValue);
-            }
+        if (listener != null) {
+            listener.changeVolumeStart((int) scaleValue);
         }
     }
 
