@@ -22,7 +22,6 @@
         <activity
             android:name=".ui.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:launchMode="singleTop"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -33,7 +32,6 @@
         </activity>
         <activity
             android:name=".ui.audio.tracklist.TrackListActivity"
-            android:launchMode="singleTop"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize">
@@ -44,7 +42,6 @@
         <activity
             android:name=".ui.audio.player.AudioPlayerActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:launchMode="singleTop"
             android:parentActivityName=".ui.audio.tracklist.TrackListActivity"
             android:screenOrientation="portrait">
 
@@ -56,7 +53,6 @@
         <activity
             android:name=".ui.audio.player.AudioURIActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:launchMode="singleTop"
             android:screenOrientation="portrait">
 
             <intent-filter>
@@ -92,7 +88,6 @@
         <activity
             android:name=".ui.vk.VkontakteActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:launchMode="singleTop"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait">
             <meta-data
@@ -137,7 +132,6 @@
 
         <activity
             android:name=".ui.search.SearchActivity"
-            android:launchMode="singleTop"
             android:parentActivityName=".ui.MainActivity"
             android:theme="@style/Base.Theme.Player.Search"
             android:screenOrientation="portrait">
