@@ -1,9 +1,8 @@
 apply plugin: 'com.android.application'
-apply plugin: 'me.tatarka.retrolambda'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "24.0.2"
+    buildToolsVersion "24.0.3"
 
 
     defaultConfig {
@@ -21,7 +20,7 @@ android {
         }
 
         jackOptions {
-            enabled false
+            enabled true
         }
     }
 
