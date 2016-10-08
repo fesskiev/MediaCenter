@@ -32,7 +32,7 @@ public class MediaApplication extends Application {
     };
 
     static {
-        System.loadLibrary("khronos-media");
+        System.loadLibrary("SuperpoweredPlayer");
     }
 
 
