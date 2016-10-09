@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
@@ -190,104 +191,6 @@ public class PlaybackService extends Service {
     }
 
 
-    public native void unregisterCallback();
-
-    public native void registerCallback();
-
-    public native void createEngine();
-
-    public native boolean createUriAudioPlayer(String uri);
-
-    public native void setPlayingUriAudioPlayer(boolean isPlaying);
-
-    public native void setVolumeUriAudioPlayer(int milliBel);
-
-    public native void setSeekUriAudioPlayer(long milliseconds);
-
-    public native void releaseUriAudioPlayer();
-
-    public native void releaseEngine();
-
-    public native int getDuration();
-
-    public native int getPosition();
-
-    public native boolean isPlaying();
-
-    public native void setMuteUriAudioPlayer(boolean mute);
-
-    public static native void setLoopingUriAudioPlayer(boolean isLooping);
-
-    public native void enableStereoPositionUriAudioPlayer(boolean enable);
-
-    public native void setStereoPositionUriAudioPlayer(int permille);
-
-    /***
-     * EQ methods
-     */
-
-    public native void setEnableEQ(boolean isEnable);
-
-    public native boolean isEQEnabled();
-
-    public native void usePreset(int presetValue);
-
-    public native int getNumberOfBands();
-
-    public native int getNumberOfPresets();
-
-    public native int getCurrentPreset();
-
-    public native int[] getBandLevelRange();
-
-    public native void setBandLevel(int bandNumber, int milliBel);
-
-    public native int getBandLevel(int bandNumber);
-
-    public native int[] getBandFrequencyRange(int bandNumber);
-
-    public native int getCenterFrequency(int bandNumber);
-
-    public native int getNumberOfPreset();
-
-    public native String getPresetName(int presetNumber);
-
-    /***
-     * Bass Boost methods
-     */
-
-    public native boolean isSupportedBassBoost();
-
-    public native boolean isEnabledBassBoost();
-
-    public native void setEnableBassBoost(boolean isEnable);
-
-    public native void setBassBoostValue(int value);
-
-
-    /**
-     * Virtualizer methods
-     */
-    public native boolean isSupportedVirtualizer();
-
-    public native boolean isEnabledVirtualizer();
-
-    public native void setEnableVirtualizer(boolean isEnable);
-
-    public native void setVirtualizerValue(int value);
-
-
-    /**
-     * Callback method from C to Java
-     **/
-    public void playStatusCallback(int status) {
-        if (status == END_SONG) {
-            sendBroadcastPlayingState(true);
-            sendBroadcastSongEnd();
-        }
-    }
-
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -304,7 +207,7 @@ public class PlaybackService extends Service {
                             break;
                         case AudioFocusManager.AUDIO_NO_FOCUS_CAN_DUCK:
                             Log.d(TAG, "onFocusChanged: NO_FOCUS_CAN_DUCK");
-                            setVolumeUriAudioPlayer(500);
+                            setVolumeAudioPlayer(500);
                             break;
                         case AudioFocusManager.AUDIO_NO_FOCUS_NO_DUCK:
                             Log.d(TAG, "onFocusChanged: NO_FOCUS_NO_DUCK");
@@ -314,9 +217,7 @@ public class PlaybackService extends Service {
                 });
 
         registerHeadsetReceiver();
-        registerCallback();
 
-        createEngine();
     }
 
     @Override
@@ -346,19 +247,19 @@ public class PlaybackService extends Service {
                         break;
                     case ACTION_BASS_BOOST_LEVEL:
                     case ACTION_PLAYBACK_BASS_BOOST_STATE:
-                        setBassBoost();
+//                        setBassBoost();
                         break;
                     case ACTION_PLAYBACK_VIRTUALIZER_LEVEL:
                     case ACTION_PLAYBACK_VIRTUALIZER_STATE:
-                        setVirtualizer();
+//                        setVirtualizer();
                         break;
                     case ACTION_PLAYBACK_EQ_STATE:
-                        setEQ();
+//                        setEQ();
                         break;
                     case ACTION_PLAYBACK_MUTE_SOLO_STATE:
                         boolean muteSoloState =
                                 intent.getBooleanExtra(PLAYBACK_EXTRA_MUTE_SOLO_STATE, false);
-                        muteSolo(muteSoloState);
+//                        muteSolo(muteSoloState);
                         break;
                     case ACTION_PLAYBACK_REPEAT_STATE:
                         boolean repeatState =
@@ -401,130 +302,138 @@ public class PlaybackService extends Service {
     };
 
     private void repeat(boolean repeatState) {
-        setLoopingUriAudioPlayer(repeatState);
+        setLoopingAudioPlayer(repeatState);
     }
 
 
-    private void muteSolo(boolean muteSoloState) {
-        setMuteUriAudioPlayer(muteSoloState);
-    }
+//    private void muteSolo(boolean muteSoloState) {
+//        setMuteUriAudioPlayer(muteSoloState);
+//    }
 
     private void createPlayer(String path) {
-        if (isPlaying()) {
-            stop();
+//        if (isPlaying()) {
+//            stop();
+//        }
+        String sampleRateString, bufferSizeString;
+        AudioManager audioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+        sampleRateString = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE);
+        bufferSizeString = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER);
+        if (sampleRateString == null) {
+            sampleRateString = "44100";
         }
-        releaseUriAudioPlayer();
-
-        createUriAudioPlayer(path);
-
-        setEffects();
-    }
-
-    private void setEffects() {
-        setEQ();
-        setVirtualizer();
-        setBassBoost();
-    }
-
-    private void setEQ() {
-        if (settingsManager.isEQOn()) {
-            setEnableEQ(true);
-            Log.d(TAG, "EQ ON");
-            switch (settingsManager.getEQPresetState()) {
-                case EqualizerFragment.POSITION_CUSTOM_PRESET:
-                    Log.d(TAG, "set custom preset");
-                    setCustomPreset();
-                    break;
-                case EqualizerFragment.POSITION_PRESET:
-                    Log.d(TAG, "set preset: " + (settingsManager.getEQPresetValue() - EqualizerFragment.OFFSET));
-                    usePreset(settingsManager.getEQPresetValue() - EqualizerFragment.OFFSET);
-                    break;
-                default:
-                    break;
-            }
-            sendBroadcastEQState(true);
-        } else {
-            Log.d(TAG, "EQ OFF");
-            setEnableEQ(false);
-            sendBroadcastEQState(false);
+        if (bufferSizeString == null) {
+            bufferSizeString = "512";
         }
+        createAudioPlayer(path, Integer.valueOf(sampleRateString), Integer.valueOf(bufferSizeString));
 
-        Log.d(TAG, "EQ IS ON: " + isEQEnabled());
+//        setEffects();
     }
 
-    private void setCustomPreset() {
-        List<Double> levels = settingsManager.getCustomBandsLevels();
-        int bandsNumber = getNumberOfBands();
-        for (int i = 0; i < levels.size(); i++) {
-            if (i <= bandsNumber) {
-                double value = levels.get(i);
-                Log.wtf(TAG, "custom band value: " + value);
-                setBandLevel(i, (int) value);
-            }
-        }
-    }
+//    private void setEffects() {
+//        setEQ();
+//        setVirtualizer();
+//        setBassBoost();
+//    }
 
-    private void setVirtualizer() {
-        if (isSupportedVirtualizer()) {
-            Log.d(TAG, "virtualizer supported");
-            sendBroadcastVirtualizerSupport(true);
-            if (settingsManager != null && settingsManager.isVirtualizerOn()) {
-                sendBroadcastVirtualizerState(true);
-                setEnableVirtualizer(true);
-                int value = settingsManager.getVirtualizerValue();
-                if (value != -1) {
-                    setVirtualizerValue(1000);
-                    Log.d(TAG, "set vitrualizer effect: " + value);
-                }
-            } else {
-                setEnableVirtualizer(false);
-                sendBroadcastVirtualizerState(false);
-            }
-        } else {
-            Log.d(TAG, "virtualizer not supported!");
-            sendBroadcastVirtualizerSupport(false);
-        }
-    }
+//    private void setEQ() {
+//        if (settingsManager.isEQOn()) {
+//            setEnableEQ(true);
+//            Log.d(TAG, "EQ ON");
+//            switch (settingsManager.getEQPresetState()) {
+//                case EqualizerFragment.POSITION_CUSTOM_PRESET:
+//                    Log.d(TAG, "set custom preset");
+//                    setCustomPreset();
+//                    break;
+//                case EqualizerFragment.POSITION_PRESET:
+//                    Log.d(TAG, "set preset: " + (settingsManager.getEQPresetValue() - EqualizerFragment.OFFSET));
+//                    usePreset(settingsManager.getEQPresetValue() - EqualizerFragment.OFFSET);
+//                    break;
+//                default:
+//                    break;
+//            }
+//            sendBroadcastEQState(true);
+//        } else {
+//            Log.d(TAG, "EQ OFF");
+//            setEnableEQ(false);
+//            sendBroadcastEQState(false);
+//        }
+//
+//        Log.d(TAG, "EQ IS ON: " + isEQEnabled());
+//    }
 
-    private void setBassBoost() {
-        if (isSupportedBassBoost()) {
-            Log.d(TAG, "bass boost supported");
-            sendBroadcastBassBoostSupport(true);
-            if (settingsManager != null && settingsManager.isBassBoostOn()) {
-                sendBroadcastBassBoostState(true);
-                setEnableBassBoost(true);
-                int value = settingsManager.getBassBoostValue();
-                if (value != -1) {
-                    setBassBoostValue(value);
-                    Log.d(TAG, "set bass boost effect: " + value);
-                }
-            } else {
-                setEnableBassBoost(false);
-                sendBroadcastBassBoostState(false);
-            }
-        } else {
-            Log.d(TAG, "bass boost not supported!");
-            sendBroadcastBassBoostSupport(false);
-        }
-    }
+//    private void setCustomPreset() {
+//        List<Double> levels = settingsManager.getCustomBandsLevels();
+//        int bandsNumber = getNumberOfBands();
+//        for (int i = 0; i < levels.size(); i++) {
+//            if (i <= bandsNumber) {
+//                double value = levels.get(i);
+//                Log.wtf(TAG, "custom band value: " + value);
+//                setBandLevel(i, (int) value);
+//            }
+//        }
+//    }
+
+//    private void setVirtualizer() {
+//        if (isSupportedVirtualizer()) {
+//            Log.d(TAG, "virtualizer supported");
+//            sendBroadcastVirtualizerSupport(true);
+//            if (settingsManager != null && settingsManager.isVirtualizerOn()) {
+//                sendBroadcastVirtualizerState(true);
+//                setEnableVirtualizer(true);
+//                int value = settingsManager.getVirtualizerValue();
+//                if (value != -1) {
+//                    setVirtualizerValue(1000);
+//                    Log.d(TAG, "set vitrualizer effect: " + value);
+//                }
+//            } else {
+//                setEnableVirtualizer(false);
+//                sendBroadcastVirtualizerState(false);
+//            }
+//        } else {
+//            Log.d(TAG, "virtualizer not supported!");
+//            sendBroadcastVirtualizerSupport(false);
+//        }
+//    }
+
+//    private void setBassBoost() {
+//        if (isSupportedBassBoost()) {
+//            Log.d(TAG, "bass boost supported");
+//            sendBroadcastBassBoostSupport(true);
+//            if (settingsManager != null && settingsManager.isBassBoostOn()) {
+//                sendBroadcastBassBoostState(true);
+//                setEnableBassBoost(true);
+//                int value = settingsManager.getBassBoostValue();
+//                if (value != -1) {
+//                    setBassBoostValue(value);
+//                    Log.d(TAG, "set bass boost effect: " + value);
+//                }
+//            } else {
+//                setEnableBassBoost(false);
+//                sendBroadcastBassBoostState(false);
+//            }
+//        } else {
+//            Log.d(TAG, "bass boost not supported!");
+//            sendBroadcastBassBoostSupport(false);
+//        }
+//    }
 
     private void volume(int volumeValue) {
         int attenuation = 100 - volumeValue;
         int millibel = attenuation * -50;
         Log.d(TAG, "volume millibel: " + millibel);
-        setVolumeUriAudioPlayer(millibel);
+        setVolumeAudioPlayer(millibel);
 
     }
 
     private void seek(int seekValue) {
-        setSeekUriAudioPlayer(seekValue * durationScale);
+        setSeekAudioPlayer(seekValue * durationScale);
         audioNotificationManager.seekToPosition(seekValue * durationScale);
     }
 
     private void play() {
         if (!isPlaying()) {
             Log.d(TAG, "start playback");
-            setPlayingUriAudioPlayer(true);
+            setPlayingAudioPlayer(true);
             startUpdateTimer();
             sendBroadcastPlayingState(true);
             audioFocusManager.tryToGetAudioFocus();
@@ -546,7 +455,7 @@ public class PlaybackService extends Service {
     private void stop() {
         if (isPlaying()) {
             Log.d(TAG, "stop playback");
-            setPlayingUriAudioPlayer(false);
+            setPlayingAudioPlayer(false);
             stopUpdateTimer();
             sendBroadcastPlayingState(false);
             audioFocusManager.giveUpAudioFocus();
@@ -642,11 +551,8 @@ public class PlaybackService extends Service {
         super.onDestroy();
         Log.d(TAG, "Destroy playback service");
         stop();
-        releaseUriAudioPlayer();
-        releaseEngine();
         audioNotificationManager.stopNotification();
         unregisterHeadsetReceiver();
-        unregisterCallback();
     }
 
 
@@ -662,4 +568,103 @@ public class PlaybackService extends Service {
     public IBinder onBind(Intent intent) {
         return binder;
     }
+
+    static {
+        System.loadLibrary("SuperpoweredPlayer");
+    }
+
+//    public native void unregisterCallback();
+//
+//    public native void registerCallback();
+
+
+    public native void createAudioPlayer(String path, int sampleRate, int bufferSize);
+
+
+    public native void setPlayingAudioPlayer(boolean isPlaying);
+
+    public native void setVolumeAudioPlayer(int value);
+
+    public native void setSeekAudioPlayer(int value);
+
+    public native int getDuration();
+
+    public native int getPosition();
+
+    public native boolean isPlaying();
+
+    public static native void setLoopingAudioPlayer(boolean isLooping);
+
+    public native void setMuteUriAudioPlayer(boolean mute);
+
+
+    public native void enableStereoPositionUriAudioPlayer(boolean enable);
+
+    public native void setStereoPositionUriAudioPlayer(int permille);
+
+    /***
+     * EQ methods
+     */
+
+    public native void setEnableEQ(boolean isEnable);
+
+    public native boolean isEQEnabled();
+
+    public native void usePreset(int presetValue);
+
+    public native int getNumberOfBands();
+
+    public native int getNumberOfPresets();
+
+    public native int getCurrentPreset();
+
+    public native int[] getBandLevelRange();
+
+    public native void setBandLevel(int bandNumber, int milliBel);
+
+    public native int getBandLevel(int bandNumber);
+
+    public native int[] getBandFrequencyRange(int bandNumber);
+
+    public native int getCenterFrequency(int bandNumber);
+
+    public native int getNumberOfPreset();
+
+    public native String getPresetName(int presetNumber);
+
+    /***
+     * Bass Boost methods
+     */
+
+    public native boolean isSupportedBassBoost();
+
+    public native boolean isEnabledBassBoost();
+
+    public native void setEnableBassBoost(boolean isEnable);
+
+    public native void setBassBoostValue(int value);
+
+
+    /**
+     * Virtualizer methods
+     */
+    public native boolean isSupportedVirtualizer();
+
+    public native boolean isEnabledVirtualizer();
+
+    public native void setEnableVirtualizer(boolean isEnable);
+
+    public native void setVirtualizerValue(int value);
+
+
+    /**
+     * Callback method from C to Java
+     **/
+    public void playStatusCallback(int status) {
+        if (status == END_SONG) {
+            sendBroadcastPlayingState(true);
+            sendBroadcastSongEnd();
+        }
+    }
+
 }

@@ -31,9 +31,6 @@ public class MediaApplication extends Application {
         }
     };
 
-    static {
-        System.loadLibrary("SuperpoweredPlayer");
-    }
 
 
     @Override
