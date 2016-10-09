@@ -310,12 +310,15 @@ public class PlaybackService extends Service {
 //        setMuteUriAudioPlayer(muteSoloState);
 //    }
 
+
+    boolean created = false;
+
     private void createPlayer(String path) {
 //        if (isPlaying()) {
 //            stop();
 //        }
         String sampleRateString, bufferSizeString;
-        AudioManager audioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         sampleRateString = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE);
         bufferSizeString = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER);
         if (sampleRateString == null) {
@@ -324,7 +327,14 @@ public class PlaybackService extends Service {
         if (bufferSizeString == null) {
             bufferSizeString = "512";
         }
-        createAudioPlayer(path, Integer.valueOf(sampleRateString), Integer.valueOf(bufferSizeString));
+        if (!created) {
+            created = true;
+            createAudioPlayer(path, Integer.valueOf(sampleRateString), Integer.valueOf(bufferSizeString));
+            Log.d(TAG, "create audio player!");
+        } else {
+            Log.d(TAG, "open audio player!");
+            openAudioFile(path);
+        }
 
 //        setEffects();
     }
@@ -418,15 +428,13 @@ public class PlaybackService extends Service {
 //    }
 
     private void volume(int volumeValue) {
-        int attenuation = 100 - volumeValue;
-        int millibel = attenuation * -50;
-        Log.d(TAG, "volume millibel: " + millibel);
-        setVolumeAudioPlayer(millibel);
+        Log.d(TAG, "volume : " + volumeValue);
+        setVolumeAudioPlayer(volumeValue);
 
     }
 
     private void seek(int seekValue) {
-        setSeekAudioPlayer(seekValue * durationScale);
+        setSeekAudioPlayer(seekValue);
         audioNotificationManager.seekToPosition(seekValue * durationScale);
     }
 
@@ -444,6 +452,8 @@ public class PlaybackService extends Service {
     private void createValuesScale() {
         int duration = getDuration();
         int progress = getPosition();
+        Log.d("test", "duration: " + duration + " position: " + progress);
+
         audioNotificationManager.setProgress(progress);
         if (duration > 0) {
             durationScale = duration / 100;
@@ -580,6 +590,7 @@ public class PlaybackService extends Service {
 
     public native void createAudioPlayer(String path, int sampleRate, int bufferSize);
 
+    public native void openAudioFile(String path);
 
     public native void setPlayingAudioPlayer(boolean isPlaying);
 

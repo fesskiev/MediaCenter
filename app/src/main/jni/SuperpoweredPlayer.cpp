@@ -62,11 +62,11 @@ SuperpoweredPlayer::~SuperpoweredPlayer() {
 }
 
 void SuperpoweredPlayer::setVolume(float value) {
-    volume = value;
+    volume = value * 0.01f;
 }
 
 void SuperpoweredPlayer::setSeek(int value) {
-    player->seek(value);
+    player->seek(value * 0.01);
 }
 
 int SuperpoweredPlayer::getDuration() {
@@ -83,6 +83,10 @@ bool SuperpoweredPlayer::isPlaying() {
 
 void SuperpoweredPlayer::setLooping(bool looping) {
 
+}
+
+void SuperpoweredPlayer::open(const char *path) {
+    player->open(path);
 }
 
 
@@ -114,13 +118,26 @@ Java_com_fesskiev_player_services_PlaybackService_getDuration(JNIEnv *env, jobje
 
 extern "C" JNIEXPORT void
 Java_com_fesskiev_player_services_PlaybackService_createAudioPlayer(JNIEnv *env, jobject instance,
-                                                                    jstring path_, jint sampleRate,
+                                                                    jstring path, jint sampleRate,
                                                                     jint bufferSize) {
-    const char *path = env->GetStringUTFChars(path_, 0);
+    const char *str = env->GetStringUTFChars(path, 0);
 
-    player = new SuperpoweredPlayer((unsigned int) sampleRate, (unsigned int) bufferSize, path);
+    player = new SuperpoweredPlayer((unsigned int) sampleRate, (unsigned int) bufferSize, str);
 
-    env->ReleaseStringUTFChars(path_, path);
+    env->ReleaseStringUTFChars(path, str);
+}
+
+extern "C" JNIEXPORT void
+Java_com_fesskiev_player_services_PlaybackService_openAudioFile(JNIEnv *env, jobject instance,
+                                                                    jstring path) {
+    const char *str = env->GetStringUTFChars(path, 0);
+
+    if(player != nullptr){
+        player->open(str);
+    }
+
+
+    env->ReleaseStringUTFChars(path, str);
 }
 
 

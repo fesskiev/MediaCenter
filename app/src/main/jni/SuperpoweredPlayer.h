@@ -27,6 +27,7 @@ public:
     int getPosition();
     bool isPlaying();
     void setLooping(bool looping);
+    void open(const char *path);
 
 
 private:
