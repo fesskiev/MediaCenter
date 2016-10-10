@@ -10,11 +10,21 @@ static SuperpoweredPlayer *player = NULL;
 
 static void playerEventCallback(void *clientData, SuperpoweredAdvancedAudioPlayerEvent event,
                                 void *__unused value) {
-    if (event == SuperpoweredAdvancedAudioPlayerEvent_LoadSuccess) {
-        SuperpoweredAdvancedAudioPlayer *player = *((SuperpoweredAdvancedAudioPlayer **) clientData);
-        player->setBpm(126.0f);
-        player->setFirstBeatMs(353);
-        player->setPosition(player->firstBeatMs, false, false);
+
+    SuperpoweredAdvancedAudioPlayer *player = *((SuperpoweredAdvancedAudioPlayer **) clientData);
+    switch (event) {
+        case SuperpoweredAdvancedAudioPlayerEvent_LoadSuccess:
+            player->setBpm(126.0f);
+            player->setFirstBeatMs(353);
+            player->setPosition(player->firstBeatMs, false, false);
+            break;
+        case SuperpoweredAdvancedAudioPlayerEvent_LoadError:
+            __android_log_print(ANDROID_LOG_DEBUG, "HLSExample", "Open error: %s", (char *) value);
+            break;
+        case SuperpoweredAdvancedAudioPlayerEvent_EOF:
+            __android_log_print(ANDROID_LOG_DEBUG, "HLSExample", "END SONG");
+            break;
+        default:;
     };
 }
 
@@ -40,7 +50,7 @@ SuperpoweredPlayer::SuperpoweredPlayer(unsigned int samplerate, unsigned int buf
 
 bool SuperpoweredPlayer::process(short int *output, unsigned int numberOfSamples) {
 
-    if (player->process(buffer, false, numberOfSamples)) {
+    if (player->process(buffer, false, numberOfSamples, volume)) {
         SuperpoweredFloatToShortInt(buffer, output, numberOfSamples);
         return true;
     } else return false;

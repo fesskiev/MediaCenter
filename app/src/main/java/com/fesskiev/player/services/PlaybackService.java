@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.annotation.Keep;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -583,11 +584,6 @@ public class PlaybackService extends Service {
         System.loadLibrary("SuperpoweredPlayer");
     }
 
-//    public native void unregisterCallback();
-//
-//    public native void registerCallback();
-
-
     public native void createAudioPlayer(String path, int sampleRate, int bufferSize);
 
     public native void openAudioFile(String path);
@@ -669,8 +665,9 @@ public class PlaybackService extends Service {
 
 
     /**
-     * Callback method from C to Java
+     * Callback method from C++ to Java
      **/
+    @Keep
     public void playStatusCallback(int status) {
         if (status == END_SONG) {
             sendBroadcastPlayingState(true);
