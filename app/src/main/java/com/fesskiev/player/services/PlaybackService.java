@@ -218,6 +218,7 @@ public class PlaybackService extends Service {
                 });
 
         registerHeadsetReceiver();
+        registerCallback();
 
     }
 
@@ -315,9 +316,7 @@ public class PlaybackService extends Service {
     boolean created = false;
 
     private void createPlayer(String path) {
-//        if (isPlaying()) {
-//            stop();
-//        }
+
         String sampleRateString, bufferSizeString;
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         sampleRateString = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE);
@@ -336,8 +335,6 @@ public class PlaybackService extends Service {
             Log.d(TAG, "open audio player!");
             openAudioFile(path);
         }
-
-//        setEffects();
     }
 
 //    private void setEffects() {
@@ -429,7 +426,6 @@ public class PlaybackService extends Service {
 //    }
 
     private void volume(int volumeValue) {
-        Log.d(TAG, "volume : " + volumeValue);
         setVolumeAudioPlayer(volumeValue);
 
     }
@@ -453,8 +449,6 @@ public class PlaybackService extends Service {
     private void createValuesScale() {
         int duration = getDuration();
         int progress = getPosition();
-        Log.d("test", "duration: " + duration + " position: " + progress);
-
         audioNotificationManager.setProgress(progress);
         if (duration > 0) {
             durationScale = duration / 100;
@@ -564,6 +558,7 @@ public class PlaybackService extends Service {
         stop();
         audioNotificationManager.stopNotification();
         unregisterHeadsetReceiver();
+        unregisterCallback();
     }
 
 
@@ -583,6 +578,10 @@ public class PlaybackService extends Service {
     static {
         System.loadLibrary("SuperpoweredPlayer");
     }
+
+    public native void registerCallback();
+
+    public native void unregisterCallback();
 
     public native void createAudioPlayer(String path, int sampleRate, int bufferSize);
 
@@ -604,10 +603,6 @@ public class PlaybackService extends Service {
 
     public native void setMuteUriAudioPlayer(boolean mute);
 
-
-    public native void enableStereoPositionUriAudioPlayer(boolean enable);
-
-    public native void setStereoPositionUriAudioPlayer(int permille);
 
     /***
      * EQ methods

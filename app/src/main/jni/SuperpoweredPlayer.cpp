@@ -7,6 +7,46 @@
 #include <SLES/OpenSLES_AndroidConfiguration.h>
 
 static SuperpoweredPlayer *player = NULL;
+JavaVM *gJavaVM;
+jobject gCallbackObject = NULL;
+
+static void handlingCallback(int event) {
+    JNIEnv *env;
+    int isAttached = 0;
+
+    if (!gCallbackObject){
+        return;
+    }
+
+    if ((gJavaVM->GetEnv((void **) &env, JNI_VERSION_1_6)) < 0) {
+        if ((gJavaVM->AttachCurrentThread(&env, NULL)) < 0) {
+            return;
+        }
+        isAttached = 1;
+    }
+
+    jclass cls = env->GetObjectClass(gCallbackObject);
+    if (!cls) {
+        if (isAttached) {
+            gJavaVM->DetachCurrentThread();
+        }
+        return;
+    }
+
+    jmethodID method = env->GetMethodID(cls, "playStatusCallback", "(I)V");
+    if (!method) {
+        if (isAttached) {
+            gJavaVM->DetachCurrentThread();
+        }
+        return;
+    }
+
+    env->CallVoidMethod(gCallbackObject, method, event);
+
+    if (isAttached) {
+        gJavaVM->DetachCurrentThread();
+    }
+}
 
 static void playerEventCallback(void *clientData, SuperpoweredAdvancedAudioPlayerEvent event,
                                 void *__unused value) {
@@ -23,6 +63,7 @@ static void playerEventCallback(void *clientData, SuperpoweredAdvancedAudioPlaye
             break;
         case SuperpoweredAdvancedAudioPlayerEvent_EOF:
             __android_log_print(ANDROID_LOG_DEBUG, "HLSExample", "END SONG");
+            handlingCallback(1);
             break;
         default:;
     };
@@ -99,6 +140,24 @@ void SuperpoweredPlayer::open(const char *path) {
     player->open(path);
 }
 
+JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
+    gJavaVM = vm;
+    return JNI_VERSION_1_6;
+}
+
+
+extern "C" JNIEXPORT void
+Java_com_fesskiev_player_services_PlaybackService_registerCallback(JNIEnv *env, jobject instance) {
+    gCallbackObject = env->NewGlobalRef(instance);
+}
+
+extern "C" JNIEXPORT void
+Java_com_fesskiev_player_services_PlaybackService_unregisterCallback(JNIEnv *env,
+                                                                     jobject instance) {
+    env->DeleteGlobalRef(gCallbackObject);
+    gCallbackObject = NULL;
+}
+
 
 extern "C" JNIEXPORT void
 Java_com_fesskiev_player_services_PlaybackService_setLoopingAudioPlayer(JNIEnv *env, jclass type,
@@ -139,10 +198,10 @@ Java_com_fesskiev_player_services_PlaybackService_createAudioPlayer(JNIEnv *env,
 
 extern "C" JNIEXPORT void
 Java_com_fesskiev_player_services_PlaybackService_openAudioFile(JNIEnv *env, jobject instance,
-                                                                    jstring path) {
+                                                                jstring path) {
     const char *str = env->GetStringUTFChars(path, 0);
 
-    if(player != nullptr){
+    if (player != nullptr) {
         player->open(str);
     }
 
