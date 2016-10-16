@@ -33,6 +33,7 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
+import com.fesskiev.player.SuperPoweredSDKWrapper;
 import com.fesskiev.player.model.AudioPlayer;
 import com.fesskiev.player.services.FileObserverService;
 import com.fesskiev.player.services.FileSystemIntentService;
@@ -56,8 +57,6 @@ import com.fesskiev.player.utils.RxUtils;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.dialogs.FetchMediaContentDialog;
 import com.fesskiev.player.widgets.dialogs.PermissionDialog;
-import com.fesskiev.player.widgets.dialogs.effects.BassBoostDialog;
-import com.fesskiev.player.widgets.dialogs.effects.VirtualizerDialog;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKScope;
@@ -82,8 +81,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private Toolbar toolbar;
     private AppSettingsManager settingsManager;
     private SwitchCompat eqSwitch;
-    private SwitchCompat bassSwitch;
-    private SwitchCompat virtualizerSwitch;
     private ImageView userPhoto;
     private ImageView logoutButton;
     private ImageView headerAnimation;
@@ -191,21 +188,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             settingsManager.setEQState(isChecked);
         });
 
-        bassSwitch = (SwitchCompat) navigationViewEffects.getMenu().
-                findItem(R.id.bass).getActionView().findViewById(R.id.bass_switch);
-        bassSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
 
-            PlaybackService.changeBassBoostState(getApplicationContext());
-            settingsManager.setBassBoostState(isChecked);
-        });
-
-        virtualizerSwitch = (SwitchCompat) navigationViewEffects.getMenu().
-                findItem(R.id.virtualizer).getActionView().findViewById(R.id.virtualizer_switch);
-        virtualizerSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-
-            PlaybackService.changeVirtualizerState(getApplicationContext());
-            settingsManager.setVirtualizerState(isChecked);
-        });
     }
 
     private void setUserInfo() {
@@ -275,6 +258,26 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         } else if (isVideoFragmentShow()) {
             checkVideoContentItem();
         }
+        SuperPoweredSDKWrapper.getInstance().onForeground();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+       SuperPoweredSDKWrapper.getInstance().onBackground();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterBroadcastReceiver();
+        PlaybackService.destroyPlayer(getApplicationContext());
+        resetAudioPlayer();
+        FileObserverService.stopFileObserverService(getApplicationContext());
+
+        RxUtils.unsubscribe(subscription);
+
+//        SuperPoweredSDKWrapper.getInstance().onDestroy();
     }
 
     private void clearItems() {
@@ -297,16 +300,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 break;
             case R.id.equalizer:
                 startActivity(new Intent(this, EqualizerActivity.class));
-                break;
-            case R.id.bass:
-                if (settingsManager.isBassBoostOn()) {
-                    BassBoostDialog.getInstance(this);
-                }
-                break;
-            case R.id.virtualizer:
-                if (settingsManager.isVirtualizerOn()) {
-                    VirtualizerDialog.getInstance(this);
-                }
                 break;
             case R.id.audio_content:
                 checkAudioContentItem();
@@ -377,10 +370,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
     private void registerBroadcastReceiver() {
         IntentFilter filter = new IntentFilter();
-        filter.addAction(PlaybackService.ACTION_PLAYBACK_BASS_BOOST_STATE);
-        filter.addAction(PlaybackService.ACTION_PLAYBACK_BASS_BOOST_SUPPORT);
-        filter.addAction(PlaybackService.ACTION_PLAYBACK_VIRTUALIZER_STATE);
-        filter.addAction(PlaybackService.ACTION_PLAYBACK_VIRTUALIZER_SUPPORT);
         filter.addAction(PlaybackService.ACTION_PLAYBACK_EQ_STATE);
         filter.addAction(FileSystemIntentService.ACTION_START_FETCH_MEDIA_CONTENT);
         filter.addAction(FileSystemIntentService.ACTION_END_FETCH_MEDIA_CONTENT);
@@ -395,16 +384,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unregisterBroadcastReceiver();
-        PlaybackService.destroyPlayer(getApplicationContext());
-        resetAudioPlayer();
-        FileObserverService.stopFileObserverService(getApplicationContext());
 
-        RxUtils.unsubscribe(subscription);
-    }
 
     private void resetAudioPlayer() {
         AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
@@ -417,18 +397,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         @Override
         public void onReceive(final Context context, Intent intent) {
             switch (intent.getAction()) {
-                case PlaybackService.ACTION_PLAYBACK_BASS_BOOST_STATE:
-                    setBassBoostState(intent);
-                    break;
-                case PlaybackService.ACTION_PLAYBACK_BASS_BOOST_SUPPORT:
-                    setBassBoostSupport(intent);
-                    break;
-                case PlaybackService.ACTION_PLAYBACK_VIRTUALIZER_STATE:
-                    setVirtualizerState(intent);
-                    break;
-                case PlaybackService.ACTION_PLAYBACK_VIRTUALIZER_SUPPORT:
-                    setVirtualizertSupport(intent);
-                    break;
                 case PlaybackService.ACTION_PLAYBACK_EQ_STATE:
                     setEQState(intent);
                     break;
@@ -491,39 +459,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_EQ_STATE, false);
         eqSwitch.setChecked(eqState);
     }
-
-    private void setVirtualizertSupport(Intent intent) {
-        boolean virtualizerSupport =
-                intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_VIRTUALIZER_SUPPORT, false);
-        visibleVirtualizerMenu(virtualizerSupport);
-    }
-
-    private void setVirtualizerState(Intent intent) {
-        boolean virtualizerState =
-                intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_VIRTUALIZER_STATE, false);
-        virtualizerSwitch.setChecked(virtualizerState);
-    }
-
-    private void setBassBoostSupport(Intent intent) {
-        boolean bassBoostSupport =
-                intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_BASS_BOOST_SUPPORT, false);
-        visibleBassBoostMenu(bassBoostSupport);
-    }
-
-    private void setBassBoostState(Intent intent) {
-        boolean bassBoostState =
-                intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_BASS_BOOST_STATE, false);
-        bassSwitch.setChecked(bassBoostState);
-    }
-
-    private void visibleBassBoostMenu(boolean visible) {
-        navigationViewEffects.getMenu().findItem(R.id.bass).setVisible(visible);
-    }
-
-    private void visibleVirtualizerMenu(boolean visible) {
-        navigationViewEffects.getMenu().findItem(R.id.virtualizer).setVisible(visible);
-    }
-
 
     private void checkPermission() {
         if (!checkPermissions()) {

@@ -28,8 +28,6 @@
     <string name="drawer_item_settings">Настройки</string>
     <string name="drawer_title_effects">Эффекты</string>
     <string name="drawer_title_content">Контент</string>
-    <string name="drawer_item_bass">Bass Boost</string>
-    <string name="drawer_item_virtualizer">Virtualizer</string>
     <string name="drawer_item_eq">Equalizer</string>
     <string name="drawer_item_audio">Аудио</string>
     <string name="drawer_item_video">Видео</string>

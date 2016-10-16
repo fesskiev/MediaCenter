@@ -11,6 +11,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
@@ -137,6 +138,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         controlView.setOnAudioControlListener(new AudioControlView.OnAudioControlListener() {
             @Override
             public void onPlayStateChanged() {
+                Log.d("test", "onPlayStateChanged: " + audioPlayer.isPlaying);
                 if (audioPlayer.isPlaying) {
                     pause();
                 } else {

@@ -6,26 +6,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
-import android.os.Binder;
 import android.os.IBinder;
-import android.support.annotation.Keep;
+import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.fesskiev.player.ui.equalizer.EqualizerFragment;
+import com.fesskiev.player.SuperPoweredSDKWrapper;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.AudioFocusManager;
 import com.fesskiev.player.utils.AudioNotificationManager;
 
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class PlaybackService extends Service {
 
     private static final String TAG = PlaybackService.class.getSimpleName();
-
-    private static final int END_SONG = 1;
 
     public static final String ACTION_HEADSET_PLUG_IN =
             "com.fesskiev.player.action.ACTION_HEADSET_PLUG_IN";
@@ -48,18 +44,6 @@ public class PlaybackService extends Service {
             "com.fesskiev.player.action.ACTION_PLAYBACK_VOLUME";
     public static final String ACTION_PLAYBACK_PLAYING_STATE =
             "com.fesskiev.player.action.ACTION_PLAYBACK_PLAYING_STATE";
-    public static final String ACTION_BASS_BOOST_LEVEL =
-            "com.fesskiev.player.action.ACTION_BASS_BOOST_LEVEL";
-    public static final String ACTION_PLAYBACK_BASS_BOOST_STATE =
-            "com.fesskiev.player.action.ACTION_PLAYBACK_BASS_BOOST_STATE";
-    public static final String ACTION_PLAYBACK_BASS_BOOST_SUPPORT =
-            "com.fesskiev.player.action.ACTION_PLAYBACK_BASS_BOOST_SUPPORT";
-    public static final String ACTION_PLAYBACK_VIRTUALIZER_STATE =
-            "com.fesskiev.player.action.ACTION_PLAYBACK_VIRTUALIZER_STATE";
-    public static final String ACTION_PLAYBACK_VIRTUALIZER_SUPPORT =
-            "com.fesskiev.player.action.ACTION_PLAYBACK_VIRTUALIZER_SUPPORT";
-    public static final String ACTION_PLAYBACK_VIRTUALIZER_LEVEL =
-            "com.fesskiev.player.action.ACTION_PLAYBACK_VIRTUALIZER_LEVEL";
     public static final String ACTION_PLAYBACK_EQ_STATE =
             "com.fesskiev.player.action.ACTION_PLAYBACK_EQ_STATE";
     public static final String ACTION_PLAYBACK_MUTE_SOLO_STATE =
@@ -82,14 +66,6 @@ public class PlaybackService extends Service {
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_VOLUME";
     public static final String PLAYBACK_EXTRA_PLAYING
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_PLAYING";
-    public static final String PLAYBACK_EXTRA_BASS_BOOST_SUPPORT
-            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_BASS_BOOST_SUPPORT";
-    public static final String PLAYBACK_EXTRA_BASS_BOOST_STATE
-            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_BASS_BOOST_STATE";
-    public static final String PLAYBACK_EXTRA_VIRTUALIZER_SUPPORT
-            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_VIRTUALIZER_SUPPORT";
-    public static final String PLAYBACK_EXTRA_VIRTUALIZER_STATE
-            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_VIRTUALIZER_STATE";
     public static final String PLAYBACK_EXTRA_EQ_STATE
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_EQ_STATE";
     public static final String PLAYBACK_EXTRA_MUTE_SOLO_STATE
@@ -102,35 +78,12 @@ public class PlaybackService extends Service {
     private AppSettingsManager settingsManager;
     private AudioFocusManager audioFocusManager;
     private AudioNotificationManager audioNotificationManager;
+    private SuperPoweredSDKWrapper superPoweredSDKWrapper;
     private int durationScale;
 
     public static void changeEQState(Context context) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_EQ_STATE);
-        context.startService(intent);
-    }
-
-    public static void changeVirtualizerState(Context context) {
-        Intent intent = new Intent(context, PlaybackService.class);
-        intent.setAction(ACTION_PLAYBACK_VIRTUALIZER_STATE);
-        context.startService(intent);
-    }
-
-    public static void changeVirtualizerLevel(Context context) {
-        Intent intent = new Intent(context, PlaybackService.class);
-        intent.setAction(ACTION_PLAYBACK_VIRTUALIZER_LEVEL);
-        context.startService(intent);
-    }
-
-    public static void changeBassBoostState(Context context) {
-        Intent intent = new Intent(context, PlaybackService.class);
-        intent.setAction(ACTION_PLAYBACK_BASS_BOOST_STATE);
-        context.startService(intent);
-    }
-
-    public static void changeBassBoostLevel(Context context) {
-        Intent intent = new Intent(context, PlaybackService.class);
-        intent.setAction(ACTION_BASS_BOOST_LEVEL);
         context.startService(intent);
     }
 
@@ -196,6 +149,12 @@ public class PlaybackService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "Create playback service!");
+        superPoweredSDKWrapper = SuperPoweredSDKWrapper.getInstance();
+        superPoweredSDKWrapper.setOnSuperPoweredSDKListener(() -> {
+            sendBroadcastPlayingState(true);
+            sendBroadcastSongEnd();
+        });
+
         settingsManager = AppSettingsManager.getInstance(getApplicationContext());
         audioNotificationManager = new AudioNotificationManager(this, this);
         audioFocusManager = new AudioFocusManager();
@@ -208,7 +167,7 @@ public class PlaybackService extends Service {
                             break;
                         case AudioFocusManager.AUDIO_NO_FOCUS_CAN_DUCK:
                             Log.d(TAG, "onFocusChanged: NO_FOCUS_CAN_DUCK");
-                            setVolumeAudioPlayer(500);
+                            superPoweredSDKWrapper.setVolumeAudioPlayer(50);
                             break;
                         case AudioFocusManager.AUDIO_NO_FOCUS_NO_DUCK:
                             Log.d(TAG, "onFocusChanged: NO_FOCUS_NO_DUCK");
@@ -218,7 +177,7 @@ public class PlaybackService extends Service {
                 });
 
         registerHeadsetReceiver();
-        registerCallback();
+        superPoweredSDKWrapper.registerCallback();
 
     }
 
@@ -247,21 +206,7 @@ public class PlaybackService extends Service {
                         int volumeValue = intent.getIntExtra(PLAYBACK_EXTRA_VOLUME, -1);
                         volume(volumeValue);
                         break;
-                    case ACTION_BASS_BOOST_LEVEL:
-                    case ACTION_PLAYBACK_BASS_BOOST_STATE:
-//                        setBassBoost();
-                        break;
-                    case ACTION_PLAYBACK_VIRTUALIZER_LEVEL:
-                    case ACTION_PLAYBACK_VIRTUALIZER_STATE:
-//                        setVirtualizer();
-                        break;
                     case ACTION_PLAYBACK_EQ_STATE:
-//                        setEQ();
-                        break;
-                    case ACTION_PLAYBACK_MUTE_SOLO_STATE:
-                        boolean muteSoloState =
-                                intent.getBooleanExtra(PLAYBACK_EXTRA_MUTE_SOLO_STATE, false);
-//                        muteSolo(muteSoloState);
                         break;
                     case ACTION_PLAYBACK_REPEAT_STATE:
                         boolean repeatState =
@@ -304,13 +249,8 @@ public class PlaybackService extends Service {
     };
 
     private void repeat(boolean repeatState) {
-        setLoopingAudioPlayer(repeatState);
+        superPoweredSDKWrapper.setLoopingAudioPlayer(repeatState);
     }
-
-
-//    private void muteSolo(boolean muteSoloState) {
-//        setMuteUriAudioPlayer(muteSoloState);
-//    }
 
 
     boolean created = false;
@@ -329,116 +269,30 @@ public class PlaybackService extends Service {
         }
         if (!created) {
             created = true;
-            createAudioPlayer(path, Integer.valueOf(sampleRateString), Integer.valueOf(bufferSizeString));
+            superPoweredSDKWrapper.createAudioPlayer(path, Integer.valueOf(sampleRateString), Integer.valueOf(bufferSizeString));
             Log.d(TAG, "create audio player!");
         } else {
+            stop();
             Log.d(TAG, "open audio player!");
-            openAudioFile(path);
+            superPoweredSDKWrapper.openAudioFile(path);
         }
     }
 
-//    private void setEffects() {
-//        setEQ();
-//        setVirtualizer();
-//        setBassBoost();
-//    }
-
-//    private void setEQ() {
-//        if (settingsManager.isEQOn()) {
-//            setEnableEQ(true);
-//            Log.d(TAG, "EQ ON");
-//            switch (settingsManager.getEQPresetState()) {
-//                case EqualizerFragment.POSITION_CUSTOM_PRESET:
-//                    Log.d(TAG, "set custom preset");
-//                    setCustomPreset();
-//                    break;
-//                case EqualizerFragment.POSITION_PRESET:
-//                    Log.d(TAG, "set preset: " + (settingsManager.getEQPresetValue() - EqualizerFragment.OFFSET));
-//                    usePreset(settingsManager.getEQPresetValue() - EqualizerFragment.OFFSET);
-//                    break;
-//                default:
-//                    break;
-//            }
-//            sendBroadcastEQState(true);
-//        } else {
-//            Log.d(TAG, "EQ OFF");
-//            setEnableEQ(false);
-//            sendBroadcastEQState(false);
-//        }
-//
-//        Log.d(TAG, "EQ IS ON: " + isEQEnabled());
-//    }
-
-//    private void setCustomPreset() {
-//        List<Double> levels = settingsManager.getCustomBandsLevels();
-//        int bandsNumber = getNumberOfBands();
-//        for (int i = 0; i < levels.size(); i++) {
-//            if (i <= bandsNumber) {
-//                double value = levels.get(i);
-//                Log.wtf(TAG, "custom band value: " + value);
-//                setBandLevel(i, (int) value);
-//            }
-//        }
-//    }
-
-//    private void setVirtualizer() {
-//        if (isSupportedVirtualizer()) {
-//            Log.d(TAG, "virtualizer supported");
-//            sendBroadcastVirtualizerSupport(true);
-//            if (settingsManager != null && settingsManager.isVirtualizerOn()) {
-//                sendBroadcastVirtualizerState(true);
-//                setEnableVirtualizer(true);
-//                int value = settingsManager.getVirtualizerValue();
-//                if (value != -1) {
-//                    setVirtualizerValue(1000);
-//                    Log.d(TAG, "set vitrualizer effect: " + value);
-//                }
-//            } else {
-//                setEnableVirtualizer(false);
-//                sendBroadcastVirtualizerState(false);
-//            }
-//        } else {
-//            Log.d(TAG, "virtualizer not supported!");
-//            sendBroadcastVirtualizerSupport(false);
-//        }
-//    }
-
-//    private void setBassBoost() {
-//        if (isSupportedBassBoost()) {
-//            Log.d(TAG, "bass boost supported");
-//            sendBroadcastBassBoostSupport(true);
-//            if (settingsManager != null && settingsManager.isBassBoostOn()) {
-//                sendBroadcastBassBoostState(true);
-//                setEnableBassBoost(true);
-//                int value = settingsManager.getBassBoostValue();
-//                if (value != -1) {
-//                    setBassBoostValue(value);
-//                    Log.d(TAG, "set bass boost effect: " + value);
-//                }
-//            } else {
-//                setEnableBassBoost(false);
-//                sendBroadcastBassBoostState(false);
-//            }
-//        } else {
-//            Log.d(TAG, "bass boost not supported!");
-//            sendBroadcastBassBoostSupport(false);
-//        }
-//    }
 
     private void volume(int volumeValue) {
-        setVolumeAudioPlayer(volumeValue);
+        superPoweredSDKWrapper.setVolumeAudioPlayer(volumeValue);
 
     }
 
     private void seek(int seekValue) {
-        setSeekAudioPlayer(seekValue);
+        superPoweredSDKWrapper.setSeekAudioPlayer(seekValue);
         audioNotificationManager.seekToPosition(seekValue * durationScale);
     }
 
     private void play() {
-        if (!isPlaying()) {
+        if (!superPoweredSDKWrapper.isPlaying()) {
             Log.d(TAG, "start playback");
-            setPlayingAudioPlayer(true);
+            superPoweredSDKWrapper.setPlayingAudioPlayer(true);
             startUpdateTimer();
             sendBroadcastPlayingState(true);
             audioFocusManager.tryToGetAudioFocus();
@@ -447,8 +301,8 @@ public class PlaybackService extends Service {
     }
 
     private void createValuesScale() {
-        int duration = getDuration();
-        int progress = getPosition();
+        int duration = superPoweredSDKWrapper.getDuration();
+        int progress = superPoweredSDKWrapper.getPosition();
         audioNotificationManager.setProgress(progress);
         if (duration > 0) {
             durationScale = duration / 100;
@@ -458,9 +312,9 @@ public class PlaybackService extends Service {
     }
 
     private void stop() {
-        if (isPlaying()) {
+        if (superPoweredSDKWrapper.isPlaying()) {
             Log.d(TAG, "stop playback");
-            setPlayingAudioPlayer(false);
+            superPoweredSDKWrapper.setPlayingAudioPlayer(false);
             stopUpdateTimer();
             sendBroadcastPlayingState(false);
             audioFocusManager.giveUpAudioFocus();
@@ -483,33 +337,7 @@ public class PlaybackService extends Service {
         timer.cancel();
     }
 
-    private void sendBroadcastBassBoostState(boolean state) {
-        Intent intent = new Intent();
-        intent.setAction(ACTION_PLAYBACK_BASS_BOOST_STATE);
-        intent.putExtra(PLAYBACK_EXTRA_BASS_BOOST_STATE, state);
-        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-    }
 
-    private void sendBroadcastBassBoostSupport(boolean support) {
-        Intent intent = new Intent();
-        intent.setAction(ACTION_PLAYBACK_BASS_BOOST_SUPPORT);
-        intent.putExtra(PLAYBACK_EXTRA_BASS_BOOST_SUPPORT, support);
-        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-    }
-
-    private void sendBroadcastVirtualizerSupport(boolean support) {
-        Intent intent = new Intent();
-        intent.setAction(ACTION_PLAYBACK_VIRTUALIZER_SUPPORT);
-        intent.putExtra(PLAYBACK_EXTRA_VIRTUALIZER_SUPPORT, support);
-        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-    }
-
-    private void sendBroadcastVirtualizerState(boolean state) {
-        Intent intent = new Intent();
-        intent.setAction(ACTION_PLAYBACK_VIRTUALIZER_STATE);
-        intent.putExtra(PLAYBACK_EXTRA_VIRTUALIZER_STATE, state);
-        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-    }
 
     private void sendBroadcastHeadsetPlugIn() {
         LocalBroadcastManager.getInstance(getApplicationContext()).
@@ -543,14 +371,6 @@ public class PlaybackService extends Service {
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
     }
 
-
-    public void sendBroadcastEQState(boolean state) {
-        Intent intent = new Intent();
-        intent.setAction(PlaybackService.ACTION_PLAYBACK_EQ_STATE);
-        intent.putExtra(PlaybackService.PLAYBACK_EXTRA_EQ_STATE, state);
-        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -558,116 +378,12 @@ public class PlaybackService extends Service {
         stop();
         audioNotificationManager.stopNotification();
         unregisterHeadsetReceiver();
-        unregisterCallback();
+        superPoweredSDKWrapper.unregisterCallback();
     }
 
-
-    private final IBinder binder = new PlaybackServiceBinder();
-
-    public class PlaybackServiceBinder extends Binder {
-        public PlaybackService getService() {
-            return PlaybackService.this;
-        }
-    }
-
+    @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return binder;
+        return null;
     }
-
-    static {
-        System.loadLibrary("SuperpoweredPlayer");
-    }
-
-    public native void registerCallback();
-
-    public native void unregisterCallback();
-
-    public native void createAudioPlayer(String path, int sampleRate, int bufferSize);
-
-    public native void openAudioFile(String path);
-
-    public native void setPlayingAudioPlayer(boolean isPlaying);
-
-    public native void setVolumeAudioPlayer(int value);
-
-    public native void setSeekAudioPlayer(int value);
-
-    public native int getDuration();
-
-    public native int getPosition();
-
-    public native boolean isPlaying();
-
-    public static native void setLoopingAudioPlayer(boolean isLooping);
-
-    public native void setMuteUriAudioPlayer(boolean mute);
-
-
-    /***
-     * EQ methods
-     */
-
-    public native void setEnableEQ(boolean isEnable);
-
-    public native boolean isEQEnabled();
-
-    public native void usePreset(int presetValue);
-
-    public native int getNumberOfBands();
-
-    public native int getNumberOfPresets();
-
-    public native int getCurrentPreset();
-
-    public native int[] getBandLevelRange();
-
-    public native void setBandLevel(int bandNumber, int milliBel);
-
-    public native int getBandLevel(int bandNumber);
-
-    public native int[] getBandFrequencyRange(int bandNumber);
-
-    public native int getCenterFrequency(int bandNumber);
-
-    public native int getNumberOfPreset();
-
-    public native String getPresetName(int presetNumber);
-
-    /***
-     * Bass Boost methods
-     */
-
-    public native boolean isSupportedBassBoost();
-
-    public native boolean isEnabledBassBoost();
-
-    public native void setEnableBassBoost(boolean isEnable);
-
-    public native void setBassBoostValue(int value);
-
-
-    /**
-     * Virtualizer methods
-     */
-    public native boolean isSupportedVirtualizer();
-
-    public native boolean isEnabledVirtualizer();
-
-    public native void setEnableVirtualizer(boolean isEnable);
-
-    public native void setVirtualizerValue(int value);
-
-
-    /**
-     * Callback method from C++ to Java
-     **/
-    @Keep
-    public void playStatusCallback(int status) {
-        if (status == END_SONG) {
-            sendBroadcastPlayingState(true);
-            sendBroadcastSongEnd();
-        }
-    }
-
 }

@@ -3,6 +3,8 @@
 
 #include <math.h>
 #include <pthread.h>
+#include <Superpowered3BandEQ.h>
+#include <SuperpoweredMixer.h>
 
 #include "SuperpoweredPlayer.h"
 #include "Superpowered/SuperpoweredAdvancedAudioPlayer.h"
@@ -13,6 +15,7 @@
 
 
 class SuperpoweredPlayer {
+
 public:
 
     SuperpoweredPlayer(unsigned int samplerate, unsigned int buffersize, const char *path);
@@ -28,11 +31,17 @@ public:
     bool isPlaying();
     void setLooping(bool looping);
     void open(const char *path);
+    void setEQBands(int index, int value);
+    void enableEQ(bool enable);
+    void onForeground();
+    void onBackground();
 
 
 private:
     SuperpoweredAndroidAudioIO *audioSystem;
     SuperpoweredAdvancedAudioPlayer *player;
+    Superpowered3BandEQ *bandEQ;
+    SuperpoweredStereoMixer *mixer;
     float *buffer;
     float volume;
 };
