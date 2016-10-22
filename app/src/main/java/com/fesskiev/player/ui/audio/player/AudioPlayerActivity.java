@@ -168,7 +168,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         if (intent.hasExtra(EXTRA_IS_NEW_TRACK)) {
             boolean isNewTrack = intent.getBooleanExtra(EXTRA_IS_NEW_TRACK, false);
             if (isNewTrack) {
-                createPlayer();
+                open();
                 play();
             } else {
                 if (!audioPlayer.isPlaying) {
@@ -241,7 +241,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
             audioPlayer.next();
             cardDescription.next();
             reset();
-            createPlayer();
+            open();
         }
     }
 
@@ -251,7 +251,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
             audioPlayer.previous();
             cardDescription.previous();
             reset();
-            createPlayer();
+            open();
         }
     }
 
@@ -262,8 +262,8 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
 
 
     @Override
-    public void createPlayer() {
-        PlaybackService.createPlayer(getApplicationContext(),
+    public void open() {
+        PlaybackService.openFile(getApplicationContext(),
                 audioPlayer.currentAudioFile.getFilePath());
     }
 

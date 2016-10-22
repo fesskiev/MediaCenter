@@ -7,14 +7,10 @@ import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+
 import com.fesskiev.player.R;
 import com.fesskiev.player.SuperPoweredSDKWrapper;
-import com.fesskiev.player.utils.AppLog;
 import com.fesskiev.player.utils.AppSettingsManager;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class EqualizerFragment extends Fragment {
@@ -55,7 +51,6 @@ public class EqualizerFragment extends Fragment {
 //        superPoweredSDKWrapper.setEQBands(band, value);
 
     }
-
 
 
 }

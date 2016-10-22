@@ -32,6 +32,8 @@ public class PlaybackService extends Service {
 
     public static final String ACTION_CREATE_PLAYER =
             "com.fesskiev.player.action.ACTION_CREATE_PLAYER";
+    public static final String ACTION_OPEN_FILE =
+            "com.fesskiev.player.action.ACTION_OPEN_FILE";
     public static final String ACTION_START_PLAYBACK =
             "com.fesskiev.player.action.ACTION_START_PLAYBACK";
     public static final String ACTION_STOP_PLAYBACK =
@@ -105,6 +107,13 @@ public class PlaybackService extends Service {
     public static void createPlayer(Context context, String path) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_CREATE_PLAYER);
+        intent.putExtra(PLAYBACK_EXTRA_MUSIC_FILE_PATH, path);
+        context.startService(intent);
+    }
+
+    public static void openFile(Context context, String path) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_OPEN_FILE);
         intent.putExtra(PLAYBACK_EXTRA_MUSIC_FILE_PATH, path);
         context.startService(intent);
     }
@@ -189,8 +198,12 @@ public class PlaybackService extends Service {
                 Log.d(TAG, "playback service handle intent: " + action);
                 switch (action) {
                     case ACTION_CREATE_PLAYER:
-                        String musicFilePath = intent.getStringExtra(PLAYBACK_EXTRA_MUSIC_FILE_PATH);
-                        createPlayer(musicFilePath);
+                        String createPath = intent.getStringExtra(PLAYBACK_EXTRA_MUSIC_FILE_PATH);
+                        createPlayer(createPath);
+                        break;
+                    case ACTION_OPEN_FILE:
+                        String openPath = intent.getStringExtra(PLAYBACK_EXTRA_MUSIC_FILE_PATH);
+                        openFile(openPath);
                         break;
                     case ACTION_START_PLAYBACK:
                         play();
@@ -253,8 +266,6 @@ public class PlaybackService extends Service {
     }
 
 
-    boolean created = false;
-
     private void createPlayer(String path) {
 
         String sampleRateString, bufferSizeString;
@@ -267,15 +278,16 @@ public class PlaybackService extends Service {
         if (bufferSizeString == null) {
             bufferSizeString = "512";
         }
-        if (!created) {
-            created = true;
-            superPoweredSDKWrapper.createAudioPlayer(path, Integer.valueOf(sampleRateString), Integer.valueOf(bufferSizeString));
-            Log.d(TAG, "create audio player!");
-        } else {
-            stop();
-            Log.d(TAG, "open audio player!");
-            superPoweredSDKWrapper.openAudioFile(path);
-        }
+
+        Log.d(TAG, "create audio player!");
+        superPoweredSDKWrapper.createAudioPlayer(path, Integer.valueOf(sampleRateString), Integer.valueOf(bufferSizeString));
+
+    }
+
+    private void openFile(String path) {
+        Log.d(TAG, "open audio player!");
+        superPoweredSDKWrapper.setPlayingAudioPlayer(false);
+        superPoweredSDKWrapper.openAudioFile(path);
     }
 
 
@@ -336,7 +348,6 @@ public class PlaybackService extends Service {
     private void stopUpdateTimer() {
         timer.cancel();
     }
-
 
 
     private void sendBroadcastHeadsetPlugIn() {

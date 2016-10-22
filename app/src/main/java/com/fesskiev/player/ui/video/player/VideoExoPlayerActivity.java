@@ -191,7 +191,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
 
 
     @Override
-    public void createPlayer() {
+    public void open() {
         preparePlayer(true);
     }
 
@@ -218,7 +218,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
 
     private void onShown() {
         if (player == null) {
-            createPlayer();
+            open();
         } else {
             player.setBackgrounded(false);
         }

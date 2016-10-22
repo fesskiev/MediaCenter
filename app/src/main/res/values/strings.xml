@@ -145,5 +145,7 @@
 
     <string name="flurry_key">77NCCTNCQ8Q32WSD5CV7</string>
 
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

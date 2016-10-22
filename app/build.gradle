@@ -70,8 +70,10 @@ model {
         stl = "c++_static"
         CFlags.addAll(["-O3", "-fsigned-char"]) // full optimization, char data type is signed
         cppFlags.addAll(["-fsigned-char", "-I${superpowered_sdk_path}".toString()])
-        ldLibs.addAll(["log", "android", "OpenSLES"]) // load these libraries: log, android, OpenSL ES (for audio)
-        abiFilters.addAll(["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]) // these platforms cover 99% percent of all Android devices
+        ldLibs.addAll(["log", "android", "OpenSLES"])
+        // load these libraries: log, android, OpenSL ES (for audio)
+        abiFilters.addAll(["armeabi-v7a", "arm64-v8a", "x86", "x86_64"])
+        // these platforms cover 99% percent of all Android devices
     }
 
     android.sources.main.jni {
@@ -80,7 +82,8 @@ model {
             srcDir "${superpowered_sdk_path}/AndroidIO"
         }
         dependencies {
-            library "superpowered" linkage "static" // this is where you attach the "superpowered" static library to your app
+            library "superpowered" linkage "static"
+            // this is where you attach the "superpowered" static library to your app
         }
     }
 
@@ -104,6 +107,7 @@ dependencies {
     compile "com.android.support:design:${supportLibVersion}"
     compile "com.android.support:palette-v7:${supportLibVersion}"
     compile "com.android.support:support-v4:${supportLibVersion}"
+
     compile 'com.mpatric:mp3agic:0.8.4'
     compile 'com.vk:androidsdk:1.6.5'
     compile 'com.github.clans:fab:1.6.3'
@@ -117,5 +121,5 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-gson:2.0.2'
     compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
     compile 'com.squareup.sqlbrite:sqlbrite:0.7.0'
-
+    compile 'com.android.support:support-v4:24.2.1'
 }

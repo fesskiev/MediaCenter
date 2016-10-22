@@ -258,13 +258,13 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         } else if (isVideoFragmentShow()) {
             checkVideoContentItem();
         }
-        SuperPoweredSDKWrapper.getInstance().onForeground();
+//        SuperPoweredSDKWrapper.getInstance().onForeground();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-       SuperPoweredSDKWrapper.getInstance().onBackground();
+//       SuperPoweredSDKWrapper.getInstance().onBackground();
     }
 
     @Override

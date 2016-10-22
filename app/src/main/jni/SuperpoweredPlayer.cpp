@@ -110,7 +110,7 @@ bool SuperpoweredPlayer::process(short int *output, unsigned int numberOfSamples
 
 void SuperpoweredPlayer::setPlaying(bool isPlaying) {
     if (isPlaying) {
-        player->play(false);
+        player->play(true);
     } else {
         player->pause();
     }

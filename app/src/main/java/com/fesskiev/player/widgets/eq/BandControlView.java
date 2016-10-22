@@ -109,7 +109,7 @@ public class BandControlView extends View implements RotationGestureDetector.OnR
     public void OnRotation(RotationGestureDetector rotationDetector) {
         Log.d("RotationGestureDetector", "Rotation: " + Float.toString(rotationDetector.getAngle()));
         count++;
-        if (count == 25) {
+        if (count == 15) {
             matrix.postRotate(rotationDetector.getAngle(), cx, cy);
             postInvalidate();
             count = 0;
