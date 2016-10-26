@@ -1,23 +1,19 @@
 package com.fesskiev.player.ui;
 
 
-import android.Manifest;
 import android.app.ActivityOptions;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
@@ -33,10 +29,8 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.SuperPoweredSDKWrapper;
-import com.fesskiev.player.model.AudioPlayer;
+import com.fesskiev.player.data.model.AudioPlayer;
 import com.fesskiev.player.services.FileObserverService;
-import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.about.AboutActivity;
 import com.fesskiev.player.ui.audio.AudioFragment;
@@ -53,10 +47,9 @@ import com.fesskiev.player.utils.AnimationUtils;
 import com.fesskiev.player.utils.AppLog;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.BitmapHelper;
+import com.fesskiev.player.utils.FetchMediaFilesManager;
 import com.fesskiev.player.utils.RxUtils;
 import com.fesskiev.player.utils.Utils;
-import com.fesskiev.player.widgets.dialogs.FetchMediaContentDialog;
-import com.fesskiev.player.widgets.dialogs.PermissionDialog;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKScope;
@@ -70,16 +63,13 @@ import rx.schedulers.Schedulers;
 
 public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    private static final int PERMISSION_REQ = 0;
-
     private Subscription subscription;
-    private FetchMediaContentDialog mediaContentDialog;
-    private PermissionDialog permissionDialog;
     private NavigationView navigationViewEffects;
     private NavigationView navigationViewMain;
     private DrawerLayout drawer;
     private Toolbar toolbar;
     private AppSettingsManager settingsManager;
+    private FetchMediaFilesManager fetchMediaFilesManager;
     private SwitchCompat eqSwitch;
     private ImageView userPhoto;
     private ImageView logoutButton;
@@ -127,8 +117,30 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         });
         toggle.syncState();
 
+
         setEffectsNavView();
         setMainNavView();
+
+        fetchMediaFilesManager = new FetchMediaFilesManager(this);
+        fetchMediaFilesManager.setOnFetchMediaFilesListener(new FetchMediaFilesManager.OnFetchMediaFilesListener() {
+            @Override
+            public void onFetchContentStart() {
+
+            }
+
+            @Override
+            public void onFetchContentFinish() {
+                if(isAudioFragmentShow()){
+                    AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
+                            findFragmentByTag(AudioFragment.class.getName());
+                    audioFragment.refreshAudioContent();
+                } else {
+                    VideoFragment videoFragment = (VideoFragment) getSupportFragmentManager().
+                            findFragmentByTag(VideoFragment.class.getName());
+                    videoFragment.refreshVideoContent();
+                }
+            }
+        });
 
         registerBroadcastReceiver();
         if (!settingsManager.isAuthTokenEmpty()) {
@@ -137,7 +149,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             setEmptyUserInfo();
         }
 
-        checkPermission();
+
         checkAudioContentItem();
     }
 
@@ -250,6 +262,13 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        PlaybackService.startPlaybackService(this);
+        addAudioFragment();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         clearItems();
@@ -265,12 +284,13 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     protected void onPause() {
         super.onPause();
 //       SuperPoweredSDKWrapper.getInstance().onBackground();
+        fetchMediaFilesManager.unregister();
+        unregisterBroadcastReceiver();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterBroadcastReceiver();
         PlaybackService.destroyPlayer(getApplicationContext());
         resetAudioPlayer();
         FileObserverService.stopFileObserverService(getApplicationContext());
@@ -371,11 +391,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private void registerBroadcastReceiver() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(PlaybackService.ACTION_PLAYBACK_EQ_STATE);
-        filter.addAction(FileSystemIntentService.ACTION_START_FETCH_MEDIA_CONTENT);
-        filter.addAction(FileSystemIntentService.ACTION_END_FETCH_MEDIA_CONTENT);
-        filter.addAction(FileSystemIntentService.ACTION_AUDIO_FOLDER_NAME);
-        filter.addAction(FileSystemIntentService.ACTION_AUDIO_TRACK_NAME);
-        filter.addAction(FileSystemIntentService.ACTION_VIDEO_FILE);
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver,
                 filter);
     }
@@ -383,8 +398,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private void unregisterBroadcastReceiver() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
     }
-
-
 
     private void resetAudioPlayer() {
         AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
@@ -400,59 +413,9 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 case PlaybackService.ACTION_PLAYBACK_EQ_STATE:
                     setEQState(intent);
                     break;
-                case FileSystemIntentService.ACTION_START_FETCH_MEDIA_CONTENT:
-                    mediaContentDialog = FetchMediaContentDialog.newInstance(MainActivity.this);
-                    mediaContentDialog.show();
-                    break;
-                case FileSystemIntentService.ACTION_END_FETCH_MEDIA_CONTENT:
-                    if (mediaContentDialog != null) {
-                        mediaContentDialog.hide();
-                    }
-                    if (settingsManager.isFirstStartApp()) {
-                        settingsManager.setFirstStartApp();
-                        FileObserverService.startFileObserverService(getApplicationContext());
-                    }
-                    updateMediaContent();
-                    break;
-                case FileSystemIntentService.ACTION_AUDIO_FOLDER_NAME:
-                    String folderName =
-                            intent.getStringExtra(FileSystemIntentService.EXTRA_AUDIO_FOLDER_NAME);
-                    if (mediaContentDialog != null) {
-                        mediaContentDialog.setFolderName(folderName);
-                    }
-                    break;
-                case FileSystemIntentService.ACTION_AUDIO_TRACK_NAME:
-                    String trackName =
-                            intent.getStringExtra(FileSystemIntentService.EXTRA_AUDIO_TRACK_NAME);
-                    if (mediaContentDialog != null) {
-                        mediaContentDialog.setFileName(trackName);
-                    }
-                    break;
-                case FileSystemIntentService.ACTION_VIDEO_FILE:
-                    String videoFileName =
-                            intent.getStringExtra(FileSystemIntentService.EXTRA_VIDEO_FILE_NAME);
-                    if (mediaContentDialog != null) {
-                        mediaContentDialog.setFileName(videoFileName);
-                    }
-                    break;
             }
         }
     };
-
-
-    private void updateMediaContent() {
-        if (isAudioFragmentShow()) {
-            AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
-                    findFragmentByTag(AudioFragment.class.getName());
-            if (audioFragment != null) {
-                audioFragment.fetchAudioContent();
-            }
-        } else if (isVideoFragmentShow()) {
-            VideoFragment videoFragment = (VideoFragment) getSupportFragmentManager().
-                    findFragmentByTag(VideoFragment.class.getName());
-            videoFragment.fetchVideoContent();
-        }
-    }
 
     private void setEQState(Intent intent) {
         boolean eqState =
@@ -460,37 +423,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         eqSwitch.setChecked(eqState);
     }
 
-    private void checkPermission() {
-        if (!checkPermissions()) {
-            showPermissionDialog();
-        } else {
-            checkAppFirstStart();
-            PlaybackService.startPlaybackService(this);
-        }
-    }
-
-    public boolean checkPermissions() {
-        return PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(
-                this, Manifest.permission.WRITE_EXTERNAL_STORAGE) &&
-                PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(
-                        this, Manifest.permission.MODIFY_AUDIO_SETTINGS) &&
-                PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(
-                        this, Manifest.permission.RECORD_AUDIO);
-    }
-
-    private void checkAppFirstStart() {
-        if (settingsManager == null) {
-            settingsManager = AppSettingsManager.getInstance(getApplication());
-        }
-        if (settingsManager.isFirstStartApp()) {
-            BitmapHelper.getInstance().saveDownloadFolderIcon();
-            FileSystemIntentService.startFetchMedia(getApplicationContext());
-            hidePlayback();
-        } else {
-            FileObserverService.startFileObserverService(getApplicationContext());
-        }
-        addAudioFragment();
-    }
 
     private void addAudioFragment() {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -550,52 +482,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         }
     }
 
-    //TODO add cancel granted permission later
-    private void showPermissionDialog() {
-        permissionDialog = PermissionDialog.newInstance(MainActivity.this);
-        permissionDialog.setOnPermissionDialogListener(new PermissionDialog.OnPermissionDialogListener() {
-            @Override
-            public void onPermissionGranted() {
-                requestPermissions();
-            }
-
-            @Override
-            public void onPermissionCancel() {
-                permissionDialog.hide();
-                finish();
-            }
-        });
-        permissionDialog.show();
-    }
-
-    private void requestPermissions() {
-        ActivityCompat.requestPermissions(this,
-                new String[]{
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.MODIFY_AUDIO_SETTINGS,
-                        Manifest.permission.RECORD_AUDIO},
-                PERMISSION_REQ);
-    }
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSION_REQ:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if (permissionDialog != null) {
-                        permissionDialog.hide();
-                    }
-                    checkAppFirstStart();
-                    PlaybackService.startPlaybackService(this);
-                } else {
-                    finish();
-                }
-                break;
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

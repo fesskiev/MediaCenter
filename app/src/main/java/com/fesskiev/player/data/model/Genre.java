@@ -1,9 +1,9 @@
-package com.fesskiev.player.model;
+package com.fesskiev.player.data.model;
 
 
 import android.database.Cursor;
 
-import com.fesskiev.player.db.MediaDatabaseHelper;
+import com.fesskiev.player.data.source.local.db.DatabaseHelper;
 
 
 public class Genre implements Comparable<Genre> {
@@ -12,8 +12,8 @@ public class Genre implements Comparable<Genre> {
     public String artworkPath;
 
     public Genre(Cursor cursor) {
-        name = cursor.getString(cursor.getColumnIndex(MediaDatabaseHelper.TRACK_GENRE));
-        artworkPath = cursor.getString(cursor.getColumnIndex(MediaDatabaseHelper.TRACK_COVER));
+        name = cursor.getString(cursor.getColumnIndex(DatabaseHelper.TRACK_GENRE));
+        artworkPath = cursor.getString(cursor.getColumnIndex(DatabaseHelper.TRACK_COVER));
     }
 
     @Override

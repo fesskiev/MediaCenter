@@ -18,9 +18,8 @@ import android.widget.Spinner;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.VideoPlayer;
+import com.fesskiev.player.data.model.VideoPlayer;
 import com.fesskiev.player.ui.playback.Playable;
-import com.fesskiev.player.utils.AppLog;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.controls.VideoControlView;
 import com.fesskiev.player.widgets.layouts.ElasticDragDismissFrameLayout;

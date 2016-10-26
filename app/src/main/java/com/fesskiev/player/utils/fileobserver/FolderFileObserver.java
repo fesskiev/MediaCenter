@@ -19,7 +19,7 @@ public class FolderFileObserver {
 
         subscription = MediaApplication
                 .getInstance()
-                .getMediaDataSource()
+                .getRepository()
                 .getFoldersPath()
                 .subscribe(paths -> {
                     RxUtils.RxLog("create folder observer!");

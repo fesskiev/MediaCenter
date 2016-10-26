@@ -1,4 +1,4 @@
-package com.fesskiev.player.model;
+package com.fesskiev.player.data.model;
 
 
 public enum MEDIA_TYPE {

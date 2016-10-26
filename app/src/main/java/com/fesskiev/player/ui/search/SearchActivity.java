@@ -21,10 +21,11 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.db.MediaDataSource;
-import com.fesskiev.player.model.AudioFile;
-import com.fesskiev.player.model.AudioPlayer;
-import com.fesskiev.player.model.MediaFile;
+import com.fesskiev.player.data.source.DataRepository;
+import com.fesskiev.player.data.source.local.db.LocalDataSource;
+import com.fesskiev.player.data.model.AudioFile;
+import com.fesskiev.player.data.model.AudioPlayer;
+import com.fesskiev.player.data.model.MediaFile;
 import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.RxUtils;
@@ -108,9 +109,9 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     private void querySearch(String query, boolean search) {
-        MediaDataSource dataSource = MediaApplication.getInstance().getMediaDataSource();
+        DataRepository repository = MediaApplication.getInstance().getRepository();
         RxUtils.unsubscribe(subscription);
-        subscription = dataSource
+        subscription = repository
                 .getSearchAudioFiles(query)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

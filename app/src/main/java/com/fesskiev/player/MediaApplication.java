@@ -3,9 +3,11 @@ package com.fesskiev.player;
 import android.app.Application;
 import android.content.ComponentCallbacks2;
 
-import com.fesskiev.player.db.MediaDataSource;
-import com.fesskiev.player.model.AudioPlayer;
-import com.fesskiev.player.model.VideoPlayer;
+import com.fesskiev.player.data.source.DataRepository;
+import com.fesskiev.player.data.source.local.db.LocalDataSource;
+import com.fesskiev.player.data.model.AudioPlayer;
+import com.fesskiev.player.data.model.VideoPlayer;
+import com.fesskiev.player.data.source.memory.MemoryDataSource;
 import com.fesskiev.player.utils.AppLog;
 import com.flurry.android.FlurryAgent;
 import com.vk.sdk.VKAccessToken;
@@ -18,7 +20,7 @@ public class MediaApplication extends Application {
     private static MediaApplication INSTANCE;
     private AudioPlayer audioPlayer;
     private VideoPlayer videoPlayer;
-    private MediaDataSource mediaDataSource;
+    private DataRepository repository;
 
     private VKAccessTokenTracker vkAccessTokenTracker = new VKAccessTokenTracker() {
         @Override
@@ -38,7 +40,7 @@ public class MediaApplication extends Application {
         super.onCreate();
         INSTANCE = this;
 
-        mediaDataSource = MediaDataSource.getInstance();
+        repository = DataRepository.getInstance(LocalDataSource.getInstance(), MemoryDataSource.getInstance());
 
         audioPlayer = new AudioPlayer();
         videoPlayer = new VideoPlayer();
@@ -95,7 +97,7 @@ public class MediaApplication extends Application {
         return videoPlayer;
     }
 
-    public MediaDataSource getMediaDataSource() {
-        return mediaDataSource;
+    public DataRepository getRepository() {
+        return repository;
     }
 }

@@ -20,10 +20,11 @@ import android.widget.TextView;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.analytics.AnalyticsActivity;
-import com.fesskiev.player.db.MediaDataSource;
-import com.fesskiev.player.model.AudioFile;
-import com.fesskiev.player.model.AudioFolder;
-import com.fesskiev.player.model.AudioPlayer;
+import com.fesskiev.player.data.source.DataRepository;
+import com.fesskiev.player.data.source.local.db.LocalDataSource;
+import com.fesskiev.player.data.model.AudioFile;
+import com.fesskiev.player.data.model.AudioFolder;
+import com.fesskiev.player.data.model.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.player.utils.AppLog;
@@ -84,7 +85,7 @@ public class PlaybackActivity extends AnalyticsActivity {
                         if (audioFile != null) {
                             audioPlayer.setCurrentAudioFile(audioFile);
                             audioFile.isSelected = true;
-                            MediaApplication.getInstance().getMediaDataSource().updateSelectedAudioFile(audioFile);
+                            MediaApplication.getInstance().getRepository().updateSelectedAudioFile(audioFile);
                             PlaybackService.createPlayer(PlaybackActivity.this, audioFile.getFilePath());
                             PlaybackService.startPlayback(PlaybackActivity.this);
                         }
@@ -146,12 +147,12 @@ public class PlaybackActivity extends AnalyticsActivity {
 
 
     private void fetchSelectedFiles() {
-        MediaDataSource dataSource = MediaApplication.getInstance().getMediaDataSource();
-        if (dataSource != null) {
+        DataRepository repository = MediaApplication.getInstance().getRepository();
+        if (repository != null) {
             subscription = Observable.zip(
-                    dataSource.getSelectedAudioFolder()
+                    repository.getSelectedAudioFolder()
                             .observeOn(AndroidSchedulers.mainThread()),
-                    dataSource.getSelectedAudioFile()
+                    repository.getSelectedAudioFile()
                             .observeOn(AndroidSchedulers.mainThread()),
                     (audioFolder, audioFile) -> {
                         if (audioFolder != null) {
@@ -169,7 +170,7 @@ public class PlaybackActivity extends AnalyticsActivity {
                     })
                     .flatMap(audioFolder -> {
                         if (audioFolder != null) {
-                            return dataSource.getSelectedFolderAudioFiles(audioFolder);
+                            return repository.getSelectedFolderAudioFiles(audioFolder);
                         }
                         return null;
                     })

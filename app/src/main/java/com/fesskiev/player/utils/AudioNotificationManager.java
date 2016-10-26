@@ -14,8 +14,8 @@ import android.util.Log;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.AudioFile;
-import com.fesskiev.player.model.AudioPlayer;
+import com.fesskiev.player.data.model.AudioFile;
+import com.fesskiev.player.data.model.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.MainActivity;
 

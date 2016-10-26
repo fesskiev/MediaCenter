@@ -1,10 +1,10 @@
-package com.fesskiev.player.model;
+package com.fesskiev.player.data.model;
 
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 
-import com.fesskiev.player.db.MediaDatabaseHelper;
+import com.fesskiev.player.data.source.local.db.DatabaseHelper;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.CacheManager;
 
@@ -23,11 +23,11 @@ public class VideoFile implements MediaFile {
 
     public VideoFile(Cursor cursor) {
 
-        id = cursor.getString(cursor.getColumnIndex(MediaDatabaseHelper.ID));
-        filePath = new File(cursor.getString(cursor.getColumnIndex(MediaDatabaseHelper.VIDEO_FILE_PATH)));
-        framePath = cursor.getString(cursor.getColumnIndex(MediaDatabaseHelper.VIDEO_FRAME_PATH));
-        description = cursor.getString(cursor.getColumnIndex(MediaDatabaseHelper.VIDEO_DESCRIPTION));
-        inPlayList = cursor.getInt(cursor.getColumnIndex(MediaDatabaseHelper.VIDEO_IN_PLAY_LIST)) == 1;
+        id = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ID));
+        filePath = new File(cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_FILE_PATH)));
+        framePath = cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_FRAME_PATH));
+        description = cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_DESCRIPTION));
+        inPlayList = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.VIDEO_IN_PLAY_LIST)) == 1;
     }
 
     public VideoFile(File path) {

@@ -3,7 +3,7 @@ package com.fesskiev.player.ui.playback;
 
 import android.support.v4.app.Fragment;
 
-import com.fesskiev.player.model.AudioFolder;
+import com.fesskiev.player.data.model.AudioFolder;
 import com.fesskiev.player.ui.MainActivity;
 
 import java.util.List;

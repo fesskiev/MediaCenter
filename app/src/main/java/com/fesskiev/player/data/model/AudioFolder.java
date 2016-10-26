@@ -1,9 +1,9 @@
-package com.fesskiev.player.model;
+package com.fesskiev.player.data.model;
 
 
 import android.database.Cursor;
 
-import com.fesskiev.player.db.MediaDatabaseHelper;
+import com.fesskiev.player.data.source.local.db.DatabaseHelper;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,15 +22,15 @@ public class AudioFolder implements Comparable<AudioFolder> {
     public AudioFolder(Cursor cursor) {
         audioFiles = new ArrayList<>();
 
-        id = cursor.getString(cursor.getColumnIndex(MediaDatabaseHelper.ID));
-        folderName = cursor.getString(cursor.getColumnIndex(MediaDatabaseHelper.FOLDER_NAME));
-        folderPath = new File(cursor.getString(cursor.getColumnIndex(MediaDatabaseHelper.FOLDER_PATH)));
+        id = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ID));
+        folderName = cursor.getString(cursor.getColumnIndex(DatabaseHelper.FOLDER_NAME));
+        folderPath = new File(cursor.getString(cursor.getColumnIndex(DatabaseHelper.FOLDER_PATH)));
 
-        String imagePath = cursor.getString(cursor.getColumnIndex(MediaDatabaseHelper.FOLDER_COVER));
+        String imagePath = cursor.getString(cursor.getColumnIndex(DatabaseHelper.FOLDER_COVER));
         folderImage = imagePath != null ? new File(imagePath) : null;
 
-        index = cursor.getInt(cursor.getColumnIndex(MediaDatabaseHelper.FOLDER_INDEX));
-        isSelected = cursor.getInt(cursor.getColumnIndex(MediaDatabaseHelper.FOLDER_SELECTED)) == 1;
+        index = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.FOLDER_INDEX));
+        isSelected = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.FOLDER_SELECTED)) == 1;
     }
 
     public AudioFolder() {

@@ -43,8 +43,8 @@ public abstract class ViewPagerFragment extends Fragment {
     public abstract OnInstantiateItemListener setOnInstantiateItemListener();
 
     private OnInstantiateItemListener listener;
-    private ViewPagerAdapter adapter;
     private TabLayout tabLayout;
+    protected ViewPagerAdapter adapter;
     protected ViewPager viewPager;
 
     @Override

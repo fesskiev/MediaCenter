@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.Genre;
+import com.fesskiev.player.data.model.Genre;
 import com.fesskiev.player.ui.GridFragment;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.player.ui.audio.utils.Constants;
@@ -30,7 +30,7 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class AudioGenresFragment extends GridFragment implements AudioContent {
+public class AudioGenresFragment extends GridFragment {
 
     public static AudioGenresFragment newInstance() {
         return new AudioGenresFragment();
@@ -39,9 +39,15 @@ public class AudioGenresFragment extends GridFragment implements AudioContent {
     private Subscription subscription;
 
     @Override
-    public void fetchAudioContent() {
+    public void onStart() {
+        super.onStart();
+        fetchGenres();
+    }
 
-        subscription = MediaApplication.getInstance().getMediaDataSource().getGenresFromDB()
+
+    public void fetchGenres() {
+
+        subscription = MediaApplication.getInstance().getRepository().getGenres()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(genres -> {

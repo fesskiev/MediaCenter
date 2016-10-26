@@ -5,7 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import com.fesskiev.player.MediaApplication;
-import com.fesskiev.player.model.AudioPlayer;
+import com.fesskiev.player.data.model.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.utils.AppLog;
 import com.fesskiev.player.utils.RxUtils;
@@ -30,8 +30,8 @@ public class AudioURIActivity extends AudioPlayerActivity {
                 Uri uri = intent.getData();
                 subscription = MediaApplication.
                         getInstance().
-                        getMediaDataSource().
-                        getAudioFileByPathFromDB(uri.getPath())
+                        getRepository().
+                        getAudioFileByPath(uri.getPath())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(audioFile -> {

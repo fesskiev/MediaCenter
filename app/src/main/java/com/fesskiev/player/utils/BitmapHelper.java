@@ -16,12 +16,12 @@ import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.Artist;
-import com.fesskiev.player.model.AudioFile;
-import com.fesskiev.player.model.AudioFolder;
-import com.fesskiev.player.model.AudioPlayer;
-import com.fesskiev.player.model.Genre;
-import com.fesskiev.player.model.MediaFile;
+import com.fesskiev.player.data.model.Artist;
+import com.fesskiev.player.data.model.AudioFile;
+import com.fesskiev.player.data.model.AudioFolder;
+import com.fesskiev.player.data.model.AudioPlayer;
+import com.fesskiev.player.data.model.Genre;
+import com.fesskiev.player.data.model.MediaFile;
 
 import java.io.File;
 import java.io.FileOutputStream;

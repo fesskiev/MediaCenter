@@ -14,8 +14,8 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.AudioFolder;
-import com.fesskiev.player.model.AudioPlayer;
+import com.fesskiev.player.data.model.AudioFolder;
+import com.fesskiev.player.data.model.AudioPlayer;
 import com.fesskiev.player.ui.GridFragment;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.player.ui.audio.utils.Constants;
@@ -38,7 +38,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 
-public class AudioFoldersFragment extends GridFragment implements AudioContent {
+public class AudioFoldersFragment extends GridFragment {
 
     public static AudioFoldersFragment newInstance() {
         return new AudioFoldersFragment();
@@ -64,12 +64,18 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
     }
 
     @Override
-    public void fetchAudioContent() {
-        subscription = MediaApplication.getInstance().getMediaDataSource().getAudioFoldersFromDB()
+    public void onStart() {
+        super.onStart();
+        fetchAudioFolders();
+    }
+
+
+    public void fetchAudioFolders() {
+        subscription = MediaApplication.getInstance().getRepository().getAudioFolders()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(audioFolders -> {
-                    if(audioFolders != null) {
+                    if (audioFolders != null) {
                         AppLog.INFO("onNext:folders: " + audioFolders.size());
                         if (!audioFolders.isEmpty()) {
                             Collections.sort(audioFolders);
@@ -123,7 +129,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                     if (audioFolder != null) {
                         audioPlayer.currentAudioFolder = audioFolder;
                         audioPlayer.currentAudioFolder.isSelected = true;
-                        MediaApplication.getInstance().getMediaDataSource().updateSelectedAudioFolder(audioFolder);
+                        MediaApplication.getInstance().getRepository().updateSelectedAudioFolder(audioFolder);
 
                         Activity act = activity.get();
                         if (act != null) {
@@ -153,7 +159,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
             AudioFolder audioFolder = audioFolders.get(position);
             if (audioFolder != null) {
                 audioFolder.index = position;
-                MediaApplication.getInstance().getMediaDataSource().updateAudioFolderIndex(audioFolder);
+                MediaApplication.getInstance().getRepository().updateAudioFolderIndex(audioFolder);
             }
         }
 

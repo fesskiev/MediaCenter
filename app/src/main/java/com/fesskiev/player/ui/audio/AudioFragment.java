@@ -13,10 +13,12 @@ import android.view.View;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
+import com.fesskiev.player.data.source.DataRepository;
 import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.ui.ViewPagerFragment;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.CacheManager;
+import com.fesskiev.player.utils.FetchMediaFilesManager;
 import com.fesskiev.player.utils.RxUtils;
 
 import java.util.List;
@@ -34,16 +36,13 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
 
     private SwipeRefreshLayout swipeRefreshLayout;
     private Subscription subscription;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRetainInstance(true);
-    }
+    private DataRepository repository;
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        repository = MediaApplication.getInstance().getRepository();
 
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         swipeRefreshLayout.setOnRefreshListener(this);
@@ -61,16 +60,26 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
             return false;
         });
 
+
+
     }
 
-    public void fetchAudioContent() {
-        if (swipeRefreshLayout.isRefreshing()) {
-            swipeRefreshLayout.setRefreshing(false);
-        }
+   public void refreshAudioContent() {
+        swipeRefreshLayout.setRefreshing(false);
+
+        repository.getMemorySource().setCacheArtistsDirty(true);
+        repository.getMemorySource().setCacheGenresDirty(true);
+        repository.getMemorySource().setCacheFoldersDirty(true);
+
         List<Fragment> fragments = getRegisteredFragments();
         for (Fragment fragment : fragments) {
-            AudioContent audioContent = (AudioContent) fragment;
-            audioContent.fetchAudioContent();
+            if (fragment instanceof AudioFoldersFragment) {
+                ((AudioFoldersFragment) fragment).fetchAudioFolders();
+            } else if (fragment instanceof AudioArtistFragment) {
+                ((AudioArtistFragment) fragment).fetchArtists();
+            } else if (fragment instanceof AudioGenresFragment) {
+                ((AudioGenresFragment) fragment).fetchGenres();
+            }
         }
     }
 
@@ -82,10 +91,10 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
         builder.setMessage(R.string.dialog_refresh_folders_message);
         builder.setPositiveButton(R.string.dialog_refresh_folders_ok,
                 (dialog, which) -> subscription = RxUtils
-                        .fromCallable(MediaApplication.getInstance().getMediaDataSource().resetAudioContentDatabase())
+                        .fromCallable(MediaApplication.getInstance().getRepository().resetAudioContentDatabase())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(aVoid ->{
+                        .subscribe(aVoid -> {
 
                             CacheManager.clearImagesCache();
                             BitmapHelper.getInstance().saveDownloadFolderIcon();
@@ -148,10 +157,6 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
 
     @Override
     public OnInstantiateItemListener setOnInstantiateItemListener() {
-        return position -> {
-            if(position == LAST_ITEM_INSTANTIATE){
-                fetchAudioContent();
-            }
-        };
+        return null;
     }
 }

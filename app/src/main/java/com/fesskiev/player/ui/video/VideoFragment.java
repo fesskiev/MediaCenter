@@ -22,8 +22,9 @@ import android.widget.PopupMenu;
 import com.bumptech.glide.Glide;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.VideoFile;
-import com.fesskiev.player.model.VideoPlayer;
+import com.fesskiev.player.data.model.VideoFile;
+import com.fesskiev.player.data.model.VideoPlayer;
+import com.fesskiev.player.data.source.DataRepository;
 import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.ui.video.player.VideoExoPlayerActivity;
 import com.fesskiev.player.utils.AppLog;
@@ -51,13 +52,16 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     private CardView emptyAudioContent;
     private SwipeRefreshLayout swipeRefreshLayout;
     private Subscription subscription;
+    private DataRepository repository;
     private VideoPlayer videoPlayer;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+
         videoPlayer = MediaApplication.getInstance().getVideoPlayer();
+        repository = MediaApplication.getInstance().getRepository();
     }
 
     @Override
@@ -93,17 +97,18 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         fetchVideoContent();
     }
 
-    protected void showEmptyContentCard() {
-        emptyAudioContent.setVisibility(View.VISIBLE);
+    public void refreshVideoContent(){
+        swipeRefreshLayout.setRefreshing(false);
+
+        repository.getMemorySource().setCacheVideoFilesDirty(true);
+
+        fetchVideoContent();
     }
 
-    protected void hideEmptyContentCard() {
-        emptyAudioContent.setVisibility(View.GONE);
-    }
 
     public void fetchVideoContent() {
         RxUtils.unsubscribe(subscription);
-        subscription = MediaApplication.getInstance().getMediaDataSource().getVideoFilesFromDB()
+        subscription = repository.getVideoFiles()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(videoFiles -> {
@@ -133,6 +138,14 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         startActivity(intent);
     }
 
+    protected void showEmptyContentCard() {
+        emptyAudioContent.setVisibility(View.VISIBLE);
+    }
+
+    protected void hideEmptyContentCard() {
+        emptyAudioContent.setVisibility(View.GONE);
+    }
+
     @Override
     public void onRefresh() {
         AlertDialog.Builder builder =
@@ -143,7 +156,7 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 (dialog, which) -> {
                     RxUtils.unsubscribe(subscription);
                     subscription = RxUtils
-                            .fromCallable(MediaApplication.getInstance().getMediaDataSource().resetVideoContentDatabase())
+                            .fromCallable(MediaApplication.getInstance().getRepository().resetVideoContentDatabase())
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(aVoid -> FileSystemIntentService.startFetchVideo(getActivity()));
@@ -245,7 +258,7 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                                         Snackbar.LENGTH_LONG).show();
 
                                 MediaApplication.getInstance()
-                                        .getMediaDataSource()
+                                        .getRepository()
                                         .deleteVideoFile(videoFile.getFilePath());
 
                                 adapter.removeItem(position);
@@ -262,7 +275,7 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             VideoFile videoFile = videoPlayer.videoFiles.get(position);
             if (videoFile != null) {
                 videoFile.inPlayList = true;
-                MediaApplication.getInstance().getMediaDataSource().updateVideoFile(videoFile);
+                MediaApplication.getInstance().getRepository().updateVideoFile(videoFile);
                 Utils.showCustomSnackbar(getView(),
                         getContext().getApplicationContext(),
                         getString(R.string.add_to_playlist_text),

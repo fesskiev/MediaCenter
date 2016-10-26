@@ -22,9 +22,9 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.model.AudioFile;
-import com.fesskiev.player.model.AudioFolder;
-import com.fesskiev.player.model.AudioPlayer;
+import com.fesskiev.player.data.model.AudioFile;
+import com.fesskiev.player.data.model.AudioFolder;
+import com.fesskiev.player.data.model.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
@@ -165,13 +165,13 @@ public class TrackListFragment extends Fragment {
 
         switch (contentType) {
             case GENRE:
-                audioFilesObservable = MediaApplication.getInstance().getMediaDataSource().getGenreTracksFromDB(contentValue);
+                audioFilesObservable = MediaApplication.getInstance().getRepository().getGenreTracks(contentValue);
                 break;
             case FOLDERS:
-                audioFilesObservable = MediaApplication.getInstance().getMediaDataSource().getFolderTracksFromDB(audioFolder.id);
+                audioFilesObservable = MediaApplication.getInstance().getRepository().getFolderTracks(audioFolder.id);
                 break;
             case ARTIST:
-                audioFilesObservable = MediaApplication.getInstance().getMediaDataSource().getArtistTracksFromDB(contentValue);
+                audioFilesObservable = MediaApplication.getInstance().getRepository().getArtistTracks(contentValue);
                 break;
         }
 
@@ -185,7 +185,6 @@ public class TrackListFragment extends Fragment {
                             audioPlayer.setCurrentAudioFolderFiles(audioFiles);
                             adapter.refreshAdapter(audioFiles);
                         }
-                        RxUtils.unsubscribe(subscription);
                     });
         }
     }
@@ -264,7 +263,7 @@ public class TrackListFragment extends Fragment {
             AudioFile audioFile = audioFiles.get(position);
             if (audioFile != null) {
                 audioFile.inPlayList = true;
-                MediaApplication.getInstance().getMediaDataSource().updateAudioFile(audioFile);
+                MediaApplication.getInstance().getRepository().updateAudioFile(audioFile);
                 Utils.showCustomSnackbar(getView(),
                         getContext().getApplicationContext(),
                         getString(R.string.add_to_playlist_text),
@@ -281,7 +280,7 @@ public class TrackListFragment extends Fragment {
                         AudioPlayerActivity.startPlayerActivity(getActivity(), false, cover);
                     } else {
                         audioFile.isSelected = true;
-                        MediaApplication.getInstance().getMediaDataSource().updateSelectedAudioFile(audioFile);
+                        MediaApplication.getInstance().getRepository().updateSelectedAudioFile(audioFile);
 
                         audioPlayer.setCurrentAudioFile(audioFile);
                         audioPlayer.position = position;
@@ -328,7 +327,7 @@ public class TrackListFragment extends Fragment {
                                     Snackbar.LENGTH_LONG).show();
 
                             MediaApplication.getInstance()
-                                    .getMediaDataSource()
+                                    .getRepository()
                                     .deleteAudioFile(audioFile.getFilePath());
 
                             adapter.removeItem(position);
