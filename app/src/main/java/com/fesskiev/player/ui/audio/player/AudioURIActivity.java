@@ -42,7 +42,7 @@ public class AudioURIActivity extends AudioPlayerActivity {
 
                                 setAudioTrackValues();
                                 PlaybackService.startPlaybackService(getApplicationContext());
-                                PlaybackService.createPlayer(getApplicationContext(), audioFile.getFilePath());
+                                PlaybackService.openFile(getApplicationContext(), audioFile.getFilePath());
                                 PlaybackService.startPlayback(getApplicationContext());
 
                                 RxUtils.unsubscribe(subscription);

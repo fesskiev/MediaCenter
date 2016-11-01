@@ -21,7 +21,6 @@ import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.analytics.AnalyticsActivity;
 import com.fesskiev.player.data.source.DataRepository;
-import com.fesskiev.player.data.source.local.db.LocalDataSource;
 import com.fesskiev.player.data.model.AudioFile;
 import com.fesskiev.player.data.model.AudioFolder;
 import com.fesskiev.player.data.model.AudioPlayer;
@@ -86,7 +85,7 @@ public class PlaybackActivity extends AnalyticsActivity {
                             audioPlayer.setCurrentAudioFile(audioFile);
                             audioFile.isSelected = true;
                             MediaApplication.getInstance().getRepository().updateSelectedAudioFile(audioFile);
-                            PlaybackService.createPlayer(PlaybackActivity.this, audioFile.getFilePath());
+                            PlaybackService.openFile(PlaybackActivity.this, audioFile.getFilePath());
                             PlaybackService.startPlayback(PlaybackActivity.this);
                         }
                     }
@@ -162,7 +161,7 @@ public class PlaybackActivity extends AnalyticsActivity {
                         }
                         if (audioFile != null) {
                             audioPlayer.setCurrentAudioFile(audioFile);
-                            PlaybackService.createPlayer(getApplicationContext(), audioFile.getFilePath());
+                            PlaybackService.openFile(getApplicationContext(), audioFile.getFilePath());
                         } else {
                             showEmptyTrackCard();
                         }
@@ -176,7 +175,6 @@ public class PlaybackActivity extends AnalyticsActivity {
                     })
                     .observeOn(AndroidSchedulers.mainThread())
                     .doOnNext(audioFiles -> {
-
                         if (audioFiles != null && !audioFiles.isEmpty()) {
                             audioPlayer.setCurrentAudioFolderFiles(audioFiles);
                         } else {
@@ -292,7 +290,7 @@ public class PlaybackActivity extends AnalyticsActivity {
                 case PlaybackService.ACTION_SONG_END:
                     AppLog.INFO("action song end");
                     audioPlayer.next();
-                    PlaybackService.createPlayer(getApplicationContext(),
+                    PlaybackService.openFile(getApplicationContext(),
                             audioPlayer.currentAudioFile.getFilePath());
                     PlaybackService.startPlayback(getApplicationContext());
                     break;

@@ -104,10 +104,9 @@ public class PlaybackService extends Service {
     }
 
 
-    public static void createPlayer(Context context, String path) {
+    public static void createPlayer(Context context) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_CREATE_PLAYER);
-        intent.putExtra(PLAYBACK_EXTRA_MUSIC_FILE_PATH, path);
         context.startService(intent);
     }
 
@@ -188,6 +187,8 @@ public class PlaybackService extends Service {
         registerHeadsetReceiver();
         superPoweredSDKWrapper.registerCallback();
 
+        createPlayer();
+
     }
 
     @Override
@@ -198,8 +199,7 @@ public class PlaybackService extends Service {
                 Log.d(TAG, "playback service handle intent: " + action);
                 switch (action) {
                     case ACTION_CREATE_PLAYER:
-                        String createPath = intent.getStringExtra(PLAYBACK_EXTRA_MUSIC_FILE_PATH);
-                        createPlayer(createPath);
+                        createPlayer();
                         break;
                     case ACTION_OPEN_FILE:
                         String openPath = intent.getStringExtra(PLAYBACK_EXTRA_MUSIC_FILE_PATH);
@@ -266,7 +266,7 @@ public class PlaybackService extends Service {
     }
 
 
-    private void createPlayer(String path) {
+    private void createPlayer() {
 
         String sampleRateString, bufferSizeString;
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -280,7 +280,7 @@ public class PlaybackService extends Service {
         }
 
         Log.d(TAG, "create audio player!");
-        superPoweredSDKWrapper.createAudioPlayer(path, Integer.valueOf(sampleRateString), Integer.valueOf(bufferSizeString));
+        superPoweredSDKWrapper.createAudioPlayer(Integer.valueOf(sampleRateString), Integer.valueOf(bufferSizeString));
 
     }
 

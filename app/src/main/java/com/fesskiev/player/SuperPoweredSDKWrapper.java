@@ -45,7 +45,7 @@ public class SuperPoweredSDKWrapper {
 
     public native void unregisterCallback();
 
-    public native void createAudioPlayer(String path, int sampleRate, int bufferSize);
+    public native void createAudioPlayer(int sampleRate, int bufferSize);
 
     public native void openAudioFile(String path);
 

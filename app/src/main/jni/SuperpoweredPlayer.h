@@ -18,7 +18,7 @@ class SuperpoweredPlayer {
 
 public:
 
-    SuperpoweredPlayer(unsigned int samplerate, unsigned int buffersize, const char *path);
+    SuperpoweredPlayer(unsigned int samplerate, unsigned int buffersize);
 
     ~SuperpoweredPlayer();
 

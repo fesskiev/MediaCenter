@@ -199,7 +199,7 @@ public class AudioNotificationManager extends BroadcastReceiver {
         if (audioPlayer.currentAudioFile != null && !audioPlayer.repeat) {
             audioPlayer.next();
             if (audioPlayer.currentAudioFile != null) {
-                PlaybackService.createPlayer(context,
+                PlaybackService.openFile(context,
                         audioPlayer.currentAudioFile.getFilePath());
                 PlaybackService.startPlayback(context);
             }
@@ -209,7 +209,7 @@ public class AudioNotificationManager extends BroadcastReceiver {
     private void previous() {
         if (audioPlayer.currentAudioFile != null && !audioPlayer.repeat) {
             audioPlayer.previous();
-            PlaybackService.createPlayer(context,
+            PlaybackService.openFile(context,
                     audioPlayer.currentAudioFile.getFilePath());
             PlaybackService.startPlayback(context);
         }

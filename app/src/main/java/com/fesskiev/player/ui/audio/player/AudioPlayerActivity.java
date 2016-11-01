@@ -242,6 +242,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
             cardDescription.next();
             reset();
             open();
+            play();
         }
     }
 
@@ -252,6 +253,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
             cardDescription.previous();
             reset();
             open();
+            play();
         }
     }
 

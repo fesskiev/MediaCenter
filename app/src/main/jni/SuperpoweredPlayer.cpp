@@ -76,13 +76,11 @@ static bool audioProcessing(void *clientdata, short int *audioIO, int numberOfSa
     return ((SuperpoweredPlayer *) clientdata)->process(audioIO, (unsigned int) numberOfSamples);
 }
 
-SuperpoweredPlayer::SuperpoweredPlayer(unsigned int samplerate, unsigned int buffersize,
-                                       const char *path) : volume(1.0f) {
+SuperpoweredPlayer::SuperpoweredPlayer(unsigned int samplerate, unsigned int buffersize) : volume(1.0f) {
 
     buffer = (float *) memalign(16, (buffersize + 16) * sizeof(float) * 2);
 
     player = new SuperpoweredAdvancedAudioPlayer(&player, playerEventCallback, samplerate, 0);
-    player->open(path);
 
     player->syncMode = SuperpoweredAdvancedAudioPlayerSyncMode_TempoAndBeat;
 
@@ -267,14 +265,10 @@ Java_com_fesskiev_player_SuperPoweredSDKWrapper_getDuration(JNIEnv *env, jobject
 
 extern "C" JNIEXPORT void
 Java_com_fesskiev_player_SuperPoweredSDKWrapper_createAudioPlayer(JNIEnv *env, jobject instance,
-                                                                  jstring path, jint sampleRate,
+                                                                  jint sampleRate,
                                                                   jint bufferSize) {
 
-    const char *str = env->GetStringUTFChars(path, 0);
-
-    player = new SuperpoweredPlayer((unsigned int) sampleRate, (unsigned int) bufferSize, str);
-
-    env->ReleaseStringUTFChars(path, str);
+    player = new SuperpoweredPlayer((unsigned int) sampleRate, (unsigned int) bufferSize);
 }
 
 extern "C" JNIEXPORT void
@@ -285,7 +279,6 @@ Java_com_fesskiev_player_SuperPoweredSDKWrapper_openAudioFile(JNIEnv *env, jobje
     if (player != nullptr) {
         player->open(str);
     }
-
 
     env->ReleaseStringUTFChars(path, str);
 }
