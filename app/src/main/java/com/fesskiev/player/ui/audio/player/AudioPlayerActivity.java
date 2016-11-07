@@ -1,17 +1,12 @@
 package com.fesskiev.player.ui.audio.player;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
@@ -21,9 +16,8 @@ import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.analytics.AnalyticsActivity;
 import com.fesskiev.player.data.model.AudioFile;
-import com.fesskiev.player.data.model.AudioPlayer;
+import com.fesskiev.player.players.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
-import com.fesskiev.player.ui.playback.Playable;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.buttons.MuteSoloButton;
@@ -32,8 +26,10 @@ import com.fesskiev.player.widgets.cards.DescriptionCardView;
 import com.fesskiev.player.widgets.controls.AudioControlView;
 import com.fesskiev.player.widgets.utils.DisabledScrollView;
 
+import java.util.List;
 
-public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
+
+public class AudioPlayerActivity extends AnalyticsActivity implements AudioPlayer.OnAudioPlayerListener {
 
     public static final String EXTRA_IS_NEW_TRACK = "com.fesskiev.player.EXTRA_IS_NEW_TRACK";
 
@@ -68,11 +64,11 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
 
 
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
 //                        | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE);
+                | View.SYSTEM_UI_FLAG_IMMERSIVE);
 
         if (savedInstanceState == null) {
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -85,6 +81,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
 
 
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
+        audioPlayer.addOnAudioPlayerListener(this);
 
         appBarLayout = (AppBarLayout) findViewById(R.id.appBarLayout);
         backdrop = (ImageView) findViewById(R.id.backdrop);
@@ -110,12 +107,12 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
 
             @Override
             public void animationEnd() {
-                setTrackInformation();
+
             }
         });
 
         muteSoloButton.setOnMuteSoloListener(mute -> {
-            audioPlayer.mute = mute;
+            audioPlayer.setMute(mute);
 
             if (mute) {
                 disableChangeVolume();
@@ -128,7 +125,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
 
         repeatButton = (RepeatButton) findViewById(R.id.repeatButton);
         repeatButton.setOnRepeatStateChangedListener(repeat -> {
-            audioPlayer.repeat = repeat;
+            audioPlayer.setRepeat(repeat);
             PlaybackService.changeRepeatState(getApplicationContext(), repeat);
         });
 
@@ -138,8 +135,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         controlView.setOnAudioControlListener(new AudioControlView.OnAudioControlListener() {
             @Override
             public void onPlayStateChanged() {
-                Log.d("test", "onPlayStateChanged: " + audioPlayer.isPlaying);
-                if (audioPlayer.isPlaying) {
+                if (audioPlayer.isPlaying()) {
                     pause();
                 } else {
                     play();
@@ -149,7 +145,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
             @Override
             public void onVolumeStateChanged(int volume, boolean change) {
                 if (change) {
-                    audioPlayer.volume = volume;
+                    audioPlayer.setVolume(volume);
                     setVolumeLevel();
                 }
                 scrollView.setEnableScrolling(!change);
@@ -169,26 +165,56 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
             boolean isNewTrack = intent.getBooleanExtra(EXTRA_IS_NEW_TRACK, false);
             if (isNewTrack) {
                 open();
-                play();
             } else {
-                if (!audioPlayer.isPlaying) {
+                if (!audioPlayer.isPlaying()) {
                     setPauseValues();
-                    controlView.setPlay(audioPlayer.isPlaying);
+                    controlView.setPlay(audioPlayer.isPlaying());
                 }
             }
         }
 
-        setAudioTrackValues();
-        registerPlaybackBroadcastReceiver();
+        audioPlayer.requestCurrentTrack();
+    }
 
+    @Override
+    public void onCurrentTrackListChanged(List<AudioFile> audioFiles) {
 
     }
 
-    protected void setAudioTrackValues() {
-        if (audioPlayer.currentAudioFile != null) {
-            setTrackInformation();
+    @Override
+    public void onCurrentTrackList(List<AudioFile> audioFiles) {
+
+    }
+
+    @Override
+    public void onCurrentTrackChanged(AudioFile audioFile) {
+        cardDescription.next();
+    }
+
+    @Override
+    public void onCurrentTrack(AudioFile audioFile) {
+        if (audioFile != null) {
+            setAudioTrackValues(audioFile);
+        }
+    }
+
+    @Override
+    public void onPlaybackValuesChanged(int duration, int progress, int progressScale) {
+        controlView.setSeekValue(progressScale);
+        trackTimeTotal.setText(Utils.getTimeFromMillisecondsString(duration));
+        trackTimeCount.setText(Utils.getTimeFromMillisecondsString(progress));
+    }
+
+    @Override
+    public void onPlaybackStateChanged(boolean playing) {
+        controlView.setPlay(playing);
+    }
+
+    protected void setAudioTrackValues(AudioFile audioFile) {
+        if (audioFile != null) {
+            setTrackInformation(audioFile);
             setVolumeLevel();
-            setBackdropImage();
+            setBackdropImage(audioFile);
             setRepeat();
             setMuteSolo();
         }
@@ -201,14 +227,14 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
 
 
     private void setPauseValues() {
-        controlView.setSeekValue(audioPlayer.progressScale);
-        trackTimeTotal.setText(Utils.getTimeFromMillisecondsString(audioPlayer.duration));
-        trackTimeCount.setText(Utils.getTimeFromMillisecondsString(audioPlayer.progress));
+        controlView.setSeekValue(audioPlayer.getProgressScale());
+        trackTimeTotal.setText(Utils.getTimeFromMillisecondsString(audioPlayer.getDuration()));
+        trackTimeCount.setText(Utils.getTimeFromMillisecondsString(audioPlayer.getProgress()));
     }
 
 
-    private void setBackdropImage() {
-        boolean load = BitmapHelper.getInstance().loadAudioPlayerArtwork(backdrop);
+    private void setBackdropImage(AudioFile audioFile) {
+        boolean load = BitmapHelper.getInstance().loadAudioPlayerArtwork(audioFile, backdrop);
 
         CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
         if (!load) {
@@ -225,62 +251,49 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         }
     }
 
-    @Override
+
     public void play() {
-        PlaybackService.startPlayback(getApplicationContext());
+        audioPlayer.play();
     }
 
-    @Override
+
     public void pause() {
-        PlaybackService.stopPlayback(getApplicationContext());
+        audioPlayer.pause();
     }
 
-    @Override
+
     public void next() {
-        if (!audioPlayer.repeat) {
+        if (!audioPlayer.isRepeat()) {
             audioPlayer.next();
             cardDescription.next();
-            reset();
-            open();
-            play();
+
         }
     }
 
-    @Override
     public void previous() {
-        if (!audioPlayer.repeat) {
+        if (!audioPlayer.isRepeat()) {
             audioPlayer.previous();
             cardDescription.previous();
-            reset();
-            open();
-            play();
+
         }
     }
 
-    private void reset() {
-        resetIndicators();
-        setBackdropImage();
-    }
-
-
-    @Override
     public void open() {
-        PlaybackService.openFile(getApplicationContext(),
-                audioPlayer.currentAudioFile.getFilePath());
+        audioPlayer.open(null);
     }
 
     private void setMuteSolo() {
-        muteSoloButton.changeState(audioPlayer.mute);
-        PlaybackService.changeMuteSoloState(getApplicationContext(), audioPlayer.mute);
+        muteSoloButton.changeState(audioPlayer.isMute());
+        PlaybackService.changeMuteSoloState(getApplicationContext(), audioPlayer.isMute());
     }
 
     private void setRepeat() {
-        repeatButton.changeState(audioPlayer.repeat);
-        PlaybackService.changeRepeatState(getApplicationContext(), audioPlayer.repeat);
+        repeatButton.changeState(audioPlayer.isRepeat());
+        PlaybackService.changeRepeatState(getApplicationContext(), audioPlayer.isRepeat());
     }
 
     private void setVolumeLevel() {
-        int volume = audioPlayer.volume;
+        int volume = audioPlayer.getVolume();
         volumeLevel.setText(String.valueOf(volume));
         controlView.setVolumeValue(volume);
         PlaybackService.volumePlayback(getApplicationContext(), volume);
@@ -300,17 +313,16 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
     }
 
 
-    private void setTrackInformation() {
-        AudioFile currentAudioFile = audioPlayer.currentAudioFile;
-        artist.setText(currentAudioFile.artist);
-        title.setText(currentAudioFile.title);
-        album.setText(currentAudioFile.album);
-        genre.setText(currentAudioFile.genre);
+    private void setTrackInformation(AudioFile audioFile) {
+        artist.setText(audioFile.artist);
+        title.setText(audioFile.title);
+        album.setText(audioFile.album);
+        genre.setText(audioFile.genre);
 
         StringBuilder sb = new StringBuilder();
-        sb.append(currentAudioFile.sampleRate);
+        sb.append(audioFile.sampleRate);
         sb.append("::");
-        sb.append(currentAudioFile.bitrate);
+        sb.append(audioFile.bitrate);
         trackDescription.setText(sb.toString());
     }
 
@@ -328,60 +340,4 @@ public class AudioPlayerActivity extends AnalyticsActivity implements Playable {
         onBackPressed();
         return true;
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unregisterPlaybackBroadcastReceiver();
-    }
-
-
-    protected void registerPlaybackBroadcastReceiver() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(PlaybackService.ACTION_PLAYBACK_VALUES);
-        filter.addAction(PlaybackService.ACTION_PLAYBACK_PLAYING_STATE);
-        filter.addAction(AudioPlayer.ACTION_CHANGE_CURRENT_AUDIO_FILE);
-        filter.addAction(PlaybackService.ACTION_SONG_END);
-        LocalBroadcastManager.getInstance(this).registerReceiver(playbackReceiver, filter);
-    }
-
-    protected void unregisterPlaybackBroadcastReceiver() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(playbackReceiver);
-    }
-
-    private BroadcastReceiver playbackReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case PlaybackService.ACTION_PLAYBACK_VALUES:
-                    int duration =
-                            intent.getIntExtra(PlaybackService.PLAYBACK_EXTRA_DURATION, 0);
-                    int progress =
-                            intent.getIntExtra(PlaybackService.PLAYBACK_EXTRA_PROGRESS, 0);
-                    int progressScale =
-                            intent.getIntExtra(PlaybackService.PLAYBACK_EXTRA_PROGRESS_SCALE, 0);
-
-                    audioPlayer.duration = duration;
-                    audioPlayer.progress = progress;
-                    audioPlayer.progressScale = progressScale;
-
-                    controlView.setSeekValue(progressScale);
-                    trackTimeTotal.setText(Utils.getTimeFromMillisecondsString(duration));
-                    trackTimeCount.setText(Utils.getTimeFromMillisecondsString(progress));
-                    break;
-                case PlaybackService.ACTION_PLAYBACK_PLAYING_STATE:
-                    audioPlayer.isPlaying = intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_PLAYING, false);
-                    controlView.setPlay(audioPlayer.isPlaying);
-                    break;
-                case PlaybackService.ACTION_SONG_END:
-                    cardDescription.next();
-                    reset();
-                case AudioPlayer.ACTION_CHANGE_CURRENT_AUDIO_FILE:
-                    cardDescription.next();
-                    reset();
-                    break;
-            }
-        }
-    };
 }

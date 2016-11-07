@@ -29,7 +29,7 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.data.model.AudioPlayer;
+import com.fesskiev.player.players.AudioPlayer;
 import com.fesskiev.player.services.FileObserverService;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.about.AboutActivity;

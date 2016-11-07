@@ -98,16 +98,16 @@ public class DataRepository {
     }
 
 
-    public Observable<List<AudioFile>> getGenreTracks(String contentValue) {
-        return localSource.getGenreTracks(contentValue);
+    public Observable<List<AudioFile>> getGenreTracks(String genreName) {
+        return localSource.getGenreTracks(genreName);
     }
 
     public Observable<List<AudioFile>> getFolderTracks(String id) {
         return localSource.getFolderTracks(id);
     }
 
-    public Observable<List<AudioFile>> getArtistTracks(String contentValue) {
-        return localSource.getArtistTracks(contentValue);
+    public Observable<List<AudioFile>> getArtistTracks(String artistName) {
+        return localSource.getArtistTracks(artistName);
     }
 
 
@@ -146,6 +146,10 @@ public class DataRepository {
 
     public Observable<List<AudioFile>> getSelectedFolderAudioFiles(AudioFolder audioFolder) {
         return localSource.getSelectedFolderAudioFiles(audioFolder);
+    }
+
+    public Observable<List<AudioFile>> getSelectedFolderAudioFiles() {
+        return  getSelectedAudioFolder().flatMap(audioFolder -> localSource.getSelectedFolderAudioFiles(audioFolder));
     }
 
     public void clearPlaylist() {

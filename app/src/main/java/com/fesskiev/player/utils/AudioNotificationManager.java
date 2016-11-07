@@ -15,9 +15,11 @@ import android.util.Log;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.data.model.AudioFile;
-import com.fesskiev.player.data.model.AudioPlayer;
+import com.fesskiev.player.players.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.MainActivity;
+
+import java.util.List;
 
 
 public class AudioNotificationManager extends BroadcastReceiver {
@@ -35,6 +37,7 @@ public class AudioNotificationManager extends BroadcastReceiver {
     private Context context;
     private AudioPlayer audioPlayer;
     private PlaybackService playbackService;
+    private AudioFile currentAudioFile;
     private int progress;
 
     public AudioNotificationManager(Context context, PlaybackService playbackService) {
@@ -43,11 +46,40 @@ public class AudioNotificationManager extends BroadcastReceiver {
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
         registerBroadcastReceiver();
 
-        playbackService.startForeground(NOTIFICATION_ID,
-                buildNotification(null,
-                        audioPlayer.currentAudioFile,
-                        BitmapHelper.getInstance().createBitmapColor(),
-                        false));
+        audioPlayer.addOnAudioPlayerListener(new AudioPlayer.OnAudioPlayerListener() {
+            @Override
+            public void onCurrentTrackListChanged(List<AudioFile> audioFiles) {
+
+            }
+
+            @Override
+            public void onCurrentTrackChanged(AudioFile audioFile) {
+                currentAudioFile = audioFile;
+            }
+
+            @Override
+            public void onCurrentTrack(AudioFile audioFile) {
+                playbackService.startForeground(NOTIFICATION_ID,
+                        buildNotification(null, audioFile, null, false));
+            }
+
+            @Override
+            public void onPlaybackValuesChanged(int duration, int progress, int progressScale) {
+
+            }
+
+            @Override
+            public void onPlaybackStateChanged(boolean playing) {
+
+            }
+
+            @Override
+            public void onCurrentTrackList(List<AudioFile> audioFiles) {
+
+            }
+        });
+
+        audioPlayer.requestCurrentTrack();
     }
 
     private void registerBroadcastReceiver() {
@@ -73,26 +105,24 @@ public class AudioNotificationManager extends BroadcastReceiver {
     }
 
     private void changeNotification(final NotificationCompat.Action action, final boolean isPlaying) {
+        if (currentAudioFile != null) {
+            BitmapHelper.getInstance().loadNotificationArtwork(currentAudioFile, new BitmapHelper.OnBitmapLoadListener() {
+                @Override
+                public void onLoaded(Bitmap bitmap) {
+                    createNotification(buildNotification(action,
+                            currentAudioFile,
+                            bitmap,
+                            isPlaying));
+                }
 
-        final AudioFile audioFile = audioPlayer.currentAudioFile;
-        if (audioFile != null) {
-            BitmapHelper.getInstance().loadNotificationArtwork(new BitmapHelper.OnBitmapLoadListener() {
-                        @Override
-                        public void onLoaded(Bitmap bitmap) {
-                            createNotification(buildNotification(action,
-                                    audioFile,
-                                    bitmap,
-                                    isPlaying));
-                        }
-
-                        @Override
-                        public void onFailed() {
-                            createNotification(buildNotification(action,
-                                    audioFile,
-                                    BitmapHelper.getInstance().createBitmapColor(),
-                                    isPlaying));
-                        }
-                    });
+                @Override
+                public void onFailed() {
+                    createNotification(buildNotification(action,
+                            currentAudioFile,
+                            null,
+                            isPlaying));
+                }
+            });
         }
     }
 
@@ -196,28 +226,16 @@ public class AudioNotificationManager extends BroadcastReceiver {
     }
 
     private void next() {
-        if (audioPlayer.currentAudioFile != null && !audioPlayer.repeat) {
-            audioPlayer.next();
-            if (audioPlayer.currentAudioFile != null) {
-                PlaybackService.openFile(context,
-                        audioPlayer.currentAudioFile.getFilePath());
-                PlaybackService.startPlayback(context);
-            }
-        }
+        audioPlayer.next();
     }
 
     private void previous() {
-        if (audioPlayer.currentAudioFile != null && !audioPlayer.repeat) {
-            audioPlayer.previous();
-            PlaybackService.openFile(context,
-                    audioPlayer.currentAudioFile.getFilePath());
-            PlaybackService.startPlayback(context);
-        }
+        audioPlayer.previous();
     }
 
     public void seekToPosition(int progress) {
         this.progress = progress;
-        setPlayPauseState(audioPlayer.isPlaying);
+        setPlayPauseState(audioPlayer.isPlaying());
     }
 
     private void play() {

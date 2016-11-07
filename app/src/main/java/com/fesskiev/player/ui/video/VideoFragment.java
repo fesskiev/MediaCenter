@@ -23,7 +23,7 @@ import com.bumptech.glide.Glide;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.data.model.VideoFile;
-import com.fesskiev.player.data.model.VideoPlayer;
+import com.fesskiev.player.players.VideoPlayer;
 import com.fesskiev.player.data.source.DataRepository;
 import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.ui.video.player.VideoExoPlayerActivity;
@@ -97,7 +97,7 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         fetchVideoContent();
     }
 
-    public void refreshVideoContent(){
+    public void refreshVideoContent() {
         swipeRefreshLayout.setRefreshing(false);
 
         repository.getMemorySource().setCacheVideoFilesDirty(true);
@@ -114,7 +114,6 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 .subscribe(videoFiles -> {
                     if (videoFiles != null) {
                         if (!videoFiles.isEmpty()) {
-                            videoPlayer.videoFiles = videoFiles;
                             hideEmptyContentCard();
                         } else {
                             showEmptyContentCard();
@@ -210,7 +209,7 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         }
 
         private void startVideoPlayer(int position) {
-            VideoFile videoFile = videoPlayer.videoFiles.get(position);
+            VideoFile videoFile = videoFiles.get(position);
             if (videoFile != null) {
                 if (videoFile.exists()) {
                     videoPlayer.currentVideoFile = videoFile;
@@ -243,7 +242,7 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         }
 
         private void deleteVideo(final int position) {
-            final VideoFile videoFile = videoPlayer.videoFiles.get(position);
+            final VideoFile videoFile = videoFiles.get(position);
             if (videoFile != null) {
                 AlertDialog.Builder builder =
                         new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
@@ -272,7 +271,7 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         }
 
         private void addToPlaylist(int position) {
-            VideoFile videoFile = videoPlayer.videoFiles.get(position);
+            VideoFile videoFile = videoFiles.get(position);
             if (videoFile != null) {
                 videoFile.inPlayList = true;
                 MediaApplication.getInstance().getRepository().updateVideoFile(videoFile);

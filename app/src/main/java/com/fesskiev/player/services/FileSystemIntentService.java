@@ -121,7 +121,6 @@ public class FileSystemIntentService extends IntentService {
     }
 
     private void getAudioContent() {
-        MediaApplication.getInstance().getAudioPlayer().audioFolders.clear();
         String sdCardState = Environment.getExternalStorageState();
         if (sdCardState.equals(Environment.MEDIA_MOUNTED)) {
             sendStartFetchMediaBroadcast();
@@ -138,7 +137,6 @@ public class FileSystemIntentService extends IntentService {
     }
 
     private void getVideoContent() {
-        MediaApplication.getInstance().getVideoPlayer().videoFiles.clear();
         String sdCardState = Environment.getExternalStorageState();
         if (sdCardState.equals(Environment.MEDIA_MOUNTED)) {
             sendStartFetchMediaBroadcast();
@@ -154,8 +152,6 @@ public class FileSystemIntentService extends IntentService {
     }
 
     private void getMediaContent() {
-        MediaApplication.getInstance().getAudioPlayer().audioFolders.clear();
-        MediaApplication.getInstance().getVideoPlayer().videoFiles.clear();
         String sdCardState = Environment.getExternalStorageState();
         if (sdCardState.equals(Environment.MEDIA_MOUNTED)) {
             sendStartFetchMediaBroadcast();

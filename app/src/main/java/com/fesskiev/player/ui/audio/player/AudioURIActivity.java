@@ -5,7 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import com.fesskiev.player.MediaApplication;
-import com.fesskiev.player.data.model.AudioPlayer;
+import com.fesskiev.player.players.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.utils.AppLog;
 import com.fesskiev.player.utils.RxUtils;
@@ -38,9 +38,6 @@ public class AudioURIActivity extends AudioPlayerActivity {
                             AppLog.VERBOSE("Audio file: " + audioFile);
                             AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
                             if (audioPlayer != null) {
-                                audioPlayer.currentAudioFile = audioFile;
-
-                                setAudioTrackValues();
                                 PlaybackService.startPlaybackService(getApplicationContext());
                                 PlaybackService.openFile(getApplicationContext(), audioFile.getFilePath());
                                 PlaybackService.startPlayback(getApplicationContext());
@@ -51,13 +48,11 @@ public class AudioURIActivity extends AudioPlayerActivity {
 
             }
         }
-        registerPlaybackBroadcastReceiver();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterPlaybackBroadcastReceiver();
         RxUtils.unsubscribe(subscription);
         PlaybackService.stopPlayback(getApplicationContext());
         resetAudioPlayer();

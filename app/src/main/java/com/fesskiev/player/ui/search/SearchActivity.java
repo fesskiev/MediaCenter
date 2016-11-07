@@ -22,9 +22,8 @@ import android.widget.TextView;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.data.source.DataRepository;
-import com.fesskiev.player.data.source.local.db.LocalDataSource;
 import com.fesskiev.player.data.model.AudioFile;
-import com.fesskiev.player.data.model.AudioPlayer;
+import com.fesskiev.player.players.AudioPlayer;
 import com.fesskiev.player.data.model.MediaFile;
 import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.player.utils.BitmapHelper;
@@ -233,8 +232,7 @@ public class SearchActivity extends AppCompatActivity {
                         Activity act = activity.get();
                         if (act != null) {
                             AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-                            audioPlayer.setCurrentAudioFile((AudioFile) mediaFile);
-                            audioPlayer.position = position;
+                            audioPlayer.setPosition(position);
                             AudioPlayerActivity.startPlayerActivity(act, true, cover);
                         }
                         break;

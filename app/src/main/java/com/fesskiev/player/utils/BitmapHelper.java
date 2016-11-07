@@ -5,7 +5,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.widget.ImageView;
@@ -19,7 +18,6 @@ import com.fesskiev.player.R;
 import com.fesskiev.player.data.model.Artist;
 import com.fesskiev.player.data.model.AudioFile;
 import com.fesskiev.player.data.model.AudioFolder;
-import com.fesskiev.player.data.model.AudioPlayer;
 import com.fesskiev.player.data.model.Genre;
 import com.fesskiev.player.data.model.MediaFile;
 
@@ -36,7 +34,6 @@ public class BitmapHelper {
     }
 
     private static BitmapHelper INSTANCE;
-    private AudioPlayer audioPlayer;
     private Context context;
 
     public static BitmapHelper getInstance() {
@@ -48,7 +45,6 @@ public class BitmapHelper {
 
     private BitmapHelper() {
         context = MediaApplication.getInstance().getApplicationContext();
-        audioPlayer = MediaApplication.getInstance().getAudioPlayer();
     }
 
 
@@ -69,30 +65,17 @@ public class BitmapHelper {
         });
     }
 
-    private String findNotificationArtworkPath() {
-        AudioFile audioFile = audioPlayer.currentAudioFile;
-        if (audioFile.isDownloaded()) {
-            String mediaArtworkPath = findMediaFileArtworkPath(audioFile);
-            if (mediaArtworkPath == null) {
-                return null;
-            }
-        }
-
+    private String findNotificationArtworkPath(AudioFile audioFile) {
         String mediaArtworkPath = findMediaFileArtworkPath(audioFile);
         if (mediaArtworkPath != null) {
             return mediaArtworkPath;
         }
-
-        String folderArtworkPath = findAudioFolderArtworkPath(audioPlayer.currentAudioFolder);
-        if (folderArtworkPath != null) {
-            return folderArtworkPath;
-        }
         return null;
     }
 
-    public void loadNotificationArtwork(final OnBitmapLoadListener listener) {
+    public void loadNotificationArtwork(AudioFile audioFile, final OnBitmapLoadListener listener) {
         Glide.with(context)
-                .load(findNotificationArtworkPath())
+                .load(findNotificationArtworkPath(audioFile))
                 .asBitmap()
                 .into(new SimpleTarget<Bitmap>(100, 100) {
                     @Override
@@ -151,29 +134,11 @@ public class BitmapHelper {
     }
 
 
-    public boolean loadAudioPlayerArtwork(ImageView imageView) {
-        AudioFile audioFile = audioPlayer.currentAudioFile;
-        if (audioFile.isDownloaded()) {
-            String mediaArtworkPath = findMediaFileArtworkPath(audioFile);
-            if (mediaArtworkPath == null) {
-                return false;
-            }
-        }
-
+    public boolean loadAudioPlayerArtwork(AudioFile audioFile, ImageView imageView) {
         String mediaArtworkPath = findMediaFileArtworkPath(audioFile);
         if (mediaArtworkPath != null) {
             Glide.with(context).
                     load(mediaArtworkPath).
-                    crossFade().
-                    fitCenter().
-                    into(imageView);
-            return true;
-        }
-
-        String folderArtworkPath = findAudioFolderArtworkPath(audioPlayer.currentAudioFolder);
-        if (folderArtworkPath != null) {
-            Glide.with(context).
-                    load(folderArtworkPath).
                     crossFade().
                     fitCenter().
                     into(imageView);
@@ -190,17 +155,6 @@ public class BitmapHelper {
         if (mediaArtworkPath != null) {
             Glide.with(context).
                     load(mediaArtworkPath).
-                    crossFade().
-                    fitCenter().
-                    transform(new CircleTransform(context)).
-                    into(imageView);
-            return;
-        }
-
-        String folderArtworkPath = findAudioFolderArtworkPath(audioPlayer.currentAudioFolder);
-        if (folderArtworkPath != null) {
-            Glide.with(context).
-                    load(folderArtworkPath).
                     crossFade().
                     fitCenter().
                     transform(new CircleTransform(context)).
@@ -352,10 +306,5 @@ public class BitmapHelper {
                 CacheManager.getDownloadFolderIconPath());
     }
 
-    public Bitmap createBitmapColor() {
-        Bitmap bitmap = Bitmap.createBitmap(256, 256, Bitmap.Config.ARGB_8888);
-        bitmap.eraseColor(ContextCompat.getColor(context, R.color.primary));
-        return bitmap;
-    }
 
 }

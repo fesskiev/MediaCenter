@@ -5,8 +5,8 @@ import android.content.ComponentCallbacks2;
 
 import com.fesskiev.player.data.source.DataRepository;
 import com.fesskiev.player.data.source.local.db.LocalDataSource;
-import com.fesskiev.player.data.model.AudioPlayer;
-import com.fesskiev.player.data.model.VideoPlayer;
+import com.fesskiev.player.players.AudioPlayer;
+import com.fesskiev.player.players.VideoPlayer;
 import com.fesskiev.player.data.source.memory.MemoryDataSource;
 import com.fesskiev.player.utils.AppLog;
 import com.flurry.android.FlurryAgent;

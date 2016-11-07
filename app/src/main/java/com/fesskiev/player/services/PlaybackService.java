@@ -12,7 +12,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.fesskiev.player.SuperPoweredSDKWrapper;
-import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.AudioFocusManager;
 import com.fesskiev.player.utils.AudioNotificationManager;
 
@@ -27,11 +26,9 @@ public class PlaybackService extends Service {
             "com.fesskiev.player.action.ACTION_HEADSET_PLUG_IN";
     public static final String ACTION_HEADSET_PLUG_OUT =
             "com.fesskiev.player.action.ACTION_HEADSET_PLUG_OUT";
-    public static final String ACTION_SONG_END =
-            "com.fesskiev.player.action.ACTION_SONG_END";
+    public static final String ACTION_TRACK_END =
+            "com.fesskiev.player.action.ACTION_TRACK_END";
 
-    public static final String ACTION_CREATE_PLAYER =
-            "com.fesskiev.player.action.ACTION_CREATE_PLAYER";
     public static final String ACTION_OPEN_FILE =
             "com.fesskiev.player.action.ACTION_OPEN_FILE";
     public static final String ACTION_START_PLAYBACK =
@@ -77,7 +74,6 @@ public class PlaybackService extends Service {
 
 
     private Timer timer;
-    private AppSettingsManager settingsManager;
     private AudioFocusManager audioFocusManager;
     private AudioNotificationManager audioNotificationManager;
     private SuperPoweredSDKWrapper superPoweredSDKWrapper;
@@ -103,12 +99,6 @@ public class PlaybackService extends Service {
         context.startService(intent);
     }
 
-
-    public static void createPlayer(Context context) {
-        Intent intent = new Intent(context, PlaybackService.class);
-        intent.setAction(ACTION_CREATE_PLAYER);
-        context.startService(intent);
-    }
 
     public static void openFile(Context context, String path) {
         Intent intent = new Intent(context, PlaybackService.class);
@@ -163,7 +153,6 @@ public class PlaybackService extends Service {
             sendBroadcastSongEnd();
         });
 
-        settingsManager = AppSettingsManager.getInstance(getApplicationContext());
         audioNotificationManager = new AudioNotificationManager(this, this);
         audioFocusManager = new AudioFocusManager();
         audioFocusManager.setOnAudioFocusManagerListener(
@@ -198,9 +187,6 @@ public class PlaybackService extends Service {
             if (action != null) {
                 Log.d(TAG, "playback service handle intent: " + action);
                 switch (action) {
-                    case ACTION_CREATE_PLAYER:
-                        createPlayer();
-                        break;
                     case ACTION_OPEN_FILE:
                         String openPath = intent.getStringExtra(PLAYBACK_EXTRA_MUSIC_FILE_PATH);
                         openFile(openPath);
@@ -362,7 +348,7 @@ public class PlaybackService extends Service {
 
     private void sendBroadcastSongEnd() {
         LocalBroadcastManager.getInstance(getApplicationContext()).
-                sendBroadcast(new Intent(ACTION_SONG_END));
+                sendBroadcast(new Intent(ACTION_TRACK_END));
     }
 
 

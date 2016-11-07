@@ -54,15 +54,16 @@ static void playerEventCallback(void *clientData, SuperpoweredAdvancedAudioPlaye
     SuperpoweredAdvancedAudioPlayer *player = *((SuperpoweredAdvancedAudioPlayer **) clientData);
     switch (event) {
         case SuperpoweredAdvancedAudioPlayerEvent_LoadSuccess:
-            player->setBpm(126.0f);
-            player->setFirstBeatMs(353);
+//            player->setBpm(10000.0f);
+//            player->setFirstBeatMs(353);
             player->setPosition(player->firstBeatMs, false, false);
+            __android_log_print(ANDROID_LOG_DEBUG, "MediaCenter", "LOAD SUCCESS");
             break;
         case SuperpoweredAdvancedAudioPlayerEvent_LoadError:
-            __android_log_print(ANDROID_LOG_DEBUG, "HLSExample", "Open error: %s", (char *) value);
+            __android_log_print(ANDROID_LOG_DEBUG, "MediaCenter", "Open error: %s", (char *) value);
             break;
         case SuperpoweredAdvancedAudioPlayerEvent_EOF:
-            __android_log_print(ANDROID_LOG_DEBUG, "HLSExample", "END SONG");
+            __android_log_print(ANDROID_LOG_DEBUG, "MediaCenter", "END SONG");
             handlingCallback(1);
             break;
         default:;
@@ -71,12 +72,13 @@ static void playerEventCallback(void *clientData, SuperpoweredAdvancedAudioPlaye
 
 static bool audioProcessing(void *clientdata, short int *audioIO, int numberOfSamples,
                             int __unused samplerate) {
-//    __android_log_print(ANDROID_LOG_VERBOSE, "SuperpoweredExample", "audioProcessing");
+//    __android_log_print(ANDROID_LOG_VERBOSE, "MediaCenter", "audioProcessing");
 
     return ((SuperpoweredPlayer *) clientdata)->process(audioIO, (unsigned int) numberOfSamples);
 }
 
-SuperpoweredPlayer::SuperpoweredPlayer(unsigned int samplerate, unsigned int buffersize) : volume(1.0f) {
+SuperpoweredPlayer::SuperpoweredPlayer(unsigned int samplerate, unsigned int buffersize) : volume(
+        1.0f) {
 
     buffer = (float *) memalign(16, (buffersize + 16) * sizeof(float) * 2);
 
@@ -161,8 +163,7 @@ void SuperpoweredPlayer::setEQBands(int index, int value) {
     } else if (value > 50) {
         bandF = 1.0f + (float) (value - 50) / 10.0f;
     }
-    __android_log_print(ANDROID_LOG_VERBOSE, "SuperpoweredExample",
-                        "setEQBands index = %i bandF = %f",
+    __android_log_print(ANDROID_LOG_VERBOSE, "MediaCenter", "setEQBands index = %i bandF = %f",
                         index, bandF);
     bandEQ->bands[index] = bandF;
 }
@@ -180,7 +181,6 @@ void SuperpoweredPlayer::onForeground() {
 }
 
 
-
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     gJavaVM = vm;
     return JNI_VERSION_1_6;
@@ -190,7 +190,7 @@ extern "C" JNIEXPORT void
 Java_com_fesskiev_player_SuperPoweredSDKWrapper_onDestroy(JNIEnv *env, jobject instance) {
     if (player != nullptr) {
         player->~SuperpoweredPlayer();
-        __android_log_print(ANDROID_LOG_DEBUG, "HLSExample", "DESTROY@@@@!!!!");
+        __android_log_print(ANDROID_LOG_DEBUG, "MediaCenter", "DESTROY");
     }
 }
 
@@ -295,7 +295,6 @@ extern "C" JNIEXPORT void
 Java_com_fesskiev_player_SuperPoweredSDKWrapper_setVolumeAudioPlayer(JNIEnv *env,
                                                                      jobject instance,
                                                                      jint value) {
-    __android_log_print(ANDROID_LOG_VERBOSE, "SuperpoweredExample", "setVolume = %i", value);
     player->setVolume(value);
 
 }

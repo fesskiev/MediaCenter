@@ -18,7 +18,8 @@ import android.widget.Spinner;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.data.model.VideoPlayer;
+import com.fesskiev.player.data.model.MediaFile;
+import com.fesskiev.player.players.VideoPlayer;
 import com.fesskiev.player.ui.playback.Playable;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.controls.VideoControlView;
@@ -190,7 +191,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
 
 
     @Override
-    public void open() {
+    public void open(MediaFile mediaFile) {
         preparePlayer(true);
     }
 
@@ -217,7 +218,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
 
     private void onShown() {
         if (player == null) {
-            open();
+            open(null);
         } else {
             player.setBackgrounded(false);
         }

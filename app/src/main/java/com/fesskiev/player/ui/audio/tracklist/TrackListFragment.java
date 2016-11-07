@@ -23,8 +23,8 @@ import android.widget.TextView;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.data.model.AudioFile;
-import com.fesskiev.player.data.model.AudioFolder;
-import com.fesskiev.player.data.model.AudioPlayer;
+import com.fesskiev.player.players.AudioPlayer;
+import com.fesskiev.player.data.source.DataRepository;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
@@ -59,6 +59,7 @@ public class TrackListFragment extends Fragment {
     }
 
     private Subscription subscription;
+    private DataRepository repository;
     private TrackListAdapter adapter;
     private AudioPlayer audioPlayer;
     private List<SlidingCardView> openCards;
@@ -75,6 +76,7 @@ public class TrackListFragment extends Fragment {
         }
 
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
+        repository = MediaApplication.getInstance().getRepository();
         openCards = new ArrayList<>();
 
         registerPlaybackBroadcastReceiver();
@@ -160,18 +162,17 @@ public class TrackListFragment extends Fragment {
     };
 
     private void fetchContentByType() {
-        AudioFolder audioFolder = audioPlayer.currentAudioFolder;
         Observable<List<AudioFile>> audioFilesObservable = null;
 
         switch (contentType) {
             case GENRE:
-                audioFilesObservable = MediaApplication.getInstance().getRepository().getGenreTracks(contentValue);
+                audioFilesObservable = repository.getGenreTracks(contentValue);
                 break;
             case FOLDERS:
-                audioFilesObservable = MediaApplication.getInstance().getRepository().getFolderTracks(audioFolder.id);
+                audioFilesObservable = repository.getFolderTracks(contentValue);
                 break;
             case ARTIST:
-                audioFilesObservable = MediaApplication.getInstance().getRepository().getArtistTracks(contentValue);
+                audioFilesObservable = repository.getArtistTracks(contentValue);
                 break;
         }
 
@@ -181,10 +182,8 @@ public class TrackListFragment extends Fragment {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(audioFiles -> {
                         AppLog.INFO("onNext:track list: " + audioFiles.size());
-                        if (audioFolder != null) {
-                            audioPlayer.setCurrentAudioFolderFiles(audioFiles);
-                            adapter.refreshAdapter(audioFiles);
-                        }
+                        adapter.refreshAdapter(audioFiles);
+
                     });
         }
     }
@@ -263,7 +262,7 @@ public class TrackListFragment extends Fragment {
             AudioFile audioFile = audioFiles.get(position);
             if (audioFile != null) {
                 audioFile.inPlayList = true;
-                MediaApplication.getInstance().getRepository().updateAudioFile(audioFile);
+                repository.updateAudioFile(audioFile);
                 Utils.showCustomSnackbar(getView(),
                         getContext().getApplicationContext(),
                         getString(R.string.add_to_playlist_text),
@@ -276,16 +275,22 @@ public class TrackListFragment extends Fragment {
             AudioFile audioFile = audioFiles.get(position);
             if (audioFile != null) {
                 if (audioFile.exists()) {
-                    if (audioPlayer.isTrackPlaying(audioFile)) {
-                        AudioPlayerActivity.startPlayerActivity(getActivity(), false, cover);
-                    } else {
-                        audioFile.isSelected = true;
-                        MediaApplication.getInstance().getRepository().updateSelectedAudioFile(audioFile);
+                    audioPlayer.isTrackPlaying()
+                            .first()
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(selectedTrack -> {
+                                if (selectedTrack.equals(audioFile)) {
+                                    AudioPlayerActivity.startPlayerActivity(getActivity(), false, cover);
+                                } else {
+                                    audioFile.isSelected = true;
+                                    repository.updateSelectedAudioFile(audioFile);
 
-                        audioPlayer.setCurrentAudioFile(audioFile);
-                        audioPlayer.position = position;
-                        AudioPlayerActivity.startPlayerActivity(getActivity(), true, cover);
-                    }
+                                    audioPlayer.setPosition(position);
+                                    AudioPlayerActivity.startPlayerActivity(getActivity(), true, cover);
+                                }
+
+                            });
                 } else {
                     Utils.showCustomSnackbar(getView(),
                             getContext(), getString(R.string.snackbar_file_not_exist),
@@ -326,10 +331,7 @@ public class TrackListFragment extends Fragment {
                                     getString(R.string.shackbar_delete_file),
                                     Snackbar.LENGTH_LONG).show();
 
-                            MediaApplication.getInstance()
-                                    .getRepository()
-                                    .deleteAudioFile(audioFile.getFilePath());
-
+                            repository.deleteAudioFile(audioFile.getFilePath());
                             adapter.removeItem(position);
 
                         }
@@ -358,21 +360,29 @@ public class TrackListFragment extends Fragment {
             holder.title.setText(audioFile.title);
             holder.filePath.setText(audioFile.filePath.getName());
 
-            if (audioPlayer.isTrackPlaying(audioFile)) {
-                holder.playEq.setVisibility(View.VISIBLE);
-                final AnimationDrawable animation = (AnimationDrawable) ContextCompat.
-                        getDrawable(getContext().getApplicationContext(), R.drawable.ic_equalizer);
-                holder.playEq.setImageDrawable(animation);
-                if (animation != null) {
-                    if (audioPlayer.isPlaying) {
-                        holder.playEq.post(animation::start);
-                    } else {
-                        animation.stop();
-                    }
-                }
-            } else {
-                holder.playEq.setVisibility(View.INVISIBLE);
-            }
+            audioPlayer.isTrackPlaying()
+                    .first()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(selectedTrack -> {
+                        if (selectedTrack.equals(audioFile) && audioPlayer.isPlaying()) {
+                            holder.playEq.setVisibility(View.VISIBLE);
+
+                            AnimationDrawable animation = (AnimationDrawable) ContextCompat.
+                                    getDrawable(getContext().getApplicationContext(), R.drawable.ic_equalizer);
+                            holder.playEq.setImageDrawable(animation);
+                            if (animation != null) {
+                                if (audioPlayer.isPlaying()) {
+                                    animation.start();
+                                } else {
+                                    animation.stop();
+                                }
+                            }
+                        } else {
+                            holder.playEq.setVisibility(View.INVISIBLE);
+                        }
+
+                    });
         }
 
         @Override

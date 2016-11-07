@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
 
-import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.analytics.AnalyticsActivity;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
@@ -23,15 +22,18 @@ public class TrackListActivity extends AnalyticsActivity {
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             if (toolbar != null) {
                 String title = null;
+                String contentValue = null;
                 CONTENT_TYPE contentType =
                         (CONTENT_TYPE) getIntent().getSerializableExtra(Constants.EXTRA_CONTENT_TYPE);
                 switch (contentType) {
                     case GENRE:
                     case ARTIST:
                         title = getIntent().getExtras().getString(Constants.EXTRA_CONTENT_TYPE_VALUE);
+                        contentValue = title;
                         break;
                     case FOLDERS:
-                        title = MediaApplication.getInstance().getAudioPlayer().currentAudioFolder.folderName;
+                        title = getIntent().getExtras().getString(Constants.EXTRA_AUDIO_FOLDER_TITLE_VALUE);
+                        contentValue = getIntent().getExtras().getString(Constants.EXTRA_CONTENT_TYPE_VALUE);
                         break;
                     case PLAYLIST:
                         break;
@@ -41,9 +43,8 @@ public class TrackListActivity extends AnalyticsActivity {
                 setSupportActionBar(toolbar);
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.content, TrackListFragment.newInstance(contentType, title),
+                transaction.replace(R.id.content, TrackListFragment.newInstance(contentType, contentValue),
                         TrackListFragment.class.getName());
                 transaction.commit();
 

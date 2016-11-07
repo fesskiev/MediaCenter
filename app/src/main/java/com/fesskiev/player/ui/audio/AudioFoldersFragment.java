@@ -15,7 +15,6 @@ import android.widget.TextView;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.data.model.AudioFolder;
-import com.fesskiev.player.data.model.AudioPlayer;
 import com.fesskiev.player.ui.GridFragment;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.player.ui.audio.utils.Constants;
@@ -80,9 +79,6 @@ public class AudioFoldersFragment extends GridFragment {
                         if (!audioFolders.isEmpty()) {
                             Collections.sort(audioFolders);
 
-                            AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-                            audioPlayer.audioFolders = audioFolders;
-
                             ((AudioFoldersAdapter) adapter).refresh(audioFolders);
                             hideEmptyContentCard();
                         } else {
@@ -123,18 +119,17 @@ public class AudioFoldersFragment extends GridFragment {
                 albumName = (TextView) v.findViewById(R.id.audioName);
                 cover = (ImageView) v.findViewById(R.id.audioCover);
                 v.setOnClickListener(view -> {
-                    AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-
                     AudioFolder audioFolder = audioFolders.get(getAdapterPosition());
                     if (audioFolder != null) {
-                        audioPlayer.currentAudioFolder = audioFolder;
-                        audioPlayer.currentAudioFolder.isSelected = true;
+                        audioFolder.isSelected = true;
                         MediaApplication.getInstance().getRepository().updateSelectedAudioFolder(audioFolder);
 
                         Activity act = activity.get();
                         if (act != null) {
                             Intent i = new Intent(act, TrackListActivity.class);
                             i.putExtra(Constants.EXTRA_CONTENT_TYPE, CONTENT_TYPE.FOLDERS);
+                            i.putExtra(Constants.EXTRA_CONTENT_TYPE_VALUE, audioFolder.id);
+                            i.putExtra(Constants.EXTRA_AUDIO_FOLDER_TITLE_VALUE, audioFolder.folderName);
                             act.startActivity(i);
                         }
                     }
