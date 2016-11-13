@@ -122,7 +122,9 @@ public class AudioFoldersFragment extends GridFragment {
                     AudioFolder audioFolder = audioFolders.get(getAdapterPosition());
                     if (audioFolder != null) {
                         audioFolder.isSelected = true;
-                        MediaApplication.getInstance().getRepository().updateSelectedAudioFolder(audioFolder);
+
+                        MediaApplication.getInstance().getAudioPlayer().setCurrentTrackList(audioFolder);
+
 
                         Activity act = activity.get();
                         if (act != null) {

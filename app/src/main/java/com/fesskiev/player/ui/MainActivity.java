@@ -85,6 +85,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 //        AnimationUtils.setupWindowAnimations(this);
 
         settingsManager = AppSettingsManager.getInstance(this);
+        configureAudioPlayer();
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -277,13 +278,11 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         } else if (isVideoFragmentShow()) {
             checkVideoContentItem();
         }
-//        SuperPoweredSDKWrapper.getInstance().onForeground();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-//       SuperPoweredSDKWrapper.getInstance().onBackground();
         fetchMediaFilesManager.unregister();
         unregisterBroadcastReceiver();
     }
@@ -402,6 +401,11 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private void resetAudioPlayer() {
         AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
         audioPlayer.resetAudioPlayer();
+    }
+
+    private void configureAudioPlayer() {
+        AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
+        audioPlayer.configureAudioPlayer();
     }
 
 

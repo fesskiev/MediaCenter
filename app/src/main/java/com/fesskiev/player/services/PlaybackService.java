@@ -79,6 +79,11 @@ public class PlaybackService extends Service {
     private SuperPoweredSDKWrapper superPoweredSDKWrapper;
     private int durationScale;
 
+    public static void startPlaybackService(Context context) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        context.startService(intent);
+    }
+
     public static void changeEQState(Context context) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_EQ_STATE);
@@ -116,11 +121,6 @@ public class PlaybackService extends Service {
     public static void stopPlayback(Context context) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_STOP_PLAYBACK);
-        context.startService(intent);
-    }
-
-    public static void startPlaybackService(Context context) {
-        Intent intent = new Intent(context, PlaybackService.class);
         context.startService(intent);
     }
 
@@ -294,7 +294,17 @@ public class PlaybackService extends Service {
             startUpdateTimer();
             sendBroadcastPlayingState(true);
             audioFocusManager.tryToGetAudioFocus();
-            audioNotificationManager.setPlayPauseState(true);
+        }
+    }
+
+
+    private void stop() {
+        if (superPoweredSDKWrapper.isPlaying()) {
+            Log.d(TAG, "stop playback");
+            superPoweredSDKWrapper.setPlayingAudioPlayer(false);
+            stopUpdateTimer();
+            sendBroadcastPlayingState(false);
+            audioFocusManager.giveUpAudioFocus();
         }
     }
 
@@ -309,19 +319,9 @@ public class PlaybackService extends Service {
         }
     }
 
-    private void stop() {
-        if (superPoweredSDKWrapper.isPlaying()) {
-            Log.d(TAG, "stop playback");
-            superPoweredSDKWrapper.setPlayingAudioPlayer(false);
-            stopUpdateTimer();
-            sendBroadcastPlayingState(false);
-            audioFocusManager.giveUpAudioFocus();
-            audioNotificationManager.setPlayPauseState(false);
-        }
-    }
-
 
     private void startUpdateTimer() {
+        stopUpdateTimer();
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -332,7 +332,9 @@ public class PlaybackService extends Service {
     }
 
     private void stopUpdateTimer() {
-        timer.cancel();
+        if (timer != null) {
+            timer.cancel();
+        }
     }
 
 

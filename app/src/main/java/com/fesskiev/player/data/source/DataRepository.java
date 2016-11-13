@@ -84,7 +84,7 @@ public class DataRepository {
     }
 
     public Observable<List<VideoFile>> getVideoFiles() {
-        if (!memorySource.isCacheVideoFilesDirty()&& !memorySource.isVideoFilesEmpty()) {
+        if (!memorySource.isCacheVideoFilesDirty() && !memorySource.isVideoFilesEmpty()) {
             Log.w(TAG, "get memory cached video");
             return memorySource.getVideoFiles();
         }
@@ -144,12 +144,14 @@ public class DataRepository {
         return localSource.getSelectedAudioFile();
     }
 
-    public Observable<List<AudioFile>> getSelectedFolderAudioFiles(AudioFolder audioFolder) {
-        return localSource.getSelectedFolderAudioFiles(audioFolder);
-    }
 
     public Observable<List<AudioFile>> getSelectedFolderAudioFiles() {
-        return  getSelectedAudioFolder().flatMap(audioFolder -> localSource.getSelectedFolderAudioFiles(audioFolder));
+        return getSelectedAudioFolder().flatMap(audioFolder -> {
+            if (audioFolder != null) {
+                return localSource.getSelectedFolderAudioFiles(audioFolder);
+            }
+            return Observable.empty();
+        });
     }
 
     public void clearPlaylist() {
@@ -163,7 +165,6 @@ public class DataRepository {
     public Observable<List<MediaFile>> getVideoFilePlaylist() {
         return localSource.getVideoFilePlaylist();
     }
-
 
 
     public Callable<Integer> resetVideoContentDatabase() {

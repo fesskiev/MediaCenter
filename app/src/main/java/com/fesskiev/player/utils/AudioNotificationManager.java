@@ -47,10 +47,6 @@ public class AudioNotificationManager extends BroadcastReceiver {
         registerBroadcastReceiver();
 
         audioPlayer.addOnAudioPlayerListener(new AudioPlayer.OnAudioPlayerListener() {
-            @Override
-            public void onCurrentTrackListChanged(List<AudioFile> audioFiles) {
-
-            }
 
             @Override
             public void onCurrentTrackChanged(AudioFile audioFile) {
@@ -58,7 +54,14 @@ public class AudioNotificationManager extends BroadcastReceiver {
             }
 
             @Override
-            public void onCurrentTrack(AudioFile audioFile) {
+            public void onAudioTrackOpen(AudioFile audioFile) {
+
+            }
+
+            @Override
+            public void onCurrentTrackRequest(AudioFile audioFile) {
+                currentAudioFile = audioFile;
+
                 playbackService.startForeground(NOTIFICATION_ID,
                         buildNotification(null, audioFile, null, false));
             }
@@ -70,16 +73,14 @@ public class AudioNotificationManager extends BroadcastReceiver {
 
             @Override
             public void onPlaybackStateChanged(boolean playing) {
-
+                setPlayPauseState(playing);
             }
 
             @Override
-            public void onCurrentTrackList(List<AudioFile> audioFiles) {
+            public void onCurrentTrackListRequest(List<AudioFile> audioFiles) {
 
             }
         });
-
-        audioPlayer.requestCurrentTrack();
     }
 
     private void registerBroadcastReceiver() {
@@ -183,7 +184,7 @@ public class AudioNotificationManager extends BroadcastReceiver {
     }
 
 
-    public void setPlayPauseState(boolean isPlaying) {
+    private void setPlayPauseState(boolean isPlaying) {
         if (isPlaying) {
             changeNotification(generateAction(R.drawable.icon_pause_media_control,
                     "Pause", ACTION_MEDIA_CONTROL_PAUSE), true);

@@ -113,7 +113,6 @@ public class AudioPlayerActivity extends AnalyticsActivity implements AudioPlaye
 
         muteSoloButton.setOnMuteSoloListener(mute -> {
             audioPlayer.setMute(mute);
-
             if (mute) {
                 disableChangeVolume();
             } else {
@@ -160,42 +159,44 @@ public class AudioPlayerActivity extends AnalyticsActivity implements AudioPlaye
             }
         });
 
+
+
         Intent intent = getIntent();
         if (intent.hasExtra(EXTRA_IS_NEW_TRACK)) {
             boolean isNewTrack = intent.getBooleanExtra(EXTRA_IS_NEW_TRACK, false);
             if (isNewTrack) {
                 open();
             } else {
-                if (!audioPlayer.isPlaying()) {
-                    setPauseValues();
-                    controlView.setPlay(audioPlayer.isPlaying());
-                }
+                audioPlayer.requestCurrentTrack();
+                setPauseValues();
+                controlView.setPlay(audioPlayer.isPlaying());
             }
         }
-
-        audioPlayer.requestCurrentTrack();
     }
 
-    @Override
-    public void onCurrentTrackListChanged(List<AudioFile> audioFiles) {
-
-    }
 
     @Override
-    public void onCurrentTrackList(List<AudioFile> audioFiles) {
+    public void onCurrentTrackListRequest(List<AudioFile> audioFiles) {
 
     }
 
     @Override
     public void onCurrentTrackChanged(AudioFile audioFile) {
+        resetIndicators();
         cardDescription.next();
     }
 
     @Override
-    public void onCurrentTrack(AudioFile audioFile) {
+    public void onAudioTrackOpen(AudioFile audioFile) {
         if (audioFile != null) {
+            play();
             setAudioTrackValues(audioFile);
         }
+    }
+
+    @Override
+    public void onCurrentTrackRequest(AudioFile audioFile) {
+        setAudioTrackValues(audioFile);
     }
 
     @Override
@@ -334,6 +335,12 @@ public class AudioPlayerActivity extends AnalyticsActivity implements AudioPlaye
         controlView.setEnableChangeVolume(true);
     }
 
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        audioPlayer.removeOnAudioPlayerListener(this);
+    }
 
     @Override
     public boolean onSupportNavigateUp() {

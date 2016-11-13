@@ -10,19 +10,18 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.data.model.AudioFile;
+import com.fesskiev.player.data.model.AudioFolder;
 import com.fesskiev.player.data.model.MediaFile;
 import com.fesskiev.player.data.source.DataRepository;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.playback.Playable;
 import com.fesskiev.player.utils.AppLog;
-import com.fesskiev.player.utils.RxUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 import rx.Observable;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -31,13 +30,13 @@ public class AudioPlayer implements Playable {
 
     public interface OnAudioPlayerListener {
 
-        void onCurrentTrackListChanged(List<AudioFile> audioFiles);
+        void onAudioTrackOpen(AudioFile audioFile);
 
         void onCurrentTrackChanged(AudioFile audioFile);
 
-        void onCurrentTrack(AudioFile audioFile);
+        void onCurrentTrackRequest(AudioFile audioFile);
 
-        void onCurrentTrackList(List<AudioFile> audioFiles);
+        void onCurrentTrackListRequest(List<AudioFile> audioFiles);
 
         void onPlaybackValuesChanged(int duration, int progress, int progressScale);
 
@@ -45,10 +44,18 @@ public class AudioPlayer implements Playable {
 
     }
 
+    private static AudioPlayer INSTANCE;
+
+    public static AudioPlayer getInstance(DataRepository repository) {
+        if (INSTANCE == null) {
+            INSTANCE = new AudioPlayer(repository);
+        }
+        return INSTANCE;
+    }
+
     private Context context;
     private List<OnAudioPlayerListener> audioPlayerListeners;
 
-    private Subscription subscription;
     private DataRepository repository;
 
     private int position;
@@ -60,14 +67,13 @@ public class AudioPlayer implements Playable {
     private boolean mute;
     private boolean repeat;
 
-    public AudioPlayer() {
+    private AudioPlayer(DataRepository repository) {
         this.volume = 100;
+        this.repository = repository;
 
         context = MediaApplication.getInstance().getApplicationContext();
-        repository = MediaApplication.getInstance().getRepository();
         audioPlayerListeners = new ArrayList<>();
 
-        registerPlaybackBroadcastReceiver();
     }
 
     public void addOnAudioPlayerListener(OnAudioPlayerListener listener) {
@@ -76,7 +82,14 @@ public class AudioPlayer implements Playable {
         }
     }
 
-    public void clearOnAudioPlayerListener() {
+
+    public void removeOnAudioPlayerListener(OnAudioPlayerListener listener) {
+        if (audioPlayerListeners.contains(listener)) {
+            audioPlayerListeners.remove(listener);
+        }
+    }
+
+    private void clearOnAudioPlayerListener() {
         audioPlayerListeners.clear();
     }
 
@@ -89,15 +102,21 @@ public class AudioPlayer implements Playable {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(currentAudioFile -> {
                         PlaybackService.openFile(context, currentAudioFile.getFilePath());
-                        PlaybackService.startPlayback(context);
 
-                        notifyCurrentTrack(currentAudioFile);
+                        notifyTrackOpen(currentAudioFile);
                     });
         } else {
             PlaybackService.openFile(context, audioFile.getFilePath());
-            PlaybackService.startPlayback(context);
 
-            notifyCurrentTrack((AudioFile) audioFile);
+            notifyTrackOpen((AudioFile) audioFile);
+        }
+    }
+
+    private void notifyTrackOpen(AudioFile audioFile) {
+        AppLog.ERROR("notifyTrackOpen");
+
+        for (OnAudioPlayerListener listener : audioPlayerListeners) {
+            listener.onAudioTrackOpen(audioFile);
         }
     }
 
@@ -170,22 +189,43 @@ public class AudioPlayer implements Playable {
         position--;
     }
 
+
+    public void setCurrentAudioFile(AudioFile audioFile) {
+        repository.updateSelectedAudioFile(audioFile);
+//        requestCurrentTrack();
+    }
+
+
+    public void setCurrentTrackList(AudioFolder audioFolder) {
+        repository.updateSelectedAudioFolder(audioFolder);
+        repository.getSelectedFolderAudioFiles()
+                .first()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(audioFiles -> {
+                    if (audioFiles != null) {
+                        notifyCurrentTrackList(audioFiles);
+                    }
+                });
+    }
+
     public void requestCurrentTrack() {
-        subscription = repository.getSelectedAudioFile()
+        repository.getSelectedAudioFile()
                 .first()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(audioFile -> {
 
-                    AppLog.ERROR("requestCurrentTrack");
+                    AppLog.ERROR("requestCurrentTrack: " + (audioFile == null));
 
-                    notifyCurrentTrack(audioFile);
-
+                    if (audioFile != null) {
+                        notifyCurrentTrack(audioFile);
+                    }
                 });
     }
 
     public void requestCurrentTrackList() {
-        subscription = repository.getSelectedFolderAudioFiles()
+        repository.getSelectedFolderAudioFiles()
                 .first()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -201,9 +241,12 @@ public class AudioPlayer implements Playable {
         return repository.getSelectedAudioFile();
     }
 
+    public void configureAudioPlayer() {
+        registerPlaybackBroadcastReceiver();
+    }
+
     public void resetAudioPlayer() {
         isPlaying = false;
-        RxUtils.unsubscribe(subscription);
         unregisterPlaybackBroadcastReceiver();
         clearOnAudioPlayerListener();
     }
@@ -257,31 +300,40 @@ public class AudioPlayer implements Playable {
     };
 
     private void notifyCurrentTrackList(List<AudioFile> audioFiles) {
+        AppLog.ERROR("notifyCurrentTrackList");
+
         for (OnAudioPlayerListener listener : audioPlayerListeners) {
-            listener.onCurrentTrackList(audioFiles);
+            listener.onCurrentTrackListRequest(audioFiles);
         }
     }
 
 
     private void notifyPlaybackStateChanged(boolean isPlaying) {
+        AppLog.ERROR("notifyPlaybackStateChanged");
+
         for (OnAudioPlayerListener listener : audioPlayerListeners) {
             listener.onPlaybackStateChanged(isPlaying);
         }
     }
 
     private void notifyPlaybackValuesChanged(int duration, int progress, int progressScale) {
+
         for (OnAudioPlayerListener listener : audioPlayerListeners) {
             listener.onPlaybackValuesChanged(duration, progress, progressScale);
         }
     }
 
     private void notifyCurrentTrack(AudioFile audioFile) {
+        AppLog.ERROR("notifyCurrentTrack");
+
         for (OnAudioPlayerListener listener : audioPlayerListeners) {
-            listener.onCurrentTrack(audioFile);
+            listener.onCurrentTrackRequest(audioFile);
         }
     }
 
     private void notifyCurrentTrackChanged(AudioFile audioFile) {
+        AppLog.ERROR("notifyCurrentTrackChanged");
+
         for (OnAudioPlayerListener listener : audioPlayerListeners) {
             listener.onCurrentTrackChanged(audioFile);
         }
@@ -349,5 +401,19 @@ public class AudioPlayer implements Playable {
 
     public void setRepeat(boolean repeat) {
         this.repeat = repeat;
+    }
+
+    @Override
+    public String toString() {
+        return "AudioPlayer{" +
+                "position=" + position +
+                ", volume=" + volume +
+                ", duration=" + duration +
+                ", progress=" + progress +
+                ", progressScale=" + progressScale +
+                ", isPlaying=" + isPlaying +
+                ", mute=" + mute +
+                ", repeat=" + repeat +
+                '}';
     }
 }

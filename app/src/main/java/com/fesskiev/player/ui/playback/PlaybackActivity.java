@@ -6,6 +6,7 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ import com.fesskiev.player.analytics.AnalyticsActivity;
 import com.fesskiev.player.data.model.AudioFile;
 import com.fesskiev.player.players.AudioPlayer;
 import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
+import com.fesskiev.player.utils.AppLog;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton;
@@ -77,8 +79,10 @@ public class PlaybackActivity extends AnalyticsActivity implements AudioPlayer.O
                         AudioFile audioFile = audioFiles.get(position);
                         if (audioFile != null) {
                             audioFile.isSelected = true;
-                            MediaApplication.getInstance().getRepository().updateSelectedAudioFile(audioFile);
+
+                            audioPlayer.setCurrentAudioFile(audioFile);
                             audioPlayer.open(audioFile);
+                            audioPlayer.play();
                         }
                     }
 
@@ -96,6 +100,7 @@ public class PlaybackActivity extends AnalyticsActivity implements AudioPlayer.O
                 audioPlayer.play();
             }
         });
+        playPauseButton.setPlay(false);
 
         View bottomSheet = findViewById(R.id.bottom_sheet);
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
@@ -139,14 +144,6 @@ public class PlaybackActivity extends AnalyticsActivity implements AudioPlayer.O
 
 
     @Override
-    public void onCurrentTrackListChanged(List<AudioFile> audioFiles) {
-        if (audioFiles != null) {
-            adapter.refreshAdapter(audioFiles);
-            hideEmptyFolderCard();
-        }
-    }
-
-    @Override
     public void onCurrentTrackChanged(AudioFile audioFile) {
         if (audioFile != null) {
             setMusicFileInfo(audioFile);
@@ -156,7 +153,7 @@ public class PlaybackActivity extends AnalyticsActivity implements AudioPlayer.O
     }
 
     @Override
-    public void onCurrentTrack(AudioFile audioFile) {
+    public void onAudioTrackOpen(AudioFile audioFile) {
         if (audioFile != null) {
             setMusicFileInfo(audioFile);
             adapter.notifyDataSetChanged();
@@ -164,8 +161,19 @@ public class PlaybackActivity extends AnalyticsActivity implements AudioPlayer.O
         }
     }
 
+
+    boolean openTack;
+
     @Override
-    public void onCurrentTrackList(List<AudioFile> audioFiles) {
+    public void onCurrentTrackRequest(AudioFile audioFile) {
+        if (audioFile != null && !openTack) {
+            audioPlayer.open(audioFile);
+            openTack = true;
+        }
+    }
+
+    @Override
+    public void onCurrentTrackListRequest(List<AudioFile> audioFiles) {
         if (audioFiles != null) {
             adapter.refreshAdapter(audioFiles);
             hideEmptyFolderCard();
@@ -250,7 +258,7 @@ public class PlaybackActivity extends AnalyticsActivity implements AudioPlayer.O
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(selectedTrack -> {
-                            if (selectedTrack.equals(audioFile) && audioPlayer.isPlaying()) {
+                            if (selectedTrack != null && selectedTrack.equals(audioFile) && audioPlayer.isPlaying()) {
                                 holder.playEq.setVisibility(View.VISIBLE);
 
                                 AnimationDrawable animation = (AnimationDrawable) ContextCompat.

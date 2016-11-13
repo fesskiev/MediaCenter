@@ -178,6 +178,7 @@ public class TrackListFragment extends Fragment {
 
         if (audioFilesObservable != null) {
             subscription = audioFilesObservable
+                    .first()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(audioFiles -> {
@@ -280,13 +281,14 @@ public class TrackListFragment extends Fragment {
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(selectedTrack -> {
-                                if (selectedTrack.equals(audioFile)) {
+                                if (selectedTrack != null && selectedTrack.equals(audioFile)) {
                                     AudioPlayerActivity.startPlayerActivity(getActivity(), false, cover);
                                 } else {
                                     audioFile.isSelected = true;
-                                    repository.updateSelectedAudioFile(audioFile);
 
+                                    audioPlayer.setCurrentAudioFile(audioFile);
                                     audioPlayer.setPosition(position);
+
                                     AudioPlayerActivity.startPlayerActivity(getActivity(), true, cover);
                                 }
 
@@ -365,7 +367,7 @@ public class TrackListFragment extends Fragment {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(selectedTrack -> {
-                        if (selectedTrack.equals(audioFile) && audioPlayer.isPlaying()) {
+                        if (selectedTrack != null && selectedTrack.equals(audioFile) && audioPlayer.isPlaying()) {
                             holder.playEq.setVisibility(View.VISIBLE);
 
                             AnimationDrawable animation = (AnimationDrawable) ContextCompat.

@@ -34,7 +34,6 @@ public class MediaApplication extends Application {
     };
 
 
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -42,7 +41,8 @@ public class MediaApplication extends Application {
 
         repository = DataRepository.getInstance(LocalDataSource.getInstance(), MemoryDataSource.getInstance());
 
-        audioPlayer = new AudioPlayer();
+        audioPlayer = AudioPlayer.getInstance(repository);
+
         videoPlayer = new VideoPlayer();
 
         vkAccessTokenTracker.startTracking();
