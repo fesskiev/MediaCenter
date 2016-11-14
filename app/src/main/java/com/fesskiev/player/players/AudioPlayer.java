@@ -96,14 +96,16 @@ public class AudioPlayer implements Playable {
     @Override
     public void open(MediaFile audioFile) {
         if (audioFile == null) {
-            repository.getSelectedAudioFile()
+            getCurrentAudioFile()
                     .first()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(currentAudioFile -> {
-                        PlaybackService.openFile(context, currentAudioFile.getFilePath());
+                        if (currentAudioFile != null) {
+                            PlaybackService.openFile(context, currentAudioFile.getFilePath());
 
-                        notifyTrackOpen(currentAudioFile);
+                            notifyTrackOpen(currentAudioFile);
+                        }
                     });
         } else {
             PlaybackService.openFile(context, audioFile.getFilePath());
@@ -192,25 +194,11 @@ public class AudioPlayer implements Playable {
 
     public void setCurrentAudioFile(AudioFile audioFile) {
         repository.updateSelectedAudioFile(audioFile);
-//        requestCurrentTrack();
     }
 
-
-    public void setCurrentTrackList(AudioFolder audioFolder) {
-        repository.updateSelectedAudioFolder(audioFolder);
-        repository.getSelectedFolderAudioFiles()
-                .first()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(audioFiles -> {
-                    if (audioFiles != null) {
-                        notifyCurrentTrackList(audioFiles);
-                    }
-                });
-    }
 
     public void requestCurrentTrack() {
-        repository.getSelectedAudioFile()
+        getCurrentAudioFile()
                 .first()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -236,9 +224,25 @@ public class AudioPlayer implements Playable {
                 });
     }
 
+    public void setCurrentTrackList(AudioFolder audioFolder) {
+        repository.updateSelectedAudioFolder(audioFolder);
+        repository.getSelectedFolderAudioFiles()
+                .first()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(audioFiles -> {
+                    if (audioFiles != null) {
+                        notifyCurrentTrackList(audioFiles);
+                    }
+                });
+    }
 
-    public Observable<AudioFile> isTrackPlaying() {
+    public Observable<AudioFile> getCurrentAudioFile() {
         return repository.getSelectedAudioFile();
+    }
+
+    public Observable<AudioFolder> getCurrentAudioFolder() {
+        return repository.getSelectedAudioFolder();
     }
 
     public void configureAudioPlayer() {

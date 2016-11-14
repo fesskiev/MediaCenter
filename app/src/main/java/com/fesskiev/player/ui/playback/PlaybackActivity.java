@@ -6,7 +6,6 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +18,6 @@ import com.fesskiev.player.analytics.AnalyticsActivity;
 import com.fesskiev.player.data.model.AudioFile;
 import com.fesskiev.player.players.AudioPlayer;
 import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
-import com.fesskiev.player.utils.AppLog;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton;
@@ -47,6 +45,7 @@ public class PlaybackActivity extends AnalyticsActivity implements AudioPlayer.O
     private View emptyTrack;
     private View peakView;
     private int height;
+    private boolean openTack;
     private boolean isShow = true;
 
     @Override
@@ -162,8 +161,6 @@ public class PlaybackActivity extends AnalyticsActivity implements AudioPlayer.O
     }
 
 
-    boolean openTack;
-
     @Override
     public void onCurrentTrackRequest(AudioFile audioFile) {
         if (audioFile != null && !openTack) {
@@ -196,7 +193,13 @@ public class PlaybackActivity extends AnalyticsActivity implements AudioPlayer.O
         track.setText(audioFile.title);
         artist.setText(audioFile.artist);
 
-        BitmapHelper.getInstance().loadTrackListArtwork(audioFile, cover);
+        audioPlayer.getCurrentAudioFolder()
+                .first()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(audioFolder -> {
+                    BitmapHelper.getInstance().loadTrackListArtwork(audioFile, audioFolder, cover);
+                });
 
     }
 
@@ -253,7 +256,7 @@ public class PlaybackActivity extends AnalyticsActivity implements AudioPlayer.O
                 holder.title.setText(audioFile.title);
                 holder.duration.setText(Utils.getDurationString(audioFile.length));
 
-                audioPlayer.isTrackPlaying()
+                audioPlayer.getCurrentAudioFile()
                         .first()
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())

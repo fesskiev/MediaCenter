@@ -276,7 +276,7 @@ public class TrackListFragment extends Fragment {
             AudioFile audioFile = audioFiles.get(position);
             if (audioFile != null) {
                 if (audioFile.exists()) {
-                    audioPlayer.isTrackPlaying()
+                    audioPlayer.getCurrentAudioFile()
                             .first()
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
@@ -355,36 +355,44 @@ public class TrackListFragment extends Fragment {
         public void onBindViewHolder(ViewHolder holder, int position) {
 
             AudioFile audioFile = audioFiles.get(position);
+            if (audioFile != null) {
 
-            BitmapHelper.getInstance().loadTrackListArtwork(audioFile, holder.cover);
+                holder.duration.setText(Utils.getDurationString(audioFile.length));
+                holder.title.setText(audioFile.title);
+                holder.filePath.setText(audioFile.filePath.getName());
 
-            holder.duration.setText(Utils.getDurationString(audioFile.length));
-            holder.title.setText(audioFile.title);
-            holder.filePath.setText(audioFile.filePath.getName());
+               audioPlayer.getCurrentAudioFolder()
+                       .first()
+                       .subscribeOn(Schedulers.io())
+                       .observeOn(AndroidSchedulers.mainThread())
+                       .subscribe(audioFolder -> {
+                           BitmapHelper.getInstance().loadTrackListArtwork(audioFile, audioFolder, holder.cover);
+                       });
 
-            audioPlayer.isTrackPlaying()
-                    .first()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(selectedTrack -> {
-                        if (selectedTrack != null && selectedTrack.equals(audioFile) && audioPlayer.isPlaying()) {
-                            holder.playEq.setVisibility(View.VISIBLE);
+                audioPlayer.getCurrentAudioFile()
+                        .first()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(selectedTrack -> {
+                            if (selectedTrack != null && selectedTrack.equals(audioFile) && audioPlayer.isPlaying()) {
+                                holder.playEq.setVisibility(View.VISIBLE);
 
-                            AnimationDrawable animation = (AnimationDrawable) ContextCompat.
-                                    getDrawable(getContext().getApplicationContext(), R.drawable.ic_equalizer);
-                            holder.playEq.setImageDrawable(animation);
-                            if (animation != null) {
-                                if (audioPlayer.isPlaying()) {
-                                    animation.start();
-                                } else {
-                                    animation.stop();
+                                AnimationDrawable animation = (AnimationDrawable) ContextCompat.
+                                        getDrawable(getContext().getApplicationContext(), R.drawable.ic_equalizer);
+                                holder.playEq.setImageDrawable(animation);
+                                if (animation != null) {
+                                    if (audioPlayer.isPlaying()) {
+                                        animation.start();
+                                    } else {
+                                        animation.stop();
+                                    }
                                 }
+                            } else {
+                                holder.playEq.setVisibility(View.INVISIBLE);
                             }
-                        } else {
-                            holder.playEq.setVisibility(View.INVISIBLE);
-                        }
 
-                    });
+                        });
+            }
         }
 
         @Override

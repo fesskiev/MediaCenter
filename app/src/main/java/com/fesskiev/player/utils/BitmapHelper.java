@@ -149,7 +149,7 @@ public class BitmapHelper {
     }
 
 
-    public void loadTrackListArtwork(MediaFile mediaFile, ImageView imageView) {
+    public void loadTrackListArtwork(MediaFile mediaFile, AudioFolder audioFolder, ImageView imageView) {
 
         String mediaArtworkPath = findMediaFileArtworkPath(mediaFile);
         if (mediaArtworkPath != null) {
@@ -160,6 +160,19 @@ public class BitmapHelper {
                     transform(new CircleTransform(context)).
                     into(imageView);
             return;
+        }
+
+        if (audioFolder != null) {
+            String folderPath = findAudioFolderArtworkPath(audioFolder);
+            if (folderPath != null) {
+                Glide.with(context).
+                        load(folderPath).
+                        crossFade().
+                        fitCenter().
+                        transform(new CircleTransform(context)).
+                        into(imageView);
+                return;
+            }
         }
 
         if (mediaFile instanceof AudioFile) {

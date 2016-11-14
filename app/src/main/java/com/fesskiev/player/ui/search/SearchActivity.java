@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.transition.Transition;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -232,7 +233,9 @@ public class SearchActivity extends AppCompatActivity {
                         Activity act = activity.get();
                         if (act != null) {
                             AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-                            audioPlayer.setPosition(position);
+
+                            audioPlayer.setCurrentAudioFile((AudioFile) mediaFile);
+                            audioPlayer.setPosition(0);
                             AudioPlayerActivity.startPlayerActivity(act, true, cover);
                         }
                         break;
@@ -244,7 +247,7 @@ public class SearchActivity extends AppCompatActivity {
             MediaFile mediaFile = mediaFiles.get(position);
             if (mediaFile != null) {
 
-                BitmapHelper.getInstance().loadTrackListArtwork(mediaFile, holder.cover);
+                BitmapHelper.getInstance().loadTrackListArtwork(mediaFile, null, holder.cover);
 
                 holder.duration.setText(Utils.getDurationString(mediaFile.getLength()));
                 holder.title.setText(mediaFile.getTitle());
