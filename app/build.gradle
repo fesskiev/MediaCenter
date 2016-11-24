@@ -94,7 +94,7 @@ repositories {
 }
 
 ext {
-    supportLibVersion = '25.0.0'
+    supportLibVersion = '25.0.1'
 }
 
 dependencies {
@@ -121,4 +121,5 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-gson:2.0.2'
     compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
     compile 'com.squareup.sqlbrite:sqlbrite:0.7.0'
+    compile 'org.greenrobot:eventbus:3.0.0'
 }

@@ -41,7 +41,7 @@ public class MediaApplication extends Application {
 
         repository = DataRepository.getInstance(LocalDataSource.getInstance(), MemoryDataSource.getInstance());
 
-        audioPlayer = AudioPlayer.getInstance(repository);
+        audioPlayer = new AudioPlayer(repository);
 
         videoPlayer = new VideoPlayer();
 

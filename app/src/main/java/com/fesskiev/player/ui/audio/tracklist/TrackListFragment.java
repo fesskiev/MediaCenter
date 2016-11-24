@@ -129,6 +129,7 @@ public class TrackListFragment extends Fragment {
         super.onDestroy();
         unregisterPlaybackBroadcastReceiver();
         RxUtils.unsubscribe(subscription);
+
     }
 
 
@@ -371,7 +372,6 @@ public class TrackListFragment extends Fragment {
 
                 audioPlayer.getCurrentAudioFile()
                         .first()
-                        .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(selectedTrack -> {
                             if (selectedTrack != null && selectedTrack.equals(audioFile) && audioPlayer.isPlaying()) {

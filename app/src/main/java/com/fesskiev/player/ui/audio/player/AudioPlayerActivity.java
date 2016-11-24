@@ -7,6 +7,7 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
@@ -25,6 +26,10 @@ import com.fesskiev.player.widgets.buttons.RepeatButton;
 import com.fesskiev.player.widgets.cards.DescriptionCardView;
 import com.fesskiev.player.widgets.controls.AudioControlView;
 import com.fesskiev.player.widgets.utils.DisabledScrollView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 
@@ -167,36 +172,29 @@ public class AudioPlayerActivity extends AnalyticsActivity implements AudioPlaye
             if (isNewTrack) {
                 open();
             } else {
-                audioPlayer.requestCurrentTrack();
                 setPauseValues();
+                setAudioTrackValues(audioPlayer.getCurrentTrack());
                 controlView.setPlay(audioPlayer.isPlaying());
             }
         }
-    }
 
-
-    @Override
-    public void onCurrentTrackListRequest(List<AudioFile> audioFiles) {
-
+        EventBus.getDefault().register(this);
     }
 
     @Override
-    public void onCurrentTrackChanged(AudioFile audioFile) {
-        resetIndicators();
-        cardDescription.next();
+    protected void onDestroy() {
+        super.onDestroy();
+        audioPlayer.removeOnAudioPlayerListener(this);
+        EventBus.getDefault().unregister(this);
     }
 
-    @Override
-    public void onAudioTrackOpen(AudioFile audioFile) {
-        if (audioFile != null) {
-            play();
-            setAudioTrackValues(audioFile);
-        }
-    }
 
-    @Override
-    public void onCurrentTrackRequest(AudioFile audioFile) {
-        setAudioTrackValues(audioFile);
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onAudioPlayerEvent(AudioPlayer audioPlayer) {
+        Log.d("test", "onMessageEvent: " + audioPlayer.toString());
+        setAudioTrackValues(audioPlayer.getCurrentTrack());
+        controlView.setPlay(audioPlayer.isPlaying());
+
     }
 
     @Override
@@ -206,10 +204,6 @@ public class AudioPlayerActivity extends AnalyticsActivity implements AudioPlaye
         trackTimeCount.setText(Utils.getTimeFromMillisecondsString(progress));
     }
 
-    @Override
-    public void onPlaybackStateChanged(boolean playing) {
-        controlView.setPlay(playing);
-    }
 
     protected void setAudioTrackValues(AudioFile audioFile) {
         if (audioFile != null) {
@@ -267,6 +261,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements AudioPlaye
         if (!audioPlayer.isRepeat()) {
             audioPlayer.next();
             cardDescription.next();
+            resetIndicators();
 
         }
     }
@@ -275,7 +270,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements AudioPlaye
         if (!audioPlayer.isRepeat()) {
             audioPlayer.previous();
             cardDescription.previous();
-
+            resetIndicators();
         }
     }
 
@@ -336,11 +331,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements AudioPlaye
     }
 
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        audioPlayer.removeOnAudioPlayerListener(this);
-    }
+
 
     @Override
     public boolean onSupportNavigateUp() {

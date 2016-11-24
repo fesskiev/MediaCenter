@@ -6,6 +6,7 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,10 @@ import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton;
 import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,8 +59,7 @@ public class PlaybackActivity extends AnalyticsActivity implements AudioPlayer.O
 
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
         audioPlayer.addOnAudioPlayerListener(this);
-        audioPlayer.requestCurrentTrack();
-        audioPlayer.requestCurrentTrackList();
+        audioPlayer.getCurrentTrackAndTrackList();
 
         track = (TextView) findViewById(R.id.track);
         artist = (TextView) findViewById(R.id.artist);
@@ -134,6 +138,15 @@ public class PlaybackActivity extends AnalyticsActivity implements AudioPlayer.O
 
         showEmptyFolderCard();
         showEmptyTrackCard();
+
+        EventBus.getDefault().register(this);
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -143,48 +156,32 @@ public class PlaybackActivity extends AnalyticsActivity implements AudioPlayer.O
 
 
     @Override
-    public void onCurrentTrackChanged(AudioFile audioFile) {
-        if (audioFile != null) {
-            setMusicFileInfo(audioFile);
-            adapter.notifyDataSetChanged();
-            hideEmptyTrackCard();
-        }
-    }
-
-    @Override
-    public void onAudioTrackOpen(AudioFile audioFile) {
-        if (audioFile != null) {
-            setMusicFileInfo(audioFile);
-            adapter.notifyDataSetChanged();
-            hideEmptyTrackCard();
-        }
-    }
-
-
-    @Override
-    public void onCurrentTrackRequest(AudioFile audioFile) {
-        if (audioFile != null && !openTack) {
-            audioPlayer.open(audioFile);
-            openTack = true;
-        }
-    }
-
-    @Override
-    public void onCurrentTrackListRequest(List<AudioFile> audioFiles) {
-        if (audioFiles != null) {
-            adapter.refreshAdapter(audioFiles);
-            hideEmptyFolderCard();
-        }
-    }
-
-    @Override
     public void onPlaybackValuesChanged(int duration, int progress, int progressScale) {
         durationText.setText(String.valueOf(Utils.getTimeFromMillisecondsString(progress)));
     }
 
-    @Override
-    public void onPlaybackStateChanged(boolean playing) {
-        playPauseButton.setPlay(playing);
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onAudioPlayerEvent(AudioPlayer audioPlayer) {
+        Log.d("test", "PLAYBACK onMessageEvent: " + audioPlayer.toString());
+
+        AudioFile currentTrack = audioPlayer.getCurrentTrack();
+        if (currentTrack != null) {
+            if (!openTack) {
+                audioPlayer.open(currentTrack);
+                openTack = true;
+            }
+            setMusicFileInfo(currentTrack);
+            hideEmptyTrackCard();
+        }
+
+        List<AudioFile> currentTracks = audioPlayer.getCurrentTrackList();
+        if (currentTracks != null) {
+            adapter.refreshAdapter(currentTracks);
+            hideEmptyFolderCard();
+        }
+
+        playPauseButton.setPlay(audioPlayer.isPlaying());
         adapter.notifyDataSetChanged();
     }
 
@@ -258,7 +255,6 @@ public class PlaybackActivity extends AnalyticsActivity implements AudioPlayer.O
 
                 audioPlayer.getCurrentAudioFile()
                         .first()
-                        .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(selectedTrack -> {
                             if (selectedTrack != null && selectedTrack.equals(audioFile) && audioPlayer.isPlaying()) {

@@ -19,6 +19,10 @@ import com.fesskiev.player.players.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.MainActivity;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.List;
 
 
@@ -45,42 +49,17 @@ public class AudioNotificationManager extends BroadcastReceiver {
         this.playbackService = playbackService;
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
         registerBroadcastReceiver();
+        EventBus.getDefault().register(this);
 
-        audioPlayer.addOnAudioPlayerListener(new AudioPlayer.OnAudioPlayerListener() {
+        playbackService.startForeground(NOTIFICATION_ID,
+                buildNotification(null, null, null, false));
+    }
 
-            @Override
-            public void onCurrentTrackChanged(AudioFile audioFile) {
-                currentAudioFile = audioFile;
-            }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onAudioPlayerEvent(AudioPlayer audioPlayer) {
+        currentAudioFile = audioPlayer.getCurrentTrack();
 
-            @Override
-            public void onAudioTrackOpen(AudioFile audioFile) {
-
-            }
-
-            @Override
-            public void onCurrentTrackRequest(AudioFile audioFile) {
-                currentAudioFile = audioFile;
-
-                playbackService.startForeground(NOTIFICATION_ID,
-                        buildNotification(null, audioFile, null, false));
-            }
-
-            @Override
-            public void onPlaybackValuesChanged(int duration, int progress, int progressScale) {
-
-            }
-
-            @Override
-            public void onPlaybackStateChanged(boolean playing) {
-                setPlayPauseState(playing);
-            }
-
-            @Override
-            public void onCurrentTrackListRequest(List<AudioFile> audioFiles) {
-
-            }
-        });
+        setPlayPauseState(audioPlayer.isPlaying());
     }
 
     private void registerBroadcastReceiver() {
@@ -103,6 +82,7 @@ public class AudioNotificationManager extends BroadcastReceiver {
         notificationManager.cancel(NOTIFICATION_ID);
         playbackService.stopForeground(true);
         unregisterBroadcastReceiver();
+        EventBus.getDefault().unregister(this);
     }
 
     private void changeNotification(final NotificationCompat.Action action, final boolean isPlaying) {

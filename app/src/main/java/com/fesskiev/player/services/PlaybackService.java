@@ -274,6 +274,7 @@ public class PlaybackService extends Service {
         Log.d(TAG, "open audio player!");
         superPoweredSDKWrapper.setPlayingAudioPlayer(false);
         superPoweredSDKWrapper.openAudioFile(path);
+        sendBroadcastPlayingState(false);
     }
 
 

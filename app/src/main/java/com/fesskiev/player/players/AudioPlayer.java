@@ -17,6 +17,8 @@ import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.playback.Playable;
 import com.fesskiev.player.utils.AppLog;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,27 +32,8 @@ public class AudioPlayer implements Playable {
 
     public interface OnAudioPlayerListener {
 
-        void onAudioTrackOpen(AudioFile audioFile);
-
-        void onCurrentTrackChanged(AudioFile audioFile);
-
-        void onCurrentTrackRequest(AudioFile audioFile);
-
-        void onCurrentTrackListRequest(List<AudioFile> audioFiles);
-
         void onPlaybackValuesChanged(int duration, int progress, int progressScale);
 
-        void onPlaybackStateChanged(boolean playing);
-
-    }
-
-    private static AudioPlayer INSTANCE;
-
-    public static AudioPlayer getInstance(DataRepository repository) {
-        if (INSTANCE == null) {
-            INSTANCE = new AudioPlayer(repository);
-        }
-        return INSTANCE;
     }
 
     private Context context;
@@ -58,6 +41,8 @@ public class AudioPlayer implements Playable {
 
     private DataRepository repository;
 
+    private List<AudioFile> currentTrackList;
+    private AudioFile currentTrack;
     private int position;
     private int volume;
     private int duration;
@@ -67,13 +52,29 @@ public class AudioPlayer implements Playable {
     private boolean mute;
     private boolean repeat;
 
-    private AudioPlayer(DataRepository repository) {
+    public AudioPlayer(DataRepository repository) {
         this.volume = 100;
         this.repository = repository;
 
         context = MediaApplication.getInstance().getApplicationContext();
         audioPlayerListeners = new ArrayList<>();
 
+    }
+
+    public void getCurrentTrackAndTrackList() {
+
+        Observable.zip(repository.getSelectedFolderAudioFiles(),
+                repository.getSelectedAudioFile(), (audioFiles, audioFile) -> {
+                    currentTrack = audioFile;
+                    currentTrackList = audioFiles;
+
+                    EventBus.getDefault().post(this);
+
+                    return Observable.empty();
+                }).first()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe();
     }
 
     public void addOnAudioPlayerListener(OnAudioPlayerListener listener) {
@@ -104,23 +105,19 @@ public class AudioPlayer implements Playable {
                         if (currentAudioFile != null) {
                             PlaybackService.openFile(context, currentAudioFile.getFilePath());
 
-                            notifyTrackOpen(currentAudioFile);
+                            currentTrack = currentAudioFile;
+                            EventBus.getDefault().post(AudioPlayer.this);
+
                         }
                     });
         } else {
             PlaybackService.openFile(context, audioFile.getFilePath());
 
-            notifyTrackOpen((AudioFile) audioFile);
+            currentTrack = (AudioFile) audioFile;
+            EventBus.getDefault().post(AudioPlayer.this);
         }
     }
 
-    private void notifyTrackOpen(AudioFile audioFile) {
-        AppLog.ERROR("notifyTrackOpen");
-
-        for (OnAudioPlayerListener listener : audioPlayerListeners) {
-            listener.onAudioTrackOpen(audioFile);
-        }
-    }
 
     @Override
     public void play() {
@@ -149,7 +146,8 @@ public class AudioPlayer implements Playable {
                     if (audioFile != null) {
                         repository.updateSelectedAudioFile(audioFile);
 
-                        notifyCurrentTrackChanged(audioFile);
+                        currentTrack = audioFile;
+                        EventBus.getDefault().post(AudioPlayer.this);
 
                         PlaybackService.openFile(context, audioFile.getFilePath());
                         PlaybackService.startPlayback(context);
@@ -174,7 +172,8 @@ public class AudioPlayer implements Playable {
                     if (audioFile != null) {
                         repository.updateSelectedAudioFile(audioFile);
 
-                        notifyCurrentTrackChanged(audioFile);
+                        currentTrack = audioFile;
+                        EventBus.getDefault().post(AudioPlayer.this);
 
                         PlaybackService.openFile(context, audioFile.getFilePath());
                         PlaybackService.startPlayback(context);
@@ -197,33 +196,6 @@ public class AudioPlayer implements Playable {
     }
 
 
-    public void requestCurrentTrack() {
-        getCurrentAudioFile()
-                .first()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(audioFile -> {
-
-                    AppLog.ERROR("requestCurrentTrack: " + (audioFile == null));
-
-                    if (audioFile != null) {
-                        notifyCurrentTrack(audioFile);
-                    }
-                });
-    }
-
-    public void requestCurrentTrackList() {
-        repository.getSelectedFolderAudioFiles()
-                .first()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(audioFiles -> {
-                    AppLog.ERROR("requestCurrentTrackList");
-
-                    notifyCurrentTrackList(audioFiles);
-                });
-    }
-
     public void setCurrentTrackList(AudioFolder audioFolder) {
         repository.updateSelectedAudioFolder(audioFolder);
         repository.getSelectedFolderAudioFiles()
@@ -232,7 +204,7 @@ public class AudioPlayer implements Playable {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(audioFiles -> {
                     if (audioFiles != null) {
-                        notifyCurrentTrackList(audioFiles);
+                        EventBus.getDefault().post(AudioPlayer.this);
                     }
                 });
     }
@@ -284,7 +256,7 @@ public class AudioPlayer implements Playable {
                 case PlaybackService.ACTION_PLAYBACK_PLAYING_STATE:
                     isPlaying = intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_PLAYING, false);
 
-                    notifyPlaybackStateChanged(isPlaying);
+                    EventBus.getDefault().post(AudioPlayer.this);
                     break;
                 case PlaybackService.ACTION_TRACK_END:
                     next();
@@ -303,45 +275,13 @@ public class AudioPlayer implements Playable {
         }
     };
 
-    private void notifyCurrentTrackList(List<AudioFile> audioFiles) {
-        AppLog.ERROR("notifyCurrentTrackList");
-
-        for (OnAudioPlayerListener listener : audioPlayerListeners) {
-            listener.onCurrentTrackListRequest(audioFiles);
-        }
-    }
-
-
-    private void notifyPlaybackStateChanged(boolean isPlaying) {
-        AppLog.ERROR("notifyPlaybackStateChanged");
-
-        for (OnAudioPlayerListener listener : audioPlayerListeners) {
-            listener.onPlaybackStateChanged(isPlaying);
-        }
-    }
 
     private void notifyPlaybackValuesChanged(int duration, int progress, int progressScale) {
-
         for (OnAudioPlayerListener listener : audioPlayerListeners) {
             listener.onPlaybackValuesChanged(duration, progress, progressScale);
         }
     }
 
-    private void notifyCurrentTrack(AudioFile audioFile) {
-        AppLog.ERROR("notifyCurrentTrack");
-
-        for (OnAudioPlayerListener listener : audioPlayerListeners) {
-            listener.onCurrentTrackRequest(audioFile);
-        }
-    }
-
-    private void notifyCurrentTrackChanged(AudioFile audioFile) {
-        AppLog.ERROR("notifyCurrentTrackChanged");
-
-        for (OnAudioPlayerListener listener : audioPlayerListeners) {
-            listener.onCurrentTrackChanged(audioFile);
-        }
-    }
 
     public int getPosition() {
         return position;
@@ -405,6 +345,14 @@ public class AudioPlayer implements Playable {
 
     public void setRepeat(boolean repeat) {
         this.repeat = repeat;
+    }
+
+    public List<AudioFile> getCurrentTrackList() {
+        return currentTrackList;
+    }
+
+    public AudioFile getCurrentTrack() {
+        return currentTrack;
     }
 
     @Override
