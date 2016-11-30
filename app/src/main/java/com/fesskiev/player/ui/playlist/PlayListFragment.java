@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
+import com.fesskiev.player.data.model.AudioFile;
 import com.fesskiev.player.data.source.DataRepository;
 import com.fesskiev.player.players.AudioPlayer;
 import com.fesskiev.player.data.model.MediaFile;
@@ -181,7 +182,7 @@ public class PlayListFragment extends Fragment {
                         Activity act = activity.get();
                         if (act != null) {
                             AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-                            audioPlayer.setPosition(position);
+                            audioPlayer.setCurrentAudioFile((AudioFile) mediaFile);
                             AudioPlayerActivity.startPlayerActivity(act, true, cover);
                         }
                         break;

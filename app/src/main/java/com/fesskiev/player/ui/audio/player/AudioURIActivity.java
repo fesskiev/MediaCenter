@@ -55,11 +55,6 @@ public class AudioURIActivity extends AudioPlayerActivity {
         super.onDestroy();
         RxUtils.unsubscribe(subscription);
         PlaybackService.stopPlayback(getApplicationContext());
-        resetAudioPlayer();
     }
 
-    private void resetAudioPlayer() {
-        AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-        audioPlayer.resetAudioPlayer();
-    }
 }

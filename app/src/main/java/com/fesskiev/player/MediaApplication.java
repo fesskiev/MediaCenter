@@ -3,11 +3,13 @@ package com.fesskiev.player;
 import android.app.Application;
 import android.content.ComponentCallbacks2;
 
+import com.fesskiev.player.data.model.PlaybackState;
 import com.fesskiev.player.data.source.DataRepository;
 import com.fesskiev.player.data.source.local.db.LocalDataSource;
 import com.fesskiev.player.players.AudioPlayer;
 import com.fesskiev.player.players.VideoPlayer;
 import com.fesskiev.player.data.source.memory.MemoryDataSource;
+import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.utils.AppLog;
 import com.flurry.android.FlurryAgent;
 import com.vk.sdk.VKAccessToken;
@@ -38,6 +40,8 @@ public class MediaApplication extends Application {
     public void onCreate() {
         super.onCreate();
         INSTANCE = this;
+
+        PlaybackService.createPlaybackState();
 
         repository = DataRepository.getInstance(LocalDataSource.getInstance(), MemoryDataSource.getInstance());
 

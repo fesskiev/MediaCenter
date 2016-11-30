@@ -17,6 +17,7 @@ import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.analytics.AnalyticsActivity;
 import com.fesskiev.player.data.model.AudioFile;
+import com.fesskiev.player.data.model.PlaybackState;
 import com.fesskiev.player.players.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.utils.BitmapHelper;
@@ -31,14 +32,15 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.List;
 
 
-public class AudioPlayerActivity extends AnalyticsActivity implements AudioPlayer.OnAudioPlayerListener {
+public class AudioPlayerActivity extends AnalyticsActivity {
 
     public static final String EXTRA_IS_NEW_TRACK = "com.fesskiev.player.EXTRA_IS_NEW_TRACK";
 
+    private PlaybackState playbackState;
     private AudioPlayer audioPlayer;
+
     private AudioControlView controlView;
     private DescriptionCardView cardDescription;
     private MuteSoloButton muteSoloButton;
@@ -68,6 +70,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements AudioPlaye
         setContentView(R.layout.activity_audio_player);
 
 
+
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
@@ -86,7 +89,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements AudioPlaye
 
 
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-        audioPlayer.addOnAudioPlayerListener(this);
+        playbackState = PlaybackService.getPlaybackState();
 
         appBarLayout = (AppBarLayout) findViewById(R.id.appBarLayout);
         backdrop = (ImageView) findViewById(R.id.backdrop);
@@ -117,7 +120,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements AudioPlaye
         });
 
         muteSoloButton.setOnMuteSoloListener(mute -> {
-            audioPlayer.setMute(mute);
+            //TODO change mute/solo logic!?
             if (mute) {
                 disableChangeVolume();
             } else {
@@ -129,7 +132,6 @@ public class AudioPlayerActivity extends AnalyticsActivity implements AudioPlaye
 
         repeatButton = (RepeatButton) findViewById(R.id.repeatButton);
         repeatButton.setOnRepeatStateChangedListener(repeat -> {
-            audioPlayer.setRepeat(repeat);
             PlaybackService.changeRepeatState(getApplicationContext(), repeat);
         });
 
@@ -139,7 +141,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements AudioPlaye
         controlView.setOnAudioControlListener(new AudioControlView.OnAudioControlListener() {
             @Override
             public void onPlayStateChanged() {
-                if (audioPlayer.isPlaying()) {
+                if (playbackState.isPlaying()) {
                     pause();
                 } else {
                     play();
@@ -149,8 +151,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements AudioPlaye
             @Override
             public void onVolumeStateChanged(int volume, boolean change) {
                 if (change) {
-                    audioPlayer.setVolume(volume);
-                    setVolumeLevel();
+                    setVolumeLevel(volume);
                 }
                 scrollView.setEnableScrolling(!change);
             }
@@ -174,7 +175,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements AudioPlaye
             } else {
                 setPauseValues();
                 setAudioTrackValues(audioPlayer.getCurrentTrack());
-                controlView.setPlay(audioPlayer.isPlaying());
+                controlView.setPlay(playbackState.isPlaying());
             }
         }
 
@@ -184,31 +185,32 @@ public class AudioPlayerActivity extends AnalyticsActivity implements AudioPlaye
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        audioPlayer.removeOnAudioPlayerListener(this);
         EventBus.getDefault().unregister(this);
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onPlayingEvent(Boolean playing) {
+        controlView.setPlay(playing);
+    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onAudioPlayerEvent(AudioPlayer audioPlayer) {
         Log.d("test", "onMessageEvent: " + audioPlayer.toString());
         setAudioTrackValues(audioPlayer.getCurrentTrack());
-        controlView.setPlay(audioPlayer.isPlaying());
-
     }
 
-    @Override
-    public void onPlaybackValuesChanged(int duration, int progress, int progressScale) {
-        controlView.setSeekValue(progressScale);
-        trackTimeTotal.setText(Utils.getTimeFromMillisecondsString(duration));
-        trackTimeCount.setText(Utils.getTimeFromMillisecondsString(progress));
-    }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onPlaybackStateEvent(PlaybackState playbackState) {
 
+        controlView.setSeekValue(playbackState.getProgressScale());
+        trackTimeTotal.setText(Utils.getTimeFromMillisecondsString(playbackState.getDuration()));
+        trackTimeCount.setText(Utils.getTimeFromMillisecondsString(playbackState.getProgress()));
+    }
 
     protected void setAudioTrackValues(AudioFile audioFile) {
         if (audioFile != null) {
             setTrackInformation(audioFile);
-            setVolumeLevel();
+            setVolumeLevel(playbackState.getVolume());
             setBackdropImage(audioFile);
             setRepeat();
             setMuteSolo();
@@ -222,9 +224,9 @@ public class AudioPlayerActivity extends AnalyticsActivity implements AudioPlaye
 
 
     private void setPauseValues() {
-        controlView.setSeekValue(audioPlayer.getProgressScale());
-        trackTimeTotal.setText(Utils.getTimeFromMillisecondsString(audioPlayer.getDuration()));
-        trackTimeCount.setText(Utils.getTimeFromMillisecondsString(audioPlayer.getProgress()));
+        controlView.setSeekValue(playbackState.getProgressScale());
+        trackTimeTotal.setText(Utils.getTimeFromMillisecondsString(playbackState.getDuration()));
+        trackTimeCount.setText(Utils.getTimeFromMillisecondsString(playbackState.getProgress()));
     }
 
 
@@ -258,7 +260,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements AudioPlaye
 
 
     public void next() {
-        if (!audioPlayer.isRepeat()) {
+        if (!playbackState.isRepeat()) {
             audioPlayer.next();
             cardDescription.next();
             resetIndicators();
@@ -267,7 +269,7 @@ public class AudioPlayerActivity extends AnalyticsActivity implements AudioPlaye
     }
 
     public void previous() {
-        if (!audioPlayer.isRepeat()) {
+        if (!playbackState.isRepeat()) {
             audioPlayer.previous();
             cardDescription.previous();
             resetIndicators();
@@ -279,17 +281,16 @@ public class AudioPlayerActivity extends AnalyticsActivity implements AudioPlaye
     }
 
     private void setMuteSolo() {
-        muteSoloButton.changeState(audioPlayer.isMute());
-        PlaybackService.changeMuteSoloState(getApplicationContext(), audioPlayer.isMute());
+        muteSoloButton.changeState(playbackState.isMute());
+        PlaybackService.changeMuteSoloState(getApplicationContext(), playbackState.isMute());
     }
 
     private void setRepeat() {
-        repeatButton.changeState(audioPlayer.isRepeat());
-        PlaybackService.changeRepeatState(getApplicationContext(), audioPlayer.isRepeat());
+        repeatButton.changeState(playbackState.isRepeat());
+        PlaybackService.changeRepeatState(getApplicationContext(), playbackState.isRepeat());
     }
 
-    private void setVolumeLevel() {
-        int volume = audioPlayer.getVolume();
+    private void setVolumeLevel(int volume) {
         volumeLevel.setText(String.valueOf(volume));
         controlView.setVolumeValue(volume);
         PlaybackService.volumePlayback(getApplicationContext(), volume);
@@ -329,9 +330,6 @@ public class AudioPlayerActivity extends AnalyticsActivity implements AudioPlaye
     private void enableChangeVolume() {
         controlView.setEnableChangeVolume(true);
     }
-
-
-
 
     @Override
     public boolean onSupportNavigateUp() {

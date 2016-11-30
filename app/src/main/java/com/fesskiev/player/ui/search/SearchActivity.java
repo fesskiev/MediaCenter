@@ -235,7 +235,6 @@ public class SearchActivity extends AppCompatActivity {
                             AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
 
                             audioPlayer.setCurrentAudioFile((AudioFile) mediaFile);
-                            audioPlayer.setPosition(0);
                             AudioPlayerActivity.startPlayerActivity(act, true, cover);
                         }
                         break;

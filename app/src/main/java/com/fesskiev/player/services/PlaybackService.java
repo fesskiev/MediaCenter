@@ -12,8 +12,12 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.fesskiev.player.SuperPoweredSDKWrapper;
+import com.fesskiev.player.data.model.PlaybackState;
+import com.fesskiev.player.players.AudioPlayer;
 import com.fesskiev.player.utils.AudioFocusManager;
 import com.fesskiev.player.utils.AudioNotificationManager;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -37,12 +41,8 @@ public class PlaybackService extends Service {
             "com.fesskiev.player.action.ACTION_STOP_PLAYBACK";
     public static final String ACTION_PLAYBACK_SEEK =
             "com.fesskiev.player.action.ACTION_PLAYBACK_SEEK";
-    public static final String ACTION_PLAYBACK_VALUES =
-            "com.fesskiev.player.action.ACTION_PLAYBACK_VALUES";
     public static final String ACTION_PLAYBACK_VOLUME =
             "com.fesskiev.player.action.ACTION_PLAYBACK_VOLUME";
-    public static final String ACTION_PLAYBACK_PLAYING_STATE =
-            "com.fesskiev.player.action.ACTION_PLAYBACK_PLAYING_STATE";
     public static final String ACTION_PLAYBACK_EQ_STATE =
             "com.fesskiev.player.action.ACTION_PLAYBACK_EQ_STATE";
     public static final String ACTION_PLAYBACK_MUTE_SOLO_STATE =
@@ -53,18 +53,10 @@ public class PlaybackService extends Service {
 
     public static final String PLAYBACK_EXTRA_MUSIC_FILE_PATH
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_MUSIC_FILE_PATH";
-    public static final String PLAYBACK_EXTRA_DURATION
-            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_DURATION";
-    public static final String PLAYBACK_EXTRA_PROGRESS_SCALE
-            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_PROGRESS_SCALE";
-    public static final String PLAYBACK_EXTRA_PROGRESS
-            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_PROGRESS";
     public static final String PLAYBACK_EXTRA_SEEK
             = "com.fesskiev.player.extra.SEEK";
     public static final String PLAYBACK_EXTRA_VOLUME
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_VOLUME";
-    public static final String PLAYBACK_EXTRA_PLAYING
-            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_PLAYING";
     public static final String PLAYBACK_EXTRA_EQ_STATE
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_EQ_STATE";
     public static final String PLAYBACK_EXTRA_MUTE_SOLO_STATE
@@ -72,12 +64,15 @@ public class PlaybackService extends Service {
     public static final String PLAYBACK_EXTRA_REPEAT_STATE
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_REPEAT_STATE";
 
-
     private Timer timer;
     private AudioFocusManager audioFocusManager;
     private AudioNotificationManager audioNotificationManager;
     private SuperPoweredSDKWrapper superPoweredSDKWrapper;
-    private int durationScale;
+    private static PlaybackState playbackState;
+
+    public static void createPlaybackState(){
+        playbackState = new PlaybackState();
+    }
 
     public static void startPlaybackService(Context context) {
         Intent intent = new Intent(context, PlaybackService.class);
@@ -147,9 +142,9 @@ public class PlaybackService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "Create playback service!");
+
         superPoweredSDKWrapper = SuperPoweredSDKWrapper.getInstance();
         superPoweredSDKWrapper.setOnSuperPoweredSDKListener(() -> {
-            sendBroadcastPlayingState(true);
             sendBroadcastSongEnd();
         });
 
@@ -247,10 +242,6 @@ public class PlaybackService extends Service {
         }
     };
 
-    private void repeat(boolean repeatState) {
-        superPoweredSDKWrapper.setLoopingAudioPlayer(repeatState);
-    }
-
 
     private void createPlayer() {
 
@@ -274,18 +265,26 @@ public class PlaybackService extends Service {
         Log.d(TAG, "open audio player!");
         superPoweredSDKWrapper.setPlayingAudioPlayer(false);
         superPoweredSDKWrapper.openAudioFile(path);
-        sendBroadcastPlayingState(false);
+
+        playbackState.setPlaying(false);
+        EventBus.getDefault().post(false);
     }
 
 
     private void volume(int volumeValue) {
+        playbackState.setVolume(volumeValue);
         superPoweredSDKWrapper.setVolumeAudioPlayer(volumeValue);
+    }
 
+    private void repeat(boolean repeat) {
+        playbackState.setRepeat(repeat);
+        superPoweredSDKWrapper.setLoopingAudioPlayer(repeat);
     }
 
     private void seek(int seekValue) {
+
         superPoweredSDKWrapper.setSeekAudioPlayer(seekValue);
-        audioNotificationManager.seekToPosition(seekValue * durationScale);
+        audioNotificationManager.seekToPosition(seekValue * playbackState.getDurationScale());
     }
 
     private void play() {
@@ -293,7 +292,10 @@ public class PlaybackService extends Service {
             Log.d(TAG, "start playback");
             superPoweredSDKWrapper.setPlayingAudioPlayer(true);
             startUpdateTimer();
-            sendBroadcastPlayingState(true);
+
+            playbackState.setPlaying(true);
+            EventBus.getDefault().post(true);
+
             audioFocusManager.tryToGetAudioFocus();
         }
     }
@@ -304,19 +306,32 @@ public class PlaybackService extends Service {
             Log.d(TAG, "stop playback");
             superPoweredSDKWrapper.setPlayingAudioPlayer(false);
             stopUpdateTimer();
-            sendBroadcastPlayingState(false);
+
+            playbackState.setPlaying(false);
+            EventBus.getDefault().post(false);
+
             audioFocusManager.giveUpAudioFocus();
         }
     }
 
     private void createValuesScale() {
+
         int duration = superPoweredSDKWrapper.getDuration();
+        playbackState.setDuration(duration);
+
         int progress = superPoweredSDKWrapper.getPosition();
+        playbackState.setProgress(progress);
+
         audioNotificationManager.setProgress(progress);
         if (duration > 0) {
-            durationScale = duration / 100;
+            int durationScale = duration / 100;
+            playbackState.setDurationScale(durationScale);
+
             int progressScale = progress / durationScale;
-            sendBroadcastPlayerValues(duration, progress, progressScale);
+            playbackState.setProgressScale(progressScale);
+
+            EventBus.getDefault().post(playbackState);
+
         }
     }
 
@@ -354,21 +369,8 @@ public class PlaybackService extends Service {
                 sendBroadcast(new Intent(ACTION_TRACK_END));
     }
 
-
-    private void sendBroadcastPlayerValues(int duration, int progress, int progressScale) {
-        Intent intent = new Intent();
-        intent.setAction(ACTION_PLAYBACK_VALUES);
-        intent.putExtra(PLAYBACK_EXTRA_DURATION, duration);
-        intent.putExtra(PLAYBACK_EXTRA_PROGRESS, progress);
-        intent.putExtra(PLAYBACK_EXTRA_PROGRESS_SCALE, progressScale);
-        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-    }
-
-    private void sendBroadcastPlayingState(boolean isPlaying) {
-        Intent intent = new Intent();
-        intent.setAction(ACTION_PLAYBACK_PLAYING_STATE);
-        intent.putExtra(PLAYBACK_EXTRA_PLAYING, isPlaying);
-        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+    public static PlaybackState getPlaybackState() {
+        return playbackState;
     }
 
     @Override

@@ -82,10 +82,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        AnimationUtils.setupWindowAnimations(this);
 
         settingsManager = AppSettingsManager.getInstance(this);
-        configureAudioPlayer();
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -265,7 +263,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     @Override
     protected void onStart() {
         super.onStart();
-        PlaybackService.startPlaybackService(this);
         addAudioFragment();
     }
 
@@ -291,7 +288,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     protected void onDestroy() {
         super.onDestroy();
         PlaybackService.destroyPlayer(getApplicationContext());
-        resetAudioPlayer();
         FileObserverService.stopFileObserverService(getApplicationContext());
 
         RxUtils.unsubscribe(subscription);
@@ -397,17 +393,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private void unregisterBroadcastReceiver() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
     }
-
-    private void resetAudioPlayer() {
-        AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-        audioPlayer.resetAudioPlayer();
-    }
-
-    private void configureAudioPlayer() {
-        AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-        audioPlayer.configureAudioPlayer();
-    }
-
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 

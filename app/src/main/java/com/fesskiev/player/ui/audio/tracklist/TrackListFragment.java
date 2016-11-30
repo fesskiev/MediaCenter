@@ -1,16 +1,10 @@
 package com.fesskiev.player.ui.audio.tracklist;
 
-
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,6 +17,7 @@ import android.widget.TextView;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.data.model.AudioFile;
+import com.fesskiev.player.data.model.PlaybackState;
 import com.fesskiev.player.players.AudioPlayer;
 import com.fesskiev.player.data.source.DataRepository;
 import com.fesskiev.player.services.PlaybackService;
@@ -37,6 +32,10 @@ import com.fesskiev.player.widgets.cards.SlidingCardView;
 import com.fesskiev.player.widgets.dialogs.EditTrackDialog;
 import com.fesskiev.player.widgets.recycleview.HidingScrollListener;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +78,8 @@ public class TrackListFragment extends Fragment {
         repository = MediaApplication.getInstance().getRepository();
         openCards = new ArrayList<>();
 
-        registerPlaybackBroadcastReceiver();
+        EventBus.getDefault().register(this);
+
     }
 
     @Override
@@ -114,7 +114,6 @@ public class TrackListFragment extends Fragment {
             }
         });
 
-
         fetchContentByType();
     }
 
@@ -127,8 +126,8 @@ public class TrackListFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        unregisterPlaybackBroadcastReceiver();
         RxUtils.unsubscribe(subscription);
+        EventBus.getDefault().unregister(this);
 
     }
 
@@ -139,28 +138,10 @@ public class TrackListFragment extends Fragment {
         }
     }
 
-    private void registerPlaybackBroadcastReceiver() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(PlaybackService.ACTION_PLAYBACK_PLAYING_STATE);
-        LocalBroadcastManager.getInstance(getContext()).registerReceiver(playbackReceiver, filter);
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onPlayingEvent(Boolean playing) {
+        notifyTrackStateChanged();
     }
-
-    private void unregisterPlaybackBroadcastReceiver() {
-        LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(playbackReceiver);
-    }
-
-
-    private BroadcastReceiver playbackReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case PlaybackService.ACTION_PLAYBACK_PLAYING_STATE:
-                    notifyTrackStateChanged();
-                    break;
-            }
-        }
-    };
 
     private void fetchContentByType() {
         Observable<List<AudioFile>> audioFilesObservable = null;
@@ -288,7 +269,7 @@ public class TrackListFragment extends Fragment {
                                     audioFile.isSelected = true;
 
                                     audioPlayer.setCurrentAudioFile(audioFile);
-                                    audioPlayer.setPosition(position);
+                                    ;
 
                                     AudioPlayerActivity.startPlayerActivity(getActivity(), true, cover);
                                 }
@@ -362,26 +343,27 @@ public class TrackListFragment extends Fragment {
                 holder.title.setText(audioFile.title);
                 holder.filePath.setText(audioFile.filePath.getName());
 
-               audioPlayer.getCurrentAudioFolder()
-                       .first()
-                       .subscribeOn(Schedulers.io())
-                       .observeOn(AndroidSchedulers.mainThread())
-                       .subscribe(audioFolder -> {
-                           BitmapHelper.getInstance().loadTrackListArtwork(audioFile, audioFolder, holder.cover);
-                       });
+                audioPlayer.getCurrentAudioFolder()
+                        .first()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(audioFolder -> {
+                            BitmapHelper.getInstance().loadTrackListArtwork(audioFile, audioFolder, holder.cover);
+                        });
 
                 audioPlayer.getCurrentAudioFile()
                         .first()
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(selectedTrack -> {
-                            if (selectedTrack != null && selectedTrack.equals(audioFile) && audioPlayer.isPlaying()) {
+                            PlaybackState playbackState = PlaybackService.getPlaybackState();
+                            if (selectedTrack != null && selectedTrack.equals(audioFile) && playbackState.isPlaying()) {
                                 holder.playEq.setVisibility(View.VISIBLE);
 
                                 AnimationDrawable animation = (AnimationDrawable) ContextCompat.
                                         getDrawable(getContext().getApplicationContext(), R.drawable.ic_equalizer);
                                 holder.playEq.setImageDrawable(animation);
                                 if (animation != null) {
-                                    if (audioPlayer.isPlaying()) {
+                                    if (playbackState.isPlaying()) {
                                         animation.start();
                                     } else {
                                         animation.stop();

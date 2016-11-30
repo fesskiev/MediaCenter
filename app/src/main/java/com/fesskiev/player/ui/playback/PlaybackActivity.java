@@ -17,7 +17,9 @@ import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.analytics.AnalyticsActivity;
 import com.fesskiev.player.data.model.AudioFile;
+import com.fesskiev.player.data.model.PlaybackState;
 import com.fesskiev.player.players.AudioPlayer;
+import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
@@ -35,10 +37,12 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 
-public class PlaybackActivity extends AnalyticsActivity implements AudioPlayer.OnAudioPlayerListener {
+public class PlaybackActivity extends AnalyticsActivity {
 
 
+    private PlaybackState playbackState;
     private AudioPlayer audioPlayer;
+
     private BottomSheetBehavior bottomSheetBehavior;
     private TrackListAdapter adapter;
     private PlayPauseFloatingButton playPauseButton;
@@ -54,12 +58,20 @@ public class PlaybackActivity extends AnalyticsActivity implements AudioPlayer.O
     private boolean isShow = true;
 
     @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        PlaybackService.startPlaybackService(this);
+    }
+
+    @Override
     public void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
+        EventBus.getDefault().register(this);
+
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-        audioPlayer.addOnAudioPlayerListener(this);
         audioPlayer.getCurrentTrackAndTrackList();
+        playbackState = PlaybackService.getPlaybackState();
 
         track = (TextView) findViewById(R.id.track);
         artist = (TextView) findViewById(R.id.artist);
@@ -97,7 +109,7 @@ public class PlaybackActivity extends AnalyticsActivity implements AudioPlayer.O
 
         playPauseButton = (PlayPauseFloatingButton) findViewById(R.id.playPauseFAB);
         playPauseButton.setOnClickListener(v -> {
-            if (audioPlayer.isPlaying()) {
+            if (playbackState.isPlaying()) {
                 audioPlayer.pause();
             } else {
                 audioPlayer.play();
@@ -107,6 +119,7 @@ public class PlaybackActivity extends AnalyticsActivity implements AudioPlayer.O
 
         View bottomSheet = findViewById(R.id.bottom_sheet);
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_SETTLING);
         if (bottomSheetBehavior != null) {
             bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
                 @Override
@@ -139,7 +152,7 @@ public class PlaybackActivity extends AnalyticsActivity implements AudioPlayer.O
         showEmptyFolderCard();
         showEmptyTrackCard();
 
-        EventBus.getDefault().register(this);
+
     }
 
 
@@ -154,12 +167,10 @@ public class PlaybackActivity extends AnalyticsActivity implements AudioPlayer.O
         return this.getLocalClassName();
     }
 
-
-    @Override
-    public void onPlaybackValuesChanged(int duration, int progress, int progressScale) {
-        durationText.setText(String.valueOf(Utils.getTimeFromMillisecondsString(progress)));
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onPlaybackStateEvent(PlaybackState playbackState) {
+        durationText.setText(String.valueOf(Utils.getTimeFromMillisecondsString(playbackState.getProgress())));
     }
-
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onAudioPlayerEvent(AudioPlayer audioPlayer) {
@@ -181,7 +192,14 @@ public class PlaybackActivity extends AnalyticsActivity implements AudioPlayer.O
             hideEmptyFolderCard();
         }
 
-        playPauseButton.setPlay(audioPlayer.isPlaying());
+        adapter.notifyDataSetChanged();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onPlayingEvent(Boolean playing) {
+        Log.d("test", "PLAYBACK onPlayingEvent: " + playing);
+
+        playPauseButton.setPlay(playing);
         adapter.notifyDataSetChanged();
     }
 
@@ -257,14 +275,14 @@ public class PlaybackActivity extends AnalyticsActivity implements AudioPlayer.O
                         .first()
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(selectedTrack -> {
-                            if (selectedTrack != null && selectedTrack.equals(audioFile) && audioPlayer.isPlaying()) {
+                            if (selectedTrack != null && selectedTrack.equals(audioFile) && playbackState.isPlaying()) {
                                 holder.playEq.setVisibility(View.VISIBLE);
 
                                 AnimationDrawable animation = (AnimationDrawable) ContextCompat.
                                         getDrawable(getApplicationContext(), R.drawable.ic_equalizer);
                                 holder.playEq.setImageDrawable(animation);
                                 if (animation != null) {
-                                    if (audioPlayer.isPlaying()) {
+                                    if (playbackState.isPlaying()) {
                                         animation.start();
                                     } else {
                                         animation.stop();
