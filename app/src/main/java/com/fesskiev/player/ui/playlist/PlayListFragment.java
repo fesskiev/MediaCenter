@@ -182,8 +182,8 @@ public class PlayListFragment extends Fragment {
                         Activity act = activity.get();
                         if (act != null) {
                             AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-                            audioPlayer.setCurrentAudioFile((AudioFile) mediaFile);
-                            AudioPlayerActivity.startPlayerActivity(act, true, cover);
+                            audioPlayer.setCurrentAudioFileAndPlay((AudioFile) mediaFile);
+                            AudioPlayerActivity.startPlayerActivity(act, cover);
                         }
                         break;
                 }

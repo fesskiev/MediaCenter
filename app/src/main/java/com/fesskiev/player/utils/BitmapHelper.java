@@ -134,15 +134,30 @@ public class BitmapHelper {
     }
 
 
-    public boolean loadAudioPlayerArtwork(AudioFile audioFile, ImageView imageView) {
-        String mediaArtworkPath = findMediaFileArtworkPath(audioFile);
-        if (mediaArtworkPath != null) {
-            Glide.with(context).
-                    load(mediaArtworkPath).
-                    crossFade().
-                    fitCenter().
-                    into(imageView);
-            return true;
+    public boolean loadAudioPlayerArtwork(AudioFolder audioFolder, AudioFile audioFile, ImageView imageView) {
+        if (audioFile != null) {
+            String mediaArtworkPath = findMediaFileArtworkPath(audioFile);
+            if (mediaArtworkPath != null) {
+                Glide.with(context).
+                        load(mediaArtworkPath).
+                        crossFade().
+                        fitCenter().
+                        into(imageView);
+                return true;
+            }
+        }
+
+        if (audioFolder != null) {
+            String folderPath = findAudioFolderArtworkPath(audioFolder);
+            if (folderPath != null) {
+                Glide.with(context).
+                        load(folderPath).
+                        crossFade().
+                        fitCenter().
+                        transform(new CircleTransform(context)).
+                        into(imageView);
+                return true;
+            }
         }
 
         return false;
@@ -202,7 +217,7 @@ public class BitmapHelper {
     }
 
 
-    public void loadAudioArtistsFolderArtwork(Artist artist, ImageView imageView) {
+    public void loadAudioArtistsFolderArtwork(Artist artist, ImageView placeholder) {
 
         String path = artist.artworkPath;
         if (path != null) {
@@ -210,18 +225,18 @@ public class BitmapHelper {
                     load(path).
                     crossFade().
                     fitCenter().
-                    into(imageView);
+                    into(placeholder);
         } else {
             Glide.with(context).
                     load(R.drawable.no_cover_folder_icon).
                     fitCenter().
                     crossFade().
-                    into(imageView);
+                    into(placeholder);
         }
 
     }
 
-    public void loadAudioGenresFolderArtwork(Genre genre, ImageView imageView) {
+    public void loadAudioGenresFolderArtwork(Genre genre, ImageView placeholder) {
 
         String path = genre.artworkPath;
         if (path != null) {
@@ -229,13 +244,13 @@ public class BitmapHelper {
                     load(path).
                     crossFade().
                     fitCenter().
-                    into(imageView);
+                    into(placeholder);
         } else {
             Glide.with(context).
                     load(R.drawable.no_cover_folder_icon).
                     fitCenter().
                     crossFade().
-                    into(imageView);
+                    into(placeholder);
         }
     }
 

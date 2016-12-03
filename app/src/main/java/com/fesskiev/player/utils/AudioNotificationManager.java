@@ -57,14 +57,14 @@ public class AudioNotificationManager extends BroadcastReceiver {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPlayingEvent(Boolean playing) {
+        Log.w("test", "NOTIFICATION onPlayingEvent: " + playing);
         setPlayPauseState(playing);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onAudioPlayerEvent(AudioPlayer audioPlayer) {
-        currentAudioFile = audioPlayer.getCurrentTrack();
-
-
+    public void onCurrentTrackEvent(AudioFile currentTrack) {
+        Log.w("test", "NOTIFICATION onCurrentTrackEvent: " + currentTrack.toString());
+        this.currentAudioFile = currentTrack;
     }
 
     private void registerBroadcastReceiver() {

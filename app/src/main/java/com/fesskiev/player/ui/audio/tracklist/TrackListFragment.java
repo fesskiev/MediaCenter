@@ -264,14 +264,10 @@ public class TrackListFragment extends Fragment {
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(selectedTrack -> {
                                 if (selectedTrack != null && selectedTrack.equals(audioFile)) {
-                                    AudioPlayerActivity.startPlayerActivity(getActivity(), false, cover);
+                                    AudioPlayerActivity.startPlayerActivity(getActivity(), cover);
                                 } else {
-                                    audioFile.isSelected = true;
-
-                                    audioPlayer.setCurrentAudioFile(audioFile);
-                                    ;
-
-                                    AudioPlayerActivity.startPlayerActivity(getActivity(), true, cover);
+                                    audioPlayer.setCurrentAudioFileAndPlay(audioFile);
+                                    AudioPlayerActivity.startPlayerActivity(getActivity(), cover);
                                 }
 
                             });

@@ -121,7 +121,6 @@ public class AudioFoldersFragment extends GridFragment {
                 v.setOnClickListener(view -> {
                     AudioFolder audioFolder = audioFolders.get(getAdapterPosition());
                     if (audioFolder != null) {
-                        audioFolder.isSelected = true;
 
                         MediaApplication.getInstance().getAudioPlayer().setCurrentTrackList(audioFolder);
 

@@ -32,11 +32,11 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 
 public class AudioPlayerActivity extends AnalyticsActivity {
-
-    public static final String EXTRA_IS_NEW_TRACK = "com.fesskiev.player.EXTRA_IS_NEW_TRACK";
 
     private PlaybackState playbackState;
     private AudioPlayer audioPlayer;
@@ -56,19 +56,17 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     private TextView album;
     private TextView trackDescription;
 
-    public static void startPlayerActivity(Activity activity, boolean isNewTrack, View coverView) {
+    public static void startPlayerActivity(Activity activity, View coverView) {
         ActivityOptionsCompat options = ActivityOptionsCompat.
                 makeSceneTransitionAnimation(activity, coverView,
                         activity.getString(R.string.shared_cover_name));
-        activity.startActivity(new Intent(activity, AudioPlayerActivity.class).
-                putExtra(AudioPlayerActivity.EXTRA_IS_NEW_TRACK, isNewTrack), options.toBundle());
+        activity.startActivity(new Intent(activity, AudioPlayerActivity.class), options.toBundle());
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_audio_player);
-
 
 
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -166,18 +164,9 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         });
 
 
-
-        Intent intent = getIntent();
-        if (intent.hasExtra(EXTRA_IS_NEW_TRACK)) {
-            boolean isNewTrack = intent.getBooleanExtra(EXTRA_IS_NEW_TRACK, false);
-            if (isNewTrack) {
-                open();
-            } else {
-                setPauseValues();
-                setAudioTrackValues(audioPlayer.getCurrentTrack());
-                controlView.setPlay(playbackState.isPlaying());
-            }
-        }
+        setPauseValues();
+        setAudioTrackValues(audioPlayer.getCurrentTrack());
+        controlView.setPlay(playbackState.isPlaying());
 
         EventBus.getDefault().register(this);
     }
@@ -193,10 +182,12 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         controlView.setPlay(playing);
     }
 
+
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onAudioPlayerEvent(AudioPlayer audioPlayer) {
-        Log.d("test", "onMessageEvent: " + audioPlayer.toString());
-        setAudioTrackValues(audioPlayer.getCurrentTrack());
+    public void onCurrentTrackEvent(AudioFile currentTrack) {
+        Log.e("test", "PLAYER onCurrentTrackEvent: " + currentTrack.toString());
+
+        setAudioTrackValues(currentTrack);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -231,21 +222,29 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
 
     private void setBackdropImage(AudioFile audioFile) {
-        boolean load = BitmapHelper.getInstance().loadAudioPlayerArtwork(audioFile, backdrop);
+        audioPlayer.getCurrentAudioFolder()
+                .first()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(audioFolder -> {
+                    boolean load = BitmapHelper.getInstance().loadAudioPlayerArtwork(audioFolder, audioFile, backdrop);
 
-        CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
-        if (!load) {
-            TypedValue tv = new TypedValue();
-            if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-                lp.height = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
-                appBarLayout.setExpanded(false);
-                backdrop.setVisibility(View.GONE);
-            }
-        } else {
-            lp.height = getResources().getDimensionPixelSize(R.dimen.app_bar_height);
-            appBarLayout.setExpanded(true);
-            backdrop.setVisibility(View.VISIBLE);
-        }
+                    CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
+                    if (!load) {
+                        TypedValue tv = new TypedValue();
+                        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+                            lp.height = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
+                            appBarLayout.setExpanded(false);
+                            backdrop.setVisibility(View.GONE);
+                        }
+                    } else {
+                        lp.height = getResources().getDimensionPixelSize(R.dimen.app_bar_height);
+                        appBarLayout.setExpanded(true);
+                        backdrop.setVisibility(View.VISIBLE);
+                    }
+
+                });
+
     }
 
 
@@ -276,9 +275,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         }
     }
 
-    public void open() {
-        audioPlayer.open(null);
-    }
+
 
     private void setMuteSolo() {
         muteSoloButton.changeState(playbackState.isMute());

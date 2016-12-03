@@ -1,8 +1,8 @@
 package com.fesskiev.player.players;
 
 
-
 import android.content.Context;
+import android.util.Log;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.data.model.AudioFile;
@@ -15,12 +15,9 @@ import com.fesskiev.player.ui.playback.Playable;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.LinkedList;
-import java.util.List;
 import java.util.ListIterator;
 
-
 import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class AudioPlayer implements Playable {
@@ -29,8 +26,9 @@ public class AudioPlayer implements Playable {
     private Context context;
     private DataRepository repository;
 
+    private TrackListIterator<AudioFile> listIterator;
+
     private LinkedList<AudioFile> currentTrackList;
-    private ListIterator<AudioFile> listIterator;
     private AudioFile currentTrack;
 
 
@@ -44,16 +42,23 @@ public class AudioPlayer implements Playable {
 
         Observable.zip(repository.getSelectedFolderAudioFiles(),
                 repository.getSelectedAudioFile(), (audioFiles, audioFile) -> {
-                    currentTrack = audioFile;
-                    currentTrackList = new LinkedList<>(audioFiles);
-                    listIterator = currentTrackList.listIterator();
 
-                    EventBus.getDefault().post(this);
+                    if (audioFiles != null) {
+                        currentTrackList = new LinkedList<>(audioFiles);
+                        listIterator = new TrackListIterator<>(currentTrackList.listIterator());
+                        EventBus.getDefault().post(currentTrackList);
+                    }
+
+                    if (audioFile != null) {
+                        currentTrack = audioFile;
+                        PlaybackService.openFile(context, currentTrack.getFilePath());
+                        EventBus.getDefault().post(currentTrack);
+                    }
 
                     return Observable.empty();
-                }).first()
+                })
+                .first()
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe();
     }
 
@@ -63,21 +68,16 @@ public class AudioPlayer implements Playable {
             getCurrentAudioFile()
                     .first()
                     .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(currentAudioFile -> {
                         if (currentAudioFile != null) {
                             PlaybackService.openFile(context, currentAudioFile.getFilePath());
 
                             currentTrack = currentAudioFile;
-                            EventBus.getDefault().post(AudioPlayer.this);
-
+                            EventBus.getDefault().post(currentTrack);
                         }
                     });
         } else {
             PlaybackService.openFile(context, audioFile.getFilePath());
-
-            currentTrack = (AudioFile) audioFile;
-            EventBus.getDefault().post(AudioPlayer.this);
         }
     }
 
@@ -97,10 +97,13 @@ public class AudioPlayer implements Playable {
         if (listIterator.hasNext()) {
             AudioFile audioFile = listIterator.next();
             if (audioFile != null) {
+                Log.d("state", "NEXT: " + audioFile.toString());
+                currentTrack = audioFile;
+
+                audioFile.isSelected = true;
                 repository.updateSelectedAudioFile(audioFile);
 
-                currentTrack = audioFile;
-                EventBus.getDefault().post(AudioPlayer.this);
+                EventBus.getDefault().post(currentTrack);
 
                 PlaybackService.openFile(context, audioFile.getFilePath());
                 PlaybackService.startPlayback(context);
@@ -113,10 +116,13 @@ public class AudioPlayer implements Playable {
         if (listIterator.hasPrevious()) {
             AudioFile audioFile = listIterator.previous();
             if (audioFile != null) {
+                Log.d("state", "PREV: " + audioFile.toString());
+                currentTrack = audioFile;
+
+                audioFile.isSelected = true;
                 repository.updateSelectedAudioFile(audioFile);
 
-                currentTrack = audioFile;
-                EventBus.getDefault().post(AudioPlayer.this);
+                EventBus.getDefault().post(currentTrack);
 
                 PlaybackService.openFile(context, audioFile.getFilePath());
                 PlaybackService.startPlayback(context);
@@ -125,24 +131,31 @@ public class AudioPlayer implements Playable {
     }
 
 
-    public void setCurrentAudioFile(AudioFile audioFile) {
+    public void setCurrentAudioFileAndPlay(AudioFile audioFile) {
         currentTrack = audioFile;
+
+        audioFile.isSelected = true;
         repository.updateSelectedAudioFile(audioFile);
+
+        open(audioFile);
+        play();
+
+        EventBus.getDefault().post(currentTrack);
     }
 
 
     public void setCurrentTrackList(AudioFolder audioFolder) {
+        audioFolder.isSelected = true;
         repository.updateSelectedAudioFolder(audioFolder);
         repository.getSelectedFolderAudioFiles()
                 .first()
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(audioFiles -> {
                     if (audioFiles != null) {
                         currentTrackList = new LinkedList<>(audioFiles);
-                        listIterator = currentTrackList.listIterator();
+                        listIterator = new TrackListIterator<>(currentTrackList.listIterator());
 
-                        EventBus.getDefault().post(AudioPlayer.this);
+                        EventBus.getDefault().post(currentTrackList);
                     }
                 });
     }
@@ -155,13 +168,46 @@ public class AudioPlayer implements Playable {
         return repository.getSelectedAudioFolder();
     }
 
-    public List<AudioFile> getCurrentTrackList() {
-        return currentTrackList;
-    }
-
     public AudioFile getCurrentTrack() {
         return currentTrack;
     }
 
+    private static class TrackListIterator<T> {
+
+        private final ListIterator<T> listIterator;
+
+        private boolean nextWasCalled = false;
+        private boolean previousWasCalled = false;
+
+        public TrackListIterator(ListIterator<T> listIterator) {
+            this.listIterator = listIterator;
+        }
+
+        public T next() {
+            nextWasCalled = true;
+            if (previousWasCalled) {
+                previousWasCalled = false;
+                listIterator.next();
+            }
+            return listIterator.next();
+        }
+
+        public T previous() {
+            if (nextWasCalled) {
+                listIterator.previous();
+                nextWasCalled = false;
+            }
+            previousWasCalled = true;
+            return listIterator.previous();
+        }
+
+        public boolean hasPrevious() {
+            return true;
+        }
+
+        public boolean hasNext() {
+            return true;
+        }
+    }
 
 }

@@ -31,6 +31,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import rx.android.schedulers.AndroidSchedulers;
@@ -42,6 +43,7 @@ public class PlaybackActivity extends AnalyticsActivity {
 
     private PlaybackState playbackState;
     private AudioPlayer audioPlayer;
+    private AudioFile currentTrack;
 
     private BottomSheetBehavior bottomSheetBehavior;
     private TrackListAdapter adapter;
@@ -54,7 +56,6 @@ public class PlaybackActivity extends AnalyticsActivity {
     private View emptyTrack;
     private View peakView;
     private int height;
-    private boolean openTack;
     private boolean isShow = true;
 
     @Override
@@ -93,11 +94,7 @@ public class PlaybackActivity extends AnalyticsActivity {
                         List<AudioFile> audioFiles = adapter.getAudioFiles();
                         AudioFile audioFile = audioFiles.get(position);
                         if (audioFile != null) {
-                            audioFile.isSelected = true;
-
-                            audioPlayer.setCurrentAudioFile(audioFile);
-                            audioPlayer.open(audioFile);
-                            audioPlayer.play();
+                            audioPlayer.setCurrentAudioFileAndPlay(audioFile);
                         }
                     }
 
@@ -138,10 +135,7 @@ public class PlaybackActivity extends AnalyticsActivity {
             });
 
             peakView = findViewById(R.id.basicNavPlayerContainer);
-            peakView.setOnClickListener(v -> {
-                AudioPlayerActivity.startPlayerActivity(PlaybackActivity.this, false, cover);
-
-            });
+            peakView.setOnClickListener(v -> AudioPlayerActivity.startPlayerActivity(PlaybackActivity.this, cover));
             peakView.post(() -> {
                 int marginTop = getResources().getDimensionPixelSize(R.dimen.bottom_sheet_margin_top);
                 height = peakView.getHeight() + marginTop;
@@ -151,7 +145,6 @@ public class PlaybackActivity extends AnalyticsActivity {
 
         showEmptyFolderCard();
         showEmptyTrackCard();
-
 
     }
 
@@ -170,28 +163,32 @@ public class PlaybackActivity extends AnalyticsActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPlaybackStateEvent(PlaybackState playbackState) {
         durationText.setText(String.valueOf(Utils.getTimeFromMillisecondsString(playbackState.getProgress())));
+
+        adapter.notifyDataSetChanged();
+    }
+
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onCurrentTrackEvent(AudioFile currentTrack) {
+        this.currentTrack = currentTrack;
+
+        Log.wtf("test", "PLAYBACK onCurrentTrackEvent: " + currentTrack.toString());
+
+        setMusicFileInfo(currentTrack);
+        hideEmptyTrackCard();
+
+        adapter.notifyDataSetChanged();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onAudioPlayerEvent(AudioPlayer audioPlayer) {
-        Log.d("test", "PLAYBACK onMessageEvent: " + audioPlayer.toString());
+    public void onCurrentTrackListEvent(LinkedList<AudioFile> currentTrackList) {
+        Log.wtf("test", "PLAYBACK onCurrentTrackListEvent");
 
-        AudioFile currentTrack = audioPlayer.getCurrentTrack();
-        if (currentTrack != null) {
-            if (!openTack) {
-                audioPlayer.open(currentTrack);
-                openTack = true;
-            }
-            setMusicFileInfo(currentTrack);
-            hideEmptyTrackCard();
-        }
-
-        List<AudioFile> currentTracks = audioPlayer.getCurrentTrackList();
-        if (currentTracks != null) {
-            adapter.refreshAdapter(currentTracks);
+        if (currentTrackList != null) {
+            adapter.refreshAdapter(currentTrackList);
             hideEmptyFolderCard();
         }
-
         adapter.notifyDataSetChanged();
     }
 
@@ -271,28 +268,24 @@ public class PlaybackActivity extends AnalyticsActivity {
                 holder.title.setText(audioFile.title);
                 holder.duration.setText(Utils.getDurationString(audioFile.length));
 
-                audioPlayer.getCurrentAudioFile()
-                        .first()
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(selectedTrack -> {
-                            if (selectedTrack != null && selectedTrack.equals(audioFile) && playbackState.isPlaying()) {
-                                holder.playEq.setVisibility(View.VISIBLE);
+                if (currentTrack != null) {
+                    if (currentTrack.equals(audioFile) && playbackState.isPlaying()) {
+                        holder.playEq.setVisibility(View.VISIBLE);
 
-                                AnimationDrawable animation = (AnimationDrawable) ContextCompat.
-                                        getDrawable(getApplicationContext(), R.drawable.ic_equalizer);
-                                holder.playEq.setImageDrawable(animation);
-                                if (animation != null) {
-                                    if (playbackState.isPlaying()) {
-                                        animation.start();
-                                    } else {
-                                        animation.stop();
-                                    }
-                                }
+                        AnimationDrawable animation = (AnimationDrawable) ContextCompat.
+                                getDrawable(getApplicationContext(), R.drawable.ic_equalizer);
+                        holder.playEq.setImageDrawable(animation);
+                        if (animation != null) {
+                            if (playbackState.isPlaying()) {
+                                animation.start();
                             } else {
-                                holder.playEq.setVisibility(View.INVISIBLE);
+                                animation.stop();
                             }
-
-                        });
+                        }
+                    } else {
+                        holder.playEq.setVisibility(View.INVISIBLE);
+                    }
+                }
             }
         }
 
