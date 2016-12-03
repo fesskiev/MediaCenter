@@ -107,6 +107,8 @@ dependencies {
     compile "com.android.support:design:${supportLibVersion}"
     compile "com.android.support:palette-v7:${supportLibVersion}"
     compile "com.android.support:support-v4:${supportLibVersion}"
+    compile "com.android.support:percent:${supportLibVersion}"
+
 
     compile 'com.mpatric:mp3agic:0.8.4'
     compile 'com.vk:androidsdk:1.6.5'

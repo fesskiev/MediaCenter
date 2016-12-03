@@ -117,6 +117,7 @@ public class SplashActivity extends AppCompatActivity {
         } else {
             checkAppFirstStart();
             loadMediaFiles();
+            PlaybackService.startPlaybackService(this);
         }
     }
 

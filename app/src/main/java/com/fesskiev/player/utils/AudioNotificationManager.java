@@ -65,6 +65,7 @@ public class AudioNotificationManager extends BroadcastReceiver {
     public void onCurrentTrackEvent(AudioFile currentTrack) {
         Log.w("test", "NOTIFICATION onCurrentTrackEvent: " + currentTrack.toString());
         this.currentAudioFile = currentTrack;
+        setPlayPauseState(PlaybackService.getPlaybackState().isPlaying());
     }
 
     private void registerBroadcastReceiver() {
@@ -91,25 +92,23 @@ public class AudioNotificationManager extends BroadcastReceiver {
     }
 
     private void changeNotification(final NotificationCompat.Action action, final boolean isPlaying) {
-        if (currentAudioFile != null) {
-            BitmapHelper.getInstance().loadNotificationArtwork(currentAudioFile, new BitmapHelper.OnBitmapLoadListener() {
-                @Override
-                public void onLoaded(Bitmap bitmap) {
-                    createNotification(buildNotification(action,
-                            currentAudioFile,
-                            bitmap,
-                            isPlaying));
-                }
+        BitmapHelper.getInstance().loadNotificationArtwork(currentAudioFile, new BitmapHelper.OnBitmapLoadListener() {
+            @Override
+            public void onLoaded(Bitmap bitmap) {
+                createNotification(buildNotification(action,
+                        currentAudioFile,
+                        bitmap,
+                        isPlaying));
+            }
 
-                @Override
-                public void onFailed() {
-                    createNotification(buildNotification(action,
-                            currentAudioFile,
-                            null,
-                            isPlaying));
-                }
-            });
-        }
+            @Override
+            public void onFailed() {
+                createNotification(buildNotification(action,
+                        currentAudioFile,
+                        null,
+                        isPlaying));
+            }
+        });
     }
 
     private void createNotification(Notification notification) {

@@ -30,4 +30,12 @@
         android:layout_height="wrap_content"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
+    <com.fesskiev.player.widgets.snow.SnowView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignBottom="@id/content"
+        android:layout_alignEnd="@id/content"
+        android:layout_alignStart="@id/content"
+        android:layout_alignTop="@id/content" />
+
 </android.support.design.widget.CoordinatorLayout>

@@ -59,12 +59,6 @@ public class PlaybackActivity extends AnalyticsActivity {
     private boolean isShow = true;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        PlaybackService.startPlaybackService(this);
-    }
-
-    @Override
     public void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
