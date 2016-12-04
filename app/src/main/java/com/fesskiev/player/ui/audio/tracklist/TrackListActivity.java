@@ -8,7 +8,6 @@ import com.fesskiev.player.R;
 import com.fesskiev.player.analytics.AnalyticsActivity;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.player.ui.audio.utils.Constants;
-import com.fesskiev.player.utils.AnimationUtils;
 
 public class TrackListActivity extends AnalyticsActivity {
 

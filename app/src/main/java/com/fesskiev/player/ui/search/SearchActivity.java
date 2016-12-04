@@ -186,7 +186,7 @@ public class SearchActivity extends AppCompatActivity {
 
             public ResultViewHolder(View v) {
                 super(v);
-                v.setOnClickListener(v1 -> startPlayerActivity(getAdapterPosition(), cover));
+                v.setOnClickListener(v1 -> startPlayerActivity(getAdapterPosition()));
                 duration = (TextView) v.findViewById(R.id.itemDuration);
                 title = (TextView) v.findViewById(R.id.itemTitle);
                 filePath = (TextView) v.findViewById(R.id.filePath);
@@ -223,7 +223,7 @@ public class SearchActivity extends AppCompatActivity {
             }
         }
 
-        private void startPlayerActivity(int position, View cover) {
+        private void startPlayerActivity(int position) {
             MediaFile mediaFile = mediaFiles.get(position);
             if (mediaFile != null) {
                 switch (mediaFile.getMediaType()) {
@@ -235,7 +235,7 @@ public class SearchActivity extends AppCompatActivity {
                             AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
 
                             audioPlayer.setCurrentAudioFileAndPlay((AudioFile) mediaFile);
-                            AudioPlayerActivity.startPlayerActivity(act, cover);
+                            AudioPlayerActivity.startPlayerActivity(act);
                         }
                         break;
                 }

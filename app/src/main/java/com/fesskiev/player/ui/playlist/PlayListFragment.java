@@ -126,7 +126,7 @@ public class PlayListFragment extends Fragment {
 
             public ViewHolder(View v) {
                 super(v);
-                v.setOnClickListener(v1 -> startPlayerActivity(getAdapterPosition(), cover));
+                v.setOnClickListener(v1 -> startPlayerActivity(getAdapterPosition()));
 
                 duration = (TextView) v.findViewById(R.id.itemDuration);
                 title = (TextView) v.findViewById(R.id.itemTitle);
@@ -172,7 +172,7 @@ public class PlayListFragment extends Fragment {
             notifyDataSetChanged();
         }
 
-        private void startPlayerActivity(int position, View cover) {
+        private void startPlayerActivity(int position) {
             MediaFile mediaFile = mediaFiles.get(position);
             if (mediaFile != null) {
                 switch (mediaFile.getMediaType()) {
@@ -183,7 +183,7 @@ public class PlayListFragment extends Fragment {
                         if (act != null) {
                             AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
                             audioPlayer.setCurrentAudioFileAndPlay((AudioFile) mediaFile);
-                            AudioPlayerActivity.startPlayerActivity(act, cover);
+                            AudioPlayerActivity.startPlayerActivity(act);
                         }
                         break;
                 }

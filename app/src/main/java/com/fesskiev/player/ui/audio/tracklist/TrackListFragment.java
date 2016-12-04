@@ -221,7 +221,7 @@ public class TrackListFragment extends Fragment {
 
                             @Override
                             public void onClick() {
-                                startPlayerActivity(getAdapterPosition(), cover);
+                                startPlayerActivity(getAdapterPosition());
                             }
 
                             @Override
@@ -254,7 +254,7 @@ public class TrackListFragment extends Fragment {
             }
         }
 
-        private void startPlayerActivity(int position, View cover) {
+        private void startPlayerActivity(int position) {
             AudioFile audioFile = audioFiles.get(position);
             if (audioFile != null) {
                 if (audioFile.exists()) {
@@ -264,10 +264,10 @@ public class TrackListFragment extends Fragment {
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(selectedTrack -> {
                                 if (selectedTrack != null && selectedTrack.equals(audioFile)) {
-                                    AudioPlayerActivity.startPlayerActivity(getActivity(), cover);
+                                    AudioPlayerActivity.startPlayerActivity(getActivity());
                                 } else {
                                     audioPlayer.setCurrentAudioFileAndPlay(audioFile);
-                                    AudioPlayerActivity.startPlayerActivity(getActivity(), cover);
+                                    AudioPlayerActivity.startPlayerActivity(getActivity());
                                 }
 
                             });

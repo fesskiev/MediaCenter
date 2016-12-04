@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.TypedValue;
@@ -56,11 +55,8 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     private TextView album;
     private TextView trackDescription;
 
-    public static void startPlayerActivity(Activity activity, View coverView) {
-        ActivityOptionsCompat options = ActivityOptionsCompat.
-                makeSceneTransitionAnimation(activity, coverView,
-                        activity.getString(R.string.shared_cover_name));
-        activity.startActivity(new Intent(activity, AudioPlayerActivity.class), options.toBundle());
+    public static void startPlayerActivity(Activity activity) {
+        activity.startActivity(new Intent(activity, AudioPlayerActivity.class));
     }
 
     @Override
@@ -274,7 +270,6 @@ public class AudioPlayerActivity extends AnalyticsActivity {
             resetIndicators();
         }
     }
-
 
 
     private void setMuteSolo() {

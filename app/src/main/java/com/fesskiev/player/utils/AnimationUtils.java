@@ -1,89 +1,46 @@
 package com.fesskiev.player.utils;
 
-import android.app.Activity;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.util.Pair;
-import android.transition.Explode;
-import android.transition.Fade;
-import android.transition.Slide;
-import android.transition.Transition;
-import android.view.Gravity;
+
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
+import android.widget.TextView;
 
-import com.fesskiev.player.R;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-
+//TODO replace all animations here
 public class AnimationUtils {
 
-    public static void setupWindowAnimations(Activity activity) {
-        Slide slideTransition = getSlideTransaction(activity);
-        Explode explodeTransition = getExplodeTransition(activity);
-        Fade fadeTransaction = getFadeTransaction(activity);
+    private static AnimationUtils INSTANCE;
 
-        activity.getWindow().setReenterTransition(explodeTransition);
-        activity.getWindow().setReturnTransition(fadeTransaction);
-    }
+    private FastOutSlowInInterpolator fastOutSlowInInterpolator;
+    private DecelerateInterpolator decelerateInterpolator;
 
-    private static Fade getFadeTransaction(Activity activity) {
-        Fade fade = new Fade();
-        fade.setDuration(activity.getResources().getInteger(R.integer.anim_duration_medium));
-        return fade;
-    }
-
-    private static Slide getSlideTransaction(Activity activity) {
-        Slide slideTransition = new Slide(Gravity.START);
-        slideTransition.setDuration(activity.getResources().getInteger(R.integer.anim_duration_medium));
-        return slideTransition;
-    }
-
-    private static Explode getExplodeTransition(Activity activity) {
-        Explode explode = new Explode();
-        explode.setDuration(activity.getResources().getInteger(R.integer.anim_duration_medium));
-        return explode;
-    }
-
-    public static Bundle createBundle(Activity activity){
-        ActivityOptionsCompat options = ActivityOptionsCompat.
-                makeSceneTransitionAnimation(activity,
-                        AnimationUtils.createSafeTransitionParticipants(activity, false));
-        return options.toBundle();
-    }
-
-    public static Pair<View, String>[] createSafeTransitionParticipants(@NonNull Activity activity,
-                                                                        boolean includeStatusBar, @Nullable Pair... otherParticipants) {
-        // Avoid system UI glitches as described here:
-        // https://plus.google.com/+AlexLockwood/posts/RPtwZ5nNebb
-        View decor = activity.getWindow().getDecorView();
-        View statusBar = null;
-        if (includeStatusBar) {
-            statusBar = decor.findViewById(android.R.id.statusBarBackground);
+    public static AnimationUtils getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new AnimationUtils();
         }
-        View navBar = decor.findViewById(android.R.id.navigationBarBackground);
-
-        // Create pair of transition participants.
-        List<Pair> participants = new ArrayList<>(3);
-        addNonNullViewToTransitionParticipants(statusBar, participants);
-        addNonNullViewToTransitionParticipants(navBar, participants);
-        // only add transition participants if there's at least one none-null element
-        if (otherParticipants != null && !(otherParticipants.length == 1
-                && otherParticipants[0] == null)) {
-            participants.addAll(Arrays.asList(otherParticipants));
-        }
-        return participants.toArray(new Pair[participants.size()]);
+        return INSTANCE;
     }
 
-    private static void addNonNullViewToTransitionParticipants(View view, List<Pair> participants) {
-        if (view == null) {
-            return;
+    private AnimationUtils() {
+        fastOutSlowInInterpolator = new FastOutSlowInInterpolator();
+        decelerateInterpolator = new DecelerateInterpolator(3.f);
+
+    }
+
+    public void animateToolbar(Toolbar toolbar) {
+        View view = toolbar.getChildAt(0);
+        if (view != null && view instanceof TextView) {
+            TextView title = (TextView) view;
+            title.setAlpha(0f);
+            title.setScaleX(0.6f);
+            title.animate()
+                    .alpha(1f)
+                    .scaleX(1f)
+                    .setStartDelay(300)
+                    .setDuration(900)
+                    .setInterpolator(fastOutSlowInInterpolator);
         }
-        participants.add(new Pair<>(view, view.getTransitionName()));
     }
 
 }

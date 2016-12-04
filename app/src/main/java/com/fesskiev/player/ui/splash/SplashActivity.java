@@ -25,7 +25,6 @@ import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.FetchMediaFilesManager;
 import com.fesskiev.player.utils.RxUtils;
-import com.fesskiev.player.widgets.MaterialProgressBar;
 import com.fesskiev.player.widgets.dialogs.PermissionDialog;
 
 
@@ -47,7 +46,6 @@ public class SplashActivity extends AppCompatActivity {
     private DataRepository repository;
     private Subscription subscription;
     private FetchMediaFilesManager fetchMediaFilesManager;
-    private MaterialProgressBar progressBar;
     private PermissionDialog permissionDialog;
 
     @Override
@@ -164,14 +162,6 @@ public class SplashActivity extends AppCompatActivity {
     private void animate() {
         ImageView appLogo = (ImageView) findViewById(R.id.appLogo);
         ViewGroup container = (ViewGroup) findViewById(R.id.container);
-        progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
-
-        ViewCompat.animate(progressBar)
-                .translationY(-200)
-                .setStartDelay(STARTUP_DELAY)
-                .setDuration(ANIM_ITEM_DURATION)
-                .setInterpolator(new DecelerateInterpolator(1.2f))
-                .start();
 
         ViewCompat.animate(appLogo)
                 .translationY(-250)
@@ -220,16 +210,9 @@ public class SplashActivity extends AppCompatActivity {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(o -> {
-                    hideProgressBar();
                     startActivity(new Intent(this, MainActivity.class));
                     finish();
                 });
 
     }
-
-
-    private void hideProgressBar() {
-        progressBar.setVisibility(View.INVISIBLE);
-    }
-
 }

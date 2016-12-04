@@ -16,7 +16,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.SwitchCompat;
@@ -27,9 +26,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
-import com.fesskiev.player.players.AudioPlayer;
 import com.fesskiev.player.services.FileObserverService;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.about.AboutActivity;
@@ -63,11 +60,14 @@ import rx.schedulers.Schedulers;
 
 public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    private Subscription subscription;
+
     private NavigationView navigationViewEffects;
     private NavigationView navigationViewMain;
     private DrawerLayout drawer;
     private Toolbar toolbar;
+
+    private Class selectedActivity;
+    private Subscription subscription;
     private AppSettingsManager settingsManager;
     private FetchMediaFilesManager fetchMediaFilesManager;
     private SwitchCompat eqSwitch;
@@ -78,6 +78,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private TextView lastName;
     private boolean finish;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,7 +88,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        animateToolbar();
+        AnimationUtils.getInstance().animateToolbar(toolbar);
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -107,6 +108,10 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             @Override
             public void onDrawerClosed(View drawerView) {
                 ((AnimationDrawable) headerAnimation.getDrawable()).stop();
+                if (selectedActivity != null) {
+                    startActivity(new Intent(MainActivity.this, selectedActivity));
+                    selectedActivity = null;
+                }
             }
 
             @Override
@@ -129,7 +134,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
             @Override
             public void onFetchContentFinish() {
-                if(isAudioFragmentShow()){
+                if (isAudioFragmentShow()) {
                     AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
                             findFragmentByTag(AudioFragment.class.getName());
                     audioFragment.refreshAudioContent();
@@ -306,15 +311,16 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     public boolean onNavigationItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.settings:
-                startActivity(new Intent(this, SettingsActivity.class),
-                        AnimationUtils.createBundle(this));
+                selectedActivity = SettingsActivity.class;
                 break;
             case R.id.about:
-                startActivity(new Intent(this, AboutActivity.class),
-                        AnimationUtils.createBundle(this));
+                selectedActivity = AboutActivity.class;
                 break;
             case R.id.equalizer:
-                startActivity(new Intent(this, EqualizerActivity.class));
+                selectedActivity = EqualizerActivity.class;
+                break;
+            case R.id.playlist:
+                selectedActivity = PlayListActivity.class;
                 break;
             case R.id.audio_content:
                 checkAudioContentItem();
@@ -325,10 +331,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 checkVideoContentItem();
                 addVideoFragment();
                 hidePlayback();
-                break;
-            case R.id.playlist:
-                startActivity(new Intent(this, PlayListActivity.class),
-                        AnimationUtils.createBundle(this));
                 break;
         }
 
@@ -538,20 +540,4 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                     });
         }
     }
-
-    private void animateToolbar() {
-        View view = toolbar.getChildAt(0);
-        if (view != null && view instanceof TextView) {
-            TextView title = (TextView) view;
-            title.setAlpha(0f);
-            title.setScaleX(0.6f);
-            title.animate()
-                    .alpha(1f)
-                    .scaleX(1f)
-                    .setStartDelay(300)
-                    .setDuration(900)
-                    .setInterpolator(new FastOutSlowInInterpolator());
-        }
-    }
-
 }

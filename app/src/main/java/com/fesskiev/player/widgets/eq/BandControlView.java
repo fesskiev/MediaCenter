@@ -8,14 +8,17 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
 import com.fesskiev.player.R;
 
 
-public class BandControlView extends View implements RotationGestureDetector.OnRotationGestureListener {
+public class BandControlView extends View {
+
+    public interface OnBandListener {
+
+    }
 
     private Bitmap bitmapControl;
     private Matrix matrix;
@@ -23,7 +26,6 @@ public class BandControlView extends View implements RotationGestureDetector.OnR
     private float cx;
     private float cy;
     private Paint markPaint;
-    private RotationGestureDetector rotationGestureDetector;
 
     public BandControlView(Context context) {
         super(context);
@@ -41,7 +43,6 @@ public class BandControlView extends View implements RotationGestureDetector.OnR
     }
 
     private void init(Context context, AttributeSet attrs, int defStyle) {
-        rotationGestureDetector = new RotationGestureDetector(this);
         radius = 8;
         matrix = new Matrix();
 
@@ -99,21 +100,45 @@ public class BandControlView extends View implements RotationGestureDetector.OnR
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        rotationGestureDetector.onTouchEvent(event);
+        float x = event.getX();
+        float y = event.getY();
+        int action = event.getActionMasked();
+
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                break;
+            case MotionEvent.ACTION_MOVE:
+                setEQBandValue(x, y);
+                break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                break;
+        }
+
+        postInvalidate();
         return true;
     }
 
-    private int count;
+    private void setEQBandValue(float x, float y) {
+        float angle = getAngle(x, y);
+        matrix.postRotate(angle, cx, cy);
 
-    @Override
-    public void OnRotation(RotationGestureDetector rotationDetector) {
-        Log.d("RotationGestureDetector", "Rotation: " + Float.toString(rotationDetector.getAngle()));
-        count++;
-        if (count == 15) {
-            matrix.postRotate(rotationDetector.getAngle(), cx, cy);
-            postInvalidate();
-            count = 0;
+
+    }
+
+    public double angleBetween2Lines(float centerX, float centerY, float x1,
+                                     float y1, float x2, float y2) {
+        double angle1 = Math.atan2(y1 - centerY, x1 - centerX);
+        double angle2 = Math.atan2(y2 - centerY, x2 - centerX);
+        return angle1 - angle2;
+    }
+
+    private float getAngle(float x, float y) {
+        float angle = (float) Math.toDegrees(angleBetween2Lines(cx, cy, 0, 0, x, y)) * -1;
+        angle -= 45;
+        if (angle < 0) {
+            angle += 360;
         }
-
+        return angle;
     }
 }
