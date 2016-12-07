@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/primary"
     android:baselineAligned="false"
     android:orientation="horizontal"
@@ -26,19 +27,22 @@
             android:id="@+id/bandControl1"
             android:layout_width="200dp"
             android:layout_height="200dp"
-            android:layout_alignParentStart="true" />
+            android:layout_alignParentStart="true"
+            app:band="1"/>
 
         <com.fesskiev.player.widgets.eq.BandControlView
             android:id="@+id/bandControl2"
             android:layout_width="200dp"
             android:layout_height="200dp"
-            android:layout_centerInParent="true" />
+            android:layout_centerInParent="true"
+            app:band="2"/>
 
         <com.fesskiev.player.widgets.eq.BandControlView
             android:id="@+id/bandControl3"
             android:layout_width="200dp"
             android:layout_height="200dp"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentEnd="true"
+            app:band="3"/>
 
     </RelativeLayout>
 

@@ -20,6 +20,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -134,6 +135,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
             @Override
             public void onFetchContentFinish() {
+
                 if (isAudioFragmentShow()) {
                     AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
                             findFragmentByTag(AudioFragment.class.getName());
@@ -283,15 +285,10 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        fetchMediaFilesManager.unregister();
-        unregisterBroadcastReceiver();
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
+        fetchMediaFilesManager.unregister();
+        unregisterBroadcastReceiver();
         PlaybackService.destroyPlayer(getApplicationContext());
         FileObserverService.stopFileObserverService(getApplicationContext());
 

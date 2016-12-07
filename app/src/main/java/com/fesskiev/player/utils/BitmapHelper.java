@@ -117,20 +117,20 @@ public class BitmapHelper {
     }
 
     public void loadURIBitmap(String uri, ImageView into) {
-        Glide.with(context).
-                load(uri).
-                fitCenter().
-                crossFade().
-                into(into);
+        Glide.with(context)
+                .load(uri)
+                .fitCenter()
+                .crossFade()
+                .into(into);
     }
 
     public void loadCircleURIBitmap(String uri, ImageView into) {
-        Glide.with(context).
-                load(uri).
-                fitCenter().
-                transform(new CircleTransform(context)).
-                crossFade().
-                into(into);
+        Glide.with(context)
+                .load(uri)
+                .fitCenter()
+                .transform(new CircleTransform(context))
+                .crossFade()
+                .into(into);
     }
 
 
@@ -138,10 +138,8 @@ public class BitmapHelper {
         if (audioFile != null) {
             String mediaArtworkPath = findMediaFileArtworkPath(audioFile);
             if (mediaArtworkPath != null) {
-                Glide.with(context).
-                        load(mediaArtworkPath).
-                        crossFade().
-                        fitCenter().
+                Glide.with(context)
+                        .load(mediaArtworkPath).
                         into(imageView);
                 return true;
             }
@@ -150,11 +148,8 @@ public class BitmapHelper {
         if (audioFolder != null) {
             String folderPath = findAudioFolderArtworkPath(audioFolder);
             if (folderPath != null) {
-                Glide.with(context).
-                        load(folderPath).
-                        crossFade().
-                        fitCenter().
-                        transform(new CircleTransform(context)).
+                Glide.with(context)
+                        .load(folderPath).
                         into(imageView);
                 return true;
             }
@@ -169,10 +164,10 @@ public class BitmapHelper {
         String mediaArtworkPath = findMediaFileArtworkPath(mediaFile);
         if (mediaArtworkPath != null) {
             Glide.with(context).
-                    load(mediaArtworkPath).
-                    crossFade().
-                    fitCenter().
-                    transform(new CircleTransform(context)).
+                    load(mediaArtworkPath)
+                    .crossFade()
+                    .fitCenter()
+                    .transform(new CircleTransform(context)).
                     into(imageView);
             return;
         }
@@ -180,23 +175,23 @@ public class BitmapHelper {
         if (audioFolder != null) {
             String folderPath = findAudioFolderArtworkPath(audioFolder);
             if (folderPath != null) {
-                Glide.with(context).
-                        load(folderPath).
-                        crossFade().
-                        fitCenter().
-                        transform(new CircleTransform(context)).
-                        into(imageView);
+                Glide.with(context)
+                        .load(folderPath)
+                        .crossFade()
+                        .fitCenter()
+                        .transform(new CircleTransform(context))
+                        .into(imageView);
                 return;
             }
         }
 
         if (mediaFile instanceof AudioFile) {
-            Glide.with(context).
-                    load(R.drawable.no_cover_track_icon).
-                    crossFade().
-                    fitCenter().
-                    transform(new CircleTransform(context)).
-                    into(imageView);
+            Glide.with(context)
+                    .load(R.drawable.no_cover_track_icon)
+                    .crossFade()
+                    .fitCenter()
+                    .transform(new CircleTransform(context))
+                    .into(imageView);
         }
     }
 
@@ -221,17 +216,17 @@ public class BitmapHelper {
 
         String path = artist.artworkPath;
         if (path != null) {
-            Glide.with(context).
-                    load(path).
-                    crossFade().
-                    fitCenter().
-                    into(placeholder);
+            Glide.with(context)
+                    .load(path)
+                    .crossFade()
+                    .fitCenter()
+                    .into(placeholder);
         } else {
-            Glide.with(context).
-                    load(R.drawable.no_cover_folder_icon).
-                    fitCenter().
-                    crossFade().
-                    into(placeholder);
+            Glide.with(context)
+                    .load(R.drawable.no_cover_folder_icon)
+                    .fitCenter()
+                    .crossFade()
+                    .into(placeholder);
         }
 
     }
@@ -240,17 +235,17 @@ public class BitmapHelper {
 
         String path = genre.artworkPath;
         if (path != null) {
-            Glide.with(context).
-                    load(path).
-                    crossFade().
-                    fitCenter().
-                    into(placeholder);
+            Glide.with(context)
+                    .load(path)
+                    .crossFade()
+                    .fitCenter()
+                    .into(placeholder);
         } else {
-            Glide.with(context).
-                    load(R.drawable.no_cover_folder_icon).
-                    fitCenter().
-                    crossFade().
-                    into(placeholder);
+            Glide.with(context)
+                    .load(R.drawable.no_cover_folder_icon)
+                    .fitCenter()
+                    .crossFade()
+                    .into(placeholder);
         }
     }
 
@@ -258,17 +253,17 @@ public class BitmapHelper {
 
         String coverFile = findAudioFolderArtworkPath(audioFolder);
         if (coverFile != null) {
-            Glide.with(context).
-                    load(coverFile).
-                    crossFade().
-                    fitCenter().
-                    into(placeholder);
+            Glide.with(context)
+                    .load(coverFile)
+                    .crossFade()
+                    .fitCenter()
+                    .into(placeholder);
         } else {
-            Glide.with(context).
-                    load(R.drawable.no_cover_folder_icon).
-                    fitCenter().
-                    crossFade().
-                    into(placeholder);
+            Glide.with(context)
+                    .load(R.drawable.no_cover_folder_icon)
+                    .fitCenter()
+                    .crossFade()
+                    .into(placeholder);
         }
     }
 

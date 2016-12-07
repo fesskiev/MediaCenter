@@ -1,6 +1,7 @@
 package com.fesskiev.player.widgets.eq;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -8,6 +9,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -16,16 +18,19 @@ import com.fesskiev.player.R;
 
 public class BandControlView extends View {
 
-    public interface OnBandListener {
+    public interface OnBandLevelListener {
 
+        void onBandLevelChanged(int band, int level);
     }
 
+    private OnBandLevelListener listener;
     private Bitmap bitmapControl;
     private Matrix matrix;
     private int radius;
     private float cx;
     private float cy;
     private Paint markPaint;
+    private int band;
 
     public BandControlView(Context context) {
         super(context);
@@ -43,6 +48,13 @@ public class BandControlView extends View {
     }
 
     private void init(Context context, AttributeSet attrs, int defStyle) {
+        final TypedArray a = getContext().obtainStyledAttributes(
+                attrs, R.styleable.BandControlView, defStyle, 0);
+
+        band = a.getInt(R.styleable.BandControlView_band, -1);
+
+        a.recycle();
+
         radius = 8;
         matrix = new Matrix();
 
@@ -120,10 +132,15 @@ public class BandControlView extends View {
     }
 
     private void setEQBandValue(float x, float y) {
-        float angle = getAngle(x, y);
-        matrix.postRotate(angle, cx, cy);
+            float angle = getAngle(x, y);
 
+//            Log.d("test", "angle: " + angle);
 
+            int value = (int) (angle * (100f / 360));
+            matrix.postRotate(angle, cx, cy);
+            if (listener != null) {
+                listener.onBandLevelChanged(band, value);
+            }
     }
 
     public double angleBetween2Lines(float centerX, float centerY, float x1,
@@ -140,5 +157,9 @@ public class BandControlView extends View {
             angle += 360;
         }
         return angle;
+    }
+
+    public void setOnBandLevelListener(OnBandLevelListener listener) {
+        this.listener = listener;
     }
 }

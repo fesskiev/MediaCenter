@@ -22,4 +22,8 @@
     <attr name="progressColor" format="color" />
   </declare-styleable>
 
+  <declare-styleable name="BandControlView">
+    <attr name="band" format="integer" />
+  </declare-styleable>
+
 </resources>
