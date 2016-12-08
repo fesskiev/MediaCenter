@@ -15,4 +15,8 @@ public interface Playable {
 
     void previous();
 
+    boolean first();
+
+    boolean last();
+
 }

@@ -43,9 +43,7 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
         super.onViewCreated(view, savedInstanceState);
 
         SwitchCompat EQState = (SwitchCompat) view.findViewById(R.id.stateEqualizer);
-        EQState.setOnCheckedChangeListener((compoundButton, checked) -> {
-            superPoweredSDKWrapper.enableEQ(checked);
-        });
+        EQState.setOnCheckedChangeListener((compoundButton, checked) -> superPoweredSDKWrapper.enableEQ(checked));
 
         BandControlView[] bandControlViews = new BandControlView[]{
                 (BandControlView) view.findViewById(R.id.bandControl1),
@@ -57,7 +55,11 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
             bandControlView.setOnBandLevelListener(this);
         }
 
-        superPoweredSDKWrapper.enableEQ(true);
+        if (settingsManager.isEQOn()) {
+            superPoweredSDKWrapper.enableEQ(true);
+        } else {
+            superPoweredSDKWrapper.enableEQ(false);
+        }
     }
 
     @Override

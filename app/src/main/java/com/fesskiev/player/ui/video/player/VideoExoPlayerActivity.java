@@ -212,6 +212,16 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
     }
 
     @Override
+    public boolean first() {
+        return false;
+    }
+
+    @Override
+    public boolean last() {
+        return false;
+    }
+
+    @Override
     public void previous() {
         videoPlayer.previous();
     }

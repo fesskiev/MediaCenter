@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.TypedValue;
@@ -255,6 +256,14 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
 
     public void next() {
+        if (audioPlayer.last()) {
+            Utils.showCustomSnackbar(findViewById(R.id.audioPlayerRoot),
+                    getApplicationContext(),
+                    getString(R.string.snackbar_last_track),
+                    Snackbar.LENGTH_SHORT)
+                    .show();
+            return;
+        }
         if (!playbackState.isRepeat()) {
             audioPlayer.next();
             cardDescription.next();
@@ -264,6 +273,14 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     }
 
     public void previous() {
+        if (audioPlayer.first()) {
+            Utils.showCustomSnackbar(findViewById(R.id.audioPlayerRoot),
+                    getApplicationContext(),
+                    getString(R.string.snackbar_first_track),
+                    Snackbar.LENGTH_SHORT)
+                    .show();
+            return;
+        }
         if (!playbackState.isRepeat()) {
             audioPlayer.previous();
             cardDescription.previous();

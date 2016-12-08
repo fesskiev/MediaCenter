@@ -24,14 +24,12 @@ import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton;
-import com.fesskiev.player.widgets.recycleview.RecyclerItemTouchClickListener;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import rx.android.schedulers.AndroidSchedulers;
@@ -80,23 +78,6 @@ public class PlaybackActivity extends AnalyticsActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new TrackListAdapter();
         recyclerView.setAdapter(adapter);
-        recyclerView.addOnItemTouchListener(new RecyclerItemTouchClickListener(this,
-                new RecyclerItemTouchClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View childView, int position) {
-
-                        List<AudioFile> audioFiles = adapter.getAudioFiles();
-                        AudioFile audioFile = audioFiles.get(position);
-                        if (audioFile != null) {
-                            audioPlayer.setCurrentAudioFileAndPlay(audioFile);
-                        }
-                    }
-
-                    @Override
-                    public void onItemLongPress(View childView, int position) {
-
-                    }
-                }));
 
         playPauseButton = (PlayPauseFloatingButton) findViewById(R.id.playPauseFAB);
         playPauseButton.setOnClickListener(v -> {
@@ -162,7 +143,6 @@ public class PlaybackActivity extends AnalyticsActivity {
     }
 
 
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onCurrentTrackEvent(AudioFile currentTrack) {
         this.currentTrack = currentTrack;
@@ -176,7 +156,7 @@ public class PlaybackActivity extends AnalyticsActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onCurrentTrackListEvent(LinkedList<AudioFile> currentTrackList) {
+    public void onCurrentTrackListEvent(List<AudioFile> currentTrackList) {
         Log.wtf("test", "PLAYBACK onCurrentTrackListEvent");
 
         if (currentTrackList != null) {
@@ -239,6 +219,13 @@ public class PlaybackActivity extends AnalyticsActivity {
 
             public ViewHolder(View v) {
                 super(v);
+                v.setOnClickListener(view -> {
+                    List<AudioFile> audioFiles = adapter.getAudioFiles();
+                    AudioFile audioFile = audioFiles.get(getAdapterPosition());
+                    if (audioFile != null) {
+                        audioPlayer.setCurrentAudioFileAndPlay(audioFile);
+                    }
+                });
 
                 playEq = (ImageView) v.findViewById(R.id.playEq);
                 title = (TextView) v.findViewById(R.id.title);

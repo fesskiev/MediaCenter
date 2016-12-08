@@ -8,12 +8,11 @@ import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.SuperPoweredSDKWrapper;
 import com.fesskiev.player.data.model.PlaybackState;
-import com.fesskiev.player.players.AudioPlayer;
 import com.fesskiev.player.utils.AudioFocusManager;
 import com.fesskiev.player.utils.AudioNotificationManager;
 
@@ -26,12 +25,6 @@ public class PlaybackService extends Service {
 
     private static final String TAG = PlaybackService.class.getSimpleName();
 
-    public static final String ACTION_HEADSET_PLUG_IN =
-            "com.fesskiev.player.action.ACTION_HEADSET_PLUG_IN";
-    public static final String ACTION_HEADSET_PLUG_OUT =
-            "com.fesskiev.player.action.ACTION_HEADSET_PLUG_OUT";
-    public static final String ACTION_TRACK_END =
-            "com.fesskiev.player.action.ACTION_TRACK_END";
 
     public static final String ACTION_OPEN_FILE =
             "com.fesskiev.player.action.ACTION_OPEN_FILE";
@@ -70,7 +63,7 @@ public class PlaybackService extends Service {
     private SuperPoweredSDKWrapper superPoweredSDKWrapper;
     private static PlaybackState playbackState;
 
-    public static void createPlaybackState(){
+    public static void createPlaybackState() {
         playbackState = new PlaybackState();
     }
 
@@ -144,9 +137,7 @@ public class PlaybackService extends Service {
         Log.d(TAG, "Create playback service!");
 
         superPoweredSDKWrapper = SuperPoweredSDKWrapper.getInstance();
-        superPoweredSDKWrapper.setOnSuperPoweredSDKListener(() -> {
-            sendBroadcastSongEnd();
-        });
+        superPoweredSDKWrapper.setOnSuperPoweredSDKListener(this::next);
 
         audioNotificationManager = new AudioNotificationManager(this, this);
         audioFocusManager = new AudioFocusManager();
@@ -156,6 +147,7 @@ public class PlaybackService extends Service {
                         case AudioFocusManager.AUDIO_FOCUSED:
                             Log.d(TAG, "onFocusChanged: FOCUSED");
                             play();
+                            superPoweredSDKWrapper.setVolumeAudioPlayer(playbackState.getVolume());
                             break;
                         case AudioFocusManager.AUDIO_NO_FOCUS_CAN_DUCK:
                             Log.d(TAG, "onFocusChanged: NO_FOCUS_CAN_DUCK");
@@ -172,7 +164,11 @@ public class PlaybackService extends Service {
         superPoweredSDKWrapper.registerCallback();
 
         createPlayer();
+    }
 
+    private void next() {
+        Log.w(TAG, "NEXT FROM SERVICE");
+        MediaApplication.getInstance().getAudioPlayer().next();
     }
 
     @Override
@@ -233,9 +229,9 @@ public class PlaybackService extends Service {
                 case Intent.ACTION_HEADSET_PLUG:
                     int state = intent.getIntExtra("state", -1);
                     if (state == 1) {
-                        sendBroadcastHeadsetPlugIn();
+                        play();
                     } else {
-                        sendBroadcastHeadsetPlugOut();
+                        stop();
                     }
                     break;
             }
@@ -351,22 +347,6 @@ public class PlaybackService extends Service {
         if (timer != null) {
             timer.cancel();
         }
-    }
-
-
-    private void sendBroadcastHeadsetPlugIn() {
-        LocalBroadcastManager.getInstance(getApplicationContext()).
-                sendBroadcast(new Intent(ACTION_HEADSET_PLUG_IN));
-    }
-
-    private void sendBroadcastHeadsetPlugOut() {
-        LocalBroadcastManager.getInstance(getApplicationContext()).
-                sendBroadcast(new Intent(ACTION_HEADSET_PLUG_OUT));
-    }
-
-    private void sendBroadcastSongEnd() {
-        LocalBroadcastManager.getInstance(getApplicationContext()).
-                sendBroadcast(new Intent(ACTION_TRACK_END));
     }
 
     public static PlaybackState getPlaybackState() {
