@@ -23,7 +23,13 @@ public class MediaNavigationView extends NavigationView {
         void onStateChanged(boolean enable);
     }
 
+    public interface OnEQClickListener {
+
+        void onEQClick();
+    }
+
     private OnEQStateChangedListener eqStateChangedListener;
+    private OnEQClickListener eqClickListener;
 
     private ImageView headerAnimation;
 
@@ -70,6 +76,12 @@ public class MediaNavigationView extends NavigationView {
 
             public EQViewHolder(View v) {
                 super(v);
+                v.setOnClickListener(view -> {
+                    if (eqClickListener != null) {
+                        eqClickListener.onEQClick();
+                    }
+                });
+
                 eqStateSwitch = (SwitchCompat) v.findViewById(R.id.eqSwitch);
                 eqStateSwitch.setOnCheckedChangeListener((compoundButton, isChecked) -> {
                     if (eqStateChangedListener != null) {
@@ -112,15 +124,19 @@ public class MediaNavigationView extends NavigationView {
 
     }
 
-    public void setEqStateChangedListener(OnEQStateChangedListener l) {
-        this.eqStateChangedListener = l;
-    }
-
     public void startHeaderAnimation() {
         ((AnimationDrawable) headerAnimation.getDrawable()).start();
     }
 
     public void stopHeaderAnimation() {
         ((AnimationDrawable) headerAnimation.getDrawable()).stop();
+    }
+
+    public void setEqStateChangedListener(OnEQStateChangedListener l) {
+        this.eqStateChangedListener = l;
+    }
+
+    public void setEQClickListener(OnEQClickListener l) {
+        this.eqClickListener = l;
     }
 }

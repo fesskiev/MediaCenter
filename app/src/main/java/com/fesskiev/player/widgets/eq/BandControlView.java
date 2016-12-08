@@ -118,6 +118,7 @@ public class BandControlView extends View {
 
         switch (action) {
             case MotionEvent.ACTION_DOWN:
+
                 break;
             case MotionEvent.ACTION_MOVE:
                 setEQBandValue(x, y);
@@ -132,15 +133,13 @@ public class BandControlView extends View {
     }
 
     private void setEQBandValue(float x, float y) {
-            float angle = getAngle(x, y);
+        float angle = getAngle(x, y);
 
-//            Log.d("test", "angle: " + angle);
-
-            int value = (int) (angle * (100f / 360));
-            matrix.postRotate(angle, cx, cy);
-            if (listener != null) {
-                listener.onBandLevelChanged(band, value);
-            }
+        int value = (int) (angle * (100f / 360));
+        matrix.postRotate(angle, cx, cy);
+        if (listener != null) {
+            listener.onBandLevelChanged(band, value);
+        }
     }
 
     public double angleBetween2Lines(float centerX, float centerY, float x1,

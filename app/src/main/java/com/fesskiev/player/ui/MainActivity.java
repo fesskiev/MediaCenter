@@ -14,6 +14,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -181,6 +182,13 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
     private void setEffectsNavView() {
         mediaNavigationView = (MediaNavigationView) findViewById(R.id.nav_view_effects);
+
+        mediaNavigationView.setEQClickListener(() -> {
+
+            selectedActivity = EqualizerActivity.class;
+            drawer.closeDrawer(GravityCompat.END);
+        });
+
         mediaNavigationView.setEqStateChangedListener(enable -> {
             PlaybackService.changeEQState(getApplicationContext());
             settingsManager.setEQState(enable);
@@ -291,9 +299,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 break;
             case R.id.about:
                 selectedActivity = AboutActivity.class;
-                break;
-            case R.id.equalizer:
-                selectedActivity = EqualizerActivity.class;
                 break;
             case R.id.playlist:
                 selectedActivity = PlayListActivity.class;
