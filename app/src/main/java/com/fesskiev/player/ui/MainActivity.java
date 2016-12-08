@@ -2,25 +2,18 @@ package com.fesskiev.player.ui;
 
 
 import android.app.ActivityOptions;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,6 +41,7 @@ import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.FetchMediaFilesManager;
 import com.fesskiev.player.utils.RxUtils;
 import com.fesskiev.player.utils.Utils;
+import com.fesskiev.player.widgets.nav.MediaNavigationView;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKScope;
@@ -61,8 +55,7 @@ import rx.schedulers.Schedulers;
 
 public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-
-    private NavigationView navigationViewEffects;
+    private MediaNavigationView mediaNavigationView;
     private NavigationView navigationViewMain;
     private DrawerLayout drawer;
     private Toolbar toolbar;
@@ -71,10 +64,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private Subscription subscription;
     private AppSettingsManager settingsManager;
     private FetchMediaFilesManager fetchMediaFilesManager;
-    private SwitchCompat eqSwitch;
     private ImageView userPhoto;
     private ImageView logoutButton;
-    private ImageView headerAnimation;
     private TextView firstName;
     private TextView lastName;
     private boolean finish;
@@ -103,12 +94,13 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
             @Override
             public void onDrawerOpened(View drawerView) {
-                ((AnimationDrawable) headerAnimation.getDrawable()).start();
+                mediaNavigationView.startHeaderAnimation();
             }
 
             @Override
             public void onDrawerClosed(View drawerView) {
-                ((AnimationDrawable) headerAnimation.getDrawable()).stop();
+                mediaNavigationView.stopHeaderAnimation();
+
                 if (selectedActivity != null) {
                     startActivity(new Intent(MainActivity.this, selectedActivity));
                     selectedActivity = null;
@@ -148,13 +140,11 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             }
         });
 
-        registerBroadcastReceiver();
         if (!settingsManager.isAuthTokenEmpty()) {
             setUserInfo();
         } else {
             setEmptyUserInfo();
         }
-
 
         checkAudioContentItem();
     }
@@ -190,22 +180,12 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     private void setEffectsNavView() {
-        navigationViewEffects = (NavigationView) findViewById(R.id.nav_view_effects);
-        navigationViewEffects.setNavigationItemSelectedListener(this);
-        View effectsHeaderLayout =
-                navigationViewEffects.inflateHeaderView(R.layout.nav_header_effects);
-
-        headerAnimation = (ImageView) effectsHeaderLayout.findViewById(R.id.effectHeaderAnimation);
-
-
-        eqSwitch = (SwitchCompat) navigationViewEffects.getMenu().
-                findItem(R.id.equalizer).getActionView().findViewById(R.id.eq_switch);
-        eqSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-
+        mediaNavigationView = (MediaNavigationView) findViewById(R.id.nav_view_effects);
+        mediaNavigationView.setEqStateChangedListener(enable -> {
             PlaybackService.changeEQState(getApplicationContext());
-            settingsManager.setEQState(isChecked);
+            settingsManager.setEQState(enable);
         });
-
+        mediaNavigationView.setNavigationItemSelectedListener(this);
 
     }
 
@@ -288,7 +268,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     protected void onDestroy() {
         super.onDestroy();
         fetchMediaFilesManager.unregister();
-        unregisterBroadcastReceiver();
         PlaybackService.destroyPlayer(getApplicationContext());
         FileObserverService.stopFileObserverService(getApplicationContext());
 
@@ -380,37 +359,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             }
         }
     }
-
-
-    private void registerBroadcastReceiver() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(PlaybackService.ACTION_PLAYBACK_EQ_STATE);
-        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver,
-                filter);
-    }
-
-    private void unregisterBroadcastReceiver() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
-    }
-
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(final Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case PlaybackService.ACTION_PLAYBACK_EQ_STATE:
-                    setEQState(intent);
-                    break;
-            }
-        }
-    };
-
-    private void setEQState(Intent intent) {
-        boolean eqState =
-                intent.getBooleanExtra(PlaybackService.PLAYBACK_EXTRA_EQ_STATE, false);
-        eqSwitch.setChecked(eqState);
-    }
-
 
     private void addAudioFragment() {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();

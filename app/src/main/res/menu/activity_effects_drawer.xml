@@ -9,7 +9,7 @@
                         android:id="@+id/equalizer"
                         android:icon="@drawable/icon_equalize"
                         android:title="@string/drawer_item_eq"
-                        app:actionLayout="@layout/nav_drawer_eq_switch" />
+                        app:actionLayout="@layout/nav_drawer_eq_layout" />
 
                 </group>
             </menu>

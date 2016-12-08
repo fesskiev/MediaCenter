@@ -35,15 +35,13 @@
         app:itemTextColor="@drawable/nav_item_state_list"
         app:menu="@menu/activity_main_drawer" />
 
-    <android.support.design.widget.NavigationView
+
+    <com.fesskiev.player.widgets.nav.MediaNavigationView
         android:id="@+id/nav_view_effects"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="end"
-        android:background="@android:color/white"
         android:fitsSystemWindows="true"
-        app:itemTextColor="@color/secondary_text"
-        app:menu="@menu/activity_effects_drawer" />
-
+        app:menu="@null"/>
 
 </android.support.v4.widget.DrawerLayout>
