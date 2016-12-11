@@ -3,6 +3,7 @@ package com.fesskiev.player.data.model;
 import android.content.Context;
 import android.database.Cursor;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.fesskiev.player.R;
 import com.fesskiev.player.data.source.local.db.DatabaseHelper;
@@ -85,6 +86,7 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
     }
 
     private void renameFileCorrect() {
+        //TODO fix replace symbols folder
         File newPath = new File(filePath.getParent(), Utils.replaceSymbols(filePath.getName()));
         boolean rename = filePath.renameTo(newPath);
         if (rename) {

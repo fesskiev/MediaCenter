@@ -26,7 +26,8 @@ public class Utils {
     private static final String TAG = Utils.class.getName();
 
     public static String getTimeFromMillisecondsString(long millis) {
-        return String.format("%02d:%02d",
+        return String.format(Locale.getDefault(),
+                "%02d:%02d",
                 TimeUnit.MILLISECONDS.toMinutes(millis),
                 TimeUnit.MILLISECONDS.toSeconds(millis) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))
@@ -84,7 +85,7 @@ public class Utils {
     }
 
     public static String replaceSymbols(String fileName) {
-        return fileName.replaceAll("[|\\?*<\":>+/']", "");
+        return fileName.replaceAll("[|\\?*<\":>+']", "");
     }
 
     public static float dipToPixels(Context context, float dipValue) {

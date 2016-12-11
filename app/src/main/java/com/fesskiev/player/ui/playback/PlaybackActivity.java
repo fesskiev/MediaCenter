@@ -159,10 +159,9 @@ public class PlaybackActivity extends AnalyticsActivity {
     public void onCurrentTrackListEvent(List<AudioFile> currentTrackList) {
         Log.wtf("test", "PLAYBACK onCurrentTrackListEvent");
 
-        if (currentTrackList != null) {
-            adapter.refreshAdapter(currentTrackList);
-            hideEmptyFolderCard();
-        }
+        adapter.refreshAdapter(currentTrackList);
+        hideEmptyFolderCard();
+
         adapter.notifyDataSetChanged();
     }
 

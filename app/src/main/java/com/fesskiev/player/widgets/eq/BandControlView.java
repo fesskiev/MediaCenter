@@ -15,6 +15,8 @@ import android.view.View;
 
 import com.fesskiev.player.R;
 
+import java.util.Locale;
+
 
 public class BandControlView extends View {
 
@@ -30,6 +32,8 @@ public class BandControlView extends View {
     private float cx;
     private float cy;
     private Paint markPaint;
+    private Paint textPaint;
+    private String level;
     private int band;
 
     public BandControlView(Context context) {
@@ -55,6 +59,7 @@ public class BandControlView extends View {
 
         a.recycle();
 
+        level = "";
         radius = 8;
         matrix = new Matrix();
 
@@ -62,6 +67,13 @@ public class BandControlView extends View {
         markPaint.setColor(ContextCompat.getColor(context, android.R.color.white));
         markPaint.setStyle(Paint.Style.FILL);
         markPaint.setStrokeWidth(15f);
+
+        textPaint = new Paint();
+        textPaint.setColor(ContextCompat.getColor(context, android.R.color.white));
+        textPaint.setStyle(Paint.Style.FILL);
+        textPaint.setTextSize(85f);
+        textPaint.setAntiAlias(true);
+        textPaint.setTextAlign(Paint.Align.CENTER);
 
     }
 
@@ -107,6 +119,8 @@ public class BandControlView extends View {
         }
 
         canvas.drawBitmap(bitmapControl, matrix, null);
+
+        canvas.drawText(level, cx, getWidth(), textPaint);
     }
 
 
@@ -118,7 +132,6 @@ public class BandControlView extends View {
 
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-
                 break;
             case MotionEvent.ACTION_MOVE:
                 setEQBandValue(x, y);
@@ -135,10 +148,13 @@ public class BandControlView extends View {
     private void setEQBandValue(float x, float y) {
         float angle = getAngle(x, y);
 
-        int value = (int) (angle * (100f / 360));
-        matrix.postRotate(angle, cx, cy);
+        float value = (angle * (100f / 360));
+
+        level = String.format(Locale.US, "%.2f %2$s", angle / 50, "Db");
+
+        matrix.postRotate(angle / 50, cx, cy);
         if (listener != null) {
-            listener.onBandLevelChanged(band, value);
+            listener.onBandLevelChanged(band, (int) value);
         }
     }
 

@@ -14,6 +14,7 @@ import com.fesskiev.player.data.model.AudioFile;
 import com.fesskiev.player.data.model.AudioFolder;
 import com.fesskiev.player.data.model.VideoFile;
 import com.fesskiev.player.utils.CacheManager;
+import com.fesskiev.player.utils.Utils;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -250,9 +251,10 @@ public class FileSystemIntentService extends IntentService {
                             audioFolder.folderImage = filterImages[0];
                         }
                     }
+                    File correctPath = new File(Utils.replaceSymbols(directoryFile.getName()));
 
-                    audioFolder.folderPath = directoryFile;
-                    audioFolder.folderName = directoryFile.getName();
+                    audioFolder.folderPath = correctPath;
+                    audioFolder.folderName = correctPath.getName();
                     audioFolder.id = UUID.randomUUID().toString();
 
                     sendAudioFolderNameBroadcast(audioFolder.folderName);
