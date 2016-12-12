@@ -3,18 +3,12 @@ package com.fesskiev.player.data.model;
 import android.content.Context;
 import android.database.Cursor;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.fesskiev.player.R;
 import com.fesskiev.player.data.source.local.db.DatabaseHelper;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.CacheManager;
 import com.fesskiev.player.utils.Utils;
-import com.mpatric.mp3agic.ID3v1;
-import com.mpatric.mp3agic.ID3v2;
-import com.mpatric.mp3agic.InvalidDataException;
-import com.mpatric.mp3agic.Mp3File;
-import com.mpatric.mp3agic.UnsupportedTagException;
 
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.AudioHeader;
@@ -144,53 +138,6 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
         parseMetadataTagger();
         if (listener != null) {
             listener.onFetchCompleted(this);
-        }
-    }
-
-    private void parseMetadataMP3Agic() {
-        try {
-
-            Mp3File mp3file = new Mp3File(filePath);
-
-            length = (int) mp3file.getLengthInSeconds();
-            bitrate = mp3file.getBitrate() + " kbps " + (mp3file.isVbr() ? "(VBR)" : "(CBR)");
-            sampleRate = mp3file.getSampleRate() + " Hz";
-
-            if (mp3file.hasId3v2Tag()) {
-                ID3v2 id3v2Tag = mp3file.getId3v2Tag();
-
-                String track = id3v2Tag.getTrack();
-                if (track != null && !TextUtils.isEmpty(track)) {
-                    trackNumber = Integer.valueOf(Utils.replaceSymbols(track));
-                }
-
-                artist = id3v2Tag.getArtist();
-                title = id3v2Tag.getTitle();
-                album = id3v2Tag.getAlbum();
-                genre = id3v2Tag.getGenreDescription();
-
-                byte[] albumImageData = id3v2Tag.getAlbumImage();
-                if (albumImageData != null) {
-                    saveArtwork(albumImageData);
-                }
-            } else if (mp3file.hasId3v1Tag()) {
-                ID3v1 id3v1Tag = mp3file.getId3v1Tag();
-
-                String track = id3v1Tag.getTrack();
-                if (track != null && !TextUtils.isEmpty(track)) {
-                    trackNumber = Integer.valueOf(Utils.replaceSymbols(track));
-                }
-
-                artist = id3v1Tag.getArtist();
-                title = id3v1Tag.getTitle();
-                album = id3v1Tag.getAlbum();
-                genre = id3v1Tag.getGenreDescription();
-            }
-
-        } catch (IOException | UnsupportedTagException | InvalidDataException e) {
-            e.printStackTrace();
-        } finally {
-            fillEmptyFields();
         }
     }
 
