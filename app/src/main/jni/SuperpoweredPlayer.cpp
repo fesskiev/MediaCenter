@@ -186,38 +186,39 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     return JNI_VERSION_1_6;
 }
 
+
 extern "C" JNIEXPORT void
-Java_com_fesskiev_player_SuperPoweredSDKWrapper_onDestroy(JNIEnv *env, jobject instance) {
+Java_com_fesskiev_player_services_PlaybackService_onDestroyAudioPlayer(JNIEnv *env, jobject instance) {
     player->~SuperpoweredPlayer();
     __android_log_print(ANDROID_LOG_DEBUG, "MediaCenter", "DESTROY");
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_player_SuperPoweredSDKWrapper_onBackground(JNIEnv *env, jobject instance) {
+Java_com_fesskiev_player_services_PlaybackService_onBackground(JNIEnv *env, jobject instance) {
     player->onBackground();
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_player_SuperPoweredSDKWrapper_onForeground(JNIEnv *env, jobject instance) {
+Java_com_fesskiev_player_services_PlaybackService_onForeground(JNIEnv *env, jobject instance) {
     player->onForeground();
 }
 
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_player_SuperPoweredSDKWrapper_registerCallback(JNIEnv *env, jobject instance) {
+Java_com_fesskiev_player_services_PlaybackService_registerCallback(JNIEnv *env, jobject instance) {
     gCallbackObject = env->NewGlobalRef(instance);
 }
 
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_player_SuperPoweredSDKWrapper_unregisterCallback(JNIEnv *env,
+Java_com_fesskiev_player_services_PlaybackService_unregisterCallback(JNIEnv *env,
                                                                    jobject instance) {
     env->DeleteGlobalRef(gCallbackObject);
     gCallbackObject = NULL;
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_player_SuperPoweredSDKWrapper_enableEQ(JNIEnv *env, jobject instance,
+Java_com_fesskiev_player_services_PlaybackService_enableEQ(JNIEnv *env, jobject instance,
                                                          jboolean enable) {
     player->enableEQ(enable);
 }
@@ -225,39 +226,39 @@ Java_com_fesskiev_player_SuperPoweredSDKWrapper_enableEQ(JNIEnv *env, jobject in
 
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_player_SuperPoweredSDKWrapper_setEQBands(JNIEnv *javaEnvironment, jobject obj,
+Java_com_fesskiev_player_services_PlaybackService_setEQBands(JNIEnv *javaEnvironment, jobject obj,
                                                            jint band, jint value) {
     player->setEQBands(band, value);
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_player_SuperPoweredSDKWrapper_setLoopingAudioPlayer(JNIEnv *env, jobject instance,
+Java_com_fesskiev_player_services_PlaybackService_setLoopingAudioPlayer(JNIEnv *env, jobject instance,
                                                                       jboolean isLooping) {
     player->setLooping(isLooping);
 
 }
 
 extern "C" JNIEXPORT jboolean
-Java_com_fesskiev_player_SuperPoweredSDKWrapper_isPlaying(JNIEnv *env, jobject instance) {
+Java_com_fesskiev_player_services_PlaybackService_isPlaying(JNIEnv *env, jobject instance) {
     return player->isPlaying();
 }
 
 extern "C" JNIEXPORT jint
-Java_com_fesskiev_player_SuperPoweredSDKWrapper_getPosition(JNIEnv *env, jobject instance) {
+Java_com_fesskiev_player_services_PlaybackService_getPosition(JNIEnv *env, jobject instance) {
 
     return player->getPosition();
 
 }
 
 extern "C" JNIEXPORT jint
-Java_com_fesskiev_player_SuperPoweredSDKWrapper_getDuration(JNIEnv *env, jobject instance) {
+Java_com_fesskiev_player_services_PlaybackService_getDuration(JNIEnv *env, jobject instance) {
 
     return player->getDuration();
 
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_player_SuperPoweredSDKWrapper_createAudioPlayer(JNIEnv *env, jobject instance,
+Java_com_fesskiev_player_services_PlaybackService_createAudioPlayer(JNIEnv *env, jobject instance,
                                                                   jint sampleRate,
                                                                   jint bufferSize) {
 
@@ -265,7 +266,7 @@ Java_com_fesskiev_player_SuperPoweredSDKWrapper_createAudioPlayer(JNIEnv *env, j
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_player_SuperPoweredSDKWrapper_openAudioFile(JNIEnv *env, jobject instance,
+Java_com_fesskiev_player_services_PlaybackService_openAudioFile(JNIEnv *env, jobject instance,
                                                               jstring path) {
     const char *str = env->GetStringUTFChars(path, 0);
 
@@ -276,14 +277,14 @@ Java_com_fesskiev_player_SuperPoweredSDKWrapper_openAudioFile(JNIEnv *env, jobje
 
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_player_SuperPoweredSDKWrapper_setPlayingAudioPlayer(JNIEnv *env,
+Java_com_fesskiev_player_services_PlaybackService_setPlayingAudioPlayer(JNIEnv *env,
                                                                       jobject instance,
                                                                       jboolean isPlaying) {
     player->setPlaying(isPlaying);
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_player_SuperPoweredSDKWrapper_setVolumeAudioPlayer(JNIEnv *env,
+Java_com_fesskiev_player_services_PlaybackService_setVolumeAudioPlayer(JNIEnv *env,
                                                                      jobject instance,
                                                                      jint value) {
     player->setVolume(value);
@@ -291,7 +292,7 @@ Java_com_fesskiev_player_SuperPoweredSDKWrapper_setVolumeAudioPlayer(JNIEnv *env
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_player_SuperPoweredSDKWrapper_setSeekAudioPlayer(JNIEnv *env, jobject instance,
+Java_com_fesskiev_player_services_PlaybackService_setSeekAudioPlayer(JNIEnv *env, jobject instance,
                                                                    jint value) {
     player->setSeek(value);
 }

@@ -177,4 +177,8 @@ public class BandControlView extends View {
     public void setOnBandLevelListener(OnBandLevelListener listener) {
         this.listener = listener;
     }
+
+    public void setLevel(float level) {
+        this.level = String.valueOf(level);
+    }
 }

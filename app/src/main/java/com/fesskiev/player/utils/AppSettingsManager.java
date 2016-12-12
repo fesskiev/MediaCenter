@@ -5,6 +5,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
+import com.fesskiev.player.data.model.EQState;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.util.List;
+
 
 public class AppSettingsManager {
 
@@ -17,6 +23,7 @@ public class AppSettingsManager {
     private static final String KEY_FIRST_START_APP = "com.fesskiev.player.KEY_FIRST_START_APP";
 
 
+    private static final String KEY_EQ_ENABLE = "com.fesskiev.player.KEY_EQ_ENABLE";
     private static final String KEY_EQ_STATE = "com.fesskiev.player.KEY_EQ_STATE";
 
 
@@ -108,10 +115,22 @@ public class AppSettingsManager {
         return sharedPreferences.getBoolean(KEY_EQ_STATE, false);
     }
 
-    public void setEQState(boolean state) {
+    public void setEQEnable(boolean enable) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(KEY_EQ_STATE, state);
+        editor.putBoolean(KEY_EQ_STATE, enable);
         editor.apply();
+    }
+
+    public void setEQState(EQState state){
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(KEY_EQ_STATE, new Gson().toJson(state));
+        editor.apply();
+    }
+
+    public EQState getEQState(){
+        String stateJson = sharedPreferences.getString(KEY_EQ_STATE, "");
+        return new Gson().fromJson(stateJson, new TypeToken<List<String>>() {
+        }.getType());
     }
 }
 

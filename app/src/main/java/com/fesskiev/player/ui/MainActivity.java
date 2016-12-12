@@ -190,8 +190,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         });
 
         mediaNavigationView.setEqStateChangedListener(enable -> {
-            PlaybackService.changeEQState(getApplicationContext());
-            settingsManager.setEQState(enable);
+            PlaybackService.changeEQEnable(getApplicationContext(), enable);
+            settingsManager.setEQEnable(enable);
         });
         mediaNavigationView.setNavigationItemSelectedListener(this);
 
@@ -281,7 +281,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
         RxUtils.unsubscribe(subscription);
 
-//        SuperPoweredSDKWrapper.getInstance().onDestroy();
     }
 
     private void clearItems() {

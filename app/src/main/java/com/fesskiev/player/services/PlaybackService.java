@@ -7,11 +7,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.os.IBinder;
+import android.support.annotation.Keep;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.fesskiev.player.MediaApplication;
-import com.fesskiev.player.SuperPoweredSDKWrapper;
 import com.fesskiev.player.data.model.PlaybackState;
 import com.fesskiev.player.utils.AudioFocusManager;
 import com.fesskiev.player.utils.AudioNotificationManager;
@@ -25,6 +25,7 @@ public class PlaybackService extends Service {
 
     private static final String TAG = PlaybackService.class.getSimpleName();
 
+    private static final int END_TRACK = 1;
 
     public static final String ACTION_OPEN_FILE =
             "com.fesskiev.player.action.ACTION_OPEN_FILE";
@@ -50,7 +51,7 @@ public class PlaybackService extends Service {
             = "com.fesskiev.player.extra.SEEK";
     public static final String PLAYBACK_EXTRA_VOLUME
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_VOLUME";
-    public static final String PLAYBACK_EXTRA_EQ_STATE
+    public static final String PLAYBACK_EXTRA_EQ_ENABLE
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_EQ_STATE";
     public static final String PLAYBACK_EXTRA_MUTE_SOLO_STATE
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_MUTE_SOLO_STATE";
@@ -60,7 +61,6 @@ public class PlaybackService extends Service {
     private Timer timer;
     private AudioFocusManager audioFocusManager;
     private AudioNotificationManager audioNotificationManager;
-    private SuperPoweredSDKWrapper superPoweredSDKWrapper;
     private static PlaybackState playbackState;
 
     public static void createPlaybackState() {
@@ -72,9 +72,10 @@ public class PlaybackService extends Service {
         context.startService(intent);
     }
 
-    public static void changeEQState(Context context) {
+    public static void changeEQEnable(Context context, boolean enable) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_EQ_STATE);
+        intent.putExtra(PLAYBACK_EXTRA_EQ_ENABLE, enable);
         context.startService(intent);
     }
 
@@ -136,9 +137,6 @@ public class PlaybackService extends Service {
         super.onCreate();
         Log.d(TAG, "Create playback service!");
 
-        superPoweredSDKWrapper = SuperPoweredSDKWrapper.getInstance();
-        superPoweredSDKWrapper.setOnSuperPoweredSDKListener(this::next);
-
         audioNotificationManager = new AudioNotificationManager(this, this);
         audioFocusManager = new AudioFocusManager();
         audioFocusManager.setOnAudioFocusManagerListener(
@@ -147,11 +145,11 @@ public class PlaybackService extends Service {
                         case AudioFocusManager.AUDIO_FOCUSED:
                             Log.d(TAG, "onFocusChanged: FOCUSED");
                             play();
-                            superPoweredSDKWrapper.setVolumeAudioPlayer(playbackState.getVolume());
+                            setVolumeAudioPlayer(playbackState.getVolume());
                             break;
                         case AudioFocusManager.AUDIO_NO_FOCUS_CAN_DUCK:
                             Log.d(TAG, "onFocusChanged: NO_FOCUS_CAN_DUCK");
-                            superPoweredSDKWrapper.setVolumeAudioPlayer(50);
+                            setVolumeAudioPlayer(50);
                             break;
                         case AudioFocusManager.AUDIO_NO_FOCUS_NO_DUCK:
                             Log.d(TAG, "onFocusChanged: NO_FOCUS_NO_DUCK");
@@ -161,7 +159,6 @@ public class PlaybackService extends Service {
                 });
 
         registerHeadsetReceiver();
-        superPoweredSDKWrapper.registerCallback();
 
         createPlayer();
     }
@@ -197,6 +194,8 @@ public class PlaybackService extends Service {
                         volume(volumeValue);
                         break;
                     case ACTION_PLAYBACK_EQ_STATE:
+                        boolean eqEnable = intent.getBooleanExtra(PLAYBACK_EXTRA_EQ_ENABLE, false);
+                        changEQState(eqEnable);
                         break;
                     case ACTION_PLAYBACK_REPEAT_STATE:
                         boolean repeatState =
@@ -208,6 +207,10 @@ public class PlaybackService extends Service {
         }
 
         return START_STICKY;
+    }
+
+    private void changEQState(boolean enable) {
+        enableEQ(enable);
     }
 
     private void registerHeadsetReceiver() {
@@ -253,14 +256,14 @@ public class PlaybackService extends Service {
         }
 
         Log.d(TAG, "create audio player!");
-        superPoweredSDKWrapper.createAudioPlayer(Integer.valueOf(sampleRateString), Integer.valueOf(bufferSizeString));
+        createAudioPlayer(Integer.valueOf(sampleRateString), Integer.valueOf(bufferSizeString));
 
     }
 
     private void openFile(String path) {
         Log.d(TAG, "open audio player!");
-        superPoweredSDKWrapper.setPlayingAudioPlayer(false);
-        superPoweredSDKWrapper.openAudioFile(path);
+        setPlayingAudioPlayer(false);
+       openAudioFile(path);
 
         playbackState.setPlaying(false);
         EventBus.getDefault().post(false);
@@ -269,24 +272,24 @@ public class PlaybackService extends Service {
 
     private void volume(int volumeValue) {
         playbackState.setVolume(volumeValue);
-        superPoweredSDKWrapper.setVolumeAudioPlayer(volumeValue);
+        setVolumeAudioPlayer(volumeValue);
     }
 
     private void repeat(boolean repeat) {
         playbackState.setRepeat(repeat);
-        superPoweredSDKWrapper.setLoopingAudioPlayer(repeat);
+        setLoopingAudioPlayer(repeat);
     }
 
     private void seek(int seekValue) {
 
-        superPoweredSDKWrapper.setSeekAudioPlayer(seekValue);
+        setSeekAudioPlayer(seekValue);
         audioNotificationManager.seekToPosition(seekValue * playbackState.getDurationScale());
     }
 
     private void play() {
-        if (!superPoweredSDKWrapper.isPlaying()) {
+        if (!isPlaying()) {
             Log.d(TAG, "start playback");
-            superPoweredSDKWrapper.setPlayingAudioPlayer(true);
+            setPlayingAudioPlayer(true);
             startUpdateTimer();
 
             playbackState.setPlaying(true);
@@ -298,9 +301,9 @@ public class PlaybackService extends Service {
 
 
     private void stop() {
-        if (superPoweredSDKWrapper.isPlaying()) {
+        if (isPlaying()) {
             Log.d(TAG, "stop playback");
-            superPoweredSDKWrapper.setPlayingAudioPlayer(false);
+            setPlayingAudioPlayer(false);
             stopUpdateTimer();
 
             playbackState.setPlaying(false);
@@ -312,10 +315,10 @@ public class PlaybackService extends Service {
 
     private void createValuesScale() {
 
-        int duration = superPoweredSDKWrapper.getDuration();
+        int duration = getDuration();
         playbackState.setDuration(duration);
 
-        int progress = superPoweredSDKWrapper.getPosition();
+        int progress = getPosition();
         playbackState.setProgress(progress);
 
         audioNotificationManager.setProgress(progress);
@@ -360,7 +363,6 @@ public class PlaybackService extends Service {
         stop();
         audioNotificationManager.stopNotification();
         unregisterHeadsetReceiver();
-        superPoweredSDKWrapper.unregisterCallback();
     }
 
     @Nullable
@@ -368,4 +370,52 @@ public class PlaybackService extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
+
+    static {
+        System.loadLibrary("SuperpoweredPlayer");
+    }
+
+    public native void onDestroyAudioPlayer();
+
+    public native void onBackground();
+
+    public native void onForeground();
+
+    public native void registerCallback();
+
+    public native void unregisterCallback();
+
+    public native void createAudioPlayer(int sampleRate, int bufferSize);
+
+    public native void openAudioFile(String path);
+
+    public native void setPlayingAudioPlayer(boolean isPlaying);
+
+    public native void setVolumeAudioPlayer(int value);
+
+    public native void setSeekAudioPlayer(int value);
+
+    public native int getDuration();
+
+    public native int getPosition();
+
+    public native boolean isPlaying();
+
+    public native void setLoopingAudioPlayer(boolean isLooping);
+
+    /***
+     * EQ methods
+     */
+
+    public native void enableEQ(boolean enable);
+
+    public native void setEQBands(int band, int value);
+
+    @Keep
+    public void playStatusCallback(int status) {
+        if (status == END_TRACK) {
+            next();
+        }
+    }
+
 }

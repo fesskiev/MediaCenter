@@ -10,14 +10,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.fesskiev.player.R;
-import com.fesskiev.player.SuperPoweredSDKWrapper;
+import com.fesskiev.player.data.model.EQState;
+import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.widgets.eq.BandControlView;
 
 
 public class EqualizerFragment extends Fragment implements BandControlView.OnBandLevelListener {
 
-    private SuperPoweredSDKWrapper superPoweredSDKWrapper;
     private AppSettingsManager settingsManager;
 
     public static EqualizerFragment newInstance() {
@@ -27,7 +27,6 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        superPoweredSDKWrapper = SuperPoweredSDKWrapper.getInstance();
         settingsManager = AppSettingsManager.getInstance(getContext().getApplicationContext());
 
     }
@@ -43,7 +42,7 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
         super.onViewCreated(view, savedInstanceState);
 
         SwitchCompat EQState = (SwitchCompat) view.findViewById(R.id.stateEqualizer);
-        EQState.setOnCheckedChangeListener((compoundButton, checked) -> superPoweredSDKWrapper.enableEQ(checked));
+        EQState.setOnCheckedChangeListener((compoundButton, checked) -> PlaybackService.changeEQEnable(getContext(), checked));
 
         BandControlView[] bandControlViews = new BandControlView[]{
                 (BandControlView) view.findViewById(R.id.bandControl1),
@@ -56,9 +55,28 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
         }
 
         if (settingsManager.isEQOn()) {
-            superPoweredSDKWrapper.enableEQ(true);
+            PlaybackService.changeEQEnable(getContext(), true);
         } else {
-            superPoweredSDKWrapper.enableEQ(false);
+            PlaybackService.changeEQEnable(getContext(), false);
+        }
+
+        setEQState(bandControlViews);
+    }
+
+    private void setEQState(BandControlView[] bandControlViews) {
+        EQState state = settingsManager.getEQState();
+        for (int i = 0; i < bandControlViews.length; i++) {
+            switch (i) {
+                case 0:
+                    bandControlViews[i].setLevel(state.getFirstBand());
+                    break;
+                case 1:
+                    bandControlViews[i].setLevel(state.getSecondBand());
+                    break;
+                case 2:
+                    bandControlViews[i].setLevel(state.getThirdBand());
+                    break;
+            }
         }
     }
 
@@ -66,6 +84,6 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
     public void onBandLevelChanged(int band, int level) {
         Log.d("test", " band, " + band + " level: " + level);
 
-        superPoweredSDKWrapper.setEQBands(band, level);
+//        superPoweredSDKWrapper.setEQBands(band, level);
     }
 }
