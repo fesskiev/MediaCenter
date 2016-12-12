@@ -1,5 +1,5 @@
 #include "SuperpoweredPlayer.h"
-#include "Superpowered/SuperpoweredSimple.h"
+#include "SuperpoweredSimple.h"
 #include <jni.h>
 #include <stdio.h>
 #include <android/log.h>
@@ -188,25 +188,18 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 
 extern "C" JNIEXPORT void
 Java_com_fesskiev_player_SuperPoweredSDKWrapper_onDestroy(JNIEnv *env, jobject instance) {
-    if (player != nullptr) {
-        player->~SuperpoweredPlayer();
-        __android_log_print(ANDROID_LOG_DEBUG, "MediaCenter", "DESTROY");
-    }
+    player->~SuperpoweredPlayer();
+    __android_log_print(ANDROID_LOG_DEBUG, "MediaCenter", "DESTROY");
 }
 
 extern "C" JNIEXPORT void
 Java_com_fesskiev_player_SuperPoweredSDKWrapper_onBackground(JNIEnv *env, jobject instance) {
-    if (player != nullptr) {
-        player->onBackground();
-    }
+    player->onBackground();
 }
 
 extern "C" JNIEXPORT void
 Java_com_fesskiev_player_SuperPoweredSDKWrapper_onForeground(JNIEnv *env, jobject instance) {
-    if (player != nullptr) {
-        player->onForeground();
-    }
-
+    player->onForeground();
 }
 
 
@@ -276,9 +269,7 @@ Java_com_fesskiev_player_SuperPoweredSDKWrapper_openAudioFile(JNIEnv *env, jobje
                                                               jstring path) {
     const char *str = env->GetStringUTFChars(path, 0);
 
-    if (player != nullptr) {
-        player->open(str);
-    }
+    player->open(str);
 
     env->ReleaseStringUTFChars(path, str);
 }

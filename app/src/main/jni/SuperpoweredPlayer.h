@@ -7,11 +7,11 @@
 #include <SuperpoweredMixer.h>
 
 #include "SuperpoweredPlayer.h"
-#include "Superpowered/SuperpoweredAdvancedAudioPlayer.h"
-#include "Superpowered/SuperpoweredFilter.h"
-#include "Superpowered/SuperpoweredRoll.h"
-#include "Superpowered/AndroidIO/SuperpoweredAndroidAudioIO.h"
-#include "Superpowered/SuperpoweredFlanger.h"
+#include "SuperpoweredAdvancedAudioPlayer.h"
+#include "SuperpoweredFilter.h"
+#include "SuperpoweredRoll.h"
+#include "AndroidIO/SuperpoweredAndroidAudioIO.h"
+#include "SuperpoweredFlanger.h"
 
 
 class SuperpoweredPlayer {
