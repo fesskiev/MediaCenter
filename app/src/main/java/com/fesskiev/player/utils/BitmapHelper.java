@@ -196,9 +196,11 @@ public class BitmapHelper {
     }
 
     private String findMediaFileArtworkPath(MediaFile mediaFile) {
-        String artworkPath = mediaFile.getArtworkPath();
-        if (artworkPath != null) {
-            return artworkPath;
+        if(mediaFile != null) {
+            String artworkPath = mediaFile.getArtworkPath();
+            if (artworkPath != null) {
+                return artworkPath;
+            }
         }
         return null;
     }

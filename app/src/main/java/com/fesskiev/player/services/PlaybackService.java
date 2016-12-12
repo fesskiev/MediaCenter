@@ -159,6 +159,7 @@ public class PlaybackService extends Service {
                 });
 
         registerHeadsetReceiver();
+        registerCallback();
 
         createPlayer();
     }
@@ -363,6 +364,8 @@ public class PlaybackService extends Service {
         stop();
         audioNotificationManager.stopNotification();
         unregisterHeadsetReceiver();
+        unregisterCallback();
+//        onDestroyAudioPlayer();
     }
 
     @Nullable
