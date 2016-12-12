@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
-
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,13 +17,11 @@ import com.fesskiev.player.services.FileSystemIntentService;
 import com.fesskiev.player.ui.ViewPagerFragment;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.CacheManager;
-import com.fesskiev.player.utils.FetchMediaFilesManager;
 import com.fesskiev.player.utils.RxUtils;
 
 import java.util.List;
 
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 
@@ -61,10 +58,9 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
         });
 
 
-
     }
 
-   public void refreshAudioContent() {
+    public void refreshAudioContent() {
         swipeRefreshLayout.setRefreshing(false);
 
         repository.getMemorySource().setCacheArtistsDirty(true);
@@ -90,18 +86,15 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
         builder.setTitle(getString(R.string.dialog_refresh_folders_title));
         builder.setMessage(R.string.dialog_refresh_folders_message);
         builder.setPositiveButton(R.string.dialog_refresh_folders_ok,
-                (dialog, which) -> subscription = RxUtils
-                        .fromCallable(MediaApplication.getInstance().getRepository().resetAudioContentDatabase())
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(aVoid -> {
-
+                (dialog, which) ->
+                        subscription = RxUtils.fromCallable(repository.resetAudioContentDatabase())
+                        .doOnNext(integer -> {
                             CacheManager.clearImagesCache();
                             BitmapHelper.getInstance().saveDownloadFolderIcon();
                             FileSystemIntentService.startFetchAudio(getActivity());
-
-                        }));
-
+                        })
+                        .subscribeOn(Schedulers.io())
+                        .subscribe());
 
         builder.setNegativeButton(R.string.dialog_refresh_folders_cancel,
                 (dialog, which) -> {

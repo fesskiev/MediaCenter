@@ -154,10 +154,8 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         builder.setPositiveButton(R.string.dialog_refresh_video_ok,
                 (dialog, which) -> {
                     RxUtils.unsubscribe(subscription);
-                    subscription = RxUtils
-                            .fromCallable(MediaApplication.getInstance().getRepository().resetVideoContentDatabase())
+                    subscription = RxUtils.fromCallable(repository.resetVideoContentDatabase())
                             .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(aVoid -> FileSystemIntentService.startFetchVideo(getActivity()));
                 });
 
