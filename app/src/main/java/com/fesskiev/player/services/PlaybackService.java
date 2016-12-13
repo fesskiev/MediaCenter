@@ -14,6 +14,7 @@ import android.util.Log;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.utils.AudioFocusManager;
 import com.fesskiev.player.utils.AudioNotificationManager;
+import com.fesskiev.player.utils.CountDownTimer;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -57,15 +58,15 @@ public class PlaybackService extends Service {
     public static final String PLAYBACK_EXTRA_REPEAT_STATE
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_REPEAT_STATE";
 
-    private Timer timer;
+    //    private Timer timer;
     private AudioFocusManager audioFocusManager;
     private AudioNotificationManager audioNotificationManager;
+    private CountDownTimer timer;
     private int duration;
     private int position;
     private float positionPercent;
     private boolean playing;
     private int volume;
-    private int positionScale;
     private int durationScale;
     private boolean mute;
     private boolean repeat;
@@ -142,6 +143,20 @@ public class PlaybackService extends Service {
 
         volume = 100;
 
+        timer = new CountDownTimer(100);
+        timer.setOnCountDownListener(() -> {
+            updatePlaybackState();
+
+            audioNotificationManager.setProgress(position);
+            if (duration > 0) {
+                durationScale = duration / 100;
+                positionPercent = positionPercent * 100;
+            }
+
+            Log.d("event", "ev: " + PlaybackService.this.toString());
+            EventBus.getDefault().post(PlaybackService.this);
+        });
+
         audioNotificationManager = new AudioNotificationManager(this, this);
         audioFocusManager = new AudioFocusManager();
         audioFocusManager.setOnAudioFocusManagerListener(
@@ -167,7 +182,7 @@ public class PlaybackService extends Service {
         registerCallback();
 
         createPlayer();
-        startUpdateTimer();
+//        startUpdateTimer();
     }
 
     private void next() {
@@ -295,6 +310,7 @@ public class PlaybackService extends Service {
             Log.d(TAG, "start playback");
             togglePlayback();
             audioFocusManager.tryToGetAudioFocus();
+            timer.tick();
         }
     }
 
@@ -304,34 +320,11 @@ public class PlaybackService extends Service {
             Log.d(TAG, "stop playback");
             togglePlayback();
             audioFocusManager.giveUpAudioFocus();
+            timer.pause();
         }
     }
 
-    private void startUpdateTimer() {
-        stopUpdateTimer();
-        timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                updatePlaybackState();
 
-                audioNotificationManager.setProgress(position);
-                if (duration > 0) {
-                    durationScale = duration / 100;
-                    positionScale = position / durationScale;
-                }
-
-                Log.d("event", "ev: " + PlaybackService.this.toString());
-                EventBus.getDefault().post(PlaybackService.this);
-            }
-        }, 0, 200);
-    }
-
-    private void stopUpdateTimer() {
-        if (timer != null) {
-            timer.cancel();
-        }
-    }
 
     @Override
     public void onDestroy() {
@@ -341,13 +334,11 @@ public class PlaybackService extends Service {
         if (playing) {
             stop();
         }
-        stopUpdateTimer();
+        timer.stop();
 
         audioNotificationManager.stopNotification();
         unregisterHeadsetReceiver();
         unregisterCallback();
-
-//        onDestroyAudioPlayer();
     }
 
     @Nullable
@@ -416,14 +407,6 @@ public class PlaybackService extends Service {
         return playing;
     }
 
-    public int getPositionScale() {
-        return positionScale;
-    }
-
-    public int getDurationScale() {
-        return durationScale;
-    }
-
     public int getVolume() {
         return volume;
     }
@@ -444,8 +427,6 @@ public class PlaybackService extends Service {
                 ", playing=" + playing +
                 ", positionPercent=" + positionPercent +
                 ", volume=" + volume +
-                ", positionScale=" + positionScale +
-                ", durationScale=" + durationScale +
                 ", mute=" + mute +
                 ", repeat=" + repeat +
                 '}';

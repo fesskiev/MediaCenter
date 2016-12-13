@@ -196,7 +196,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
         if (lastPositionSeconds != positionSeconds) {
             lastPositionSeconds = positionSeconds;
-            controlView.setSeekValue(playbackState.getPositionScale());
+            controlView.setSeekValue((int) playbackState.getPositionPercent());
             trackTimeCount.setText(Utils.getPositionSecondsString(lastPositionSeconds));
         }
 
