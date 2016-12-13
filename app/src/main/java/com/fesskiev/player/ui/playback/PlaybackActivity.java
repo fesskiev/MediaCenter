@@ -17,7 +17,6 @@ import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.analytics.AnalyticsActivity;
 import com.fesskiev.player.data.model.AudioFile;
-import com.fesskiev.player.data.model.PlaybackState;
 import com.fesskiev.player.players.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
@@ -38,8 +37,6 @@ import rx.schedulers.Schedulers;
 
 public class PlaybackActivity extends AnalyticsActivity {
 
-
-    private PlaybackState playbackState;
     private AudioPlayer audioPlayer;
     private AudioFile currentTrack;
 
@@ -56,6 +53,9 @@ public class PlaybackActivity extends AnalyticsActivity {
     private int height;
     private boolean isShow = true;
 
+    private boolean lastPlaying;
+    private int lastPositionSeconds = -1;
+
     @Override
     public void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -64,7 +64,6 @@ public class PlaybackActivity extends AnalyticsActivity {
 
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
         audioPlayer.getCurrentTrackAndTrackList();
-        playbackState = PlaybackService.getPlaybackState();
 
         track = (TextView) findViewById(R.id.track);
         artist = (TextView) findViewById(R.id.artist);
@@ -81,7 +80,7 @@ public class PlaybackActivity extends AnalyticsActivity {
 
         playPauseButton = (PlayPauseFloatingButton) findViewById(R.id.playPauseFAB);
         playPauseButton.setOnClickListener(v -> {
-            if (playbackState.isPlaying()) {
+            if (lastPlaying) {
                 audioPlayer.pause();
             } else {
                 audioPlayer.play();
@@ -136,10 +135,20 @@ public class PlaybackActivity extends AnalyticsActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onPlaybackStateEvent(PlaybackState playbackState) {
-        durationText.setText(String.valueOf(Utils.getTimeFromMillisecondsString(playbackState.getProgress())));
+    public void onPlaybackStateEvent(PlaybackService playbackState) {
+        boolean playing = playbackState.isPlaying();
+        if (lastPlaying != playing) {
+            lastPlaying = playing;
+            playPauseButton.setPlay(playing);
+            adapter.notifyDataSetChanged();
+        }
 
-        adapter.notifyDataSetChanged();
+        int positionSeconds = playbackState.getPosition();
+
+        if (lastPositionSeconds != positionSeconds) {
+            lastPositionSeconds = positionSeconds;
+            durationText.setText(Utils.getPositionSecondsString(lastPositionSeconds));
+        }
     }
 
 
@@ -164,15 +173,6 @@ public class PlaybackActivity extends AnalyticsActivity {
 
         adapter.notifyDataSetChanged();
     }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onPlayingEvent(Boolean playing) {
-        Log.d("test", "PLAYBACK onPlayingEvent: " + playing);
-
-        playPauseButton.setPlay(playing);
-        adapter.notifyDataSetChanged();
-    }
-
 
     private void setMusicFileInfo(AudioFile audioFile) {
         track.setText(audioFile.title);
@@ -249,14 +249,14 @@ public class PlaybackActivity extends AnalyticsActivity {
                 holder.duration.setText(Utils.getDurationString(audioFile.length));
 
                 if (currentTrack != null) {
-                    if (currentTrack.equals(audioFile) && playbackState.isPlaying()) {
+                    if (currentTrack.equals(audioFile) && lastPlaying) {
                         holder.playEq.setVisibility(View.VISIBLE);
 
                         AnimationDrawable animation = (AnimationDrawable) ContextCompat.
                                 getDrawable(getApplicationContext(), R.drawable.ic_equalizer);
                         holder.playEq.setImageDrawable(animation);
                         if (animation != null) {
-                            if (playbackState.isPlaying()) {
+                            if (lastPlaying) {
                                 animation.start();
                             } else {
                                 animation.stop();

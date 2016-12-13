@@ -17,9 +17,8 @@ import android.widget.TextView;
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.R;
 import com.fesskiev.player.data.model.AudioFile;
-import com.fesskiev.player.data.model.PlaybackState;
-import com.fesskiev.player.players.AudioPlayer;
 import com.fesskiev.player.data.source.DataRepository;
+import com.fesskiev.player.players.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.player.ui.audio.utils.CONTENT_TYPE;
@@ -64,6 +63,8 @@ public class TrackListFragment extends Fragment {
     private List<SlidingCardView> openCards;
     private CONTENT_TYPE contentType;
     private String contentValue;
+
+    private boolean lastPlaying;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -139,8 +140,13 @@ public class TrackListFragment extends Fragment {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onPlayingEvent(Boolean playing) {
-        notifyTrackStateChanged();
+    public void onPlaybackStateEvent(PlaybackService playbackState) {
+        boolean playing = playbackState.isPlaying();
+        if (lastPlaying != playing) {
+            lastPlaying = playing;
+            notifyTrackStateChanged();
+        }
+
     }
 
     private void fetchContentByType() {
@@ -351,15 +357,14 @@ public class TrackListFragment extends Fragment {
                         .first()
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(selectedTrack -> {
-                            PlaybackState playbackState = PlaybackService.getPlaybackState();
-                            if (selectedTrack != null && selectedTrack.equals(audioFile) && playbackState.isPlaying()) {
+                            if (selectedTrack != null && selectedTrack.equals(audioFile) && lastPlaying) {
                                 holder.playEq.setVisibility(View.VISIBLE);
 
                                 AnimationDrawable animation = (AnimationDrawable) ContextCompat.
                                         getDrawable(getContext().getApplicationContext(), R.drawable.ic_equalizer);
                                 holder.playEq.setImageDrawable(animation);
                                 if (animation != null) {
-                                    if (playbackState.isPlaying()) {
+                                    if (lastPlaying) {
                                         animation.start();
                                     } else {
                                         animation.stop();

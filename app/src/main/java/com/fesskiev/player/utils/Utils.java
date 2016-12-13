@@ -43,6 +43,10 @@ public class Utils {
         return getTimeFromMillisecondsString(seconds * 1000);
     }
 
+    public static String getPositionSecondsString(int positionSeconds){
+        return String.format(Locale.US, "%02d:%02d", positionSeconds / 60, positionSeconds % 60);
+    }
+
     public static void getCertificateFingerprint(Context context) {
         String[] fingerprints =
                 VKUtil.getCertificateFingerprint(context, context.getPackageName());

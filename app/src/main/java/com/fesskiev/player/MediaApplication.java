@@ -3,15 +3,12 @@ package com.fesskiev.player;
 import android.app.Application;
 import android.content.ComponentCallbacks2;
 
-import com.fesskiev.player.data.model.PlaybackState;
 import com.fesskiev.player.data.source.DataRepository;
 import com.fesskiev.player.data.source.local.db.LocalDataSource;
+import com.fesskiev.player.data.source.memory.MemoryDataSource;
 import com.fesskiev.player.players.AudioPlayer;
 import com.fesskiev.player.players.VideoPlayer;
-import com.fesskiev.player.data.source.memory.MemoryDataSource;
-import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.utils.AppLog;
-import com.flurry.android.FlurryAgent;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKAccessTokenTracker;
 import com.vk.sdk.VKSdk;
@@ -41,8 +38,6 @@ public class MediaApplication extends Application {
         super.onCreate();
         INSTANCE = this;
 
-        PlaybackService.createPlaybackState();
-
         repository = DataRepository.getInstance(LocalDataSource.getInstance(), MemoryDataSource.getInstance());
 
         audioPlayer = new AudioPlayer(repository);
@@ -52,17 +47,10 @@ public class MediaApplication extends Application {
         vkAccessTokenTracker.startTracking();
         VKSdk.initialize(this);
 
-        createFlurryAgent();
     }
 
     public static synchronized MediaApplication getInstance() {
         return INSTANCE;
-    }
-
-    private void createFlurryAgent() {
-        new FlurryAgent.Builder()
-                .withLogEnabled(false)
-                .build(this, getString(R.string.flurry_key));
     }
 
     @Override

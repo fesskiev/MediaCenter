@@ -23,11 +23,12 @@ public:
     ~SuperpoweredPlayer();
 
     bool process(short int *output, unsigned int numberOfSamples);
-    void setPlaying(bool isPlaying);
+    void togglePlayback();
     void setVolume(float value);
     void setSeek(int value);
-    int getDuration();
-    int getPosition();
+    unsigned int getDuration();
+    unsigned int getPosition();
+    float getPositionPercent();
     bool isPlaying();
     void setLooping(bool looping);
     void open(const char *path);

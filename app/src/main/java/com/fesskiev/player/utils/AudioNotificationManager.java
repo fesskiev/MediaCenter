@@ -44,6 +44,8 @@ public class AudioNotificationManager extends BroadcastReceiver {
     private AudioFile currentAudioFile;
     private int progress;
 
+    private boolean lastPlaying;
+
     public AudioNotificationManager(Context context, PlaybackService playbackService) {
         this.context = context.getApplicationContext();
         this.playbackService = playbackService;
@@ -56,16 +58,19 @@ public class AudioNotificationManager extends BroadcastReceiver {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onPlayingEvent(Boolean playing) {
-        Log.w("test", "NOTIFICATION onPlayingEvent: " + playing);
-        setPlayPauseState(playing);
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onCurrentTrackEvent(AudioFile currentTrack) {
         Log.w("test", "NOTIFICATION onCurrentTrackEvent: " + currentTrack.toString());
         this.currentAudioFile = currentTrack;
-        setPlayPauseState(PlaybackService.getPlaybackState().isPlaying());
+        setPlayPauseState(lastPlaying);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onPlaybackStateEvent(PlaybackService playbackState) {
+        boolean playing = playbackState.isPlaying();
+        if (lastPlaying != playing) {
+            lastPlaying = playing;
+            setPlayPauseState(lastPlaying);
+        }
     }
 
     private void registerBroadcastReceiver() {
@@ -226,9 +231,9 @@ public class AudioNotificationManager extends BroadcastReceiver {
         audioPlayer.previous();
     }
 
-    public void seekToPosition(int progress) {
+    public void seekToPosition(int progress, boolean playing) {
         this.progress = progress;
-        setPlayPauseState(PlaybackService.getPlaybackState().isPlaying());
+        setPlayPauseState(playing);
     }
 
 

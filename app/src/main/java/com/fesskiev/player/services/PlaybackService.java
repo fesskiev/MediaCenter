@@ -12,7 +12,6 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.fesskiev.player.MediaApplication;
-import com.fesskiev.player.data.model.PlaybackState;
 import com.fesskiev.player.utils.AudioFocusManager;
 import com.fesskiev.player.utils.AudioNotificationManager;
 
@@ -61,11 +60,16 @@ public class PlaybackService extends Service {
     private Timer timer;
     private AudioFocusManager audioFocusManager;
     private AudioNotificationManager audioNotificationManager;
-    private static PlaybackState playbackState;
+    private int duration;
+    private int position;
+    private float positionPercent;
+    private boolean playing;
+    private int volume;
+    private int positionScale;
+    private int durationScale;
+    private boolean mute;
+    private boolean repeat;
 
-    public static void createPlaybackState() {
-        playbackState = new PlaybackState();
-    }
 
     public static void startPlaybackService(Context context) {
         Intent intent = new Intent(context, PlaybackService.class);
@@ -131,11 +135,12 @@ public class PlaybackService extends Service {
         context.stopService(new Intent(context, PlaybackService.class));
     }
 
-
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "Create playback service!");
+
+        volume = 100;
 
         audioNotificationManager = new AudioNotificationManager(this, this);
         audioFocusManager = new AudioFocusManager();
@@ -145,7 +150,7 @@ public class PlaybackService extends Service {
                         case AudioFocusManager.AUDIO_FOCUSED:
                             Log.d(TAG, "onFocusChanged: FOCUSED");
                             play();
-                            setVolumeAudioPlayer(playbackState.getVolume());
+                            setVolumeAudioPlayer(volume);
                             break;
                         case AudioFocusManager.AUDIO_NO_FOCUS_CAN_DUCK:
                             Log.d(TAG, "onFocusChanged: NO_FOCUS_CAN_DUCK");
@@ -162,6 +167,7 @@ public class PlaybackService extends Service {
         registerCallback();
 
         createPlayer();
+        startUpdateTimer();
     }
 
     private void next() {
@@ -262,79 +268,44 @@ public class PlaybackService extends Service {
     }
 
     private void openFile(String path) {
-        Log.d(TAG, "open audio player!");
-        setPlayingAudioPlayer(false);
-       openAudioFile(path);
-
-        playbackState.setPlaying(false);
-        EventBus.getDefault().post(false);
+        Log.d(TAG, "open audio file!");
+        openAudioFile(path);
     }
 
 
     private void volume(int volumeValue) {
-        playbackState.setVolume(volumeValue);
+        this.volume = volumeValue;
         setVolumeAudioPlayer(volumeValue);
     }
 
     private void repeat(boolean repeat) {
-        playbackState.setRepeat(repeat);
+        this.repeat = repeat;
+
         setLoopingAudioPlayer(repeat);
     }
 
     private void seek(int seekValue) {
 
         setSeekAudioPlayer(seekValue);
-        audioNotificationManager.seekToPosition(seekValue * playbackState.getDurationScale());
+        audioNotificationManager.seekToPosition(seekValue * durationScale, playing);
     }
 
     private void play() {
-        if (!isPlaying()) {
+        if (!playing) {
             Log.d(TAG, "start playback");
-            setPlayingAudioPlayer(true);
-            startUpdateTimer();
-
-            playbackState.setPlaying(true);
-            EventBus.getDefault().post(true);
-
+            togglePlayback();
             audioFocusManager.tryToGetAudioFocus();
         }
     }
 
 
     private void stop() {
-        if (isPlaying()) {
+        if (playing) {
             Log.d(TAG, "stop playback");
-            setPlayingAudioPlayer(false);
-            stopUpdateTimer();
-
-            playbackState.setPlaying(false);
-            EventBus.getDefault().post(false);
-
+            togglePlayback();
             audioFocusManager.giveUpAudioFocus();
         }
     }
-
-    private void createValuesScale() {
-
-        int duration = getDuration();
-        playbackState.setDuration(duration);
-
-        int progress = getPosition();
-        playbackState.setProgress(progress);
-
-        audioNotificationManager.setProgress(progress);
-        if (duration > 0) {
-            int durationScale = duration / 100;
-            playbackState.setDurationScale(durationScale);
-
-            int progressScale = progress / durationScale;
-            playbackState.setProgressScale(progressScale);
-
-            EventBus.getDefault().post(playbackState);
-
-        }
-    }
-
 
     private void startUpdateTimer() {
         stopUpdateTimer();
@@ -342,9 +313,18 @@ public class PlaybackService extends Service {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                createValuesScale();
+                updatePlaybackState();
+
+                audioNotificationManager.setProgress(position);
+                if (duration > 0) {
+                    durationScale = duration / 100;
+                    positionScale = position / durationScale;
+                }
+
+                Log.d("event", "ev: " + PlaybackService.this.toString());
+                EventBus.getDefault().post(PlaybackService.this);
             }
-        }, 1000, 1000);
+        }, 0, 200);
     }
 
     private void stopUpdateTimer() {
@@ -353,18 +333,20 @@ public class PlaybackService extends Service {
         }
     }
 
-    public static PlaybackState getPlaybackState() {
-        return playbackState;
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "Destroy playback service");
-        stop();
+
+        if (playing) {
+            stop();
+        }
+        stopUpdateTimer();
+
         audioNotificationManager.stopNotification();
         unregisterHeadsetReceiver();
         unregisterCallback();
+
 //        onDestroyAudioPlayer();
     }
 
@@ -377,6 +359,8 @@ public class PlaybackService extends Service {
     static {
         System.loadLibrary("SuperpoweredPlayer");
     }
+
+    public native void updatePlaybackState();
 
     public native void onDestroyAudioPlayer();
 
@@ -392,17 +376,11 @@ public class PlaybackService extends Service {
 
     public native void openAudioFile(String path);
 
-    public native void setPlayingAudioPlayer(boolean isPlaying);
+    public native void togglePlayback();
 
     public native void setVolumeAudioPlayer(int value);
 
     public native void setSeekAudioPlayer(int value);
-
-    public native int getDuration();
-
-    public native int getPosition();
-
-    public native boolean isPlaying();
 
     public native void setLoopingAudioPlayer(boolean isLooping);
 
@@ -421,4 +399,55 @@ public class PlaybackService extends Service {
         }
     }
 
+
+    public float getPositionPercent() {
+        return positionPercent;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public boolean isPlaying() {
+        return playing;
+    }
+
+    public int getPositionScale() {
+        return positionScale;
+    }
+
+    public int getDurationScale() {
+        return durationScale;
+    }
+
+    public int getVolume() {
+        return volume;
+    }
+
+    public boolean isRepeat() {
+        return repeat;
+    }
+
+    public boolean isMute() {
+        return mute;
+    }
+
+    @Override
+    public String toString() {
+        return "PlaybackService{" +
+                "duration=" + duration +
+                ", position=" + position +
+                ", playing=" + playing +
+                ", positionPercent=" + positionPercent +
+                ", volume=" + volume +
+                ", positionScale=" + positionScale +
+                ", durationScale=" + durationScale +
+                ", mute=" + mute +
+                ", repeat=" + repeat +
+                '}';
+    }
 }
