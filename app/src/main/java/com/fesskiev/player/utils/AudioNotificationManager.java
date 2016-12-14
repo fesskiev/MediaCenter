@@ -42,7 +42,7 @@ public class AudioNotificationManager extends BroadcastReceiver {
     private AudioPlayer audioPlayer;
     private PlaybackService playbackService;
     private AudioFile currentAudioFile;
-    private int progress;
+    private int position;
 
     private boolean lastPlaying;
 
@@ -148,7 +148,7 @@ public class AudioNotificationManager extends BroadcastReceiver {
 
         if (isPlaying) {
             notificationBuilder
-                    .setWhen(System.currentTimeMillis() - progress)
+                    .setWhen(System.currentTimeMillis() - position)
                     .setShowWhen(true)
                     .setUsesChronometer(true);
         } else {
@@ -231,13 +231,12 @@ public class AudioNotificationManager extends BroadcastReceiver {
         audioPlayer.previous();
     }
 
-    public void seekToPosition(int progress, boolean playing) {
-        this.progress = progress;
+    public void seekToPosition(int position, boolean playing) {
+        this.position= position * 1000;
         setPlayPauseState(playing);
     }
 
-
-    public void setProgress(int progress) {
-        this.progress = progress;
+    public void setPosition(int position) {
+        this.position = position * 1000;
     }
 }

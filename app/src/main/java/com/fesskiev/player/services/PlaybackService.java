@@ -143,11 +143,12 @@ public class PlaybackService extends Service {
 
         volume = 100;
 
-        timer = new CountDownTimer(100);
+        timer = new CountDownTimer(500);
+        timer.pause();
         timer.setOnCountDownListener(() -> {
             updatePlaybackState();
 
-            audioNotificationManager.setProgress(position);
+            audioNotificationManager.setPosition(position);
             if (duration > 0) {
                 durationScale = duration / 100;
                 positionPercent = positionPercent * 100;
@@ -156,6 +157,7 @@ public class PlaybackService extends Service {
             Log.d("event", "ev: " + PlaybackService.this.toString());
             EventBus.getDefault().post(PlaybackService.this);
         });
+
 
         audioNotificationManager = new AudioNotificationManager(this, this);
         audioFocusManager = new AudioFocusManager();
@@ -182,7 +184,6 @@ public class PlaybackService extends Service {
         registerCallback();
 
         createPlayer();
-//        startUpdateTimer();
     }
 
     private void next() {
@@ -306,24 +307,20 @@ public class PlaybackService extends Service {
     }
 
     private void play() {
-        if (!playing) {
-            Log.d(TAG, "start playback");
-            togglePlayback();
-            audioFocusManager.tryToGetAudioFocus();
-            timer.tick();
-        }
+        Log.d(TAG, "start playback");
+        togglePlayback();
+        audioFocusManager.tryToGetAudioFocus();
+        timer.tick();
+
     }
 
 
     private void stop() {
-        if (playing) {
-            Log.d(TAG, "stop playback");
-            togglePlayback();
-            audioFocusManager.giveUpAudioFocus();
-            timer.pause();
-        }
+        Log.d(TAG, "stop playback");
+        togglePlayback();
+        audioFocusManager.giveUpAudioFocus();
+        timer.pause();
     }
-
 
 
     @Override

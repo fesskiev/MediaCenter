@@ -65,17 +65,19 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
 
     private void setEQState(BandControlView[] bandControlViews) {
         EQState state = settingsManager.getEQState();
-        for (int i = 0; i < bandControlViews.length; i++) {
-            switch (i) {
-                case 0:
-                    bandControlViews[i].setLevel(state.getFirstBand());
-                    break;
-                case 1:
-                    bandControlViews[i].setLevel(state.getSecondBand());
-                    break;
-                case 2:
-                    bandControlViews[i].setLevel(state.getThirdBand());
-                    break;
+        if (state != null) {
+            for (int i = 0; i < bandControlViews.length; i++) {
+                switch (i) {
+                    case 0:
+                        bandControlViews[i].setLevel(state.getFirstBand());
+                        break;
+                    case 1:
+                        bandControlViews[i].setLevel(state.getSecondBand());
+                        break;
+                    case 2:
+                        bandControlViews[i].setLevel(state.getThirdBand());
+                        break;
+                }
             }
         }
     }
