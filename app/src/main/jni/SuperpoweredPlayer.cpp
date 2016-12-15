@@ -54,8 +54,6 @@ static void playerEventCallback(void *clientData, SuperpoweredAdvancedAudioPlaye
     SuperpoweredAdvancedAudioPlayer *player = *((SuperpoweredAdvancedAudioPlayer **) clientData);
     switch (event) {
         case SuperpoweredAdvancedAudioPlayerEvent_LoadSuccess:
-//            player->setBpm(10000.0f);
-//            player->setFirstBeatMs(353);
             player->setPosition(player->firstBeatMs, false, false);
             __android_log_print(ANDROID_LOG_DEBUG, "MediaCenter", "LOAD SUCCESS");
             break;
@@ -89,6 +87,11 @@ SuperpoweredPlayer::SuperpoweredPlayer(unsigned int samplerate, unsigned int buf
                                                  buffersize * 2);
 
     mixer = new SuperpoweredStereoMixer();
+
+    left = 1.0f;
+    right = 1.0f;
+
+
     bandEQ = new Superpowered3BandEQ(samplerate);
 }
 
@@ -98,7 +101,21 @@ bool SuperpoweredPlayer::process(short int *output, unsigned int numberOfSamples
 
     bandEQ->process(buffer, buffer, numberOfSamples);
 
+//    float *mixerInputs[4] = {buffer, NULL, NULL, NULL};
+//
+//    float *mixerOutputs[2] = {buffer, NULL};
+//
+//    float mixerInputLevels[8] = {1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+//
+//    float mixerOutputLevels[2] = {left, right};
+//
+//
+//    mixer->process(mixerInputs, mixerOutputs, mixerInputLevels, mixerOutputLevels, NULL, NULL,
+//                   numberOfSamples);
+
     if (!silence) {
+//        SuperpoweredFloatToShortInt(mixerOutputs[0], output, numberOfSamples);
+
         SuperpoweredFloatToShortInt(buffer, output, numberOfSamples);
     }
 
@@ -106,7 +123,7 @@ bool SuperpoweredPlayer::process(short int *output, unsigned int numberOfSamples
 }
 
 void SuperpoweredPlayer::togglePlayback() {
-   player->togglePlayback();
+    player->togglePlayback();
 }
 
 
@@ -144,7 +161,7 @@ bool SuperpoweredPlayer::isPlaying() {
 }
 
 void SuperpoweredPlayer::setLooping(bool looping) {
-    player->looping = looping;
+//    player->loop()
 }
 
 void SuperpoweredPlayer::open(const char *path) {
@@ -178,6 +195,13 @@ void SuperpoweredPlayer::onForeground() {
     audioSystem->onForeground();
 }
 
+float SuperpoweredPlayer::getVolume() {
+    return volume;
+}
+
+bool SuperpoweredPlayer::isLooping() {
+    return player->looping;
+}
 
 
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
@@ -186,7 +210,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_player_services_PlaybackService_onDestroyAudioPlayer(JNIEnv *env, jobject instance) {
+Java_com_fesskiev_player_services_PlaybackService_onDestroyAudioPlayer(JNIEnv *env,
+                                                                       jobject instance) {
     player->~SuperpoweredPlayer();
     __android_log_print(ANDROID_LOG_DEBUG, "MediaCenter", "DESTROY");
 }
@@ -197,7 +222,7 @@ static inline void setFloatField(JNIEnv *javaEnvironment, jobject obj, jclass th
 }
 
 static inline void setIntField(JNIEnv *javaEnvironment, jobject obj, jclass thisClass,
-                                const char *name, unsigned int value) {
+                               const char *name, unsigned int value) {
     javaEnvironment->SetIntField(obj, javaEnvironment->GetFieldID(thisClass, name, "I"), value);
 }
 
@@ -209,13 +234,16 @@ static inline void setBoolField(JNIEnv *javaEnvironment, jobject obj, jclass thi
 
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_player_services_PlaybackService_updatePlaybackState(JNIEnv *javaEnvironment, jobject obj) {
+Java_com_fesskiev_player_services_PlaybackService_updatePlaybackState(JNIEnv *javaEnvironment,
+                                                                      jobject obj) {
     jclass thisClass = javaEnvironment->GetObjectClass(obj);
 
     setIntField(javaEnvironment, obj, thisClass, "duration", player->getDuration());
     setIntField(javaEnvironment, obj, thisClass, "position", player->getPosition());
+    setFloatField(javaEnvironment, obj, thisClass, "volume", player->getVolume());
     setFloatField(javaEnvironment, obj, thisClass, "positionPercent", player->getPositionPercent());
     setBoolField(javaEnvironment, obj, thisClass, "playing", player->isPlaying());
+    setBoolField(javaEnvironment, obj, thisClass, "looping", player->isLooping());
 }
 
 extern "C" JNIEXPORT void
@@ -237,14 +265,14 @@ Java_com_fesskiev_player_services_PlaybackService_registerCallback(JNIEnv *env, 
 
 extern "C" JNIEXPORT void
 Java_com_fesskiev_player_services_PlaybackService_unregisterCallback(JNIEnv *env,
-                                                                   jobject instance) {
+                                                                     jobject instance) {
     env->DeleteGlobalRef(callbackObject);
     callbackObject = NULL;
 }
 
 extern "C" JNIEXPORT void
 Java_com_fesskiev_player_services_PlaybackService_enableEQ(JNIEnv *env, jobject instance,
-                                                         jboolean enable) {
+                                                           jboolean enable) {
     player->enableEQ(enable);
 }
 
@@ -252,26 +280,27 @@ Java_com_fesskiev_player_services_PlaybackService_enableEQ(JNIEnv *env, jobject 
 
 extern "C" JNIEXPORT void
 Java_com_fesskiev_player_services_PlaybackService_setEQBands(JNIEnv *javaEnvironment, jobject obj,
-                                                           jint band, jint value) {
+                                                             jint band, jint value) {
     player->setEQBands(band, value);
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_player_services_PlaybackService_setLoopingAudioPlayer(JNIEnv *env, jobject instance,
-                                                                      jboolean isLooping) {
+Java_com_fesskiev_player_services_PlaybackService_setLoopingAudioPlayer(JNIEnv *env,
+                                                                        jobject instance,
+                                                                        jboolean isLooping) {
     player->setLooping(isLooping);
 }
 
 extern "C" JNIEXPORT void
 Java_com_fesskiev_player_services_PlaybackService_createAudioPlayer(JNIEnv *env, jobject instance,
                                                                     jint sampleRate,
-                                                                  jint bufferSize) {
+                                                                    jint bufferSize) {
     player = new SuperpoweredPlayer((unsigned int) sampleRate, (unsigned int) bufferSize);
 }
 
 extern "C" JNIEXPORT void
 Java_com_fesskiev_player_services_PlaybackService_openAudioFile(JNIEnv *env, jobject instance,
-                                                              jstring path) {
+                                                                jstring path) {
     const char *str = env->GetStringUTFChars(path, 0);
 
     player->open(str);
@@ -287,13 +316,13 @@ Java_com_fesskiev_player_services_PlaybackService_togglePlayback(JNIEnv *env, jo
 
 extern "C" JNIEXPORT void
 Java_com_fesskiev_player_services_PlaybackService_setVolumeAudioPlayer(JNIEnv *env,
-                                                                     jobject instance,
-                                                                     jint value) {
+                                                                       jobject instance,
+                                                                       jfloat value) {
     player->setVolume(value);
 }
 
 extern "C" JNIEXPORT void
 Java_com_fesskiev_player_services_PlaybackService_setSeekAudioPlayer(JNIEnv *env, jobject instance,
-                                                                   jint value) {
+                                                                     jint value) {
     player->setSeek(value);
 }

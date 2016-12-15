@@ -18,9 +18,6 @@ import com.fesskiev.player.utils.CountDownTimer;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 public class PlaybackService extends Service {
 
     private static final String TAG = PlaybackService.class.getSimpleName();
@@ -39,10 +36,10 @@ public class PlaybackService extends Service {
             "com.fesskiev.player.action.ACTION_PLAYBACK_VOLUME";
     public static final String ACTION_PLAYBACK_EQ_STATE =
             "com.fesskiev.player.action.ACTION_PLAYBACK_EQ_STATE";
-    public static final String ACTION_PLAYBACK_MUTE_SOLO_STATE =
-            "com.fesskiev.player.action.ACTION_PLAYBACK_MUTE_SOLO_STATE";
-    public static final String ACTION_PLAYBACK_REPEAT_STATE =
-            "com.fesskiev.player.action.ACTION_PLAYBACK_REPEAT_STATE";
+    public static final String ACTION_PLAYBACK_LOOPING_STATE =
+            "com.fesskiev.player.action.ACTION_PLAYBACK_LOOPING_STATE";
+    public static final String ACTION_PLAYBACK_STATE =
+            "com.fesskiev.player.action.ACTION_PLAYBACK_STATE";
 
 
     public static final String PLAYBACK_EXTRA_MUSIC_FILE_PATH
@@ -53,27 +50,31 @@ public class PlaybackService extends Service {
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_VOLUME";
     public static final String PLAYBACK_EXTRA_EQ_ENABLE
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_EQ_STATE";
-    public static final String PLAYBACK_EXTRA_MUTE_SOLO_STATE
-            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_MUTE_SOLO_STATE";
-    public static final String PLAYBACK_EXTRA_REPEAT_STATE
-            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_REPEAT_STATE";
+    public static final String PLAYBACK_EXTRA_LOOPING_STATE
+            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_LOOPING_STATE";
 
-    //    private Timer timer;
     private AudioFocusManager audioFocusManager;
     private AudioNotificationManager audioNotificationManager;
     private CountDownTimer timer;
+
     private int duration;
     private int position;
     private float positionPercent;
-    private boolean playing;
-    private int volume;
+    private float volume;
     private int durationScale;
-    private boolean mute;
-    private boolean repeat;
+    private boolean playing;
+    private boolean looping;
+    private boolean headsetConnected;
 
 
     public static void startPlaybackService(Context context) {
         Intent intent = new Intent(context, PlaybackService.class);
+        context.startService(intent);
+    }
+
+    public static void requestPlaybackStateIfNeed(Context context) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_PLAYBACK_STATE);
         context.startService(intent);
     }
 
@@ -84,20 +85,12 @@ public class PlaybackService extends Service {
         context.startService(intent);
     }
 
-    public static void changeRepeatState(Context context, boolean state) {
+    public static void changeLoopingState(Context context, boolean state) {
         Intent intent = new Intent(context, PlaybackService.class);
-        intent.setAction(ACTION_PLAYBACK_REPEAT_STATE);
-        intent.putExtra(PLAYBACK_EXTRA_REPEAT_STATE, state);
+        intent.setAction(ACTION_PLAYBACK_LOOPING_STATE);
+        intent.putExtra(PLAYBACK_EXTRA_LOOPING_STATE, state);
         context.startService(intent);
     }
-
-    public static void changeMuteSoloState(Context context, boolean state) {
-        Intent intent = new Intent(context, PlaybackService.class);
-        intent.setAction(ACTION_PLAYBACK_MUTE_SOLO_STATE);
-        intent.putExtra(PLAYBACK_EXTRA_MUTE_SOLO_STATE, state);
-        context.startService(intent);
-    }
-
 
     public static void openFile(Context context, String path) {
         Intent intent = new Intent(context, PlaybackService.class);
@@ -143,7 +136,7 @@ public class PlaybackService extends Service {
 
         volume = 100;
 
-        timer = new CountDownTimer(500);
+        timer = new CountDownTimer(1000);
         timer.pause();
         timer.setOnCountDownListener(() -> {
             updatePlaybackState();
@@ -152,6 +145,7 @@ public class PlaybackService extends Service {
             if (duration > 0) {
                 durationScale = duration / 100;
                 positionPercent = positionPercent * 100;
+                volume *= 100f;
             }
 
             Log.d("event", "ev: " + PlaybackService.this.toString());
@@ -166,7 +160,9 @@ public class PlaybackService extends Service {
                     switch (state) {
                         case AudioFocusManager.AUDIO_FOCUSED:
                             Log.d(TAG, "onFocusChanged: FOCUSED");
-                            play();
+                            if (!playing) {
+                                play();
+                            }
                             setVolumeAudioPlayer(volume);
                             break;
                         case AudioFocusManager.AUDIO_NO_FOCUS_CAN_DUCK:
@@ -175,7 +171,9 @@ public class PlaybackService extends Service {
                             break;
                         case AudioFocusManager.AUDIO_NO_FOCUS_NO_DUCK:
                             Log.d(TAG, "onFocusChanged: NO_FOCUS_NO_DUCK");
-                            stop();
+                            if (playing) {
+                                stop();
+                            }
                             break;
                     }
                 });
@@ -220,16 +218,24 @@ public class PlaybackService extends Service {
                         boolean eqEnable = intent.getBooleanExtra(PLAYBACK_EXTRA_EQ_ENABLE, false);
                         changEQState(eqEnable);
                         break;
-                    case ACTION_PLAYBACK_REPEAT_STATE:
-                        boolean repeatState =
-                                intent.getBooleanExtra(PLAYBACK_EXTRA_REPEAT_STATE, false);
-                        repeat(repeatState);
+                    case ACTION_PLAYBACK_LOOPING_STATE:
+                        boolean looping =
+                                intent.getBooleanExtra(PLAYBACK_EXTRA_LOOPING_STATE, false);
+                        looping(looping);
+                        break;
+                    case ACTION_PLAYBACK_STATE:
+                        sendPlaybackStateIfNeed();
                         break;
                 }
             }
         }
-
         return START_STICKY;
+    }
+
+    private void sendPlaybackStateIfNeed() {
+        if (!playing) {
+            EventBus.getDefault().post(PlaybackService.this);
+        }
     }
 
     private void changEQState(boolean enable) {
@@ -253,11 +259,21 @@ public class PlaybackService extends Service {
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
                 case Intent.ACTION_HEADSET_PLUG:
-                    int state = intent.getIntExtra("state", -1);
-                    if (state == 1) {
-                        play();
-                    } else {
-                        stop();
+                    if (intent.hasExtra("state")) {
+                        if (headsetConnected && intent.getIntExtra("state", 0) == 0) {
+                            headsetConnected = false;
+                            Log.w(TAG, "PLUG OUT");
+                            if (playing) {
+                                stop();
+                            }
+                        } else if (!headsetConnected && intent.getIntExtra("state", 0) == 1
+                                && !isInitialStickyBroadcast()) {
+                            headsetConnected = true;
+                            Log.w(TAG, "PLUG IN");
+                            if (!playing) {
+                                play();
+                            }
+                        }
                     }
                     break;
             }
@@ -289,15 +305,12 @@ public class PlaybackService extends Service {
     }
 
 
-    private void volume(int volumeValue) {
-        this.volume = volumeValue;
-        setVolumeAudioPlayer(volumeValue);
+    private void volume(int volume) {
+        setVolumeAudioPlayer(volume);
     }
 
-    private void repeat(boolean repeat) {
-        this.repeat = repeat;
-
-        setLoopingAudioPlayer(repeat);
+    private void looping(boolean looping) {
+        setLoopingAudioPlayer(looping);
     }
 
     private void seek(int seekValue) {
@@ -336,6 +349,7 @@ public class PlaybackService extends Service {
         audioNotificationManager.stopNotification();
         unregisterHeadsetReceiver();
         unregisterCallback();
+        onDestroyAudioPlayer();
     }
 
     @Nullable
@@ -366,7 +380,7 @@ public class PlaybackService extends Service {
 
     public native void togglePlayback();
 
-    public native void setVolumeAudioPlayer(int value);
+    public native void setVolumeAudioPlayer(float value);
 
     public native void setSeekAudioPlayer(int value);
 
@@ -404,16 +418,12 @@ public class PlaybackService extends Service {
         return playing;
     }
 
-    public int getVolume() {
+    public float getVolume() {
         return volume;
     }
 
-    public boolean isRepeat() {
-        return repeat;
-    }
-
-    public boolean isMute() {
-        return mute;
+    public boolean isLooping() {
+        return looping;
     }
 
     @Override
@@ -421,11 +431,11 @@ public class PlaybackService extends Service {
         return "PlaybackService{" +
                 "duration=" + duration +
                 ", position=" + position +
-                ", playing=" + playing +
                 ", positionPercent=" + positionPercent +
                 ", volume=" + volume +
-                ", mute=" + mute +
-                ", repeat=" + repeat +
+                ", durationScale=" + durationScale +
+                ", playing=" + playing +
+                ", looping=" + looping +
                 '}';
     }
 }

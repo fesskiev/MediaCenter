@@ -28,8 +28,10 @@ public:
     void setSeek(int value);
     unsigned int getDuration();
     unsigned int getPosition();
+    float getVolume();
     float getPositionPercent();
     bool isPlaying();
+    bool isLooping();
     void setLooping(bool looping);
     void open(const char *path);
     void setEQBands(int index, int value);
@@ -45,6 +47,9 @@ private:
     SuperpoweredStereoMixer *mixer;
     float *buffer;
     float volume;
+
+    float left;
+    float right;
 };
 
 #endif

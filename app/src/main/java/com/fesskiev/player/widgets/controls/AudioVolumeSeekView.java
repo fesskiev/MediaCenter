@@ -301,7 +301,7 @@ public class AudioVolumeSeekView extends View {
 
     }
 
-    public void setVolumeValue(int value) {
+    public void setVolumeValue(float value) {
         volumeSlider.progress = value * 3.6f;
         invalidate();
     }

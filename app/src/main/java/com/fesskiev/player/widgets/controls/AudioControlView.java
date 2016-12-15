@@ -90,7 +90,7 @@ public class AudioControlView extends FrameLayout {
         volumeSeekView.setEnableChangeVolume(enable);
     }
 
-    public void setVolumeValue(int value) {
+    public void setVolumeValue(float value) {
         volumeSeekView.setVolumeValue(value);
     }
 

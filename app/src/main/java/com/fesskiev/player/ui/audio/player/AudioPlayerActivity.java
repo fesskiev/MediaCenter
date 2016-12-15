@@ -55,11 +55,10 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     private TextView trackDescription;
 
     private boolean lastPlaying;
-    private boolean lastRepeat;
-    private boolean lastMute;
+    private boolean lastLooping;
     private int lastPositionSeconds = -1;
     private int lastDurationSeconds = -1;
-    private int lastVolume = -1;
+    private float lastVolume = -1f;
 
     public static void startPlayerActivity(Activity activity) {
         activity.startActivity(new Intent(activity, AudioPlayerActivity.class));
@@ -119,19 +118,19 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         });
 
         muteSoloButton.setOnMuteSoloListener(mute -> {
-            //TODO change mute/solo logic!?
             if (mute) {
+                lastVolume = 0;
                 disableChangeVolume();
             } else {
                 enableChangeVolume();
             }
-
-            PlaybackService.changeMuteSoloState(getApplicationContext(), mute);
+            setVolumeLevel(lastVolume);
+            PlaybackService.volumePlayback(getApplicationContext(), 0);
         });
 
         repeatButton = (RepeatButton) findViewById(R.id.repeatButton);
         repeatButton.setOnRepeatStateChangedListener(repeat -> {
-            PlaybackService.changeRepeatState(getApplicationContext(), repeat);
+            PlaybackService.changeLoopingState(getApplicationContext(), repeat);
         });
 
         final DisabledScrollView scrollView = (DisabledScrollView) findViewById(R.id.scrollView);
@@ -168,6 +167,9 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         setAudioTrackValues(audioPlayer.getCurrentTrack());
 
         EventBus.getDefault().register(this);
+
+        controlView.setPlay(false);
+        PlaybackService.requestPlaybackStateIfNeed(getApplicationContext());
     }
 
     @Override
@@ -207,24 +209,17 @@ public class AudioPlayerActivity extends AnalyticsActivity {
             trackTimeTotal.setText(Utils.getPositionSecondsString(lastDurationSeconds));
         }
 
-        boolean mute = playbackState.isMute();
-        if (lastMute != mute) {
-            lastMute = mute;
-            muteSoloButton.changeState(lastMute);
+        boolean looping = playbackState.isLooping();
+        if (lastLooping != looping) {
+            lastLooping = looping;
+            repeatButton.changeState(lastLooping);
         }
 
-        boolean repeat = playbackState.isRepeat();
-        if (lastRepeat != repeat) {
-            lastRepeat = repeat;
-            repeatButton.changeState(lastRepeat);
-        }
-
-        int volume = playbackState.getVolume();
+        float volume = playbackState.getVolume();
         if (lastVolume != volume) {
             lastVolume = volume;
             setVolumeLevel(lastVolume);
         }
-
     }
 
 
@@ -264,7 +259,6 @@ public class AudioPlayerActivity extends AnalyticsActivity {
                     }
 
                 });
-
     }
 
 
@@ -287,7 +281,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
                     .show();
             return;
         }
-        if (!lastRepeat) {
+        if (!lastLooping) {
             audioPlayer.next();
             cardDescription.next();
             resetIndicators();
@@ -304,15 +298,15 @@ public class AudioPlayerActivity extends AnalyticsActivity {
                     .show();
             return;
         }
-        if (!lastRepeat) {
+        if (!lastLooping) {
             audioPlayer.previous();
             cardDescription.previous();
             resetIndicators();
         }
     }
 
-    private void setVolumeLevel(int volume) {
-        volumeLevel.setText(String.valueOf(volume));
+    private void setVolumeLevel(float volume) {
+        volumeLevel.setText(String.format("%.0f", volume));
         controlView.setVolumeValue(volume);
         if (volume >= 60) {
             muteSoloButton.setHighSoloState();

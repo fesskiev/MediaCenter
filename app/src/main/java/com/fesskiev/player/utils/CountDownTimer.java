@@ -43,7 +43,7 @@ public class CountDownTimer {
 
     public void pause() {
         pause = true;
-        this.millisInFuture = ONE_SECOND;
+        this.millisInFuture = ONE_SECOND * 3;
     }
 
     public boolean isStart() {
