@@ -13,7 +13,7 @@ import android.util.Log;
 
 import com.fesskiev.player.MediaApplication;
 import com.fesskiev.player.utils.AudioFocusManager;
-import com.fesskiev.player.utils.AudioNotificationManager;
+import com.fesskiev.player.utils.AudioNotificationHelper;
 import com.fesskiev.player.utils.CountDownTimer;
 
 import org.greenrobot.eventbus.EventBus;
@@ -24,10 +24,14 @@ public class PlaybackService extends Service {
 
     private static final int END_TRACK = 1;
 
-    public static final String ACTION_OPEN_FILE =
-            "com.fesskiev.player.action.ACTION_OPEN_FILE";
+    public static final String ACTION_START_FOREGROUND =
+            "com.fesskiev.player.action.ACTION_START_FOREGROUND";
+    public static final String ACTION_STOP_FOREGROUND =
+            "com.fesskiev.player.action.ACTION_STOP_FOREGROUND";
     public static final String ACTION_START_PLAYBACK =
             "com.fesskiev.player.action.ACTION_START_PLAYBACK";
+    public static final String ACTION_OPEN_FILE =
+            "com.fesskiev.player.action.ACTION_OPEN_FILE";
     public static final String ACTION_STOP_PLAYBACK =
             "com.fesskiev.player.action.ACTION_STOP_PLAYBACK";
     public static final String ACTION_PLAYBACK_SEEK =
@@ -54,7 +58,6 @@ public class PlaybackService extends Service {
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_LOOPING_STATE";
 
     private AudioFocusManager audioFocusManager;
-    private AudioNotificationManager audioNotificationManager;
     private CountDownTimer timer;
 
     private int duration;
@@ -69,6 +72,18 @@ public class PlaybackService extends Service {
 
     public static void startPlaybackService(Context context) {
         Intent intent = new Intent(context, PlaybackService.class);
+        context.startService(intent);
+    }
+
+    public static void startPlaybackForegroundService(Context context) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_START_FOREGROUND);
+        context.startService(intent);
+    }
+
+    public static void stopPlaybackForegroundService(Context context) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_STOP_FOREGROUND);
         context.startService(intent);
     }
 
@@ -141,7 +156,6 @@ public class PlaybackService extends Service {
         timer.setOnCountDownListener(() -> {
             updatePlaybackState();
 
-            audioNotificationManager.setPosition(position);
             if (duration > 0) {
                 durationScale = duration / 100;
                 positionPercent = positionPercent * 100;
@@ -152,8 +166,6 @@ public class PlaybackService extends Service {
             EventBus.getDefault().post(PlaybackService.this);
         });
 
-
-        audioNotificationManager = new AudioNotificationManager(this, this);
         audioFocusManager = new AudioFocusManager();
         audioFocusManager.setOnAudioFocusManagerListener(
                 state -> {
@@ -196,6 +208,12 @@ public class PlaybackService extends Service {
             if (action != null) {
                 Log.d(TAG, "playback service handle intent: " + action);
                 switch (action) {
+                    case ACTION_START_FOREGROUND:
+                        tryStartForeground();
+                        break;
+                    case ACTION_STOP_FOREGROUND:
+                        tryStopForeground();
+                        break;
                     case ACTION_OPEN_FILE:
                         String openPath = intent.getStringExtra(PLAYBACK_EXTRA_MUSIC_FILE_PATH);
                         openFile(openPath);
@@ -232,6 +250,15 @@ public class PlaybackService extends Service {
         return START_STICKY;
     }
 
+    private void tryStopForeground() {
+        stopForeground(true);
+    }
+
+    private void tryStartForeground() {
+        startForeground(AudioNotificationHelper.NOTIFICATION_ID,
+                AudioNotificationHelper.getInstance(getApplicationContext()).getNotification());
+    }
+
     private void sendPlaybackStateIfNeed() {
         if (!playing) {
             EventBus.getDefault().post(PlaybackService.this);
@@ -266,13 +293,14 @@ public class PlaybackService extends Service {
                             if (playing) {
                                 stop();
                             }
-                        } else if (!headsetConnected && intent.getIntExtra("state", 0) == 1
-                                && !isInitialStickyBroadcast()) {
-                            headsetConnected = true;
-                            Log.w(TAG, "PLUG IN");
-                            if (!playing) {
-                                play();
+                        } else if (!headsetConnected && intent.getIntExtra("state", 0) == 1) {
+                            if(!isInitialStickyBroadcast()){
+                                Log.w(TAG, "PLUG IN");
+                                if (!playing) {
+                                    play();
+                                }
                             }
+                            headsetConnected = true;
                         }
                     }
                     break;
@@ -314,9 +342,7 @@ public class PlaybackService extends Service {
     }
 
     private void seek(int seekValue) {
-
         setSeekAudioPlayer(seekValue);
-        audioNotificationManager.seekToPosition(seekValue * durationScale, playing);
     }
 
     private void play() {
@@ -346,7 +372,6 @@ public class PlaybackService extends Service {
         }
         timer.stop();
 
-        audioNotificationManager.stopNotification();
         unregisterHeadsetReceiver();
         unregisterCallback();
         onDestroyAudioPlayer();
