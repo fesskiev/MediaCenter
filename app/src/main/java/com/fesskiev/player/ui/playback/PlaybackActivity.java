@@ -85,6 +85,9 @@ public class PlaybackActivity extends AnalyticsActivity {
             } else {
                 audioPlayer.play();
             }
+
+            lastPlaying = !lastPlaying;
+            playPauseButton.setPlay(lastPlaying);
         });
         playPauseButton.setPlay(false);
 

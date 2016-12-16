@@ -3,12 +3,9 @@ package com.fesskiev.player.ui.audio.player;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -43,7 +40,6 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     private DescriptionCardView cardDescription;
     private MuteSoloButton muteSoloButton;
     private RepeatButton repeatButton;
-    private AppBarLayout appBarLayout;
     private ImageView backdrop;
     private TextView trackTimeCount;
     private TextView trackTimeTotal;
@@ -89,7 +85,6 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
 
-        appBarLayout = (AppBarLayout) findViewById(R.id.appBarLayout);
         backdrop = (ImageView) findViewById(R.id.backdrop);
         muteSoloButton = (MuteSoloButton) findViewById(R.id.muteSoloButton);
         trackTimeTotal = (TextView) findViewById(R.id.trackTimeTotal);
@@ -129,9 +124,8 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         });
 
         repeatButton = (RepeatButton) findViewById(R.id.repeatButton);
-        repeatButton.setOnRepeatStateChangedListener(repeat -> {
-            PlaybackService.changeLoopingState(getApplicationContext(), repeat);
-        });
+        repeatButton.setOnRepeatStateChangedListener(repeat ->
+                PlaybackService.changeLoopingState(getApplicationContext(), repeat));
 
         final DisabledScrollView scrollView = (DisabledScrollView) findViewById(R.id.scrollView);
 
@@ -144,6 +138,8 @@ public class AudioPlayerActivity extends AnalyticsActivity {
                 } else {
                     play();
                 }
+                lastPlaying = !lastPlaying;
+                controlView.setPlay(lastPlaying);
             }
 
             @Override
@@ -242,22 +238,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(audioFolder -> {
-                    boolean load = BitmapHelper.getInstance().loadAudioPlayerArtwork(audioFolder, audioFile, backdrop);
-
-                    CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
-                    if (!load) {
-                        TypedValue tv = new TypedValue();
-                        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-                            lp.height = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
-                            appBarLayout.setExpanded(false);
-                            backdrop.setVisibility(View.GONE);
-                        }
-                    } else {
-                        lp.height = getResources().getDimensionPixelSize(R.dimen.app_bar_height);
-                        appBarLayout.setExpanded(true);
-                        backdrop.setVisibility(View.VISIBLE);
-                    }
-
+                    BitmapHelper.getInstance().loadAudioPlayerArtwork(audioFolder, audioFile, backdrop);
                 });
     }
 
@@ -318,8 +299,8 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     }
 
     private void resetIndicators() {
-        trackTimeTotal.setText(getString(R.string.timer_zero));
-        trackTimeCount.setText(getString(R.string.timer_zero));
+        trackTimeTotal.setText(getString(R.string.infinity_symbol));
+        trackTimeCount.setText(getString(R.string.infinity_symbol));
         controlView.setSeekValue(0);
     }
 

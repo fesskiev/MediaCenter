@@ -178,7 +178,7 @@
                                 android:layout_marginEnd="10dp"
                                 android:layout_toStartOf="@+id/timerImage"
                                 android:maxLines="1"
-                                android:text="@string/timer_zero" />
+                                android:text="@string/infinity_symbol" />
 
                             <ImageView
                                 android:id="@+id/timerImage"
@@ -196,7 +196,7 @@
                                 android:layout_centerVertical="true"
                                 android:layout_marginStart="10dp"
                                 android:layout_toEndOf="@+id/timerImage"
-                                android:text="@string/timer_zero" />
+                                android:text="@string/infinity_symbol" />
 
                         </RelativeLayout>
 
@@ -227,7 +227,7 @@
                                 android:layout_marginStart="10dp"
                                 android:layout_toEndOf="@+id/muteSoloButton"
                                 android:maxLines="1"
-                                tools:text="100" />
+                                android:text="@string/infinity_symbol" />
 
                         </RelativeLayout>
 
