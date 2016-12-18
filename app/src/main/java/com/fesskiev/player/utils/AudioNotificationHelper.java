@@ -43,10 +43,10 @@ public class AudioNotificationHelper {
     public void updateNotification(AudioFile audioFile, Bitmap bitmap, int position, boolean isPlaying) {
         if (isPlaying) {
             notification = buildNotification(generateAction(R.drawable.icon_pause_media_control,
-                    "Pause", ACTION_MEDIA_CONTROL_PAUSE), audioFile, bitmap, position, true);
+                    "Pause", ACTION_MEDIA_CONTROL_PAUSE), audioFile, bitmap, position * 1000, true);
         } else {
             notification = buildNotification(generateAction(R.drawable.icon_play_media_control,
-                    "Play", ACTION_MEDIA_CONTROL_PLAY), audioFile, bitmap, position, false);
+                    "Play", ACTION_MEDIA_CONTROL_PLAY), audioFile, bitmap, position * 1000, false);
         }
         updateNotification(notification);
     }

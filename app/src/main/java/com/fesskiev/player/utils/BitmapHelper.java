@@ -102,18 +102,21 @@ public class BitmapHelper {
     }
 
     public void loadEmptyAvatar(final ImageView into) {
-        Glide.with(context).load(R.drawable.icon_no_avatar).asBitmap().
-                centerCrop().into(new BitmapImageViewTarget(into) {
-            @Override
-            protected void setResource(Bitmap resource) {
-                RoundedBitmapDrawable circularBitmapDrawable =
-                        RoundedBitmapDrawableFactory.create(context.getResources(), resource);
-                circularBitmapDrawable.setCircular(true);
+        Glide.with(context)
+                .load(R.drawable.icon_no_avatar)
+                .asBitmap()
+                .centerCrop()
+                .into(new BitmapImageViewTarget(into) {
+                    @Override
+                    protected void setResource(Bitmap resource) {
+                        RoundedBitmapDrawable circularBitmapDrawable =
+                                RoundedBitmapDrawableFactory.create(context.getResources(), resource);
+                        circularBitmapDrawable.setCircular(true);
 
-                into.setImageDrawable(circularBitmapDrawable);
+                        into.setImageDrawable(circularBitmapDrawable);
 
-            }
-        });
+                    }
+                });
     }
 
     public void loadURIBitmap(String uri, ImageView into) {
@@ -158,6 +161,57 @@ public class BitmapHelper {
         return false;
     }
 
+    private String findPath(MediaFile mediaFile, AudioFolder audioFolder) {
+        if (mediaFile != null) {
+            String mediaArtworkPath = findMediaFileArtworkPath(mediaFile);
+            if (mediaArtworkPath != null) {
+                return mediaArtworkPath;
+            }
+        }
+
+        if (audioFolder != null) {
+            String folderPath = findAudioFolderArtworkPath(audioFolder);
+            if (folderPath != null) {
+                return folderPath;
+            }
+        }
+
+        return null;
+    }
+
+    public void loadArtwork(MediaFile mediaFile, AudioFolder audioFolder, ImageView imageView,
+                            final OnBitmapLoadListener listener) {
+        String path = findPath(mediaFile, audioFolder);
+        if (path != null) {
+            Glide.with(context)
+                    .load(path)
+                    .asBitmap()
+                    .centerCrop()
+                    .into(new BitmapImageViewTarget(imageView) {
+                        @Override
+                        protected void setResource(Bitmap resource) {
+                            RoundedBitmapDrawable circularBitmapDrawable =
+                                    RoundedBitmapDrawableFactory.create(context.getResources(), resource);
+                            circularBitmapDrawable.setCircular(true);
+
+                            imageView.setImageDrawable(circularBitmapDrawable);
+
+                            if (listener != null) {
+                                listener.onLoaded(resource);
+                            }
+
+                        }
+                    });
+        } else {
+            Glide.with(context)
+                    .load(R.drawable.no_cover_track_icon)
+                    .crossFade()
+                    .fitCenter()
+                    .transform(new CircleTransform(context))
+                    .into(imageView);
+        }
+    }
+
 
     public void loadTrackListArtwork(MediaFile mediaFile, AudioFolder audioFolder, ImageView imageView) {
 
@@ -196,7 +250,7 @@ public class BitmapHelper {
     }
 
     private String findMediaFileArtworkPath(MediaFile mediaFile) {
-        if(mediaFile != null) {
+        if (mediaFile != null) {
             String artworkPath = mediaFile.getArtworkPath();
             if (artworkPath != null) {
                 return artworkPath;

@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetBehavior;
@@ -55,6 +56,7 @@ public class PlaybackActivity extends AnalyticsActivity {
     private View emptyFolder;
     private View emptyTrack;
     private View peakView;
+    private Bitmap lastCover;
     private int height;
     private boolean isShow = true;
 
@@ -136,7 +138,9 @@ public class PlaybackActivity extends AnalyticsActivity {
         playPauseButton.setPlay(lastPlaying);
 
         AudioNotificationHelper.getInstance(getApplicationContext())
-                .updateNotification(currentTrack, null, lastPositionSeconds * 1000, lastPlaying);
+                .updateNotification(currentTrack, lastCover, lastPositionSeconds, lastPlaying);
+
+        adapter.notifyDataSetChanged();
     }
 
     private void registerNotificationReceiver() {
@@ -197,10 +201,12 @@ public class PlaybackActivity extends AnalyticsActivity {
         if (lastPlaying != playing) {
             lastPlaying = playing;
             playPauseButton.setPlay(playing);
-            adapter.notifyDataSetChanged();
 
             AudioNotificationHelper.getInstance(getApplicationContext())
-                    .updateNotification(currentTrack, null, lastPositionSeconds * 1000, lastPlaying);
+                    .updateNotification(currentTrack, lastCover, lastPositionSeconds, lastPlaying);
+
+            adapter.notifyDataSetChanged();
+
         }
 
         int positionSeconds = playbackState.getPosition();
@@ -243,12 +249,25 @@ public class PlaybackActivity extends AnalyticsActivity {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(audioFolder -> {
-                    BitmapHelper.getInstance().loadTrackListArtwork(audioFile, audioFolder, cover);
-                });
+                    BitmapHelper.getInstance().loadArtwork(audioFile, audioFolder, cover,
+                            new BitmapHelper.OnBitmapLoadListener() {
+                                @Override
+                                public void onLoaded(Bitmap bitmap) {
 
-        AudioNotificationHelper.getInstance(getApplicationContext())
-                .updateNotification(audioFile, null, lastPositionSeconds * 1000, lastPlaying);
-        PlaybackService.startPlaybackForegroundService(getApplicationContext());
+                                    lastCover = bitmap;
+
+                                    AudioNotificationHelper.getInstance(getApplicationContext())
+                                            .updateNotification(audioFile, lastCover, 0, lastPlaying);
+
+                                    PlaybackService.startPlaybackForegroundService(getApplicationContext());
+                                }
+
+                                @Override
+                                public void onFailed() {
+
+                                }
+                            });
+                });
 
 
     }
