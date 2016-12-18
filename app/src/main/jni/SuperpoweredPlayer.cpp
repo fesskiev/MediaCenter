@@ -161,7 +161,7 @@ bool SuperpoweredPlayer::isPlaying() {
 }
 
 void SuperpoweredPlayer::setLooping(bool looping) {
-//    player->loop()
+    player->looping = looping;
 }
 
 void SuperpoweredPlayer::open(const char *path) {

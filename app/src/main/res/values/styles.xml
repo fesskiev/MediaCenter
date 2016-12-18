@@ -131,6 +131,13 @@
         <item name="android:fontFamily">sans-serif-thin</item>
     </style>
 
+    <style name="NavEQTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/secondary_text</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+
     <style name="TitleTextAppearance" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/secondary_text</item>
         <item name="android:textSize">@dimen/text_size_title</item>
@@ -280,6 +287,14 @@
         <item name="android:background">@drawable/raised_button_background</item>
         <item name="android:textColor">@color/primary</item>
         <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="EQ.Button" parent="android:style/Widget.Material.Button">
+        <item name="android:background">@drawable/raised_button_background</item>
+        <item name="android:textColor">@color/primary</item>
+        <item name="android:textSize">10sp</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:textAllCaps">true</item>
     </style>

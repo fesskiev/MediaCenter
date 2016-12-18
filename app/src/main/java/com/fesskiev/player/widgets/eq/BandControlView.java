@@ -9,7 +9,6 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -71,7 +70,7 @@ public class BandControlView extends View {
         textPaint = new Paint();
         textPaint.setColor(ContextCompat.getColor(context, android.R.color.white));
         textPaint.setStyle(Paint.Style.FILL);
-        textPaint.setTextSize(85f);
+        textPaint.setTextSize(60f);
         textPaint.setAntiAlias(true);
         textPaint.setTextAlign(Paint.Align.CENTER);
 

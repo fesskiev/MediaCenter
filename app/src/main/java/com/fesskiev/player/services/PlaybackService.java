@@ -40,6 +40,8 @@ public class PlaybackService extends Service {
             "com.fesskiev.player.action.ACTION_PLAYBACK_VOLUME";
     public static final String ACTION_PLAYBACK_EQ_STATE =
             "com.fesskiev.player.action.ACTION_PLAYBACK_EQ_STATE";
+    public static final String ACTION_PLAYBACK_EQ_BAND_STATE =
+            "com.fesskiev.player.action.ACTION_PLAYBACK_EQ_BAND_STATE";
     public static final String ACTION_PLAYBACK_LOOPING_STATE =
             "com.fesskiev.player.action.ACTION_PLAYBACK_LOOPING_STATE";
     public static final String ACTION_PLAYBACK_STATE =
@@ -54,6 +56,10 @@ public class PlaybackService extends Service {
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_VOLUME";
     public static final String PLAYBACK_EXTRA_EQ_ENABLE
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_EQ_STATE";
+    public static final String PLAYBACK_EXTRA_EQ_BAND
+            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_EQ_BAND";
+    public static final String PLAYBACK_EXTRA_EQ_LEVEL
+            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_EQ_LEVEL";
     public static final String PLAYBACK_EXTRA_LOOPING_STATE
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_LOOPING_STATE";
 
@@ -97,6 +103,14 @@ public class PlaybackService extends Service {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_EQ_STATE);
         intent.putExtra(PLAYBACK_EXTRA_EQ_ENABLE, enable);
+        context.startService(intent);
+    }
+
+    public static void changeEQBandLevel(Context context, int band, int level) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_PLAYBACK_EQ_BAND_STATE);
+        intent.putExtra(PLAYBACK_EXTRA_EQ_BAND, band);
+        intent.putExtra(PLAYBACK_EXTRA_EQ_LEVEL, level);
         context.startService(intent);
     }
 
@@ -226,20 +240,25 @@ public class PlaybackService extends Service {
                         break;
                     case ACTION_PLAYBACK_SEEK:
                         int seekValue = intent.getIntExtra(PLAYBACK_EXTRA_SEEK, -1);
-                        seek(seekValue);
+                        setSeekAudioPlayer(seekValue);
                         break;
                     case ACTION_PLAYBACK_VOLUME:
                         int volumeValue = intent.getIntExtra(PLAYBACK_EXTRA_VOLUME, -1);
-                        volume(volumeValue);
+                        setVolumeAudioPlayer(volumeValue);
                         break;
                     case ACTION_PLAYBACK_EQ_STATE:
                         boolean eqEnable = intent.getBooleanExtra(PLAYBACK_EXTRA_EQ_ENABLE, false);
-                        changEQState(eqEnable);
+                        enableEQ(eqEnable);
                         break;
                     case ACTION_PLAYBACK_LOOPING_STATE:
                         boolean looping =
                                 intent.getBooleanExtra(PLAYBACK_EXTRA_LOOPING_STATE, false);
-                        looping(looping);
+                        setLoopingAudioPlayer(looping);
+                        break;
+                    case ACTION_PLAYBACK_EQ_BAND_STATE:
+                        int band = intent.getIntExtra(PLAYBACK_EXTRA_EQ_BAND, -1);
+                        int level = intent.getIntExtra(PLAYBACK_EXTRA_EQ_LEVEL, -1);
+                        setEQBands(band, level);
                         break;
                     case ACTION_PLAYBACK_STATE:
                         sendPlaybackStateIfNeed();
@@ -249,6 +268,7 @@ public class PlaybackService extends Service {
         }
         return START_STICKY;
     }
+
 
     private void tryStopForeground() {
         stopForeground(true);
@@ -265,9 +285,6 @@ public class PlaybackService extends Service {
         }
     }
 
-    private void changEQState(boolean enable) {
-        enableEQ(enable);
-    }
 
     private void registerHeadsetReceiver() {
         IntentFilter intentFilter = new IntentFilter();
@@ -294,7 +311,7 @@ public class PlaybackService extends Service {
                                 stop();
                             }
                         } else if (!headsetConnected && intent.getIntExtra("state", 0) == 1) {
-                            if(!isInitialStickyBroadcast()){
+                            if (!isInitialStickyBroadcast()) {
                                 Log.w(TAG, "PLUG IN");
                                 if (!playing) {
                                     play();
@@ -332,18 +349,6 @@ public class PlaybackService extends Service {
         openAudioFile(path);
     }
 
-
-    private void volume(int volume) {
-        setVolumeAudioPlayer(volume);
-    }
-
-    private void looping(boolean looping) {
-        setLoopingAudioPlayer(looping);
-    }
-
-    private void seek(int seekValue) {
-        setSeekAudioPlayer(seekValue);
-    }
 
     private void play() {
         Log.d(TAG, "start playback");
