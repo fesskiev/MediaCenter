@@ -80,9 +80,9 @@ public class MediaNavigationView extends NavigationView {
         public class EQViewHolder extends RecyclerView.ViewHolder {
 
             SwitchCompat eqStateSwitch;
-            TextView firstBand;
-            TextView secondBand;
-            TextView thirdBand;
+            TextView lowBand;
+            TextView middBand;
+            TextView highdBand;
 
             public EQViewHolder(View v) {
                 super(v);
@@ -99,9 +99,9 @@ public class MediaNavigationView extends NavigationView {
                     }
                 });
 
-                firstBand = (TextView) v.findViewById(R.id.eqFirstBandState);
-                secondBand = (TextView) v.findViewById(R.id.eqSecondBandState);
-                thirdBand = (TextView) v.findViewById(R.id.eqThirdBandState);
+                lowBand = (TextView) v.findViewById(R.id.eqLowBandState);
+                middBand = (TextView) v.findViewById(R.id.eqMidBandState);
+                highdBand = (TextView) v.findViewById(R.id.eqHighBandState);
             }
         }
 
@@ -134,9 +134,9 @@ public class MediaNavigationView extends NavigationView {
 
         private void createEqItem(EQViewHolder holder) {
             if (eqState != null) {
-                holder.firstBand.setText(String.format(Locale.US, "%.2f %2$s", eqState.getFirstBand(), "Db"));
-                holder.secondBand.setText(String.format(Locale.US, "%.2f %2$s", eqState.getSecondBand(), "Db"));
-                holder.thirdBand.setText(String.format(Locale.US, "%.2f %2$s", eqState.getThirdBand(), "Db"));
+                holder.lowBand.setText(String.format(Locale.US, "%.2f %2$s", eqState.getLowBand(), "Db"));
+                holder.middBand.setText(String.format(Locale.US, "%.2f %2$s", eqState.getMidBand(), "Db"));
+                holder.highdBand.setText(String.format(Locale.US, "%.2f %2$s", eqState.getHighBand(), "Db"));
             }
         }
 

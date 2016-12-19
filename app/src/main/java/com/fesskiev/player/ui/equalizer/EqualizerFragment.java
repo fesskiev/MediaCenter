@@ -86,13 +86,13 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
             for (int i = 0; i < bandControlViews.length; i++) {
                 switch (i) {
                     case 0:
-                        bandControlViews[i].setLevel(state.getFirstBand());
+                        bandControlViews[i].setLevel(state.getLowBand());
                         break;
                     case 1:
-                        bandControlViews[i].setLevel(state.getSecondBand());
+                        bandControlViews[i].setLevel(state.getMidBand());
                         break;
                     case 2:
-                        bandControlViews[i].setLevel(state.getThirdBand());
+                        bandControlViews[i].setLevel(state.getHighBand());
                         break;
                 }
             }
@@ -109,13 +109,13 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
 
         switch (band) {
             case 0:
-                state.setFirstBand(level);
+                state.setLowBand(level);
                 break;
             case 1:
-                state.setSecondBand(level);
+                state.setMidBand(level);
                 break;
             case 2:
-                state.setThirdBand(level);
+                state.setHighBand(level);
                 break;
         }
     }

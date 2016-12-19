@@ -3,40 +3,40 @@ package com.fesskiev.player.data.model;
 
 public class EQState {
 
-    private float firstBand;
-    private float secondBand;
-    private float thirdBand;
+    private float lowBand;
+    private float midBand;
+    private float highBand;
 
-    public float getFirstBand() {
-        return firstBand;
+    public float getLowBand() {
+        return lowBand;
     }
 
-    public void setFirstBand(float firstBand) {
-        this.firstBand = firstBand;
+    public void setLowBand(float lowBand) {
+        this.lowBand = lowBand;
     }
 
-    public float getSecondBand() {
-        return secondBand;
+    public float getMidBand() {
+        return midBand;
     }
 
-    public void setSecondBand(float secondBand) {
-        this.secondBand = secondBand;
+    public void setMidBand(float midBand) {
+        this.midBand = midBand;
     }
 
-    public float getThirdBand() {
-        return thirdBand;
+    public float getHighBand() {
+        return highBand;
     }
 
-    public void setThirdBand(float thirdBand) {
-        this.thirdBand = thirdBand;
+    public void setHighBand(float highBand) {
+        this.highBand = highBand;
     }
 
     @Override
     public String toString() {
         return "EQState{" +
-                "firstBand=" + firstBand +
-                ", secondBand=" + secondBand +
-                ", thirdBand=" + thirdBand +
+                "lowBand=" + lowBand +
+                ", midBand=" + midBand +
+                ", highBand=" + highBand +
                 '}';
     }
 }

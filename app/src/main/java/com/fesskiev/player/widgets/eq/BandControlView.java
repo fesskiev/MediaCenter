@@ -27,13 +27,14 @@ public class BandControlView extends View {
     private OnBandLevelListener listener;
     private Bitmap bitmapControl;
     private Matrix matrix;
-    private int radius;
-    private float cx;
-    private float cy;
     private Paint markPaint;
     private Paint textPaint;
     private String level;
     private int band;
+    private int radius;
+    private float cx;
+    private float cy;
+    private float startAngle;
 
     public BandControlView(Context context) {
         super(context);
@@ -126,15 +127,16 @@ public class BandControlView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        float x = event.getX();
-        float y = event.getY();
-        int action = event.getActionMasked();
 
+        int action = event.getActionMasked();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
+                startAngle = getAngle(event.getX(), event.getY());
                 break;
             case MotionEvent.ACTION_MOVE:
-                setEQBandValue(x, y);
+                float currentAngle = getAngle(event.getX(), event.getY());
+                rotateBand(startAngle - currentAngle, currentAngle);
+                startAngle = currentAngle;
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
@@ -145,34 +147,45 @@ public class BandControlView extends View {
         return true;
     }
 
-    private void setEQBandValue(float x, float y) {
-        float angle = getAngle(x, y) / 50;
+    private void rotateBand(float degrees, float currentAngle) {
+        matrix.postRotate(degrees, cx, cy);
 
-///        float value = (angle * (100f / 360));
+        float value = (currentAngle * (100f / 360));
 
-        level = String.format(Locale.US, "%.2f %2$s", angle, "Db");
+        level = String.format(Locale.US, "%.2f %2$s", value, "Db");
 
-        matrix.postRotate(angle, cx, cy);
         if (listener != null) {
-            listener.onBandLevelChanged(band, (int) angle);
+            listener.onBandLevelChanged(band, (int) value);
         }
     }
 
-    public double angleBetween2Lines(float centerX, float centerY, float x1,
-                                     float y1, float x2, float y2) {
-        double angle1 = Math.atan2(y1 - centerY, x1 - centerX);
-        double angle2 = Math.atan2(y2 - centerY, x2 - centerX);
-        return angle1 - angle2;
+
+    private float getAngle(float xTouch, float yTouch) {
+        float x = xTouch - cx;
+        float y = getHeight() - yTouch - cy;
+
+        switch (getQuadrant(x, y)) {
+            case 1:
+                return (float) (Math.asin(y / Math.hypot(x, y)) * 180 / Math.PI);
+            case 2:
+                return (float) (180 - Math.asin(y / Math.hypot(x, y)) * 180 / Math.PI);
+            case 3:
+                return (float) (180 + (-1 * Math.asin(y / Math.hypot(x, y)) * 180 / Math.PI));
+            case 4:
+                return (float) (360 + Math.asin(y / Math.hypot(x, y)) * 180 / Math.PI);
+            default:
+                return 0;
+        }
     }
 
-    private float getAngle(float x, float y) {
-        float angle = (float) Math.toDegrees(angleBetween2Lines(cx, cy, 0, 0, x, y)) * -1;
-        angle -= 45;
-        if (angle < 0) {
-            angle += 360;
+    private static int getQuadrant(double x, double y) {
+        if (x >= 0) {
+            return y >= 0 ? 1 : 4;
+        } else {
+            return y >= 0 ? 2 : 3;
         }
-        return angle;
     }
+
 
     public void setOnBandLevelListener(OnBandLevelListener listener) {
         this.listener = listener;

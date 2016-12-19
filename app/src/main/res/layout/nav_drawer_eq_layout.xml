@@ -37,7 +37,7 @@
             android:layout_marginTop="14dp">
 
             <TextView
-                android:id="@+id/eqFirstBandState"
+                android:id="@+id/eqLowBandState"
                 style="@style/NavEQTextAppearance"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -54,7 +54,7 @@
                 android:layout_height="match_parent" />
 
             <TextView
-                android:id="@+id/eqSecondBandState"
+                android:id="@+id/eqMidBandState"
                 style="@style/NavEQTextAppearance"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -70,7 +70,7 @@
                 android:layout_height="match_parent" />
 
             <TextView
-                android:id="@+id/eqThirdBandState"
+                android:id="@+id/eqHighBandState"
                 style="@style/NavEQTextAppearance"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
