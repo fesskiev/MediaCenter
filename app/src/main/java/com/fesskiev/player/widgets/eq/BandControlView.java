@@ -88,6 +88,7 @@ public class BandControlView extends View {
         matrix.postTranslate((getWidth() - bitmapControl.getWidth()) / 2,
                 (getHeight() - bitmapControl.getHeight()) / 2);
 
+
     }
 
 
@@ -145,15 +146,15 @@ public class BandControlView extends View {
     }
 
     private void setEQBandValue(float x, float y) {
-        float angle = getAngle(x, y);
+        float angle = getAngle(x, y) / 50;
 
-        float value = (angle * (100f / 360));
+///        float value = (angle * (100f / 360));
 
-        level = String.format(Locale.US, "%.2f %2$s", angle / 50, "Db");
+        level = String.format(Locale.US, "%.2f %2$s", angle, "Db");
 
-        matrix.postRotate(angle / 50, cx, cy);
+        matrix.postRotate(angle, cx, cy);
         if (listener != null) {
-            listener.onBandLevelChanged(band, (int) value);
+            listener.onBandLevelChanged(band, (int) angle);
         }
     }
 

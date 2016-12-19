@@ -81,6 +81,7 @@ SuperpoweredPlayer::SuperpoweredPlayer(unsigned int samplerate, unsigned int buf
     buffer = (float *) memalign(16, (buffersize + 16) * sizeof(float) * 2);
 
     player = new SuperpoweredAdvancedAudioPlayer(&player, playerEventCallback, samplerate, 0);
+    player->syncMode = SuperpoweredAdvancedAudioPlayerSyncMode_None;
 
     audioSystem = new SuperpoweredAndroidAudioIO(samplerate, buffersize, false, true,
                                                  audioProcessing, this, -1, SL_ANDROID_STREAM_MEDIA,

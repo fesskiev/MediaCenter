@@ -22,6 +22,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fesskiev.player.R;
+import com.fesskiev.player.data.model.AudioFile;
+import com.fesskiev.player.data.model.EQState;
 import com.fesskiev.player.services.FileObserverService;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.about.AboutActivity;
@@ -48,6 +50,9 @@ import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKScope;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKError;
+
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -195,6 +200,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         });
         mediaNavigationView.setNavigationItemSelectedListener(this);
 
+        mediaNavigationView.setEQState(settingsManager.getEQState());
+
     }
 
     private void setUserInfo() {
@@ -235,6 +242,12 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         super.onNewIntent(intent);
 
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEQStateChanged(EQState eqState) {
+        mediaNavigationView.setEQState(eqState);
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

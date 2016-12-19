@@ -261,26 +261,28 @@ public class TrackListFragment extends Fragment {
         }
 
         private void startPlayerActivity(int position) {
-            AudioFile audioFile = audioFiles.get(position);
-            if (audioFile != null) {
-                if (audioFile.exists()) {
-                    audioPlayer.getCurrentAudioFile()
-                            .first()
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(selectedTrack -> {
-                                if (selectedTrack != null && selectedTrack.equals(audioFile)) {
-                                    AudioPlayerActivity.startPlayerActivity(getActivity());
-                                } else {
-                                    audioPlayer.setCurrentAudioFileAndPlay(audioFile);
-                                    AudioPlayerActivity.startPlayerActivity(getActivity());
-                                }
+            if (position != -1) {
+                AudioFile audioFile = audioFiles.get(position);
+                if (audioFile != null) {
+                    if (audioFile.exists()) {
+                        audioPlayer.getCurrentAudioFile()
+                                .first()
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(selectedTrack -> {
+                                    if (selectedTrack != null && selectedTrack.equals(audioFile)) {
+                                        AudioPlayerActivity.startPlayerActivity(getActivity());
+                                    } else {
+                                        audioPlayer.setCurrentAudioFileAndPlay(audioFile);
+                                        AudioPlayerActivity.startPlayerActivity(getActivity());
+                                    }
 
-                            });
-                } else {
-                    Utils.showCustomSnackbar(getView(),
-                            getContext(), getString(R.string.snackbar_file_not_exist),
-                            Snackbar.LENGTH_LONG).show();
+                                });
+                    } else {
+                        Utils.showCustomSnackbar(getView(),
+                                getContext(), getString(R.string.snackbar_file_not_exist),
+                                Snackbar.LENGTH_LONG).show();
+                    }
                 }
             }
         }

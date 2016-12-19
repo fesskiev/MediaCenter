@@ -16,6 +16,8 @@ import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.widgets.eq.BandControlView;
 
+import org.greenrobot.eventbus.EventBus;
+
 
 public class EqualizerFragment extends Fragment implements BandControlView.OnBandLevelListener {
 
@@ -46,7 +48,10 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
         super.onViewCreated(view, savedInstanceState);
 
         view.findViewById(R.id.saveEQStateButton).setOnClickListener(v -> {
+
             settingsManager.setEQState(state);
+            EventBus.getDefault().post(state);
+
             getActivity().finish();
         });
 
@@ -75,6 +80,8 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
 
     private void setEQState(BandControlView[] bandControlViews) {
         state = settingsManager.getEQState();
+        Log.wtf("test", "state: " + state.toString());
+
         if (state != null) {
             for (int i = 0; i < bandControlViews.length; i++) {
                 switch (i) {
@@ -99,5 +106,17 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
         Log.d("test", " band, " + band + " level: " + level);
 
         PlaybackService.changeEQBandLevel(context, band, level);
+
+        switch (band) {
+            case 0:
+                state.setFirstBand(level);
+                break;
+            case 1:
+                state.setSecondBand(level);
+                break;
+            case 2:
+                state.setThirdBand(level);
+                break;
+        }
     }
 }

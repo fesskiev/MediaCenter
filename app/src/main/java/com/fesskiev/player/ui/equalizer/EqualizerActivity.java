@@ -14,13 +14,6 @@ public class EqualizerActivity extends AnalyticsActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_equalizer);
         if (savedInstanceState == null) {
-            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-            if (toolbar != null) {
-                toolbar.setTitle(getString(R.string.title_eq_activity));
-                setSupportActionBar(toolbar);
-                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            }
-
 
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.content, EqualizerFragment.newInstance(),
@@ -31,11 +24,6 @@ public class EqualizerActivity extends AnalyticsActivity {
 
     }
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
-    }
     @Override
     public String getActivityName() {
         return this.getLocalClassName();

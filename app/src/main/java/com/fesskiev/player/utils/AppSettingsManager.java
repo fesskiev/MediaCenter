@@ -112,12 +112,12 @@ public class AppSettingsManager {
 
 
     public boolean isEQOn() {
-        return sharedPreferences.getBoolean(KEY_EQ_STATE, false);
+        return sharedPreferences.getBoolean(KEY_EQ_ENABLE, false);
     }
 
     public void setEQEnable(boolean enable) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(KEY_EQ_STATE, enable);
+        editor.putBoolean(KEY_EQ_ENABLE, enable);
         editor.apply();
     }
 
@@ -129,8 +129,7 @@ public class AppSettingsManager {
 
     public EQState getEQState(){
         String stateJson = sharedPreferences.getString(KEY_EQ_STATE, "");
-        return new Gson().fromJson(stateJson, new TypeToken<List<String>>() {
-        }.getType());
+        return new Gson().fromJson(stateJson, EQState.class);
     }
 }
 

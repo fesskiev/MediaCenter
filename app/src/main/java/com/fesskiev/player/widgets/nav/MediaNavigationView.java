@@ -11,9 +11,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.fesskiev.player.R;
+import com.fesskiev.player.data.model.EQState;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
+
+import java.util.Locale;
 
 
 public class MediaNavigationView extends NavigationView {
@@ -32,6 +36,8 @@ public class MediaNavigationView extends NavigationView {
     private OnEQClickListener eqClickListener;
 
     private ImageView headerAnimation;
+    private EffectsAdapter adapter;
+    private EQState eqState;
 
     public MediaNavigationView(Context context) {
         super(context);
@@ -60,7 +66,8 @@ public class MediaNavigationView extends NavigationView {
         if (effectsList != null) {
             effectsList.setLayoutManager(new ScrollingLinearLayoutManager(context,
                     LinearLayoutManager.VERTICAL, false, 1000));
-            effectsList.setAdapter(new EffectsAdapter());
+            adapter = new EffectsAdapter();
+            effectsList.setAdapter(adapter);
         }
     }
 
@@ -73,6 +80,9 @@ public class MediaNavigationView extends NavigationView {
         public class EQViewHolder extends RecyclerView.ViewHolder {
 
             SwitchCompat eqStateSwitch;
+            TextView firstBand;
+            TextView secondBand;
+            TextView thirdBand;
 
             public EQViewHolder(View v) {
                 super(v);
@@ -88,6 +98,10 @@ public class MediaNavigationView extends NavigationView {
                         eqStateChangedListener.onStateChanged(isChecked);
                     }
                 });
+
+                firstBand = (TextView) v.findViewById(R.id.eqFirstBandState);
+                secondBand = (TextView) v.findViewById(R.id.eqSecondBandState);
+                thirdBand = (TextView) v.findViewById(R.id.eqThirdBandState);
             }
         }
 
@@ -119,7 +133,11 @@ public class MediaNavigationView extends NavigationView {
         }
 
         private void createEqItem(EQViewHolder holder) {
-
+            if (eqState != null) {
+                holder.firstBand.setText(String.format(Locale.US, "%.2f %2$s", eqState.getFirstBand(), "Db"));
+                holder.secondBand.setText(String.format(Locale.US, "%.2f %2$s", eqState.getSecondBand(), "Db"));
+                holder.thirdBand.setText(String.format(Locale.US, "%.2f %2$s", eqState.getThirdBand(), "Db"));
+            }
         }
 
     }
@@ -138,5 +156,10 @@ public class MediaNavigationView extends NavigationView {
 
     public void setEQClickListener(OnEQClickListener l) {
         this.eqClickListener = l;
+    }
+
+    public void setEQState(EQState eqState) {
+        this.eqState = eqState;
+        adapter.notifyDataSetChanged();
     }
 }
