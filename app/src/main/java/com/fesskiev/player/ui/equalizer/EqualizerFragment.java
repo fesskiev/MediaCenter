@@ -60,9 +60,9 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
                 PlaybackService.changeEQEnable(getContext(), checked));
 
         BandControlView[] bandControlViews = new BandControlView[]{
-                (BandControlView) view.findViewById(R.id.bandControl1),
-                (BandControlView) view.findViewById(R.id.bandControl2),
-                (BandControlView) view.findViewById(R.id.bandControl3)
+                (BandControlView) view.findViewById(R.id.bandControlLow),
+                (BandControlView) view.findViewById(R.id.bandControlMid),
+                (BandControlView) view.findViewById(R.id.bandControlHigh)
         };
 
         for (BandControlView bandControlView : bandControlViews) {

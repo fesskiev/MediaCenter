@@ -14,8 +14,6 @@ import android.view.View;
 
 import com.fesskiev.player.R;
 
-import java.util.Locale;
-
 
 public class BandControlView extends View {
 
@@ -29,7 +27,7 @@ public class BandControlView extends View {
     private Matrix matrix;
     private Paint markPaint;
     private Paint textPaint;
-    private String level;
+    private String bandName;
     private int band;
     private int radius;
     private float cx;
@@ -56,10 +54,10 @@ public class BandControlView extends View {
                 attrs, R.styleable.BandControlView, defStyle, 0);
 
         band = a.getInt(R.styleable.BandControlView_band, -1);
+        bandName = a.getString(R.styleable.BandControlView_bandName);
 
         a.recycle();
 
-        level = "";
         radius = 8;
         matrix = new Matrix();
 
@@ -121,7 +119,7 @@ public class BandControlView extends View {
 
         canvas.drawBitmap(bitmapControl, matrix, null);
 
-        canvas.drawText(level, cx, getWidth(), textPaint);
+        canvas.drawText(bandName, cx, getWidth(), textPaint);
     }
 
 
@@ -151,8 +149,6 @@ public class BandControlView extends View {
         matrix.postRotate(degrees, cx, cy);
 
         float value = (currentAngle * (100f / 360));
-
-        level = String.format(Locale.US, "%.2f %2$s", value, "Db");
 
         if (listener != null) {
             listener.onBandLevelChanged(band, (int) value);
@@ -192,6 +188,6 @@ public class BandControlView extends View {
     }
 
     public void setLevel(float level) {
-        this.level = String.valueOf(level);
+        //TODO add rotate logic
     }
 }
