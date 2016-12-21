@@ -55,9 +55,11 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
             getActivity().finish();
         });
 
-        SwitchCompat EQState = (SwitchCompat) view.findViewById(R.id.stateEqualizer);
-        EQState.setOnCheckedChangeListener((compoundButton, checked) ->
+        SwitchCompat switchEQState = (SwitchCompat) view.findViewById(R.id.stateEqualizer);
+        switchEQState.setOnCheckedChangeListener((compoundButton, checked) ->
                 PlaybackService.changeEQEnable(getContext(), checked));
+        switchEQState.setChecked(settingsManager.isEQOn());
+
 
         BandControlView[] bandControlViews = new BandControlView[]{
                 (BandControlView) view.findViewById(R.id.bandControlLow),

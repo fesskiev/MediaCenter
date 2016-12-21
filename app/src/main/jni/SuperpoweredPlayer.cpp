@@ -54,7 +54,7 @@ static void playerEventCallback(void *clientData, SuperpoweredAdvancedAudioPlaye
     SuperpoweredAdvancedAudioPlayer *player = *((SuperpoweredAdvancedAudioPlayer **) clientData);
     switch (event) {
         case SuperpoweredAdvancedAudioPlayerEvent_LoadSuccess:
-            player->setPosition(player->firstBeatMs, false, false);
+//            player->setPosition(player->firstBeatMs, false, false);
             __android_log_print(ANDROID_LOG_DEBUG, "MediaCenter", "LOAD SUCCESS");
             break;
         case SuperpoweredAdvancedAudioPlayerEvent_LoadError:
@@ -98,9 +98,8 @@ SuperpoweredPlayer::SuperpoweredPlayer(unsigned int samplerate, unsigned int buf
 
 bool SuperpoweredPlayer::process(short int *output, unsigned int numberOfSamples) {
 
-    bool silence = !player->process(buffer, false, numberOfSamples, volume);
 
-    bandEQ->process(buffer, buffer, numberOfSamples);
+    bool silence = !player->process(buffer, false, numberOfSamples, volume);
 
 //    float *mixerInputs[4] = {buffer, NULL, NULL, NULL};
 //
@@ -117,7 +116,13 @@ bool SuperpoweredPlayer::process(short int *output, unsigned int numberOfSamples
     if (!silence) {
 //        SuperpoweredFloatToShortInt(mixerOutputs[0], output, numberOfSamples);
 
+        bandEQ->process(buffer, buffer, numberOfSamples);
+
+
+
         SuperpoweredFloatToShortInt(buffer, output, numberOfSamples);
+
+
     }
 
     return !silence;

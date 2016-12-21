@@ -9,12 +9,16 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
 import com.fesskiev.player.R;
 
-
+/**
+ *  explanation how EQ work
+ *  http://superpowered.com/3-band-equalizer-64-bit-armv8-support-and-time-stretching-on-mobile-processors
+ */
 public class BandControlView extends View {
 
     public interface OnBandLevelListener {
@@ -86,8 +90,6 @@ public class BandControlView extends View {
 
         matrix.postTranslate((getWidth() - bitmapControl.getWidth()) / 2,
                 (getHeight() - bitmapControl.getHeight()) / 2);
-
-
     }
 
 
@@ -148,11 +150,24 @@ public class BandControlView extends View {
     private void rotateBand(float degrees, float currentAngle) {
         matrix.postRotate(degrees, cx, cy);
 
-        float value = (currentAngle * (100f / 360));
+        float angleFix = getAngleFix(currentAngle);
+
+        Log.d("test", "current angle: " +  angleFix);
+
+        float value = (angleFix * (100f / 360));
 
         if (listener != null) {
             listener.onBandLevelChanged(band, (int) value);
         }
+    }
+
+    private float getAngleFix(float ag) {
+        float angle = ag;
+        angle -= 90;
+        if (angle < 0) {
+            angle += 360;
+        }
+        return angle;
     }
 
 
@@ -174,7 +189,7 @@ public class BandControlView extends View {
         }
     }
 
-    private static int getQuadrant(double x, double y) {
+    private static int getQuadrant(float x, float y) {
         if (x >= 0) {
             return y >= 0 ? 1 : 4;
         } else {
