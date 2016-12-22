@@ -182,7 +182,7 @@ void SuperpoweredPlayer::setEQBands(int index, int value) {
     if (value < 50) {
         bandF = (float) value / 50.0f;
     } else if (value > 50) {
-        bandF = 1.0f + (float) (value - 50) / 10.0f;
+        bandF = 1.0f + (float) (value - 50) / 7.0f;
     }
     __android_log_print(ANDROID_LOG_VERBOSE, "MediaCenter", "setEQBands index = %i bandF = %f",
                         index, bandF);

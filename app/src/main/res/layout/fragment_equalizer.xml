@@ -48,23 +48,22 @@
             android:id="@+id/bandControlMid"
             android:layout_width="180dp"
             android:layout_height="180dp"
-            app:band="1"
-            app:bandName="Mid"
+            android:layout_alignParentEnd="true"
             android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true" />
+            app:band="1"
+            app:bandName="Mid" />
 
         <com.fesskiev.player.widgets.eq.BandControlView
             android:id="@+id/bandControlHigh"
             android:layout_width="180dp"
             android:layout_height="180dp"
-            android:layout_marginTop="16dp"
-            app:band="2"
-            app:bandName="High"
             android:layout_below="@+id/bandControlLow"
-            android:layout_centerHorizontal="true" />
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="25dp"
+            app:band="2"
+            app:bandName="High" />
 
     </RelativeLayout>
-
 
 
 </LinearLayout>

@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -16,8 +17,11 @@ import android.view.View;
 import com.fesskiev.player.R;
 
 /**
- *  explanation how EQ work
- *  http://superpowered.com/3-band-equalizer-64-bit-armv8-support-and-time-stretching-on-mobile-processors
+ * The gains on the 3 band EQ are the "knobs" for each band, in other words,
+ * the faders a user may use to alter the sound. 1.0f means unity gain.
+ * The values are limited between 0.00001f and 8.0f, providing a range between -100 decibels and +18 decibels.
+ * <p>
+ * http://superpowered.com/3-band-equalizer-64-bit-armv8-support-and-time-stretching-on-mobile-processors
  */
 public class BandControlView extends View {
 
@@ -30,7 +34,8 @@ public class BandControlView extends View {
     private Bitmap bitmapControl;
     private Matrix matrix;
     private Paint markPaint;
-    private Paint textPaint;
+    private Paint rangePaint;
+    private Paint namePaint;
     private String bandName;
     private int band;
     private int radius;
@@ -70,12 +75,21 @@ public class BandControlView extends View {
         markPaint.setStyle(Paint.Style.FILL);
         markPaint.setStrokeWidth(15f);
 
-        textPaint = new Paint();
-        textPaint.setColor(ContextCompat.getColor(context, android.R.color.white));
-        textPaint.setStyle(Paint.Style.FILL);
-        textPaint.setTextSize(60f);
-        textPaint.setAntiAlias(true);
-        textPaint.setTextAlign(Paint.Align.CENTER);
+        namePaint = new Paint();
+        namePaint.setColor(ContextCompat.getColor(context, android.R.color.white));
+        namePaint.setStyle(Paint.Style.FILL);
+        namePaint.setTextSize(45f);
+        namePaint.setAntiAlias(true);
+        namePaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+        namePaint.setTextAlign(Paint.Align.CENTER);
+
+        rangePaint = new Paint();
+        rangePaint.setColor(ContextCompat.getColor(context, android.R.color.white));
+        rangePaint.setStyle(Paint.Style.FILL);
+        rangePaint.setTextSize(40f);
+        rangePaint.setAntiAlias(true);
+        rangePaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+        rangePaint.setTextAlign(Paint.Align.CENTER);
 
     }
 
@@ -90,6 +104,9 @@ public class BandControlView extends View {
 
         matrix.postTranslate((getWidth() - bitmapControl.getWidth()) / 2,
                 (getHeight() - bitmapControl.getHeight()) / 2);
+
+        matrix.postRotate(180, cx, cy);
+
     }
 
 
@@ -99,7 +116,7 @@ public class BandControlView extends View {
 
         for (int i = 0; i < 360; i += 30) {
 
-            if (i == 180) {
+            if (i == 0) {
                 continue;
             }
 
@@ -111,7 +128,7 @@ public class BandControlView extends View {
             float stopX = (float) (cx + (245 - 50) * Math.sin(angle));
             float stopY = (float) (cy - (245 - 50) * Math.cos(angle));
 
-            if (i == 0 || i == 150 || i == 210) {
+            if (i == 30 || i == 180 || i == 330) {
                 canvas.drawLine(startX, startY, stopX, stopY, markPaint);
             } else {
                 canvas.drawCircle(startX, startY, radius, markPaint);
@@ -119,9 +136,16 @@ public class BandControlView extends View {
 
         }
 
+
         canvas.drawBitmap(bitmapControl, matrix, null);
 
-        canvas.drawText(bandName, cx, getWidth(), textPaint);
+        canvas.drawText(bandName, cx, getWidth() - 12, namePaint);
+
+        canvas.drawText("-100", 140, 100, rangePaint);
+
+        canvas.drawText("+18", getWidth() - 140, 100, rangePaint);
+
+
     }
 
 
@@ -152,9 +176,12 @@ public class BandControlView extends View {
 
         float angleFix = getAngleFix(currentAngle);
 
-        Log.d("test", "current angle: " +  angleFix);
+//        Log.d("test", "current angle: " + angleFix);
+
 
         float value = (angleFix * (100f / 360));
+
+        Log.w("band1_", "band level: " + getBaneLevel(value));
 
         if (listener != null) {
             listener.onBandLevelChanged(band, (int) value);
@@ -195,6 +222,16 @@ public class BandControlView extends View {
         } else {
             return y >= 0 ? 2 : 3;
         }
+    }
+
+    public float getBaneLevel(float value) {
+        float level = 0f;
+        if (value < 50) {
+            level = ((100 / 50f)) * value * -1f;
+        } else if (value > 50) {
+            level = (18 / 50f) * value;
+        }
+        return level;
     }
 
 
