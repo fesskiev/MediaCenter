@@ -45,7 +45,7 @@ public class AudioVolumeSeekView extends View {
     private int radiusSeek;
     private int lineRadius;
     private int markSize;
-    private float circleStrokeWidth;
+    private int padding;
 
     private boolean enableChangeVolume;
 
@@ -92,8 +92,9 @@ public class AudioVolumeSeekView extends View {
         radiusVolume = (int) Utils.dipToPixels(context, 80);
         radiusSeek = (int) Utils.dipToPixels(context, 135);
         lineRadius = (int) Utils.dipToPixels(context, 135);
-        circleStrokeWidth = (int) Utils.dipToPixels(context, 15);
+        float circleStrokeWidth = Utils.dipToPixels(context, 15);
         markSize = (int) Utils.dipToPixels(context, 50);
+        padding =  (int) Utils.dipToPixels(context, 3);
 
         linePaint = new Paint();
         linePaint.setColor(circleColor);
@@ -278,8 +279,8 @@ public class AudioVolumeSeekView extends View {
 
 
         canvas.drawCircle(volumeSlider.x, volumeSlider.y, volumeSlider.radius, circleFillPaint);
-        canvas.drawBitmap(volumeSlider.bitmap, (volumeSlider.x - (volumeSlider.radius / 2)) - 10,
-                (volumeSlider.y - (volumeSlider.radius / 2)) - 10, null);
+        canvas.drawBitmap(volumeSlider.bitmap, (volumeSlider.x - (volumeSlider.radius / 2)) - padding,
+                (volumeSlider.y - (volumeSlider.radius / 2)) - padding, null);
 
         /****************************************************************************/
 
@@ -291,8 +292,8 @@ public class AudioVolumeSeekView extends View {
 
 
         canvas.drawCircle(seekSlider.x, seekSlider.y, seekSlider.radius, circleFillPaint);
-        canvas.drawBitmap(seekSlider.bitmap, (seekSlider.x - (seekSlider.radius / 2)) - 10,
-                (seekSlider.y - (seekSlider.radius / 2)) - 10, null);
+        canvas.drawBitmap(seekSlider.bitmap, (seekSlider.x - (seekSlider.radius / 2)) - padding,
+                (seekSlider.y - (seekSlider.radius / 2)) - padding, null);
 
     }
 

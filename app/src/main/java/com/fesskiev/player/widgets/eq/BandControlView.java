@@ -15,6 +15,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.fesskiev.player.R;
+import com.fesskiev.player.utils.Utils;
 
 /**
  * The gains on the 3 band EQ are the "knobs" for each band, in other words,
@@ -42,6 +43,12 @@ public class BandControlView extends View {
     private float cx;
     private float cy;
     private float startAngle;
+    private float markRadius;
+    private float markSize;
+    private float rangeTextX;
+    private float rangeTextY;
+    private float rangeTextX1;
+
 
     public BandControlView(Context context) {
         super(context);
@@ -67,18 +74,29 @@ public class BandControlView extends View {
 
         a.recycle();
 
-        radius = 8;
+        markRadius = Utils.dipToPixels(context, 70);
+        markSize = Utils.dipToPixels(context, 30);
+
+        rangeTextX = Utils.dipToPixels(context, 40);
+        rangeTextY = Utils.dipToPixels(context, 35);
+        rangeTextX1 = Utils.dipToPixels(context, 155);
+
+        float markStrokeWidth = Utils.dipToPixels(context, 5);
+        float nameStrokeWidth = Utils.dipToPixels(context, 18);
+        float rangeStrokeWidth = Utils.dipToPixels(context, 16);
+
+        radius = (int) Utils.dipToPixels(context, 3);
         matrix = new Matrix();
 
         markPaint = new Paint();
         markPaint.setColor(ContextCompat.getColor(context, android.R.color.white));
         markPaint.setStyle(Paint.Style.FILL);
-        markPaint.setStrokeWidth(15f);
+        markPaint.setStrokeWidth(markStrokeWidth);
 
         namePaint = new Paint();
         namePaint.setColor(ContextCompat.getColor(context, android.R.color.white));
         namePaint.setStyle(Paint.Style.FILL);
-        namePaint.setTextSize(50f);
+        namePaint.setTextSize(nameStrokeWidth);
         namePaint.setAntiAlias(true);
         namePaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
         namePaint.setTextAlign(Paint.Align.CENTER);
@@ -86,7 +104,7 @@ public class BandControlView extends View {
         rangePaint = new Paint();
         rangePaint.setColor(ContextCompat.getColor(context, android.R.color.white));
         rangePaint.setStyle(Paint.Style.FILL);
-        rangePaint.setTextSize(45f);
+        rangePaint.setTextSize(rangeStrokeWidth);
         rangePaint.setAntiAlias(true);
         rangePaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
         rangePaint.setTextAlign(Paint.Align.CENTER);
@@ -122,11 +140,11 @@ public class BandControlView extends View {
 
             float angle = (float) Math.toRadians(i);
 
-            float startX = (float) (cx + 270 * Math.sin(angle));
-            float startY = (float) (cy - 270 * Math.cos(angle));
+            float startX = (float) (cx + markRadius * Math.sin(angle));
+            float startY = (float) (cy - markRadius * Math.cos(angle));
 
-            float stopX = (float) (cx + (270 - 60) * Math.sin(angle));
-            float stopY = (float) (cy - (270 - 60) * Math.cos(angle));
+            float stopX = (float) (cx + (markRadius - markSize) * Math.sin(angle));
+            float stopY = (float) (cy - (markRadius - markSize) * Math.cos(angle));
 
             if (i == 30 || i == 180 || i == 330) {
                 canvas.drawLine(startX, startY, stopX, stopY, markPaint);
@@ -141,9 +159,9 @@ public class BandControlView extends View {
 
         canvas.drawText(bandName, cx, getWidth() - 12, namePaint);
 
-        canvas.drawText("-100", 140, 100, rangePaint);
+        canvas.drawText("-100", rangeTextX, rangeTextY, rangePaint);
 
-        canvas.drawText("+18", getWidth() - 140, 100, rangePaint);
+        canvas.drawText("+18", rangeTextX1, rangeTextY, rangePaint);
 
 
     }

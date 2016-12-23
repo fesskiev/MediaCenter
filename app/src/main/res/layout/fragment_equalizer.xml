@@ -4,12 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/primary"
-    android:orientation="vertical"
-    android:padding="@dimen/activity_horizontal_margin">
+    android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:padding="@dimen/activity_horizontal_margin">
 
         <android.support.v7.widget.SwitchCompat
             android:id="@+id/stateEqualizer"
@@ -31,10 +31,11 @@
 
     </RelativeLayout>
 
+
+
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="20dp">
+        android:layout_height="match_parent">
 
         <com.fesskiev.player.widgets.eq.BandControlView
             android:id="@+id/bandControlLow"
