@@ -71,10 +71,9 @@
                 app:cardCornerRadius="@dimen/card_view_corner_radius"
                 app:cardElevation="@dimen/card_view_elevation"
                 app:cardPreventCornerOverlap="false"
-                app:contentPadding="@dimen/card_view_content_padding">
+                app:contentPadding="@dimen/card_view_content_padding_big">
 
                 <RelativeLayout
-                    style="@style/Widget.CardContent"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
@@ -102,6 +101,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/album"
+                        android:layout_marginBottom="4dp"
+                        android:layout_marginTop="4dp"
                         android:orientation="vertical">
 
                         <TextView
@@ -118,6 +119,7 @@
                             style="@style/DescriptionTextAppearance"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
                             android:gravity="center"
                             android:maxLines="1"
                             tools:text="Overture" />
@@ -151,10 +153,9 @@
                 app:cardCornerRadius="@dimen/card_view_corner_radius"
                 app:cardElevation="@dimen/card_view_elevation"
                 app:cardPreventCornerOverlap="false"
-                app:contentPadding="@dimen/card_view_content_padding">
+                app:contentPadding="@dimen/card_view_content_padding_big">
 
                 <RelativeLayout
-                    style="@style/Widget.CardContent"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 

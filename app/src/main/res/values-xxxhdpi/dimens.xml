@@ -21,6 +21,6 @@
 
     <dimen name="card_view_content_padding_big">8dp</dimen>
 
-    <dimen name="card_view_empty_content_height">100dp</dimen>
+    <dimen name="card_view_empty_content_height">8dp</dimen>
 
 </resources>

@@ -52,12 +52,10 @@ public class DescriptionCardView extends CardView {
 
     private void cardAnimate() {
         float value = animation == ANIMATION.NEXT ? getWidth() +
-                getResources().getDimension(R.dimen.activity_horizontal_margin) :
-                -(getWidth() - getResources().getDimension(R.dimen.activity_horizontal_margin));
+                getResources().getDimension(R.dimen.card_view_margin_end) :
+                -(getWidth() - getResources().getDimension(R.dimen.card_view_margin_start));
 
-        animate().
-                x(value).
-                setDuration(500).
+        animate().x(value).setDuration(500).
                 setListener(new Animator.AnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animation) {
@@ -68,8 +66,8 @@ public class DescriptionCardView extends CardView {
 
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        animate().x(getResources().getDimension(R.dimen.activity_horizontal_margin)).
-                                setListener(new Animator.AnimatorListener() {
+                        animate().x(getResources().getDimension(R.dimen.card_view_margin_start))
+                                .setListener(new Animator.AnimatorListener() {
                                     @Override
                                     public void onAnimationStart(Animator animation) {
 
