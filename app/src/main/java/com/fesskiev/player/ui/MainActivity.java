@@ -98,12 +98,10 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
             @Override
             public void onDrawerOpened(View drawerView) {
-                mediaNavigationView.startHeaderAnimation();
             }
 
             @Override
             public void onDrawerClosed(View drawerView) {
-                mediaNavigationView.stopHeaderAnimation();
 
                 if (selectedActivity != null) {
                     startActivity(new Intent(MainActivity.this, selectedActivity));

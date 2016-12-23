@@ -35,7 +35,6 @@ public class MediaNavigationView extends NavigationView {
     private OnEQStateChangedListener eqStateChangedListener;
     private OnEQClickListener eqClickListener;
 
-    private ImageView headerAnimation;
     private EffectsAdapter adapter;
     private EQState eqState;
 
@@ -59,8 +58,6 @@ public class MediaNavigationView extends NavigationView {
     private void init(Context context) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.nav_effects_layout, this, true);
-
-        headerAnimation = (ImageView) view.findViewById(R.id.effectHeaderAnimation);
 
         RecyclerView effectsList = (RecyclerView) view.findViewById(R.id.effectsList);
         if (effectsList != null) {
@@ -140,14 +137,6 @@ public class MediaNavigationView extends NavigationView {
             }
         }
 
-    }
-
-    public void startHeaderAnimation() {
-        ((AnimationDrawable) headerAnimation.getDrawable()).start();
-    }
-
-    public void stopHeaderAnimation() {
-        ((AnimationDrawable) headerAnimation.getDrawable()).stop();
     }
 
     public void setEqStateChangedListener(OnEQStateChangedListener l) {

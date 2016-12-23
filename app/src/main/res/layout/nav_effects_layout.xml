@@ -18,7 +18,7 @@
             android:layout_height="match_parent"
             android:contentDescription="@string/app_name"
             android:scaleType="centerCrop"
-            android:src="@drawable/animation_list_effect_header" />
+            android:src="@drawable/image_sound_effect" />
 
     </RelativeLayout>
 
