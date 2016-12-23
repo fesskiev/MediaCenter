@@ -82,9 +82,9 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
 
     private void setEQState(BandControlView[] bandControlViews) {
         state = settingsManager.getEQState();
-        Log.wtf("test", "state: " + state.toString());
-
         if (state != null) {
+            Log.wtf("test", "state: " + state.toString());
+
             for (int i = 0; i < bandControlViews.length; i++) {
                 switch (i) {
                     case 0:

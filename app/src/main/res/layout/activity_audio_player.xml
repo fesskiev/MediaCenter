@@ -17,8 +17,8 @@
             android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fitsSystemWindows="true"
             android:background="@color/track_background"
+            android:fitsSystemWindows="true"
             app:collapsedTitleTextAppearance="@style/CollapsedAppBar"
             app:contentScrim="@color/primary"
             app:expandedTitleGravity="bottom"
@@ -58,16 +58,20 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:paddingTop="36dp">
+            android:orientation="vertical">
 
             <com.fesskiev.player.widgets.cards.DescriptionCardView
                 android:id="@+id/cardDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/card_margin"
-                android:layout_marginLeft="@dimen/card_margin"
-                android:layout_marginRight="@dimen/card_margin">
+                android:layout_marginBottom="@dimen/card_view_margin_bottom_big"
+                android:layout_marginEnd="@dimen/card_view_margin_end"
+                android:layout_marginStart="@dimen/card_view_margin_start"
+                android:layout_marginTop="@dimen/card_view_margin_top_big"
+                app:cardCornerRadius="@dimen/card_view_corner_radius"
+                app:cardElevation="@dimen/card_view_elevation"
+                app:cardPreventCornerOverlap="false"
+                app:contentPadding="@dimen/card_view_content_padding">
 
                 <RelativeLayout
                     style="@style/Widget.CardContent"
@@ -140,9 +144,14 @@
                 android:id="@+id/controlCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/card_margin"
-                android:layout_marginLeft="@dimen/card_margin"
-                android:layout_marginRight="@dimen/card_margin">
+                android:layout_marginBottom="@dimen/card_view_margin_bottom"
+                android:layout_marginEnd="@dimen/card_view_margin_end"
+                android:layout_marginStart="@dimen/card_view_margin_start"
+                android:layout_marginTop="@dimen/card_view_margin_top_big"
+                app:cardCornerRadius="@dimen/card_view_corner_radius"
+                app:cardElevation="@dimen/card_view_elevation"
+                app:cardPreventCornerOverlap="false"
+                app:contentPadding="@dimen/card_view_content_padding">
 
                 <RelativeLayout
                     style="@style/Widget.CardContent"

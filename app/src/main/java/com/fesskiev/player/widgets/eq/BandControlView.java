@@ -78,7 +78,7 @@ public class BandControlView extends View {
         namePaint = new Paint();
         namePaint.setColor(ContextCompat.getColor(context, android.R.color.white));
         namePaint.setStyle(Paint.Style.FILL);
-        namePaint.setTextSize(45f);
+        namePaint.setTextSize(50f);
         namePaint.setAntiAlias(true);
         namePaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
         namePaint.setTextAlign(Paint.Align.CENTER);
@@ -86,7 +86,7 @@ public class BandControlView extends View {
         rangePaint = new Paint();
         rangePaint.setColor(ContextCompat.getColor(context, android.R.color.white));
         rangePaint.setStyle(Paint.Style.FILL);
-        rangePaint.setTextSize(40f);
+        rangePaint.setTextSize(45f);
         rangePaint.setAntiAlias(true);
         rangePaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
         rangePaint.setTextAlign(Paint.Align.CENTER);
@@ -122,11 +122,11 @@ public class BandControlView extends View {
 
             float angle = (float) Math.toRadians(i);
 
-            float startX = (float) (cx + 245 * Math.sin(angle));
-            float startY = (float) (cy - 245 * Math.cos(angle));
+            float startX = (float) (cx + 270 * Math.sin(angle));
+            float startY = (float) (cy - 270 * Math.cos(angle));
 
-            float stopX = (float) (cx + (245 - 50) * Math.sin(angle));
-            float stopY = (float) (cy - (245 - 50) * Math.cos(angle));
+            float stopX = (float) (cx + (270 - 60) * Math.sin(angle));
+            float stopY = (float) (cy - (270 - 60) * Math.cos(angle));
 
             if (i == 30 || i == 180 || i == 330) {
                 canvas.drawLine(startX, startY, stopX, stopY, markPaint);

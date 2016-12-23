@@ -1,26 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/slidingContainer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/card_view_margin_bottom"
-    android:layout_marginEnd="@dimen/card_view_margin_start"
-    android:layout_marginStart="@dimen/card_view_margin_end"
+    android:layout_marginEnd="@dimen/card_view_margin_end"
+    android:layout_marginStart="@dimen/card_view_margin_start"
     android:layout_marginTop="@dimen/card_view_margin_top"
-    android:orientation="vertical"
-    card_view:cardBackgroundColor="@android:color/white"
-    card_view:cardCornerRadius="4dp"
-    card_view:cardElevation="@dimen/card_view_elevation"
-    card_view:cardPreventCornerOverlap="false"
-    card_view:cardUseCompatPadding="false">
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="@dimen/card_view_corner_radius"
+    app:cardElevation="@dimen/card_view_elevation"
+    app:contentPadding="@dimen/card_view_content_padding">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="72dp"
-        android:background="@android:color/white"
-        android:padding="8dp">
+        android:layout_height="72dp">
 
         <ImageView
             android:id="@+id/itemCover"

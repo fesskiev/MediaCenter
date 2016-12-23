@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.fesskiev.player.widgets.layouts.DragFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/dragLayout"
     android:layout_width="match_parent"
@@ -56,11 +55,14 @@
                 <android.support.v7.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    card_view:cardBackgroundColor="@color/white_text"
-                    card_view:cardCornerRadius="4dp"
-                    card_view:cardElevation="@dimen/card_view_elevation"
-                    card_view:cardPreventCornerOverlap="false"
-                    card_view:cardUseCompatPadding="false">
+                    android:layout_marginBottom="@dimen/card_view_margin_bottom"
+                    android:layout_marginEnd="@dimen/card_view_margin_end"
+                    android:layout_marginStart="@dimen/card_view_margin_start"
+                    android:layout_marginTop="@dimen/card_view_margin_top_big"
+                    app:cardCornerRadius="@dimen/card_view_corner_radius"
+                    app:cardElevation="@dimen/card_view_elevation"
+                    app:cardPreventCornerOverlap="false"
+                    app:contentPadding="@dimen/card_view_content_padding">
 
                     <RelativeLayout
                         android:layout_width="match_parent"

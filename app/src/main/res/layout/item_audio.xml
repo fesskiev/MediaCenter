@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:minHeight="@dimen/card_min_width"
     app:cardBackgroundColor="@color/track_background"
-    app:cardCornerRadius="2dp"
-    app:cardElevation="@dimen/card_view_elevation"
-    app:cardPreventCornerOverlap="false"
-    app:cardUseCompatPadding="false">
+    app:cardCornerRadius="@dimen/card_view_corner_radius"
+    app:cardElevation="@dimen/card_view_elevation">
 
     <android.support.percent.PercentFrameLayout
         android:layout_width="match_parent"
@@ -18,15 +16,15 @@
 
         <ImageView
             android:id="@+id/audioCover"
-            app:layout_widthPercent="100%"
-            app:layout_aspectRatio="100%"
-            android:scaleType="centerCrop"
             android:contentDescription="@string/app_name"
-            tools:src="@drawable/no_cover_track_icon"/>
+            android:scaleType="centerCrop"
+            app:layout_aspectRatio="100%"
+            app:layout_widthPercent="100%"
+            tools:src="@drawable/cover" />
 
         <TextView
-            style="@style/AudioNameTextAppearance"
             android:id="@+id/audioName"
+            style="@style/AudioNameTextAppearance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"

@@ -1,9 +1,26 @@
 <resources>
+
+    <dimen name="card_view_recycler_margin_top_big">1dp</dimen>
+    <dimen name="card_view_recycler_margin_bottom_big">1dp</dimen>
+    <dimen name="card_view_recycler_margin_top">0dp</dimen>
+    <dimen name="card_view_recycler_margin_bottom">0dp</dimen>
+    <dimen name="card_view_recycler_margin_start">1dp</dimen>
+    <dimen name="card_view_recycler_margin_end">1dp</dimen>
+    <dimen name="card_view_recycler_content_padding">0dp</dimen>
+
+    <dimen name="card_view_margin_top_big">4dp</dimen>
+    <dimen name="card_view_margin_bottom_big">4dp</dimen>
     <dimen name="card_view_margin_top">2dp</dimen>
     <dimen name="card_view_margin_bottom">2dp</dimen>
     <dimen name="card_view_margin_start">4dp</dimen>
     <dimen name="card_view_margin_end">4dp</dimen>
 
-    <dimen name="card_view_elevation">8dp</dimen>
+    <dimen name="card_view_elevation">2dp</dimen>
+    <dimen name="card_view_corner_radius">2dp</dimen>
+    <dimen name="card_view_content_padding">4dp</dimen>
+
+    <dimen name="card_view_content_padding_big">8dp</dimen>
+
+    <dimen name="card_view_empty_content_height">100dp</dimen>
 
 </resources>
