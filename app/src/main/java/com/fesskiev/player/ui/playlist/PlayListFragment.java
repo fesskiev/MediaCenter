@@ -20,11 +20,14 @@ import com.fesskiev.player.data.source.DataRepository;
 import com.fesskiev.player.players.AudioPlayer;
 import com.fesskiev.player.data.model.MediaFile;
 import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
+import com.fesskiev.player.utils.AnimationUtils;
 import com.fesskiev.player.utils.AppLog;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.RxUtils;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.recycleview.ScrollingLinearLayoutManager;
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -43,6 +46,7 @@ public class PlayListFragment extends Fragment {
 
     private Subscription subscription;
     private AudioTracksAdapter adapter;
+    private FloatingActionMenu actionMenu;
     private CardView emptyPlaylistCard;
 
     @Override
@@ -55,19 +59,24 @@ public class PlayListFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        actionMenu = (FloatingActionMenu) view.findViewById(R.id.menuPlaylist);
+        actionMenu.setIconAnimated(true);
         emptyPlaylistCard = (CardView) view.findViewById(R.id.emptyPlaylistCard);
+
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false, 1000));
         adapter = new AudioTracksAdapter(getActivity());
         recyclerView.setAdapter(adapter);
 
-        view.findViewById(R.id.menu_clear_playlist).setOnClickListener(v -> {
+        view.findViewById(R.id.menuClearPlaylist).setOnClickListener(v -> {
 
             showEmptyCardPlaylist();
 
             MediaApplication.getInstance().getRepository().clearPlaylist();
             adapter.clearAdapter();
+            actionMenu.hideMenu(true);
         });
 
         fetchPLayListFiles();
@@ -86,6 +95,7 @@ public class PlayListFragment extends Fragment {
                         hideEmptyCardPlaylist();
                     } else {
                         showEmptyCardPlaylist();
+                        actionMenu.hideMenu(true);
                     }
                     RxUtils.unsubscribe(subscription);
                 });

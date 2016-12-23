@@ -37,13 +37,11 @@
     </android.support.v7.widget.CardView>
 
     <com.github.clans.fab.FloatingActionMenu
-        android:id="@+id/menu_playlist"
+        android:id="@+id/menuPlaylist"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:paddingBottom="10dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
+        android:padding="8dp"
         fab:menu_colorNormal="@color/accent"
         fab:menu_colorPressed="@color/accent"
         fab:menu_colorRipple="@color/accent"
@@ -53,7 +51,7 @@
         fab:menu_openDirection="up">
 
         <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/menu_clear_playlist"
+            android:id="@+id/menuClearPlaylist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/icon_menu_clear_playlist"
