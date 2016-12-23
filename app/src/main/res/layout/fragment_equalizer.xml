@@ -9,33 +9,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/activity_horizontal_margin">
-
-        <android.support.v7.widget.SwitchCompat
-            android:id="@+id/stateEqualizer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="@dimen/activity_horizontal_margin" />
-
-        <Button
-            android:id="@+id/saveEQStateButton"
-            style="@style/EQ.Button"
-            android:layout_width="75dp"
-            android:layout_height="40dp"
-            android:layout_alignParentEnd="true"
-            android:layout_margin="8dp"
-            android:gravity="center"
-            android:padding="8dp"
-            android:text="@string/button_save_track_info_text" />
-
-    </RelativeLayout>
-
-
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_marginTop="20dp">
 
         <com.fesskiev.player.widgets.eq.BandControlView
             android:id="@+id/bandControlLow"
@@ -60,12 +34,48 @@
             android:layout_height="200dp"
             android:layout_below="@+id/bandControlLow"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="20dp"
             app:band="2"
             app:bandName="High" />
 
     </RelativeLayout>
 
+    <View
+        android:id="@+id/divider0"
+        style="@style/DividerStyle"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <android.support.v7.widget.SwitchCompat
+            android:id="@+id/stateEqualizer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_horizontal_margin" />
+
+        <Button
+            android:id="@+id/saveEQStateButton"
+            style="@style/EQ.Button"
+            android:layout_width="75dp"
+            android:layout_height="40dp"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="8dp"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="@string/button_save_track_info_text" />
+
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/divider1"
+        style="@style/DividerStyle"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"/>
 
 </LinearLayout>
 
