@@ -25,6 +25,7 @@ import com.fesskiev.player.data.model.AudioFile;
 import com.fesskiev.player.players.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
+import com.fesskiev.player.utils.AnimationUtils;
 import com.fesskiev.player.utils.AudioNotificationHelper;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
@@ -87,12 +88,14 @@ public class PlaybackActivity extends AnalyticsActivity {
 
         playPauseButton = (PlayPauseFloatingButton) findViewById(R.id.playPauseFAB);
         playPauseButton.setOnClickListener(v -> {
-            if (lastPlaying) {
-                audioPlayer.pause();
-            } else {
-                audioPlayer.play();
+            if (checkTrackSelected()) {
+                if (lastPlaying) {
+                    audioPlayer.pause();
+                } else {
+                    audioPlayer.play();
+                }
+                togglePlayPause();
             }
-            togglePlayPause();
         });
         playPauseButton.setPlay(false);
 
@@ -131,6 +134,14 @@ public class PlaybackActivity extends AnalyticsActivity {
 
         registerNotificationReceiver();
 
+    }
+
+    private boolean checkTrackSelected() {
+        if (currentTrack == null) {
+            AnimationUtils.getInstance().errorAnimation(playPauseButton);
+            return false;
+        }
+        return true;
     }
 
     private void togglePlayPause() {
