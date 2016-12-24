@@ -6,10 +6,10 @@
         android:width="20dp"
         android:height="20dp" />
 
-    <solid android:color="@color/primary_dark" />
+    <solid android:color="@color/switch_thumb_color" />
 
     <stroke
         android:width="0dp"
-        android:color="@color/primary_dark" />
+        android:color="@color/switch_thumb_color" />
 
 </shape>

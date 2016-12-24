@@ -16,6 +16,7 @@ import com.fesskiev.player.analytics.AnalyticsActivity;
 import com.fesskiev.player.data.model.AudioFile;
 import com.fesskiev.player.players.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
+import com.fesskiev.player.ui.equalizer.EqualizerActivity;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.buttons.MuteSoloButton;
@@ -98,6 +99,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
         findViewById(R.id.previousTrack).setOnClickListener(v -> previous());
         findViewById(R.id.nextTrack).setOnClickListener(v -> next());
+        findViewById(R.id.equalizer).setOnClickListener(v -> startEqualizerActivity());
 
         cardDescription = (DescriptionCardView) findViewById(R.id.cardDescription);
         cardDescription.setOnCardAnimationListener(new DescriptionCardView.OnCardAnimationListener() {
@@ -166,6 +168,10 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
         controlView.setPlay(false);
         PlaybackService.requestPlaybackStateIfNeed(getApplicationContext());
+    }
+
+    private void startEqualizerActivity() {
+        startActivity(new Intent(AudioPlayerActivity.this, EqualizerActivity.class));
     }
 
     @Override

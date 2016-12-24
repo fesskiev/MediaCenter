@@ -11,6 +11,7 @@
     <color name="white_text">#FFFFFF</color>
     <color name="white">#FFFFFF</color>
     <color name="track_background">#ecf5f9</color>
+    <color name="switch_thumb_color">#3d4041</color>
 
     <color name="search_background">#99B6B6B6</color>
 

@@ -64,7 +64,7 @@
                 android:id="@+id/cardDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/card_view_margin_bottom_big"
+                android:layout_marginBottom="@dimen/card_view_margin_bottom"
                 android:layout_marginEnd="@dimen/card_view_margin_end"
                 android:layout_marginStart="@dimen/card_view_margin_start"
                 android:layout_marginTop="@dimen/card_view_margin_top_big"
@@ -263,17 +263,41 @@
                             android:id="@+id/previousTrack"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
                             android:layout_weight="0.5"
                             android:clickable="true"
                             android:contentDescription="@string/app_name"
                             android:foreground="?android:attr/selectableItemBackground"
                             android:src="@drawable/previous_track_icon" />
 
+                        <ImageView
+                            android:id="@+id/equalizer"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_weight="0.5"
+                            android:clickable="true"
+                            android:contentDescription="@string/app_name"
+                            android:foreground="?android:attr/selectableItemBackground"
+                            android:src="@drawable/icon_equalizer" />
+
+                        <ImageView
+                            android:id="@+id/trackList"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_weight="0.5"
+                            android:clickable="true"
+                            android:contentDescription="@string/app_name"
+                            android:foreground="?android:attr/selectableItemBackground"
+                            android:src="@drawable/icon_track_list" />
+
 
                         <com.fesskiev.player.widgets.buttons.RepeatButton
                             android:id="@+id/repeatButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
                             android:layout_weight="0.5"
                             android:contentDescription="@string/app_name"
                             android:src="@drawable/icon_repeat_off" />
