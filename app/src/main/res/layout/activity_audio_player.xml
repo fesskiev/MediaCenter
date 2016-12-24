@@ -31,6 +31,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:contentDescription="@string/app_name"
+                android:fitsSystemWindows="true"
                 android:scaleType="centerCrop"
                 app:layout_collapseMode="parallax"
                 tools:src="@drawable/cover" />
@@ -134,12 +135,12 @@
                         android:layout_below="@+id/mainInfoContainer"
                         android:layout_marginTop="10dp"
                         android:ellipsize="marquee"
-                        android:scrollHorizontally="true"
-                        android:marqueeRepeatLimit="marquee_forever"
-                        android:singleLine="true"
                         android:focusable="true"
                         android:focusableInTouchMode="true"
                         android:freezesText="true"
+                        android:marqueeRepeatLimit="marquee_forever"
+                        android:scrollHorizontally="true"
+                        android:singleLine="true"
                         tools:text="MP3::44Khz::320kbps" />
 
                 </RelativeLayout>
