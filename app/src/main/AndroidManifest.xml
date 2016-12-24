@@ -154,6 +154,18 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity" />
         </activity>
+
+        <activity
+            android:name=".ui.audio.tracklist.PlayerTrackListActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:parentActivityName=".ui.audio.player.AudioPlayerActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/ActivityDialog.Theme.MediaCenter">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.audio.player.AudioPlayerActivity" />
+        </activity>
+
         <activity
             android:name="com.vk.sdk.VKServiceActivity"
             android:label="ServiceActivity"

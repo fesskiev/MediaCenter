@@ -189,6 +189,10 @@ public class AudioPlayer implements Playable {
     }
 
 
+    public List<AudioFile> getCurrentTrackList() {
+        return currentTrackList;
+    }
+
     public class TrackListIterator implements ListIterator<AudioFile> {
 
         public TrackListIterator() {

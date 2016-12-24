@@ -16,6 +16,7 @@ import com.fesskiev.player.analytics.AnalyticsActivity;
 import com.fesskiev.player.data.model.AudioFile;
 import com.fesskiev.player.players.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
+import com.fesskiev.player.ui.audio.tracklist.PlayerTrackListActivity;
 import com.fesskiev.player.ui.equalizer.EqualizerActivity;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
@@ -28,6 +29,8 @@ import com.fesskiev.player.widgets.utils.DisabledScrollView;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.List;
 
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -172,7 +175,10 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     }
 
     private void openTrackList() {
-
+        List<AudioFile> audioFiles = audioPlayer.getCurrentTrackList();
+        if (audioFiles != null) {
+            startActivity(new Intent(AudioPlayerActivity.this, PlayerTrackListActivity.class));
+        }
     }
 
     private void startEqualizerActivity() {
@@ -327,8 +333,11 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         sb.append("::");
         sb.append(audioFile.bitrate);
         sb.append("::");
-        sb.append(audioFile.getFileName());
+        sb.append(audioFile.getFilePath());
 
+        /**
+         *  http://stackoverflow.com/questions/3332924/textview-marquee-not-working?noredirect=1&lq=1
+         */
         trackDescription.setSelected(true);
         trackDescription.setText(sb.toString());
     }

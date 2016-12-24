@@ -37,4 +37,6 @@
     <integer name="anim_duration_very_long">1500</integer>
     <integer name="anim_duration_long">500</integer>
     <integer name="anim_duration_medium">300</integer>
+
+    <item name="activity_window_height" format="float" type="dimen">0.7</item>
 </resources>

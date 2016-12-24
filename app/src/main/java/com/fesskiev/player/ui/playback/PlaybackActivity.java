@@ -310,6 +310,7 @@ public class PlaybackActivity extends AnalyticsActivity {
             ImageView playEq;
             TextView title;
             TextView duration;
+            TextView filePath;
 
             public ViewHolder(View v) {
                 super(v);
@@ -324,6 +325,8 @@ public class PlaybackActivity extends AnalyticsActivity {
                 playEq = (ImageView) v.findViewById(R.id.playEq);
                 title = (TextView) v.findViewById(R.id.title);
                 duration = (TextView) v.findViewById(R.id.duration);
+                filePath = (TextView) v.findViewById(R.id.filePath);
+                filePath.setSelected(true);
 
             }
         }
@@ -341,6 +344,7 @@ public class PlaybackActivity extends AnalyticsActivity {
             AudioFile audioFile = audioFiles.get(position);
             if (audioFile != null) {
                 holder.title.setText(audioFile.title);
+                holder.filePath.setText(audioFile.getFilePath());
                 holder.duration.setText(Utils.getDurationString(audioFile.length));
 
                 if (currentTrack != null) {
