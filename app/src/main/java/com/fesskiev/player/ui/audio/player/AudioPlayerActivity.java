@@ -100,6 +100,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         findViewById(R.id.previousTrack).setOnClickListener(v -> previous());
         findViewById(R.id.nextTrack).setOnClickListener(v -> next());
         findViewById(R.id.equalizer).setOnClickListener(v -> startEqualizerActivity());
+        findViewById(R.id.trackList).setOnClickListener(v -> openTrackList());
 
         cardDescription = (DescriptionCardView) findViewById(R.id.cardDescription);
         cardDescription.setOnCardAnimationListener(new DescriptionCardView.OnCardAnimationListener() {
@@ -168,6 +169,10 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
         controlView.setPlay(false);
         PlaybackService.requestPlaybackStateIfNeed(getApplicationContext());
+    }
+
+    private void openTrackList() {
+
     }
 
     private void startEqualizerActivity() {
@@ -321,6 +326,10 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         sb.append(audioFile.sampleRate);
         sb.append("::");
         sb.append(audioFile.bitrate);
+        sb.append("::");
+        sb.append(audioFile.getFileName());
+
+        trackDescription.setSelected(true);
         trackDescription.setText(sb.toString());
     }
 

@@ -124,6 +124,7 @@
                             android:maxLines="1"
                             tools:text="Overture" />
 
+
                     </LinearLayout>
 
 
@@ -134,7 +135,10 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/mainInfoContainer"
                         android:layout_marginTop="10dp"
-                        android:gravity="start"
+                        android:ellipsize="marquee"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true"
+                        android:marqueeRepeatLimit="marquee_forever"
                         android:maxLines="1"
                         tools:text="MP3::44Khz::320kbps" />
 
