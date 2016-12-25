@@ -59,12 +59,19 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
         });
 
         SwitchCompat switchEQState = (SwitchCompat) view.findViewById(R.id.stateEqualizer);
-        switchEQState.setOnCheckedChangeListener((compoundButton, checked) ->
-                PlaybackService.changeEQEnable(getContext(), checked));
+        switchEQState.setOnClickListener(v -> {
+            boolean checked = ((SwitchCompat) v).isChecked();
+
+            PlaybackService.changeEQEnable(getContext(), checked);
+
+            settingsManager.setEQState(state);
+            EventBus.getDefault().post(state);
+
+        });
         switchEQState.setChecked(settingsManager.isEQOn());
 
 
-        BandControlView [] bandControlViews = new BandControlView[]{
+        BandControlView[] bandControlViews = new BandControlView[]{
                 (BandControlView) view.findViewById(R.id.bandControlLow),
                 (BandControlView) view.findViewById(R.id.bandControlMid),
                 (BandControlView) view.findViewById(R.id.bandControlHigh)
@@ -105,22 +112,22 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
     }
 
     @Override
-    public void onBandLevelChanged(int band, float level, float[] values) {
+    public void onBandLevelChanged(int band, float level, float range, float[] values) {
 //        Log.d("test", " band, " + band + " level: " + level + " degrees: " + Arrays.toString(values));
 
         PlaybackService.changeEQBandLevel(context, band, (int) level);
 
         switch (band) {
             case 0:
-                state.setLowBand(level);
+                state.setLowBand(range);
                 state.setLowValues(values);
                 break;
             case 1:
-                state.setMidBand(level);
+                state.setMidBand(range);
                 state.setMidValues(values);
                 break;
             case 2:
-                state.setHighBand(level);
+                state.setHighBand(range);
                 state.setHighValues(values);
                 break;
         }
