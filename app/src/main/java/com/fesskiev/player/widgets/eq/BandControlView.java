@@ -28,7 +28,7 @@ public class BandControlView extends View {
 
     public interface OnBandLevelListener {
 
-        void onBandLevelChanged(int band, int level);
+        void onBandLevelChanged(int band, float level, float[] values);
     }
 
     private OnBandLevelListener listener;
@@ -48,6 +48,7 @@ public class BandControlView extends View {
     private float rangeTextX;
     private float rangeTextY;
     private float rangeTextX1;
+    private float[] values;
 
 
     public BandControlView(Context context) {
@@ -87,6 +88,8 @@ public class BandControlView extends View {
 
         radius = (int) Utils.dipToPixels(context, 3);
         matrix = new Matrix();
+
+        values = new float[9];
 
         markPaint = new Paint();
         markPaint.setColor(ContextCompat.getColor(context, android.R.color.white));
@@ -132,11 +135,7 @@ public class BandControlView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        for (int i = 0; i < 360; i += 30) {
-
-            if (i == 0) {
-                continue;
-            }
+        for (int i = 30; i < 360; i += 30) {
 
             float angle = (float) Math.toRadians(i);
 
@@ -194,15 +193,12 @@ public class BandControlView extends View {
 
         float angleFix = getAngleFix(currentAngle);
 
-//        Log.d("test", "current angle: " + angleFix);
-
-
         float value = (angleFix * (100f / 360));
-
-        Log.w("band1_", "band level: " + getBaneLevel(value));
+        float bandLevel = getBaneLevel(value);
 
         if (listener != null) {
-            listener.onBandLevelChanged(band, (int) value);
+            matrix.getValues(values);
+            listener.onBandLevelChanged(band, bandLevel, values);
         }
     }
 
@@ -245,9 +241,9 @@ public class BandControlView extends View {
     public float getBaneLevel(float value) {
         float level = 0f;
         if (value < 50) {
-            level = ((100 / 50f)) * value * -1f;
+            level = (100 - ((100 / 50f)) * value) * -1;
         } else if (value > 50) {
-            level = (18 / 50f) * value;
+            level = (18 - (18 / 50f) * value) * -1;
         }
         return level;
     }
@@ -257,7 +253,12 @@ public class BandControlView extends View {
         this.listener = listener;
     }
 
-    public void setLevel(float level) {
-        //TODO add rotate logic
+    public void setLevel(float[] values) {
+        matrix.setValues(values);
+        postInvalidate();
+    }
+
+    public int getBand() {
+        return band;
     }
 }

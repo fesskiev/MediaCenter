@@ -131,9 +131,9 @@ public class MediaNavigationView extends NavigationView {
 
         private void createEqItem(EQViewHolder holder) {
             if (eqState != null) {
-                holder.lowBand.setText(String.format(Locale.US, "%.2f %2$s", eqState.getLowBand(), "Db"));
-                holder.middBand.setText(String.format(Locale.US, "%.2f %2$s", eqState.getMidBand(), "Db"));
-                holder.highdBand.setText(String.format(Locale.US, "%.2f %2$s", eqState.getHighBand(), "Db"));
+                holder.lowBand.setText(String.format(Locale.US, "%.2f %2$s", eqState.getLowBand(), "db"));
+                holder.middBand.setText(String.format(Locale.US, "%.2f %2$s", eqState.getMidBand(), "db"));
+                holder.highdBand.setText(String.format(Locale.US, "%.2f %2$s", eqState.getHighBand(), "db"));
             }
         }
 

@@ -47,7 +47,7 @@
     <string name="audio_tab_title_artist">Артист</string>
     <string name="audio_tab_title_genres">Жанры</string>
 
-    <string name="dialog_download_title">Скачивание</string>
+    <string name="dialog_download_title">Загрузка</string>
     <string name="dialog_download_message">Скачать файл?</string>
     <string name="dialog_download_ok">Да</string>
     <string name="dialog_download_cancel">Нет</string>
@@ -118,10 +118,10 @@
     <string name="about_vk">Вконтакте</string>
 
     <string name="settings_media_title">Медиа</string>
-    <string name="settings_download_title">Скачивание</string>
+    <string name="settings_download_title">Загрузка</string>
     <string name="settings_play_music">Проигрывание музыки при старте</string>
     <string name="settings_searching_files">Фоновый поиск файлов</string>
-    <string name="settings_wifi_download">Скачивание только по Wi-Fi</string>
+    <string name="settings_wifi_download">Загрузка только по Wi-Fi</string>
 
     <string name="search_hint">Поиск музыки</string>
 

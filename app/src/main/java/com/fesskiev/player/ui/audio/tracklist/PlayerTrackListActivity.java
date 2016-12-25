@@ -52,6 +52,7 @@ public class PlayerTrackListActivity extends AnalyticsActivity {
 
         public class ViewHolder extends RecyclerView.ViewHolder {
 
+            TextView trackNumber;
             TextView duration;
             TextView title;
             TextView filePath;
@@ -69,6 +70,7 @@ public class PlayerTrackListActivity extends AnalyticsActivity {
                     }
                 });
 
+                trackNumber = (TextView) v.findViewById(R.id.trackNumber);
                 duration = (TextView) v.findViewById(R.id.duration);
                 title = (TextView) v.findViewById(R.id.title);
                 filePath = (TextView) v.findViewById(R.id.filePath);
@@ -88,6 +90,7 @@ public class PlayerTrackListActivity extends AnalyticsActivity {
         public void onBindViewHolder(ViewHolder holder, int position) {
             AudioFile audioFile = audioFiles.get(position);
             if (audioFile != null) {
+                holder.trackNumber.setText(String.valueOf(audioFile.trackNumber));
                 holder.duration.setText(Utils.getDurationString(audioFile.length));
                 holder.title.setText(audioFile.title);
                 holder.filePath.setText(audioFile.getFilePath());

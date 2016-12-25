@@ -61,7 +61,7 @@ public class CountDownTimer {
                 }
 
                 if (pause && millisInFuture <= 0) {
-                    Log.v("count_down", "PAUSE!");
+//                    Log.v("count_down", "PAUSE!");
                 } else {
                     if (listener != null) {
                         listener.tickCount();

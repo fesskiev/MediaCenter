@@ -3,6 +3,7 @@ package com.fesskiev.player.ui.equalizer;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
@@ -17,6 +18,8 @@ import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.widgets.eq.BandControlView;
 
 import org.greenrobot.eventbus.EventBus;
+
+import java.util.Arrays;
 
 
 public class EqualizerFragment extends Fragment implements BandControlView.OnBandLevelListener {
@@ -61,7 +64,7 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
         switchEQState.setChecked(settingsManager.isEQOn());
 
 
-        BandControlView[] bandControlViews = new BandControlView[]{
+        BandControlView [] bandControlViews = new BandControlView[]{
                 (BandControlView) view.findViewById(R.id.bandControlLow),
                 (BandControlView) view.findViewById(R.id.bandControlMid),
                 (BandControlView) view.findViewById(R.id.bandControlHigh)
@@ -71,53 +74,54 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
             bandControlView.setOnBandLevelListener(this);
         }
 
-        if (settingsManager.isEQOn()) {
-            PlaybackService.changeEQEnable(context, true);
-        } else {
-            PlaybackService.changeEQEnable(context, false);
-        }
 
-        setEQState(bandControlViews);
+        new Handler().postDelayed(() -> setEQState(bandControlViews), 1000);
     }
 
     private void setEQState(BandControlView[] bandControlViews) {
         state = settingsManager.getEQState();
         if (state != null) {
-            Log.wtf("test", "state: " + state.toString());
-
             for (int i = 0; i < bandControlViews.length; i++) {
                 switch (i) {
                     case 0:
-                        bandControlViews[i].setLevel(state.getLowBand());
+                        bandControlViews[i].setLevel(state.getLowValues());
                         break;
                     case 1:
-                        bandControlViews[i].setLevel(state.getMidBand());
+                        bandControlViews[i].setLevel(state.getMidValues());
                         break;
                     case 2:
-                        bandControlViews[i].setLevel(state.getHighBand());
+                        bandControlViews[i].setLevel(state.getHighValues());
                         break;
                 }
             }
         } else {
             state = new EQState();
         }
+        if (settingsManager.isEQOn()) {
+            PlaybackService.changeEQEnable(context, true);
+        } else {
+            PlaybackService.changeEQEnable(context, false);
+        }
     }
 
     @Override
-    public void onBandLevelChanged(int band, int level) {
-        Log.d("test", " band, " + band + " level: " + level);
+    public void onBandLevelChanged(int band, float level, float[] values) {
+//        Log.d("test", " band, " + band + " level: " + level + " degrees: " + Arrays.toString(values));
 
-        PlaybackService.changeEQBandLevel(context, band, level);
+        PlaybackService.changeEQBandLevel(context, band, (int) level);
 
         switch (band) {
             case 0:
                 state.setLowBand(level);
+                state.setLowValues(values);
                 break;
             case 1:
                 state.setMidBand(level);
+                state.setMidValues(values);
                 break;
             case 2:
                 state.setHighBand(level);
+                state.setHighValues(values);
                 break;
         }
     }
