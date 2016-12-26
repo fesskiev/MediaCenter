@@ -151,6 +151,11 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         checkAudioContentItem();
     }
 
+    @Override
+    public MediaNavigationView getMediaNavigationView() {
+        return mediaNavigationView;
+    }
+
     private void setMainNavView() {
         navigationViewMain = (NavigationView) findViewById(R.id.nav_view_main);
         navigationViewMain.setNavigationItemSelectedListener(this);
@@ -190,10 +195,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             drawer.closeDrawer(GravityCompat.END);
         });
 
-        mediaNavigationView.setEqStateChangedListener(enable -> {
-            PlaybackService.changeEQEnable(getApplicationContext(), enable);
-            settingsManager.setEQEnable(enable);
-        });
+        mediaNavigationView.setEqStateChangedListener(enable ->
+                PlaybackService.changeEQEnable(getApplicationContext(), enable));
         mediaNavigationView.setNavigationItemSelectedListener(this);
 
         mediaNavigationView.setEQState(settingsManager.getEQState());

@@ -32,6 +32,7 @@ public:
     float getPositionPercent();
     bool isPlaying();
     bool isLooping();
+    bool isEnableEQ();
     void setLooping(bool looping);
     void open(const char *path);
     void setEQBands(int index, int value);

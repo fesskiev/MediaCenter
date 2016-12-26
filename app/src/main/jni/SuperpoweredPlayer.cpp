@@ -209,6 +209,10 @@ bool SuperpoweredPlayer::isLooping() {
     return player->looping;
 }
 
+bool SuperpoweredPlayer::isEnableEQ() {
+    return bandEQ->enabled;
+}
+
 
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     gJavaVM = vm;
@@ -250,6 +254,7 @@ Java_com_fesskiev_player_services_PlaybackService_updatePlaybackState(JNIEnv *ja
     setFloatField(javaEnvironment, obj, thisClass, "positionPercent", player->getPositionPercent());
     setBoolField(javaEnvironment, obj, thisClass, "playing", player->isPlaying());
     setBoolField(javaEnvironment, obj, thisClass, "looping", player->isLooping());
+    setBoolField(javaEnvironment, obj, thisClass, "enableEQ", player->isEnableEQ());
 }
 
 extern "C" JNIEXPORT void

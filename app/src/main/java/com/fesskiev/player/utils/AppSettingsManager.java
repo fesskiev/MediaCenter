@@ -7,10 +7,6 @@ import android.text.TextUtils;
 
 import com.fesskiev.player.data.model.EQState;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import java.util.List;
-
 
 public class AppSettingsManager {
 
@@ -111,7 +107,7 @@ public class AppSettingsManager {
     }
 
 
-    public boolean isEQOn() {
+    public boolean isEQEnable() {
         return sharedPreferences.getBoolean(KEY_EQ_ENABLE, false);
     }
 

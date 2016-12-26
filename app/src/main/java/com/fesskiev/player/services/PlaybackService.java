@@ -73,6 +73,7 @@ public class PlaybackService extends Service {
     private int durationScale;
     private boolean playing;
     private boolean looping;
+    private boolean enableEQ;
     private boolean headsetConnected;
 
 
@@ -176,7 +177,7 @@ public class PlaybackService extends Service {
                 volume *= 100f;
             }
 
-//            Log.d("event", "ev: " + PlaybackService.this.toString());
+            Log.d("event", "ev: " + PlaybackService.this.toString());
             EventBus.getDefault().post(PlaybackService.this);
         });
 
@@ -249,6 +250,7 @@ public class PlaybackService extends Service {
                     case ACTION_PLAYBACK_EQ_STATE:
                         boolean eqEnable = intent.getBooleanExtra(PLAYBACK_EXTRA_EQ_ENABLE, false);
                         enableEQ(eqEnable);
+                        EventBus.getDefault().post(PlaybackService.this);
                         break;
                     case ACTION_PLAYBACK_LOOPING_STATE:
                         boolean looping =
@@ -456,6 +458,10 @@ public class PlaybackService extends Service {
         return looping;
     }
 
+    public boolean isEnableEQ() {
+        return enableEQ;
+    }
+
     @Override
     public String toString() {
         return "PlaybackService{" +
@@ -466,6 +472,8 @@ public class PlaybackService extends Service {
                 ", durationScale=" + durationScale +
                 ", playing=" + playing +
                 ", looping=" + looping +
+                ", enableEQ=" + enableEQ +
+                ", headsetConnected=" + headsetConnected +
                 '}';
     }
 }

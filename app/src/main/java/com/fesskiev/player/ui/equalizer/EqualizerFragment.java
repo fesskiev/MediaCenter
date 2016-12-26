@@ -3,10 +3,8 @@ package com.fesskiev.player.ui.equalizer;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SwitchCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,10 +17,9 @@ import com.fesskiev.player.widgets.eq.BandControlView;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.Arrays;
 
-
-public class EqualizerFragment extends Fragment implements BandControlView.OnBandLevelListener {
+public class EqualizerFragment extends Fragment implements BandControlView.OnBandLevelListener,
+        BandControlView.OnAttachStateListener {
 
     private Context context;
     private EQState state;
@@ -38,6 +35,10 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
         context = getContext().getApplicationContext();
         settingsManager = AppSettingsManager.getInstance(context);
 
+        state = settingsManager.getEQState();
+        if (state == null) {
+            state = new EQState();
+        }
     }
 
     @Override
@@ -50,25 +51,16 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        view.findViewById(R.id.saveEQStateButton).setOnClickListener(v -> {
-
-            settingsManager.setEQState(state);
-            EventBus.getDefault().post(state);
-
-            getActivity().finish();
-        });
-
         SwitchCompat switchEQState = (SwitchCompat) view.findViewById(R.id.stateEqualizer);
+
         switchEQState.setOnClickListener(v -> {
             boolean checked = ((SwitchCompat) v).isChecked();
 
             PlaybackService.changeEQEnable(getContext(), checked);
-
-            settingsManager.setEQState(state);
             EventBus.getDefault().post(state);
 
         });
-        switchEQState.setChecked(settingsManager.isEQOn());
+        switchEQState.setChecked(settingsManager.isEQEnable());
 
 
         BandControlView[] bandControlViews = new BandControlView[]{
@@ -78,36 +70,30 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
         };
 
         for (BandControlView bandControlView : bandControlViews) {
+            bandControlView.setAttachStateListener(this);
             bandControlView.setOnBandLevelListener(this);
         }
-
-
-        new Handler().postDelayed(() -> setEQState(bandControlViews), 1000);
     }
 
-    private void setEQState(BandControlView[] bandControlViews) {
-        state = settingsManager.getEQState();
-        if (state != null) {
-            for (int i = 0; i < bandControlViews.length; i++) {
-                switch (i) {
-                    case 0:
-                        bandControlViews[i].setLevel(state.getLowValues());
-                        break;
-                    case 1:
-                        bandControlViews[i].setLevel(state.getMidValues());
-                        break;
-                    case 2:
-                        bandControlViews[i].setLevel(state.getHighValues());
-                        break;
-                }
-            }
-        } else {
-            state = new EQState();
-        }
-        if (settingsManager.isEQOn()) {
-            PlaybackService.changeEQEnable(context, true);
-        } else {
-            PlaybackService.changeEQEnable(context, false);
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        settingsManager.setEQState(state);
+    }
+
+    @Override
+    public void onAttachBandControlView(BandControlView view) {
+        int band = view.getBand();
+        switch (band) {
+            case 0:
+                view.setLevel(state.getLowValues());
+                break;
+            case 1:
+                view.setLevel(state.getMidValues());
+                break;
+            case 2:
+                view.setLevel(state.getHighValues());
+                break;
         }
     }
 

@@ -1,7 +1,6 @@
 package com.fesskiev.player.widgets.nav;
 
 import android.content.Context;
-import android.graphics.drawable.AnimationDrawable;
 import android.support.design.widget.NavigationView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -10,7 +9,6 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fesskiev.player.R;
@@ -37,6 +35,7 @@ public class MediaNavigationView extends NavigationView {
 
     private EffectsAdapter adapter;
     private EQState eqState;
+    private boolean enableEQ;
 
     public MediaNavigationView(Context context) {
         super(context);
@@ -73,13 +72,12 @@ public class MediaNavigationView extends NavigationView {
 
         private static final int VIEW_TYPE_EQ = 0;
 
-
         public class EQViewHolder extends RecyclerView.ViewHolder {
 
             SwitchCompat eqStateSwitch;
             TextView lowBand;
-            TextView middBand;
-            TextView highdBand;
+            TextView midBand;
+            TextView highBand;
 
             public EQViewHolder(View v) {
                 super(v);
@@ -90,15 +88,16 @@ public class MediaNavigationView extends NavigationView {
                 });
 
                 eqStateSwitch = (SwitchCompat) v.findViewById(R.id.eqSwitch);
-                eqStateSwitch.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+                eqStateSwitch.setOnClickListener(view -> {
+                    boolean checked = ((SwitchCompat) view).isChecked();
                     if (eqStateChangedListener != null) {
-                        eqStateChangedListener.onStateChanged(isChecked);
+                        eqStateChangedListener.onStateChanged(checked);
                     }
                 });
 
                 lowBand = (TextView) v.findViewById(R.id.eqLowBandState);
-                middBand = (TextView) v.findViewById(R.id.eqMidBandState);
-                highdBand = (TextView) v.findViewById(R.id.eqHighBandState);
+                midBand = (TextView) v.findViewById(R.id.eqMidBandState);
+                highBand = (TextView) v.findViewById(R.id.eqHighBandState);
             }
         }
 
@@ -132,9 +131,11 @@ public class MediaNavigationView extends NavigationView {
         private void createEqItem(EQViewHolder holder) {
             if (eqState != null) {
                 holder.lowBand.setText(String.format(Locale.US, "%.2f %2$s", eqState.getLowBand(), "db"));
-                holder.middBand.setText(String.format(Locale.US, "%.2f %2$s", eqState.getMidBand(), "db"));
-                holder.highdBand.setText(String.format(Locale.US, "%.2f %2$s", eqState.getHighBand(), "db"));
+                holder.midBand.setText(String.format(Locale.US, "%.2f %2$s", eqState.getMidBand(), "db"));
+                holder.highBand.setText(String.format(Locale.US, "%.2f %2$s", eqState.getHighBand(), "db"));
             }
+
+            holder.eqStateSwitch.setChecked(enableEQ);
         }
 
     }
@@ -149,6 +150,11 @@ public class MediaNavigationView extends NavigationView {
 
     public void setEQState(EQState eqState) {
         this.eqState = eqState;
+        adapter.notifyDataSetChanged();
+    }
+
+    public void setEQEnable(boolean enable) {
+        this.enableEQ = enable;
         adapter.notifyDataSetChanged();
     }
 }

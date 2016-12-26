@@ -26,10 +26,12 @@ import com.fesskiev.player.players.AudioPlayer;
 import com.fesskiev.player.services.PlaybackService;
 import com.fesskiev.player.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.player.utils.AnimationUtils;
+import com.fesskiev.player.utils.AppSettingsManager;
 import com.fesskiev.player.utils.AudioNotificationHelper;
 import com.fesskiev.player.utils.BitmapHelper;
 import com.fesskiev.player.utils.Utils;
 import com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton;
+import com.fesskiev.player.widgets.nav.MediaNavigationView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -42,7 +44,9 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 
-public class PlaybackActivity extends AnalyticsActivity {
+public abstract class PlaybackActivity extends AnalyticsActivity {
+
+    public abstract MediaNavigationView getMediaNavigationView();
 
     private AudioPlayer audioPlayer;
     private AudioFile currentTrack;
@@ -63,6 +67,7 @@ public class PlaybackActivity extends AnalyticsActivity {
 
     private boolean lastPlaying;
     private int lastPositionSeconds;
+    private boolean lastEnableEQ;
 
     @Override
     public void onPostCreate(Bundle savedInstanceState) {
@@ -208,6 +213,7 @@ public class PlaybackActivity extends AnalyticsActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPlaybackStateEvent(PlaybackService playbackState) {
+
         boolean playing = playbackState.isPlaying();
         if (lastPlaying != playing) {
             lastPlaying = playing;
@@ -221,10 +227,18 @@ public class PlaybackActivity extends AnalyticsActivity {
         }
 
         int positionSeconds = playbackState.getPosition();
-
         if (lastPositionSeconds != positionSeconds) {
             lastPositionSeconds = positionSeconds;
             durationText.setText(Utils.getPositionSecondsString(lastPositionSeconds));
+        }
+
+        boolean enableEq = playbackState.isEnableEQ();
+        if (lastEnableEQ != enableEq) {
+            lastEnableEQ = enableEq;
+            AppSettingsManager.getInstance(getApplicationContext()).setEQEnable(enableEq);
+            getMediaNavigationView().setEQEnable(lastEnableEQ);
+
+            Log.d("eqtest", "EQ STATE CHANGE: " + lastEnableEQ);
         }
     }
 

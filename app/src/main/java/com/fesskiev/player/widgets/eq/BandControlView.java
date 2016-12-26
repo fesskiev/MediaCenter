@@ -10,7 +10,6 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -26,11 +25,17 @@ import com.fesskiev.player.utils.Utils;
  */
 public class BandControlView extends View {
 
+    public interface OnAttachStateListener {
+
+        void onAttachBandControlView(BandControlView view);
+    }
+
     public interface OnBandLevelListener {
 
         void onBandLevelChanged(int band, float level, float range, float[] values);
     }
 
+    private OnAttachStateListener attachStateListener;
     private OnBandLevelListener listener;
     private Bitmap bitmapControl;
     private Matrix matrix;
@@ -128,6 +133,9 @@ public class BandControlView extends View {
 
         matrix.postRotate(180, cx, cy);
 
+        if(attachStateListener != null){
+            attachStateListener.onAttachBandControlView(this);
+        }
     }
 
 
@@ -253,9 +261,15 @@ public class BandControlView extends View {
         this.listener = listener;
     }
 
+    public void setAttachStateListener(OnAttachStateListener attachStateListener) {
+        this.attachStateListener = attachStateListener;
+    }
+
     public void setLevel(float[] values) {
-        matrix.setValues(values);
-        postInvalidate();
+        if (values != null) {
+            matrix.setValues(values);
+            postInvalidate();
+        }
     }
 
     public int getBand() {
