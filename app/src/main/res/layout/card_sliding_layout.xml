@@ -10,10 +10,7 @@
         android:layout_width="160dp"
         android:layout_height="match_parent"
         android:layout_gravity="end"
-        android:layout_marginBottom="@dimen/card_view_margin_bottom"
-        android:layout_marginEnd="@dimen/card_view_margin_start"
-        android:layout_marginStart="@dimen/card_view_margin_end"
-        android:layout_marginTop="@dimen/card_view_margin_top"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:gravity="center_horizontal"
         android:orientation="horizontal">
 
