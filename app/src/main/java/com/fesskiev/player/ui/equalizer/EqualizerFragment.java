@@ -56,7 +56,7 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
         switchEQState.setOnClickListener(v -> {
             boolean checked = ((SwitchCompat) v).isChecked();
 
-            PlaybackService.changeEQEnable(getContext(), checked);
+            PlaybackService.changeEQEnable(context, checked);
             EventBus.getDefault().post(state);
 
         });
