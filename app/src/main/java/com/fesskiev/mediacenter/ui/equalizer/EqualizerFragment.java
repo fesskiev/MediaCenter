@@ -105,14 +105,17 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
 
         switch (band) {
             case 0:
+                state.setLowLevel(level);
                 state.setLowBand(range);
                 state.setLowValues(values);
                 break;
             case 1:
+                state.setMidLevel(level);
                 state.setMidBand(range);
                 state.setMidValues(values);
                 break;
             case 2:
+                state.setHighLevel(level);
                 state.setHighBand(range);
                 state.setHighValues(values);
                 break;

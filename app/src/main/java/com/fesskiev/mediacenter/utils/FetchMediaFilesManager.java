@@ -37,6 +37,7 @@ public class FetchMediaFilesManager {
 
     public void unregister() {
         unregisterBroadcastReceiver();
+        hideDialog();
     }
 
 
@@ -63,15 +64,16 @@ public class FetchMediaFilesManager {
                 case FileSystemIntentService.ACTION_START_FETCH_MEDIA_CONTENT:
                     mediaContentDialog = FetchMediaContentDialog.newInstance(activity);
                     mediaContentDialog.show();
-                    if(listener != null){
+                    if (listener != null) {
                         listener.onFetchContentStart();
                     }
                     break;
                 case FileSystemIntentService.ACTION_END_FETCH_MEDIA_CONTENT:
                     if (mediaContentDialog != null) {
                         mediaContentDialog.hide();
+                        mediaContentDialog.dismiss();
                     }
-                    if(listener != null){
+                    if (listener != null) {
                         listener.onFetchContentFinish();
                     }
                     break;
@@ -99,5 +101,12 @@ public class FetchMediaFilesManager {
             }
         }
     };
+
+    private void hideDialog() {
+        if (mediaContentDialog != null && mediaContentDialog.isShowing()) {
+            mediaContentDialog.hide();
+            mediaContentDialog.dismiss();
+        }
+    }
 
 }

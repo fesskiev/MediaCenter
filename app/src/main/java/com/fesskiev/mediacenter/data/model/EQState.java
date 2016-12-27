@@ -5,6 +5,10 @@ import java.util.Arrays;
 
 public class EQState {
 
+    private float lowLevel;
+    private float midLevel;
+    private float highLevel;
+
     private float lowBand;
     private float midBand;
     private float highBand;
@@ -61,10 +65,37 @@ public class EQState {
         this.lowValues = lowValues;
     }
 
+    public float getLowLevel() {
+        return lowLevel;
+    }
+
+    public void setLowLevel(float lowLevel) {
+        this.lowLevel = lowLevel;
+    }
+
+    public float getMidLevel() {
+        return midLevel;
+    }
+
+    public void setMidLevel(float midLevel) {
+        this.midLevel = midLevel;
+    }
+
+    public float getHighLevel() {
+        return highLevel;
+    }
+
+    public void setHighLevel(float highLevel) {
+        this.highLevel = highLevel;
+    }
+
     @Override
     public String toString() {
         return "EQState{" +
-                "lowBand=" + lowBand +
+                "lowLevel=" + lowLevel +
+                ", midLevel=" + midLevel +
+                ", highLevel=" + highLevel +
+                ", lowBand=" + lowBand +
                 ", midBand=" + midBand +
                 ", highBand=" + highBand +
                 ", lowValues=" + Arrays.toString(lowValues) +

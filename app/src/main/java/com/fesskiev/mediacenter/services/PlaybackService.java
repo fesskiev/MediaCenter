@@ -12,6 +12,8 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.fesskiev.mediacenter.MediaApplication;
+import com.fesskiev.mediacenter.data.model.EQState;
+import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.AudioFocusManager;
 import com.fesskiev.mediacenter.utils.AudioNotificationHelper;
 import com.fesskiev.mediacenter.utils.CountDownTimer;
@@ -344,6 +346,28 @@ public class PlaybackService extends Service {
         Log.d(TAG, "create audio player!");
         createAudioPlayer(Integer.valueOf(sampleRateString), Integer.valueOf(bufferSizeString));
 
+        createEQStateIfNeed();
+
+    }
+
+    private void createEQStateIfNeed() {
+        EQState eqState = AppSettingsManager.getInstance(getApplicationContext()).getEQState();
+        if (eqState != null) {
+            Log.wtf(TAG, "create EQ state");
+            for (int i = 0; i < 3; i++) {
+                switch (i){
+                    case 0:
+                        setEQBands(i, (int) eqState.getLowLevel());
+                        break;
+                    case 1:
+                        setEQBands(i, (int) eqState.getMidLevel());
+                        break;
+                    case 2:
+                        setEQBands(i, (int) eqState.getHighLevel());
+                        break;
+                }
+            }
+        }
     }
 
     private void openFile(String path) {

@@ -75,8 +75,8 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onDestroy() {
+        super.onDestroy();
         fetchMediaFilesManager.unregister();
         RxUtils.unsubscribe(subscription);
     }
@@ -88,6 +88,7 @@ public class SplashActivity extends AppCompatActivity {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     if (permissionDialog != null) {
                         permissionDialog.hide();
+                        permissionDialog.dismiss();
                     }
                     checkAppFirstStart();
                     PlaybackService.startPlaybackService(this);
@@ -131,6 +132,7 @@ public class SplashActivity extends AppCompatActivity {
             @Override
             public void onPermissionCancel() {
                 permissionDialog.hide();
+                permissionDialog.dismiss();
                 finish();
             }
         });
