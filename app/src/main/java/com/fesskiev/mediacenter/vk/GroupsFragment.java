@@ -76,7 +76,9 @@ public class GroupsFragment extends Fragment {
                     }
                 }));
 
+        fetchGroups();
     }
+
 
     public void fetchGroups() {
         showProgressBar();

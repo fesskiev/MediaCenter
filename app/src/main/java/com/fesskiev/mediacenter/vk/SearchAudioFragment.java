@@ -70,6 +70,7 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
             }
         });
 
+        fetchAudio(0);
     }
 
     @Override

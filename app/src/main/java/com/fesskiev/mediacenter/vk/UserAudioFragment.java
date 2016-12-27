@@ -1,6 +1,9 @@
 package com.fesskiev.mediacenter.vk;
 
 
+import android.os.Bundle;
+import android.view.View;
+
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.vk.data.source.DataRepository;
 import com.fesskiev.mediacenter.utils.AppLog;
@@ -20,6 +23,13 @@ public class UserAudioFragment extends RecyclerAudioFragment {
     }
 
     private Subscription subscription;
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        fetchAudio(0);
+    }
 
     @Override
     public void onDestroy() {
