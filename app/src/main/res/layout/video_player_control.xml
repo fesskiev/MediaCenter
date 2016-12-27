@@ -20,7 +20,7 @@
             android:foreground="?android:attr/selectableItemBackground"
             android:src="@drawable/previous_track_icon" />
 
-        <com.fesskiev.player.widgets.buttons.PlayPauseButton
+        <com.fesskiev.mediacenter.widgets.buttons.PlayPauseButton
             android:id="@+id/playPauseButton"
             android:layout_width="82dp"
             android:layout_height="82dp"

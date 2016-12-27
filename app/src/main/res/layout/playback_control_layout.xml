@@ -130,7 +130,7 @@
 
     </LinearLayout>
 
-    <com.fesskiev.player.widgets.buttons.PlayPauseFloatingButton
+    <com.fesskiev.mediacenter.widgets.buttons.PlayPauseFloatingButton
         android:id="@+id/playPauseFAB"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

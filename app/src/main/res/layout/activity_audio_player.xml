@@ -43,7 +43,7 @@
     </android.support.design.widget.AppBarLayout>
 
 
-    <com.fesskiev.player.widgets.utils.DisabledScrollView
+    <com.fesskiev.mediacenter.widgets.utils.DisabledScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -55,7 +55,7 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <com.fesskiev.player.widgets.cards.DescriptionCardView
+            <com.fesskiev.mediacenter.widgets.cards.DescriptionCardView
                 android:id="@+id/cardDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -140,7 +140,7 @@
 
                 </RelativeLayout>
 
-            </com.fesskiev.player.widgets.cards.DescriptionCardView>
+            </com.fesskiev.mediacenter.widgets.cards.DescriptionCardView>
 
             <android.support.v7.widget.CardView
                 android:id="@+id/controlCard"
@@ -220,7 +220,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1">
 
-                            <com.fesskiev.player.widgets.buttons.MuteSoloButton
+                            <com.fesskiev.mediacenter.widgets.buttons.MuteSoloButton
                                 android:id="@+id/muteSoloButton"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -293,7 +293,7 @@
                             android:src="@drawable/icon_track_list" />
 
 
-                        <com.fesskiev.player.widgets.buttons.RepeatButton
+                        <com.fesskiev.mediacenter.widgets.buttons.RepeatButton
                             android:id="@+id/repeatButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -330,7 +330,7 @@
                         android:layout_below="@+id/divider2"
                         android:layout_marginTop="15dp">
 
-                        <com.fesskiev.player.widgets.controls.AudioControlView
+                        <com.fesskiev.mediacenter.widgets.controls.AudioControlView
                             android:id="@+id/audioControl"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -344,6 +344,6 @@
 
         </LinearLayout>
 
-    </com.fesskiev.player.widgets.utils.DisabledScrollView>
+    </com.fesskiev.mediacenter.widgets.utils.DisabledScrollView>
 
 </android.support.design.widget.CoordinatorLayout>

@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <com.fesskiev.player.widgets.controls.AudioVolumeSeekView
+    <com.fesskiev.mediacenter.widgets.controls.AudioVolumeSeekView
         android:id="@+id/audioVolumeControl"
         android:layout_width="360dp"
         android:layout_height="360dp"
@@ -15,7 +15,7 @@
         app:text="100"
         app:textColor="@color/secondary_text" />
 
-    <com.fesskiev.player.widgets.buttons.PlayPauseButton
+    <com.fesskiev.mediacenter.widgets.buttons.PlayPauseButton
         android:id="@+id/playPauseButton"
         android:layout_width="82dp"
         android:layout_height="82dp"

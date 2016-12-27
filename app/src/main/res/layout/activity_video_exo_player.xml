@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.fesskiev.player.widgets.layouts.DragFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.fesskiev.mediacenter.widgets.layouts.DragFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/dragLayout"
@@ -30,7 +30,7 @@
                     android:layout_height="match_parent"
                     android:animateLayoutChanges="true">
 
-                    <com.fesskiev.player.widgets.surfaces.VideoTextureView
+                    <com.fesskiev.mediacenter.widgets.surfaces.VideoTextureView
                         android:id="@+id/videoView"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -68,7 +68,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
-                        <com.fesskiev.player.widgets.controls.VideoControlView
+                        <com.fesskiev.mediacenter.widgets.controls.VideoControlView
                             android:id="@+id/videoPlayerControl"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -190,5 +190,5 @@
 
     </android.support.v4.widget.NestedScrollView>
 
-</com.fesskiev.player.widgets.layouts.DragFrameLayout>
+</com.fesskiev.mediacenter.widgets.layouts.DragFrameLayout>
 

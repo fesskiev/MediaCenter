@@ -143,7 +143,4 @@
 
     <integer name="com_vk_sdk_AppId">5217689</integer>
 
-    <string name="flurry_key">77NCCTNCQ8Q32WSD5CV7</string>
-
-
 </resources>

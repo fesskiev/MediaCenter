@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp">
 
-        <com.fesskiev.player.widgets.eq.BandControlView
+        <com.fesskiev.mediacenter.widgets.eq.BandControlView
             android:id="@+id/bandControlLow"
             android:layout_width="200dp"
             android:layout_height="200dp"
@@ -19,7 +19,7 @@
             app:band="0"
             app:bandName="Low" />
 
-        <com.fesskiev.player.widgets.eq.BandControlView
+        <com.fesskiev.mediacenter.widgets.eq.BandControlView
             android:id="@+id/bandControlMid"
             android:layout_width="200dp"
             android:layout_height="200dp"
@@ -28,7 +28,7 @@
             app:band="1"
             app:bandName="Mid" />
 
-        <com.fesskiev.player.widgets.eq.BandControlView
+        <com.fesskiev.mediacenter.widgets.eq.BandControlView
             android:id="@+id/bandControlHigh"
             android:layout_width="200dp"
             android:layout_height="200dp"

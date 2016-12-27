@@ -35,7 +35,7 @@
         app:menu="@menu/activity_main_drawer" />
 
 
-    <com.fesskiev.player.widgets.nav.MediaNavigationView
+    <com.fesskiev.mediacenter.widgets.nav.MediaNavigationView
         android:id="@+id/nav_view_effects"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"

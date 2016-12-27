@@ -34,7 +34,7 @@
     </LinearLayout>
 
 
-    <com.fesskiev.player.widgets.MaterialProgressBar
+    <com.fesskiev.mediacenter.widgets.MaterialProgressBar
         android:id="@+id/fetchProgressBar"
         android:layout_width="match_parent"
         android:layout_height="6dp"

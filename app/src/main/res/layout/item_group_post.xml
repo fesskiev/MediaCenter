@@ -42,7 +42,7 @@
             android:scaleType="centerCrop"
             tools:src="@drawable/cover" />
 
-        <com.fesskiev.player.widgets.GroupPostAudioView
+        <com.fesskiev.mediacenter.widgets.GroupPostAudioView
             android:id="@+id/groupPostAudioView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
