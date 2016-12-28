@@ -1,14 +1,11 @@
 package com.fesskiev.mediacenter.vk;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
-import android.view.MenuItem;
-import android.view.View;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
@@ -45,10 +42,9 @@ public class VkontakteActivity extends AnalyticsActivity {
                             addSearchAudioFragment();
                             break;
                     }
-                    return false;
+                    return true;
                 });
-        View view = bottomNavigationView.findViewById(R.id.action_wall);
-        view.performClick();
+        addUserAudioFragment();
     }
 
     private void addSearchAudioFragment() {

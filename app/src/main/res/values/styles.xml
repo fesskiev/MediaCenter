@@ -19,7 +19,6 @@
         <item name="switchStyle">@style/Custom.Widget.SwitchCompat</item>
         <item name="seekBarStyle">@style/Custom.Widget.SeekBarStyle</item>
         <item name="android:scrollbarThumbVertical">@android:color/transparent</item>
-
     </style>
 
     <style name="Base.Theme.Player.VideoExoPlayer">
