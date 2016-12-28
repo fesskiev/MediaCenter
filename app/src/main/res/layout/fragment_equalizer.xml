@@ -10,7 +10,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp">
+        android:layout_marginTop="@dimen/eq_margin_top">
 
         <com.fesskiev.mediacenter.widgets.eq.BandControlView
             android:id="@+id/bandControlLow"
@@ -35,7 +35,7 @@
             android:layout_height="200dp"
             android:layout_below="@+id/bandControlLow"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="@dimen/eq_margin_band"
             app:band="2"
             app:bandName="High" />
 
@@ -45,7 +45,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="@dimen/eq_margin_bottom"
         android:orientation="vertical">
 
         <View
@@ -53,8 +53,7 @@
             style="@style/DividerStyle"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginBottom="10dp"
-            android:layout_marginTop="10dp" />
+            android:layout_marginBottom="10dp"/>
 
         <RelativeLayout
             android:layout_width="match_parent"

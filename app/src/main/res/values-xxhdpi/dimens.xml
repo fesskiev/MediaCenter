@@ -24,4 +24,8 @@
 
     <dimen name="card_view_empty_content_height">100dp</dimen>
 
+    <dimen name="eq_margin_top">0dp</dimen>
+    <dimen name="eq_margin_band">0dp</dimen>
+    <dimen name="eq_margin_bottom">5dp</dimen>
+
 </resources>
