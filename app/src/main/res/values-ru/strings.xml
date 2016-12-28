@@ -11,6 +11,7 @@
     <string name="title_settings_activity">Настройки</string>
     <string name="title_about_activity">О проекте</string>
     <string name="title_playlist_activity">Плейлист</string>
+    <string name="title_effects">Эффекты</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

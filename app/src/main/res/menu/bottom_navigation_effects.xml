@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_eq"
+        android:enabled="true"
+        android:icon="@drawable/icon_equalizer"
+        android:title="@string/drawer_item_eq"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_1"
+        android:enabled="true"
+        android:icon="@drawable/icon_equalizer"
+        android:title="@string/drawer_item_eq"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_2"
+        android:enabled="true"
+        android:icon="@drawable/icon_equalizer"
+        android:title="@string/drawer_item_eq"
+        app:showAsAction="ifRoom" />
+</menu>

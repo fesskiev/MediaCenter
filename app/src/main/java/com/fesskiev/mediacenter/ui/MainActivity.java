@@ -25,7 +25,7 @@ import com.fesskiev.mediacenter.services.FileObserverService;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.about.AboutActivity;
 import com.fesskiev.mediacenter.ui.audio.AudioFragment;
-import com.fesskiev.mediacenter.ui.equalizer.EqualizerActivity;
+import com.fesskiev.mediacenter.ui.effects.EffectsActivity;
 import com.fesskiev.mediacenter.ui.playback.PlaybackActivity;
 import com.fesskiev.mediacenter.ui.playlist.PlayListActivity;
 import com.fesskiev.mediacenter.ui.search.SearchActivity;
@@ -187,7 +187,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
         mediaNavigationView.setEQClickListener(() -> {
 
-            selectedActivity = EqualizerActivity.class;
+            selectedActivity = EffectsActivity.class;
             drawer.closeDrawer(GravityCompat.END);
         });
 

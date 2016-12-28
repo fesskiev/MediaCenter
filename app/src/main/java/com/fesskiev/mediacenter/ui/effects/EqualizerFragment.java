@@ -1,4 +1,4 @@
-package com.fesskiev.mediacenter.ui.equalizer;
+package com.fesskiev.mediacenter.ui.effects;
 
 
 import android.content.Context;

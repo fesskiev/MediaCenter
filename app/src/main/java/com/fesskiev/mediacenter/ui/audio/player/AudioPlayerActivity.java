@@ -17,7 +17,7 @@ import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.audio.tracklist.PlayerTrackListActivity;
-import com.fesskiev.mediacenter.ui.equalizer.EqualizerActivity;
+import com.fesskiev.mediacenter.ui.effects.EffectsActivity;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.buttons.MuteSoloButton;
@@ -182,7 +182,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     }
 
     private void startEqualizerActivity() {
-        startActivity(new Intent(AudioPlayerActivity.this, EqualizerActivity.class));
+        startActivity(new Intent(AudioPlayerActivity.this, EffectsActivity.class));
     }
 
     @Override

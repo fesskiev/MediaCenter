@@ -11,6 +11,7 @@
     <string name="title_settings_activity">Settings</string>
     <string name="title_about_activity">About</string>
     <string name="title_playlist_activity">Playlist</string>
+    <string name="title_effects">Effects</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
