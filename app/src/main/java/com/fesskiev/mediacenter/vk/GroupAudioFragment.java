@@ -208,8 +208,9 @@ public class GroupAudioFragment extends Fragment {
                     holder.postCover.setVisibility(View.GONE);
                 }
 
-                if (groupPost.getAttachments() != null) {
+                if (!groupPost.getDownloadGroupAudioFiles().isEmpty()) {
                     holder.openCloseButton.setVisibility(View.VISIBLE);
+
                 } else {
                     holder.openCloseButton.setVisibility(View.GONE);
                 }
@@ -221,6 +222,7 @@ public class GroupAudioFragment extends Fragment {
                     holder.openCloseButton.setImageResource(R.drawable.icon_down);
                     holder.audioCardView.removeAudioItems();
                 }
+
             }
         }
 

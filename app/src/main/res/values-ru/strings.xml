@@ -7,7 +7,7 @@
     <string name="snack_exit_text">Выйти из приложения?</string>
     <string name="snack_exit_action">Выход</string>
 
-    <string name="title_music_vk_activity">Вконтакте музыка</string>
+    <string name="title_music_vk_activity">Вконтакте</string>
     <string name="title_settings_activity">Настройки</string>
     <string name="title_about_activity">О проекте</string>
     <string name="title_playlist_activity">Плейлист</string>

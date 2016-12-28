@@ -21,7 +21,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.data.model.EQState;
 import com.fesskiev.mediacenter.services.FileObserverService;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.about.AboutActivity;
@@ -32,9 +31,6 @@ import com.fesskiev.mediacenter.ui.playlist.PlayListActivity;
 import com.fesskiev.mediacenter.ui.search.SearchActivity;
 import com.fesskiev.mediacenter.ui.settings.SettingsActivity;
 import com.fesskiev.mediacenter.ui.video.VideoFragment;
-import com.fesskiev.mediacenter.vk.VkontakteActivity;
-import com.fesskiev.mediacenter.vk.data.model.User;
-import com.fesskiev.mediacenter.vk.data.source.DataRepository;
 import com.fesskiev.mediacenter.utils.AnimationUtils;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
@@ -42,15 +38,15 @@ import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
+import com.fesskiev.mediacenter.vk.VkontakteActivity;
+import com.fesskiev.mediacenter.vk.data.model.User;
+import com.fesskiev.mediacenter.vk.data.source.DataRepository;
 import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKScope;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKError;
-
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -199,8 +195,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 PlaybackService.changeEQEnable(getApplicationContext(), enable));
         mediaNavigationView.setNavigationItemSelectedListener(this);
 
-        mediaNavigationView.setEQState(settingsManager.getEQState());
-
     }
 
     private void setUserInfo() {
@@ -241,12 +235,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         super.onNewIntent(intent);
 
     }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEQStateChanged(EQState eqState) {
-        mediaNavigationView.setEQState(eqState);
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

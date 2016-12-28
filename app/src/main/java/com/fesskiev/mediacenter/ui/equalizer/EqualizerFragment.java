@@ -8,6 +8,7 @@ import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.EQState;
@@ -17,6 +18,8 @@ import com.fesskiev.mediacenter.widgets.eq.BandControlView;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.Locale;
+
 
 public class EqualizerFragment extends Fragment implements BandControlView.OnBandLevelListener,
         BandControlView.OnAttachStateListener {
@@ -24,6 +27,9 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
     private Context context;
     private EQState state;
     private AppSettingsManager settingsManager;
+    private TextView lowBand;
+    private TextView midBand;
+    private TextView highBand;
 
     public static EqualizerFragment newInstance() {
         return new EqualizerFragment();
@@ -52,6 +58,10 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
         super.onViewCreated(view, savedInstanceState);
 
         SwitchCompat switchEQState = (SwitchCompat) view.findViewById(R.id.stateEqualizer);
+
+        lowBand = (TextView) view.findViewById(R.id.eqLowBandState);
+        midBand = (TextView) view.findViewById(R.id.eqMidBandState);
+        highBand = (TextView) view.findViewById(R.id.eqHighBandState);
 
         switchEQState.setOnClickListener(v -> {
             boolean checked = ((SwitchCompat) v).isChecked();
@@ -87,12 +97,15 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
         switch (band) {
             case 0:
                 view.setLevel(state.getLowValues());
+                lowBand.setText(String.format(Locale.US, "%.2f %2$s", state.getLowBand(), "db"));
                 break;
             case 1:
                 view.setLevel(state.getMidValues());
+                midBand.setText(String.format(Locale.US, "%.2f %2$s", state.getMidBand(), "db"));
                 break;
             case 2:
                 view.setLevel(state.getHighValues());
+                highBand.setText(String.format(Locale.US, "%.2f %2$s", state.getHighBand(), "db"));
                 break;
         }
     }
@@ -108,16 +121,19 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
                 state.setLowLevel(level);
                 state.setLowBand(range);
                 state.setLowValues(values);
+                lowBand.setText(String.format(Locale.US, "%.2f %2$s", range, "db"));
                 break;
             case 1:
                 state.setMidLevel(level);
                 state.setMidBand(range);
                 state.setMidValues(values);
+                midBand.setText(String.format(Locale.US, "%.2f %2$s", range, "db"));
                 break;
             case 2:
                 state.setHighLevel(level);
                 state.setHighBand(range);
                 state.setHighValues(values);
+                highBand.setText(String.format(Locale.US, "%.2f %2$s", range, "db"));
                 break;
         }
     }
