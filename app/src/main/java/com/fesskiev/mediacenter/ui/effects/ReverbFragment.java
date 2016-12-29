@@ -1,0 +1,93 @@
+package com.fesskiev.mediacenter.ui.effects;
+
+
+import android.content.Context;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v7.widget.SwitchCompat;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.data.model.effects.ReverbState;
+import com.fesskiev.mediacenter.services.PlaybackService;
+import com.fesskiev.mediacenter.utils.AppSettingsManager;
+import com.fesskiev.mediacenter.widgets.reverb.ReverbControlView;
+
+import org.greenrobot.eventbus.EventBus;
+
+
+public class ReverbFragment extends Fragment implements ReverbControlView.OnAttachStateListener ,
+        ReverbControlView.OnReverbControlListener{
+
+    public static ReverbFragment newInstance() {
+        return new ReverbFragment();
+    }
+
+    private Context context;
+    private AppSettingsManager settingsManager;
+    private ReverbState state;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        context = getContext().getApplicationContext();
+        settingsManager = AppSettingsManager.getInstance(context);
+
+        state = settingsManager.getReverbState();
+        if(state == null){
+            state = new ReverbState();
+        }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_reverb, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        SwitchCompat switchEQState = (SwitchCompat) view.findViewById(R.id.stateReverb);
+        switchEQState.setOnClickListener(v -> {
+            boolean checked = ((SwitchCompat) v).isChecked();
+
+
+        });
+        switchEQState.setChecked(settingsManager.isReverbEnable());
+
+        ReverbControlView [] reverbControlViews = new ReverbControlView[]{
+                (ReverbControlView) view.findViewById(R.id.reverbMix),
+                (ReverbControlView) view.findViewById(R.id.reverbWidth),
+                (ReverbControlView) view.findViewById(R.id.reverbDamp),
+                (ReverbControlView) view.findViewById(R.id.reverRoonSize)
+        };
+
+        for (ReverbControlView reverbControlView : reverbControlViews) {
+            reverbControlView.setAttachStateListener(this);
+            reverbControlView.setControlListener(this);
+        }
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        settingsManager.setReverbState(state);
+    }
+
+    @Override
+    public void onAttachReverbControlView(ReverbControlView view) {
+
+    }
+
+    @Override
+    public void onReverbControlChanged(String name, float level, float[] values) {
+        Log.d("reverb", "reverb name: " + name + " level: " + level);
+    }
+}

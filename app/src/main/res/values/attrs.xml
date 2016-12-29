@@ -27,4 +27,8 @@
     <attr name="bandName" format="string" />
   </declare-styleable>
 
+  <declare-styleable name="ReverbControlView">
+    <attr name="name" format="string" />
+  </declare-styleable>
+
 </resources>

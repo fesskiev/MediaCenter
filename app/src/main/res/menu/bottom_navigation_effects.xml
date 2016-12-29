@@ -9,10 +9,10 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/action_1"
+        android:id="@+id/action_reverb"
         android:enabled="true"
         android:icon="@drawable/icon_equalizer"
-        android:title="@string/drawer_item_eq"
+        android:title="@string/drawer_item_reverb"
         app:showAsAction="ifRoom" />
 
     <item

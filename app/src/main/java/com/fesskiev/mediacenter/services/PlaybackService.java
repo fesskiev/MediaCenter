@@ -12,7 +12,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.fesskiev.mediacenter.MediaApplication;
-import com.fesskiev.mediacenter.data.model.EQState;
+import com.fesskiev.mediacenter.data.model.effects.EQState;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.AudioFocusManager;
 import com.fesskiev.mediacenter.utils.AudioNotificationHelper;
@@ -445,10 +445,21 @@ public class PlaybackService extends Service {
     /***
      * EQ methods
      */
-
     public native void enableEQ(boolean enable);
 
     public native void setEQBands(int band, int value);
+
+    /***
+     * Echo
+     */
+    public native void setEchoValue(int value);
+
+    /***
+     * Reverb
+     */
+    public native void setReverbValue(int mix, int width, int damp, int roomSize);
+
+    public native void enableReverb(boolean enable);
 
     @Keep
     public void playStatusCallback(int status) {

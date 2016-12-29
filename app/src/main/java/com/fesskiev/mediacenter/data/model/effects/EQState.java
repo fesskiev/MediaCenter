@@ -1,4 +1,4 @@
-package com.fesskiev.mediacenter.data.model;
+package com.fesskiev.mediacenter.data.model.effects;
 
 
 import java.util.Arrays;

@@ -4,14 +4,13 @@
 #include <math.h>
 #include <pthread.h>
 #include <Superpowered3BandEQ.h>
+#include <SuperpoweredReverb.h>
+#include <SuperpoweredEcho.h>
 #include <SuperpoweredMixer.h>
 
 #include "SuperpoweredPlayer.h"
 #include "SuperpoweredAdvancedAudioPlayer.h"
-#include "SuperpoweredFilter.h"
-#include "SuperpoweredRoll.h"
 #include "AndroidIO/SuperpoweredAndroidAudioIO.h"
-#include "SuperpoweredFlanger.h"
 
 
 class SuperpoweredPlayer {
@@ -37,6 +36,9 @@ public:
     void open(const char *path);
     void setEQBands(int index, int value);
     void enableEQ(bool enable);
+    void echoValue(int value);
+    void reverbValue(int mix, int width, int damp, int roomSize);
+    void enableReverb(bool enable);
     void onForeground();
     void onBackground();
 
@@ -46,6 +48,9 @@ private:
     SuperpoweredAdvancedAudioPlayer *player;
     Superpowered3BandEQ *bandEQ;
     SuperpoweredStereoMixer *mixer;
+    SuperpoweredReverb *reverb;
+    SuperpoweredEcho *echo;
+
     float *buffer;
     float volume;
 

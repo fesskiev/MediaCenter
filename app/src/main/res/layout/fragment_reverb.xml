@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/primary"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.fesskiev.mediacenter.widgets.reverb.ReverbControlView
+                android:id="@+id/reverbMix"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                app:name="Mix" />
+
+            <com.fesskiev.mediacenter.widgets.reverb.ReverbControlView
+                android:id="@+id/reverbWidth"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                app:name="Width" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.fesskiev.mediacenter.widgets.reverb.ReverbControlView
+                android:id="@+id/reverbDamp"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                app:name="Damp" />
+
+            <com.fesskiev.mediacenter.widgets.reverb.ReverbControlView
+                android:id="@+id/reverRoonSize"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                app:name="Room size" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
+        android:orientation="vertical">
+
+        <View
+            android:id="@+id/divider0"
+            style="@style/DividerStyle"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="10dp" />
+
+
+        <android.support.v7.widget.SwitchCompat
+            android:id="@+id/stateReverb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp" />
+
+        <View
+            android:id="@+id/divider1"
+            style="@style/DividerStyle"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp" />
+
+    </LinearLayout>
+
+</RelativeLayout>

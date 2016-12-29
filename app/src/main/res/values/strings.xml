@@ -29,6 +29,7 @@
     <string name="drawer_title_effects">Effects</string>
     <string name="drawer_title_content">Content</string>
     <string name="drawer_item_eq">Equalizer</string>
+    <string name="drawer_item_reverb">Reverb</string>
     <string name="drawer_item_audio">Audio</string>
     <string name="drawer_item_video">Video</string>
     <string name="drawer_item_playlist">Playlist</string>

@@ -31,6 +31,10 @@ public class EffectsActivity extends AnalyticsActivity {
                 item -> {
                     switch (item.getItemId()) {
                         case R.id.action_eq:
+                            addEQFragment();
+                            break;
+                        case R.id.action_reverb:
+                            addReverbFragment();
                             break;
                     }
                     return true;
@@ -39,20 +43,37 @@ public class EffectsActivity extends AnalyticsActivity {
         addEQFragment();
     }
 
+    private void addReverbFragment() {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+        hideVisibleFragment(transaction);
+
+        ReverbFragment reverbFragment = (ReverbFragment) getSupportFragmentManager().
+                findFragmentByTag(ReverbFragment.class.getName());
+        if (reverbFragment == null) {
+            transaction.add(R.id.content, ReverbFragment.newInstance(),
+                    ReverbFragment.class.getName());
+            transaction.addToBackStack(ReverbFragment.class.getName());
+        } else {
+            transaction.show(reverbFragment);
+        }
+        transaction.commitAllowingStateLoss();
+    }
+
 
     private void addEQFragment() {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
         hideVisibleFragment(transaction);
 
-        EqualizerFragment searchAudioFragment = (EqualizerFragment) getSupportFragmentManager().
+        EqualizerFragment equalizerFragment = (EqualizerFragment) getSupportFragmentManager().
                 findFragmentByTag(EqualizerFragment.class.getName());
-        if (searchAudioFragment == null) {
+        if (equalizerFragment == null) {
             transaction.add(R.id.content, EqualizerFragment.newInstance(),
                     EqualizerFragment.class.getName());
             transaction.addToBackStack(EqualizerFragment.class.getName());
         } else {
-            transaction.show(searchAudioFragment);
+            transaction.show(equalizerFragment);
         }
         transaction.commitAllowingStateLoss();
     }

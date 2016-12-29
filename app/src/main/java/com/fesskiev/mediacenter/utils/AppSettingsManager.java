@@ -5,7 +5,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
-import com.fesskiev.mediacenter.data.model.EQState;
+import com.fesskiev.mediacenter.data.model.effects.EQState;
+import com.fesskiev.mediacenter.data.model.effects.ReverbState;
 import com.google.gson.Gson;
 
 public class AppSettingsManager {
@@ -18,6 +19,8 @@ public class AppSettingsManager {
     private static final String KEY_USER_LAST_NAME = "com.fesskiev.player.KEY_USER_LAST_NAME";
     private static final String KEY_FIRST_START_APP = "com.fesskiev.player.KEY_FIRST_START_APP";
 
+    private static final String KEY_REVERB_ENABLE = "com.fesskiev.player.KEY_REVERB_ENABLE";
+    private static final String KEY_REVERB_STATE = "com.fesskiev.player.KEY_REVERB_STATE";
 
     private static final String KEY_EQ_ENABLE = "com.fesskiev.player.KEY_EQ_ENABLE";
     private static final String KEY_EQ_STATE = "com.fesskiev.player.KEY_EQ_STATE";
@@ -104,6 +107,28 @@ public class AppSettingsManager {
 
     public boolean isAuthTokenEmpty() {
         return TextUtils.isEmpty(getAuthToken());
+    }
+
+
+    public boolean isReverbEnable() {
+        return sharedPreferences.getBoolean(KEY_REVERB_ENABLE, false);
+    }
+
+    public void setReverbEnable(boolean enable) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_REVERB_ENABLE, enable);
+        editor.apply();
+    }
+
+    public void setReverbState(ReverbState state){
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(KEY_REVERB_STATE, new Gson().toJson(state));
+        editor.apply();
+    }
+
+    public ReverbState getReverbState(){
+        String stateJson = sharedPreferences.getString(KEY_REVERB_STATE, "");
+        return new Gson().fromJson(stateJson, ReverbState.class);
     }
 
 

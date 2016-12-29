@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.data.model.EQState;
+import com.fesskiev.mediacenter.data.model.effects.EQState;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.widgets.eq.BandControlView;
@@ -57,12 +57,11 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        SwitchCompat switchEQState = (SwitchCompat) view.findViewById(R.id.stateEqualizer);
-
         lowBand = (TextView) view.findViewById(R.id.eqLowBandState);
         midBand = (TextView) view.findViewById(R.id.eqMidBandState);
         highBand = (TextView) view.findViewById(R.id.eqHighBandState);
 
+        SwitchCompat switchEQState = (SwitchCompat) view.findViewById(R.id.stateEqualizer);
         switchEQState.setOnClickListener(v -> {
             boolean checked = ((SwitchCompat) v).isChecked();
 
