@@ -11,7 +11,7 @@
     <item
         android:id="@+id/action_reverb"
         android:enabled="true"
-        android:icon="@drawable/icon_equalizer"
+        android:icon="@drawable/icon_reverb"
         android:title="@string/drawer_item_reverb"
         app:showAsAction="ifRoom" />
 

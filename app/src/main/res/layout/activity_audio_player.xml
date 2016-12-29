@@ -279,7 +279,7 @@
                             android:clickable="true"
                             android:contentDescription="@string/app_name"
                             android:foreground="?android:attr/selectableItemBackground"
-                            android:src="@drawable/icon_equalizer" />
+                            android:src="@drawable/icon_effects" />
 
                         <ImageView
                             android:id="@+id/trackList"
