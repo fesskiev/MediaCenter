@@ -68,6 +68,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     private boolean lastPlaying;
     private int lastPositionSeconds;
     private boolean lastEnableEQ;
+    private boolean lastEnableReverb;
 
     @Override
     public void onPostCreate(Bundle savedInstanceState) {
@@ -239,6 +240,15 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
             getMediaNavigationView().setEQEnable(lastEnableEQ);
 
             Log.d("eqtest", "EQ STATE CHANGE: " + lastEnableEQ);
+        }
+
+        boolean enableReverb = playbackState.isEnableReverb();
+        if (lastEnableReverb != enableReverb) {
+            lastEnableReverb = enableReverb;
+            AppSettingsManager.getInstance(getApplicationContext()).setReverbEnable(enableReverb);
+            getMediaNavigationView().setReverbEnable(lastEnableReverb);
+
+            Log.d("eqtest", "Reverb STATE CHANGE: " + lastEnableReverb);
         }
     }
 

@@ -16,21 +16,20 @@ import com.fesskiev.mediacenter.widgets.recycleview.ScrollingLinearLayoutManager
 
 public class MediaNavigationView extends NavigationView {
 
-    public interface OnEQStateChangedListener {
+    public interface OnEffectChangedListener {
 
-        void onStateChanged(boolean enable);
+        void onEffectClick();
+
+        void onEQStateChanged(boolean enable);
+
+        void onReverbStateChanged(boolean enable);
     }
 
-    public interface OnEQClickListener {
-
-        void onEQClick();
-    }
-
-    private OnEQStateChangedListener eqStateChangedListener;
-    private OnEQClickListener eqClickListener;
+    private OnEffectChangedListener listener;
 
     private EffectsAdapter adapter;
     private boolean enableEQ;
+    private boolean enableReverb;
 
     public MediaNavigationView(Context context) {
         super(context);
@@ -54,8 +53,8 @@ public class MediaNavigationView extends NavigationView {
         View view = inflater.inflate(R.layout.nav_effects_layout, this, true);
 
         view.findViewById(R.id.imageHeader).setOnClickListener(v -> {
-            if (eqClickListener != null) {
-                eqClickListener.onEQClick();
+            if (listener != null) {
+                listener.onEffectClick();
             }
         });
 
@@ -72,6 +71,7 @@ public class MediaNavigationView extends NavigationView {
     private class EffectsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         private static final int VIEW_TYPE_EQ = 0;
+        private static final int VIEW_TYPE_REVERB = 1;
 
         public class EQViewHolder extends RecyclerView.ViewHolder {
 
@@ -82,8 +82,24 @@ public class MediaNavigationView extends NavigationView {
                 eqStateSwitch = (SwitchCompat) v.findViewById(R.id.eqSwitch);
                 eqStateSwitch.setOnClickListener(view -> {
                     boolean checked = ((SwitchCompat) view).isChecked();
-                    if (eqStateChangedListener != null) {
-                        eqStateChangedListener.onStateChanged(checked);
+                    if (listener != null) {
+                        listener.onEQStateChanged(checked);
+                    }
+                });
+            }
+        }
+
+        public class ReverbViewHolder extends RecyclerView.ViewHolder {
+
+            SwitchCompat reverbStateSwitch;
+
+            public ReverbViewHolder(View v) {
+                super(v);
+                reverbStateSwitch = (SwitchCompat) v.findViewById(R.id.reverbSwitch);
+                reverbStateSwitch.setOnClickListener(view -> {
+                    boolean checked = ((SwitchCompat) view).isChecked();
+                    if (listener != null) {
+                        listener.onReverbStateChanged(checked);
                     }
                 });
             }
@@ -97,6 +113,10 @@ public class MediaNavigationView extends NavigationView {
                     v = LayoutInflater.from(parent.getContext())
                             .inflate(R.layout.nav_drawer_eq_layout, parent, false);
                     return new EQViewHolder(v);
+                case VIEW_TYPE_REVERB:
+                    v = LayoutInflater.from(parent.getContext())
+                            .inflate(R.layout.nav_drawer_reverb_layout, parent, false);
+                    return new ReverbViewHolder(v);
             }
             return null;
         }
@@ -107,30 +127,46 @@ public class MediaNavigationView extends NavigationView {
                 case VIEW_TYPE_EQ:
                     createEqItem((EQViewHolder) holder);
                     break;
+                case VIEW_TYPE_REVERB:
+                    createReverbItem((ReverbViewHolder) holder);
+                    break;
             }
         }
 
         @Override
+        public int getItemViewType(int position) {
+            if (position == 0) {
+                return VIEW_TYPE_EQ;
+            }
+            return VIEW_TYPE_REVERB;
+        }
+
+        @Override
         public int getItemCount() {
-            return 1;
+            return 2;
         }
 
         private void createEqItem(EQViewHolder holder) {
             holder.eqStateSwitch.setChecked(enableEQ);
         }
 
+        private void createReverbItem(ReverbViewHolder holder) {
+            holder.reverbStateSwitch.setChecked(enableReverb);
+        }
+
     }
 
-    public void setEqStateChangedListener(OnEQStateChangedListener l) {
-        this.eqStateChangedListener = l;
-    }
-
-    public void setEQClickListener(OnEQClickListener l) {
-        this.eqClickListener = l;
+    public void setOnEffectChangedListener(OnEffectChangedListener l) {
+        this.listener = l;
     }
 
     public void setEQEnable(boolean enable) {
         this.enableEQ = enable;
+        adapter.notifyDataSetChanged();
+    }
+
+    public void setReverbEnable(boolean enable) {
+        this.enableReverb = enable;
         adapter.notifyDataSetChanged();
     }
 }

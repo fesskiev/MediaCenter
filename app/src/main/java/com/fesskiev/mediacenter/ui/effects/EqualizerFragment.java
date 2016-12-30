@@ -8,7 +8,6 @@ import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.effects.EQState;
@@ -17,8 +16,6 @@ import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.widgets.eq.BandControlView;
 
 import org.greenrobot.eventbus.EventBus;
-
-import java.util.Locale;
 
 
 public class EqualizerFragment extends Fragment implements BandControlView.OnBandLevelListener,

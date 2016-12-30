@@ -384,7 +384,17 @@ public class PlaybackService extends Service {
         createAudioPlayer(Integer.valueOf(sampleRateString), Integer.valueOf(bufferSizeString));
 
         createEQStateIfNeed();
+        createReverbStateIfNeed();
 
+    }
+
+    private void createReverbStateIfNeed() {
+        ReverbState reverbState = AppSettingsManager.getInstance(getApplicationContext()).getReverbState();
+        if(reverbState != null){
+            Log.wtf(TAG, "create Reverb state");
+            setReverbValue((int) reverbState.getMix(), (int) reverbState.getWeight(),
+                    (int) reverbState.getDamp(), (int) reverbState.getRoomSize());
+        }
     }
 
     private void createEQStateIfNeed() {
@@ -532,6 +542,10 @@ public class PlaybackService extends Service {
 
     public boolean isEnableEQ() {
         return enableEQ;
+    }
+
+    public boolean isEnableReverb() {
+        return enableReverb;
     }
 
     @Override

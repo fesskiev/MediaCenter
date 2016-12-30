@@ -184,15 +184,24 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
     private void setEffectsNavView() {
         mediaNavigationView = (MediaNavigationView) findViewById(R.id.nav_view_effects);
+        mediaNavigationView.setOnEffectChangedListener(new MediaNavigationView.OnEffectChangedListener() {
+            @Override
+            public void onEffectClick() {
+                selectedActivity = EffectsActivity.class;
+                drawer.closeDrawer(GravityCompat.END);
+            }
 
-        mediaNavigationView.setEQClickListener(() -> {
+            @Override
+            public void onEQStateChanged(boolean enable) {
+                PlaybackService.changeEQEnable(getApplicationContext(), enable);
+            }
 
-            selectedActivity = EffectsActivity.class;
-            drawer.closeDrawer(GravityCompat.END);
+            @Override
+            public void onReverbStateChanged(boolean enable) {
+                PlaybackService.changeReverbEnable(getApplicationContext(), enable);
+            }
         });
 
-        mediaNavigationView.setEqStateChangedListener(enable ->
-                PlaybackService.changeEQEnable(getApplicationContext(), enable));
         mediaNavigationView.setNavigationItemSelectedListener(this);
 
     }
