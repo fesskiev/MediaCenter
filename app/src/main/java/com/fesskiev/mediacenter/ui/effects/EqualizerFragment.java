@@ -27,9 +27,6 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
     private Context context;
     private EQState state;
     private AppSettingsManager settingsManager;
-    private TextView lowBand;
-    private TextView midBand;
-    private TextView highBand;
 
     public static EqualizerFragment newInstance() {
         return new EqualizerFragment();
@@ -56,10 +53,6 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        lowBand = (TextView) view.findViewById(R.id.eqLowBandState);
-        midBand = (TextView) view.findViewById(R.id.eqMidBandState);
-        highBand = (TextView) view.findViewById(R.id.eqHighBandState);
 
         SwitchCompat switchEQState = (SwitchCompat) view.findViewById(R.id.stateEqualizer);
         switchEQState.setOnClickListener(v -> {
@@ -96,43 +89,33 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
         switch (band) {
             case 0:
                 view.setLevel(state.getLowValues());
-                lowBand.setText(String.format(Locale.US, "%.2f %2$s", state.getLowBand(), "db"));
                 break;
             case 1:
                 view.setLevel(state.getMidValues());
-                midBand.setText(String.format(Locale.US, "%.2f %2$s", state.getMidBand(), "db"));
                 break;
             case 2:
                 view.setLevel(state.getHighValues());
-                highBand.setText(String.format(Locale.US, "%.2f %2$s", state.getHighBand(), "db"));
                 break;
         }
     }
 
     @Override
-    public void onBandLevelChanged(int band, float level, float range, float[] values) {
-//        Log.d("test", " band, " + band + " level: " + level + " degrees: " + Arrays.toString(values));
+    public void onBandLevelChanged(int band, float level, float[] values) {
 
         PlaybackService.changeEQBandLevel(context, band, (int) level);
 
         switch (band) {
             case 0:
                 state.setLowLevel(level);
-                state.setLowBand(range);
                 state.setLowValues(values);
-                lowBand.setText(String.format(Locale.US, "%.2f %2$s", range, "db"));
                 break;
             case 1:
                 state.setMidLevel(level);
-                state.setMidBand(range);
                 state.setMidValues(values);
-                midBand.setText(String.format(Locale.US, "%.2f %2$s", range, "db"));
                 break;
             case 2:
                 state.setHighLevel(level);
-                state.setHighBand(range);
                 state.setHighValues(values);
-                highBand.setText(String.format(Locale.US, "%.2f %2$s", range, "db"));
                 break;
         }
     }

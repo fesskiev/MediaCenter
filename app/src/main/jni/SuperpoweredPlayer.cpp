@@ -244,6 +244,10 @@ void SuperpoweredPlayer::enableReverb(bool enable) {
     reverb->enable(enable);
 }
 
+bool SuperpoweredPlayer::isEnableReverb() {
+    return reverb->enabled;
+}
+
 
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     gJavaVM = vm;
@@ -286,6 +290,7 @@ Java_com_fesskiev_mediacenter_services_PlaybackService_updatePlaybackState(JNIEn
     setBoolField(javaEnvironment, obj, thisClass, "playing", player->isPlaying());
     setBoolField(javaEnvironment, obj, thisClass, "looping", player->isLooping());
     setBoolField(javaEnvironment, obj, thisClass, "enableEQ", player->isEnableEQ());
+    setBoolField(javaEnvironment, obj, thisClass, "enableReverb", player->isEnableReverb());
 }
 
 extern "C" JNIEXPORT void
@@ -374,20 +379,20 @@ Java_com_fesskiev_mediacenter_services_PlaybackService_setSeekAudioPlayer(JNIEnv
     player->setSeek(value);
 }
 
-JNIEXPORT void JNICALL
+extern "C" JNIEXPORT void
 Java_com_fesskiev_mediacenter_services_PlaybackService_setEchoValue(JNIEnv *env, jobject instance,
                                                                     jint value) {
     player->echoValue(value);
 }
 
-JNIEXPORT void JNICALL
+extern "C" JNIEXPORT void
 Java_com_fesskiev_mediacenter_services_PlaybackService_setReverbValue(JNIEnv *env, jobject instance,
                                                                       jint mix, jint width,
                                                                       jint damp, jint roomSize) {
     player->reverbValue(mix, width, damp, roomSize);
 }
 
-JNIEXPORT void JNICALL
+extern "C" JNIEXPORT void
 Java_com_fesskiev_mediacenter_services_PlaybackService_enableReverb(JNIEnv *env, jobject instance,
                                                                     jboolean enable) {
     player->enableReverb(enable);

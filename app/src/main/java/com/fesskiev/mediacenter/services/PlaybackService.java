@@ -13,6 +13,7 @@ import android.util.Log;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.effects.EQState;
+import com.fesskiev.mediacenter.data.model.effects.ReverbState;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.AudioFocusManager;
 import com.fesskiev.mediacenter.utils.AudioNotificationHelper;
@@ -48,6 +49,10 @@ public class PlaybackService extends Service {
             "com.fesskiev.player.action.ACTION_PLAYBACK_LOOPING_STATE";
     public static final String ACTION_PLAYBACK_STATE =
             "com.fesskiev.player.action.ACTION_PLAYBACK_STATE";
+    public static final String ACTION_PLAYBACK_REVERB_STATE =
+            "com.fesskiev.player.action.ACTION_PLAYBACK_REVERB_STATE";
+    public static final String ACTION_PLAYBACK_REVERB_LEVEL =
+            "com.fesskiev.player.action.ACTION_PLAYBACK_REVERB_LEVEL";
 
 
     public static final String PLAYBACK_EXTRA_MUSIC_FILE_PATH
@@ -65,6 +70,11 @@ public class PlaybackService extends Service {
     public static final String PLAYBACK_EXTRA_LOOPING_STATE
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_LOOPING_STATE";
 
+    public static final String PLAYBACK_EXTRA_REVERB_ENABLE
+            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_REVERB_STATE";
+    public static final String PLAYBACK_EXTRA_REVERB_LEVEL
+            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_REVERB_LEVEL";
+
     private AudioFocusManager audioFocusManager;
     private CountDownTimer timer;
 
@@ -76,6 +86,7 @@ public class PlaybackService extends Service {
     private boolean playing;
     private boolean looping;
     private boolean enableEQ;
+    private boolean enableReverb;
     private boolean headsetConnected;
 
 
@@ -99,6 +110,20 @@ public class PlaybackService extends Service {
     public static void requestPlaybackStateIfNeed(Context context) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_STATE);
+        context.startService(intent);
+    }
+
+    public static void changeReverbEnable(Context context, boolean enable) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_PLAYBACK_REVERB_STATE);
+        intent.putExtra(PLAYBACK_EXTRA_REVERB_ENABLE, enable);
+        context.startService(intent);
+    }
+
+    public static void changeReverbLevel(Context context, ReverbState state) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_PLAYBACK_REVERB_LEVEL);
+        intent.putExtra(PLAYBACK_EXTRA_REVERB_LEVEL, state);
         context.startService(intent);
     }
 
@@ -264,6 +289,18 @@ public class PlaybackService extends Service {
                         int level = intent.getIntExtra(PLAYBACK_EXTRA_EQ_LEVEL, -1);
                         setEQBands(band, level);
                         break;
+                    case ACTION_PLAYBACK_REVERB_STATE:
+                        boolean reverbEnable = intent.getBooleanExtra(PLAYBACK_EXTRA_REVERB_ENABLE, false);
+                        enableReverb(reverbEnable);
+                        EventBus.getDefault().post(PlaybackService.this);
+                        break;
+                    case ACTION_PLAYBACK_REVERB_LEVEL:
+                        ReverbState reverbState = intent.getParcelableExtra(PLAYBACK_EXTRA_REVERB_LEVEL);
+                        if (reverbState != null) {
+                            setReverbValue((int) reverbState.getMix(), (int) reverbState.getWeight(),
+                                    (int) reverbState.getDamp(), (int) reverbState.getRoomSize());
+                        }
+                        break;
                     case ACTION_PLAYBACK_STATE:
                         sendPlaybackStateIfNeed();
                         break;
@@ -355,7 +392,7 @@ public class PlaybackService extends Service {
         if (eqState != null) {
             Log.wtf(TAG, "create EQ state");
             for (int i = 0; i < 3; i++) {
-                switch (i){
+                switch (i) {
                     case 0:
                         setEQBands(i, (int) eqState.getLowLevel());
                         break;
@@ -508,6 +545,7 @@ public class PlaybackService extends Service {
                 ", playing=" + playing +
                 ", looping=" + looping +
                 ", enableEQ=" + enableEQ +
+                ", enableReverb=" + enableReverb +
                 ", headsetConnected=" + headsetConnected +
                 '}';
     }

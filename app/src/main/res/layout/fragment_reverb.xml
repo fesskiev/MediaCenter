@@ -40,7 +40,7 @@
                 app:name="Damp" />
 
             <com.fesskiev.mediacenter.widgets.reverb.ReverbControlView
-                android:id="@+id/reverRoonSize"
+                android:id="@+id/reverRoomSize"
                 android:layout_width="200dp"
                 android:layout_height="200dp"
                 app:name="Room size" />

@@ -32,6 +32,7 @@ public:
     bool isPlaying();
     bool isLooping();
     bool isEnableEQ();
+    bool isEnableReverb();
     void setLooping(bool looping);
     void open(const char *path);
     void setEQBands(int index, int value);

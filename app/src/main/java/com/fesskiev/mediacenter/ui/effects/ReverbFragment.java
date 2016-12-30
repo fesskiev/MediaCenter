@@ -20,8 +20,13 @@ import com.fesskiev.mediacenter.widgets.reverb.ReverbControlView;
 import org.greenrobot.eventbus.EventBus;
 
 
-public class ReverbFragment extends Fragment implements ReverbControlView.OnAttachStateListener ,
-        ReverbControlView.OnReverbControlListener{
+public class ReverbFragment extends Fragment implements ReverbControlView.OnAttachStateListener,
+        ReverbControlView.OnReverbControlListener {
+
+    private static final String REVERB_WIDTH = "Width";
+    private static final String REVERB_MIX = "Mix";
+    private static final String REVERB_DAMP = "Damp";
+    private static final String REVERB_ROOM_SIZE = "Room size";
 
     public static ReverbFragment newInstance() {
         return new ReverbFragment();
@@ -38,7 +43,7 @@ public class ReverbFragment extends Fragment implements ReverbControlView.OnAtta
         settingsManager = AppSettingsManager.getInstance(context);
 
         state = settingsManager.getReverbState();
-        if(state == null){
+        if (state == null) {
             state = new ReverbState();
         }
     }
@@ -57,15 +62,17 @@ public class ReverbFragment extends Fragment implements ReverbControlView.OnAtta
         switchEQState.setOnClickListener(v -> {
             boolean checked = ((SwitchCompat) v).isChecked();
 
+            PlaybackService.changeReverbEnable(context, checked);
+            EventBus.getDefault().post(state);
 
         });
         switchEQState.setChecked(settingsManager.isReverbEnable());
 
-        ReverbControlView [] reverbControlViews = new ReverbControlView[]{
+        ReverbControlView[] reverbControlViews = new ReverbControlView[]{
                 (ReverbControlView) view.findViewById(R.id.reverbMix),
                 (ReverbControlView) view.findViewById(R.id.reverbWidth),
                 (ReverbControlView) view.findViewById(R.id.reverbDamp),
-                (ReverbControlView) view.findViewById(R.id.reverRoonSize)
+                (ReverbControlView) view.findViewById(R.id.reverRoomSize)
         };
 
         for (ReverbControlView reverbControlView : reverbControlViews) {
@@ -83,11 +90,45 @@ public class ReverbFragment extends Fragment implements ReverbControlView.OnAtta
 
     @Override
     public void onAttachReverbControlView(ReverbControlView view) {
-
+        String name = view.getName();
+        switch (name) {
+            case REVERB_WIDTH:
+                view.setLevel(state.getWeightValues());
+                break;
+            case REVERB_MIX:
+                view.setLevel(state.getMixValues());
+                break;
+            case REVERB_DAMP:
+                view.setLevel(state.getDampValues());
+                break;
+            case REVERB_ROOM_SIZE:
+                view.setLevel(state.getRoomSizeValues());
+                break;
+        }
     }
 
     @Override
     public void onReverbControlChanged(String name, float level, float[] values) {
         Log.d("reverb", "reverb name: " + name + " level: " + level);
+        switch (name) {
+            case REVERB_WIDTH:
+                state.setWeightValues(values);
+                state.setWeight(level);
+                break;
+            case REVERB_MIX:
+                state.setMixValues(values);
+                state.setMix(level);
+                break;
+            case REVERB_DAMP:
+                state.setDampValues(values);
+                state.setDamp(level);
+                break;
+            case REVERB_ROOM_SIZE:
+                state.setRoomSizeValues(values);
+                state.setRoomSize(level);
+                break;
+        }
+        PlaybackService.changeReverbLevel(context, state);
+
     }
 }

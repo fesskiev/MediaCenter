@@ -211,6 +211,13 @@ public class ReverbControlView extends View {
         }
     }
 
+    public void setLevel(float[] values) {
+        if (values != null) {
+            matrix.setValues(values);
+            postInvalidate();
+        }
+    }
+
     public void setAttachStateListener(OnAttachStateListener l) {
         this.attachStateListener = l;
     }

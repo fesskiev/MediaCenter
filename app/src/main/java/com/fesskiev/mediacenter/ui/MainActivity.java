@@ -275,6 +275,9 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        settingsManager.setEQEnable(false);
+        settingsManager.setReverbEnable(false);
+
         fetchMediaFilesManager.unregister();
         PlaybackService.destroyPlayer(getApplicationContext());
         FileObserverService.stopFileObserverService(getApplicationContext());

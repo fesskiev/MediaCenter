@@ -32,7 +32,7 @@ public class BandControlView extends View {
 
     public interface OnBandLevelListener {
 
-        void onBandLevelChanged(int band, float level, float range, float[] values);
+        void onBandLevelChanged(int band, float level, float[] values);
     }
 
     private OnAttachStateListener attachStateListener;
@@ -202,11 +202,10 @@ public class BandControlView extends View {
         float angleFix = getAngleFix(currentAngle);
 
         float level = (angleFix * (100f / 360));
-        float range = getBaneLevel(level);
 
         if (listener != null) {
             matrix.getValues(values);
-            listener.onBandLevelChanged(band, level, range, values);
+            listener.onBandLevelChanged(band, level, values);
         }
     }
 
@@ -246,6 +245,7 @@ public class BandControlView extends View {
         }
     }
 
+    @Deprecated
     public float getBaneLevel(float value) {
         float level = 0f;
         if (value < 50) {
