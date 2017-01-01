@@ -83,17 +83,17 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
     @Override
     public void onAttachBandControlView(BandControlView view) {
         int band = view.getBand();
-        switch (band) {
-            case 0:
-                view.setLevel(state.getLowValues());
-                break;
-            case 1:
-                view.setLevel(state.getMidValues());
-                break;
-            case 2:
-                view.setLevel(state.getHighValues());
-                break;
-        }
+//        switch (band) {
+//            case 0:
+//                view.setLevel(state.getLowValues());
+//                break;
+//            case 1:
+//                view.setLevel(state.getMidValues());
+//                break;
+//            case 2:
+//                view.setLevel(state.getHighValues());
+//                break;
+//        }
     }
 
     @Override

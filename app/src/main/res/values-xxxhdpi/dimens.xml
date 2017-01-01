@@ -27,4 +27,7 @@
     <dimen name="eq_margin_band">20dp</dimen>
     <dimen name="eq_margin_bottom">10dp</dimen>
 
+    <dimen name="effect_control_weight">180dp</dimen>
+    <dimen name="effect_control_height">180dp</dimen>
+
 </resources>

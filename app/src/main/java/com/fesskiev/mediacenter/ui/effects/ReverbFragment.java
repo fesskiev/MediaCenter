@@ -91,20 +91,20 @@ public class ReverbFragment extends Fragment implements ReverbControlView.OnAtta
     @Override
     public void onAttachReverbControlView(ReverbControlView view) {
         String name = view.getName();
-        switch (name) {
-            case REVERB_WIDTH:
-                view.setLevel(state.getWeightValues());
-                break;
-            case REVERB_MIX:
-                view.setLevel(state.getMixValues());
-                break;
-            case REVERB_DAMP:
-                view.setLevel(state.getDampValues());
-                break;
-            case REVERB_ROOM_SIZE:
-                view.setLevel(state.getRoomSizeValues());
-                break;
-        }
+//        switch (name) {
+//            case REVERB_WIDTH:
+//                view.setLevel(state.getWeightValues());
+//                break;
+//            case REVERB_MIX:
+//                view.setLevel(state.getMixValues());
+//                break;
+//            case REVERB_DAMP:
+//                view.setLevel(state.getDampValues());
+//                break;
+//            case REVERB_ROOM_SIZE:
+//                view.setLevel(state.getRoomSizeValues());
+//                break;
+//        }
     }
 
     @Override

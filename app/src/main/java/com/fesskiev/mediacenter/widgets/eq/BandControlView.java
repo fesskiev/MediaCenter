@@ -45,6 +45,7 @@ public class BandControlView extends View {
     private String bandName;
     private int band;
     private int radius;
+    private int textPadding;
     private float cx;
     private float cy;
     private float startAngle;
@@ -83,13 +84,15 @@ public class BandControlView extends View {
         markRadius = Utils.dipToPixels(context, 70);
         markSize = Utils.dipToPixels(context, 30);
 
-        rangeTextX = Utils.dipToPixels(context, 40);
+        textPadding = (int) Utils.dipToPixels(context, 6);
+
+        rangeTextX = Utils.dipToPixels(context, 30);
         rangeTextY = Utils.dipToPixels(context, 35);
-        rangeTextX1 = Utils.dipToPixels(context, 155);
+        rangeTextX1 = Utils.dipToPixels(context, 145);
 
         float markStrokeWidth = Utils.dipToPixels(context, 5);
-        float nameStrokeWidth = Utils.dipToPixels(context, 18);
-        float rangeStrokeWidth = Utils.dipToPixels(context, 16);
+        float nameStrokeWidth = Utils.dipToPixels(context, 14);
+        float rangeStrokeWidth = Utils.dipToPixels(context, 14);
 
         radius = (int) Utils.dipToPixels(context, 3);
         matrix = new Matrix();
@@ -164,7 +167,7 @@ public class BandControlView extends View {
 
         canvas.drawBitmap(bitmapControl, matrix, null);
 
-        canvas.drawText(bandName, cx, getWidth() - 12, namePaint);
+        canvas.drawText(bandName, cx, getWidth() - textPadding, namePaint);
 
         canvas.drawText("-100", rangeTextX, rangeTextY, rangePaint);
 

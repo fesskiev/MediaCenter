@@ -6,50 +6,51 @@
     android:background="@color/primary"
     android:orientation="vertical">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_marginTop="20dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+        <com.fesskiev.mediacenter.widgets.reverb.ReverbControlView
+            android:id="@+id/reverbMix"
+            android:layout_width="@dimen/effect_control_weight"
+            android:layout_height="@dimen/effect_control_height"
+            android:layout_alignParentStart="true"
+            app:name="Mix" />
 
-            <com.fesskiev.mediacenter.widgets.reverb.ReverbControlView
-                android:id="@+id/reverbMix"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
-                app:name="Mix" />
+        <com.fesskiev.mediacenter.widgets.reverb.ReverbControlView
+            android:id="@+id/reverbWidth"
+            android:layout_width="@dimen/effect_control_weight"
+            android:layout_height="@dimen/effect_control_height"
+            android:layout_alignParentEnd="true"
+            app:name="Width" />
 
-            <com.fesskiev.mediacenter.widgets.reverb.ReverbControlView
-                android:id="@+id/reverbWidth"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
-                app:name="Width" />
+    </RelativeLayout>
 
-        </LinearLayout>
+    <RelativeLayout
+        android:layout_above="@+id/reverbControlState"
+        android:layout_marginBottom="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+        <com.fesskiev.mediacenter.widgets.reverb.ReverbControlView
+            android:id="@+id/reverbDamp"
+            android:layout_width="@dimen/effect_control_weight"
+            android:layout_height="@dimen/effect_control_height"
+            android:layout_alignParentStart="true"
+            app:name="Damp" />
 
-            <com.fesskiev.mediacenter.widgets.reverb.ReverbControlView
-                android:id="@+id/reverbDamp"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
-                app:name="Damp" />
+        <com.fesskiev.mediacenter.widgets.reverb.ReverbControlView
+            android:id="@+id/reverRoomSize"
+            android:layout_width="@dimen/effect_control_weight"
+            android:layout_height="@dimen/effect_control_height"
+            android:layout_alignParentEnd="true"
+            app:name="Room size" />
 
-            <com.fesskiev.mediacenter.widgets.reverb.ReverbControlView
-                android:id="@+id/reverRoomSize"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
-                app:name="Room size" />
-
-        </LinearLayout>
-
-    </LinearLayout>
+    </RelativeLayout>
 
     <LinearLayout
+        android:id="@+id/reverbControlState"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

@@ -6,40 +6,6 @@
     android:background="@color/primary"
     android:orientation="vertical">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/eq_margin_top">
-
-        <com.fesskiev.mediacenter.widgets.eq.BandControlView
-            android:id="@+id/bandControlLow"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:layout_alignParentTop="true"
-            app:band="0"
-            app:bandName="Low" />
-
-        <com.fesskiev.mediacenter.widgets.eq.BandControlView
-            android:id="@+id/bandControlMid"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentTop="true"
-            app:band="1"
-            app:bandName="Mid" />
-
-        <com.fesskiev.mediacenter.widgets.eq.BandControlView
-            android:id="@+id/bandControlHigh"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:layout_below="@+id/bandControlLow"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="@dimen/eq_margin_band"
-            app:band="2"
-            app:bandName="High" />
-
-    </RelativeLayout>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -68,6 +34,42 @@
             android:layout_marginTop="10dp" />
 
     </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
+
+        <com.fesskiev.mediacenter.widgets.eq.BandControlView
+            android:id="@+id/bandControlLow"
+            android:layout_width="@dimen/effect_control_weight"
+            android:layout_height="@dimen/effect_control_height"
+            android:layout_alignParentTop="true"
+            app:band="0"
+            app:bandName="Low" />
+
+        <com.fesskiev.mediacenter.widgets.eq.BandControlView
+            android:id="@+id/bandControlMid"
+            android:layout_width="@dimen/effect_control_weight"
+            android:layout_height="@dimen/effect_control_height"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            app:band="1"
+            app:bandName="Mid" />
+
+        <com.fesskiev.mediacenter.widgets.eq.BandControlView
+            android:id="@+id/bandControlHigh"
+            android:layout_width="@dimen/effect_control_weight"
+            android:layout_height="@dimen/effect_control_height"
+            android:layout_below="@+id/bandControlLow"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/eq_margin_band"
+            app:band="2"
+            app:bandName="High" />
+
+    </RelativeLayout>
 
 </RelativeLayout>
 

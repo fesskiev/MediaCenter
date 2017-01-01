@@ -41,6 +41,8 @@ public class ReverbControlView extends View {
     private float markRadius;
     private float markSize;
     private int radius;
+    private int textPadding;
+
     private float startAngle;
     private float[] values;
 
@@ -71,8 +73,10 @@ public class ReverbControlView extends View {
         markRadius = Utils.dipToPixels(context, 70);
         markSize = Utils.dipToPixels(context, 30);
 
+        textPadding = (int) Utils.dipToPixels(context, 4);
+
         float markStrokeWidth = Utils.dipToPixels(context, 5);
-        float nameStrokeWidth = Utils.dipToPixels(context, 18);
+        float nameStrokeWidth = Utils.dipToPixels(context, 13);
 
         radius = (int) Utils.dipToPixels(context, 3);
         matrix = new Matrix();
@@ -135,7 +139,7 @@ public class ReverbControlView extends View {
 
         canvas.drawBitmap(bitmapControl, matrix, null);
 
-        canvas.drawText(name, cx, getWidth() - 12, namePaint);
+        canvas.drawText(name, cx, getWidth() - textPadding, namePaint);
 
     }
 
