@@ -36,11 +36,31 @@ public class EffectsActivity extends AnalyticsActivity {
                         case R.id.action_reverb:
                             addReverbFragment();
                             break;
+                        case R.id.action_other:
+                            addOtherEffectsFragment();
+                            break;
                     }
                     return true;
                 });
 
         addEQFragment();
+    }
+
+    private void addOtherEffectsFragment() {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+        hideVisibleFragment(transaction);
+
+        OtherEffectsFragment otherEffectsFragment = (OtherEffectsFragment) getSupportFragmentManager().
+                findFragmentByTag(OtherEffectsFragment.class.getName());
+        if (otherEffectsFragment == null) {
+            transaction.add(R.id.content, OtherEffectsFragment.newInstance(),
+                    OtherEffectsFragment.class.getName());
+            transaction.addToBackStack(OtherEffectsFragment.class.getName());
+        } else {
+            transaction.show(otherEffectsFragment);
+        }
+        transaction.commit();
     }
 
     private void addReverbFragment() {
@@ -57,7 +77,7 @@ public class EffectsActivity extends AnalyticsActivity {
         } else {
             transaction.show(reverbFragment);
         }
-        transaction.commitAllowingStateLoss();
+        transaction.commit();
     }
 
 
@@ -75,7 +95,7 @@ public class EffectsActivity extends AnalyticsActivity {
         } else {
             transaction.show(equalizerFragment);
         }
-        transaction.commitAllowingStateLoss();
+        transaction.commit();
     }
 
     private void hideVisibleFragment(FragmentTransaction transaction) {

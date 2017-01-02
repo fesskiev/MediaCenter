@@ -16,9 +16,9 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/action_2"
+        android:id="@+id/action_other"
         android:enabled="true"
-        android:icon="@drawable/icon_equalizer"
-        android:title="@string/drawer_item_eq"
+        android:icon="@drawable/icon_effect_1"
+        android:title="@string/drawer_item_other"
         app:showAsAction="ifRoom" />
 </menu>

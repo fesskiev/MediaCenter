@@ -96,6 +96,8 @@ SuperpoweredPlayer::SuperpoweredPlayer(unsigned int samplerate, unsigned int buf
     bandEQ = new Superpowered3BandEQ(samplerate);
     echo = new SuperpoweredEcho(samplerate);
     reverb = new SuperpoweredReverb(samplerate);
+    gate = new SuperpoweredGate(samplerate);
+    whoosh = new SuperpoweredWhoosh(samplerate);
 }
 
 bool SuperpoweredPlayer::process(short int *output, unsigned int numberOfSamples) {
@@ -118,13 +120,19 @@ bool SuperpoweredPlayer::process(short int *output, unsigned int numberOfSamples
     if (!silence) {
 //        SuperpoweredFloatToShortInt(mixerOutputs[0], output, numberOfSamples);
 
-        bandEQ->process(buffer, buffer, numberOfSamples);
+        if (bandEQ->enabled) {
+            bandEQ->process(buffer, buffer, numberOfSamples);
+        }
 
-        reverb->process(buffer, buffer, numberOfSamples);
+        if (reverb->enabled) {
+            reverb->process(buffer, buffer, numberOfSamples);
+        }
 
+        if (echo->enabled) {
+            echo->process(buffer, buffer, numberOfSamples);
+        }
 
         SuperpoweredFloatToShortInt(buffer, output, numberOfSamples);
-
 
     }
 
@@ -137,6 +145,11 @@ void SuperpoweredPlayer::togglePlayback() {
 
 
 SuperpoweredPlayer::~SuperpoweredPlayer() {
+
+    delete echo;
+    delete reverb;
+    delete gate;
+    delete whoosh;
     delete bandEQ;
     delete mixer;
     delete audioSystem;

@@ -7,6 +7,8 @@
 #include <SuperpoweredReverb.h>
 #include <SuperpoweredEcho.h>
 #include <SuperpoweredMixer.h>
+#include <SuperpoweredGate.h>
+#include <SuperpoweredWhoosh.h>
 
 #include "SuperpoweredPlayer.h"
 #include "SuperpoweredAdvancedAudioPlayer.h"
@@ -22,6 +24,7 @@ public:
     ~SuperpoweredPlayer();
 
     bool process(short int *output, unsigned int numberOfSamples);
+
     void togglePlayback();
     void setVolume(float value);
     void setSeek(int value);
@@ -35,11 +38,17 @@ public:
     bool isEnableReverb();
     void setLooping(bool looping);
     void open(const char *path);
+
     void setEQBands(int index, int value);
     void enableEQ(bool enable);
+
     void echoValue(int value);
+
     void reverbValue(int mix, int width, int damp, int roomSize);
     void enableReverb(bool enable);
+
+
+
     void onForeground();
     void onBackground();
 
@@ -51,6 +60,8 @@ private:
     SuperpoweredStereoMixer *mixer;
     SuperpoweredReverb *reverb;
     SuperpoweredEcho *echo;
+    SuperpoweredGate *gate;
+    SuperpoweredWhoosh *whoosh;
 
     float *buffer;
     float volume;

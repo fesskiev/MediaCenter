@@ -2,6 +2,7 @@ package com.fesskiev.mediacenter;
 
 import android.app.Application;
 import android.content.ComponentCallbacks2;
+import android.util.Log;
 
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.data.source.local.db.LocalDataSource;
@@ -12,6 +13,9 @@ import com.fesskiev.mediacenter.utils.AppLog;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKAccessTokenTracker;
 import com.vk.sdk.VKSdk;
+
+import rx.plugins.RxJavaErrorHandler;
+import rx.plugins.RxJavaPlugins;
 
 public class MediaApplication extends Application {
 
@@ -46,6 +50,14 @@ public class MediaApplication extends Application {
 
         vkAccessTokenTracker.startTracking();
         VKSdk.initialize(this);
+
+        RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
+            @Override
+            public void handleError(Throwable e) {
+                AppLog.ERROR("ERROR: " + e.toString());
+                super.handleError(e);
+            }
+        });
 
     }
 

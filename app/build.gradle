@@ -7,7 +7,7 @@ def superpowered_sdk_path = properties.getProperty('superpowered.dir')
 android {
 
     compileSdkVersion 25
-    buildToolsVersion "24.0.3"
+    buildToolsVersion "25.0.2"
 
     defaultConfig {
 
@@ -67,7 +67,7 @@ android {
 }
 
 ext {
-    supportLibVersion = '25.0.1'
+    supportLibVersion = '25.1.0'
 }
 
 dependencies {

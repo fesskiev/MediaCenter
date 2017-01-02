@@ -87,7 +87,7 @@ public class BandControlView extends View {
         textPadding = (int) Utils.dipToPixels(context, 6);
 
         rangeTextX = Utils.dipToPixels(context, 30);
-        rangeTextY = Utils.dipToPixels(context, 35);
+        rangeTextY = Utils.dipToPixels(context, 30);
         rangeTextX1 = Utils.dipToPixels(context, 145);
 
         float markStrokeWidth = Utils.dipToPixels(context, 5);
@@ -136,7 +136,7 @@ public class BandControlView extends View {
 
         matrix.postRotate(180, cx, cy);
 
-        if(attachStateListener != null){
+        if (attachStateListener != null) {
             attachStateListener.onAttachBandControlView(this);
         }
     }
@@ -247,18 +247,6 @@ public class BandControlView extends View {
             return y >= 0 ? 2 : 3;
         }
     }
-
-    @Deprecated
-    public float getBaneLevel(float value) {
-        float level = 0f;
-        if (value < 50) {
-            level = (100 - ((100 / 50f)) * value) * -1;
-        } else if (value > 50) {
-            level = (18 - (18 / 50f) * value) * -1;
-        }
-        return level;
-    }
-
 
     public void setOnBandLevelListener(OnBandLevelListener listener) {
         this.listener = listener;
