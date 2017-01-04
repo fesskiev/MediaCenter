@@ -33,6 +33,9 @@ public class BitmapHelper {
         void onFailed();
     }
 
+    private static final int WIDTH = 128;
+    private static final int HEIGHT = 128;
+
     private static BitmapHelper INSTANCE;
     private Context context;
 
@@ -49,8 +52,11 @@ public class BitmapHelper {
 
 
     public void loadURLAvatar(String url, final ImageView into, final OnBitmapLoadListener listener) {
-        Glide.with(context).load(url).asBitmap().
-                centerCrop().into(new BitmapImageViewTarget(into) {
+        Glide.with(context)
+                .load(url)
+                .asBitmap()
+                .centerCrop()
+                .into(new BitmapImageViewTarget(into) {
             @Override
             protected void setResource(Bitmap resource) {
                 RoundedBitmapDrawable circularBitmapDrawable =
@@ -63,35 +69,6 @@ public class BitmapHelper {
                 }
             }
         });
-    }
-
-    private String findNotificationArtworkPath(AudioFile audioFile) {
-        String mediaArtworkPath = findMediaFileArtworkPath(audioFile);
-        if (mediaArtworkPath != null) {
-            return mediaArtworkPath;
-        }
-        return null;
-    }
-
-    public void loadNotificationArtwork(AudioFile audioFile, final OnBitmapLoadListener listener) {
-        Glide.with(context)
-                .load(findNotificationArtworkPath(audioFile))
-                .asBitmap()
-                .into(new SimpleTarget<Bitmap>(100, 100) {
-                    @Override
-                    public void onResourceReady(Bitmap resource, GlideAnimation glideAnimation) {
-                        if (listener != null) {
-                            listener.onLoaded(resource);
-                        }
-                    }
-
-                    @Override
-                    public void onLoadFailed(Exception e, Drawable errorDrawable) {
-                        if (listener != null) {
-                            listener.onFailed();
-                        }
-                    }
-                });
     }
 
     public void loadBitmapAvatar(Bitmap bitmap, final ImageView into) {
@@ -142,8 +119,10 @@ public class BitmapHelper {
             String mediaArtworkPath = findMediaFileArtworkPath(audioFile);
             if (mediaArtworkPath != null) {
                 Glide.with(context)
-                        .load(mediaArtworkPath).
-                        into(imageView);
+                        .load(mediaArtworkPath)
+                        .override(WIDTH * 3, HEIGHT * 3)
+                        .centerCrop()
+                        .into(imageView);
                 return true;
             }
         }
@@ -152,12 +131,13 @@ public class BitmapHelper {
             String folderPath = findAudioFolderArtworkPath(audioFolder);
             if (folderPath != null) {
                 Glide.with(context)
-                        .load(folderPath).
-                        into(imageView);
+                        .load(folderPath)
+                        .override(WIDTH * 3, HEIGHT * 3)
+                        .centerCrop()
+                        .into(imageView);
                 return true;
             }
         }
-
         return false;
     }
 
@@ -175,7 +155,6 @@ public class BitmapHelper {
                 return folderPath;
             }
         }
-
         return null;
     }
 
@@ -186,6 +165,7 @@ public class BitmapHelper {
             Glide.with(context)
                     .load(path)
                     .asBitmap()
+                    .override(WIDTH, HEIGHT)
                     .centerCrop()
                     .into(new BitmapImageViewTarget(imageView) {
                         @Override
@@ -199,15 +179,14 @@ public class BitmapHelper {
                             if (listener != null) {
                                 listener.onLoaded(resource);
                             }
-
                         }
                     });
         } else {
             Glide.with(context)
                     .load(R.drawable.no_cover_track_icon)
+                    .override(WIDTH, HEIGHT)
                     .crossFade()
-                    .fitCenter()
-                    .transform(new CircleTransform(context))
+                    .centerCrop()
                     .into(imageView);
         }
     }
@@ -217,10 +196,11 @@ public class BitmapHelper {
 
         String mediaArtworkPath = findMediaFileArtworkPath(mediaFile);
         if (mediaArtworkPath != null) {
-            Glide.with(context).
-                    load(mediaArtworkPath)
+            Glide.with(context)
+                    .load(mediaArtworkPath)
+                    .override(WIDTH, HEIGHT)
                     .crossFade()
-                    .fitCenter()
+                    .centerCrop()
                     .transform(new CircleTransform(context)).
                     into(imageView);
             return;
@@ -231,8 +211,9 @@ public class BitmapHelper {
             if (folderPath != null) {
                 Glide.with(context)
                         .load(folderPath)
+                        .override(WIDTH, HEIGHT)
                         .crossFade()
-                        .fitCenter()
+                        .centerCrop()
                         .transform(new CircleTransform(context))
                         .into(imageView);
                 return;
@@ -242,6 +223,7 @@ public class BitmapHelper {
         if (mediaFile instanceof AudioFile) {
             Glide.with(context)
                     .load(R.drawable.no_cover_track_icon)
+                    .override(WIDTH, HEIGHT)
                     .crossFade()
                     .fitCenter()
                     .transform(new CircleTransform(context))
@@ -274,14 +256,16 @@ public class BitmapHelper {
         if (path != null) {
             Glide.with(context)
                     .load(path)
+                    .override(WIDTH, HEIGHT)
                     .crossFade()
-                    .fitCenter()
+                    .centerCrop()
                     .into(placeholder);
         } else {
             Glide.with(context)
                     .load(R.drawable.no_cover_folder_icon)
-                    .fitCenter()
+                    .override(WIDTH, HEIGHT)
                     .crossFade()
+                    .centerCrop()
                     .into(placeholder);
         }
 
@@ -293,14 +277,16 @@ public class BitmapHelper {
         if (path != null) {
             Glide.with(context)
                     .load(path)
+                    .override(WIDTH, HEIGHT)
                     .crossFade()
-                    .fitCenter()
+                    .centerCrop()
                     .into(placeholder);
         } else {
             Glide.with(context)
                     .load(R.drawable.no_cover_folder_icon)
-                    .fitCenter()
+                    .override(WIDTH, HEIGHT)
                     .crossFade()
+                    .centerCrop()
                     .into(placeholder);
         }
     }
@@ -311,14 +297,16 @@ public class BitmapHelper {
         if (coverFile != null) {
             Glide.with(context)
                     .load(coverFile)
+                    .override(WIDTH, HEIGHT)
                     .crossFade()
-                    .fitCenter()
+                    .centerCrop()
                     .into(placeholder);
         } else {
             Glide.with(context)
                     .load(R.drawable.no_cover_folder_icon)
-                    .fitCenter()
+                    .override(WIDTH, HEIGHT)
                     .crossFade()
+                    .centerCrop()
                     .into(placeholder);
         }
     }
