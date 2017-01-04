@@ -33,8 +33,8 @@ public class BitmapHelper {
         void onFailed();
     }
 
-    private static final int WIDTH = 128;
-    private static final int HEIGHT = 128;
+    private static final int WIDTH = 160;
+    private static final int HEIGHT = 160;
 
     private static BitmapHelper INSTANCE;
     private Context context;
