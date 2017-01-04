@@ -261,14 +261,12 @@
 
                         <ImageView
                             android:id="@+id/previousTrack"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
                             android:layout_gravity="center_vertical"
-                            android:layout_weight="0.5"
-                            android:clickable="true"
                             android:contentDescription="@string/app_name"
-                            android:foreground="?android:attr/selectableItemBackground"
-                            android:src="@drawable/previous_track_icon" />
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/avd_music_previous" />
 
                         <ImageView
                             android:id="@+id/equalizer"
@@ -302,16 +300,14 @@
                             android:contentDescription="@string/app_name"
                             android:src="@drawable/icon_repeat_off" />
 
-
                         <ImageView
                             android:id="@+id/nextTrack"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="0.5"
-                            android:clickable="true"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:layout_gravity="center_vertical"
                             android:contentDescription="@string/app_name"
-                            android:foreground="?android:attr/selectableItemBackground"
-                            android:src="@drawable/next_track_icon" />
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/avd_music_next" />
 
                     </LinearLayout>
 
