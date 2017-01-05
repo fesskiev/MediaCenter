@@ -15,12 +15,13 @@ import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.effects.ReverbState;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
-import com.fesskiev.mediacenter.widgets.reverb.ReverbControlView;
+import com.fesskiev.mediacenter.widgets.effects.DealerView;
+import com.fesskiev.mediacenter.widgets.effects.ReverbControlView;
 
 import org.greenrobot.eventbus.EventBus;
 
 
-public class ReverbFragment extends Fragment implements ReverbControlView.OnAttachStateListener,
+public class ReverbFragment extends Fragment implements DealerView.OnDealerViewListener,
         ReverbControlView.OnReverbControlListener {
 
     private static final String REVERB_WIDTH = "Width";
@@ -76,7 +77,7 @@ public class ReverbFragment extends Fragment implements ReverbControlView.OnAtta
         };
 
         for (ReverbControlView reverbControlView : reverbControlViews) {
-            reverbControlView.setAttachStateListener(this);
+            reverbControlView.setOnDealerViewListener(this);
             reverbControlView.setControlListener(this);
         }
 
@@ -89,8 +90,8 @@ public class ReverbFragment extends Fragment implements ReverbControlView.OnAtta
     }
 
     @Override
-    public void onAttachReverbControlView(ReverbControlView view) {
-        String name = view.getName();
+    public void onAttachDealerView(DealerView view) {
+        String name = ((ReverbControlView) view).getName();
         switch (name) {
             case REVERB_WIDTH:
                 view.setLevel(state.getWeightValues());

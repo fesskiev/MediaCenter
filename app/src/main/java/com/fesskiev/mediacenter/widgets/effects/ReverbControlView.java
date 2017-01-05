@@ -1,50 +1,33 @@
-package com.fesskiev.mediacenter.widgets.reverb;
+package com.fesskiev.mediacenter.widgets.effects;
 
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
-import android.view.View;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.utils.Utils;
+import com.fesskiev.mediacenter.widgets.effects.DealerView;
 
-public class ReverbControlView extends View {
-
-    public interface OnAttachStateListener {
-
-        void onAttachReverbControlView(ReverbControlView view);
-    }
+public class ReverbControlView extends DealerView {
 
     public interface OnReverbControlListener {
 
         void onReverbControlChanged(String name, float level, float[] values);
     }
 
-    private OnAttachStateListener attachStateListener;
     private OnReverbControlListener controlListener;
-    private Bitmap bitmapControl;
-    private Matrix matrix;
     private Paint markPaint;
     private Paint namePaint;
     private String name;
-    private float cx;
-    private float cy;
     private float markRadius;
     private float markSize;
     private int radius;
     private int textPadding;
-
-    private float startAngle;
-    private float[] values;
 
     public ReverbControlView(Context context) {
         super(context);
@@ -79,9 +62,6 @@ public class ReverbControlView extends View {
         float nameStrokeWidth = Utils.dipToPixels(context, 13);
 
         radius = (int) Utils.dipToPixels(context, 3);
-        matrix = new Matrix();
-
-        values = new float[9];
 
         markPaint = new Paint();
         markPaint.setColor(ContextCompat.getColor(context, android.R.color.white));
@@ -98,26 +78,7 @@ public class ReverbControlView extends View {
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-
-        cx = getWidth() / 2f;
-        cy = getHeight() / 2f;
-
-        bitmapControl = BitmapFactory.decodeResource(getResources(), R.drawable.icon_knob);
-
-        matrix.postTranslate((getWidth() - bitmapControl.getWidth()) / 2,
-                (getHeight() - bitmapControl.getHeight()) / 2);
-
-        if (attachStateListener != null) {
-            attachStateListener.onAttachReverbControlView(this);
-        }
-
-    }
-
-    @Override
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
 
         for (int i = 0; i < 360; i += 30) {
 
@@ -136,94 +97,21 @@ public class ReverbControlView extends View {
             }
 
         }
-
-        canvas.drawBitmap(bitmapControl, matrix, null);
-
         canvas.drawText(name, cx, getWidth() - textPadding, namePaint);
 
+        super.onDraw(canvas);
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-
-        int action = event.getActionMasked();
-        switch (action) {
-            case MotionEvent.ACTION_DOWN:
-                startAngle = getAngle(event.getX(), event.getY());
-                break;
-            case MotionEvent.ACTION_MOVE:
-                float currentAngle = getAngle(event.getX(), event.getY());
-                rotateBand(startAngle - currentAngle, currentAngle);
-                startAngle = currentAngle;
-                break;
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-                break;
-        }
-
-        postInvalidate();
-        return true;
-    }
-
-    private void rotateBand(float degrees, float currentAngle) {
-        matrix.postRotate(degrees, cx, cy);
+    public void rotateBand(float currentAngle, float[] values) {
 
         float angleFix = getAngleFix(currentAngle);
 
         float level = 100 - (angleFix * (100f / 360));
 
         if (controlListener != null) {
-            matrix.getValues(values);
             controlListener.onReverbControlChanged(name, level, values);
         }
-
-    }
-
-    private float getAngleFix(float ag) {
-        float angle = ag;
-        angle -= 90;
-        if (angle < 0) {
-            angle += 360;
-        }
-        return angle;
-    }
-
-
-    private float getAngle(float xTouch, float yTouch) {
-        float x = xTouch - cx;
-        float y = getHeight() - yTouch - cy;
-
-        switch (getQuadrant(x, y)) {
-            case 1:
-                return (float) (Math.asin(y / Math.hypot(x, y)) * 180 / Math.PI);
-            case 2:
-                return (float) (180 - Math.asin(y / Math.hypot(x, y)) * 180 / Math.PI);
-            case 3:
-                return (float) (180 + (-1 * Math.asin(y / Math.hypot(x, y)) * 180 / Math.PI));
-            case 4:
-                return (float) (360 + Math.asin(y / Math.hypot(x, y)) * 180 / Math.PI);
-            default:
-                return 0;
-        }
-    }
-
-    private static int getQuadrant(float x, float y) {
-        if (x >= 0) {
-            return y >= 0 ? 1 : 4;
-        } else {
-            return y >= 0 ? 2 : 3;
-        }
-    }
-
-    public void setLevel(float[] values) {
-        if (values != null) {
-            matrix.setValues(values);
-            postInvalidate();
-        }
-    }
-
-    public void setAttachStateListener(OnAttachStateListener l) {
-        this.attachStateListener = l;
     }
 
     public void setControlListener(OnReverbControlListener l) {

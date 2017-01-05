@@ -13,13 +13,14 @@ import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.effects.EQState;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
-import com.fesskiev.mediacenter.widgets.eq.BandControlView;
+import com.fesskiev.mediacenter.widgets.effects.DealerView;
+import com.fesskiev.mediacenter.widgets.effects.EQBandControlView;
 
 import org.greenrobot.eventbus.EventBus;
 
 
-public class EqualizerFragment extends Fragment implements BandControlView.OnBandLevelListener,
-        BandControlView.OnAttachStateListener {
+public class EqualizerFragment extends Fragment implements EQBandControlView.OnBandLevelListener,
+        DealerView.OnDealerViewListener {
 
     private Context context;
     private EQState state;
@@ -62,15 +63,15 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
         switchEQState.setChecked(settingsManager.isEQEnable());
 
 
-        BandControlView[] bandControlViews = new BandControlView[]{
-                (BandControlView) view.findViewById(R.id.bandControlLow),
-                (BandControlView) view.findViewById(R.id.bandControlMid),
-                (BandControlView) view.findViewById(R.id.bandControlHigh)
+        EQBandControlView[] EQBandControlViews = new EQBandControlView[]{
+                (EQBandControlView) view.findViewById(R.id.bandControlLow),
+                (EQBandControlView) view.findViewById(R.id.bandControlMid),
+                (EQBandControlView) view.findViewById(R.id.bandControlHigh)
         };
 
-        for (BandControlView bandControlView : bandControlViews) {
-            bandControlView.setAttachStateListener(this);
-            bandControlView.setOnBandLevelListener(this);
+        for (EQBandControlView EQBandControlView : EQBandControlViews) {
+            EQBandControlView.setOnDealerViewListener(this);
+            EQBandControlView.setOnBandLevelListener(this);
         }
     }
 
@@ -81,8 +82,8 @@ public class EqualizerFragment extends Fragment implements BandControlView.OnBan
     }
 
     @Override
-    public void onAttachBandControlView(BandControlView view) {
-        int band = view.getBand();
+    public void onAttachDealerView(DealerView view) {
+        int band = ((EQBandControlView) view).getBand();
         switch (band) {
             case 0:
                 view.setLevel(state.getLowValues());

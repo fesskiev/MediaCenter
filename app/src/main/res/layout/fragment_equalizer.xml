@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp">
 
-        <com.fesskiev.mediacenter.widgets.eq.BandControlView
+        <com.fesskiev.mediacenter.widgets.effects.EQBandControlView
             android:id="@+id/bandControlLow"
             android:layout_width="@dimen/effect_control_weight"
             android:layout_height="@dimen/effect_control_height"
@@ -19,7 +19,7 @@
             app:band="0"
             app:bandName="Low" />
 
-        <com.fesskiev.mediacenter.widgets.eq.BandControlView
+        <com.fesskiev.mediacenter.widgets.effects.EQBandControlView
             android:id="@+id/bandControlMid"
             android:layout_width="@dimen/effect_control_weight"
             android:layout_height="@dimen/effect_control_height"
@@ -37,7 +37,7 @@
         android:layout_above="@+id/eqControlState"
         android:layout_marginBottom="20dp">
 
-        <com.fesskiev.mediacenter.widgets.eq.BandControlView
+        <com.fesskiev.mediacenter.widgets.effects.EQBandControlView
             android:id="@+id/bandControlHigh"
             android:layout_width="@dimen/effect_control_weight"
             android:layout_height="@dimen/effect_control_height"

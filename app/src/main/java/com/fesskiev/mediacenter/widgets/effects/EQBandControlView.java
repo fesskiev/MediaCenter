@@ -1,20 +1,16 @@
-package com.fesskiev.mediacenter.widgets.eq;
+package com.fesskiev.mediacenter.widgets.effects;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
-import android.view.View;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.utils.Utils;
+import com.fesskiev.mediacenter.widgets.effects.DealerView;
 
 /**
  * The gains on the 3 band EQ are the "knobs" for each band, in other words,
@@ -23,22 +19,14 @@ import com.fesskiev.mediacenter.utils.Utils;
  * <p>
  * http://superpowered.com/3-band-equalizer-64-bit-armv8-support-and-time-stretching-on-mobile-processors
  */
-public class BandControlView extends View {
-
-    public interface OnAttachStateListener {
-
-        void onAttachBandControlView(BandControlView view);
-    }
+public class EQBandControlView extends DealerView {
 
     public interface OnBandLevelListener {
 
         void onBandLevelChanged(int band, float level, float[] values);
     }
 
-    private OnAttachStateListener attachStateListener;
     private OnBandLevelListener listener;
-    private Bitmap bitmapControl;
-    private Matrix matrix;
     private Paint markPaint;
     private Paint rangePaint;
     private Paint namePaint;
@@ -46,38 +34,34 @@ public class BandControlView extends View {
     private int band;
     private int radius;
     private int textPadding;
-    private float cx;
-    private float cy;
-    private float startAngle;
     private float markRadius;
     private float markSize;
     private float rangeTextX;
     private float rangeTextY;
     private float rangeTextX1;
-    private float[] values;
 
 
-    public BandControlView(Context context) {
+    public EQBandControlView(Context context) {
         super(context);
         init(context, null, 0);
     }
 
-    public BandControlView(Context context, AttributeSet attrs) {
+    public EQBandControlView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs, 0);
     }
 
-    public BandControlView(Context context, AttributeSet attrs, int defStyle) {
+    public EQBandControlView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init(context, attrs, defStyle);
     }
 
     private void init(Context context, AttributeSet attrs, int defStyle) {
         final TypedArray a = getContext().obtainStyledAttributes(
-                attrs, R.styleable.BandControlView, defStyle, 0);
+                attrs, R.styleable.EQBandControlView, defStyle, 0);
 
-        band = a.getInt(R.styleable.BandControlView_band, -1);
-        bandName = a.getString(R.styleable.BandControlView_bandName);
+        band = a.getInt(R.styleable.EQBandControlView_band, -1);
+        bandName = a.getString(R.styleable.EQBandControlView_bandName);
 
         a.recycle();
 
@@ -95,9 +79,6 @@ public class BandControlView extends View {
         float rangeStrokeWidth = Utils.dipToPixels(context, 14);
 
         radius = (int) Utils.dipToPixels(context, 3);
-        matrix = new Matrix();
-
-        values = new float[9];
 
         markPaint = new Paint();
         markPaint.setColor(ContextCompat.getColor(context, android.R.color.white));
@@ -123,28 +104,7 @@ public class BandControlView extends View {
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-
-        cx = getWidth() / 2f;
-        cy = getHeight() / 2f;
-
-        bitmapControl = BitmapFactory.decodeResource(getResources(), R.drawable.icon_knob);
-
-        matrix.postTranslate((getWidth() - bitmapControl.getWidth()) / 2,
-                (getHeight() - bitmapControl.getHeight()) / 2);
-
-        matrix.postRotate(180, cx, cy);
-
-        if (attachStateListener != null) {
-            attachStateListener.onAttachBandControlView(this);
-        }
-    }
-
-
-    @Override
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
 
         for (int i = 30; i < 360; i += 30) {
 
@@ -161,11 +121,7 @@ public class BandControlView extends View {
             } else {
                 canvas.drawCircle(startX, startY, radius, markPaint);
             }
-
         }
-
-
-        canvas.drawBitmap(bitmapControl, matrix, null);
 
         canvas.drawText(bandName, cx, getWidth() - textPadding, namePaint);
 
@@ -173,94 +129,23 @@ public class BandControlView extends View {
 
         canvas.drawText("+18", rangeTextX1, rangeTextY, rangePaint);
 
-
+        super.onDraw(canvas);
     }
-
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-
-        int action = event.getActionMasked();
-        switch (action) {
-            case MotionEvent.ACTION_DOWN:
-                startAngle = getAngle(event.getX(), event.getY());
-                break;
-            case MotionEvent.ACTION_MOVE:
-                float currentAngle = getAngle(event.getX(), event.getY());
-                rotateBand(startAngle - currentAngle, currentAngle);
-                startAngle = currentAngle;
-                break;
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-                break;
-        }
-
-        postInvalidate();
-        return true;
-    }
-
-    private void rotateBand(float degrees, float currentAngle) {
-        matrix.postRotate(degrees, cx, cy);
+    public void rotateBand(float currentAngle, float[] values) {
 
         float angleFix = getAngleFix(currentAngle);
 
         float level = (angleFix * (100f / 360));
 
         if (listener != null) {
-            matrix.getValues(values);
             listener.onBandLevelChanged(band, level, values);
-        }
-    }
-
-    private float getAngleFix(float ag) {
-        float angle = ag;
-        angle -= 90;
-        if (angle < 0) {
-            angle += 360;
-        }
-        return angle;
-    }
-
-
-    private float getAngle(float xTouch, float yTouch) {
-        float x = xTouch - cx;
-        float y = getHeight() - yTouch - cy;
-
-        switch (getQuadrant(x, y)) {
-            case 1:
-                return (float) (Math.asin(y / Math.hypot(x, y)) * 180 / Math.PI);
-            case 2:
-                return (float) (180 - Math.asin(y / Math.hypot(x, y)) * 180 / Math.PI);
-            case 3:
-                return (float) (180 + (-1 * Math.asin(y / Math.hypot(x, y)) * 180 / Math.PI));
-            case 4:
-                return (float) (360 + Math.asin(y / Math.hypot(x, y)) * 180 / Math.PI);
-            default:
-                return 0;
-        }
-    }
-
-    private static int getQuadrant(float x, float y) {
-        if (x >= 0) {
-            return y >= 0 ? 1 : 4;
-        } else {
-            return y >= 0 ? 2 : 3;
         }
     }
 
     public void setOnBandLevelListener(OnBandLevelListener listener) {
         this.listener = listener;
-    }
-
-    public void setAttachStateListener(OnAttachStateListener attachStateListener) {
-        this.attachStateListener = attachStateListener;
-    }
-
-    public void setLevel(float[] values) {
-        if (values != null) {
-            matrix.setValues(values);
-            postInvalidate();
-        }
     }
 
     public int getBand() {
