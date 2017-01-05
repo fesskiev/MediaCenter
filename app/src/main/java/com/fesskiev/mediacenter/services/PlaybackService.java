@@ -87,6 +87,8 @@ public class PlaybackService extends Service {
     private boolean looping;
     private boolean enableEQ;
     private boolean enableReverb;
+    private boolean enableEcho;
+    private boolean enableWhoosh;
     private boolean headsetConnected;
 
 
@@ -497,16 +499,26 @@ public class PlaybackService extends Service {
     public native void setEQBands(int band, int value);
 
     /***
-     * Echo
-     */
-    public native void setEchoValue(int value);
-
-    /***
      * Reverb
      */
     public native void setReverbValue(int mix, int width, int damp, int roomSize);
 
     public native void enableReverb(boolean enable);
+
+    /***
+     * Echo
+     */
+    public native void setEchoValue(int value);
+
+    public native void enableEcho(boolean enable);
+
+    /***
+     * Whoosh!
+     */
+    public native void setWhooshValue(int wet, int frequency);
+
+    public native void enableWhoosh(boolean enable);
+
 
     @Keep
     public void playStatusCallback(int status) {
@@ -560,7 +572,8 @@ public class PlaybackService extends Service {
                 ", looping=" + looping +
                 ", enableEQ=" + enableEQ +
                 ", enableReverb=" + enableReverb +
-                ", headsetConnected=" + headsetConnected +
+                ", enableEcho=" + enableEcho +
+                ", enableWhoosh=" + enableWhoosh +
                 '}';
     }
 }

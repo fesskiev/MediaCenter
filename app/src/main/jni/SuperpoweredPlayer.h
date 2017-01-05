@@ -34,20 +34,25 @@ public:
     float getPositionPercent();
     bool isPlaying();
     bool isLooping();
-    bool isEnableEQ();
-    bool isEnableReverb();
     void setLooping(bool looping);
     void open(const char *path);
 
     void setEQBands(int index, int value);
     void enableEQ(bool enable);
+    bool isEnableEQ();
 
-    void echoValue(int value);
 
     void reverbValue(int mix, int width, int damp, int roomSize);
     void enableReverb(bool enable);
+    bool isEnableReverb();
 
+    void echoValue(int value);
+    void enableEcho(bool enable);
+    bool isEnableEcho();
 
+    void whooshValue(int wet, int frequency);
+    void enableWhoosh(bool enable);
+    bool isEnableWhoosh();
 
     void onForeground();
     void onBackground();

@@ -6,9 +6,21 @@
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_AndroidConfiguration.h>
 
+#define MINFREQ 20.0f
+#define MAXFREQ 20000.0f
+
 static SuperpoweredPlayer *player = NULL;
 JavaVM *gJavaVM;
 jobject callbackObject = NULL;
+
+static inline float floatToFrequency(float value) {
+    if (value > 0.97f) return MAXFREQ;
+    if (value < 0.03f) return MINFREQ;
+    value = powf(10.0f,
+                 (value + ((0.4f - fabsf(value - 0.4f)) * 0.3f)) * log10f(MAXFREQ - MINFREQ)) +
+            MINFREQ;
+    return value < MAXFREQ ? value : MAXFREQ;
+}
 
 static void handlingCallback(int event) {
     JNIEnv *env;
@@ -231,12 +243,16 @@ bool SuperpoweredPlayer::isEnableEQ() {
 
 void SuperpoweredPlayer::echoValue(int value) {
     float mixValue = float(value) * 0.01f;
-    if (mixValue > 0) {
-        echo->enable(true);
-        echo->setMix(mixValue);
-    } else {
-        echo->enable(false);
-    }
+    echo->setMix(mixValue);
+
+}
+
+void SuperpoweredPlayer::enableEcho(bool enable) {
+    echo->enable(enable);
+}
+
+bool SuperpoweredPlayer::isEnableEcho() {
+    return echo->enabled;
 }
 
 void SuperpoweredPlayer::reverbValue(int mix, int width, int damp, int roomSize) {
@@ -259,6 +275,26 @@ void SuperpoweredPlayer::enableReverb(bool enable) {
 
 bool SuperpoweredPlayer::isEnableReverb() {
     return reverb->enabled;
+}
+
+void SuperpoweredPlayer::whooshValue(int wet, int frequency) {
+    float wetF = float(wet) * 0.01f;
+    float frequencyF = float(frequency) * 0.01f;
+    frequencyF = floatToFrequency(frequencyF);
+    __android_log_print(ANDROID_LOG_VERBOSE, "SuperpoweredExample",
+                        "setWhooshValue wet = %f frequency = %f",
+                        wetF, frequencyF);
+    whoosh->wet = wetF;
+    whoosh->setFrequency(frequencyF);
+}
+
+
+void SuperpoweredPlayer::enableWhoosh(bool enable) {
+    whoosh->enable(enable);
+}
+
+bool SuperpoweredPlayer::isEnableWhoosh() {
+    return whoosh->enabled;
 }
 
 
@@ -284,6 +320,7 @@ static inline void setBoolField(JNIEnv *javaEnvironment, jobject obj, jclass thi
                                      (jboolean) value);
 }
 
+
 extern "C" JNIEXPORT void
 Java_com_fesskiev_mediacenter_services_PlaybackService_onDestroyAudioPlayer(JNIEnv *env,
                                                                             jobject instance) {
@@ -304,6 +341,8 @@ Java_com_fesskiev_mediacenter_services_PlaybackService_updatePlaybackState(JNIEn
     setBoolField(javaEnvironment, obj, thisClass, "looping", player->isLooping());
     setBoolField(javaEnvironment, obj, thisClass, "enableEQ", player->isEnableEQ());
     setBoolField(javaEnvironment, obj, thisClass, "enableReverb", player->isEnableReverb());
+    setBoolField(javaEnvironment, obj, thisClass, "enableEcho", player->isEnableEcho());
+    setBoolField(javaEnvironment, obj, thisClass, "enableWhoosh", player->isEnableWhoosh());
 }
 
 extern "C" JNIEXPORT void
@@ -398,6 +437,12 @@ Java_com_fesskiev_mediacenter_services_PlaybackService_setEchoValue(JNIEnv *env,
     player->echoValue(value);
 }
 
+JNIEXPORT void JNICALL
+Java_com_fesskiev_mediacenter_services_PlaybackService_enableEcho(JNIEnv *env, jobject instance,
+                                                                  jboolean enable) {
+    player->enableEcho(enable);
+}
+
 extern "C" JNIEXPORT void
 Java_com_fesskiev_mediacenter_services_PlaybackService_setReverbValue(JNIEnv *env, jobject instance,
                                                                       jint mix, jint width,
@@ -410,3 +455,17 @@ Java_com_fesskiev_mediacenter_services_PlaybackService_enableReverb(JNIEnv *env,
                                                                     jboolean enable) {
     player->enableReverb(enable);
 }
+
+JNIEXPORT void JNICALL
+Java_com_fesskiev_mediacenter_services_PlaybackService_setWhooshValue(JNIEnv *env, jobject instance,
+                                                                      jint wet, jint frequency) {
+    player->whooshValue(wet, frequency);
+
+}
+
+JNIEXPORT void JNICALL
+Java_com_fesskiev_mediacenter_services_PlaybackService_enableWhoosh(JNIEnv *env, jobject instance,
+                                                                    jboolean enable) {
+    player->enableWhoosh(enable);
+}
+
