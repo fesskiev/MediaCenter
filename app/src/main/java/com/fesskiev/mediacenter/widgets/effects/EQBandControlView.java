@@ -104,6 +104,13 @@ public class EQBandControlView extends DealerView {
     }
 
     @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+
+        matrix.postRotate(180, cx, cy);
+    }
+
+    @Override
     protected void onDraw(Canvas canvas) {
 
         for (int i = 30; i < 360; i += 30) {

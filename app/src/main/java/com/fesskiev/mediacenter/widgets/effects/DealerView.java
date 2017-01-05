@@ -22,10 +22,11 @@ public abstract class DealerView extends View {
     public abstract void rotateBand(float currentAngle, float [] values);
 
     private OnDealerViewListener listener;
+
     protected float cx;
     protected float cy;
+    protected Matrix matrix;
     private Bitmap bitmapControl;
-    private Matrix matrix;
     private float startAngle;
     private float[] values;
 
@@ -49,15 +50,16 @@ public abstract class DealerView extends View {
         matrix = new Matrix();
         values = new float[9];
 
-        bitmapControl = BitmapFactory.decodeResource(getResources(), R.drawable.icon_knob);
-
-        matrix.postTranslate((getWidth() - bitmapControl.getWidth()) / 2,
-                (getHeight() - bitmapControl.getHeight()) / 2);
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
+
+        bitmapControl = BitmapFactory.decodeResource(getResources(), R.drawable.icon_knob);
+
+        matrix.postTranslate((getWidth() - bitmapControl.getWidth()) / 2,
+                (getHeight() - bitmapControl.getHeight()) / 2);
 
         cx = getWidth() / 2f;
         cy = getHeight() / 2f;
