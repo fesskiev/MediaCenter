@@ -437,7 +437,7 @@ Java_com_fesskiev_mediacenter_services_PlaybackService_setEchoValue(JNIEnv *env,
     player->echoValue(value);
 }
 
-JNIEXPORT void JNICALL
+extern "C" JNIEXPORT void
 Java_com_fesskiev_mediacenter_services_PlaybackService_enableEcho(JNIEnv *env, jobject instance,
                                                                   jboolean enable) {
     player->enableEcho(enable);
@@ -456,14 +456,14 @@ Java_com_fesskiev_mediacenter_services_PlaybackService_enableReverb(JNIEnv *env,
     player->enableReverb(enable);
 }
 
-JNIEXPORT void JNICALL
+extern "C" JNIEXPORT void
 Java_com_fesskiev_mediacenter_services_PlaybackService_setWhooshValue(JNIEnv *env, jobject instance,
                                                                       jint wet, jint frequency) {
     player->whooshValue(wet, frequency);
 
 }
 
-JNIEXPORT void JNICALL
+extern "C" JNIEXPORT void
 Java_com_fesskiev_mediacenter_services_PlaybackService_enableWhoosh(JNIEnv *env, jobject instance,
                                                                     jboolean enable) {
     player->enableWhoosh(enable);

@@ -103,11 +103,9 @@ public class ReverbControlView extends DealerView {
     }
 
     @Override
-    public void rotateBand(float currentAngle, float[] values) {
+    public void rotateDealer(float currentAngle, float[] values) {
 
-        float angleFix = getAngleFix(currentAngle);
-
-        float level = 100 - (angleFix * (100f / 360));
+        float level = 100 - (currentAngle * (100f / 360));
 
         if (controlListener != null) {
             controlListener.onReverbControlChanged(name, level, values);

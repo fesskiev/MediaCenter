@@ -1,8 +1,48 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.fesskiev.mediacenter.ui.effects.OtherEffectsFragment">
+    android:layout_height="match_parent">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <com.fesskiev.mediacenter.widgets.effects.EchoControlView
+            android:id="@+id/echoView"
+            android:layout_width="@dimen/effect_control_weight"
+            android:layout_height="@dimen/effect_control_height"
+            android:layout_gravity="center_horizontal" />
+
+        <LinearLayout
+            android:id="@+id/reverbControlState"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/eq_margin_bottom"
+            android:orientation="vertical">
+
+            <View
+                android:id="@+id/divider0"
+                style="@style/DividerStyle"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="10dp" />
+
+
+            <android.support.v7.widget.SwitchCompat
+                android:id="@+id/stateEcho"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp" />
+
+            <View
+                android:id="@+id/divider1"
+                style="@style/DividerStyle"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="10dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </FrameLayout>

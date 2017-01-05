@@ -19,7 +19,7 @@ public abstract class DealerView extends View {
         void onAttachDealerView(DealerView view);
     }
 
-    public abstract void rotateBand(float currentAngle, float [] values);
+    public abstract void rotateDealer(float currentAngle, float [] values);
 
     private OnDealerViewListener listener;
 
@@ -32,20 +32,20 @@ public abstract class DealerView extends View {
 
     public DealerView(Context context) {
         super(context);
-        init(context);
+        init();
     }
 
     public DealerView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        init();
     }
 
     public DealerView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context);
+        init();
     }
 
-    private void init(Context context) {
+    private void init() {
 
         matrix = new Matrix();
         values = new float[9];
@@ -91,7 +91,9 @@ public abstract class DealerView extends View {
                 matrix.postRotate(startAngle - currentAngle, cx, cy);
                 matrix.getValues(values);
 
-                rotateBand(currentAngle, values);
+                float angleFix = getAngleFix(currentAngle);
+
+                rotateDealer(angleFix, values);
 
                 startAngle = currentAngle;
                 break;

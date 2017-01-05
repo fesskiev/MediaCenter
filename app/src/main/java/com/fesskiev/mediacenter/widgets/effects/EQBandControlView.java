@@ -140,11 +140,9 @@ public class EQBandControlView extends DealerView {
     }
 
     @Override
-    public void rotateBand(float currentAngle, float[] values) {
+    public void rotateDealer(float currentAngle, float[] values) {
 
-        float angleFix = getAngleFix(currentAngle);
-
-        float level = (angleFix * (100f / 360));
+        float level = (currentAngle * (100f / 360));
 
         if (listener != null) {
             listener.onBandLevelChanged(band, level, values);
