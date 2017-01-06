@@ -423,7 +423,7 @@ public class PlaybackService extends Service {
     }
 
     private void createReverbStateIfNeed() {
-        ReverbState reverbState = AppSettingsManager.getInstance(getApplicationContext()).getReverbState();
+        ReverbState reverbState = AppSettingsManager.getInstance().getReverbState();
         if (reverbState != null) {
             Log.wtf(TAG, "create Reverb state");
             setReverbValue((int) reverbState.getMix(), (int) reverbState.getWeight(),
@@ -432,7 +432,7 @@ public class PlaybackService extends Service {
     }
 
     private void createEQStateIfNeed() {
-        EQState eqState = AppSettingsManager.getInstance(getApplicationContext()).getEQState();
+        EQState eqState = AppSettingsManager.getInstance().getEQState();
         if (eqState != null) {
             Log.wtf(TAG, "create EQ state");
             for (int i = 0; i < 3; i++) {

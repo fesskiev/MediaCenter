@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.effects.EQState;
 import com.fesskiev.mediacenter.data.model.effects.ReverbState;
 import com.google.gson.Gson;
@@ -13,11 +14,12 @@ public class AppSettingsManager {
 
     private static final String APP_SETTINGS_PREFERENCES = "com.fesskiev.player_settings_preferences";
     private static final String KEY_OAUTH_TOKEN = "com.fesskiev.player.SAVE_STATE_KEY_OAUTH_TOKEN";
-    private static final String KEY_OAUTH_SECRET = "com.fesskiev.player.SAVE_STATE_KEY_OAUTH_SECRET";
     private static final String KEY_USER_ID = "com.fesskiev.player.SAVE_STATE_KEY_USER_ID";
     private static final String KEY_USER_FIRST_NAME = "com.fesskiev.player.KEY_USER_FIRST_NAME";
     private static final String KEY_USER_LAST_NAME = "com.fesskiev.player.KEY_USER_LAST_NAME";
+    private static final String KEY_PHOTO_URL = "com.fesskiev.player.KEY_KEY_PHOTO_URL";
     private static final String KEY_FIRST_START_APP = "com.fesskiev.player.KEY_FIRST_START_APP";
+
 
     private static final String KEY_REVERB_ENABLE = "com.fesskiev.player.KEY_REVERB_ENABLE";
     private static final String KEY_REVERB_STATE = "com.fesskiev.player.KEY_REVERB_STATE";
@@ -35,9 +37,9 @@ public class AppSettingsManager {
                 context.getSharedPreferences(APP_SETTINGS_PREFERENCES, Context.MODE_PRIVATE);
     }
 
-    public static AppSettingsManager getInstance(Context context) {
+    public static AppSettingsManager getInstance() {
         if (appSettingsManager == null) {
-            appSettingsManager = new AppSettingsManager(context);
+            appSettingsManager = new AppSettingsManager(MediaApplication.getInstance().getApplicationContext());
         }
         return appSettingsManager;
     }
@@ -64,15 +66,6 @@ public class AppSettingsManager {
         editor.apply();
     }
 
-    public String getAuthSecret() {
-        return sharedPreferences.getString(KEY_OAUTH_SECRET, "");
-    }
-
-    public void setAuthSecret(String authSecret) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(KEY_OAUTH_SECRET, authSecret);
-        editor.apply();
-    }
 
     public String getUserId() {
         return sharedPreferences.getString(KEY_USER_ID, "");
@@ -91,6 +84,16 @@ public class AppSettingsManager {
     public void setUserFirstName(String userId) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(KEY_USER_FIRST_NAME, userId);
+        editor.apply();
+    }
+
+    public String getPhotoURL() {
+        return sharedPreferences.getString(KEY_PHOTO_URL, "");
+    }
+
+    public void setPhotoURL(String url) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(KEY_PHOTO_URL, url);
         editor.apply();
     }
 

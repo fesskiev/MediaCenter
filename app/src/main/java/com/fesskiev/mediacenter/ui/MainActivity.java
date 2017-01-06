@@ -1,6 +1,7 @@
 package com.fesskiev.mediacenter.ui;
 
 
+import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -14,6 +15,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,25 +34,14 @@ import com.fesskiev.mediacenter.ui.search.SearchActivity;
 import com.fesskiev.mediacenter.ui.settings.SettingsActivity;
 import com.fesskiev.mediacenter.ui.video.VideoFragment;
 import com.fesskiev.mediacenter.utils.AnimationUtils;
-import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
-import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
+import com.fesskiev.mediacenter.vk.VKAuthActivity;
 import com.fesskiev.mediacenter.vk.VkontakteActivity;
 import com.fesskiev.mediacenter.vk.data.model.User;
-import com.fesskiev.mediacenter.vk.data.source.DataRepository;
 import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
-import com.vk.sdk.VKAccessToken;
-import com.vk.sdk.VKCallback;
-import com.vk.sdk.VKScope;
-import com.vk.sdk.VKSdk;
-import com.vk.sdk.api.VKError;
-
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 
 public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -61,7 +52,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private Toolbar toolbar;
 
     private Class selectedActivity;
-    private Subscription subscription;
     private AppSettingsManager settingsManager;
     private FetchMediaFilesManager fetchMediaFilesManager;
     private ImageView userPhoto;
@@ -76,7 +66,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        settingsManager = AppSettingsManager.getInstance(this);
+        settingsManager = AppSettingsManager.getInstance();
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -172,10 +162,9 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         userPhoto.setOnClickListener(v -> {
 
             if (settingsManager.isAuthTokenEmpty()) {
-                String[] vkScope = new String[]{VKScope.DIRECT, VKScope.AUDIO};
-                VKSdk.login(MainActivity.this, vkScope);
+                startActivityForResult(new Intent(this, VKAuthActivity.class), VKAuthActivity.VK_AUTH_RESULT);
             } else {
-                startActivity(new Intent(getApplicationContext(), VkontakteActivity.class));
+                startActivity(new Intent(this, VkontakteActivity.class));
             }
         });
         firstName = (TextView) headerLayout.findViewById(R.id.firstName);
@@ -207,9 +196,23 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     private void setUserInfo() {
-        BitmapHelper.getInstance()
-                .loadBitmapAvatar(BitmapHelper.getInstance().getUserPhoto(), userPhoto);
+        Bitmap bitmap = BitmapHelper.getInstance().getUserPhoto();
+        if (bitmap != null) {
+            BitmapHelper.getInstance().loadBitmapAvatar(bitmap, userPhoto);
+        } else {
+            BitmapHelper.getInstance().loadURLAvatar(settingsManager.getPhotoURL(),
+                    userPhoto, new BitmapHelper.OnBitmapLoadListener() {
+                        @Override
+                        public void onLoaded(Bitmap bitmap) {
+                            BitmapHelper.getInstance().saveUserPhoto(bitmap);
+                        }
 
+                        @Override
+                        public void onFailed() {
+
+                        }
+                    });
+        }
         firstName.setText(settingsManager.getUserFirstName());
         lastName.setText(settingsManager.getUserLastName());
 
@@ -235,8 +238,22 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         settingsManager.setUserFirstName("");
         settingsManager.setUserLastName("");
         settingsManager.setAuthToken("");
-        settingsManager.setAuthSecret("");
         settingsManager.setUserId("");
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.e("test", "RESULT request code: " + requestCode + " result code: " + resultCode);
+
+        if (requestCode == VKAuthActivity.VK_AUTH_RESULT) {
+            if (resultCode == Activity.RESULT_OK) {
+                setUserInfo();
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+
+            }
+        }
     }
 
     @Override
@@ -290,8 +307,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         fetchMediaFilesManager.unregister();
         PlaybackService.destroyPlayer(getApplicationContext());
         FileObserverService.stopFileObserverService(getApplicationContext());
-
-        RxUtils.unsubscribe(subscription);
 
     }
 
@@ -431,74 +446,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 transaction.hide(fragment);
                 break;
             }
-        }
-    }
-
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (!VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
-            @Override
-            public void onResult(VKAccessToken res) {
-
-                settingsManager.setAuthToken(res.accessToken);
-                settingsManager.setAuthSecret(res.secret);
-                settingsManager.setUserId(res.userId);
-
-                logoutShow();
-
-                makeRequestUserProfile();
-            }
-
-            @Override
-            public void onError(VKError error) {
-                Utils.showCustomSnackbar(getCurrentFocus(),
-                        getApplicationContext(),
-                        getString(R.string.snackbar_vk_auth_error),
-                        Snackbar.LENGTH_SHORT).show();
-            }
-        })) {
-            super.onActivityResult(requestCode, resultCode, data);
-        }
-    }
-
-
-    private void makeRequestUserProfile() {
-        DataRepository repository = DataRepository.getInstance();
-        subscription = repository.getUser()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(userResponse -> {
-                    setUserProfile(userResponse.getUser());
-                    startActivity(new Intent(MainActivity.this, VkontakteActivity.class));
-                }, throwable -> {
-                    AppLog.ERROR(throwable.getMessage());
-                });
-    }
-
-    private void setUserProfile(User user) {
-        if (user != null) {
-
-            AppLog.ERROR(user.toString());
-
-            firstName.setText(user.getFirstName());
-            lastName.setText(user.getLastName());
-
-            settingsManager.setUserFirstName(user.getFirstName());
-            settingsManager.setUserLastName(user.getLastName());
-
-            BitmapHelper.getInstance().loadURLAvatar(user.getPhotoUrl(),
-                    userPhoto, new BitmapHelper.OnBitmapLoadListener() {
-                        @Override
-                        public void onLoaded(Bitmap bitmap) {
-                            BitmapHelper.getInstance().saveUserPhoto(bitmap);
-                        }
-
-                        @Override
-                        public void onFailed() {
-
-                        }
-                    });
         }
     }
 }

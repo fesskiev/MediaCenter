@@ -5,17 +5,14 @@ import android.content.Context;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
 import com.fesskiev.mediacenter.R;
-import com.vk.sdk.util.VKUtil;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -45,12 +42,6 @@ public class Utils {
 
     public static String getPositionSecondsString(int positionSeconds){
         return String.format(Locale.US, "%02d:%02d", positionSeconds / 60, positionSeconds % 60);
-    }
-
-    public static void getCertificateFingerprint(Context context) {
-        String[] fingerprints =
-                VKUtil.getCertificateFingerprint(context, context.getPackageName());
-        Log.d(TAG, "fingerprint: " + Arrays.toString(fingerprints));
     }
 
     public static Snackbar showCustomSnackbar(View view, Context context, String text, int duration) {

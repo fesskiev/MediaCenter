@@ -2,7 +2,6 @@ package com.fesskiev.mediacenter;
 
 import android.app.Application;
 import android.content.ComponentCallbacks2;
-import android.util.Log;
 
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.data.source.local.db.LocalDataSource;
@@ -10,9 +9,6 @@ import com.fesskiev.mediacenter.data.source.memory.MemoryDataSource;
 import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.players.VideoPlayer;
 import com.fesskiev.mediacenter.utils.AppLog;
-import com.vk.sdk.VKAccessToken;
-import com.vk.sdk.VKAccessTokenTracker;
-import com.vk.sdk.VKSdk;
 
 import rx.plugins.RxJavaErrorHandler;
 import rx.plugins.RxJavaPlugins;
@@ -25,17 +21,6 @@ public class MediaApplication extends Application {
     private VideoPlayer videoPlayer;
     private DataRepository repository;
 
-    private VKAccessTokenTracker vkAccessTokenTracker = new VKAccessTokenTracker() {
-        @Override
-        public void onVKAccessTokenChanged(VKAccessToken oldToken, VKAccessToken newToken) {
-            if (newToken == null) {
-                AppLog.INFO("VK TOKEN INVALID");
-            } else {
-                AppLog.INFO("VK TOKEN VALID");
-            }
-        }
-    };
-
 
     @Override
     public void onCreate() {
@@ -45,11 +30,7 @@ public class MediaApplication extends Application {
         repository = DataRepository.getInstance(LocalDataSource.getInstance(), MemoryDataSource.getInstance());
 
         audioPlayer = new AudioPlayer(repository);
-
         videoPlayer = new VideoPlayer();
-
-        vkAccessTokenTracker.startTracking();
-        VKSdk.initialize(this);
 
         RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
             @Override

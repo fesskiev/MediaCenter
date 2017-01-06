@@ -1,5 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
     android:color="?attr/colorControlHighlight">
-    <item android:drawable="@color/white_text"/>
+    <item android:state_pressed="true">
+        <shape>
+            <solid android:color="@color/primary" />
+            <corners android:radius="2dp" />
+        </shape>
+    </item>
+
+    <item android:state_enabled="false">
+        <shape>
+            <solid android:color="@color/primary" />
+            <corners android:radius="2dp" />
+        </shape>
+    </item>
+
+    <item android:state_enabled="true">
+        <shape>
+            <solid android:color="@color/primary_light" />
+            <corners android:radius="2dp" />
+        </shape>
+    </item>
+
+    <item android:state_pressed="false">
+        <shape>
+            <solid android:color="@color/primary_light" />
+            <corners android:radius="2dp" />
+        </shape>
+    </item>
+
 </ripple>

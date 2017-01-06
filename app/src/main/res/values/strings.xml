@@ -143,6 +143,11 @@
 
     <string name="infinity_symbol">∞</string>
 
-    <integer name="com_vk_sdk_AppId">5796970</integer>
+
+    <string name="vk_iphone_official_id">3140623</string>
+    <string name="vk_iphone_official_secret">VeWdmVclDCtn6ihuP1nt</string>
+
+    <string name="vk_ipad_official_id">3682744</string>
+    <string name="vk_ipad_official_secret">mY6CDUswIVdJLCD3j15n</string>
 
 </resources>

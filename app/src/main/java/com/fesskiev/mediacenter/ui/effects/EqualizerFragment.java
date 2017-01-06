@@ -34,7 +34,7 @@ public class EqualizerFragment extends Fragment implements EQBandControlView.OnB
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = getContext().getApplicationContext();
-        settingsManager = AppSettingsManager.getInstance(context);
+        settingsManager = AppSettingsManager.getInstance();
 
         state = settingsManager.getEQState();
         if (state == null) {

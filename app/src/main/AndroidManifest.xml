@@ -37,7 +37,7 @@
         android:theme="@style/Theme.Player">
 
         <activity
-            android:name="com.fesskiev.mediacenter.ui.splash.SplashActivity"
+            android:name=".ui.splash.SplashActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:launchMode="singleTop"
             android:screenOrientation="portrait">
@@ -49,14 +49,14 @@
         </activity>
 
         <activity
-            android:name="com.fesskiev.mediacenter.ui.MainActivity"
+            android:name=".ui.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:launchMode="singleTop"
             android:screenOrientation="portrait">
 
         </activity>
         <activity
-            android:name="com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity"
+            android:name=".ui.audio.tracklist.TrackListActivity"
             android:parentActivityName="com.fesskiev.mediacenter.ui.MainActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize">
@@ -65,7 +65,7 @@
                 android:value="com.fesskiev.mediacenter.ui.MainActivity" />
         </activity>
         <activity
-            android:name="com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity"
+            android:name=".ui.audio.player.AudioPlayerActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:parentActivityName="com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity"
             android:screenOrientation="portrait">
@@ -74,7 +74,7 @@
                 android:value="com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity" />
         </activity>
         <activity
-            android:name="com.fesskiev.mediacenter.ui.audio.player.AudioURIActivity"
+            android:name=".ui.audio.player.AudioURIActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -87,28 +87,42 @@
                 <data android:mimeType="audio/*" />
             </intent-filter>
         </activity>
+
         <activity
-            android:name="com.fesskiev.mediacenter.ui.video.player.VideoExoPlayerActivity"
+            android:name=".ui.video.player.VideoExoPlayerActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:parentActivityName="com.fesskiev.mediacenter.ui.MainActivity"
+            android:parentActivityName=".ui.MainActivity"
             android:theme="@style/Base.Theme.Player.VideoExoPlayer">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fesskiev.mediacenter.ui.MainActivity" />
         </activity>
+
         <activity
-            android:name="com.fesskiev.mediacenter.ui.effects.EffectsActivity"
+            android:name=".ui.effects.EffectsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:parentActivityName="com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity"
+            android:parentActivityName=".ui.audio.player.AudioPlayerActivity"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity" />
         </activity>
+
+        <activity
+            android:name=".vk.VKAuthActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:parentActivityName=".ui.MainActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/ActivityDialog.Theme.MediaCenter">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.fesskiev.mediacenter.ui.MainActivity" />
+        </activity>
+
         <activity
             android:name=".vk.VkontakteActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:parentActivityName="com.fesskiev.mediacenter.ui.MainActivity"
+            android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -123,35 +137,40 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".vk.VkontakteActivity" />
         </activity>
+
+
         <activity
-            android:name="com.fesskiev.mediacenter.ui.about.AboutActivity"
-            android:parentActivityName="com.fesskiev.mediacenter.ui.MainActivity"
+            android:name=".ui.about.AboutActivity"
+            android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fesskiev.mediacenter.ui.MainActivity" />
         </activity>
+
         <activity
-            android:name="com.fesskiev.mediacenter.ui.settings.SettingsActivity"
+            android:name=".ui.settings.SettingsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:parentActivityName="com.fesskiev.mediacenter.ui.MainActivity"
+            android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fesskiev.mediacenter.ui.MainActivity" />
         </activity>
+
         <activity
-            android:name="com.fesskiev.mediacenter.ui.playlist.PlayListActivity"
+            android:name=".ui.playlist.PlayListActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:parentActivityName="com.fesskiev.mediacenter.ui.MainActivity"
+            android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fesskiev.mediacenter.ui.MainActivity" />
         </activity>
+
         <activity
-            android:name="com.fesskiev.mediacenter.ui.search.SearchActivity"
-            android:parentActivityName="com.fesskiev.mediacenter.ui.MainActivity"
+            android:name=".ui.search.SearchActivity"
+            android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Base.Theme.Player.Search">
             <intent-filter>
@@ -172,9 +191,9 @@
         </activity>
 
         <activity
-            android:name="com.fesskiev.mediacenter.ui.audio.tracklist.PlayerTrackListActivity"
+            android:name=".ui.audio.tracklist.PlayerTrackListActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:parentActivityName="com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity"
+            android:parentActivityName=".ui.audio.player.AudioPlayerActivity"
             android:screenOrientation="portrait"
             android:theme="@style/ActivityDialog.Theme.MediaCenter">
             <meta-data
@@ -182,19 +201,14 @@
                 android:value="com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity" />
         </activity>
 
-        <activity
-            android:name="com.vk.sdk.VKServiceActivity"
-            android:label="ServiceActivity"
-            android:theme="@style/VK.Transparent" />
-
         <service
-            android:name="com.fesskiev.mediacenter.services.FileSystemIntentService"
+            android:name=".services.FileSystemIntentService"
             android:exported="false" />
         <service
-            android:name="com.fesskiev.mediacenter.services.PlaybackService"
+            android:name=".services.PlaybackService"
             android:exported="false" />
         <service
-            android:name="com.fesskiev.mediacenter.services.FileObserverService"
+            android:name=".services.FileObserverService"
             android:exported="false" />
 
 

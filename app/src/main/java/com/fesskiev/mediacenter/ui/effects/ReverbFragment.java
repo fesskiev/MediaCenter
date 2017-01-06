@@ -41,7 +41,7 @@ public class ReverbFragment extends Fragment implements DealerView.OnDealerViewL
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = getContext().getApplicationContext();
-        settingsManager = AppSettingsManager.getInstance(context);
+        settingsManager = AppSettingsManager.getInstance();
 
         state = settingsManager.getReverbState();
         if (state == null) {

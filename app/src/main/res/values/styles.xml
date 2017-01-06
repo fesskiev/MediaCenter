@@ -319,7 +319,7 @@
         <item name="android:background">@color/primary_light</item>
     </style>
 
-    <style name="Edit.Button" parent="android:style/Widget.Material.Button">
+    <style name="ButtonStyle" parent="android:style/Widget.Material.Button">
         <item name="android:background">@drawable/raised_button_background</item>
         <item name="android:textColor">@color/primary</item>
         <item name="android:textSize">14sp</item>
@@ -327,10 +327,10 @@
         <item name="android:textAllCaps">true</item>
     </style>
 
-    <style name="EQ.Button" parent="android:style/Widget.Material.Button">
+    <style name="ButtonStyleDark" parent="android:style/Widget.Material.Button">
         <item name="android:background">@drawable/raised_button_background</item>
         <item name="android:textColor">@color/primary</item>
-        <item name="android:textSize">10sp</item>
+        <item name="android:textSize">12sp</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:textAllCaps">true</item>
     </style>
@@ -366,6 +366,23 @@
         <item name="android:textSize">20sp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
+
+    <style name="CheckBoxStyle" parent="Theme.AppCompat.Light">
+        <item name="colorControlNormal">@color/primary</item>
+        <item name="colorControlActivated">@color/primary_dark</item>
+        <item name="android:textColor">@color/secondary_text</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="LoginTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/primary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
 
 
 </resources>

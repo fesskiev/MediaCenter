@@ -55,7 +55,7 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         repository = MediaApplication.getInstance().getRepository();
-        settingsManager = AppSettingsManager.getInstance(this);
+        settingsManager = AppSettingsManager.getInstance();
 
         fetchMediaFilesManager = new FetchMediaFilesManager(this);
         fetchMediaFilesManager.setOnFetchMediaFilesListener(
@@ -141,7 +141,7 @@ public class SplashActivity extends AppCompatActivity {
 
     private void checkAppFirstStart() {
         if (settingsManager == null) {
-            settingsManager = AppSettingsManager.getInstance(getApplication());
+            settingsManager = AppSettingsManager.getInstance();
         }
         if (settingsManager.isFirstStartApp()) {
             BitmapHelper.getInstance().saveDownloadFolderIcon();

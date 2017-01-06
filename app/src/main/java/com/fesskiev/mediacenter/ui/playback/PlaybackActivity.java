@@ -236,7 +236,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         boolean enableEq = playbackState.isEnableEQ();
         if (lastEnableEQ != enableEq) {
             lastEnableEQ = enableEq;
-            AppSettingsManager.getInstance(getApplicationContext()).setEQEnable(enableEq);
+            AppSettingsManager.getInstance().setEQEnable(enableEq);
             getMediaNavigationView().setEQEnable(lastEnableEQ);
 
             Log.d("eqtest", "EQ STATE CHANGE: " + lastEnableEQ);
@@ -245,7 +245,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         boolean enableReverb = playbackState.isEnableReverb();
         if (lastEnableReverb != enableReverb) {
             lastEnableReverb = enableReverb;
-            AppSettingsManager.getInstance(getApplicationContext()).setReverbEnable(enableReverb);
+            AppSettingsManager.getInstance().setReverbEnable(enableReverb);
             getMediaNavigationView().setReverbEnable(lastEnableReverb);
 
             Log.d("eqtest", "Reverb STATE CHANGE: " + lastEnableReverb);
