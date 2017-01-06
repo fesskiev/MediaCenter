@@ -28,10 +28,7 @@ public class AudioURIActivity extends AudioPlayerActivity {
         if (Intent.ACTION_VIEW.equals(action) && type != null) {
             if (type.startsWith("audio/")) {
                 Uri uri = intent.getData();
-                subscription = MediaApplication.
-                        getInstance().
-                        getRepository().
-                        getAudioFileByPath(uri.getPath())
+                subscription = MediaApplication.getInstance().getRepository().getAudioFileByPath(uri.getPath()).first()
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(audioFile -> {
@@ -41,8 +38,6 @@ public class AudioURIActivity extends AudioPlayerActivity {
                                 PlaybackService.startPlaybackService(getApplicationContext());
                                 PlaybackService.openFile(getApplicationContext(), audioFile.getFilePath());
                                 PlaybackService.startPlayback(getApplicationContext());
-
-                                RxUtils.unsubscribe(subscription);
                             }
                         });
 

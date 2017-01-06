@@ -21,6 +21,7 @@ public class FolderFileObserver {
                 .getInstance()
                 .getRepository()
                 .getFoldersPath()
+                .first()
                 .subscribe(paths -> {
                     RxUtils.RxLog("create folder observer!");
                     if (paths != null) {
@@ -29,7 +30,6 @@ public class FolderFileObserver {
                             fileObserver.startWatching();
                             recursiveFileObservers.add(fileObserver);
                         }
-                        RxUtils.unsubscribe(subscription);
                     }
                 });
     }

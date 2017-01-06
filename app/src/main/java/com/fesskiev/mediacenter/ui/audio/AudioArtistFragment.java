@@ -46,7 +46,7 @@ public class AudioArtistFragment extends GridFragment {
     }
 
     public void fetchArtists() {
-        subscription = MediaApplication.getInstance().getRepository().getArtists()
+        subscription = MediaApplication.getInstance().getRepository().getArtists().first()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(artists -> {
@@ -58,7 +58,6 @@ public class AudioArtistFragment extends GridFragment {
                         } else {
                             showEmptyContentCard();
                         }
-                        RxUtils.unsubscribe(subscription);
                     }
                 });
     }

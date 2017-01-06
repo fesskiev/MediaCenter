@@ -70,7 +70,7 @@ public class AudioFoldersFragment extends GridFragment {
 
 
     public void fetchAudioFolders() {
-        subscription = MediaApplication.getInstance().getRepository().getAudioFolders()
+        subscription = MediaApplication.getInstance().getRepository().getAudioFolders().first()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(audioFolders -> {
@@ -85,7 +85,6 @@ public class AudioFoldersFragment extends GridFragment {
                             showEmptyContentCard();
                         }
                         checkNeedShowPlayback(audioFolders);
-                        RxUtils.unsubscribe(subscription);
                     }
                 });
     }

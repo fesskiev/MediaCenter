@@ -85,6 +85,7 @@ public class PlayListFragment extends Fragment {
         subscription = Observable.concat(
                 repository.getAudioFilePlaylist(),
                 repository.getVideoFilePlaylist())
+                .first()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(mediaFiles -> {
                     AppLog.DEBUG("size: " + mediaFiles.size());
@@ -95,7 +96,6 @@ public class PlayListFragment extends Fragment {
                         showEmptyCardPlaylist();
                         actionMenu.hideMenu(true);
                     }
-                    RxUtils.unsubscribe(subscription);
                 });
     }
 

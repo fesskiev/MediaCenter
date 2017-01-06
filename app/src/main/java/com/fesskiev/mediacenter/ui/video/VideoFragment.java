@@ -109,6 +109,7 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     public void fetchVideoContent() {
         RxUtils.unsubscribe(subscription);
         subscription = repository.getVideoFiles()
+                .first()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(videoFiles -> {
@@ -124,7 +125,6 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                     }
 
                     AppLog.INFO("onNext:video: " + (videoFiles == null ? "null" : videoFiles.size()));
-                    RxUtils.unsubscribe(subscription);
                 });
         if (swipeRefreshLayout.isRefreshing()) {
             swipeRefreshLayout.setRefreshing(false);
