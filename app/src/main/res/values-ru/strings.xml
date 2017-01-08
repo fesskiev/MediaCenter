@@ -129,6 +129,14 @@
     <string name="snackbar_server_error">Ошибка соединения с сервером</string>
     <string name="snackbar_error_try_again">Повтор</string>
 
+    <string name="auth_text_login">Телефон или e-mail</string>
+    <string name="auth_text_password">Пароль</string>
+    <string name="auth_text_title">Пожалуйста авторизируйстесь в социальной сети</string>
+    <string name="auth_text_button">Войти</string>
+    <string name="auth_text_check_box">Сохранить пароль</string>
+
+
+
     <string name="search_hint">Поиск музыки</string>
 
     <string name="snackbar_last_track">Пооследний трек в списке</string>

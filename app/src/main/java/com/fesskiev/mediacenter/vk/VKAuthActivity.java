@@ -7,6 +7,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.TypedValue;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -21,6 +22,7 @@ import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.data.model.vk.User;
+import com.fesskiev.mediacenter.widgets.MaterialProgressBar;
 
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -33,6 +35,7 @@ public class VKAuthActivity extends AppCompatActivity {
     private Subscription subscription;
     private AppSettingsManager settingsManager;
 
+    private MaterialProgressBar progressBar;
     private EditText loginEditText;
     private EditText passwordEditText;
     private Button signInButton;
@@ -66,6 +69,8 @@ public class VKAuthActivity extends AppCompatActivity {
 
         loginEditText = (EditText) findViewById(R.id.editLogin);
         passwordEditText = (EditText) findViewById(R.id.editPassword);
+
+        progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
 
         LoginTextWatcher loginTextWatcher = new LoginTextWatcher();
 
@@ -104,6 +109,7 @@ public class VKAuthActivity extends AppCompatActivity {
 
     private void singIn(String login, String password) {
         if (!TextUtils.isEmpty(login) && !TextUtils.isEmpty(password)) {
+            showProgressBar();
             DataRepository repository = MediaApplication.getInstance().getRepository();
             subscription = repository.auth(login, password)
                     .flatMap(oAuth -> {
@@ -132,6 +138,7 @@ public class VKAuthActivity extends AppCompatActivity {
     }
 
     private void checkRequestError(Throwable throwable) {
+        hideProgressBar();
         ErrorHelper.getInstance().createErrorSnackBar(this, throwable, null);
     }
 
@@ -143,4 +150,14 @@ public class VKAuthActivity extends AppCompatActivity {
     private void rememberUser(boolean isChecked) {
 
     }
+
+    public void showProgressBar() {
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+
+    public void hideProgressBar() {
+        progressBar.setVisibility(View.GONE);
+    }
+
 }

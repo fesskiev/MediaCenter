@@ -132,6 +132,12 @@
     <string name="snackbar_server_error">Server connecting error</string>
     <string name="snackbar_error_try_again">Repeat</string>
 
+    <string name="auth_text_login">Phone or e-mail</string>
+    <string name="auth_text_password">Password</string>
+    <string name="auth_text_title">Please auth in social network</string>
+    <string name="auth_text_button">SignIn</string>
+    <string name="auth_text_check_box">Save password</string>
+
     <string name="mail_subject">(Media Center) comment</string>
     <string name="mail_chooser">(Media Center) send comment</string>
 

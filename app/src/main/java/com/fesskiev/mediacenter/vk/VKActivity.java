@@ -11,7 +11,7 @@ import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
 
 
-public class VkontakteActivity extends AnalyticsActivity {
+public class VKActivity extends AnalyticsActivity {
 
 
     @Override

@@ -120,7 +120,7 @@
         </activity>
 
         <activity
-            android:name=".vk.VkontakteActivity"
+            android:name=".vk.VKActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait">
@@ -131,11 +131,11 @@
         <activity
             android:name=".vk.GroupAudioActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:parentActivityName=".vk.VkontakteActivity"
+            android:parentActivityName=".vk.VKActivity"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".vk.VkontakteActivity" />
+                android:value=".vk.VKActivity" />
         </activity>
 
 

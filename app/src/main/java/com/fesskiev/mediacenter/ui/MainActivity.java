@@ -38,7 +38,7 @@ import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.vk.VKAuthActivity;
-import com.fesskiev.mediacenter.vk.VkontakteActivity;
+import com.fesskiev.mediacenter.vk.VKActivity;
 import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
 
 
@@ -162,7 +162,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             if (settingsManager.isAuthTokenEmpty()) {
                 startActivityForResult(new Intent(this, VKAuthActivity.class), VKAuthActivity.VK_AUTH_RESULT);
             } else {
-                startActivity(new Intent(this, VkontakteActivity.class));
+                startActivity(new Intent(this, VKActivity.class));
             }
         });
         firstName = (TextView) headerLayout.findViewById(R.id.firstName);
