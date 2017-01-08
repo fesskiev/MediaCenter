@@ -43,7 +43,7 @@
                     app:hintTextAppearance="@style/LoginTextAppearance"
                     app:passwordToggleDrawable="@drawable/password_toggle"
                     app:passwordToggleEnabled="true"
-                    app:passwordToggleTint="@color/white">
+                    app:passwordToggleTint="@color/primary">
 
                     <android.support.design.widget.TextInputEditText
                         android:id="@+id/editPassword"

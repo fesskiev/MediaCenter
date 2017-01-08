@@ -22,6 +22,7 @@ import com.fesskiev.mediacenter.utils.RxUtils;
 import java.util.List;
 
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 
@@ -87,14 +88,16 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
         builder.setMessage(R.string.dialog_refresh_folders_message);
         builder.setPositiveButton(R.string.dialog_refresh_folders_ok,
                 (dialog, which) ->
-                        subscription = RxUtils.fromCallable(repository.resetAudioContentDatabase())
-                        .doOnNext(integer -> {
-                            CacheManager.clearImagesCache();
-                            BitmapHelper.getInstance().saveDownloadFolderIcon();
-                            FileSystemIntentService.startFetchAudio(getActivity());
-                        })
-                        .subscribeOn(Schedulers.io())
-                        .subscribe());
+                        subscription = RxUtils
+                                .fromCallable(repository.resetAudioContentDatabase())
+                                .subscribeOn(Schedulers.io())
+                                .doOnNext(integer -> {
+                                    CacheManager.clearImagesCache();
+                                    BitmapHelper.getInstance().saveDownloadFolderIcon();
+                                    FileSystemIntentService.startFetchAudio(getActivity());
+                                })
+                                .subscribeOn(Schedulers.io())
+                                .subscribe());
 
         builder.setNegativeButton(R.string.dialog_refresh_folders_cancel,
                 (dialog, which) -> {

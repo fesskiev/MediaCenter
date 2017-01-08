@@ -2,6 +2,8 @@ package com.fesskiev.mediacenter.utils.download;
 
 
 
+import com.fesskiev.mediacenter.MediaApplication;
+import com.fesskiev.mediacenter.services.FileSystemIntentService;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.Utils;
 
@@ -94,7 +96,7 @@ public class DownloadManager implements Runnable {
     }
 
 
-    public boolean removeFile(){
+    public boolean removeFile() {
         return CacheManager.getDownloadsFilePath(fileName).delete();
     }
 
@@ -166,6 +168,10 @@ public class DownloadManager implements Runnable {
             if (status == DOWNLOADING) {
                 status = COMPLETE;
                 stateChanged();
+
+                FileSystemIntentService
+                        .startCheckDownloadFolderService(MediaApplication.getInstance()
+                                .getApplicationContext());
             }
         } catch (Exception e) {
             e.printStackTrace();

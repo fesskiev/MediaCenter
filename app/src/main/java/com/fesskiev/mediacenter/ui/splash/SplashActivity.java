@@ -17,7 +17,6 @@ import android.widget.ImageView;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.source.DataRepository;
-import com.fesskiev.mediacenter.services.FileObserverService;
 import com.fesskiev.mediacenter.services.FileSystemIntentService;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.MainActivity;
@@ -146,8 +145,6 @@ public class SplashActivity extends AppCompatActivity {
         if (settingsManager.isFirstStartApp()) {
             BitmapHelper.getInstance().saveDownloadFolderIcon();
             FileSystemIntentService.startFetchMedia(getApplicationContext());
-        } else {
-            FileObserverService.startFileObserverService(getApplicationContext());
         }
     }
 

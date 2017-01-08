@@ -189,6 +189,8 @@ public class LocalDataSource implements LocalSource {
 
     public String getDownloadFolderID() {
 
+        String id = null;
+
         String sql = String.format("SELECT %s FROM %s WHERE %s",
                 DatabaseHelper.ID,
                 DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME,
@@ -196,10 +198,10 @@ public class LocalDataSource implements LocalSource {
 
         Cursor cursor = briteDatabase.query(sql);
 
-        cursor.moveToFirst();
-        String id = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ID));
+        if (cursor.moveToFirst()) {
+            id = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ID));
+        }
         cursor.close();
-
         return id;
     }
 
@@ -300,10 +302,9 @@ public class LocalDataSource implements LocalSource {
     }
 
 
-
     public Observable<List<VideoFile>> getVideoFiles() {
 
-        String sql = String.format("SELECT * FROM %s",  DatabaseHelper.VIDEO_FILES_TABLE_NAME);
+        String sql = String.format("SELECT * FROM %s", DatabaseHelper.VIDEO_FILES_TABLE_NAME);
 
         return briteDatabase
                 .createQuery(DatabaseHelper.VIDEO_FILES_TABLE_NAME, sql)
@@ -311,10 +312,9 @@ public class LocalDataSource implements LocalSource {
     }
 
 
-
     public Observable<List<AudioFolder>> getAudioFolders() {
 
-        String sql = String.format("SELECT * FROM %s",  DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME);
+        String sql = String.format("SELECT * FROM %s", DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME);
 
         return briteDatabase
                 .createQuery(DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME, sql)

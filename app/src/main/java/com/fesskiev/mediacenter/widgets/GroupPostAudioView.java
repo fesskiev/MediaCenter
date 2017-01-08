@@ -6,6 +6,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,9 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.services.FileSystemIntentService;
 import com.fesskiev.mediacenter.vk.data.model.Audio;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.download.DownloadGroupAudioFile;
@@ -100,18 +103,14 @@ public class GroupPostAudioView extends FrameLayout {
             DownloadManager downloadManager = downloadGroupAudioFile.getDownloadManager();
             downloadManager.cancel();
             if (downloadManager.removeFile()) {
-                Snackbar.make(viewGroup, R.string.shackbar_delete_file, Snackbar.LENGTH_SHORT)
-                        .show();
                 Utils.showCustomSnackbar(viewGroup,
                         getContext(),
                         getResources().getString(R.string.shackbar_delete_file),
                         Snackbar.LENGTH_LONG).show();
-
             }
         });
 
-        downloadGroupAudioFile.
-                setOnDownloadAudioListener(downloadManager -> {
+        downloadGroupAudioFile.setOnDownloadAudioListener(downloadManager -> {
                     if (downloadManager != null) {
                         downloadContainer.setVisibility(VISIBLE);
                         switch (downloadManager.getStatus()) {

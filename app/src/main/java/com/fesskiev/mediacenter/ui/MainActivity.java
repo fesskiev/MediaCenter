@@ -23,7 +23,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.services.FileObserverService;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.about.AboutActivity;
 import com.fesskiev.mediacenter.ui.audio.AudioFragment;
@@ -40,7 +39,6 @@ import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.vk.VKAuthActivity;
 import com.fesskiev.mediacenter.vk.VkontakteActivity;
-import com.fesskiev.mediacenter.vk.data.model.User;
 import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
 
 
@@ -306,7 +304,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
         fetchMediaFilesManager.unregister();
         PlaybackService.destroyPlayer(getApplicationContext());
-        FileObserverService.stopFileObserverService(getApplicationContext());
 
     }
 

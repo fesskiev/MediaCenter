@@ -99,13 +99,13 @@ public class FileSystemIntentService extends IntentService {
                     getAudioContent();
                     break;
                 case ACTION_CHECK_DOWNLOAD_FOLDER_SERVICE:
-                    checkAudioFolderService();
+                    checkDownloadFolder();
                     break;
             }
         }
     }
 
-    private void checkAudioFolderService() {
+    private void checkDownloadFolder() {
         DataRepository repository = MediaApplication.getInstance().getRepository();
         String folderId = null;
         File root = new File(CacheManager.CHECK_DOWNLOADS_FOLDER_PATH);
@@ -251,10 +251,9 @@ public class FileSystemIntentService extends IntentService {
                             audioFolder.folderImage = filterImages[0];
                         }
                     }
-                    File correctPath = new File(Utils.replaceSymbols(directoryFile.getName()));
 
-                    audioFolder.folderPath = correctPath;
-                    audioFolder.folderName = correctPath.getName();
+                    audioFolder.folderPath = directoryFile;
+                    audioFolder.folderName = directoryFile.getName();
                     audioFolder.id = UUID.randomUUID().toString();
 
                     sendAudioFolderNameBroadcast(audioFolder.folderName);
