@@ -1,25 +1,26 @@
 package com.fesskiev.mediacenter.vk;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.data.source.DataRepository;
+import com.fesskiev.mediacenter.data.source.remote.ErrorHelper;
+import com.fesskiev.mediacenter.utils.AnimationUtils;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
-import com.fesskiev.mediacenter.vk.data.model.User;
-import com.fesskiev.mediacenter.vk.data.source.DataRepository;
+import com.fesskiev.mediacenter.data.model.vk.User;
 
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -103,7 +104,7 @@ public class VKAuthActivity extends AppCompatActivity {
 
     private void singIn(String login, String password) {
         if (!TextUtils.isEmpty(login) && !TextUtils.isEmpty(password)) {
-            DataRepository repository = DataRepository.getInstance();
+            DataRepository repository = MediaApplication.getInstance().getRepository();
             subscription = repository.auth(login, password)
                     .flatMap(oAuth -> {
 
@@ -122,22 +123,20 @@ public class VKAuthActivity extends AppCompatActivity {
                             settingsManager.setUserLastName(user.getLastName());
                             settingsManager.setPhotoURL(user.getPhotoUrl());
 
-                            finishAuthOK();
+                            finishAuth();
                         }
-                    }, throwable -> {
-                        finishAuthCancel();
-                        AppLog.ERROR(throwable.getMessage());
-                    });
+                    }, this::checkRequestError);
+        } else {
+            AnimationUtils.getInstance().errorAnimation(signInButton);
         }
     }
 
-    private void finishAuthOK() {
-        setResult(Activity.RESULT_OK);
-        finish();
+    private void checkRequestError(Throwable throwable) {
+        ErrorHelper.getInstance().createErrorSnackBar(this, throwable, null);
     }
 
-    private void finishAuthCancel() {
-        setResult(Activity.RESULT_CANCELED);
+    private void finishAuth() {
+        setResult(Activity.RESULT_OK);
         finish();
     }
 

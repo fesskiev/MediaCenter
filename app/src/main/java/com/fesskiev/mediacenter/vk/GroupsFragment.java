@@ -3,6 +3,7 @@ package com.fesskiev.mediacenter.vk;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,10 +13,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.vk.data.model.Group;
-import com.fesskiev.mediacenter.vk.data.source.DataRepository;
-import com.fesskiev.mediacenter.utils.AppLog;
+import com.fesskiev.mediacenter.data.model.vk.Group;
+import com.fesskiev.mediacenter.data.source.remote.ErrorHelper;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.widgets.MaterialProgressBar;
@@ -82,29 +83,49 @@ public class GroupsFragment extends Fragment {
 
     public void fetchGroups() {
         showProgressBar();
-        DataRepository repository = DataRepository.getInstance();
-        subscription = repository.getGroups()
+        subscription = MediaApplication.getInstance().getRepository().getGroups()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(groupsResponse -> {
-                    if (groupsResponse != null) {
-                        hideProgressBar();
-                        groupsAdapter.refresh(groupsResponse.getGroups().getGroupsList());
-                    }
-                }, throwable -> {
-                    hideProgressBar();
-                    AppLog.ERROR(throwable.getMessage());});
+                    updateGroups(groupsResponse.getGroups().getGroupsList());
+                }, this::checkRequestError);
 
     }
 
+    private void updateGroups(List<Group> groupsList) {
+        groupsAdapter.refresh(groupsList);
+        hideProgressBar();
+    }
+
+    private void checkRequestError(Throwable throwable) {
+        ErrorHelper.getInstance().createErrorSnackBar(getActivity(), throwable,
+                new ErrorHelper.OnErrorHandlerListener() {
+                    @Override
+                    public void tryRequestAgain() {
+                        fetchGroups();
+                    }
+
+                    @Override
+                    public void show(Snackbar snackbar) {
+
+                    }
+
+                    @Override
+                    public void hide(Snackbar snackbar) {
+
+                    }
+                });
+        hideProgressBar();
+    }
+
     public void showProgressBar() {
-        if(progressBar != null) {
+        if (progressBar != null) {
             progressBar.setVisibility(View.VISIBLE);
         }
     }
 
     public void hideProgressBar() {
-        if(progressBar != null) {
+        if (progressBar != null) {
             progressBar.setVisibility(View.GONE);
         }
     }
@@ -114,7 +135,6 @@ public class GroupsFragment extends Fragment {
         super.onDestroy();
         RxUtils.unsubscribe(subscription);
     }
-
 
 
     private void startGroupAudioActivity(Group group) {

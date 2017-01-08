@@ -6,6 +6,7 @@ import android.content.ComponentCallbacks2;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.data.source.local.db.LocalDataSource;
 import com.fesskiev.mediacenter.data.source.memory.MemoryDataSource;
+import com.fesskiev.mediacenter.data.source.remote.RemoteDataSource;
 import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.players.VideoPlayer;
 import com.fesskiev.mediacenter.utils.AppLog;
@@ -21,13 +22,13 @@ public class MediaApplication extends Application {
     private VideoPlayer videoPlayer;
     private DataRepository repository;
 
-
     @Override
     public void onCreate() {
         super.onCreate();
         INSTANCE = this;
 
-        repository = DataRepository.getInstance(LocalDataSource.getInstance(), MemoryDataSource.getInstance());
+        repository = DataRepository.getInstance(RemoteDataSource.getInstance(),
+                LocalDataSource.getInstance(), MemoryDataSource.getInstance());
 
         audioPlayer = new AudioPlayer(repository);
         videoPlayer = new VideoPlayer();

@@ -4,7 +4,7 @@ package com.fesskiev.mediacenter.utils.download;
 import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
 
-import com.fesskiev.mediacenter.vk.data.model.Audio;
+import com.fesskiev.mediacenter.data.model.vk.Audio;
 
 import java.util.ArrayList;
 import java.util.List;

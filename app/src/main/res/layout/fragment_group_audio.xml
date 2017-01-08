@@ -12,7 +12,7 @@
     <com.fesskiev.mediacenter.widgets.MaterialProgressBar
         android:id="@+id/progressBar"
         android:layout_width="match_parent"
-        android:layout_height="8dp"
+        android:layout_height="@dimen/progress_bar_height"
         android:indeterminate="true"
         android:layout_gravity="bottom"
         android:visibility="invisible"

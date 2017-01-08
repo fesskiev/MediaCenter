@@ -1,5 +1,4 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -12,7 +11,7 @@
     <com.fesskiev.mediacenter.widgets.MaterialProgressBar
         android:id="@+id/progressBar"
         android:layout_width="match_parent"
-        android:layout_height="8dp"
+        android:layout_height="@dimen/progress_bar_height"
         android:layout_gravity="bottom"
         android:indeterminate="true"
         android:visibility="invisible"

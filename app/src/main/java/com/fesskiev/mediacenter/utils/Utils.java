@@ -9,6 +9,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
 
@@ -48,6 +49,17 @@ public class Utils {
         Snackbar snack = Snackbar.make(view, text, duration);
         ViewGroup group = (ViewGroup) snack.getView();
         group.setBackgroundColor(ContextCompat.getColor(context, R.color.primary_dark));
+        return snack;
+    }
+
+    public static Snackbar showInternetErrorCustomSnackbar(View view, Context context, int stringRes, int duration) {
+        Snackbar snack = Snackbar.make(view, stringRes, duration);
+        Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout) snack.getView();
+        layout.setBackgroundColor(ContextCompat.getColor(context, R.color.colorSnackBarError));
+        snack.setActionTextColor(ContextCompat.getColor(context, R.color.accent));
+        TextView snackBarText =
+                (TextView) layout.findViewById(android.support.design.R.id.snackbar_text);
+        snackBarText.setMaxLines(5);
         return snack;
     }
 

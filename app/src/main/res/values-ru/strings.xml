@@ -123,6 +123,12 @@
     <string name="settings_searching_files">Фоновый поиск файлов</string>
     <string name="settings_wifi_download">Загрузка только по Wi-Fi</string>
 
+    <string name="snackbar_unexpected_error">Непредвиденная ошибка</string>
+    <string name="snackbar_internet_disable_error">Отсутствует интернет соединение</string>
+    <string name="snackbar_internet_connection_error">Ошибка соединения</string>
+    <string name="snackbar_server_error">Ошибка соединения с сервером</string>
+    <string name="snackbar_error_try_again">Повтор</string>
+
     <string name="search_hint">Поиск музыки</string>
 
     <string name="snackbar_last_track">Пооследний трек в списке</string>

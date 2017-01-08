@@ -3,6 +3,7 @@ package com.fesskiev.mediacenter.vk;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -13,9 +14,9 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.vk.data.source.DataRepository;
-import com.fesskiev.mediacenter.utils.AppLog;
+import com.fesskiev.mediacenter.data.source.remote.ErrorHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.download.DownloadFile;
@@ -122,8 +123,7 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
                 String encodeString = URLEncoder.encode(requestString, "UTF-8");
 
                 showProgressBar();
-                DataRepository repository = DataRepository.getInstance();
-                subscription = repository.getSearchMusicFiles(requestString, offset)
+                subscription = MediaApplication.getInstance().getRepository().getSearchMusicFiles(requestString, offset)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(musicFilesResponse -> {
@@ -133,15 +133,33 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
                                         getDownloadFiles(getActivity(), audioAdapter,
                                                 musicFilesResponse.getAudioFiles().getMusicFilesList()));
                             }
-                        }, throwable -> {
-                            hideProgressBar();
-                            AppLog.ERROR(throwable.getMessage());
-                        });
+                        }, this::checkRequestError);
 
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void checkRequestError(Throwable throwable) {
+        ErrorHelper.getInstance().createErrorSnackBar(getActivity(), throwable,
+                new ErrorHelper.OnErrorHandlerListener() {
+                    @Override
+                    public void tryRequestAgain() {
+                        fetchAudio(audioOffset);
+                    }
+
+                    @Override
+                    public void show(Snackbar snackbar) {
+
+                    }
+
+                    @Override
+                    public void hide(Snackbar snackbar) {
+
+                    }
+                });
+        hideProgressBar();
     }
 
     private void hideViews() {

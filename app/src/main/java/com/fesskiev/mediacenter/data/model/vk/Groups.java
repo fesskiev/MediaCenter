@@ -1,4 +1,4 @@
-package com.fesskiev.mediacenter.vk.data.model;
+package com.fesskiev.mediacenter.data.model.vk;
 
 
 import com.google.gson.annotations.Expose;

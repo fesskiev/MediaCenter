@@ -31,4 +31,6 @@
     <dimen name="effect_control_weight">180dp</dimen>
     <dimen name="effect_control_height">180dp</dimen>
 
+    <dimen name="progress_bar_height">6dp</dimen>
+
 </resources>

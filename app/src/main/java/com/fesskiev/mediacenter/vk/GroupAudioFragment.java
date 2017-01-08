@@ -2,6 +2,7 @@ package com.fesskiev.mediacenter.vk;
 
 
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,13 +14,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.vk.data.model.Audio;
-import com.fesskiev.mediacenter.vk.data.model.Group;
-import com.fesskiev.mediacenter.vk.data.model.GroupPost;
-import com.fesskiev.mediacenter.vk.data.source.DataRepository;
+import com.fesskiev.mediacenter.data.model.vk.Audio;
+import com.fesskiev.mediacenter.data.model.vk.Group;
+import com.fesskiev.mediacenter.data.model.vk.GroupPost;
 
-import com.fesskiev.mediacenter.utils.AppLog;
+import com.fesskiev.mediacenter.data.source.remote.ErrorHelper;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
@@ -93,19 +94,41 @@ public class GroupAudioFragment extends Fragment {
 
     private void fetchPosts() {
         showProgressBar();
-        DataRepository repository = DataRepository.getInstance();
-        subscription = repository.getGroupPots(group.getId(), postsOffset)
+        subscription = MediaApplication.getInstance().getRepository().getGroupPots(group.getId(), postsOffset)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(groupPostsResponse -> {
-                    if (groupPostsResponse != null) {
-                        getGroupDownloadAudioFiles(groupPostsResponse.getGroupPostList());
-                        adapter.refresh(groupPostsResponse.getGroupPostList());
-                        hideProgressBar();
-                    }
-                }, throwable -> {
-                    AppLog.ERROR(throwable.getMessage());
-                });
+                    updateGroups(groupPostsResponse.getGroupPostList());
+                }, this::checkRequestError);
+    }
+
+    private void updateGroups(List<GroupPost> groupPostList) {
+        if (groupPostList != null) {
+            getGroupDownloadAudioFiles(groupPostList);
+            adapter.refresh(groupPostList);
+            hideProgressBar();
+        }
+    }
+
+    private void checkRequestError(Throwable throwable) {
+        ErrorHelper.getInstance().createErrorSnackBar(getActivity(), throwable,
+                new ErrorHelper.OnErrorHandlerListener() {
+            @Override
+            public void tryRequestAgain() {
+                fetchPosts();
+            }
+
+            @Override
+            public void show(Snackbar snackbar) {
+
+            }
+
+            @Override
+            public void hide(Snackbar snackbar) {
+
+            }
+        });
+        hideProgressBar();
     }
 
     private void showProgressBar() {

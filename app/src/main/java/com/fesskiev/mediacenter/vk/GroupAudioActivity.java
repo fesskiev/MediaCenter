@@ -6,7 +6,7 @@ import android.support.v7.widget.Toolbar;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
-import com.fesskiev.mediacenter.vk.data.model.Group;
+import com.fesskiev.mediacenter.data.model.vk.Group;
 
 public class GroupAudioActivity extends AnalyticsActivity {
 

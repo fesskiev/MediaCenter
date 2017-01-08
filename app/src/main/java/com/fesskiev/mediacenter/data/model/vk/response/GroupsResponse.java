@@ -1,7 +1,7 @@
-package com.fesskiev.mediacenter.vk.data.model.response;
+package com.fesskiev.mediacenter.data.model.vk.response;
 
 
-import com.fesskiev.mediacenter.vk.data.model.Groups;
+import com.fesskiev.mediacenter.data.model.vk.Groups;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 

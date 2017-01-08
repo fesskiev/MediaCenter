@@ -1,10 +1,10 @@
-package com.fesskiev.mediacenter.vk.data.model;
+package com.fesskiev.mediacenter.data.model.vk;
 
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Reposts {
+public class Likes {
 
     @SerializedName("count")
     @Expose
@@ -20,7 +20,7 @@ public class Reposts {
 
     @Override
     public String toString() {
-        return "Reposts{" +
+        return "Likes{" +
                 "count=" + count +
                 '}';
     }

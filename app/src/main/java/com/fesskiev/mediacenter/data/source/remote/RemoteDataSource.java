@@ -1,17 +1,20 @@
-package com.fesskiev.mediacenter.vk.data.source;
+package com.fesskiev.mediacenter.data.source.remote;
 
 
 import android.content.Context;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.vk.data.model.OAuth;
-import com.fesskiev.mediacenter.vk.data.model.response.GroupPostsResponse;
-import com.fesskiev.mediacenter.vk.data.model.response.GroupsResponse;
-import com.fesskiev.mediacenter.vk.data.model.response.AudioFilesResponse;
-import com.fesskiev.mediacenter.vk.data.model.response.UserResponse;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
+import com.fesskiev.mediacenter.data.model.vk.OAuth;
+import com.fesskiev.mediacenter.data.model.vk.response.AudioFilesResponse;
+import com.fesskiev.mediacenter.data.model.vk.response.GroupPostsResponse;
+import com.fesskiev.mediacenter.data.model.vk.response.GroupsResponse;
+import com.fesskiev.mediacenter.data.model.vk.response.UserResponse;
+import com.fesskiev.mediacenter.data.source.remote.retrofit.APIService;
+import com.fesskiev.mediacenter.data.source.remote.retrofit.GroupPostDeserialize;
+import com.fesskiev.mediacenter.data.source.remote.retrofit.RxErrorHandlingCallAdapterFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -25,27 +28,25 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
 
-public class DataRepository implements DataSource {
+public class RemoteDataSource implements RemoteSource {
 
-    private static DataRepository INSTANCE;
+    private static RemoteDataSource INSTANCE;
     private OkHttpClient client;
     private APIService service;
     private AppSettingsManager settingsManager;
     private Context context;
-    private String BASE_URL;
 
-    public static DataRepository getInstance() {
+    public static RemoteDataSource getInstance() {
         if (INSTANCE == null) {
-            INSTANCE = new DataRepository();
+            INSTANCE = new RemoteDataSource();
         }
         return INSTANCE;
     }
 
-    private DataRepository() {
+    private RemoteDataSource() {
         context = MediaApplication.getInstance().getApplicationContext();
         settingsManager =
                 AppSettingsManager.getInstance();
@@ -66,7 +67,7 @@ public class DataRepository implements DataSource {
                 .client(client)
                 .baseUrl(url)
                 .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .addCallAdapterFactory(RxErrorHandlingCallAdapterFactory.create())
                 .build();
     }
 
@@ -75,7 +76,7 @@ public class DataRepository implements DataSource {
                 .client(client)
                 .baseUrl(url)
                 .addConverterFactory(GsonConverterFactory.create(gson))
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .addCallAdapterFactory(RxErrorHandlingCallAdapterFactory.create())
                 .build();
     }
 

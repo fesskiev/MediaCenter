@@ -2,13 +2,17 @@ package com.fesskiev.mediacenter.vk;
 
 
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.view.View;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.vk.data.source.DataRepository;
-import com.fesskiev.mediacenter.utils.AppLog;
+import com.fesskiev.mediacenter.data.model.vk.Audio;
+import com.fesskiev.mediacenter.data.source.remote.ErrorHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.download.DownloadFile;
+
+import java.util.List;
 
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -45,21 +49,41 @@ public class UserAudioFragment extends RecyclerAudioFragment {
     @Override
     public void fetchAudio(int offset) {
         showProgressBar();
-        DataRepository repository = DataRepository.getInstance();
-        subscription = repository.getUserMusicFiles(offset)
+        subscription = MediaApplication.getInstance().getRepository().getUserMusicFiles(offset)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(musicFilesResponse -> {
-                    hideProgressBar();
-                    if (musicFilesResponse != null) {
-                        audioAdapter.refresh(DownloadFile.
-                                getDownloadFiles(getActivity(), audioAdapter,
-                                        musicFilesResponse.getAudioFiles().getMusicFilesList()));
-                    }
-                }, throwable -> {
-                    hideProgressBar();
-                    AppLog.ERROR(throwable.getMessage());
-                });
+                    updateUserAudio(musicFilesResponse.getAudioFiles().getMusicFilesList());
+                }, this::checkRequestError);
 
+    }
+
+    private void updateUserAudio(List<Audio> musicFilesList) {
+        if (musicFilesList != null) {
+            audioAdapter.refresh(DownloadFile.getDownloadFiles(getActivity(),
+                    audioAdapter, musicFilesList));
+        }
+        hideProgressBar();
+    }
+
+    private void checkRequestError(Throwable throwable) {
+        ErrorHelper.getInstance().createErrorSnackBar(getActivity(), throwable,
+                new ErrorHelper.OnErrorHandlerListener() {
+                    @Override
+                    public void tryRequestAgain() {
+                        fetchAudio(audioOffset);
+                    }
+
+                    @Override
+                    public void show(Snackbar snackbar) {
+
+                    }
+
+                    @Override
+                    public void hide(Snackbar snackbar) {
+
+                    }
+                });
+        hideProgressBar();
     }
 }
