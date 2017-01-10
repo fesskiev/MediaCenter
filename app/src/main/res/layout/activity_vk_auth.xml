@@ -9,30 +9,6 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin">
 
-    <RelativeLayout
-        android:id="@+id/vkLogoContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            style="@style/LoginTextAppearance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="8dp"
-            android:layout_toEndOf="@+id/vkLogo"
-            android:gravity="center"
-            android:text="@string/auth_text_title" />
-
-        <ImageView
-            android:id="@+id/vkLogo"
-            android:layout_width="96dp"
-            android:layout_height="96dp"
-            android:contentDescription="@string/app_name"
-            android:src="@drawable/logo_vk" />
-
-    </RelativeLayout>
-
     <LinearLayout
         android:id="@+id/widgetsContainer"
         android:layout_width="match_parent"
@@ -119,5 +95,31 @@
         app:backgroundColour="@color/primary"
         app:duration="2000"
         app:progressColour="@color/accent" />
+
+    <RelativeLayout
+        android:id="@+id/vkLogoContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
+
+        <TextView
+            style="@style/LoginTextAppearance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="8dp"
+            android:layout_toEndOf="@+id/vkLogo"
+            android:gravity="center"
+            android:text="@string/auth_text_title" />
+
+        <ImageView
+            android:id="@+id/vkLogo"
+            android:layout_width="84dp"
+            android:layout_height="84dp"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/logo_vk" />
+
+    </RelativeLayout>
 
 </RelativeLayout>
