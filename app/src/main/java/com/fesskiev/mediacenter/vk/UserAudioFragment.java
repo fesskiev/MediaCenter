@@ -64,6 +64,7 @@ public class UserAudioFragment extends RecyclerAudioFragment {
                     audioAdapter, musicFilesList));
         }
         hideProgressBar();
+        hideRefresh();
     }
 
     private void checkRequestError(Throwable throwable) {
@@ -85,5 +86,6 @@ public class UserAudioFragment extends RecyclerAudioFragment {
                     }
                 });
         hideProgressBar();
+        hideRefresh();
     }
 }

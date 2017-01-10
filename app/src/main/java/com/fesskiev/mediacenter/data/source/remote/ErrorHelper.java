@@ -65,11 +65,11 @@ public class ErrorHelper {
 
 
     private void createSnackBarWithListener(Activity activity, int stringRes, OnErrorHandlerListener listener) {
-        Utils.showInternetErrorCustomSnackbar(activity.getCurrentFocus(),
+        Utils.showInternetErrorCustomSnackbar(activity.findViewById(R.id.bottom_navigation),
                 activity.getApplicationContext(),
-                stringRes, Snackbar.LENGTH_LONG)
+                stringRes, Snackbar.LENGTH_INDEFINITE)
                 .setAction(R.string.snackbar_error_try_again, v -> listener.tryRequestAgain())
-                .setCallback(new Snackbar.Callback() {
+                .addCallback(new Snackbar.Callback() {
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {
                         super.onDismissed(snackbar, event);
@@ -81,13 +81,12 @@ public class ErrorHelper {
                         super.onShown(snackbar);
                         listener.show(snackbar);
                     }
-                })
-                .show();
+                }).show();
     }
 
     private void createSnackBar(Activity activity, int stringRes) {
-        Utils.showInternetErrorCustomSnackbar(activity.getCurrentFocus(),
-                activity.getApplicationContext(), stringRes, Snackbar.LENGTH_LONG).show();
+        Utils.showInternetErrorCustomSnackbar(activity.findViewById(R.id.bottom_navigation),
+                activity.getApplicationContext(), stringRes, Snackbar.LENGTH_INDEFINITE).show();
     }
 
 }

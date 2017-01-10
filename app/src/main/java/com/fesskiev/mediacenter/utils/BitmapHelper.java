@@ -4,15 +4,13 @@ package com.fesskiev.mediacenter.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
-import com.bumptech.glide.request.target.SimpleTarget;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.Artist;
@@ -57,18 +55,18 @@ public class BitmapHelper {
                 .asBitmap()
                 .centerCrop()
                 .into(new BitmapImageViewTarget(into) {
-            @Override
-            protected void setResource(Bitmap resource) {
-                RoundedBitmapDrawable circularBitmapDrawable =
-                        RoundedBitmapDrawableFactory.create(context.getResources(), resource);
-                circularBitmapDrawable.setCircular(true);
+                    @Override
+                    protected void setResource(Bitmap resource) {
+                        RoundedBitmapDrawable circularBitmapDrawable =
+                                RoundedBitmapDrawableFactory.create(context.getResources(), resource);
+                        circularBitmapDrawable.setCircular(true);
 
-                into.setImageDrawable(circularBitmapDrawable);
-                if (listener != null) {
-                    listener.onLoaded(resource);
-                }
-            }
-        });
+                        into.setImageDrawable(circularBitmapDrawable);
+                        if (listener != null) {
+                            listener.onLoaded(resource);
+                        }
+                    }
+                });
     }
 
     public void loadBitmapAvatar(Bitmap bitmap, final ImageView into) {
@@ -83,6 +81,7 @@ public class BitmapHelper {
                 .load(R.drawable.icon_no_avatar)
                 .asBitmap()
                 .centerCrop()
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(new BitmapImageViewTarget(into) {
                     @Override
                     protected void setResource(Bitmap resource) {
@@ -101,6 +100,7 @@ public class BitmapHelper {
                 .load(uri)
                 .fitCenter()
                 .crossFade()
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(into);
     }
 
@@ -110,6 +110,7 @@ public class BitmapHelper {
                 .fitCenter()
                 .transform(new CircleTransform(context))
                 .crossFade()
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(into);
     }
 
@@ -122,6 +123,7 @@ public class BitmapHelper {
                         .load(mediaArtworkPath)
                         .override(WIDTH * 3, HEIGHT * 3)
                         .centerCrop()
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
                         .into(imageView);
                 return true;
             }
@@ -134,6 +136,7 @@ public class BitmapHelper {
                         .load(folderPath)
                         .override(WIDTH * 3, HEIGHT * 3)
                         .centerCrop()
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
                         .into(imageView);
                 return true;
             }
@@ -167,6 +170,7 @@ public class BitmapHelper {
                     .asBitmap()
                     .override(WIDTH, HEIGHT)
                     .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into(new BitmapImageViewTarget(imageView) {
                         @Override
                         protected void setResource(Bitmap resource) {
@@ -201,6 +205,7 @@ public class BitmapHelper {
                     .override(WIDTH, HEIGHT)
                     .crossFade()
                     .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .transform(new CircleTransform(context)).
                     into(imageView);
             return;
@@ -214,6 +219,7 @@ public class BitmapHelper {
                         .override(WIDTH, HEIGHT)
                         .crossFade()
                         .centerCrop()
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
                         .transform(new CircleTransform(context))
                         .into(imageView);
                 return;
@@ -226,6 +232,7 @@ public class BitmapHelper {
                     .override(WIDTH, HEIGHT)
                     .crossFade()
                     .fitCenter()
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .transform(new CircleTransform(context))
                     .into(imageView);
         }
@@ -259,6 +266,7 @@ public class BitmapHelper {
                     .override(WIDTH, HEIGHT)
                     .crossFade()
                     .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into(placeholder);
         } else {
             Glide.with(context)
@@ -266,6 +274,7 @@ public class BitmapHelper {
                     .override(WIDTH, HEIGHT)
                     .crossFade()
                     .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into(placeholder);
         }
 
@@ -280,6 +289,7 @@ public class BitmapHelper {
                     .override(WIDTH, HEIGHT)
                     .crossFade()
                     .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into(placeholder);
         } else {
             Glide.with(context)
@@ -287,6 +297,7 @@ public class BitmapHelper {
                     .override(WIDTH, HEIGHT)
                     .crossFade()
                     .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into(placeholder);
         }
     }
@@ -300,6 +311,7 @@ public class BitmapHelper {
                     .override(WIDTH, HEIGHT)
                     .crossFade()
                     .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into(placeholder);
         } else {
             Glide.with(context)
@@ -307,6 +319,7 @@ public class BitmapHelper {
                     .override(WIDTH, HEIGHT)
                     .crossFade()
                     .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into(placeholder);
         }
     }

@@ -5,11 +5,13 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
 import android.text.Html;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,18 +31,19 @@ import com.fesskiev.mediacenter.widgets.recycleview.ScrollingLinearLayoutManager
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class RecyclerAudioFragment extends Fragment {
+public abstract class RecyclerAudioFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     public abstract int getResourceId();
 
     public abstract void fetchAudio(int offset);
 
+    private SwipeRefreshLayout swipeRefreshLayout;
     protected AudioAdapter audioAdapter;
     protected RecyclerView recyclerView;
-    protected int audioOffset;
     private MaterialProgressBar progressBar;
+    protected int audioOffset;
     private int selectedPosition;
-    private boolean isListenerAttached;
+    private boolean listenerAttached;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -52,6 +55,12 @@ public abstract class RecyclerAudioFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         progressBar = (MaterialProgressBar) view.findViewById(R.id.progressBar);
+
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.primary_light));
+        swipeRefreshLayout.setProgressViewOffset(false, 0,
+                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
 
         recyclerView = (RecyclerView) view.findViewById(R.id.recycleView);
         ScrollingLinearLayoutManager layoutManager = new ScrollingLinearLayoutManager(getActivity(),
@@ -71,6 +80,11 @@ public abstract class RecyclerAudioFragment extends Fragment {
                 showProgressBar();
             }
         });
+    }
+
+    @Override
+    public void onRefresh() {
+        fetchAudio(audioOffset);
     }
 
     private RecyclerItemTouchClickListener recyclerItemTouchClickListener = new RecyclerItemTouchClickListener(getActivity(),
@@ -96,16 +110,16 @@ public abstract class RecyclerAudioFragment extends Fragment {
             });
 
     private void removeTouchListener() {
-        if (isListenerAttached) {
+        if (listenerAttached) {
             recyclerView.removeOnItemTouchListener(recyclerItemTouchClickListener);
-            isListenerAttached = false;
+            listenerAttached = false;
         }
     }
 
     private void addTouchListener() {
-        if (!isListenerAttached) {
+        if (!listenerAttached) {
             recyclerView.addOnItemTouchListener(recyclerItemTouchClickListener);
-            isListenerAttached = true;
+            listenerAttached = true;
         }
     }
 
@@ -138,6 +152,19 @@ public abstract class RecyclerAudioFragment extends Fragment {
             progressBar.setVisibility(View.GONE);
         }
     }
+
+    public void showRefresh() {
+        if(swipeRefreshLayout != null && !swipeRefreshLayout.isRefreshing()) {
+            swipeRefreshLayout.setRefreshing(true);
+        }
+    }
+
+    public void hideRefresh() {
+        if(swipeRefreshLayout != null && swipeRefreshLayout.isRefreshing()) {
+            swipeRefreshLayout.setRefreshing(false);
+        }
+    }
+
 
     protected class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.ViewHolder> {
 

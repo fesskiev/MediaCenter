@@ -5,8 +5,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +34,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 
-public class GroupsFragment extends Fragment {
+public class GroupsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener  {
 
     public static GroupsFragment newInstance() {
         return new GroupsFragment();
@@ -39,6 +42,7 @@ public class GroupsFragment extends Fragment {
 
     public static final String GROUP_EXTRA = "com.fesskiev.player.GROUP_EXTRA";
 
+    private SwipeRefreshLayout swipeRefreshLayout;
     private Subscription subscription;
     private GroupsAdapter groupsAdapter;
     private MaterialProgressBar progressBar;
@@ -55,6 +59,12 @@ public class GroupsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         progressBar = (MaterialProgressBar) view.findViewById(R.id.progressBar);
+
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.primary_light));
+        swipeRefreshLayout.setProgressViewOffset(false, 0,
+                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
 
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(getActivity(),
@@ -80,6 +90,16 @@ public class GroupsFragment extends Fragment {
         fetchGroups();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        RxUtils.unsubscribe(subscription);
+    }
+
+    @Override
+    public void onRefresh() {
+        fetchGroups();
+    }
 
     public void fetchGroups() {
         showProgressBar();
@@ -95,6 +115,7 @@ public class GroupsFragment extends Fragment {
     private void updateGroups(List<Group> groupsList) {
         groupsAdapter.refresh(groupsList);
         hideProgressBar();
+        hideRefresh();
     }
 
     private void checkRequestError(Throwable throwable) {
@@ -116,6 +137,7 @@ public class GroupsFragment extends Fragment {
                     }
                 });
         hideProgressBar();
+        hideRefresh();
     }
 
     public void showProgressBar() {
@@ -130,11 +152,18 @@ public class GroupsFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        RxUtils.unsubscribe(subscription);
+    public void showRefresh() {
+        if(swipeRefreshLayout != null && !swipeRefreshLayout.isRefreshing()) {
+            swipeRefreshLayout.setRefreshing(true);
+        }
     }
+
+    public void hideRefresh() {
+        if(swipeRefreshLayout != null && swipeRefreshLayout.isRefreshing()) {
+            swipeRefreshLayout.setRefreshing(false);
+        }
+    }
+
 
 
     private void startGroupAudioActivity(Group group) {
