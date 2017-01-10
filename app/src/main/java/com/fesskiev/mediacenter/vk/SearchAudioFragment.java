@@ -167,12 +167,12 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
 
                     @Override
                     public void show(Snackbar snackbar) {
-//                        AnimationUtils.getInstance().translate(searchButton, -snackbar.getView().getHeight());
+                        AnimationUtils.getInstance().translate(searchButton, -snackbar.getView().getHeight());
                     }
 
                     @Override
                     public void hide(Snackbar snackbar) {
-//                        AnimationUtils.getInstance().translate(searchButton, 0);
+                        AnimationUtils.getInstance().translate(searchButton, bottomViewPadding);
                     }
                 });
         hideProgressBar();

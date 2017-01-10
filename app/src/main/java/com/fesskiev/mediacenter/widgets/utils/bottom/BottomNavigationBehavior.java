@@ -75,7 +75,7 @@ public final class BottomNavigationBehavior<V extends View> extends VerticalScro
 
     @Override
     public void onDependentViewRemoved(CoordinatorLayout parent, V child, View dependency) {
-        updateScrollingForSnackbar(dependency, child, true);
+//        updateScrollingForSnackbar(dependency, child, true);
         super.onDependentViewRemoved(parent, child, dependency);
     }
 
@@ -95,7 +95,7 @@ public final class BottomNavigationBehavior<V extends View> extends VerticalScro
 
     @Override
     public boolean onDependentViewChanged(CoordinatorLayout parent, V child, View dependency) {
-        updateScrollingForSnackbar(dependency, child, false);
+//        updateScrollingForSnackbar(dependency, child, false);
         return super.onDependentViewChanged(parent, child, dependency);
     }
 
