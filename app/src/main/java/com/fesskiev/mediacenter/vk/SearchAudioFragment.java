@@ -9,14 +9,14 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.data.model.vk.Audio;
 import com.fesskiev.mediacenter.data.source.remote.ErrorHelper;
+import com.fesskiev.mediacenter.utils.AnimationUtils;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.download.DownloadFile;
@@ -24,6 +24,7 @@ import com.fesskiev.mediacenter.widgets.recycleview.HidingScrollListener;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.List;
 
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -40,11 +41,14 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
     private Subscription subscription;
     private TextInputLayout requestLayout;
     private String requestString;
+    private float bottomViewPadding;
 
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        bottomViewPadding = -Utils.dipToPixels(getContext(), 56f);
 
         requestLayout = (TextInputLayout) view.findViewById(R.id.textInputRequestAudio);
         EditText requestEdit = (EditText) view.findViewById(R.id.requestAudio);
@@ -53,6 +57,8 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
 
         searchButton = (FloatingActionButton) view.findViewById(R.id.searchButton);
         searchButton.setOnClickListener(this);
+
+        showViews();
 
         recyclerView.addOnScrollListener(new HidingScrollListener() {
             @Override
@@ -78,6 +84,11 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
     public void onDestroy() {
         super.onDestroy();
         RxUtils.unsubscribe(subscription);
+    }
+
+    @Override
+    public void onRefresh() {
+        fetchAudio(audioOffset);
     }
 
     @Override
@@ -127,18 +138,23 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(musicFilesResponse -> {
-                            hideProgressBar();
-                            if (musicFilesResponse != null) {
-                                audioAdapter.refresh(DownloadFile.
-                                        getDownloadFiles(getActivity(), audioAdapter,
-                                                musicFilesResponse.getAudioFiles().getMusicFilesList()));
-                            }
+                            updateSearchAudio(musicFilesResponse.getAudioFiles().getMusicFilesList());
                         }, this::checkRequestError);
 
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
+        } else {
+            hideRefresh();
         }
+    }
+
+    private void updateSearchAudio(List<Audio> musicFilesList) {
+        if (musicFilesList != null) {
+            audioAdapter.refresh(DownloadFile.getDownloadFiles(getActivity(), audioAdapter, musicFilesList));
+        }
+        hideProgressBar();
+        hideRefresh();
     }
 
     private void checkRequestError(Throwable throwable) {
@@ -151,25 +167,27 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
 
                     @Override
                     public void show(Snackbar snackbar) {
-
+//                        AnimationUtils.getInstance().translate(searchButton, -snackbar.getView().getHeight());
                     }
 
                     @Override
                     public void hide(Snackbar snackbar) {
-
+//                        AnimationUtils.getInstance().translate(searchButton, 0);
                     }
                 });
         hideProgressBar();
+        hideRefresh();
     }
 
     private void hideViews() {
         RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) searchButton.getLayoutParams();
         int fabBottomMargin = lp.bottomMargin;
-        searchButton.animate().translationY(searchButton.getHeight()
-                + fabBottomMargin).setInterpolator(new AccelerateInterpolator(2)).start();
+        AnimationUtils.getInstance().translate(searchButton, searchButton.getHeight()
+                + fabBottomMargin);
+
     }
 
     private void showViews() {
-        searchButton.animate().translationY(0).setInterpolator(new DecelerateInterpolator(2)).start();
+        AnimationUtils.getInstance().translate(searchButton, bottomViewPadding);
     }
 }

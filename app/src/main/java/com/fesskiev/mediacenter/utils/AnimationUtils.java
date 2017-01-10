@@ -14,6 +14,12 @@ import com.fesskiev.mediacenter.R;
 //TODO replace all animations here
 public class AnimationUtils {
 
+    private static final int DURATION_300 = 300;
+    private static final int DURATION_FAST = 600;
+    private static final int DURATION_MIDDLE = 1200;
+    private static final int DURATION_SLOW = 1800;
+    private static final int STARTUP_DELAY = 600;
+
     private static AnimationUtils INSTANCE;
 
     private Context context;
@@ -48,6 +54,13 @@ public class AnimationUtils {
                     .setDuration(900)
                     .setInterpolator(fastOutSlowInInterpolator);
         }
+    }
+
+    public void translate(View menu, float value) {
+        menu.animate()
+                .translationY(value)
+                .setDuration(DURATION_300)
+                .setInterpolator(fastOutSlowInInterpolator);
     }
 
     public void errorAnimation(View view) {
