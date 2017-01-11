@@ -152,6 +152,8 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
     private void updateSearchAudio(List<Audio> musicFilesList) {
         if (musicFilesList != null) {
             audioAdapter.refresh(DownloadFile.getDownloadFiles(getActivity(), audioAdapter, musicFilesList));
+        } else {
+
         }
         hideProgressBar();
         hideRefresh();

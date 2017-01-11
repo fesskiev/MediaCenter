@@ -36,7 +36,7 @@ public class MediaApplication extends Application {
         RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
             @Override
             public void handleError(Throwable e) {
-                AppLog.ERROR("ERROR: " + e.toString());
+                e.printStackTrace();
                 super.handleError(e);
             }
         });

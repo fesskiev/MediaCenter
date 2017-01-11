@@ -59,9 +59,11 @@ public class UserAudioFragment extends RecyclerAudioFragment {
     }
 
     private void updateUserAudio(List<Audio> musicFilesList) {
-        if (musicFilesList != null) {
+        if (musicFilesList != null && !musicFilesList.isEmpty()) {
             audioAdapter.refresh(DownloadFile.getDownloadFiles(getActivity(),
                     audioAdapter, musicFilesList));
+        } else {
+
         }
         hideProgressBar();
         hideRefresh();

@@ -8,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +20,6 @@ import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.vk.Audio;
 import com.fesskiev.mediacenter.data.model.vk.Group;
 import com.fesskiev.mediacenter.data.model.vk.GroupPost;
-
 import com.fesskiev.mediacenter.data.source.remote.ErrorHelper;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
@@ -32,21 +32,29 @@ import com.fesskiev.mediacenter.widgets.recycleview.ScrollingLinearLayoutManager
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import rx.Observable;
+import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
+import rx.functions.Func2;
 import rx.schedulers.Schedulers;
 
 
 public class GroupAudioFragment extends Fragment {
 
     private static final String GROUP_BUNDLE = "com.fesskiev.player.GROUP_BUNDLE";
+    private static final int COUNTER_START = 1;
+    private static final int ATTEMPTS = 3;
 
     private Subscription subscription;
     private Group group;
     private GroupPostsAdapter adapter;
     private MaterialProgressBar progressBar;
     private int postsOffset;
+
 
     public static GroupAudioFragment newInstance(Group group) {
         GroupAudioFragment groupAudioFragment = new GroupAudioFragment();
@@ -83,7 +91,7 @@ public class GroupAudioFragment extends Fragment {
         recyclerView.addOnScrollListener(new EndlessScrollListener(layoutManager) {
             @Override
             public void onEndlessScrolled() {
-                postsOffset += 20;
+//              postsOffset += 20;
                 fetchPosts();
             }
         });
@@ -94,40 +102,74 @@ public class GroupAudioFragment extends Fragment {
 
     private void fetchPosts() {
         showProgressBar();
-        subscription = MediaApplication.getInstance().getRepository().getGroupPots(group.getId(), postsOffset)
+        subscription = Observable.defer(() -> MediaApplication.getInstance().getRepository().getGroupPots(group.getId(), postsOffset))
+                .flatMap(groupPostsResponse -> Observable.just(getGroupDownloadAudioFiles(groupPostsResponse.getGroupPostList())))
+                .repeatWhen(observable -> {
+                    Log.v("test", "repeatWhen");
+                    return observable.zipWith(Observable.range(COUNTER_START, ATTEMPTS),
+                            (Func2<Void, Integer, Integer>) (aVoid, attempt) -> {
+                                Log.v("test", "zipWith" + attempt);
+                                return attempt;
+                            })
+                            .flatMap((Func1<Integer, Observable<?>>) repeatAttempt -> {
+                                Log.v("test", "flatMap" + repeatAttempt);
+                                return Observable.timer(repeatAttempt, TimeUnit.SECONDS);
+                            });
+                })
+                .takeUntil(groupPostList -> {
+                    boolean empty = !groupPostList.isEmpty();
+                    Log.v("test", "takeUntil: " + empty);
+                    return empty;
+                }).doOnNext(groupPostList -> {
+                    Log.v("test", "doOnNext");
+                    postsOffset += 20;
+                })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(groupPostsResponse -> {
-                    updateGroups(groupPostsResponse.getGroupPostList());
-                }, this::checkRequestError);
+                .subscribe(new Observer<List<GroupPost>>() {
+                    @Override
+                    public void onCompleted() {
+                        hideProgressBar();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        checkRequestError(e);
+                    }
+
+                    @Override
+                    public void onNext(List<GroupPost> groupPostList) {
+                        updateGroups(groupPostList);
+                    }
+                });
     }
 
     private void updateGroups(List<GroupPost> groupPostList) {
-        if (groupPostList != null) {
-            getGroupDownloadAudioFiles(groupPostList);
+        if (groupPostList != null && !groupPostList.isEmpty()) {
             adapter.refresh(groupPostList);
-            hideProgressBar();
+        } else {
+
         }
     }
 
     private void checkRequestError(Throwable throwable) {
         ErrorHelper.getInstance().createErrorSnackBar(getActivity(), throwable,
                 new ErrorHelper.OnErrorHandlerListener() {
-            @Override
-            public void tryRequestAgain() {
-                fetchPosts();
-            }
+                    @Override
+                    public void tryRequestAgain() {
+                        fetchPosts();
+                    }
 
-            @Override
-            public void show(Snackbar snackbar) {
+                    @Override
+                    public void show(Snackbar snackbar) {
 
-            }
+                    }
 
-            @Override
-            public void hide(Snackbar snackbar) {
+                    @Override
+                    public void hide(Snackbar snackbar) {
 
-            }
-        });
+                    }
+                });
         hideProgressBar();
     }
 
@@ -144,14 +186,17 @@ public class GroupAudioFragment extends Fragment {
     }
 
 
-    private void getGroupDownloadAudioFiles(List<GroupPost> groupPosts) {
+    private List<GroupPost> getGroupDownloadAudioFiles(List<GroupPost> groupPosts) {
+        List<GroupPost> filterPosts = new ArrayList<>();
         for (GroupPost groupPost : groupPosts) {
             List<Audio> audios = groupPost.getAudio();
-            if (audios != null) {
+            if (audios != null && !audios.isEmpty()) {
                 groupPost.setDownloadGroupAudioFiles(
                         DownloadGroupAudioFile.getDownloadGroupAudioFiles(getActivity(), audios));
+                filterPosts.add(groupPost);
             }
         }
+        return filterPosts;
     }
 
     @Override
@@ -233,7 +278,6 @@ public class GroupAudioFragment extends Fragment {
 
                 if (!groupPost.getDownloadGroupAudioFiles().isEmpty()) {
                     holder.openCloseButton.setVisibility(View.VISIBLE);
-
                 } else {
                     holder.openCloseButton.setVisibility(View.GONE);
                 }
