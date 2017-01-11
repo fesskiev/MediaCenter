@@ -61,7 +61,7 @@ public class VKActivity extends AnalyticsActivity {
         } else {
             transaction.show(searchAudioFragment);
         }
-        transaction.commitAllowingStateLoss();
+        transaction.commit();
     }
 
     private void addGroupsFragment() {
@@ -78,7 +78,7 @@ public class VKActivity extends AnalyticsActivity {
         } else {
             transaction.show(groupsFragment);
         }
-        transaction.commitAllowingStateLoss();
+        transaction.commit();
     }
 
     private void addUserAudioFragment() {
@@ -95,7 +95,7 @@ public class VKActivity extends AnalyticsActivity {
         } else {
             transaction.show(userAudioFragment);
         }
-        transaction.commitAllowingStateLoss();
+        transaction.commit();
     }
 
     private void hideVisibleFragment(FragmentTransaction transaction) {
