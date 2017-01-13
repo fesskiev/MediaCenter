@@ -250,6 +250,12 @@
         <item name="android:fontFamily">sans-serif</item>
     </style>
 
+    <style name="EmptyAudioTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/primary</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
     <style name="EffectDialogTitleTextAppearance" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/white_text</item>
         <item name="android:textSize">18sp</item>

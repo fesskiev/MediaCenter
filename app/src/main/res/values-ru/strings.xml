@@ -101,6 +101,11 @@
 
     <string name="playlist_empty">Плейлист пуст</string>
     <string name="content_empty">Файлы не найдены</string>
+    <string name="user_audio_empty">Мои аудиозаписи пусты</string>
+    <string name="user_groups_empty">Мои группы пусты</string>
+    <string name="user_search_empty">Ничего не найдено</string>
+    <string name="user_group_audio_empty">Пока ничего не найдено. Продолжить поиск?</string>
+    <string name="search_button">Поиск</string>
 
     <string name="action_settings">Настройки</string>
 

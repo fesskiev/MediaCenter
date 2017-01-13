@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
+import android.support.v7.widget.CardView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -40,6 +41,7 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
     private FloatingActionButton searchButton;
     private Subscription subscription;
     private TextInputLayout requestLayout;
+    private CardView emptySearchCard;
     private String requestString;
     private float bottomViewPadding;
 
@@ -47,6 +49,8 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        emptySearchCard = (CardView) view.findViewById(R.id.emptySearchCard);
 
         bottomViewPadding = -Utils.dipToPixels(getContext(), 56f);
 
@@ -150,11 +154,13 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
     }
 
     private void updateSearchAudio(List<Audio> musicFilesList) {
-        if (musicFilesList != null) {
+        if (musicFilesList != null && !musicFilesList.isEmpty()) {
             audioAdapter.refresh(DownloadFile.getDownloadFiles(getActivity(), audioAdapter, musicFilesList));
+            hideEmptyCard();
         } else {
-
+            showEmptyCard();
         }
+
         hideProgressBar();
         hideRefresh();
     }
@@ -179,6 +185,14 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
                 });
         hideProgressBar();
         hideRefresh();
+    }
+
+    private void showEmptyCard() {
+        emptySearchCard.setVisibility(View.VISIBLE);
+    }
+
+    private void hideEmptyCard() {
+        emptySearchCard.setVisibility(View.GONE);
     }
 
     private void hideViews() {

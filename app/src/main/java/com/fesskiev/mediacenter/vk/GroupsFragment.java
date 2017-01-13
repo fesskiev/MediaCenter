@@ -7,6 +7,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
@@ -34,7 +35,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 
-public class GroupsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener  {
+public class GroupsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     public static GroupsFragment newInstance() {
         return new GroupsFragment();
@@ -42,10 +43,12 @@ public class GroupsFragment extends Fragment implements SwipeRefreshLayout.OnRef
 
     public static final String GROUP_EXTRA = "com.fesskiev.player.GROUP_EXTRA";
 
+
     private SwipeRefreshLayout swipeRefreshLayout;
     private Subscription subscription;
     private GroupsAdapter groupsAdapter;
     private MaterialProgressBar progressBar;
+    private CardView emptyGroupsCard;
 
 
     @Override
@@ -59,6 +62,7 @@ public class GroupsFragment extends Fragment implements SwipeRefreshLayout.OnRef
         super.onViewCreated(view, savedInstanceState);
 
         progressBar = (MaterialProgressBar) view.findViewById(R.id.progressBar);
+        emptyGroupsCard = (CardView) view.findViewById(R.id.emptyGroupsCard);
 
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         swipeRefreshLayout.setOnRefreshListener(this);
@@ -113,7 +117,13 @@ public class GroupsFragment extends Fragment implements SwipeRefreshLayout.OnRef
     }
 
     private void updateGroups(List<Group> groupsList) {
-        groupsAdapter.refresh(groupsList);
+        if (groupsList != null && !groupsList.isEmpty()) {
+            groupsAdapter.refresh(groupsList);
+            hideEmptyCard();
+        } else {
+            showEmptyCard();
+        }
+
         hideProgressBar();
         hideRefresh();
     }
@@ -153,18 +163,24 @@ public class GroupsFragment extends Fragment implements SwipeRefreshLayout.OnRef
     }
 
     public void showRefresh() {
-        if(swipeRefreshLayout != null && !swipeRefreshLayout.isRefreshing()) {
+        if (swipeRefreshLayout != null && !swipeRefreshLayout.isRefreshing()) {
             swipeRefreshLayout.setRefreshing(true);
         }
     }
 
     public void hideRefresh() {
-        if(swipeRefreshLayout != null && swipeRefreshLayout.isRefreshing()) {
+        if (swipeRefreshLayout != null && swipeRefreshLayout.isRefreshing()) {
             swipeRefreshLayout.setRefreshing(false);
         }
     }
 
+    private void showEmptyCard() {
+        emptyGroupsCard.setVisibility(View.VISIBLE);
+    }
 
+    private void hideEmptyCard() {
+        emptyGroupsCard.setVisibility(View.GONE);
+    }
 
     private void startGroupAudioActivity(Group group) {
         Intent intent = new Intent(getActivity(), GroupAudioActivity.class);

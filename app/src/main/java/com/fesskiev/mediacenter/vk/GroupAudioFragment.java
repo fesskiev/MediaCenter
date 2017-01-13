@@ -4,6 +4,7 @@ package com.fesskiev.mediacenter.vk;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
@@ -53,6 +54,7 @@ public class GroupAudioFragment extends Fragment {
     private Group group;
     private GroupPostsAdapter adapter;
     private MaterialProgressBar progressBar;
+    private CardView emptyGroupAudioCard;
     private int postsOffset;
 
 
@@ -80,7 +82,12 @@ public class GroupAudioFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+
         progressBar = (MaterialProgressBar) view.findViewById(R.id.progressBar);
+
+        emptyGroupAudioCard = (CardView) view.findViewById(R.id.emptyGroupAudioCard);
+        view.findViewById(R.id.searchButton).setOnClickListener(v -> fetchPosts());
+
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycleView);
         ScrollingLinearLayoutManager layoutManager = new ScrollingLinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false, 1000);
@@ -91,7 +98,6 @@ public class GroupAudioFragment extends Fragment {
         recyclerView.addOnScrollListener(new EndlessScrollListener(layoutManager) {
             @Override
             public void onEndlessScrolled() {
-//              postsOffset += 20;
                 fetchPosts();
             }
         });
@@ -115,8 +121,7 @@ public class GroupAudioFragment extends Fragment {
                                 Log.v("test", "flatMap" + repeatAttempt);
                                 return Observable.timer(repeatAttempt, TimeUnit.SECONDS);
                             });
-                })
-                .takeUntil(groupPostList -> {
+                }).takeUntil(groupPostList -> {
                     boolean empty = !groupPostList.isEmpty();
                     Log.v("test", "takeUntil: " + empty);
                     return empty;
@@ -130,6 +135,7 @@ public class GroupAudioFragment extends Fragment {
                     @Override
                     public void onCompleted() {
                         hideProgressBar();
+                        checkAdapterContainAudio();
                     }
 
                     @Override
@@ -144,11 +150,17 @@ public class GroupAudioFragment extends Fragment {
                 });
     }
 
+    private void checkAdapterContainAudio() {
+        if (adapter.getGroupPosts().isEmpty()) {
+            showEmptyCard();
+        } else {
+            hideEmptyCard();
+        }
+    }
+
     private void updateGroups(List<GroupPost> groupPostList) {
         if (groupPostList != null && !groupPostList.isEmpty()) {
             adapter.refresh(groupPostList);
-        } else {
-
         }
     }
 
@@ -183,6 +195,14 @@ public class GroupAudioFragment extends Fragment {
         if (progressBar != null) {
             progressBar.setVisibility(View.INVISIBLE);
         }
+    }
+
+    private void showEmptyCard() {
+        emptyGroupAudioCard.setVisibility(View.VISIBLE);
+    }
+
+    private void hideEmptyCard() {
+        emptyGroupAudioCard.setVisibility(View.GONE);
     }
 
 
@@ -301,6 +321,10 @@ public class GroupAudioFragment extends Fragment {
         public void refresh(List<GroupPost> groupPosts) {
             this.groupPosts.addAll(groupPosts);
             notifyDataSetChanged();
+        }
+
+        public ArrayList<GroupPost> getGroupPosts() {
+            return groupPosts;
         }
     }
 }

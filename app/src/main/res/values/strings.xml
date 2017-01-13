@@ -103,6 +103,11 @@
 
     <string name="playlist_empty">Playlist empty</string>
     <string name="content_empty">Empty content</string>
+    <string name="user_audio_empty">Add some audio on your wall</string>
+    <string name="user_groups_empty">Add some groups</string>
+    <string name="user_search_empty">Audio not found</string>
+    <string name="user_group_audio_empty">Audio in group not found. Move forward?</string>
+    <string name="search_button">Search</string>
 
     <string name="action_settings">Settings</string>
 
@@ -137,6 +142,8 @@
     <string name="auth_text_title">Please auth in social network</string>
     <string name="auth_text_button">SignIn</string>
     <string name="auth_text_check_box">Save password</string>
+
+
 
     <string name="mail_subject">(Media Center) comment</string>
     <string name="mail_chooser">(Media Center) send comment</string>

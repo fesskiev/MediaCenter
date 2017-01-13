@@ -3,6 +3,7 @@ package com.fesskiev.mediacenter.vk;
 
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.CardView;
 import android.view.View;
 
 import com.fesskiev.mediacenter.MediaApplication;
@@ -27,10 +28,13 @@ public class UserAudioFragment extends RecyclerAudioFragment {
     }
 
     private Subscription subscription;
+    private CardView emptyUserAudioCard;
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        emptyUserAudioCard = (CardView) view.findViewById(R.id.emptyUserAudioCard);
 
         fetchAudio(0);
     }
@@ -62,9 +66,11 @@ public class UserAudioFragment extends RecyclerAudioFragment {
         if (musicFilesList != null && !musicFilesList.isEmpty()) {
             audioAdapter.refresh(DownloadFile.getDownloadFiles(getActivity(),
                     audioAdapter, musicFilesList));
+            hideEmptyCard();
         } else {
-
+            showEmptyCard();
         }
+
         hideProgressBar();
         hideRefresh();
     }
@@ -90,4 +96,13 @@ public class UserAudioFragment extends RecyclerAudioFragment {
         hideProgressBar();
         hideRefresh();
     }
+
+    private void showEmptyCard() {
+        emptyUserAudioCard.setVisibility(View.VISIBLE);
+    }
+
+    private void hideEmptyCard() {
+        emptyUserAudioCard.setVisibility(View.GONE);
+    }
+
 }
