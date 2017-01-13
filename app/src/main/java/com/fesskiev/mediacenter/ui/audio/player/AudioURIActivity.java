@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import com.fesskiev.mediacenter.MediaApplication;
+import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.utils.AppLog;
@@ -28,20 +29,23 @@ public class AudioURIActivity extends AudioPlayerActivity {
         if (Intent.ACTION_VIEW.equals(action) && type != null) {
             if (type.startsWith("audio/")) {
                 Uri uri = intent.getData();
-                subscription = MediaApplication.getInstance().getRepository().getAudioFileByPath(uri.getPath()).first()
+                subscription = MediaApplication.getInstance().getRepository()
+                        .getAudioFileByPath(uri.getPath())
+                        .first()
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(audioFile -> {
-                            AppLog.VERBOSE("Audio file: " + audioFile);
-                            AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-                            if (audioPlayer != null) {
-                                PlaybackService.startPlaybackService(getApplicationContext());
-                                PlaybackService.openFile(getApplicationContext(), audioFile.getFilePath());
-                                PlaybackService.startPlayback(getApplicationContext());
-                            }
-                        });
+                        .subscribe(this::openPlayURIAudioFile);
 
             }
+        }
+    }
+
+    private void openPlayURIAudioFile(AudioFile audioFile) {
+        AppLog.VERBOSE("Audio file: " + audioFile);
+        AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
+        if (audioPlayer != null) {
+            audioPlayer.setCurrentAudioFileAndPlay(audioFile);
+            PlaybackService.startPlaybackService(getApplicationContext());
         }
     }
 
