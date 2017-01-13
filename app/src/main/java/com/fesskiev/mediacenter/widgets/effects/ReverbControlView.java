@@ -22,12 +22,16 @@ public class ReverbControlView extends DealerView {
 
     private OnReverbControlListener controlListener;
     private Paint markPaint;
+    private Paint rangePaint;
     private Paint namePaint;
     private String name;
     private float markRadius;
     private float markSize;
     private int radius;
     private int textPadding;
+    private float rangeTextX;
+    private float rangeTextY;
+    private float rangeTextX1;
 
     public ReverbControlView(Context context) {
         super(context);
@@ -56,10 +60,15 @@ public class ReverbControlView extends DealerView {
         markRadius = Utils.dipToPixels(context, 70);
         markSize = Utils.dipToPixels(context, 30);
 
+        rangeTextX = Utils.dipToPixels(context, 35);
+        rangeTextY = Utils.dipToPixels(context, 30);
+        rangeTextX1 = Utils.dipToPixels(context, 138);
+
         textPadding = (int) Utils.dipToPixels(context, 4);
 
         float markStrokeWidth = Utils.dipToPixels(context, 5);
         float nameStrokeWidth = Utils.dipToPixels(context, 13);
+        float rangeStrokeWidth = Utils.dipToPixels(context, 14);
 
         radius = (int) Utils.dipToPixels(context, 3);
 
@@ -75,12 +84,20 @@ public class ReverbControlView extends DealerView {
         namePaint.setAntiAlias(true);
         namePaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
         namePaint.setTextAlign(Paint.Align.CENTER);
+
+        rangePaint = new Paint();
+        rangePaint.setColor(ContextCompat.getColor(context, android.R.color.white));
+        rangePaint.setStyle(Paint.Style.FILL);
+        rangePaint.setTextSize(rangeStrokeWidth);
+        rangePaint.setAntiAlias(true);
+        rangePaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+        rangePaint.setTextAlign(Paint.Align.CENTER);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
 
-        for (int i = 0; i < 360; i += 30) {
+        for (int i = 30; i < 360; i += 30) {
 
             float angle = (float) Math.toRadians(i);
 
@@ -90,7 +107,7 @@ public class ReverbControlView extends DealerView {
             float stopX = (float) (cx + (markRadius - markSize) * Math.sin(angle));
             float stopY = (float) (cy - (markRadius - markSize) * Math.cos(angle));
 
-            if (i == 0) {
+            if (i == 30 || i == 330) {
                 canvas.drawLine(startX, startY, stopX, stopY, markPaint);
             } else {
                 canvas.drawCircle(startX, startY, radius, markPaint);
@@ -98,6 +115,10 @@ public class ReverbControlView extends DealerView {
 
         }
         canvas.drawText(name, cx, getWidth() - textPadding, namePaint);
+
+        canvas.drawText("100", rangeTextX, rangeTextY, rangePaint);
+
+        canvas.drawText("0", rangeTextX1, rangeTextY, rangePaint);
 
         super.onDraw(canvas);
     }
