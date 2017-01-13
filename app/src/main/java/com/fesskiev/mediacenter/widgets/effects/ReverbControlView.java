@@ -11,7 +11,6 @@ import android.util.AttributeSet;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.utils.Utils;
-import com.fesskiev.mediacenter.widgets.effects.DealerView;
 
 public class ReverbControlView extends DealerView {
 
@@ -62,7 +61,7 @@ public class ReverbControlView extends DealerView {
 
         rangeTextX = Utils.dipToPixels(context, 35);
         rangeTextY = Utils.dipToPixels(context, 30);
-        rangeTextX1 = Utils.dipToPixels(context, 138);
+        rangeTextX1 = Utils.dipToPixels(context, 144);
 
         textPadding = (int) Utils.dipToPixels(context, 4);
 
@@ -92,6 +91,7 @@ public class ReverbControlView extends DealerView {
         rangePaint.setAntiAlias(true);
         rangePaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
         rangePaint.setTextAlign(Paint.Align.CENTER);
+
     }
 
     @Override
@@ -116,9 +116,9 @@ public class ReverbControlView extends DealerView {
         }
         canvas.drawText(name, cx, getWidth() - textPadding, namePaint);
 
-        canvas.drawText("100", rangeTextX, rangeTextY, rangePaint);
+        canvas.drawText("max", rangeTextX, rangeTextY, rangePaint);
 
-        canvas.drawText("0", rangeTextX1, rangeTextY, rangePaint);
+        canvas.drawText("min", rangeTextX1, rangeTextY, rangePaint);
 
         super.onDraw(canvas);
     }
