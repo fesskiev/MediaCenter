@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.source.DataRepository;
+import com.fesskiev.mediacenter.data.source.local.LocalSource;
 import com.fesskiev.mediacenter.data.source.local.db.LocalDataSource;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
@@ -117,11 +118,16 @@ public class FileSystemIntentService extends IntentService {
                     if (folderId == null) {
                         AudioFolder audioFolder = new AudioFolder();
                         audioFolder.folderImage = CacheManager.getDownloadFolderIconPath();
-                        audioFolder.folderPath = child;
-                        audioFolder.folderName = child.getName();
+                        audioFolder.folderPath = new File(CacheManager.CHECK_DOWNLOADS_FOLDER_PATH);
+                        audioFolder.folderName = "Downloads";
                         audioFolder.id = UUID.randomUUID().toString();
 
-                        MediaApplication.getInstance().getRepository().insertAudioFolder(audioFolder);
+                        DataRepository dataRepository = MediaApplication.getInstance().getRepository();
+                        dataRepository.insertAudioFolder(audioFolder);
+
+                        repository.getMemorySource().setCacheArtistsDirty(true);
+                        repository.getMemorySource().setCacheGenresDirty(true);
+                        repository.getMemorySource().setCacheFoldersDirty(true);
 
                         folderId = audioFolder.id;
 

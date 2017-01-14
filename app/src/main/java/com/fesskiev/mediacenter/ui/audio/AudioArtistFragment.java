@@ -46,7 +46,8 @@ public class AudioArtistFragment extends GridFragment {
     }
 
     public void fetchArtists() {
-        subscription = MediaApplication.getInstance().getRepository().getArtists().first()
+        subscription = MediaApplication.getInstance().getRepository().getArtists()
+                .first()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(artists -> {

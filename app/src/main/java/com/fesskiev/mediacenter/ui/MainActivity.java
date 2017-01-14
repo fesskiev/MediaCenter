@@ -15,7 +15,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -242,8 +241,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.e("test", "RESULT request code: " + requestCode + " result code: " + resultCode);
-
         if (requestCode == VKAuthActivity.VK_AUTH_RESULT) {
             if (resultCode == Activity.RESULT_OK) {
                 setUserInfo();

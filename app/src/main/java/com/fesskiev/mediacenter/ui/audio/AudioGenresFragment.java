@@ -47,7 +47,8 @@ public class AudioGenresFragment extends GridFragment {
 
     public void fetchGenres() {
 
-        subscription = MediaApplication.getInstance().getRepository().getGenres().first()
+        subscription = MediaApplication.getInstance().getRepository().getGenres()
+                .first()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(genres -> {
