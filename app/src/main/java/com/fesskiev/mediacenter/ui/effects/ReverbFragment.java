@@ -15,13 +15,13 @@ import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.effects.ReverbState;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
-import com.fesskiev.mediacenter.widgets.effects.DealerView;
+import com.fesskiev.mediacenter.widgets.effects.DialerView;
 import com.fesskiev.mediacenter.widgets.effects.ReverbControlView;
 
 import org.greenrobot.eventbus.EventBus;
 
 
-public class ReverbFragment extends Fragment implements DealerView.OnDealerViewListener,
+public class ReverbFragment extends Fragment implements DialerView.OnDialerViewListener,
         ReverbControlView.OnReverbControlListener {
 
     private static final String REVERB_WIDTH = "Width";
@@ -90,7 +90,7 @@ public class ReverbFragment extends Fragment implements DealerView.OnDealerViewL
     }
 
     @Override
-    public void onAttachDealerView(DealerView view) {
+    public void onAttachDealerView(DialerView view) {
         String name = ((ReverbControlView) view).getName();
         switch (name) {
             case REVERB_WIDTH:

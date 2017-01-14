@@ -13,14 +13,14 @@ import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.effects.EQState;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
-import com.fesskiev.mediacenter.widgets.effects.DealerView;
+import com.fesskiev.mediacenter.widgets.effects.DialerView;
 import com.fesskiev.mediacenter.widgets.effects.EQBandControlView;
 
 import org.greenrobot.eventbus.EventBus;
 
 
 public class EqualizerFragment extends Fragment implements EQBandControlView.OnBandLevelListener,
-        DealerView.OnDealerViewListener {
+        DialerView.OnDialerViewListener {
 
     private Context context;
     private EQState state;
@@ -82,7 +82,7 @@ public class EqualizerFragment extends Fragment implements EQBandControlView.OnB
     }
 
     @Override
-    public void onAttachDealerView(DealerView view) {
+    public void onAttachDealerView(DialerView view) {
         int band = ((EQBandControlView) view).getBand();
         switch (band) {
             case 0:

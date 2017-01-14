@@ -12,7 +12,7 @@ import android.util.AttributeSet;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.utils.Utils;
 
-public class ReverbControlView extends DealerView {
+public class ReverbControlView extends DialerView {
 
     public interface OnReverbControlListener {
 
@@ -124,7 +124,7 @@ public class ReverbControlView extends DealerView {
     }
 
     @Override
-    public void rotateDealer(float currentAngle, float[] values) {
+    public void rotateDialer(float currentAngle, float[] values) {
 
         float level = 100 - (currentAngle * (100f / 360));
 

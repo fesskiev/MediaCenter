@@ -9,7 +9,7 @@ import android.util.AttributeSet;
 import com.fesskiev.mediacenter.utils.Utils;
 
 
-public class EchoControlView extends DealerView {
+public class EchoControlView extends DialerView {
 
     public interface OnEchoControlListener {
 
@@ -79,7 +79,7 @@ public class EchoControlView extends DealerView {
     }
 
     @Override
-    public void rotateDealer(float currentAngle, float[] values) {
+    public void rotateDialer(float currentAngle, float[] values) {
 
         float level = 100 - (currentAngle * (100f / 360));
 

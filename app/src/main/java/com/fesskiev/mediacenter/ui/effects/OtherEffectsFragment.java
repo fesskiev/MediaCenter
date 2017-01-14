@@ -12,12 +12,12 @@ import android.view.ViewGroup;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.services.PlaybackService;
-import com.fesskiev.mediacenter.widgets.effects.DealerView;
+import com.fesskiev.mediacenter.widgets.effects.DialerView;
 import com.fesskiev.mediacenter.widgets.effects.EchoControlView;
 
 
 public class OtherEffectsFragment extends Fragment implements EchoControlView.OnEchoControlListener,
-        DealerView.OnDealerViewListener {
+        DialerView.OnDialerViewListener {
 
     public static OtherEffectsFragment newInstance() {
         return new OtherEffectsFragment();
@@ -56,7 +56,7 @@ public class OtherEffectsFragment extends Fragment implements EchoControlView.On
     }
 
     @Override
-    public void onAttachDealerView(DealerView view) {
+    public void onAttachDealerView(DialerView view) {
 
     }
 

@@ -111,10 +111,21 @@ public class FileSystemIntentService extends IntentService {
         File root = new File(CacheManager.CHECK_DOWNLOADS_FOLDER_PATH);
         File[] list = root.listFiles();
         for (File child : list) {
-
             if (!repository.containAudioTrack(child.getAbsolutePath())) {
                 if (folderId == null) {
                     folderId = repository.getDownloadFolderID();
+                    if (folderId == null) {
+                        AudioFolder audioFolder = new AudioFolder();
+                        audioFolder.folderImage = CacheManager.getDownloadFolderIconPath();
+                        audioFolder.folderPath = child;
+                        audioFolder.folderName = child.getName();
+                        audioFolder.id = UUID.randomUUID().toString();
+
+                        MediaApplication.getInstance().getRepository().insertAudioFolder(audioFolder);
+
+                        folderId = audioFolder.id;
+
+                    }
                 }
                 new Thread(new FetchDownloadAudioInfo(child, folderId)).start();
             }

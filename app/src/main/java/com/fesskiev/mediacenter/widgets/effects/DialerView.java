@@ -12,16 +12,16 @@ import android.view.View;
 
 import com.fesskiev.mediacenter.R;
 
-public abstract class DealerView extends View {
+public abstract class DialerView extends View {
 
-    public interface OnDealerViewListener {
+    public interface OnDialerViewListener {
 
-        void onAttachDealerView(DealerView view);
+        void onAttachDealerView(DialerView view);
     }
 
-    public abstract void rotateDealer(float currentAngle, float [] values);
+    public abstract void rotateDialer(float currentAngle, float [] values);
 
-    private OnDealerViewListener listener;
+    private OnDialerViewListener listener;
 
     protected float cx;
     protected float cy;
@@ -30,17 +30,17 @@ public abstract class DealerView extends View {
     private float startAngle;
     private float[] values;
 
-    public DealerView(Context context) {
+    public DialerView(Context context) {
         super(context);
         init();
     }
 
-    public DealerView(Context context, AttributeSet attrs) {
+    public DialerView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public DealerView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public DialerView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
@@ -93,7 +93,7 @@ public abstract class DealerView extends View {
 
                 float angleFix = getAngleFix(currentAngle);
 
-                rotateDealer(angleFix, values);
+                rotateDialer(angleFix, values);
 
                 startAngle = currentAngle;
                 break;
@@ -149,7 +149,7 @@ public abstract class DealerView extends View {
         }
     }
 
-    public void setOnDealerViewListener(OnDealerViewListener l) {
+    public void setOnDealerViewListener(OnDialerViewListener l) {
         this.listener = l;
     }
 }

@@ -10,7 +10,6 @@ import android.util.AttributeSet;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.utils.Utils;
-import com.fesskiev.mediacenter.widgets.effects.DealerView;
 
 /**
  * The gains on the 3 band EQ are the "knobs" for each band, in other words,
@@ -19,7 +18,7 @@ import com.fesskiev.mediacenter.widgets.effects.DealerView;
  * <p>
  * http://superpowered.com/3-band-equalizer-64-bit-armv8-support-and-time-stretching-on-mobile-processors
  */
-public class EQBandControlView extends DealerView {
+public class EQBandControlView extends DialerView {
 
     public interface OnBandLevelListener {
 
@@ -140,7 +139,7 @@ public class EQBandControlView extends DealerView {
     }
 
     @Override
-    public void rotateDealer(float currentAngle, float[] values) {
+    public void rotateDialer(float currentAngle, float[] values) {
 
         float level = (currentAngle * (100f / 360));
 
