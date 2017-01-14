@@ -143,12 +143,20 @@
     <string name="auth_text_button">SignIn</string>
     <string name="auth_text_check_box">Save password</string>
 
+    <string name="snackbar_permission_title">Please turn on this permissions for using the application</string>
+    <string name="snackbar_permission_button">OK</string>
+
+    <string name="dialog_permission_title">Permissions settings</string>
+    <string name="dialog_permission_message">Please turn on permission in the application settings. Open settings?</string>
 
 
     <string name="mail_subject">(Media Center) comment</string>
     <string name="mail_chooser">(Media Center) send comment</string>
 
     <string name="search_hint">Search Track</string>
+
+    <string name="snackbar_last_track">Last track in list</string>
+    <string name="snackbar_first_track">First track in list</string>
 
     <string name="shared_cover_name" translatable="false">cover</string>
     <string name="shared_search_back" translatable="false">search_back</string>

@@ -4,10 +4,13 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,12 +21,12 @@ import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.services.FileSystemIntentService;
-import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.MainActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
+import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.dialogs.PermissionDialog;
 
 
@@ -45,7 +48,6 @@ public class SplashActivity extends AppCompatActivity {
     private DataRepository repository;
     private Subscription subscription;
     private FetchMediaFilesManager fetchMediaFilesManager;
-    private PermissionDialog permissionDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +72,7 @@ public class SplashActivity extends AppCompatActivity {
                         loadMediaFiles();
                     }
                 });
+
         animate();
     }
 
@@ -81,23 +84,49 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode,
+                                           @Nullable String permissions[], @Nullable int[] grantResults) {
         switch (requestCode) {
-            case PERMISSION_REQ:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if (permissionDialog != null) {
-                        permissionDialog.hide();
-                        permissionDialog.dismiss();
+            case PERMISSION_REQ: {
+                if (grantResults.length > 0) {
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        fetchAudioContent();
+
+                    } else if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                        boolean showRationale =
+                                ActivityCompat.shouldShowRequestPermissionRationale(this,
+                                        Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                        if (showRationale) {
+                            permissionsDenied();
+                        } else {
+                            createExplanationPermissionDialog();
+                        }
                     }
-                    checkAppFirstStart();
-                    PlaybackService.startPlaybackService(this);
-                } else {
-                    finish();
                 }
                 break;
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            }
         }
+    }
+
+    private void createExplanationPermissionDialog() {
+        AlertDialog.Builder builder =
+                new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
+        builder.setTitle(getString(R.string.dialog_permission_title));
+        builder.setMessage(R.string.dialog_permission_message);
+        builder.setPositiveButton(R.string.dialog_permission_ok,
+                (dialog, which) -> Utils.startSettingsActivity(getApplicationContext()));
+        builder.setNegativeButton(R.string.dialog_permission_cancel,
+                (dialog, which) -> finish());
+        builder.setOnCancelListener(dialog -> finish());
+        builder.show();
+    }
+
+    private void permissionsDenied() {
+        Utils.showCustomSnackbar(findViewById(R.id.splashRoot), getApplicationContext(),
+                getString(R.string.snackbar_permission_title), Snackbar.LENGTH_INDEFINITE)
+                .setAction(R.string.snackbar_permission_button, v -> checkRuntimePermission())
+                .show();
+
     }
 
     private void requestPermissions() {
@@ -109,19 +138,16 @@ public class SplashActivity extends AppCompatActivity {
                 PERMISSION_REQ);
     }
 
-    private void checkPermission() {
+    private void checkRuntimePermission() {
         if (!checkPermissions()) {
             showPermissionDialog();
         } else {
-            checkAppFirstStart();
-            loadMediaFiles();
-            PlaybackService.startPlaybackService(this);
+            fetchAudioContent();
         }
     }
 
-    //TODO add cancel granted permission later
     private void showPermissionDialog() {
-        permissionDialog = PermissionDialog.newInstance(SplashActivity.this);
+        PermissionDialog permissionDialog = PermissionDialog.newInstance(SplashActivity.this);
         permissionDialog.setOnPermissionDialogListener(new PermissionDialog.OnPermissionDialogListener() {
             @Override
             public void onPermissionGranted() {
@@ -130,22 +156,10 @@ public class SplashActivity extends AppCompatActivity {
 
             @Override
             public void onPermissionCancel() {
-                permissionDialog.hide();
-                permissionDialog.dismiss();
-                finish();
+                permissionsDenied();
             }
         });
         permissionDialog.show();
-    }
-
-    private void checkAppFirstStart() {
-        if (settingsManager == null) {
-            settingsManager = AppSettingsManager.getInstance();
-        }
-        if (settingsManager.isFirstStartApp()) {
-            BitmapHelper.getInstance().saveDownloadFolderIcon();
-            FileSystemIntentService.startFetchMedia(getApplicationContext());
-        }
     }
 
     public boolean checkPermissions() {
@@ -180,7 +194,8 @@ public class SplashActivity extends AppCompatActivity {
                     public void onAnimationEnd(View view) {
                         if (ended) {
                             ended = false;
-                            checkPermission();
+                            startFetchLogic();
+
                         }
                     }
 
@@ -197,6 +212,23 @@ public class SplashActivity extends AppCompatActivity {
                     .setStartDelay((ITEM_DELAY * i) + 500)
                     .setDuration(1000)
                     .start();
+        }
+    }
+
+    private void startFetchLogic() {
+        if (Utils.isMarshmallow()) {
+            checkRuntimePermission();
+        } else {
+            fetchAudioContent();
+        }
+    }
+
+    private void fetchAudioContent() {
+        if (settingsManager.isFirstStartApp()) {
+            BitmapHelper.getInstance().saveDownloadFolderIcon();
+            FileSystemIntentService.startFetchMedia(getApplicationContext());
+        } else {
+            loadMediaFiles();
         }
     }
 

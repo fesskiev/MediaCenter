@@ -2,6 +2,10 @@ package com.fesskiev.mediacenter.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
@@ -41,7 +45,7 @@ public class Utils {
         return getTimeFromMillisecondsString(seconds * 1000);
     }
 
-    public static String getPositionSecondsString(int positionSeconds){
+    public static String getPositionSecondsString(int positionSeconds) {
         return String.format(Locale.US, "%02d:%02d", positionSeconds / 60, positionSeconds % 60);
     }
 
@@ -98,5 +102,16 @@ public class Utils {
     public static float dipToPixels(Context context, float dipValue) {
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics);
+    }
+
+    public static boolean isMarshmallow() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
+    }
+
+    public static void startSettingsActivity(Context context) {
+        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        Uri uri = Uri.fromParts("package", context.getPackageName(), null);
+        intent.setData(uri);
+        context.startActivity(intent);
     }
 }

@@ -24,7 +24,7 @@ public class PermissionDialog extends AlertDialog implements View.OnClickListene
     }
 
 
-   private OnPermissionDialogListener listener;
+    private OnPermissionDialogListener listener;
 
     public static PermissionDialog newInstance(Context context) {
         return new PermissionDialog(context);
@@ -35,7 +35,7 @@ public class PermissionDialog extends AlertDialog implements View.OnClickListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dialog_permission);
 
-        Button [] buttons = new Button[]{
+        Button[] buttons = new Button[]{
                 (Button) findViewById(R.id.buttonGranted),
                 (Button) findViewById(R.id.buttonCancel)
         };
@@ -61,5 +61,7 @@ public class PermissionDialog extends AlertDialog implements View.OnClickListene
                     break;
             }
         }
+        hide();
+        dismiss();
     }
 }
