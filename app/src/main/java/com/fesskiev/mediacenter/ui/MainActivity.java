@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Animatable;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -15,6 +16,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,6 +36,7 @@ import com.fesskiev.mediacenter.ui.video.VideoFragment;
 import com.fesskiev.mediacenter.utils.AnimationUtils;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
+import com.fesskiev.mediacenter.utils.CountDownTimer;
 import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.vk.VKAuthActivity;
@@ -43,14 +46,15 @@ import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
 
 public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener {
 
+    private CountDownTimer countDownTimer;
+    private Class selectedActivity;
+    private Toolbar toolbar;
     private MediaNavigationView mediaNavigationView;
     private NavigationView navigationViewMain;
     private DrawerLayout drawer;
-    private Toolbar toolbar;
-
-    private Class selectedActivity;
     private AppSettingsManager settingsManager;
     private FetchMediaFilesManager fetchMediaFilesManager;
+    private ImageView timerView;
     private ImageView userPhoto;
     private ImageView logoutButton;
     private TextView firstName;
@@ -68,6 +72,9 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         AnimationUtils.getInstance().animateToolbar(toolbar);
+
+        timerView = (ImageView) findViewById(R.id.timer);
+        timerView.setOnClickListener(v -> fetchMediaFilesManager.toggleShowDialog());
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -107,11 +114,12 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         fetchMediaFilesManager.setOnFetchMediaFilesListener(new FetchMediaFilesManager.OnFetchMediaFilesListener() {
             @Override
             public void onFetchContentStart() {
-
+                showToolbarTimer();
             }
 
             @Override
             public void onFetchContentFinish() {
+                hideToolbarTimer();
 
                 if (isAudioFragmentShow()) {
                     AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
@@ -134,6 +142,21 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         checkAudioContentItem();
     }
 
+    private void showToolbarTimer() {
+        timerView.setVisibility(View.VISIBLE);
+        ((Animatable) timerView.getDrawable()).start();
+
+        countDownTimer = new CountDownTimer(3000);
+        countDownTimer.setOnCountDownListener(() -> ((Animatable) timerView.getDrawable()).start());
+    }
+
+    private void hideToolbarTimer() {
+        timerView.setVisibility(View.INVISIBLE);
+        ((Animatable) timerView.getDrawable()).stop();
+
+        countDownTimer.stop();
+    }
+
     @Override
     public MediaNavigationView getMediaNavigationView() {
         return mediaNavigationView;
@@ -145,7 +168,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         navigationViewMain.setItemIconTintList(null);
         View headerLayout =
                 navigationViewMain.inflateHeaderView(R.layout.nav_header_main);
-
 
         logoutButton = (ImageView) headerLayout.findViewById(R.id.logout);
         logoutButton.setOnClickListener(v -> {
@@ -245,9 +267,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             if (resultCode == Activity.RESULT_OK) {
                 setUserInfo();
             }
-            if (resultCode == Activity.RESULT_CANCELED) {
-
-            }
         }
     }
 
@@ -267,10 +286,12 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_search:
-                View searchMenuView = toolbar.findViewById(R.id.menu_search);
-                Bundle options = ActivityOptions.makeSceneTransitionAnimation(this, searchMenuView,
-                        getString(R.string.shared_search_back)).toBundle();
-                startActivity(new Intent(this, SearchActivity.class), options);
+                if (!fetchMediaFilesManager.isFetchStart()) {
+                    View searchMenuView = toolbar.findViewById(R.id.menu_search);
+                    Bundle options = ActivityOptions.makeSceneTransitionAnimation(this, searchMenuView,
+                            getString(R.string.shared_search_back)).toBundle();
+                    startActivity(new Intent(this, SearchActivity.class), options);
+                }
                 break;
         }
         return true;
@@ -365,7 +386,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                         .setAction(getString(R.string.snack_exit_action), v -> {
                             finish = true;
                             finish();
-                        }).setCallback(new Snackbar.Callback() {
+                        }).addCallback(new Snackbar.Callback() {
 
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {

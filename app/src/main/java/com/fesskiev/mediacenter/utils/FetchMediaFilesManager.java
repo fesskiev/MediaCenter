@@ -16,6 +16,7 @@ public class FetchMediaFilesManager {
 
     private FetchMediaContentDialog mediaContentDialog;
 
+
     public interface OnFetchMediaFilesListener {
 
         void onFetchContentStart();
@@ -25,6 +26,7 @@ public class FetchMediaFilesManager {
 
     private Activity activity;
     private OnFetchMediaFilesListener listener;
+    private boolean fetchStart;
 
     public FetchMediaFilesManager(Activity activity) {
         this.activity = activity;
@@ -67,6 +69,7 @@ public class FetchMediaFilesManager {
                     if (listener != null) {
                         listener.onFetchContentStart();
                     }
+                    fetchStart = true;
                     break;
                 case FileSystemIntentService.ACTION_END_FETCH_MEDIA_CONTENT:
                     if (mediaContentDialog != null) {
@@ -76,6 +79,7 @@ public class FetchMediaFilesManager {
                     if (listener != null) {
                         listener.onFetchContentFinish();
                     }
+                    fetchStart = false;
                     break;
                 case FileSystemIntentService.ACTION_AUDIO_FOLDER_NAME:
                     String folderName =
@@ -109,4 +113,15 @@ public class FetchMediaFilesManager {
         }
     }
 
+    public boolean isFetchStart() {
+        return fetchStart;
+    }
+
+    public void toggleShowDialog() {
+        if (mediaContentDialog.isShowing()){
+            mediaContentDialog.hide();
+        } else {
+            mediaContentDialog.show();
+        }
+    }
 }

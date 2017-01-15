@@ -90,23 +90,13 @@
         <item name="android:listSelector">@drawable/grid_view_list_selector</item>
     </style>
 
-    <style name="ExpandedAppBar" parent="@android:style/TextAppearance.Medium">
-        <item name="android:textSize">20sp</item>
-        <item name="android:textColor">@color/primary_text</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="CollapsedAppBar" parent="@android:style/TextAppearance.Medium">
-        <item name="android:textSize">22sp</item>
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:textStyle">normal</item>
-    </style>
 
     <style name="CustomTabStyle" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/white_text</item>
-        <item name="android:textSize">13sp</item>
+        <item name="android:textSize">@dimen/tab_text_size</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:gravity">center</item>
+        <item name="android:maxLines">2</item>
         <item name="android:singleLine">true</item>
         <item name="android:textAllCaps">true</item>
     </style>

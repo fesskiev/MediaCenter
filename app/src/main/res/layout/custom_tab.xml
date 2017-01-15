@@ -8,8 +8,8 @@
 
     <android.support.v7.widget.AppCompatImageView
         android:id="@+id/imageTab"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="@dimen/tab_icon_width"
+        android:layout_height="@dimen/tab_icon_height"
         android:contentDescription="@string/app_name"
         tools:src="@android:drawable/ic_dialog_info" />
 
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginStart="14dp"
+        android:layout_marginStart="@dimen/tab_margin"
         tools:text="Артист" />
 
 </LinearLayout>

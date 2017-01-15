@@ -87,17 +87,19 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
         builder.setTitle(getString(R.string.dialog_refresh_folders_title));
         builder.setMessage(R.string.dialog_refresh_folders_message);
         builder.setPositiveButton(R.string.dialog_refresh_folders_ok,
-                (dialog, which) ->
-                        subscription = RxUtils
-                                .fromCallable(repository.resetAudioContentDatabase())
-                                .subscribeOn(Schedulers.io())
-                                .doOnNext(integer -> {
-                                    CacheManager.clearImagesCache();
-                                    BitmapHelper.getInstance().saveDownloadFolderIcon();
-                                    FileSystemIntentService.startFetchAudio(getActivity());
-                                })
-                                .subscribeOn(Schedulers.io())
-                                .subscribe());
+                (dialog, which) -> {
+                    swipeRefreshLayout.setRefreshing(false);
+                    subscription = RxUtils
+                            .fromCallable(repository.resetAudioContentDatabase())
+                            .subscribeOn(Schedulers.io())
+                            .doOnNext(integer -> {
+                                CacheManager.clearImagesCache();
+                                BitmapHelper.getInstance().saveDownloadFolderIcon();
+                                FileSystemIntentService.startFetchAudio(getActivity());
+                            })
+                            .subscribeOn(Schedulers.io())
+                            .subscribe();
+                });
 
         builder.setNegativeButton(R.string.dialog_refresh_folders_cancel,
                 (dialog, which) -> {

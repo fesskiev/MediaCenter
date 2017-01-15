@@ -32,4 +32,9 @@
 
     <dimen name="progress_bar_height">4dp</dimen>
 
+    <dimen name="tab_icon_height">20dp</dimen>
+    <dimen name="tab_icon_width">20dp</dimen>
+    <dimen name="tab_text_size">11sp</dimen>
+    <dimen name="tab_margin">2dp</dimen>
+
 </resources>
