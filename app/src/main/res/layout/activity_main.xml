@@ -30,6 +30,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="@color/white"
+        app:itemTextAppearance="@style/NavViewTextAppearance"
         app:itemBackground="@drawable/nav_item_background"
         app:itemTextColor="@drawable/nav_item_state_list"
         app:menu="@menu/activity_main_drawer" />

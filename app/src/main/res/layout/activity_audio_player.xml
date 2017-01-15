@@ -73,17 +73,8 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:id="@+id/album"
-                        style="@style/DescriptionTextAppearance"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:maxLines="1"
-                        tools:text="Changes" />
-
-                    <TextView
                         android:id="@+id/genre"
-                        style="@style/DescriptionTextAppearance"
+                        style="@style/AudioPlayerTextAppearance"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_toEndOf="@+id/album"
@@ -102,7 +93,7 @@
 
                         <TextView
                             android:id="@+id/trackArtist"
-                            style="@style/ArtistTextAppearance"
+                            style="@style/AudioPlayerArtistTextAppearance"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
@@ -111,7 +102,7 @@
 
                         <TextView
                             android:id="@+id/trackTitle"
-                            style="@style/DescriptionTextAppearance"
+                            style="@style/AudioPlayerTextAppearance"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
@@ -124,7 +115,7 @@
 
                     <TextView
                         android:id="@+id/trackDescription"
-                        style="@style/DescriptionTextAppearance"
+                        style="@style/AudioPlayerTextAppearance"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/mainInfoContainer"
@@ -137,6 +128,16 @@
                         android:scrollHorizontally="true"
                         android:singleLine="true"
                         tools:text="MP3::44Khz::320kbps" />
+
+                    <TextView
+                        android:id="@+id/album"
+                        style="@style/AudioPlayerTextAppearance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        tools:text="Changes"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentStart="true" />
 
                 </RelativeLayout>
 
@@ -181,7 +182,7 @@
 
                             <TextView
                                 android:id="@+id/trackTimeCount"
-                                style="@style/DescriptionTextAppearance"
+                                style="@style/AudioPlayerTextAppearance"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_centerVertical="true"
@@ -200,7 +201,7 @@
 
                             <TextView
                                 android:id="@+id/trackTimeTotal"
-                                style="@style/DescriptionTextAppearance"
+                                style="@style/AudioPlayerTextAppearance"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_centerVertical="true"
@@ -230,7 +231,7 @@
 
                             <TextView
                                 android:id="@+id/volumeLevel"
-                                style="@style/DescriptionTextAppearance"
+                                style="@style/AudioPlayerTextAppearance"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_centerVertical="true"

@@ -32,7 +32,7 @@
 
                     <TextView
                         android:id="@+id/emptyTrackCard"
-                        style="@style/TrackDescBigTextAppearance"
+                        style="@style/PlaybackHeaderDescTextAppearance"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_centerInParent="true"
@@ -63,7 +63,7 @@
 
                         <TextView
                             android:id="@+id/track"
-                            style="@style/TrackTitleBigTextAppearance"
+                            style="@style/PlaybackHeaderTitleTextAppearance"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:ellipsize="end"
@@ -72,7 +72,7 @@
 
                         <TextView
                             android:id="@+id/artist"
-                            style="@style/TrackDescBigTextAppearance"
+                            style="@style/PlaybackHeaderDescTextAppearance"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:ellipsize="end"
@@ -83,7 +83,7 @@
 
                     <TextView
                         android:id="@+id/duration"
-                        style="@style/TrackDescBigTextAppearance"
+                        style="@style/PlaybackHeaderDescTextAppearance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
@@ -107,7 +107,7 @@
 
                     <TextView
                         android:id="@+id/emptyFolderCard"
-                        style="@style/TrackDescBigTextAppearance"
+                        style="@style/PlaybackHeaderDescTextAppearance"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"

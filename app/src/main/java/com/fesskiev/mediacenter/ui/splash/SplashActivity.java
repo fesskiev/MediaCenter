@@ -177,7 +177,7 @@ public class SplashActivity extends AppCompatActivity {
         ViewGroup container = (ViewGroup) findViewById(R.id.container);
 
         ViewCompat.animate(appLogo)
-                .translationY(-250)
+                .translationY(-Utils.dipToPixels(getApplicationContext(), 100))
                 .setStartDelay(STARTUP_DELAY + 500)
                 .setDuration(ANIM_ITEM_DURATION)
                 .setInterpolator(new DecelerateInterpolator(1.2f))

@@ -38,4 +38,45 @@
     <dimen name="tab_text_size">14sp</dimen>
     <dimen name="tab_margin">8dp</dimen>
 
+    <dimen name="text_size_audio_player">14sp</dimen>
+    <dimen name="text_size_audio_player_artist">22sp</dimen>
+
+    <dimen name="text_audio_track_description">14sp</dimen>
+    <dimen name="text_audio_track_title">18sp</dimen>
+
+    <dimen name="text_vk_group_description">14sp</dimen>
+    <dimen name="text_vk_group_title">18sp</dimen>
+    <dimen name="text_vk_group_post">14sp</dimen>
+
+    <dimen name="text_folder_name">14sp</dimen>
+
+    <dimen name="text_playback_description">12sp</dimen>
+    <dimen name="text_playback_title">14sp</dimen>
+    <dimen name="text_playback_header_description">14sp</dimen>
+    <dimen name="text_playback_header_title">16sp</dimen>
+
+    <dimen name="nav_view_item_text_size">14sp</dimen>
+
+    <dimen name="text_splash_title">22sp</dimen>
+    <dimen name="text_splash_desc">20sp</dimen>
+
+    <dimen name="text_about_title">20sp</dimen>
+    <dimen name="text_about_desc_1">16sp</dimen>
+    <dimen name="text_about_desc_2">18sp</dimen>
+    <dimen name="text_about_app">22sp</dimen>
+
+    <dimen name="text_user_first_name">18sp</dimen>
+    <dimen name="text_user_second_name">16sp</dimen>
+
+    <dimen name="text_fetch_dialog_title">18sp</dimen>
+    <dimen name="text_fetch_dialog_desc">16sp</dimen>
+
+    <dimen name="text_permission_dialog">14sp</dimen>
+
+    <dimen name="text_vk_login">14sp</dimen>
+
+    <dimen name="text_button">14sp</dimen>
+
+    <dimen name="text_checkbox">14sp</dimen>
+
 </resources>

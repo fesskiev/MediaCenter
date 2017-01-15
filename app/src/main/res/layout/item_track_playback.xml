@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="2dp"
-    android:layout_marginBottom="2dp">
+    android:layout_marginTop="3dp"
+    android:layout_marginBottom="3dp">
 
     <ImageView
         android:id="@+id/playEq"
@@ -28,7 +28,7 @@
 
         <TextView
             android:id="@+id/title"
-            style="@style/TrackTitleTextAppearance"
+            style="@style/PlaybackTitleTextAppearance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
@@ -37,7 +37,7 @@
 
         <TextView
             android:id="@+id/filePath"
-            style="@style/TrackDescTextAppearance"
+            style="@style/PlaybackDescTextAppearance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
@@ -54,7 +54,7 @@
 
     <TextView
         android:id="@+id/duration"
-        style="@style/TrackDescTextAppearance"
+        style="@style/PlaybackDescTextAppearance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ellipsize="end"

@@ -53,7 +53,7 @@
 
                     <TextView
                         android:id="@+id/itemArtist"
-                        style="@style/TitleTextAppearance"
+                        style="@style/AudioTrackTitleTextAppearance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
@@ -62,7 +62,7 @@
 
                     <TextView
                         android:id="@+id/itemTitle"
-                        style="@style/DescriptionTextAppearance"
+                        style="@style/AudioTrackDescTextAppearance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
@@ -73,7 +73,7 @@
 
                 <TextView
                     android:id="@+id/itemTime"
-                    style="@style/DescriptionTextAppearance"
+                    style="@style/AudioTrackDescTextAppearance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"

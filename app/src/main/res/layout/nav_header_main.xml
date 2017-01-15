@@ -35,14 +35,14 @@
 
             <TextView
                 android:id="@+id/firstName"
-                style="@style/FirstNameTextAppearance"
+                style="@style/UserFirstNameTextAppearance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 tools:text="Fess" />
 
             <TextView
                 android:id="@+id/lastName"
-                style="@style/SecondNameTextAppearance"
+                style="@style/UserSecondNameTextAppearance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 tools:text="Kiev" />

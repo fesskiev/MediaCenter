@@ -36,24 +36,22 @@
             android:orientation="vertical">
 
             <TextView
+                style="@style/VKGroupTitleTextAppearance"
                 android:id="@+id/groupName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/app_name"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="?android:attr/textColorPrimary"
                 tools:text="2DEEP DNB" />
 
             <TextView
+               style="@style/VKGroupDescTextAppearance"
                 android:id="@+id/screenName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/app_name"
                 android:ellipsize="end"
-                android:maxLines="1"
-                android:textAppearance="?android:attr/textAppearanceSmall"
                 tools:text="2deep" />
 
         </LinearLayout>
