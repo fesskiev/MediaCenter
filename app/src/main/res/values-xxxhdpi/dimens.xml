@@ -76,7 +76,7 @@
 
     <dimen name="text_button">14sp</dimen>
 
-    <dimen name="text_checkbox">14sp</dimen>
+    <dimen name="text_checkbox">11sp</dimen>
 
 
 </resources>
