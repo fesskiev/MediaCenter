@@ -8,7 +8,6 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
-import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -282,7 +281,7 @@ public class GroupAudioFragment extends Fragment {
             GroupPost groupPost = groupPosts.get(position);
             if (groupPost != null) {
 
-                holder.postText.setText(Html.fromHtml(groupPost.getText()));
+                holder.postText.setText(groupPost.getText());
                 holder.likes.setText(String.valueOf(groupPost.getLikes().getCount()));
                 holder.shares.setText(String.valueOf(groupPost.getReposts().getCount()));
                 holder.time.setText(Utils.getDateStringFromSeconds(groupPost.getDate()));
