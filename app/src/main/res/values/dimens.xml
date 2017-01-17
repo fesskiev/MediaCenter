@@ -25,7 +25,8 @@
     <dimen name="pause_bar_big_height">36dp</dimen>
 
     <dimen name="card_insets">4dp</dimen>
-    <dimen name="card_min_width">110dp</dimen>
+
+    <dimen name="card_min_height">140dp</dimen>
 
     <dimen name="bottom_sheet_margin_top">24dp</dimen>
 
