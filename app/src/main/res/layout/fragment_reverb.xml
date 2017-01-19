@@ -16,14 +16,14 @@
             android:layout_width="@dimen/effect_control_weight"
             android:layout_height="@dimen/effect_control_height"
             android:layout_alignParentStart="true"
-            app:name="Mix" />
+            app:reverbName="Mix" />
 
         <com.fesskiev.mediacenter.widgets.effects.ReverbControlView
             android:id="@+id/reverbWidth"
             android:layout_width="@dimen/effect_control_weight"
             android:layout_height="@dimen/effect_control_height"
             android:layout_alignParentEnd="true"
-            app:name="Width" />
+            app:reverbName="Width" />
 
     </RelativeLayout>
 
@@ -38,14 +38,14 @@
             android:layout_width="@dimen/effect_control_weight"
             android:layout_height="@dimen/effect_control_height"
             android:layout_alignParentStart="true"
-            app:name="Damp" />
+            app:reverbName="Damp" />
 
         <com.fesskiev.mediacenter.widgets.effects.ReverbControlView
             android:id="@+id/reverRoomSize"
             android:layout_width="@dimen/effect_control_weight"
             android:layout_height="@dimen/effect_control_height"
             android:layout_alignParentEnd="true"
-            app:name="Room size" />
+            app:reverbName="Room size" />
 
     </RelativeLayout>
 

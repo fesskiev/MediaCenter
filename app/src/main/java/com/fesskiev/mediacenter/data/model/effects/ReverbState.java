@@ -8,7 +8,6 @@ import java.util.Arrays;
 
 public class ReverbState implements Parcelable {
 
-
     private float weight;
     private float mix;
     private float damp;

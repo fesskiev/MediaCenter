@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.effects.EQState;
 import com.fesskiev.mediacenter.data.model.effects.ReverbState;
+import com.fesskiev.mediacenter.data.model.effects.WhooshState;
 import com.google.gson.Gson;
 
 public class AppSettingsManager {
@@ -26,6 +27,12 @@ public class AppSettingsManager {
 
     private static final String KEY_EQ_ENABLE = "com.fesskiev.player.KEY_EQ_ENABLE";
     private static final String KEY_EQ_STATE = "com.fesskiev.player.KEY_EQ_STATE";
+
+    private static final String KEY_WHOOSH_ENABLE = "com.fesskiev.player.KEY_WHOOSH_ENABLE";
+    private static final String KEY_WHOOSH_STATE = "com.fesskiev.player.KEY_WHOOSH_STATE";
+
+    private static final String KEY_ECHO_ENABLE = "com.fesskiev.player.KEY_ECHO_ENABLE";
+    private static final String KEY_ECHO_STATE = "com.fesskiev.player.KEY_ECHO_STATE";
 
 
     private SharedPreferences sharedPreferences;
@@ -113,6 +120,7 @@ public class AppSettingsManager {
     }
 
 
+
     public boolean isReverbEnable() {
         return sharedPreferences.getBoolean(KEY_REVERB_ENABLE, false);
     }
@@ -135,6 +143,8 @@ public class AppSettingsManager {
     }
 
 
+
+
     public boolean isEQEnable() {
         return sharedPreferences.getBoolean(KEY_EQ_ENABLE, false);
     }
@@ -154,6 +164,52 @@ public class AppSettingsManager {
     public EQState getEQState(){
         String stateJson = sharedPreferences.getString(KEY_EQ_STATE, "");
         return new Gson().fromJson(stateJson, EQState.class);
+    }
+
+
+
+
+    public void setWhooshState(WhooshState state){
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(KEY_WHOOSH_STATE, new Gson().toJson(state));
+        editor.apply();
+    }
+
+    public WhooshState getWhooshState(){
+        String stateJson = sharedPreferences.getString(KEY_WHOOSH_STATE, "");
+        return new Gson().fromJson(stateJson, WhooshState.class);
+    }
+
+    public boolean isWhooshEnable() {
+        return sharedPreferences.getBoolean(KEY_WHOOSH_ENABLE, false);
+    }
+
+    public void setWhooshEnable(boolean enable) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_WHOOSH_ENABLE, enable);
+        editor.apply();
+    }
+
+
+
+    public void setEchoState(float level){
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putFloat(KEY_ECHO_STATE, level);
+        editor.apply();
+    }
+
+    public float getEchoState(){
+        return sharedPreferences.getFloat(KEY_ECHO_STATE, 0f);
+    }
+
+    public boolean isEchoEnable() {
+        return sharedPreferences.getBoolean(KEY_ECHO_ENABLE, false);
+    }
+
+    public void setEchoEnable(boolean enable) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_ECHO_ENABLE, enable);
+        editor.apply();
     }
 }
 

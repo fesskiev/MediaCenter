@@ -148,6 +148,9 @@
 
     <string name="search_hint">Поиск музыки</string>
 
+    <string name="effect_echo_name">Echo</string>
+    <string name="effect_whoosh_name">Whoosh</string>
+
     <string name="snackbar_last_track">Пооследний трек в списке</string>
     <string name="snackbar_first_track">Первый трек в списке</string>
 

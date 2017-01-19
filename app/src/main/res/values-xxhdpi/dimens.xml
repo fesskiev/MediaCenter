@@ -79,4 +79,6 @@
 
     <dimen name="text_checkbox">11sp</dimen>
 
+    <dimen name="text_effect_name">14sp</dimen>
+
 </resources>

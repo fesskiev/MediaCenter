@@ -6,29 +6,46 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SwitchCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.data.model.effects.WhooshState;
 import com.fesskiev.mediacenter.services.PlaybackService;
+import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.widgets.effects.DialerView;
 import com.fesskiev.mediacenter.widgets.effects.EchoControlView;
+import com.fesskiev.mediacenter.widgets.effects.WhooshControlView;
 
 
 public class OtherEffectsFragment extends Fragment implements EchoControlView.OnEchoControlListener,
+        WhooshControlView.OnWhooshControlListener,
         DialerView.OnDialerViewListener {
 
     public static OtherEffectsFragment newInstance() {
         return new OtherEffectsFragment();
     }
 
+    private static final String WHOOSH_FREQUENCY = "Frequency";
+    private static final String WHOOSH_MIX = "Mix";
+
     private Context context;
+    private WhooshState whooshState;
+    private AppSettingsManager settingsManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = getContext().getApplicationContext();
+        settingsManager = AppSettingsManager.getInstance();
+
+        whooshState = settingsManager.getWhooshState();
+        if (whooshState == null) {
+            whooshState = new WhooshState();
+        }
+
     }
 
     @Override
@@ -48,6 +65,28 @@ public class OtherEffectsFragment extends Fragment implements EchoControlView.On
             PlaybackService.changeEchoEnable(context, checked);
 
         });
+        switchEchoState.setChecked(settingsManager.isEchoEnable());
+
+
+        SwitchCompat switchWhooshState = (SwitchCompat) view.findViewById(R.id.stateWhoosh);
+        switchWhooshState.setOnClickListener(v -> {
+            boolean checked = ((SwitchCompat) v).isChecked();
+
+            PlaybackService.changeWhooshEnable(context, checked);
+
+        });
+        switchWhooshState.setChecked(settingsManager.isWhooshEnable());
+
+
+        WhooshControlView[] whooshControlViews = new WhooshControlView[]{
+                (WhooshControlView) view.findViewById(R.id.whooshbMix),
+                (WhooshControlView) view.findViewById(R.id.whooshFreq)
+        };
+
+        for (WhooshControlView whooshControlView : whooshControlViews) {
+            whooshControlView.setOnDealerViewListener(this);
+            whooshControlView.setOnWhooshControlListener(this);
+        }
 
         EchoControlView echoControlView = (EchoControlView) view.findViewById(R.id.echoView);
         echoControlView.setOnDealerViewListener(this);
@@ -56,8 +95,35 @@ public class OtherEffectsFragment extends Fragment implements EchoControlView.On
     }
 
     @Override
-    public void onAttachDealerView(DialerView view) {
+    public void onDestroy() {
+        super.onDestroy();
+        settingsManager.setWhooshState(whooshState);
+    }
 
+    @Override
+    public void onAttachDealerView(DialerView view) {
+        if (view instanceof EchoControlView) {
+
+        } else if (view instanceof WhooshControlView) {
+
+        }
+    }
+
+    @Override
+    public void onWhooshControlChanged(String name, float level, float[] values) {
+        Log.d("whoosh", "whoosh name: " + name + " level: " + level);
+        switch (name) {
+            case WHOOSH_FREQUENCY:
+                whooshState.setFrequencyValues(values);
+                whooshState.setFrequency(level);
+                break;
+            case WHOOSH_MIX:
+                whooshState.setMixValues(values);
+                whooshState.setMix(level);
+                break;
+
+        }
+        PlaybackService.changeWhooshLevel(context, whooshState);
     }
 
     @Override

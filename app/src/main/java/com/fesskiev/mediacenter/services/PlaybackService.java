@@ -14,6 +14,7 @@ import android.util.Log;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.effects.EQState;
 import com.fesskiev.mediacenter.data.model.effects.ReverbState;
+import com.fesskiev.mediacenter.data.model.effects.WhooshState;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.AudioFocusManager;
 import com.fesskiev.mediacenter.utils.AudioNotificationHelper;
@@ -57,6 +58,10 @@ public class PlaybackService extends Service {
             "com.fesskiev.player.action.ACTION_PLAYBACK_ECHO_STATE";
     public static final String ACTION_PLAYBACK_ECHO_LEVEL =
             "com.fesskiev.player.action.ACTION_PLAYBACK_ECHO_LEVEL";
+    public static final String ACTION_PLAYBACK_WHOOSH_STATE =
+            "com.fesskiev.player.action.ACTION_PLAYBACK_WHOOSH_STATE";
+    public static final String ACTION_PLAYBACK_WHOOSH_LEVEL =
+            "com.fesskiev.player.action.ACTION_PLAYBACK_WHOOSH_LEVEL";
 
 
     public static final String PLAYBACK_EXTRA_MUSIC_FILE_PATH
@@ -83,6 +88,11 @@ public class PlaybackService extends Service {
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_ECHO_STATE";
     public static final String PLAYBACK_EXTRA_ECHO_LEVEL
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_ECHO_LEVEL";
+
+    public static final String PLAYBACK_EXTRA_WHOOSH_ENABLE
+            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_WHOOSH_STATE";
+    public static final String PLAYBACK_EXTRA_WHOOSH_LEVEL
+            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_WHOOSH_LEVEL";
 
 
     private AudioFocusManager audioFocusManager;
@@ -136,6 +146,20 @@ public class PlaybackService extends Service {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_REVERB_LEVEL);
         intent.putExtra(PLAYBACK_EXTRA_REVERB_LEVEL, state);
+        context.startService(intent);
+    }
+
+    public static void changeWhooshEnable(Context context, boolean enable) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_PLAYBACK_WHOOSH_STATE);
+        intent.putExtra(PLAYBACK_EXTRA_WHOOSH_ENABLE, enable);
+        context.startService(intent);
+    }
+
+    public static void changeWhooshLevel(Context context, WhooshState level) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_PLAYBACK_WHOOSH_LEVEL);
+        intent.putExtra(PLAYBACK_EXTRA_WHOOSH_LEVEL, level);
         context.startService(intent);
     }
 
@@ -334,6 +358,16 @@ public class PlaybackService extends Service {
                     case ACTION_PLAYBACK_ECHO_LEVEL:
                         int echoState = intent.getIntExtra(PLAYBACK_EXTRA_ECHO_LEVEL, -1);
                         setEchoValue(echoState);
+                        break;
+                    case ACTION_PLAYBACK_WHOOSH_STATE:
+                        boolean whooshEnable = intent.getBooleanExtra(PLAYBACK_EXTRA_WHOOSH_ENABLE, false);
+                        enableWhoosh(whooshEnable);
+                        break;
+                    case ACTION_PLAYBACK_WHOOSH_LEVEL:
+                        WhooshState whooshState = intent.getParcelableExtra(PLAYBACK_EXTRA_WHOOSH_LEVEL);
+                        if (whooshState != null) {
+                            setWhooshValue((int) whooshState.getMix(), (int) whooshState.getFrequency());
+                        }
                         break;
                     case ACTION_PLAYBACK_STATE:
                         sendPlaybackStateIfNeed();

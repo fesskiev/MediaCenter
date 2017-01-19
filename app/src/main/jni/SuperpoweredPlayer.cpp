@@ -144,6 +144,10 @@ bool SuperpoweredPlayer::process(short int *output, unsigned int numberOfSamples
             echo->process(buffer, buffer, numberOfSamples);
         }
 
+        if (whoosh->enabled) {
+            whoosh->process(buffer, buffer, numberOfSamples);
+        }
+
         SuperpoweredFloatToShortInt(buffer, output, numberOfSamples);
 
     }

@@ -155,15 +155,14 @@
 
     <string name="search_hint">Search Track</string>
 
+    <string name="effect_echo_name">Echo</string>
+    <string name="effect_whoosh_name">Whoosh</string>
+
     <string name="snackbar_last_track">Last track in list</string>
     <string name="snackbar_first_track">First track in list</string>
 
     <string name="shared_cover_name" translatable="false">cover</string>
     <string name="shared_search_back" translatable="false">search_back</string>
-
-    <string name="frequency_15">+15dB</string>
-    <string name="frequency_0">0dB</string>
-    <string name="frequency_minus_15">-15dB</string>
 
     <string name="vk_page">https://vk.com/fess_kiev</string>
     <string name="mail_address">fesskiev@gmail.com</string>

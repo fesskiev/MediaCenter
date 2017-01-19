@@ -28,7 +28,12 @@
   </declare-styleable>
 
   <declare-styleable name="ReverbControlView">
-    <attr name="name" format="string" />
+    <attr name="reverbName" format="string" />
   </declare-styleable>
+
+  <declare-styleable name="WhooshControlView">
+    <attr name="whooshName" format="string" />
+  </declare-styleable>
+
 
 </resources>

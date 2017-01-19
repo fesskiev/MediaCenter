@@ -12,14 +12,15 @@ import android.util.AttributeSet;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.utils.Utils;
 
-public class ReverbControlView extends DialerView {
+public class WhooshControlView extends DialerView {
 
-    public interface OnReverbControlListener {
+    public interface OnWhooshControlListener {
 
-        void onReverbControlChanged(String name, float level, float[] values);
+        void onWhooshControlChanged(String name, float level, float[] values);
     }
 
-    private OnReverbControlListener controlListener;
+
+    private OnWhooshControlListener listener;
     private Paint markPaint;
     private Paint rangePaint;
     private Paint namePaint;
@@ -32,26 +33,27 @@ public class ReverbControlView extends DialerView {
     private float rangeTextY;
     private float rangeTextX1;
 
-    public ReverbControlView(Context context) {
+    public WhooshControlView(Context context) {
         super(context);
         init(context, null, 0);
     }
 
-    public ReverbControlView(Context context, AttributeSet attrs) {
+    public WhooshControlView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs, 0);
     }
 
-    public ReverbControlView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        init(context, attrs, defStyle);
+    public WhooshControlView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init(context, attrs, defStyleAttr);
     }
 
     private void init(Context context, AttributeSet attrs, int defStyle) {
-        final TypedArray a = getContext().obtainStyledAttributes(
-                attrs, R.styleable.ReverbControlView, defStyle, 0);
 
-        name = a.getString(R.styleable.ReverbControlView_reverbName);
+        final TypedArray a = getContext().obtainStyledAttributes(
+                attrs, R.styleable.WhooshControlView, defStyle, 0);
+
+        name = a.getString(R.styleable.WhooshControlView_whooshName);
 
         a.recycle();
 
@@ -125,16 +127,15 @@ public class ReverbControlView extends DialerView {
 
     @Override
     public void rotateDialer(float currentAngle, float[] values) {
-
         float level = 100 - (currentAngle * (100f / 360));
 
-        if (controlListener != null) {
-            controlListener.onReverbControlChanged(name, level, values);
+        if (listener != null) {
+            listener.onWhooshControlChanged(name, level, values);
         }
     }
 
-    public void setControlListener(OnReverbControlListener l) {
-        this.controlListener = l;
+    public void setOnWhooshControlListener(OnWhooshControlListener l) {
+        this.listener = l;
     }
 
     public String getName() {

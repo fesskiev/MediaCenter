@@ -302,6 +302,13 @@
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
+    <style name="EffectNameTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/white_text</item>
+        <item name="android:textSize">@dimen/text_effect_name</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
 
 
 
