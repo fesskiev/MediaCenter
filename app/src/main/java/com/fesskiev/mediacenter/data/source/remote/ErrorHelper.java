@@ -3,6 +3,7 @@ package com.fesskiev.mediacenter.data.source.remote;
 
 import android.app.Activity;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.utils.NetworkHelper;
@@ -36,12 +37,16 @@ public class ErrorHelper {
     }
 
     public void createErrorSnackBar(Activity activity, Throwable throwable, OnErrorHandlerListener listener) {
-        int stringRes = -1;
+        int stringRes;
         if (throwable instanceof RetrofitException) {
             RetrofitException exception = (RetrofitException) throwable;
             switch (exception.getKind()) {
                 case HTTP:
                     stringRes = R.string.snackbar_server_error;
+                    int code = exception.getResponse().code();
+                    if (code == 401) {
+                        stringRes = R.string.snackbar_auth_error;
+                    }
                     break;
                 case NETWORK:
                     if (!NetworkHelper.isConnected(activity)) {
@@ -51,6 +56,9 @@ public class ErrorHelper {
                     }
                     break;
                 case UNEXPECTED:
+                    stringRes = R.string.snackbar_unexpected_error;
+                    break;
+                default:
                     stringRes = R.string.snackbar_unexpected_error;
                     break;
             }
@@ -86,7 +94,7 @@ public class ErrorHelper {
 
     private void createSnackBar(Activity activity, int stringRes) {
         Utils.showInternetErrorCustomSnackbar(activity.findViewById(R.id.bottom_navigation),
-                activity.getApplicationContext(), stringRes, Snackbar.LENGTH_INDEFINITE).show();
+                activity.getApplicationContext(), stringRes, Snackbar.LENGTH_LONG).show();
     }
 
 }

@@ -132,6 +132,7 @@
     <string name="snackbar_internet_disable_error">Отсутствует интернет соединение</string>
     <string name="snackbar_internet_connection_error">Ошибка соединения</string>
     <string name="snackbar_server_error">Ошибка соединения с сервером</string>
+    <string name="snackbar_auth_error">Ошибка авторизации</string>
     <string name="snackbar_error_try_again">Повтор</string>
 
     <string name="auth_text_login">Телефон или e-mail</string>

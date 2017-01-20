@@ -135,6 +135,7 @@
     <string name="snackbar_internet_disable_error">No internet connection</string>
     <string name="snackbar_internet_connection_error">Connection error</string>
     <string name="snackbar_server_error">Server connecting error</string>
+    <string name="snackbar_auth_error">Auth error</string>
     <string name="snackbar_error_try_again">Repeat</string>
 
     <string name="auth_text_login">Phone or e-mail</string>
