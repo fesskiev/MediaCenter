@@ -18,8 +18,6 @@ import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.widgets.effects.DialerView;
 import com.fesskiev.mediacenter.widgets.effects.ReverbControlView;
 
-import org.greenrobot.eventbus.EventBus;
-
 
 public class ReverbFragment extends Fragment implements DialerView.OnDialerViewListener,
         ReverbControlView.OnReverbControlListener {
@@ -64,7 +62,6 @@ public class ReverbFragment extends Fragment implements DialerView.OnDialerViewL
             boolean checked = ((SwitchCompat) v).isChecked();
 
             PlaybackService.changeReverbEnable(context, checked);
-            EventBus.getDefault().post(state);
 
         });
         switchEQState.setChecked(settingsManager.isReverbEnable());

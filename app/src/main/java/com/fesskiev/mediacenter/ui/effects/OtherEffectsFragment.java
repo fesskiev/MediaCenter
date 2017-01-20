@@ -33,9 +33,9 @@ public class OtherEffectsFragment extends Fragment implements EchoControlView.On
     private static final String WHOOSH_MIX = "Mix";
 
     private Context context;
+    private AppSettingsManager settingsManager;
     private WhooshState whooshState;
     private EchoState echoState;
-    private AppSettingsManager settingsManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

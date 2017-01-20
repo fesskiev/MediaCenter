@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.widgets.effects.WhooshControlView;
 import com.fesskiev.mediacenter.widgets.recycleview.ScrollingLinearLayoutManager;
 
 
@@ -23,6 +24,10 @@ public class MediaNavigationView extends NavigationView {
         void onEQStateChanged(boolean enable);
 
         void onReverbStateChanged(boolean enable);
+
+        void onWhooshStateChanged(boolean enable);
+
+        void onEchoStateChanged(boolean enable);
     }
 
     private OnEffectChangedListener listener;
@@ -30,6 +35,8 @@ public class MediaNavigationView extends NavigationView {
     private EffectsAdapter adapter;
     private boolean enableEQ;
     private boolean enableReverb;
+    private boolean enableWhoosh;
+    private boolean enableEcho;
 
     public MediaNavigationView(Context context) {
         super(context);
@@ -72,6 +79,41 @@ public class MediaNavigationView extends NavigationView {
 
         private static final int VIEW_TYPE_EQ = 0;
         private static final int VIEW_TYPE_REVERB = 1;
+        private static final int VIEW_TYPE_ECHO = 2;
+        private static final int VIEW_TYPE_WHOOSH = 3;
+
+        public class EchoViewHolder extends RecyclerView.ViewHolder {
+
+            SwitchCompat echoStateSwitch;
+
+            public EchoViewHolder(View v) {
+                super(v);
+                echoStateSwitch = (SwitchCompat) v.findViewById(R.id.echoSwitch);
+                echoStateSwitch.setOnClickListener(view -> {
+                    boolean checked = ((SwitchCompat) view).isChecked();
+                    if (listener != null) {
+                        listener.onEchoStateChanged(checked);
+                    }
+                });
+            }
+        }
+
+
+        public class WhooshViewHolder extends RecyclerView.ViewHolder {
+
+            SwitchCompat whooshStateSwitch;
+
+            public WhooshViewHolder(View v) {
+                super(v);
+                whooshStateSwitch = (SwitchCompat) v.findViewById(R.id.whooshSwitch);
+                whooshStateSwitch.setOnClickListener(view -> {
+                    boolean checked = ((SwitchCompat) view).isChecked();
+                    if (listener != null) {
+                        listener.onWhooshStateChanged(checked);
+                    }
+                });
+            }
+        }
 
         public class EQViewHolder extends RecyclerView.ViewHolder {
 
@@ -117,6 +159,14 @@ public class MediaNavigationView extends NavigationView {
                     v = LayoutInflater.from(parent.getContext())
                             .inflate(R.layout.nav_drawer_reverb_layout, parent, false);
                     return new ReverbViewHolder(v);
+                case VIEW_TYPE_ECHO:
+                    v = LayoutInflater.from(parent.getContext())
+                            .inflate(R.layout.nav_drawer_echo_layout, parent, false);
+                    return new EchoViewHolder(v);
+                case VIEW_TYPE_WHOOSH:
+                    v = LayoutInflater.from(parent.getContext())
+                            .inflate(R.layout.nav_drawer_whoosh_layout, parent, false);
+                    return new WhooshViewHolder(v);
             }
             return null;
         }
@@ -130,20 +180,38 @@ public class MediaNavigationView extends NavigationView {
                 case VIEW_TYPE_REVERB:
                     createReverbItem((ReverbViewHolder) holder);
                     break;
+                case VIEW_TYPE_ECHO:
+                    createEchoItem((EchoViewHolder) holder);
+                    break;
+                case VIEW_TYPE_WHOOSH:
+                    createWhooshItem((WhooshViewHolder) holder);
+                    break;
             }
         }
 
         @Override
         public int getItemViewType(int position) {
-            if (position == 0) {
-                return VIEW_TYPE_EQ;
+            switch (position) {
+                case 0:
+                    return VIEW_TYPE_EQ;
+                case 1:
+                    return VIEW_TYPE_REVERB;
+                case 2:
+                    return VIEW_TYPE_ECHO;
+                case 3:
+                    return VIEW_TYPE_WHOOSH;
+
             }
-            return VIEW_TYPE_REVERB;
+            return -1;
         }
 
         @Override
         public int getItemCount() {
-            return 2;
+            return 4;
+        }
+
+        private void createEchoItem(EchoViewHolder holder) {
+            holder.echoStateSwitch.setChecked(enableEcho);
         }
 
         private void createEqItem(EQViewHolder holder) {
@@ -154,7 +222,12 @@ public class MediaNavigationView extends NavigationView {
             holder.reverbStateSwitch.setChecked(enableReverb);
         }
 
+        private void createWhooshItem(EffectsAdapter.WhooshViewHolder holder) {
+            holder.whooshStateSwitch.setChecked(enableWhoosh);
+        }
+
     }
+
 
     public void setOnEffectChangedListener(OnEffectChangedListener l) {
         this.listener = l;
@@ -169,4 +242,15 @@ public class MediaNavigationView extends NavigationView {
         this.enableReverb = enable;
         adapter.notifyDataSetChanged();
     }
+
+    public void setWhooshEnable(boolean enable) {
+        this.enableWhoosh = enable;
+        adapter.notifyDataSetChanged();
+    }
+
+    public void setEchoEnable(boolean enable) {
+        this.enableEcho = enable;
+        adapter.notifyDataSetChanged();
+    }
+
 }

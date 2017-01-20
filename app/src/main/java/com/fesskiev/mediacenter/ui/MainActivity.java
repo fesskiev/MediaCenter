@@ -16,7 +16,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,8 +38,8 @@ import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CountDownTimer;
 import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
 import com.fesskiev.mediacenter.utils.Utils;
-import com.fesskiev.mediacenter.vk.VKAuthActivity;
 import com.fesskiev.mediacenter.vk.VKActivity;
+import com.fesskiev.mediacenter.vk.VKAuthActivity;
 import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
 
 
@@ -208,6 +207,16 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             public void onReverbStateChanged(boolean enable) {
                 PlaybackService.changeReverbEnable(getApplicationContext(), enable);
             }
+
+            @Override
+            public void onWhooshStateChanged(boolean enable) {
+                PlaybackService.changeWhooshEnable(getApplicationContext(), enable);
+            }
+
+            @Override
+            public void onEchoStateChanged(boolean enable) {
+                PlaybackService.changeEchoEnable(getApplicationContext(), enable);
+            }
         });
 
         mediaNavigationView.setNavigationItemSelectedListener(this);
@@ -319,6 +328,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         super.onDestroy();
         settingsManager.setEQEnable(false);
         settingsManager.setReverbEnable(false);
+        settingsManager.setWhooshEnable(false);
+        settingsManager.setEchoEnable(false);
 
         fetchMediaFilesManager.unregister();
         PlaybackService.destroyPlayer(getApplicationContext());

@@ -16,8 +16,6 @@ import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.widgets.effects.DialerView;
 import com.fesskiev.mediacenter.widgets.effects.EQBandControlView;
 
-import org.greenrobot.eventbus.EventBus;
-
 
 public class EqualizerFragment extends Fragment implements EQBandControlView.OnBandLevelListener,
         DialerView.OnDialerViewListener {
@@ -57,7 +55,6 @@ public class EqualizerFragment extends Fragment implements EQBandControlView.OnB
             boolean checked = ((SwitchCompat) v).isChecked();
 
             PlaybackService.changeEQEnable(context, checked);
-            EventBus.getDefault().post(state);
 
         });
         switchEQState.setChecked(settingsManager.isEQEnable());

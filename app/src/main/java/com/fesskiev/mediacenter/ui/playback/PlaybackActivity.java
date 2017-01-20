@@ -69,6 +69,8 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     private int lastPositionSeconds;
     private boolean lastEnableEQ;
     private boolean lastEnableReverb;
+    private boolean lastEnableWhoosh;
+    private boolean lastEnableEcho;
 
     @Override
     public void onPostCreate(Bundle savedInstanceState) {
@@ -236,20 +238,31 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         boolean enableEq = playbackState.isEnableEQ();
         if (lastEnableEQ != enableEq) {
             lastEnableEQ = enableEq;
-            AppSettingsManager.getInstance().setEQEnable(enableEq);
+            AppSettingsManager.getInstance().setEQEnable(lastEnableEQ);
             getMediaNavigationView().setEQEnable(lastEnableEQ);
-
-            Log.d("eqtest", "EQ STATE CHANGE: " + lastEnableEQ);
         }
 
         boolean enableReverb = playbackState.isEnableReverb();
         if (lastEnableReverb != enableReverb) {
             lastEnableReverb = enableReverb;
-            AppSettingsManager.getInstance().setReverbEnable(enableReverb);
+            AppSettingsManager.getInstance().setReverbEnable(lastEnableReverb);
             getMediaNavigationView().setReverbEnable(lastEnableReverb);
-
-            Log.d("eqtest", "Reverb STATE CHANGE: " + lastEnableReverb);
         }
+
+        boolean enableWhoosh = playbackState.isEnableWhoosh();
+        if (lastEnableWhoosh != enableWhoosh) {
+            lastEnableWhoosh = enableWhoosh;
+            AppSettingsManager.getInstance().setWhooshEnable(lastEnableWhoosh);
+            getMediaNavigationView().setWhooshEnable(lastEnableWhoosh);
+        }
+
+        boolean enableEcho = playbackState.isEnableEcho();
+        if (lastEnableEcho != enableEcho) {
+            lastEnableEcho = enableEcho;
+            AppSettingsManager.getInstance().setEchoEnable(lastEnableEcho);
+            getMediaNavigationView().setEchoEnable(lastEnableEcho);
+        }
+
     }
 
 

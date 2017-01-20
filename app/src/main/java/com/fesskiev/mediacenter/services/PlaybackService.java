@@ -454,9 +454,30 @@ public class PlaybackService extends Service {
         Log.d(TAG, "create audio player!");
         createAudioPlayer(Integer.valueOf(sampleRateString), Integer.valueOf(bufferSizeString));
 
+        setEffects();
+    }
+
+    private void setEffects() {
         createEQStateIfNeed();
         createReverbStateIfNeed();
+        createEchoIfNeed();
+        createWhooshIfNeed();
+    }
 
+    private void createEchoIfNeed() {
+        EchoState echoState = AppSettingsManager.getInstance().getEchoState();
+        if (echoState != null) {
+            Log.wtf(TAG, "create Echo state");
+            setEchoValue((int) echoState.getLevel());
+        }
+    }
+
+    private void createWhooshIfNeed() {
+        WhooshState whooshState = AppSettingsManager.getInstance().getWhooshState();
+        if(whooshState != null){
+            Log.wtf(TAG, "create Whoosh state");
+            setWhooshValue((int) whooshState.getMix(), (int) whooshState.getFrequency());
+        }
     }
 
     private void createReverbStateIfNeed() {
@@ -627,6 +648,14 @@ public class PlaybackService extends Service {
 
     public boolean isEnableReverb() {
         return enableReverb;
+    }
+
+    public boolean isEnableWhoosh() {
+        return enableWhoosh;
+    }
+
+    public boolean isEnableEcho() {
+        return enableEcho;
     }
 
     @Override
