@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.data.model.effects.EchoState;
 import com.fesskiev.mediacenter.data.model.effects.WhooshState;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
@@ -33,6 +34,7 @@ public class OtherEffectsFragment extends Fragment implements EchoControlView.On
 
     private Context context;
     private WhooshState whooshState;
+    private EchoState echoState;
     private AppSettingsManager settingsManager;
 
     @Override
@@ -44,6 +46,11 @@ public class OtherEffectsFragment extends Fragment implements EchoControlView.On
         whooshState = settingsManager.getWhooshState();
         if (whooshState == null) {
             whooshState = new WhooshState();
+        }
+
+        echoState = settingsManager.getEchoState();
+        if (echoState == null) {
+            echoState = new EchoState();
         }
 
     }
@@ -98,15 +105,33 @@ public class OtherEffectsFragment extends Fragment implements EchoControlView.On
     public void onDestroy() {
         super.onDestroy();
         settingsManager.setWhooshState(whooshState);
+        settingsManager.setEchoState(echoState);
     }
 
     @Override
     public void onAttachDealerView(DialerView view) {
         if (view instanceof EchoControlView) {
-
+            setEchoLevel((EchoControlView) view);
         } else if (view instanceof WhooshControlView) {
+            setWhooshLevel((WhooshControlView) view);
+        }
+    }
+
+    private void setWhooshLevel(WhooshControlView view) {
+        String name = view.getName();
+        switch (name) {
+            case WHOOSH_FREQUENCY:
+                view.setLevel(whooshState.getFrequencyValues());
+                break;
+            case WHOOSH_MIX:
+                view.setLevel(whooshState.getMixValues());
+                break;
 
         }
+    }
+
+    private void setEchoLevel(EchoControlView view) {
+        view.setLevel(echoState.getLevelValues());
     }
 
     @Override
@@ -129,6 +154,9 @@ public class OtherEffectsFragment extends Fragment implements EchoControlView.On
     @Override
     public void onEchoControlChanged(float level, float[] values) {
 
-        PlaybackService.changeEchoLevel(context, (int) level);
+        echoState.setLevel(level);
+        echoState.setLevelValues(values);
+
+        PlaybackService.changeEchoLevel(context, echoState);
     }
 }

@@ -7,6 +7,7 @@ import android.text.TextUtils;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.effects.EQState;
+import com.fesskiev.mediacenter.data.model.effects.EchoState;
 import com.fesskiev.mediacenter.data.model.effects.ReverbState;
 import com.fesskiev.mediacenter.data.model.effects.WhooshState;
 import com.google.gson.Gson;
@@ -120,7 +121,6 @@ public class AppSettingsManager {
     }
 
 
-
     public boolean isReverbEnable() {
         return sharedPreferences.getBoolean(KEY_REVERB_ENABLE, false);
     }
@@ -131,18 +131,16 @@ public class AppSettingsManager {
         editor.apply();
     }
 
-    public void setReverbState(ReverbState state){
+    public void setReverbState(ReverbState state) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(KEY_REVERB_STATE, new Gson().toJson(state));
         editor.apply();
     }
 
-    public ReverbState getReverbState(){
+    public ReverbState getReverbState() {
         String stateJson = sharedPreferences.getString(KEY_REVERB_STATE, "");
         return new Gson().fromJson(stateJson, ReverbState.class);
     }
-
-
 
 
     public boolean isEQEnable() {
@@ -155,27 +153,25 @@ public class AppSettingsManager {
         editor.apply();
     }
 
-    public void setEQState(EQState state){
+    public void setEQState(EQState state) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(KEY_EQ_STATE, new Gson().toJson(state));
         editor.apply();
     }
 
-    public EQState getEQState(){
+    public EQState getEQState() {
         String stateJson = sharedPreferences.getString(KEY_EQ_STATE, "");
         return new Gson().fromJson(stateJson, EQState.class);
     }
 
 
-
-
-    public void setWhooshState(WhooshState state){
+    public void setWhooshState(WhooshState state) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(KEY_WHOOSH_STATE, new Gson().toJson(state));
         editor.apply();
     }
 
-    public WhooshState getWhooshState(){
+    public WhooshState getWhooshState() {
         String stateJson = sharedPreferences.getString(KEY_WHOOSH_STATE, "");
         return new Gson().fromJson(stateJson, WhooshState.class);
     }
@@ -191,15 +187,15 @@ public class AppSettingsManager {
     }
 
 
-
-    public void setEchoState(float level){
+    public void setEchoState(EchoState state) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putFloat(KEY_ECHO_STATE, level);
+        editor.putString(KEY_ECHO_STATE, new Gson().toJson(state));
         editor.apply();
     }
 
-    public float getEchoState(){
-        return sharedPreferences.getFloat(KEY_ECHO_STATE, 0f);
+    public EchoState getEchoState() {
+        String stateJson = sharedPreferences.getString(KEY_ECHO_STATE, "");
+        return new Gson().fromJson(stateJson, EchoState.class);
     }
 
     public boolean isEchoEnable() {

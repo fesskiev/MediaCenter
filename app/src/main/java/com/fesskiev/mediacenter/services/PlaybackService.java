@@ -13,6 +13,7 @@ import android.util.Log;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.effects.EQState;
+import com.fesskiev.mediacenter.data.model.effects.EchoState;
 import com.fesskiev.mediacenter.data.model.effects.ReverbState;
 import com.fesskiev.mediacenter.data.model.effects.WhooshState;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
@@ -163,17 +164,17 @@ public class PlaybackService extends Service {
         context.startService(intent);
     }
 
+    public static void changeEchoLevel(Context context, EchoState level) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_PLAYBACK_ECHO_LEVEL);
+        intent.putExtra(PLAYBACK_EXTRA_ECHO_LEVEL, level);
+        context.startService(intent);
+    }
+
     public static void changeEchoEnable(Context context, boolean enable) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_ECHO_STATE);
         intent.putExtra(PLAYBACK_EXTRA_ECHO_ENABLE, enable);
-        context.startService(intent);
-    }
-
-    public static void changeEchoLevel(Context context, int level) {
-        Intent intent = new Intent(context, PlaybackService.class);
-        intent.setAction(ACTION_PLAYBACK_ECHO_LEVEL);
-        intent.putExtra(PLAYBACK_EXTRA_ECHO_LEVEL, level);
         context.startService(intent);
     }
 
@@ -356,8 +357,10 @@ public class PlaybackService extends Service {
                         EventBus.getDefault().post(PlaybackService.this);
                         break;
                     case ACTION_PLAYBACK_ECHO_LEVEL:
-                        int echoState = intent.getIntExtra(PLAYBACK_EXTRA_ECHO_LEVEL, -1);
-                        setEchoValue(echoState);
+                        EchoState echoState = intent.getParcelableExtra(PLAYBACK_EXTRA_ECHO_LEVEL);
+                        if (echoState != null) {
+                            setEchoValue((int) echoState.getLevel());
+                        }
                         break;
                     case ACTION_PLAYBACK_WHOOSH_STATE:
                         boolean whooshEnable = intent.getBooleanExtra(PLAYBACK_EXTRA_WHOOSH_ENABLE, false);
