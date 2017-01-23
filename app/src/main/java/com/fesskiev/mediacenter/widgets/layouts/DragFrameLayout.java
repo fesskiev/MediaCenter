@@ -13,6 +13,7 @@ import com.fesskiev.mediacenter.R;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class DragFrameLayout extends FrameLayout {
 
     private static final String TAG = DragFrameLayout.class.getSimpleName();

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.fesskiev.mediacenter.widgets.layouts.DragFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/dragLayout"
@@ -14,29 +14,22 @@
         android:layout_height="match_parent"
         android:fillViewport="true">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <LinearLayout
+            <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+                android:id="@+id/videoView"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1">
-
-                <com.google.android.exoplayer2.ui.SimpleExoPlayerView
-                    android:id="@+id/videoView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    app:resize_mode="fill"/>
-
-            </LinearLayout>
+                android:layout_height="wrap_content"
+                app:resize_mode="fixed_width" />
 
             <LinearLayout
                 android:id="@+id/controlContainer"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1">
+                android:layout_height="match_parent"
+                android:layout_below="@+id/videoView">
 
                 <android.support.v7.widget.CardView
                     android:layout_width="match_parent"
@@ -96,9 +89,9 @@
 
             </LinearLayout>
 
-        </LinearLayout>
+        </RelativeLayout>
 
     </android.support.v4.widget.NestedScrollView>
 
-</com.fesskiev.mediacenter.widgets.layouts.DragFrameLayout>
+</FrameLayout>
 
