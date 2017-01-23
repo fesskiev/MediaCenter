@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">MediaCenter</string>
 
     <string name="permission_read_external_storage">Read external stotage are needed to access</string>
@@ -176,5 +176,13 @@
 
     <string name="vk_ipad_official_id">3682744</string>
     <string name="vk_ipad_official_secret">mY6CDUswIVdJLCD3j15n</string>
+
+    <string name="error_no_decoder">This device does not provide a decoder for <xliff:g id="mime_type">%1$s</xliff:g></string>
+
+    <string name="error_no_secure_decoder">This device does not provide a secure decoder for <xliff:g id="mime_type">%1$s</xliff:g></string>
+
+    <string name="error_querying_decoders">Unable to query device decoders</string>
+
+    <string name="error_instantiating_decoder">Unable to instantiate decoder <xliff:g id="decoder_name">%1$s</xliff:g></string>
 
 </resources>

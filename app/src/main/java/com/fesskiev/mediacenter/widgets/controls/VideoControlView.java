@@ -2,18 +2,20 @@ package com.fesskiev.mediacenter.widgets.controls;
 
 
 import android.content.Context;
+import android.graphics.drawable.Animatable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.widgets.buttons.PlayPauseButton;
 
-public class VideoControlView extends FrameLayout implements View.OnClickListener {
+public class VideoControlView extends FrameLayout {
 
 
     public interface OnVideoPlayerControlListener {
@@ -56,13 +58,27 @@ public class VideoControlView extends FrameLayout implements View.OnClickListene
 
         videoTimeCount = (TextView) findViewById(R.id.videoTimeCount);
         videoTimeTotal = (TextView) findViewById(R.id.videoTimeTotal);
-        findViewById(R.id.nextVideo).setOnClickListener(this);
-        findViewById(R.id.previousVideo).setOnClickListener(this);
+
+        ImageView nextVideo = (ImageView) findViewById(R.id.nextVideo);
+        nextVideo.setOnClickListener(v -> {
+            ((Animatable) nextVideo.getDrawable()).start();
+            if (listener != null) {
+                listener.nextVideo();
+            }
+        });
+
+        ImageView previousVideo = (ImageView) findViewById(R.id.previousVideo);
+        previousVideo.setOnClickListener(v -> {
+            ((Animatable) previousVideo.getDrawable()).start();
+            if (listener != null) {
+                listener.previousVideo();
+            }
+        });
         playPauseButton = (PlayPauseButton) view.findViewById(R.id.playPauseButton);
         playPauseButton.setColor(ContextCompat.getColor(context, R.color.primary));
         playPauseButton.setOnClickListener(v -> {
-            playPauseButton.setPlay(isPlaying);
             isPlaying = !isPlaying;
+            playPauseButton.setPlay(isPlaying);
             if (listener != null) {
                 listener.playPauseButtonClick(isPlaying);
             }
@@ -95,22 +111,6 @@ public class VideoControlView extends FrameLayout implements View.OnClickListene
 
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.nextVideo:
-                if (listener != null) {
-                    listener.nextVideo();
-                }
-                break;
-            case R.id.previousVideo:
-                if (listener != null) {
-                    listener.previousVideo();
-                }
-                break;
-        }
-    }
-
     public void setOnVideoPlayerControlListener(OnVideoPlayerControlListener l) {
         this.listener = l;
     }
@@ -127,6 +127,10 @@ public class VideoControlView extends FrameLayout implements View.OnClickListene
         seekVideo.setProgress(progress);
     }
 
+    public void setPlay(boolean play) {
+        this.isPlaying = play;
+        playPauseButton.setPlay(play);
+    }
 
     public void resetIndicators() {
         videoTimeTotal.setText("0:00");

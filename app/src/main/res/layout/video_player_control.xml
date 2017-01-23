@@ -11,14 +11,12 @@
 
         <ImageView
             android:id="@+id/previousVideo"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
-            android:layout_gravity="center_vertical|start"
-            android:layout_marginStart="15dp"
-            android:clickable="true"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_vertical"
             android:contentDescription="@string/app_name"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:src="@drawable/previous_track_icon" />
+            android:scaleType="fitCenter"
+            android:src="@drawable/avd_music_previous" />
 
         <com.fesskiev.mediacenter.widgets.buttons.PlayPauseButton
             android:id="@+id/playPauseButton"
@@ -28,15 +26,12 @@
 
         <ImageView
             android:id="@+id/nextVideo"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_gravity="center_vertical|end"
-            android:layout_marginEnd="15dp"
-            android:clickable="true"
             android:contentDescription="@string/app_name"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:src="@drawable/next_track_icon" />
-
+            android:scaleType="fitCenter"
+            android:src="@drawable/avd_music_next" />
 
     </FrameLayout>
 

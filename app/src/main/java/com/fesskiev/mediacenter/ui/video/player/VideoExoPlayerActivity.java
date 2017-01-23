@@ -4,12 +4,15 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.controls.VideoControlView;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -25,6 +28,8 @@ import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer2.drm.UnsupportedDrmException;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
+import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -46,6 +51,8 @@ import com.google.android.exoplayer2.util.Util;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlayer.EventListener {
@@ -66,19 +73,27 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     public static final String URI_LIST_EXTRA = "uri_list";
     public static final String EXTENSION_LIST_EXTRA = "extension_list";
 
+    private VideoControlView videoControlView;
     private DataSource.Factory mediaDataSourceFactory;
     private EventLogger eventLogger;
     private Timeline.Window window;
     private SimpleExoPlayerView simpleExoPlayerView;
     private SimpleExoPlayer player;
     private DefaultTrackSelector trackSelector;
-    private Handler mainHandler;
+    private Timer timer;
 
     private boolean playerNeedsSource;
     private boolean shouldAutoPlay;
     private boolean isTimelineStatic;
     private int playerWindow;
     private long playerPosition;
+    private long durationScale;
+
+    private Handler handler = new Handler() {
+        public void handleMessage(Message msg) {
+            updateProgressControls();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,21 +102,20 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
 
         shouldAutoPlay = true;
 
-        mainHandler = new Handler();
         window = new Timeline.Window();
 
         mediaDataSourceFactory = buildDataSourceFactory(true);
 
-        VideoControlView videoControlView = (VideoControlView) findViewById(R.id.videoPlayerControl);
+        videoControlView = (VideoControlView) findViewById(R.id.videoPlayerControl);
         videoControlView.setOnVideoPlayerControlListener(new VideoControlView.OnVideoPlayerControlListener() {
             @Override
             public void playPauseButtonClick(boolean isPlaying) {
-
+                player.setPlayWhenReady(isPlaying);
             }
 
             @Override
             public void seekVideo(int progress) {
-
+                player.seekTo(progress * durationScale);
             }
 
             @Override
@@ -115,7 +129,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
             }
         });
 
-        videoControlView.resetIndicators();
+        videoControlView.setPlay(shouldAutoPlay);
 
         simpleExoPlayerView = (SimpleExoPlayerView) findViewById(R.id.videoView);
         simpleExoPlayerView.setUseController(false);
@@ -154,6 +168,11 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopUpdateTimer();
+    }
 
     @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
@@ -172,12 +191,58 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-
+        switch (playbackState) {
+            case ExoPlayer.STATE_BUFFERING:
+                Log.wtf(TAG, "buffering");
+                break;
+            case ExoPlayer.STATE_ENDED:
+                Log.wtf(TAG, "ended");
+                break;
+            case ExoPlayer.STATE_IDLE:
+                Log.wtf(TAG, "idle");
+                break;
+            case ExoPlayer.STATE_READY:
+                Log.wtf(TAG, "ready");
+                videoControlView.setVideoTimeTotal(Utils.getTimeFromMillisecondsString(player.getDuration()));
+                updateProgressControls();
+                startUpdateTimer();
+                break;
+        }
     }
 
     @Override
-    public void onPlayerError(ExoPlaybackException error) {
-        Log.e("error", "error: " + error.toString());
+    public void onPlayerError(ExoPlaybackException e) {
+        String errorString = null;
+        if (e.type == ExoPlaybackException.TYPE_RENDERER) {
+            Exception cause = e.getRendererException();
+            if (cause instanceof MediaCodecRenderer.DecoderInitializationException) {
+                MediaCodecRenderer.DecoderInitializationException decoderInitializationException =
+                        (MediaCodecRenderer.DecoderInitializationException) cause;
+                if (decoderInitializationException.decoderName == null) {
+                    if (decoderInitializationException.getCause() instanceof MediaCodecUtil.DecoderQueryException) {
+                        errorString = getString(R.string.error_querying_decoders);
+                    } else if (decoderInitializationException.secureDecoderRequired) {
+                        errorString = getString(R.string.error_no_secure_decoder,
+                                decoderInitializationException.mimeType);
+                    } else {
+                        errorString = getString(R.string.error_no_decoder,
+                                decoderInitializationException.mimeType);
+                    }
+                } else {
+                    errorString = getString(R.string.error_instantiating_decoder,
+                            decoderInitializationException.decoderName);
+                }
+            }
+        }
+        if (errorString != null) {
+            showErrorShackBar(errorString);
+        }
+        playerNeedsSource = true;
+    }
+
+    private void showErrorShackBar(String errorString) {
+        Utils.showCustomSnackbar(getCurrentFocus(), getApplicationContext(),
+                errorString, Snackbar.LENGTH_LONG).show();
     }
 
     @Override
@@ -298,15 +363,15 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         switch (type) {
             case C.TYPE_SS:
                 return new SsMediaSource(uri, buildDataSourceFactory(false),
-                        new DefaultSsChunkSource.Factory(mediaDataSourceFactory), mainHandler, eventLogger);
+                        new DefaultSsChunkSource.Factory(mediaDataSourceFactory), handler, eventLogger);
             case C.TYPE_DASH:
                 return new DashMediaSource(uri, buildDataSourceFactory(false),
-                        new DefaultDashChunkSource.Factory(mediaDataSourceFactory), mainHandler, eventLogger);
+                        new DefaultDashChunkSource.Factory(mediaDataSourceFactory), handler, eventLogger);
             case C.TYPE_HLS:
-                return new HlsMediaSource(uri, mediaDataSourceFactory, mainHandler, eventLogger);
+                return new HlsMediaSource(uri, mediaDataSourceFactory, handler, eventLogger);
             case C.TYPE_OTHER:
                 return new ExtractorMediaSource(uri, mediaDataSourceFactory, new DefaultExtractorsFactory(),
-                        mainHandler, eventLogger);
+                        handler, eventLogger);
             default: {
                 throw new IllegalStateException("Unsupported type: " + type);
             }
@@ -327,7 +392,33 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         HttpMediaDrmCallback drmCallback = new HttpMediaDrmCallback(licenseUrl,
                 buildHttpDataSourceFactory(false), keyRequestProperties);
         return new StreamingDrmSessionManager<>(uuid,
-                FrameworkMediaDrm.newInstance(uuid), drmCallback, null, mainHandler, eventLogger);
+                FrameworkMediaDrm.newInstance(uuid), drmCallback, null, handler, eventLogger);
     }
+
+    private void updateProgressControls() {
+        if (player != null) {
+            videoControlView.setVideoTimeCount(Utils.getTimeFromMillisecondsString(player.getCurrentPosition()));
+            playerPosition = player.getCurrentPosition();
+            durationScale = player.getDuration() / 100;
+            if (durationScale != 0) {
+                videoControlView.setProgress((int) (playerPosition / durationScale));
+            }
+        }
+    }
+
+    private void startUpdateTimer() {
+        timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                handler.obtainMessage(1).sendToTarget();
+            }
+        }, 0, 1000);
+    }
+
+    private void stopUpdateTimer() {
+        timer.cancel();
+    }
+
 
 }
