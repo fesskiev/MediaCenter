@@ -152,9 +152,4 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
 
         };
     }
-
-    @Override
-    public OnInstantiateItemListener setOnInstantiateItemListener() {
-        return null;
-    }
 }

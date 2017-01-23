@@ -1,6 +1,7 @@
 package com.fesskiev.mediacenter.ui.video.player;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,6 +10,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
@@ -43,6 +45,7 @@ import com.google.android.exoplayer2.trackselection.AdaptiveVideoTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
@@ -100,11 +103,20 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_exo_player);
 
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_IMMERSIVE);
+
         shouldAutoPlay = true;
 
         window = new Timeline.Window();
 
         mediaDataSourceFactory = buildDataSourceFactory(true);
+
+        findViewById(R.id.fullScreenVideoButton).setOnClickListener(v -> changeOrientation());
 
         videoControlView = (VideoControlView) findViewById(R.id.videoPlayerControl);
         videoControlView.setOnVideoPlayerControlListener(new VideoControlView.OnVideoPlayerControlListener() {
@@ -134,6 +146,30 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         simpleExoPlayerView = (SimpleExoPlayerView) findViewById(R.id.videoView);
         simpleExoPlayerView.setUseController(false);
         simpleExoPlayerView.requestFocus();
+    }
+
+    private void changeOrientation() {
+        int orientation = Utils.getScreenOrientation(this);
+        switch (orientation) {
+            case ActivityInfo.SCREEN_ORIENTATION_PORTRAIT:
+                simpleExoPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT);
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                break;
+            case ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:
+                simpleExoPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT);
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                break;
+            case ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE:
+                simpleExoPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH);
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
+                break;
+            case ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT:
+                simpleExoPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT);
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+                break;
+
+        }
+
     }
 
     @Override

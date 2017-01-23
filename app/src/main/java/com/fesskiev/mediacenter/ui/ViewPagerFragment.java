@@ -25,13 +25,6 @@ import java.util.List;
 public abstract class ViewPagerFragment extends Fragment {
 
 
-    public static final int LAST_ITEM_INSTANTIATE = 2;
-
-    public interface OnInstantiateItemListener {
-
-        void instantiateItem(int position);
-    }
-
     public abstract String[] getTitles();
 
     public abstract int[] getImagesIds();
@@ -40,9 +33,6 @@ public abstract class ViewPagerFragment extends Fragment {
 
     public abstract Fragment[] getPagerFragments();
 
-    public abstract OnInstantiateItemListener setOnInstantiateItemListener();
-
-    private OnInstantiateItemListener listener;
     private TabLayout tabLayout;
     protected ViewPagerAdapter adapter;
     protected ViewPager viewPager;
@@ -103,8 +93,6 @@ public abstract class ViewPagerFragment extends Fragment {
         tabLayout = (TabLayout) view.findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
 
-        listener = setOnInstantiateItemListener();
-
         createTabs();
 
     }
@@ -164,9 +152,6 @@ public abstract class ViewPagerFragment extends Fragment {
             Fragment fragment = (Fragment) super.instantiateItem(container, position);
             registeredFragments.add(fragment);
 
-            if (listener != null) {
-                listener.instantiateItem(position);
-            }
             return fragment;
         }
 

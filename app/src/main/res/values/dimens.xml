@@ -26,7 +26,7 @@
 
     <dimen name="card_insets">4dp</dimen>
 
-    <dimen name="card_min_height">140dp</dimen>
+    <dimen name="card_min_height">160dp</dimen>
 
     <dimen name="bottom_sheet_margin_top">24dp</dimen>
 
