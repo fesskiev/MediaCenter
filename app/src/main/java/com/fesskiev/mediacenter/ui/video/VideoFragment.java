@@ -23,8 +23,8 @@ import com.bumptech.glide.Glide;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.VideoFile;
-import com.fesskiev.mediacenter.players.VideoPlayer;
 import com.fesskiev.mediacenter.data.source.DataRepository;
+import com.fesskiev.mediacenter.players.VideoPlayer;
 import com.fesskiev.mediacenter.services.FileSystemIntentService;
 import com.fesskiev.mediacenter.ui.video.player.VideoExoPlayerActivity;
 import com.fesskiev.mediacenter.utils.AppLog;
@@ -132,8 +132,10 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     }
 
     private void startExoPlayerActivity(VideoFile videoFile) {
-        Intent intent = new Intent(getContext(),
-                VideoExoPlayerActivity.class).setData(Uri.parse(videoFile.getFilePath()));
+        Intent intent = new Intent(getContext(), VideoExoPlayerActivity.class);
+        intent.putExtra(VideoExoPlayerActivity.URI_LIST_EXTRA, new String[] { videoFile.getFilePath()});
+        intent.setAction(VideoExoPlayerActivity.ACTION_VIEW_LIST);
+
         startActivity(intent);
     }
 

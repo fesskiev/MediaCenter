@@ -158,13 +158,6 @@ public class DragFrameLayout extends FrameLayout {
                             .alpha(0f)
                             .setDuration(100L)
                             .start();
-                } else if (view.getId() == R.id.videoViewParent) {
-
-//                    Animation anim = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, 0.0f,
-//                            Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT,
-//                            1.0f, Animation.RELATIVE_TO_PARENT, 1.0f);
-//                    anim.setDuration(1000L);
-//                    view.startAnimation(anim);
                 }
             }
         } else {

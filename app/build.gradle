@@ -84,7 +84,7 @@ dependencies {
 
     compile 'com.github.clans:fab:1.6.3'
     compile 'com.github.bumptech.glide:glide:3.7.0'
-    compile 'com.google.android.exoplayer:exoplayer:r1.5.10'
+    compile 'com.google.android.exoplayer:exoplayer:r2.1.1'
     compile 'io.reactivex:rxandroid:1.2.0'
     compile 'io.reactivex:rxjava:1.1.5'
     compile 'com.squareup.okhttp3:okhttp:3.4.1'

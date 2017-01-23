@@ -10,6 +10,12 @@ import com.fesskiev.mediacenter.data.source.remote.RemoteDataSource;
 import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.players.VideoPlayer;
 import com.fesskiev.mediacenter.utils.AppLog;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
+import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.util.Util;
 
 import rx.plugins.RxJavaErrorHandler;
 import rx.plugins.RxJavaPlugins;
@@ -21,6 +27,7 @@ public class MediaApplication extends Application {
     private AudioPlayer audioPlayer;
     private VideoPlayer videoPlayer;
     private DataRepository repository;
+    private String userAgent;
 
     @Override
     public void onCreate() {
@@ -40,6 +47,8 @@ public class MediaApplication extends Application {
                 super.handleError(e);
             }
         });
+
+        userAgent = Util.getUserAgent(this, "ExoPlayer");
 
     }
 
@@ -73,6 +82,19 @@ public class MediaApplication extends Application {
                 AppLog.INFO("TRIM_MEMORY_COMPLETE");
                 break;
         }
+    }
+
+    public DataSource.Factory buildDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {
+        return new DefaultDataSourceFactory(this, bandwidthMeter,
+                buildHttpDataSourceFactory(bandwidthMeter));
+    }
+
+    public HttpDataSource.Factory buildHttpDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {
+        return new DefaultHttpDataSourceFactory(userAgent, bandwidthMeter);
+    }
+
+    public boolean useExtensionRenderers() {
+        return BuildConfig.FLAVOR.equals("withExtensions");
     }
 
     public AudioPlayer getAudioPlayer() {

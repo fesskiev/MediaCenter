@@ -1,167 +1,140 @@
 package com.fesskiev.mediacenter.ui.video.player;
 
-import android.graphics.SurfaceTexture;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Surface;
-import android.view.TextureView;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.FrameLayout;
-import android.widget.Spinner;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.data.model.MediaFile;
-import com.fesskiev.mediacenter.players.VideoPlayer;
-import com.fesskiev.mediacenter.ui.playback.Playable;
-import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.controls.VideoControlView;
-import com.fesskiev.mediacenter.widgets.layouts.ElasticDragDismissFrameLayout;
-import com.fesskiev.mediacenter.widgets.spinner.CustomSpinnerAdapter;
-import com.fesskiev.mediacenter.widgets.surfaces.VideoTextureView;
-import com.google.android.exoplayer.ExoPlayer;
-import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.audio.AudioCapabilities;
-import com.google.android.exoplayer.audio.AudioCapabilitiesReceiver;
-import com.google.android.exoplayer.metadata.id3.Id3Frame;
-import com.google.android.exoplayer.text.Cue;
-import com.google.android.exoplayer.util.MimeTypes;
-import com.google.android.exoplayer.util.PlayerControl;
-import com.google.android.exoplayer.util.Util;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
+import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
+import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
+import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
+import com.google.android.exoplayer2.drm.UnsupportedDrmException;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.dash.DashMediaSource;
+import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
+import com.google.android.exoplayer2.source.hls.HlsMediaSource;
+import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource;
+import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
+import com.google.android.exoplayer2.trackselection.AdaptiveVideoTrackSelection;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.util.Util;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
-public class VideoExoPlayerActivity extends AppCompatActivity implements TextureView.SurfaceTextureListener,
-        MediaExoPlayer.Listener,
-        MediaExoPlayer.CaptionListener,
-        MediaExoPlayer.Id3MetadataListener,
-        AudioCapabilitiesReceiver.Listener, Playable {
+public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlayer.EventListener {
 
     private static final String TAG = VideoExoPlayerActivity.class.getSimpleName();
 
-    private MediaExoPlayer player;
-    private AudioCapabilitiesReceiver audioCapabilitiesReceiver;
-    private PlayerControl control;
-    private EventLogger eventLogger;
-    private VideoControlView videoControlView;
-    private ElasticDragDismissFrameLayout dragFrameLayout;
-    private Surface surface;
-    private View shutterView;
-    private Spinner audioTracksSpinner;
-    private Spinner videoTracksSpinner;
-    private Timer timer;
-    private VideoPlayer videoPlayer;
-    private Uri contentUri;
-    private long playerPosition;
-    private int durationScale;
-    private boolean playerNeedsPrepare;
+    private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
 
+    public static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
+    public static final String DRM_LICENSE_URL = "drm_license_url";
+    public static final String DRM_KEY_REQUEST_PROPERTIES = "drm_key_request_properties";
+    public static final String PREFER_EXTENSION_DECODERS = "prefer_extension_decoders";
+
+    public static final String ACTION_VIEW = "com.google.android.exoplayer.demo.action.VIEW";
+    public static final String EXTENSION_EXTRA = "extension";
+
+    public static final String ACTION_VIEW_LIST = "com.google.android.exoplayer.demo.action.VIEW_LIST";
+    public static final String URI_LIST_EXTRA = "uri_list";
+    public static final String EXTENSION_LIST_EXTRA = "extension_list";
+
+    private DataSource.Factory mediaDataSourceFactory;
+    private EventLogger eventLogger;
+    private Timeline.Window window;
+    private SimpleExoPlayerView simpleExoPlayerView;
+    private SimpleExoPlayer player;
+    private DefaultTrackSelector trackSelector;
+    private Handler mainHandler;
+
+    private boolean playerNeedsSource;
+    private boolean shouldAutoPlay;
+    private boolean isTimelineStatic;
+    private int playerWindow;
+    private long playerPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_exo_player);
 
-        videoPlayer = MediaApplication.getInstance().getVideoPlayer();
+        shouldAutoPlay = true;
 
-        contentUri = getIntent().getData();
+        mainHandler = new Handler();
+        window = new Timeline.Window();
 
-        shutterView = findViewById(R.id.shutter);
+        mediaDataSourceFactory = buildDataSourceFactory(true);
 
-//        dragFrameLayout = (ElasticDragDismissFrameLayout) findViewById(R.id.dragLayout);
-//        dragFrameLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-//                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
-//        dragFrameLayout.addListener(
-//                new ElasticDragDismissFrameLayout.SystemChromeFader(this) {
-//                    @Override
-//                    public void onDragDismissed() {
-//
-////                        if (dragFrameLayout.getTranslationY() > 0) {
-////                            getWindow().setReturnTransition(
-////                                    TransitionInflater.from(VideoExoPlayerActivity.this)
-////                                            .inflateTransition(R.transition.about_return_downward));
-////                            finishAfterTransition();
-////                        }
-//                    }
-//
-//                    @Override
-//                    public void onDrag(float elasticOffset, float elasticOffsetPixels, float rawOffset, float rawOffsetPixels) {
-//                        AppLog.DEBUG("elasticOffset: " + elasticOffset + " elastPixel: " + elasticOffsetPixels +
-//                        " rawOffset: " + rawOffset + " rawInPixel: " + rawOffsetPixels);
-//                    }
-//                });
-
-        VideoTextureView textureView = (VideoTextureView) findViewById(R.id.videoView);
-        textureView.setSurfaceTextureListener(this);
-
-        videoControlView = (VideoControlView) findViewById(R.id.videoPlayerControl);
+        VideoControlView videoControlView = (VideoControlView) findViewById(R.id.videoPlayerControl);
         videoControlView.setOnVideoPlayerControlListener(new VideoControlView.OnVideoPlayerControlListener() {
             @Override
             public void playPauseButtonClick(boolean isPlaying) {
-                if (isPlaying) {
-                    pause();
-                } else {
-                    play();
-                }
+
             }
 
             @Override
             public void seekVideo(int progress) {
-                control.seekTo(progress * durationScale);
+
             }
 
             @Override
             public void nextVideo() {
-                next();
+
             }
 
             @Override
             public void previousVideo() {
-                previous();
+
             }
         });
 
-        audioTracksSpinner = (Spinner) findViewById(R.id.audioTracks);
-        videoTracksSpinner = (Spinner) findViewById(R.id.videoTracks);
-
-        audioCapabilitiesReceiver = new AudioCapabilitiesReceiver(this, this);
-        audioCapabilitiesReceiver.register();
-
         videoControlView.resetIndicators();
 
-        findViewById(R.id.fullScreenVideoButton).setOnClickListener(view -> {
-            FrameLayout layout = (FrameLayout) findViewById(R.id.videoViewParent);
-            ViewGroup.LayoutParams params = layout.getLayoutParams();
-            params.height = 2600;
-            layout.requestLayout();
-        });
+        simpleExoPlayerView = (SimpleExoPlayerView) findViewById(R.id.videoView);
+        simpleExoPlayerView.setUseController(false);
+        simpleExoPlayerView.requestFocus();
     }
 
     @Override
     public void onStart() {
         super.onStart();
         if (Util.SDK_INT > 23) {
-            onShown();
+            initializePlayer();
         }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (Util.SDK_INT <= 23 || player == null) {
-            onShown();
+        if ((Util.SDK_INT <= 23 || player == null)) {
+            initializePlayer();
         }
     }
 
@@ -169,7 +142,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
     public void onPause() {
         super.onPause();
         if (Util.SDK_INT <= 23) {
-            onHidden();
+            releasePlayer();
         }
     }
 
@@ -177,339 +150,184 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Texture
     public void onStop() {
         super.onStop();
         if (Util.SDK_INT > 23) {
-            onHidden();
+            releasePlayer();
         }
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        stopUpdateTimer();
-        audioCapabilitiesReceiver.unregister();
-        releasePlayer();
-    }
-
 
     @Override
-    public void open(MediaFile mediaFile) {
-        preparePlayer(true);
-    }
-
-    @Override
-    public void play() {
-        control.start();
-    }
-
-    @Override
-    public void pause() {
-        control.pause();
-    }
-
-    @Override
-    public void next() {
-        videoPlayer.next();
+    public void onTimelineChanged(Timeline timeline, Object manifest) {
 
     }
 
     @Override
-    public boolean first() {
-        return false;
+    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+
     }
 
     @Override
-    public boolean last() {
-        return false;
+    public void onLoadingChanged(boolean isLoading) {
+
     }
 
     @Override
-    public void previous() {
-        videoPlayer.previous();
+    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+
     }
 
-    private void onShown() {
+    @Override
+    public void onPlayerError(ExoPlaybackException error) {
+        Log.e("error", "error: " + error.toString());
+    }
+
+    @Override
+    public void onPositionDiscontinuity() {
+
+    }
+
+    private void initializePlayer() {
+        Intent intent = getIntent();
         if (player == null) {
-            open(null);
-        } else {
-            player.setBackgrounded(false);
-        }
-    }
-
-    private void onHidden() {
-        player.setBackgrounded(true);
-    }
-
-    private void startUpdateTimer() {
-        timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                handler.obtainMessage(1).sendToTarget();
+            boolean preferExtensionDecoders = intent.getBooleanExtra(PREFER_EXTENSION_DECODERS, false);
+            UUID drmSchemeUuid = intent.hasExtra(DRM_SCHEME_UUID_EXTRA)
+                    ? UUID.fromString(intent.getStringExtra(DRM_SCHEME_UUID_EXTRA)) : null;
+            DrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
+            if (drmSchemeUuid != null) {
+                String drmLicenseUrl = intent.getStringExtra(DRM_LICENSE_URL);
+                String[] keyRequestPropertiesArray = intent.getStringArrayExtra(DRM_KEY_REQUEST_PROPERTIES);
+                Map<String, String> keyRequestProperties;
+                if (keyRequestPropertiesArray == null || keyRequestPropertiesArray.length < 2) {
+                    keyRequestProperties = null;
+                } else {
+                    keyRequestProperties = new HashMap<>();
+                    for (int i = 0; i < keyRequestPropertiesArray.length - 1; i += 2) {
+                        keyRequestProperties.put(keyRequestPropertiesArray[i],
+                                keyRequestPropertiesArray[i + 1]);
+                    }
+                }
+                try {
+                    drmSessionManager = buildDrmSessionManager(drmSchemeUuid, drmLicenseUrl,
+                            keyRequestProperties);
+                } catch (UnsupportedDrmException e) {
+                    e.printStackTrace();
+                }
             }
-        }, 0, 1000);
-    }
 
-    private void stopUpdateTimer() {
-        timer.cancel();
-    }
-
-    private Handler handler = new Handler() {
-        public void handleMessage(Message msg) {
-            updateProgressControls();
-        }
-    };
-
-    private void updateProgressControls() {
-        videoControlView.
-                setVideoTimeCount(Utils.getTimeFromMillisecondsString(control.getCurrentPosition()));
-        playerPosition = control.getCurrentPosition();
-        durationScale = control.getDuration() / 100;
-        if (durationScale != 0) {
-            videoControlView.setProgress((int) playerPosition / durationScale);
-        }
-    }
-
-
-    private MediaExoPlayer.RendererBuilder getRendererBuilder() {
-        String userAgent = Util.getUserAgent(this, "MediaExoPlayer");
-        return new ExtractorRendererBuilder(this, userAgent, contentUri);
-    }
-
-    private void preparePlayer(boolean playWhenReady) {
-        if (player == null) {
-            player = new MediaExoPlayer(getRendererBuilder());
+            @SimpleExoPlayer.ExtensionRendererMode int extensionRendererMode =
+                    MediaApplication.getInstance().useExtensionRenderers()
+                            ? (preferExtensionDecoders ? SimpleExoPlayer.EXTENSION_RENDERER_MODE_PREFER
+                            : SimpleExoPlayer.EXTENSION_RENDERER_MODE_ON)
+                            : SimpleExoPlayer.EXTENSION_RENDERER_MODE_OFF;
+            TrackSelection.Factory videoTrackSelectionFactory =
+                    new AdaptiveVideoTrackSelection.Factory(BANDWIDTH_METER);
+            trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
+            player = ExoPlayerFactory.newSimpleInstance(this, trackSelector, new DefaultLoadControl(),
+                    drmSessionManager, extensionRendererMode);
             player.addListener(this);
-            player.setCaptionListener(this);
-            player.setMetadataListener(this);
-            player.seekTo(playerPosition);
-            playerNeedsPrepare = true;
-            eventLogger = new EventLogger();
-            eventLogger.startSession();
+
+            eventLogger = new EventLogger(trackSelector);
             player.addListener(eventLogger);
-            player.setInfoListener(eventLogger);
-            player.setInternalErrorListener(eventLogger);
-        }
-        if (playerNeedsPrepare) {
-            player.prepare();
-            playerNeedsPrepare = false;
-        }
+            player.setAudioDebugListener(eventLogger);
+            player.setVideoDebugListener(eventLogger);
+            player.setId3Output(eventLogger);
 
-        player.setSurface(surface);
-        player.setPlayWhenReady(playWhenReady);
-
-    }
-
-    private void createAudioTracksSpinner() {
-        List<String> audioTracks = configureTracks(MediaExoPlayer.TYPE_AUDIO);
-        if (audioTracks != null) {
-
-            for (String track : audioTracks) {
-                Log.d(TAG, "audio track : " + track);
+            simpleExoPlayerView.setPlayer(player);
+            if (isTimelineStatic) {
+                if (playerPosition == C.TIME_UNSET) {
+                    player.seekToDefaultPosition(playerWindow);
+                } else {
+                    player.seekTo(playerWindow, playerPosition);
+                }
             }
-
-            CustomSpinnerAdapter customSpinnerAdapter = new CustomSpinnerAdapter(getApplicationContext(),
-                    audioTracks, R.color.primary_dark, R.color.primary_dark);
-
-            audioTracksSpinner.setAdapter(customSpinnerAdapter);
-            audioTracksSpinner.setSelection(0, false);
-            audioTracksSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> adapterView) {
-
-                }
-            });
+            player.setPlayWhenReady(shouldAutoPlay);
+            playerNeedsSource = true;
         }
-    }
-
-    private void createVideoTracksSpinner() {
-        List<String> videoTracks = configureTracks(MediaExoPlayer.TYPE_VIDEO);
-        if (videoTracks != null) {
-
-            for (String track : videoTracks) {
-                Log.d(TAG, "video track : " + track);
+        if (playerNeedsSource) {
+            String action = intent.getAction();
+            Uri[] uris;
+            String[] extensions;
+            if (ACTION_VIEW.equals(action)) {
+                uris = new Uri[]{intent.getData()};
+                extensions = new String[]{intent.getStringExtra(EXTENSION_EXTRA)};
+            } else if (ACTION_VIEW_LIST.equals(action)) {
+                String[] uriStrings = intent.getStringArrayExtra(URI_LIST_EXTRA);
+                uris = new Uri[uriStrings.length];
+                for (int i = 0; i < uriStrings.length; i++) {
+                    uris[i] = Uri.parse(uriStrings[i]);
+                }
+                extensions = intent.getStringArrayExtra(EXTENSION_LIST_EXTRA);
+                if (extensions == null) {
+                    extensions = new String[uriStrings.length];
+                }
+            } else {
+                return;
             }
-
-            CustomSpinnerAdapter customSpinnerAdapter = new CustomSpinnerAdapter(getApplicationContext(),
-                    videoTracks, R.color.primary_dark, R.color.primary_dark);
-
-            videoTracksSpinner.setAdapter(customSpinnerAdapter);
-            videoTracksSpinner.setSelection(0, false);
-            videoTracksSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> adapterView) {
-
-                }
-            });
+            if (Util.maybeRequestReadExternalStoragePermission(this, uris)) {
+                // The player will be reinitialized if the permission is granted.
+                return;
+            }
+            MediaSource[] mediaSources = new MediaSource[uris.length];
+            for (int i = 0; i < uris.length; i++) {
+                mediaSources[i] = buildMediaSource(uris[i], extensions[i]);
+            }
+            MediaSource mediaSource = mediaSources.length == 1 ? mediaSources[0]
+                    : new ConcatenatingMediaSource(mediaSources);
+            player.prepare(mediaSource, !isTimelineStatic, !isTimelineStatic);
+            playerNeedsSource = false;
         }
-    }
-
-    private List<String> configureTracks(int trackType) {
-        if (player == null) {
-            return null;
-        }
-        int trackCount = player.getTrackCount(trackType);
-        if (trackCount == 0) {
-            return null;
-        }
-
-        List<String> tracksName = new ArrayList<>();
-
-        for (int i = 0; i < trackCount; i++) {
-            tracksName.add(buildTrackName(player.getTrackFormat(trackType, i)));
-        }
-
-        return tracksName;
-    }
-
-    private static String buildTrackName(MediaFormat format) {
-        if (format.adaptive) {
-            return "auto";
-        }
-        String trackName;
-        if (MimeTypes.isVideo(format.mimeType)) {
-            trackName = joinWithSeparator(joinWithSeparator(buildResolutionString(format),
-                    buildBitrateString(format)), buildTrackIdString(format));
-        } else if (MimeTypes.isAudio(format.mimeType)) {
-            trackName = joinWithSeparator(joinWithSeparator(joinWithSeparator(buildLanguageString(format),
-                    buildAudioPropertyString(format)), buildBitrateString(format)),
-                    buildTrackIdString(format));
-        } else {
-            trackName = joinWithSeparator(joinWithSeparator(buildLanguageString(format),
-                    buildBitrateString(format)), buildTrackIdString(format));
-        }
-        return trackName.length() == 0 ? "unknown" : trackName;
-    }
-
-    private static String buildResolutionString(MediaFormat format) {
-        return format.width == MediaFormat.NO_VALUE || format.height == MediaFormat.NO_VALUE
-                ? "" : format.width + "x" + format.height;
-    }
-
-    private static String buildAudioPropertyString(MediaFormat format) {
-        return format.channelCount == MediaFormat.NO_VALUE || format.sampleRate == MediaFormat.NO_VALUE
-                ? "" : format.channelCount + "ch, " + format.sampleRate + "Hz";
-    }
-
-    private static String buildLanguageString(MediaFormat format) {
-        return TextUtils.isEmpty(format.language) || "und".equals(format.language) ? ""
-                : format.language;
-    }
-
-    private static String buildBitrateString(MediaFormat format) {
-        return format.bitrate == MediaFormat.NO_VALUE ? ""
-                : String.format(Locale.US, "%.2fMbit", format.bitrate / 1000000f);
-    }
-
-    private static String joinWithSeparator(String first, String second) {
-        return first.length() == 0 ? second : (second.length() == 0 ? first : first + ", " + second);
-    }
-
-    private static String buildTrackIdString(MediaFormat format) {
-        return format.trackId == null ? "" : " (" + format.trackId + ")";
     }
 
     private void releasePlayer() {
         if (player != null) {
-            playerPosition = player.getCurrentPosition();
+            shouldAutoPlay = player.getPlayWhenReady();
+            playerWindow = player.getCurrentWindowIndex();
+            playerPosition = C.TIME_UNSET;
+            Timeline timeline = player.getCurrentTimeline();
+            if (!timeline.isEmpty() && timeline.getWindow(playerWindow, window).isSeekable) {
+                playerPosition = player.getCurrentPosition();
+            }
             player.release();
-            eventLogger.endSession();
+            player = null;
+            trackSelector = null;
         }
     }
 
-    @Override
-    public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int i, int i1) {
-        surface = new Surface(surfaceTexture);
-        if (player != null) {
-            player.setSurface(surface);
+    private MediaSource buildMediaSource(Uri uri, String overrideExtension) {
+        int type = Util.inferContentType(!TextUtils.isEmpty(overrideExtension) ? "." + overrideExtension
+                : uri.getLastPathSegment());
+        switch (type) {
+            case C.TYPE_SS:
+                return new SsMediaSource(uri, buildDataSourceFactory(false),
+                        new DefaultSsChunkSource.Factory(mediaDataSourceFactory), mainHandler, eventLogger);
+            case C.TYPE_DASH:
+                return new DashMediaSource(uri, buildDataSourceFactory(false),
+                        new DefaultDashChunkSource.Factory(mediaDataSourceFactory), mainHandler, eventLogger);
+            case C.TYPE_HLS:
+                return new HlsMediaSource(uri, mediaDataSourceFactory, mainHandler, eventLogger);
+            case C.TYPE_OTHER:
+                return new ExtractorMediaSource(uri, mediaDataSourceFactory, new DefaultExtractorsFactory(),
+                        mainHandler, eventLogger);
+            default: {
+                throw new IllegalStateException("Unsupported type: " + type);
+            }
         }
     }
 
-    @Override
-    public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int i, int i1) {
-
+    private DataSource.Factory buildDataSourceFactory(boolean useBandwidthMeter) {
+        return MediaApplication.getInstance().buildDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
     }
 
-    @Override
-    public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
-        if (player != null) {
-            player.blockingClearSurface();
-        }
-        return true;
+    private HttpDataSource.Factory buildHttpDataSourceFactory(boolean useBandwidthMeter) {
+        return MediaApplication.getInstance().buildHttpDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
     }
 
-    @Override
-    public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
 
+    private DrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(UUID uuid,
+                                                                           String licenseUrl, Map<String, String> keyRequestProperties) throws UnsupportedDrmException {
+        HttpMediaDrmCallback drmCallback = new HttpMediaDrmCallback(licenseUrl,
+                buildHttpDataSourceFactory(false), keyRequestProperties);
+        return new StreamingDrmSessionManager<>(uuid,
+                FrameworkMediaDrm.newInstance(uuid), drmCallback, null, mainHandler, eventLogger);
     }
 
-    @Override
-    public void onCues(List<Cue> cues) {
-
-    }
-
-    @Override
-    public void onId3Metadata(List<Id3Frame> id3Frames) {
-
-    }
-
-    @Override
-    public void onStateChanged(boolean playWhenReady, int playbackState) {
-
-        switch (playbackState) {
-            case ExoPlayer.STATE_BUFFERING:
-                Log.wtf(TAG, "buffering");
-                break;
-            case ExoPlayer.STATE_ENDED:
-                Log.wtf(TAG, "ended");
-                break;
-            case ExoPlayer.STATE_IDLE:
-                Log.wtf(TAG, "idle");
-                break;
-            case ExoPlayer.STATE_PREPARING:
-                Log.wtf(TAG, "preparing");
-                break;
-            case ExoPlayer.STATE_READY:
-                control = player.getPlayerControl();
-                Log.wtf(TAG, "ready");
-                videoControlView.
-                        setVideoTimeTotal(Utils.getTimeFromMillisecondsString(control.getDuration()));
-                startUpdateTimer();
-                createAudioTracksSpinner();
-                createVideoTracksSpinner();
-                break;
-        }
-    }
-
-    @Override
-    public void onAudioCapabilitiesChanged(AudioCapabilities audioCapabilities) {
-        if (player == null) {
-            return;
-        }
-        boolean backgrounded = player.getBackgrounded();
-        boolean playWhenReady = player.getPlayWhenReady();
-        releasePlayer();
-        preparePlayer(playWhenReady);
-        player.setBackgrounded(backgrounded);
-    }
-
-    @Override
-    public void onError(Exception e) {
-
-    }
-
-    @Override
-    public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
-                                   float pixelWidthAspectRatio) {
-//        videoFrame.setAspectRatio(height == 0 ? 1 : (width * pixelWidthAspectRatio) / height);
-        shutterView.setVisibility(View.GONE);
-    }
 }
