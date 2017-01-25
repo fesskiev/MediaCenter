@@ -300,6 +300,11 @@ public abstract class RecyclerAudioFragment extends Fragment implements SwipeRef
             notifyDataSetChanged();
         }
 
+        public void clearAdapter() {
+            this.downloadFiles.clear();
+            notifyDataSetChanged();
+        }
+
         @Override
         public int getItemCount() {
             return downloadFiles.size();

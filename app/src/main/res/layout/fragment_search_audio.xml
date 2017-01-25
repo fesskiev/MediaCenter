@@ -57,7 +57,7 @@
             android:id="@+id/emptySearchCard"
             android:layout_width="match_parent"
             android:layout_height="@dimen/card_view_empty_content_height"
-            android:layout_gravity="center_vertical"
+            android:layout_centerInParent="true"
             android:layout_marginBottom="@dimen/card_view_margin_bottom_big"
             android:layout_marginEnd="@dimen/card_view_margin_end"
             android:layout_marginStart="@dimen/card_view_margin_start"

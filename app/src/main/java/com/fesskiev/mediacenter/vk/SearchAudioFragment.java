@@ -52,7 +52,7 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
 
         emptySearchCard = (CardView) view.findViewById(R.id.emptySearchCard);
 
-        bottomViewPadding = -Utils.dipToPixels(getContext(), 56f);
+        bottomViewPadding = -Utils.dipToPixels(getContext(), 118f);
 
         requestLayout = (TextInputLayout) view.findViewById(R.id.textInputRequestAudio);
         EditText requestEdit = (EditText) view.findViewById(R.id.requestAudio);
@@ -158,6 +158,7 @@ public class SearchAudioFragment extends RecyclerAudioFragment implements TextWa
             audioAdapter.refresh(DownloadFile.getDownloadFiles(getActivity(), audioAdapter, musicFilesList));
             hideEmptyCard();
         } else {
+            audioAdapter.clearAdapter();
             showEmptyCard();
         }
 
