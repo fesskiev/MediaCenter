@@ -164,7 +164,7 @@ public class GroupAudioFragment extends Fragment {
     }
 
     private void checkRequestError(Throwable throwable) {
-        ErrorHelper.getInstance().createErrorSnackBar(getActivity(), throwable,
+        ErrorHelper.getInstance().createErrorSnackBar(progressBar, throwable,
                 new ErrorHelper.OnErrorHandlerListener() {
                     @Override
                     public void tryRequestAgain() {

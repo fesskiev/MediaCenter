@@ -139,7 +139,7 @@ public class VKAuthActivity extends AppCompatActivity {
 
     private void checkRequestError(Throwable throwable) {
         hideProgressBar();
-        ErrorHelper.getInstance().createErrorSnackBar(VKAuthActivity.this, throwable, null);
+        ErrorHelper.getInstance().createErrorSnackBar(findViewById(R.id.vkLogoContainer), throwable, null);
     }
 
     private void finishAuth() {

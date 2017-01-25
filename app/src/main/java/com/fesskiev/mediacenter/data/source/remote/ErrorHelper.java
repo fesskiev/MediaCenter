@@ -1,10 +1,11 @@
 package com.fesskiev.mediacenter.data.source.remote;
 
 
-import android.app.Activity;
+import android.content.Context;
 import android.support.design.widget.Snackbar;
-import android.util.Log;
+import android.view.View;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.utils.NetworkHelper;
 import com.fesskiev.mediacenter.utils.Utils;
@@ -23,6 +24,7 @@ public class ErrorHelper {
     }
 
     private static ErrorHelper INSTANCE;
+    private Context context;
 
 
     public static ErrorHelper getInstance() {
@@ -33,10 +35,10 @@ public class ErrorHelper {
     }
 
     private ErrorHelper() {
-
+        context = MediaApplication.getInstance().getApplicationContext();
     }
 
-    public void createErrorSnackBar(Activity activity, Throwable throwable, OnErrorHandlerListener listener) {
+    public void createErrorSnackBar(View view, Throwable throwable, OnErrorHandlerListener listener) {
         int stringRes;
         if (throwable instanceof RetrofitException) {
             RetrofitException exception = (RetrofitException) throwable;
@@ -49,7 +51,7 @@ public class ErrorHelper {
                     }
                     break;
                 case NETWORK:
-                    if (!NetworkHelper.isConnected(activity)) {
+                    if (!NetworkHelper.isConnected(context)) {
                         stringRes = R.string.snackbar_internet_disable_error;
                     } else {
                         stringRes = R.string.snackbar_internet_connection_error;
@@ -64,18 +66,16 @@ public class ErrorHelper {
             }
 
             if (listener != null) {
-                createSnackBarWithListener(activity, stringRes, listener);
+                createSnackBarWithListener(view, stringRes, listener);
             } else {
-                createSnackBar(activity, stringRes);
+                createSnackBar(view, stringRes);
             }
         }
     }
 
 
-    private void createSnackBarWithListener(Activity activity, int stringRes, OnErrorHandlerListener listener) {
-        Utils.showInternetErrorCustomSnackbar(activity.findViewById(R.id.bottom_navigation),
-                activity.getApplicationContext(),
-                stringRes, Snackbar.LENGTH_INDEFINITE)
+    private void createSnackBarWithListener(View view, int stringRes, OnErrorHandlerListener listener) {
+        Utils.showInternetErrorCustomSnackbar(view, context, stringRes, Snackbar.LENGTH_INDEFINITE)
                 .setAction(R.string.snackbar_error_try_again, v -> listener.tryRequestAgain())
                 .addCallback(new Snackbar.Callback() {
                     @Override
@@ -92,9 +92,8 @@ public class ErrorHelper {
                 }).show();
     }
 
-    private void createSnackBar(Activity activity, int stringRes) {
-        Utils.showInternetErrorCustomSnackbar(activity.findViewById(R.id.bottom_navigation),
-                activity.getApplicationContext(), stringRes, Snackbar.LENGTH_LONG).show();
+    private void createSnackBar(View view, int stringRes) {
+        Utils.showInternetErrorCustomSnackbar(view, context, stringRes, Snackbar.LENGTH_LONG).show();
     }
 
 }

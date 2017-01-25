@@ -37,10 +37,10 @@ public abstract class RecyclerAudioFragment extends Fragment implements SwipeRef
 
     public abstract void fetchAudio(int offset);
 
-    private SwipeRefreshLayout swipeRefreshLayout;
     protected AudioAdapter audioAdapter;
     protected RecyclerView recyclerView;
-    private MaterialProgressBar progressBar;
+    protected MaterialProgressBar progressBar;
+    private SwipeRefreshLayout swipeRefreshLayout;
     protected int audioOffset;
     private int selectedPosition;
     private boolean listenerAttached;
