@@ -133,7 +133,7 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
 
     private void startExoPlayerActivity(VideoFile videoFile) {
         Intent intent = new Intent(getContext(), VideoExoPlayerActivity.class);
-        intent.putExtra(VideoExoPlayerActivity.URI_LIST_EXTRA, new String[] { videoFile.getFilePath()});
+        intent.putExtra(VideoExoPlayerActivity.URI_LIST_EXTRA, new String[]{videoFile.getFilePath()});
         intent.setAction(VideoExoPlayerActivity.ACTION_VIEW_LIST);
 
         startActivity(intent);
@@ -256,10 +256,8 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                                         getString(R.string.shackbar_delete_file),
                                         Snackbar.LENGTH_LONG).show();
 
-                                MediaApplication.getInstance()
-                                        .getRepository()
-                                        .deleteVideoFile(videoFile.getFilePath());
-
+                                repository.getMemorySource().setCacheVideoFilesDirty(true);
+                                repository.deleteVideoFile(videoFile.getFilePath());
                                 adapter.removeItem(position);
 
                             }

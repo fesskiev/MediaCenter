@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.Artist;
@@ -115,6 +116,13 @@ public class LocalDataSource implements LocalSource {
 
 
         briteDatabase.insert(DatabaseHelper.VIDEO_FILES_TABLE_NAME, values, SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    public void deleteVideoFile(String path) {
+        briteDatabase.delete(
+                DatabaseHelper.VIDEO_FILES_TABLE_NAME,
+                DatabaseHelper.VIDEO_FILE_PATH + "=" + "'" + path + "'");
+
     }
 
     public void updateAudioFolderIndex(AudioFolder audioFolder) {
@@ -259,13 +267,6 @@ public class LocalDataSource implements LocalSource {
         briteDatabase.delete(
                 DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
                 DatabaseHelper.TRACK_PATH + "=" + "'" + path + "'");
-    }
-
-    public void deleteVideoFile(String path) {
-
-        briteDatabase.delete(
-                DatabaseHelper.VIDEO_FILES_TABLE_NAME,
-                DatabaseHelper.VIDEO_FILE_PATH + "=" + "'" + path + "'");
     }
 
     public Observable<List<String>> getFoldersPath() {
