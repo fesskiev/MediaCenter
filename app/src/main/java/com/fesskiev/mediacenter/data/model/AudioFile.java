@@ -25,6 +25,7 @@ import org.jaudiotagger.tag.images.Artwork;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 public class AudioFile implements MediaFile, Comparable<AudioFile> {
@@ -88,33 +89,22 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
         }
     }
 
-    private void saveArtwork(byte[] data) {
-        try {
-            File path = File.createTempFile(UUID.randomUUID().toString(),
-                    ".png", new File(CacheManager.IMAGES_CACHE_PATH));
-
-            BitmapHelper.getInstance().saveBitmap(data, path);
-
-            artworkPath = path.getAbsolutePath();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void saveArtwork(Tag tag) {
-        Artwork artwork = tag.getFirstArtwork();
-        if (artwork != null) {
-            try {
-                File path = File.createTempFile(UUID.randomUUID().toString(),
-                        ".png", new File(CacheManager.IMAGES_CACHE_PATH));
+        List<Artwork> artworks = tag.getArtworkList();
+        for (Artwork artwork : artworks) {
+            byte[] imageRawData = artwork != null ? artwork.getBinaryData() : null;
+            if (imageRawData != null) {
+                try {
+                    File path = File.createTempFile(UUID.randomUUID().toString(),
+                            ".png", new File(CacheManager.IMAGES_CACHE_PATH));
 
-                BitmapHelper.getInstance().saveBitmap(artwork.getBinaryData(), path);
+                    BitmapHelper.getInstance().saveBitmap(artwork.getBinaryData(), path);
 
-                artworkPath = path.getAbsolutePath();
-
-            } catch (IOException e) {
-                e.printStackTrace();
+                    artworkPath = path.getAbsolutePath();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
             }
         }
     }
