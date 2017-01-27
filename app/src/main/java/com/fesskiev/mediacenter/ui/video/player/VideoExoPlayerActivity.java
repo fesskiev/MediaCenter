@@ -15,6 +15,9 @@ import android.view.View;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.data.model.AudioFile;
+import com.fesskiev.mediacenter.data.model.VideoFile;
+import com.fesskiev.mediacenter.players.VideoPlayer;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.controls.VideoControlView;
 import com.fesskiev.mediacenter.widgets.surfaces.VideoTextureView;
@@ -54,6 +57,10 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -80,6 +87,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     public static final String URI_LIST_EXTRA = "uri_list";
     public static final String EXTENSION_LIST_EXTRA = "extension_list";
 
+    private VideoPlayer videoPlayer;
     private VideoControlView videoControlView;
     private DataSource.Factory mediaDataSourceFactory;
     private EventLogger eventLogger;
@@ -105,7 +113,6 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_exo_player);
-
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
@@ -114,6 +121,8 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+
+        videoPlayer = MediaApplication.getInstance().getVideoPlayer();
 
         if (savedInstanceState != null) {
             playerPosition = savedInstanceState.getLong(BUNDLE_PLAYER_POSITION);
@@ -139,12 +148,12 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
 
             @Override
             public void nextVideo() {
-
+                videoPlayer.next();
             }
 
             @Override
             public void previousVideo() {
-
+                videoPlayer.previous();
             }
 
             @Override
@@ -159,8 +168,10 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         simpleExoPlayerView.setUseController(false);
         simpleExoPlayerView.requestFocus();
 
-        simpleExoPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FILL);
-        videoControlView.setResizeModeState(AspectRatioFrameLayout.RESIZE_MODE_FILL);
+        simpleExoPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH);
+        videoControlView.setResizeModeState(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH);
+
+        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -213,6 +224,21 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
             releasePlayer();
         }
         stopUpdateTimer();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onCurrentVideoFileEvent(VideoFile videoFile) {
+        Log.e("video", "PLAYER onCurrentVideoFileEvent: " + videoFile.toString());
+
+        videoControlView.resetIndicators();
+
     }
 
     @Override

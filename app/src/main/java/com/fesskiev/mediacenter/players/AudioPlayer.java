@@ -193,7 +193,7 @@ public class AudioPlayer implements Playable {
         return currentTrackList;
     }
 
-    public class TrackListIterator implements ListIterator<AudioFile> {
+    private class TrackListIterator implements ListIterator<AudioFile> {
 
         public TrackListIterator() {
             position = -1;
@@ -224,7 +224,6 @@ public class AudioPlayer implements Playable {
         @Override
         public int nextIndex() {
             return position++;
-
         }
 
         @Override

@@ -119,6 +119,7 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                         } else {
                             showEmptyContentCard();
                         }
+                        videoPlayer.setVideoFiles(videoFiles);
                         adapter.refresh(videoFiles);
                     } else {
                         showEmptyContentCard();
@@ -212,7 +213,7 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             VideoFile videoFile = videoFiles.get(position);
             if (videoFile != null) {
                 if (videoFile.exists()) {
-                    videoPlayer.currentVideoFile = videoFile;
+                    videoPlayer.setCurrentVideoFile(videoFile);
                     startExoPlayerActivity(videoFile);
                 } else {
                     Utils.showCustomSnackbar(getView(),
