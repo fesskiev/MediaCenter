@@ -1,97 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/dragLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/video_player_background"
     android:focusable="true"
-    android:keepScreenOn="true"
-    tools:context=".ui.video.player.VideoExoPlayerActivity">
+    android:keepScreenOn="true">
 
-    <android.support.v4.widget.NestedScrollView
+    <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+        android:id="@+id/videoView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:layout_height="match_parent" />
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <com.google.android.exoplayer2.ui.SimpleExoPlayerView
-                android:id="@+id/videoView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:resize_mode="fixed_width" />
-
-            <LinearLayout
-                android:id="@+id/controlContainer"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@+id/videoView">
-
-                <android.support.v7.widget.CardView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    app:cardCornerRadius="@dimen/card_view_corner_radius"
-                    app:cardElevation="@dimen/card_view_elevation"
-                    app:cardPreventCornerOverlap="false"
-                    app:contentPadding="@dimen/card_view_content_padding">
-
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-                        <com.fesskiev.mediacenter.widgets.controls.VideoControlView
-                            android:id="@+id/videoPlayerControl"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="15dp" />
-
-                        <View
-                            android:id="@+id/divider1"
-                            style="@style/DividerStyle"
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_below="@+id/videoPlayerControl"
-                            android:layout_marginTop="10dp" />
-
-                        <LinearLayout
-                            android:id="@+id/otherControlsContainer"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/divider1"
-                            android:layout_marginTop="10dp">
-
-                            <ImageView
-                                android:id="@+id/fullScreenVideoButton"
-                                android:layout_width="0dp"
-                                android:layout_height="36dp"
-                                android:layout_weight="1"
-                                android:contentDescription="@string/app_name"
-                                android:gravity="center"
-                                android:src="@drawable/icon_full_screen_video" />
-
-                        </LinearLayout>
-
-                        <View
-                            android:id="@+id/divider2"
-                            style="@style/DividerStyle"
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_below="@+id/otherControlsContainer"
-                            android:layout_marginTop="10dp" />
-
-                    </RelativeLayout>
-
-                </android.support.v7.widget.CardView>
-
-            </LinearLayout>
-
-        </RelativeLayout>
-
-    </android.support.v4.widget.NestedScrollView>
+    <com.fesskiev.mediacenter.widgets.controls.VideoControlView
+        android:id="@+id/videoPlayerControl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="50dp" />
 
 </FrameLayout>
 

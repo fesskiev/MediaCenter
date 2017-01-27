@@ -2,6 +2,7 @@ package com.fesskiev.mediacenter.ui.video.player;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,6 +17,7 @@ import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.controls.VideoControlView;
+import com.fesskiev.mediacenter.widgets.surfaces.VideoTextureView;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -64,6 +66,8 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
 
     private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
 
+    public static final String BUNDLE_PLAYER_POSITION = "player_position";
+
     public static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
     public static final String DRM_LICENSE_URL = "drm_license_url";
     public static final String DRM_KEY_REQUEST_PROPERTIES = "drm_key_request_properties";
@@ -87,7 +91,6 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
 
     private boolean playerNeedsSource;
     private boolean shouldAutoPlay;
-    private boolean isTimelineStatic;
     private int playerWindow;
     private long playerPosition;
     private long durationScale;
@@ -108,15 +111,19 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
                 | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_IMMERSIVE);
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+
+        if (savedInstanceState != null) {
+            playerPosition = savedInstanceState.getLong(BUNDLE_PLAYER_POSITION);
+        }
 
         shouldAutoPlay = true;
 
         window = new Timeline.Window();
 
         mediaDataSourceFactory = buildDataSourceFactory(true);
-
-        findViewById(R.id.fullScreenVideoButton).setOnClickListener(v -> changeOrientation());
 
         videoControlView = (VideoControlView) findViewById(R.id.videoPlayerControl);
         videoControlView.setOnVideoPlayerControlListener(new VideoControlView.OnVideoPlayerControlListener() {
@@ -139,6 +146,11 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
             public void previousVideo() {
 
             }
+
+            @Override
+            public void resizeModeChanged(int mode) {
+                simpleExoPlayerView.setResizeMode(mode);
+            }
         });
 
         videoControlView.setPlay(shouldAutoPlay);
@@ -146,29 +158,27 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         simpleExoPlayerView = (SimpleExoPlayerView) findViewById(R.id.videoView);
         simpleExoPlayerView.setUseController(false);
         simpleExoPlayerView.requestFocus();
+
+        simpleExoPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FILL);
+        videoControlView.setResizeModeState(AspectRatioFrameLayout.RESIZE_MODE_FILL);
     }
 
-    private void changeOrientation() {
-        int orientation = Utils.getScreenOrientation(this);
-        switch (orientation) {
-            case ActivityInfo.SCREEN_ORIENTATION_PORTRAIT:
-                simpleExoPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT);
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                break;
-            case ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:
-                simpleExoPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT);
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                break;
-            case ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE:
-                simpleExoPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH);
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
-                break;
-            case ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT:
-                simpleExoPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT);
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
-                break;
-
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            simpleExoPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FILL);
+            videoControlView.setResizeModeState(AspectRatioFrameLayout.RESIZE_MODE_FILL);
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            simpleExoPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH);
+            videoControlView.setResizeModeState(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH);
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle out) {
+        out.putLong(BUNDLE_PLAYER_POSITION, playerPosition);
+        super.onSaveInstanceState(out);
 
     }
 
@@ -202,11 +212,6 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         if (Util.SDK_INT > 23) {
             releasePlayer();
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
         stopUpdateTimer();
     }
 
@@ -332,13 +337,30 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
             player.setVideoDebugListener(eventLogger);
             player.setId3Output(eventLogger);
 
+//            VideoTextureView videoTextureView = new VideoTextureView(getApplicationContext());
+//            videoTextureView.setOnVideoTextureListener(new VideoTextureView.OnVideoTextureListener() {
+//                @Override
+//                public void onZoom() {
+//                    Log.d("test", "onZoom()");
+//                }
+//
+//                @Override
+//                public void onDrag() {
+//                    Log.d("test", "onDrag()");
+//                }
+//
+//                @Override
+//                public void onTouch() {
+//                    Log.d("test", "onTouch()");
+//                }
+//            });
+//            player.setVideoTextureView(videoTextureView);
+
             simpleExoPlayerView.setPlayer(player);
-            if (isTimelineStatic) {
-                if (playerPosition == C.TIME_UNSET) {
-                    player.seekToDefaultPosition(playerWindow);
-                } else {
-                    player.seekTo(playerWindow, playerPosition);
-                }
+            if (playerPosition == C.TIME_UNSET) {
+                player.seekToDefaultPosition(playerWindow);
+            } else {
+                player.seekTo(playerWindow, playerPosition);
             }
             player.setPlayWhenReady(shouldAutoPlay);
             playerNeedsSource = true;
@@ -373,7 +395,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
             }
             MediaSource mediaSource = mediaSources.length == 1 ? mediaSources[0]
                     : new ConcatenatingMediaSource(mediaSources);
-            player.prepare(mediaSource, !isTimelineStatic, !isTimelineStatic);
+            player.prepare(mediaSource, false, true);
             playerNeedsSource = false;
         }
     }
@@ -382,7 +404,6 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         if (player != null) {
             shouldAutoPlay = player.getPlayWhenReady();
             playerWindow = player.getCurrentWindowIndex();
-            playerPosition = C.TIME_UNSET;
             Timeline timeline = player.getCurrentTimeline();
             if (!timeline.isEmpty() && timeline.getWindow(playerWindow, window).isSeekable) {
                 playerPosition = player.getCurrentPosition();
@@ -453,7 +474,9 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     }
 
     private void stopUpdateTimer() {
-        timer.cancel();
+        if (timer != null) {
+            timer.cancel();
+        }
     }
 
 

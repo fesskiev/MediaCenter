@@ -8,6 +8,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.TextureView;
 
+@Deprecated
 public class VideoTextureView extends TextureView {
 
     public interface OnVideoTextureListener {

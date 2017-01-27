@@ -14,6 +14,12 @@ import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.widgets.buttons.PlayPauseButton;
+import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
+
+import static com.google.android.exoplayer2.ui.AspectRatioFrameLayout.RESIZE_MODE_FILL;
+import static com.google.android.exoplayer2.ui.AspectRatioFrameLayout.RESIZE_MODE_FIT;
+import static com.google.android.exoplayer2.ui.AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT;
+import static com.google.android.exoplayer2.ui.AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH;
 
 public class VideoControlView extends FrameLayout {
 
@@ -27,6 +33,8 @@ public class VideoControlView extends FrameLayout {
         void nextVideo();
 
         void previousVideo();
+
+        void resizeModeChanged(int mode);
     }
 
     private OnVideoPlayerControlListener listener;
@@ -34,7 +42,9 @@ public class VideoControlView extends FrameLayout {
     private SeekBar seekVideo;
     private TextView videoTimeCount;
     private TextView videoTimeTotal;
+    private TextView resizeModeState;
     private boolean isPlaying;
+    private int resizeMode;
 
     public VideoControlView(Context context) {
         super(context);
@@ -58,6 +68,10 @@ public class VideoControlView extends FrameLayout {
 
         videoTimeCount = (TextView) findViewById(R.id.videoTimeCount);
         videoTimeTotal = (TextView) findViewById(R.id.videoTimeTotal);
+
+        resizeModeState = (TextView) findViewById(R.id.resizeModeState);
+
+        view.findViewById(R.id.resizeModeButton).setOnClickListener(v -> changeResizeMode());
 
         ImageView nextVideo = (ImageView) findViewById(R.id.nextVideo);
         nextVideo.setOnClickListener(v -> {
@@ -111,6 +125,32 @@ public class VideoControlView extends FrameLayout {
 
     }
 
+    private void changeResizeMode() {
+        switch (resizeMode) {
+            case RESIZE_MODE_FIT:
+                resizeModeState.setText("FILL");
+                resizeMode = RESIZE_MODE_FILL;
+                break;
+            case RESIZE_MODE_FILL:
+                resizeModeState.setText("FIXED WIDTH");
+                resizeMode = RESIZE_MODE_FIXED_WIDTH;
+                break;
+            case RESIZE_MODE_FIXED_HEIGHT:
+                resizeModeState.setText("FIT");
+                resizeMode = RESIZE_MODE_FIT;
+                break;
+            case RESIZE_MODE_FIXED_WIDTH:
+                resizeModeState.setText("FIXED HEIGHT");
+                resizeMode = RESIZE_MODE_FIXED_HEIGHT;
+                break;
+
+        }
+
+        if (listener != null) {
+            listener.resizeModeChanged(resizeMode);
+        }
+    }
+
     public void setOnVideoPlayerControlListener(OnVideoPlayerControlListener l) {
         this.listener = l;
     }
@@ -136,5 +176,27 @@ public class VideoControlView extends FrameLayout {
         videoTimeTotal.setText("0:00");
         videoTimeCount.setText("0:00");
         seekVideo.setProgress(0);
+    }
+
+    public void setResizeModeState(@AspectRatioFrameLayout.ResizeMode int resizeMode) {
+        switch (resizeMode) {
+            case RESIZE_MODE_FIT:
+                resizeModeState.setText("FIT");
+                this.resizeMode = RESIZE_MODE_FIT;
+                break;
+            case RESIZE_MODE_FILL:
+                resizeModeState.setText("FILL");
+                this.resizeMode = RESIZE_MODE_FILL;
+                break;
+            case RESIZE_MODE_FIXED_HEIGHT:
+                resizeModeState.setText("FIXED HEIGHT");
+                this.resizeMode = RESIZE_MODE_FIXED_HEIGHT;
+                break;
+            case RESIZE_MODE_FIXED_WIDTH:
+                resizeModeState.setText("FIXED WIDTH");
+                this.resizeMode = RESIZE_MODE_FIXED_WIDTH;
+                break;
+
+        }
     }
 }

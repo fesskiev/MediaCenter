@@ -23,4 +23,6 @@
     <color name="grid_state_pressed">#1Affffff</color>
     <color name="grid_state_focused">#80000000</color>
 
+    <color name="video_player_background">#f1f1f1</color>
+
 </resources>

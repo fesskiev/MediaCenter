@@ -2,12 +2,49 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent"
+    android:layout_margin="8dp"
+    android:alpha="0.5">
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true">
+
+        <TextView
+            android:id="@+id/videoName"
+            style="@style/VideoPlayerTextAppearance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="@string/app_name" />
+
+        <Button
+            android:id="@+id/resizeModeButton"
+            style="@style/ButtonStyle"
+            android:layout_width="96dp"
+            android:layout_height="42dp"
+            android:layout_alignParentEnd="true"
+            android:text="Resize" />
+
+        <TextView
+            android:id="@+id/resizeModeState"
+            style="@style/VideoPlayerTextAppearance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/resizeModeButton"
+            android:layout_marginTop="10dp"
+            tools:text="@string/app_name" />
+
+    </RelativeLayout>
 
     <FrameLayout
         android:id="@+id/controlContainer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/videoTimeControl"
+        android:layout_marginBottom="10dp">
 
         <ImageView
             android:id="@+id/previousVideo"
@@ -20,8 +57,8 @@
 
         <com.fesskiev.mediacenter.widgets.buttons.PlayPauseButton
             android:id="@+id/playPauseButton"
-            android:layout_width="82dp"
-            android:layout_height="82dp"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
             android:layout_gravity="center_horizontal" />
 
         <ImageView
@@ -36,10 +73,10 @@
     </FrameLayout>
 
     <RelativeLayout
+        android:id="@+id/videoTimeControl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/controlContainer"
-        android:layout_marginTop="10dp">
+        android:layout_alignParentBottom="true">
 
         <TextView
             android:id="@+id/videoTimeCount"
@@ -73,6 +110,5 @@
             android:thumb="@drawable/seek_bar_thumb" />
 
     </RelativeLayout>
-
 
 </RelativeLayout>
