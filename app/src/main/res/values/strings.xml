@@ -162,6 +162,9 @@
     <string name="snackbar_last_track">Last track in list</string>
     <string name="snackbar_first_track">First track in list</string>
 
+    <string name="snackbar_last_video">Last video in list</string>
+    <string name="snackbar_first_video">First video in list</string>
+
     <string name="shared_cover_name" translatable="false">cover</string>
     <string name="shared_search_back" translatable="false">search_back</string>
 

@@ -76,6 +76,7 @@ public class VideoPlayer implements Playable {
 
     public void setCurrentVideoFile(VideoFile videoFile) {
         this.currentVideoFile = videoFile;
+        videoFilesIterator.findPosition();
     }
 
     private class VideoFilesIterator implements ListIterator<VideoFile> {
@@ -137,6 +138,12 @@ public class VideoPlayer implements Playable {
 
         private boolean lastVideo() {
             return position == (videoFiles.size() - 1);
+        }
+
+        public void findPosition() {
+            if (videoFiles.contains(currentVideoFile)) {
+                position = videoFiles.indexOf(currentVideoFile);
+            }
         }
     }
 }

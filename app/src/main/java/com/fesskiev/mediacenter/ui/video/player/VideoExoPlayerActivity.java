@@ -15,12 +15,10 @@ import android.view.View;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.players.VideoPlayer;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.controls.VideoControlView;
-import com.fesskiev.mediacenter.widgets.surfaces.VideoTextureView;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -97,6 +95,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     private DefaultTrackSelector trackSelector;
     private Timer timer;
 
+    private boolean isTimelineStatic;
     private boolean playerNeedsSource;
     private boolean shouldAutoPlay;
     private int playerWindow;
@@ -148,12 +147,12 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
 
             @Override
             public void nextVideo() {
-                videoPlayer.next();
+                next();
             }
 
             @Override
             public void previousVideo() {
-                videoPlayer.previous();
+                previous();
             }
 
             @Override
@@ -174,6 +173,30 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         EventBus.getDefault().register(this);
     }
 
+    private void previous() {
+        if (videoPlayer.first()) {
+            Utils.showCustomSnackbar(findViewById(R.id.videoPlayerRoot),
+                    getApplicationContext(),
+                    getString(R.string.snackbar_first_video),
+                    Snackbar.LENGTH_SHORT)
+                    .show();
+            return;
+        }
+        videoPlayer.previous();
+    }
+
+    private void next() {
+        if (videoPlayer.last()) {
+            Utils.showCustomSnackbar(findViewById(R.id.videoPlayerRoot),
+                    getApplicationContext(),
+                    getString(R.string.snackbar_last_video),
+                    Snackbar.LENGTH_SHORT)
+                    .show();
+            return;
+        }
+        videoPlayer.next();
+    }
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -190,7 +213,6 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     public void onSaveInstanceState(Bundle out) {
         out.putLong(BUNDLE_PLAYER_POSITION, playerPosition);
         super.onSaveInstanceState(out);
-
     }
 
     @Override
@@ -236,14 +258,24 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onCurrentVideoFileEvent(VideoFile videoFile) {
         Log.e("video", "PLAYER onCurrentVideoFileEvent: " + videoFile.toString());
-
         videoControlView.resetIndicators();
+        isTimelineStatic = false;
+
+        releasePlayer();
+
+        Intent intent = new Intent();
+        intent.putExtra(VideoExoPlayerActivity.URI_LIST_EXTRA, new String[]{videoFile.getFilePath()});
+        intent.setAction(VideoExoPlayerActivity.ACTION_VIEW_LIST);
+        setIntent(intent);
+
+        initializePlayer();
 
     }
 
     @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
-
+        isTimelineStatic = !timeline.isEmpty()
+                && !timeline.getWindow(timeline.getWindowCount() - 1, window).isDynamic;
     }
 
     @Override
@@ -383,10 +415,12 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
 //            player.setVideoTextureView(videoTextureView);
 
             simpleExoPlayerView.setPlayer(player);
-            if (playerPosition == C.TIME_UNSET) {
-                player.seekToDefaultPosition(playerWindow);
-            } else {
-                player.seekTo(playerWindow, playerPosition);
+            if (isTimelineStatic) {
+                if (playerPosition == C.TIME_UNSET) {
+                    player.seekToDefaultPosition(playerWindow);
+                } else {
+                    player.seekTo(playerWindow, playerPosition);
+                }
             }
             player.setPlayWhenReady(shouldAutoPlay);
             playerNeedsSource = true;
@@ -411,17 +445,14 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
             } else {
                 return;
             }
-            if (Util.maybeRequestReadExternalStoragePermission(this, uris)) {
-                // The player will be reinitialized if the permission is granted.
-                return;
-            }
+
             MediaSource[] mediaSources = new MediaSource[uris.length];
             for (int i = 0; i < uris.length; i++) {
                 mediaSources[i] = buildMediaSource(uris[i], extensions[i]);
             }
             MediaSource mediaSource = mediaSources.length == 1 ? mediaSources[0]
                     : new ConcatenatingMediaSource(mediaSources);
-            player.prepare(mediaSource, false, true);
+            player.prepare(mediaSource, !isTimelineStatic, !isTimelineStatic);
             playerNeedsSource = false;
         }
     }
@@ -430,6 +461,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         if (player != null) {
             shouldAutoPlay = player.getPlayWhenReady();
             playerWindow = player.getCurrentWindowIndex();
+            playerPosition = C.TIME_UNSET;
             Timeline timeline = player.getCurrentTimeline();
             if (!timeline.isEmpty() && timeline.getWindow(playerWindow, window).isSeekable) {
                 playerPosition = player.getCurrentPosition();
@@ -504,6 +536,4 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
             timer.cancel();
         }
     }
-
-
 }

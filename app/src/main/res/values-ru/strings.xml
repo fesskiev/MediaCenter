@@ -155,6 +155,9 @@
     <string name="snackbar_last_track">Пооследний трек в списке</string>
     <string name="snackbar_first_track">Первый трек в списке</string>
 
+    <string name="snackbar_last_video">Пооследний видеофайл в списке</string>
+    <string name="snackbar_first_video">Первый видеофайл в списке</string>
+
 
     <string name="mail_subject">(Media Center) Отзыв</string>
     <string name="mail_chooser">(Media Center) Отправить отзыв</string>
