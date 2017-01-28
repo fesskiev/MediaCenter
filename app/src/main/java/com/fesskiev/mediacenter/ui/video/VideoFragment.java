@@ -2,7 +2,6 @@ package com.fesskiev.mediacenter.ui.video;
 
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -134,8 +133,9 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
 
     private void startExoPlayerActivity(VideoFile videoFile) {
         Intent intent = new Intent(getContext(), VideoExoPlayerActivity.class);
-        intent.putExtra(VideoExoPlayerActivity.URI_LIST_EXTRA, new String[]{videoFile.getFilePath()});
-        intent.setAction(VideoExoPlayerActivity.ACTION_VIEW_LIST);
+        intent.putExtra(VideoExoPlayerActivity.URI_EXTRA, videoFile.getFilePath());
+        intent.putExtra(VideoExoPlayerActivity.VIDEO_NAME_EXTRA, videoFile.getFileName());
+        intent.setAction(VideoExoPlayerActivity.ACTION_VIEW_URI);
 
         startActivity(intent);
     }

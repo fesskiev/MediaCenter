@@ -35,7 +35,6 @@ import com.google.android.exoplayer2.drm.UnsupportedDrmException;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -59,7 +58,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -71,23 +69,16 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
 
     private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
 
-    public static final String BUNDLE_PLAYER_POSITION = "player_position";
+    public static final String BUNDLE_PLAYER_POSITION = "com.fesskiev.player.BUNDLE_PLAYER_POSITION";
 
-    public static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
-    public static final String DRM_LICENSE_URL = "drm_license_url";
-    public static final String DRM_KEY_REQUEST_PROPERTIES = "drm_key_request_properties";
-    public static final String PREFER_EXTENSION_DECODERS = "prefer_extension_decoders";
-
-    public static final String ACTION_VIEW = "com.google.android.exoplayer.demo.action.VIEW";
-    public static final String EXTENSION_EXTRA = "extension";
-
-    public static final String ACTION_VIEW_LIST = "com.google.android.exoplayer.demo.action.VIEW_LIST";
-    public static final String URI_LIST_EXTRA = "uri_list";
-    public static final String EXTENSION_LIST_EXTRA = "extension_list";
+    public static final String ACTION_VIEW_URI = "com.fesskiev.player.action.VIEW_LIST";
+    public static final String URI_EXTRA = "com.fesskiev.player.URI_EXTRA";
+    public static final String VIDEO_NAME_EXTRA = "com.fesskiev.player.VIDEO_NAME_EXTRA";
 
     private VideoPlayer videoPlayer;
     private VideoControlView videoControlView;
     private DataSource.Factory mediaDataSourceFactory;
+    private TrackSelection.Factory videoTrackSelectionFactory;
     private EventLogger eventLogger;
     private Timeline.Window window;
     private SimpleExoPlayerView simpleExoPlayerView;
@@ -112,12 +103,6 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_exo_player);
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 
@@ -173,6 +158,15 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         EventBus.getDefault().register(this);
     }
 
+    private void setFullScreen() {
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+    }
+
     private void previous() {
         if (videoPlayer.first()) {
             Utils.showCustomSnackbar(findViewById(R.id.videoPlayerRoot),
@@ -226,6 +220,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     @Override
     public void onResume() {
         super.onResume();
+        setFullScreen();
         if ((Util.SDK_INT <= 23 || player == null)) {
             initializePlayer();
         }
@@ -264,8 +259,9 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         releasePlayer();
 
         Intent intent = new Intent();
-        intent.putExtra(VideoExoPlayerActivity.URI_LIST_EXTRA, new String[]{videoFile.getFilePath()});
-        intent.setAction(VideoExoPlayerActivity.ACTION_VIEW_LIST);
+        intent.putExtra(VideoExoPlayerActivity.URI_EXTRA, videoFile.getFilePath());
+        intent.putExtra(VideoExoPlayerActivity.VIDEO_NAME_EXTRA, videoFile.getFileName());
+        intent.setAction(VideoExoPlayerActivity.ACTION_VIEW_URI);
         setIntent(intent);
 
         initializePlayer();
@@ -305,6 +301,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
                 videoControlView.setVideoTimeTotal(Utils.getTimeFromMillisecondsString(player.getDuration()));
                 updateProgressControls();
                 startUpdateTimer();
+                videoControlView.setVideoTrackInfo(player, trackSelector, videoTrackSelectionFactory);
                 break;
         }
     }
@@ -352,41 +349,11 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     private void initializePlayer() {
         Intent intent = getIntent();
         if (player == null) {
-            boolean preferExtensionDecoders = intent.getBooleanExtra(PREFER_EXTENSION_DECODERS, false);
-            UUID drmSchemeUuid = intent.hasExtra(DRM_SCHEME_UUID_EXTRA)
-                    ? UUID.fromString(intent.getStringExtra(DRM_SCHEME_UUID_EXTRA)) : null;
-            DrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
-            if (drmSchemeUuid != null) {
-                String drmLicenseUrl = intent.getStringExtra(DRM_LICENSE_URL);
-                String[] keyRequestPropertiesArray = intent.getStringArrayExtra(DRM_KEY_REQUEST_PROPERTIES);
-                Map<String, String> keyRequestProperties;
-                if (keyRequestPropertiesArray == null || keyRequestPropertiesArray.length < 2) {
-                    keyRequestProperties = null;
-                } else {
-                    keyRequestProperties = new HashMap<>();
-                    for (int i = 0; i < keyRequestPropertiesArray.length - 1; i += 2) {
-                        keyRequestProperties.put(keyRequestPropertiesArray[i],
-                                keyRequestPropertiesArray[i + 1]);
-                    }
-                }
-                try {
-                    drmSessionManager = buildDrmSessionManager(drmSchemeUuid, drmLicenseUrl,
-                            keyRequestProperties);
-                } catch (UnsupportedDrmException e) {
-                    e.printStackTrace();
-                }
-            }
 
-            @SimpleExoPlayer.ExtensionRendererMode int extensionRendererMode =
-                    MediaApplication.getInstance().useExtensionRenderers()
-                            ? (preferExtensionDecoders ? SimpleExoPlayer.EXTENSION_RENDERER_MODE_PREFER
-                            : SimpleExoPlayer.EXTENSION_RENDERER_MODE_ON)
-                            : SimpleExoPlayer.EXTENSION_RENDERER_MODE_OFF;
-            TrackSelection.Factory videoTrackSelectionFactory =
-                    new AdaptiveVideoTrackSelection.Factory(BANDWIDTH_METER);
+            videoTrackSelectionFactory = new AdaptiveVideoTrackSelection.Factory(BANDWIDTH_METER);
             trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
             player = ExoPlayerFactory.newSimpleInstance(this, trackSelector, new DefaultLoadControl(),
-                    drmSessionManager, extensionRendererMode);
+                    null, SimpleExoPlayer.EXTENSION_RENDERER_MODE_OFF);
             player.addListener(this);
 
             eventLogger = new EventLogger(trackSelector);
@@ -394,6 +361,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
             player.setAudioDebugListener(eventLogger);
             player.setVideoDebugListener(eventLogger);
             player.setId3Output(eventLogger);
+
 
 //            VideoTextureView videoTextureView = new VideoTextureView(getApplicationContext());
 //            videoTextureView.setOnVideoTextureListener(new VideoTextureView.OnVideoTextureListener() {
@@ -427,33 +395,18 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         }
         if (playerNeedsSource) {
             String action = intent.getAction();
-            Uri[] uris;
-            String[] extensions;
-            if (ACTION_VIEW.equals(action)) {
-                uris = new Uri[]{intent.getData()};
-                extensions = new String[]{intent.getStringExtra(EXTENSION_EXTRA)};
-            } else if (ACTION_VIEW_LIST.equals(action)) {
-                String[] uriStrings = intent.getStringArrayExtra(URI_LIST_EXTRA);
-                uris = new Uri[uriStrings.length];
-                for (int i = 0; i < uriStrings.length; i++) {
-                    uris[i] = Uri.parse(uriStrings[i]);
-                }
-                extensions = intent.getStringArrayExtra(EXTENSION_LIST_EXTRA);
-                if (extensions == null) {
-                    extensions = new String[uriStrings.length];
-                }
+            Uri uri;
+            if (ACTION_VIEW_URI.equals(action)) {
+                uri = Uri.parse(intent.getStringExtra(URI_EXTRA));
+                videoControlView.setVideoName(intent.getStringExtra(VIDEO_NAME_EXTRA));
             } else {
                 return;
             }
-
-            MediaSource[] mediaSources = new MediaSource[uris.length];
-            for (int i = 0; i < uris.length; i++) {
-                mediaSources[i] = buildMediaSource(uris[i], extensions[i]);
-            }
-            MediaSource mediaSource = mediaSources.length == 1 ? mediaSources[0]
-                    : new ConcatenatingMediaSource(mediaSources);
+            MediaSource mediaSource = buildMediaSource(uri);
             player.prepare(mediaSource, !isTimelineStatic, !isTimelineStatic);
             playerNeedsSource = false;
+
+
         }
     }
 
@@ -472,9 +425,8 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         }
     }
 
-    private MediaSource buildMediaSource(Uri uri, String overrideExtension) {
-        int type = Util.inferContentType(!TextUtils.isEmpty(overrideExtension) ? "." + overrideExtension
-                : uri.getLastPathSegment());
+    private MediaSource buildMediaSource(Uri uri) {
+        int type = Util.inferContentType(uri.getLastPathSegment());
         switch (type) {
             case C.TYPE_SS:
                 return new SsMediaSource(uri, buildDataSourceFactory(false),

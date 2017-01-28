@@ -3,8 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="8dp"
-    android:alpha="0.5">
+    android:alpha="0.7">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -14,62 +13,31 @@
         <TextView
             android:id="@+id/videoName"
             style="@style/VideoPlayerTextAppearance"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:text="@string/app_name" />
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:ellipsize="end"
+            android:maxLines="2" />
 
-        <Button
-            android:id="@+id/resizeModeButton"
-            style="@style/ButtonStyle"
-            android:layout_width="96dp"
-            android:layout_height="42dp"
-            android:layout_alignParentEnd="true"
-            android:text="Resize" />
-
-        <TextView
-            android:id="@+id/resizeModeState"
-            style="@style/VideoPlayerTextAppearance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@+id/resizeModeButton"
-            android:layout_marginTop="10dp"
-            tools:text="@string/app_name" />
+        <com.fesskiev.mediacenter.widgets.controls.VideoControlPanel
+            android:id="@+id/videoControlPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
     </RelativeLayout>
 
-    <FrameLayout
-        android:id="@+id/controlContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/videoTimeControl"
-        android:layout_marginBottom="10dp">
-
-        <ImageView
-            android:id="@+id/previousVideo"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_gravity="center_vertical"
-            android:contentDescription="@string/app_name"
-            android:scaleType="fitCenter"
-            android:src="@drawable/avd_music_previous" />
-
-        <com.fesskiev.mediacenter.widgets.buttons.PlayPauseButton
-            android:id="@+id/playPauseButton"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
-            android:layout_gravity="center_horizontal" />
-
-        <ImageView
-            android:id="@+id/nextVideo"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_gravity="center_vertical|end"
-            android:contentDescription="@string/app_name"
-            android:scaleType="fitCenter"
-            android:src="@drawable/avd_music_next" />
-
-    </FrameLayout>
+    <ImageView
+        android:id="@+id/settingsButton"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:layout_above="@+id/controlContainer"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="@string/app_name"
+        android:scaleType="fitCenter"
+        android:src="@drawable/icon_video_settings" />
 
     <RelativeLayout
         android:id="@+id/videoTimeControl"
@@ -109,5 +77,39 @@
             android:thumb="@drawable/seek_bar_thumb" />
 
     </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/controlContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/videoTimeControl"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="10dp">
+
+        <ImageView
+            android:id="@+id/previousVideo"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_vertical"
+            android:contentDescription="@string/app_name"
+            android:scaleType="fitCenter"
+            android:src="@drawable/avd_music_previous" />
+
+        <com.fesskiev.mediacenter.widgets.buttons.PlayPauseButton
+            android:id="@+id/playPauseButton"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_gravity="center_horizontal" />
+
+        <ImageView
+            android:id="@+id/nextVideo"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_vertical|end"
+            android:contentDescription="@string/app_name"
+            android:scaleType="fitCenter"
+            android:src="@drawable/avd_music_next" />
+
+    </FrameLayout>
 
 </RelativeLayout>

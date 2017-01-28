@@ -49,8 +49,7 @@
             android:layout_height="52dp"
             android:layout_gravity="center"
             android:contentDescription="@string/app_name"
-            android:src="@drawable/play_icon"
-            android:tint="@color/accent" />
+            android:src="@drawable/play_icon"/>
 
     </FrameLayout>
 
