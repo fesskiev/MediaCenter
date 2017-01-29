@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:alpha="0.7">
+    android:alpha="0.9">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -16,14 +17,78 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:gravity="center"
             android:ellipsize="end"
+            android:gravity="center"
             android:maxLines="2" />
 
-        <com.fesskiev.mediacenter.widgets.controls.VideoControlPanel
+        <android.support.v7.widget.CardView
             android:id="@+id/videoControlPanel"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="100dp"
+            app:cardBackgroundColor="@color/track_background"
+            app:contentPadding="8dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/resizeModeState"
+                    style="@style/VideoPlayerTextAppearance"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawablePadding="10dp"
+                    android:drawableTop="@drawable/icon_video_resize"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:maxLines="2"
+                    tools:text="@string/app_name" />
+
+                <TextView
+                    android:id="@+id/audioTrackButton"
+                    style="@style/VideoPlayerTextAppearance"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawablePadding="10dp"
+                    android:drawableTop="@drawable/icon_track_audio"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:maxLines="2"
+                    android:text="Audio Tracks" />
+
+                <TextView
+                    android:id="@+id/videoTrackButton"
+                    style="@style/VideoPlayerTextAppearance"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawablePadding="10dp"
+                    android:drawableTop="@drawable/icon_track_video"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:maxLines="2"
+                    android:text="Video Tracks" />
+
+                <TextView
+                    android:id="@+id/subTrackButton"
+                    style="@style/VideoPlayerTextAppearance"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawablePadding="10dp"
+                    android:drawableTop="@drawable/icon_track_subtitle"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:maxLines="2"
+                    android:text="Subtitles" />
+
+
+            </LinearLayout>
+
+        </android.support.v7.widget.CardView>
 
     </RelativeLayout>
 
@@ -43,7 +108,8 @@
         android:id="@+id/videoTimeControl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:alpha="0.7">
 
         <TextView
             android:id="@+id/videoTimeCount"

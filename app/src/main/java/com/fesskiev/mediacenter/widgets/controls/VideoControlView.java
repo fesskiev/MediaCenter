@@ -4,20 +4,24 @@ package com.fesskiev.mediacenter.widgets.controls;
 import android.content.Context;
 import android.graphics.drawable.Animatable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.Pair;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckedTextView;
+import android.view.ViewTreeObserver;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.utils.AnimationUtils;
 import com.fesskiev.mediacenter.widgets.buttons.PlayPauseButton;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -54,7 +58,7 @@ public class VideoControlView extends FrameLayout {
     }
 
     private OnVideoPlayerControlListener listener;
-    private VideoControlPanel controlPanel;
+    private View videoControlPanel;
     private PlayPauseButton playPauseButton;
     private SeekBar seekVideo;
     private TextView videoTimeCount;
@@ -63,6 +67,11 @@ public class VideoControlView extends FrameLayout {
     private TextView videoName;
     private boolean isPlaying;
     private int resizeMode;
+    private boolean showPanel;
+    private boolean animatePanel;
+    private int heightPanel;
+    private boolean showControl;
+    private boolean animateControl;
 
     private MappingTrackSelector selector;
     private TrackSelection.Factory adaptiveVideoTrackSelectionFactory;
@@ -89,6 +98,22 @@ public class VideoControlView extends FrameLayout {
                 Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.video_player_control, this, true);
 
+        showControl = true;
+        showPanel = true;
+        videoControlPanel = view.findViewById(R.id.videoControlPanel);
+        videoControlPanel.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+
+                    @Override
+                    public void onGlobalLayout() {
+
+                        heightPanel = videoControlPanel.getHeight();
+                        hidePanel(100);
+
+                        getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    }
+                });
+
         videoTimeCount = (TextView) view.findViewById(R.id.videoTimeCount);
         videoTimeTotal = (TextView) view.findViewById(R.id.videoTimeTotal);
 
@@ -97,9 +122,12 @@ public class VideoControlView extends FrameLayout {
         resizeModeState = (TextView) view.findViewById(R.id.resizeModeState);
         videoName = (TextView) view.findViewById(R.id.videoName);
 
-        controlPanel = (VideoControlPanel) view.findViewById(R.id.videoControlPanel);
 
-        view.findViewById(R.id.settingsButton).setOnClickListener(v -> changeControlPanelState());
+        ImageView settingsButton = (ImageView) view.findViewById(R.id.settingsButton);
+        settingsButton.setOnClickListener(v -> {
+            AnimationUtils.getInstance().rotateAnimation(settingsButton);
+            togglePanel();
+        });
 
         ImageView nextVideo = (ImageView) findViewById(R.id.nextVideo);
         nextVideo.setOnClickListener(v -> {
@@ -150,10 +178,6 @@ public class VideoControlView extends FrameLayout {
                 }
             }
         });
-    }
-
-    private void changeControlPanelState() {
-        controlPanel.toggle();
     }
 
     private void changeResizeMode() {
@@ -347,5 +371,128 @@ public class VideoControlView extends FrameLayout {
 
     private static String buildTrackIdString(Format format) {
         return format.id == null ? "" : ("id:" + format.id);
+    }
+
+
+    private void hidePanel(int duration) {
+        if (!animatePanel) {
+            animatePanel = true;
+            ViewCompat.animate(videoControlPanel)
+                    .translationY(-heightPanel)
+                    .setDuration(duration)
+                    .setInterpolator(new DecelerateInterpolator(1.2f))
+                    .setListener(new ViewPropertyAnimatorListener() {
+                        @Override
+                        public void onAnimationStart(View view) {
+                        }
+
+                        @Override
+                        public void onAnimationEnd(View view) {
+                            showPanel = false;
+                            animatePanel = false;
+                        }
+
+                        @Override
+                        public void onAnimationCancel(View view) {
+
+                        }
+                    }).start();
+        }
+
+    }
+
+    private void showPanel() {
+        if (!animatePanel) {
+            animatePanel = true;
+            ViewCompat.animate(videoControlPanel)
+                    .translationY(0)
+                    .setDuration(800)
+                    .setInterpolator(new DecelerateInterpolator(1.2f))
+                    .setListener(new ViewPropertyAnimatorListener() {
+                        @Override
+                        public void onAnimationStart(View view) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(View view) {
+                            showPanel = true;
+                            animatePanel = false;
+                        }
+
+                        @Override
+                        public void onAnimationCancel(View view) {
+
+                        }
+                    }).start();
+        }
+    }
+
+    private void togglePanel() {
+        if (showPanel) {
+            hidePanel(800);
+        } else {
+            showPanel();
+        }
+    }
+
+    public void toggleControl() {
+        if (showControl) {
+            hideControl();
+        } else {
+            showControl();
+        }
+    }
+
+    private void hideControl() {
+        if (!animateControl) {
+            animateControl = true;
+            ViewCompat.animate(this)
+                    .alpha(0f)
+                    .setDuration(800)
+                    .setInterpolator(new DecelerateInterpolator(1.2f))
+                    .setListener(new ViewPropertyAnimatorListener() {
+                        @Override
+                        public void onAnimationStart(View view) {
+                        }
+
+                        @Override
+                        public void onAnimationEnd(View view) {
+                            showControl = false;
+                            animateControl = false;
+                        }
+
+                        @Override
+                        public void onAnimationCancel(View view) {
+
+                        }
+                    }).start();
+        }
+    }
+
+    private void showControl() {
+        if (!animateControl) {
+            animateControl = true;
+            ViewCompat.animate(this)
+                    .alpha(0.9f)
+                    .setDuration(800)
+                    .setInterpolator(new DecelerateInterpolator(1.2f))
+                    .setListener(new ViewPropertyAnimatorListener() {
+                        @Override
+                        public void onAnimationStart(View view) {
+                        }
+
+                        @Override
+                        public void onAnimationEnd(View view) {
+                            showControl = true;
+                            animateControl = false;
+                        }
+
+                        @Override
+                        public void onAnimationCancel(View view) {
+
+                        }
+                    }).start();
+        }
     }
 }

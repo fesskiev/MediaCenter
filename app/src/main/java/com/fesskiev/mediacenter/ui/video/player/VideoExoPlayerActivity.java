@@ -9,8 +9,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 
 import com.fesskiev.mediacenter.MediaApplication;
@@ -75,6 +76,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     public static final String URI_EXTRA = "com.fesskiev.player.URI_EXTRA";
     public static final String VIDEO_NAME_EXTRA = "com.fesskiev.player.VIDEO_NAME_EXTRA";
 
+    private GestureDetector gestureDetector;
     private VideoPlayer videoPlayer;
     private VideoControlView videoControlView;
     private DataSource.Factory mediaDataSourceFactory;
@@ -112,10 +114,11 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
             playerPosition = savedInstanceState.getLong(BUNDLE_PLAYER_POSITION);
         }
 
+        gestureDetector = new GestureDetector(getApplicationContext(), new GestureListener());
+
         shouldAutoPlay = true;
 
         window = new Timeline.Window();
-
         mediaDataSourceFactory = buildDataSourceFactory(true);
 
         videoControlView = (VideoControlView) findViewById(R.id.videoPlayerControl);
@@ -207,6 +210,11 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     public void onSaveInstanceState(Bundle out) {
         out.putLong(BUNDLE_PLAYER_POSITION, playerPosition);
         super.onSaveInstanceState(out);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return gestureDetector.onTouchEvent(event);
     }
 
     @Override
@@ -486,6 +494,15 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     private void stopUpdateTimer() {
         if (timer != null) {
             timer.cancel();
+        }
+    }
+
+    private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            videoControlView.toggleControl();
+            return true;
         }
     }
 }

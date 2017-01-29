@@ -67,4 +67,8 @@ public class AnimationUtils {
         view.startAnimation(android.view.animation.AnimationUtils.loadAnimation(context, R.anim.shake_error));
     }
 
+    public void rotateAnimation(View view) {
+        view.startAnimation(android.view.animation.AnimationUtils.loadAnimation(context, R.anim.rotate));
+    }
+
 }
