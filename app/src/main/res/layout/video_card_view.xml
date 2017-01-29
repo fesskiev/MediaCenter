@@ -40,8 +40,7 @@
             android:layout_marginEnd="4dp"
             android:layout_marginTop="4dp"
             android:contentDescription="@string/app_name"
-            android:src="@drawable/icon_popup_menu"
-            android:tint="@color/white_text" />
+            android:src="@drawable/icon_video_menu" />
 
         <ImageView
             android:id="@+id/playVideoButton"
@@ -49,7 +48,7 @@
             android:layout_height="52dp"
             android:layout_gravity="center"
             android:contentDescription="@string/app_name"
-            android:src="@drawable/play_icon"/>
+            android:src="@drawable/play_icon" />
 
     </FrameLayout>
 
