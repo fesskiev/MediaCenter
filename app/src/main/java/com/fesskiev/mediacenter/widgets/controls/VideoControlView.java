@@ -9,9 +9,7 @@ import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.animation.DecelerateInterpolator;
@@ -183,19 +181,19 @@ public class VideoControlView extends FrameLayout {
     private void changeResizeMode() {
         switch (resizeMode) {
             case RESIZE_MODE_FIT:
-                resizeModeState.setText("FILL");
+                resizeModeState.setText(getResources().getString(R.string.resize_mode_fill));
                 resizeMode = RESIZE_MODE_FILL;
                 break;
             case RESIZE_MODE_FILL:
-                resizeModeState.setText("FIXED WIDTH");
+                resizeModeState.setText(getResources().getString(R.string.resize_mode_fixed_width));
                 resizeMode = RESIZE_MODE_FIXED_WIDTH;
                 break;
             case RESIZE_MODE_FIXED_HEIGHT:
-                resizeModeState.setText("FIT");
+                resizeModeState.setText(getResources().getString(R.string.resize_mode_fit));
                 resizeMode = RESIZE_MODE_FIT;
                 break;
             case RESIZE_MODE_FIXED_WIDTH:
-                resizeModeState.setText("FIXED HEIGHT");
+                resizeModeState.setText(getResources().getString(R.string.resize_mode_fixed_height));
                 resizeMode = RESIZE_MODE_FIXED_HEIGHT;
                 break;
 
@@ -209,19 +207,19 @@ public class VideoControlView extends FrameLayout {
     public void setResizeModeState(@AspectRatioFrameLayout.ResizeMode int resizeMode) {
         switch (resizeMode) {
             case RESIZE_MODE_FIT:
-                resizeModeState.setText("FIT");
+                resizeModeState.setText(getResources().getString(R.string.resize_mode_fit));
                 this.resizeMode = RESIZE_MODE_FIT;
                 break;
             case RESIZE_MODE_FILL:
-                resizeModeState.setText("FILL");
+                resizeModeState.setText(getResources().getString(R.string.resize_mode_fill));
                 this.resizeMode = RESIZE_MODE_FILL;
                 break;
             case RESIZE_MODE_FIXED_HEIGHT:
-                resizeModeState.setText("FIXED HEIGHT");
+                resizeModeState.setText(getResources().getString(R.string.resize_mode_fixed_height));
                 this.resizeMode = RESIZE_MODE_FIXED_HEIGHT;
                 break;
             case RESIZE_MODE_FIXED_WIDTH:
-                resizeModeState.setText("FIXED WIDTH");
+                resizeModeState.setText(getResources().getString(R.string.resize_mode_fixed_width));
                 this.resizeMode = RESIZE_MODE_FIXED_WIDTH;
                 break;
         }

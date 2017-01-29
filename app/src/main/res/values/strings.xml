@@ -165,7 +165,15 @@
     <string name="snackbar_last_video">Last video in list</string>
     <string name="snackbar_first_video">First video in list</string>
 
-    <string name="shared_cover_name" translatable="false">cover</string>
+    <string name="resize_mode_fit">Fit</string>
+    <string name="resize_mode_fill">Fill</string>
+    <string name="resize_mode_fixed_height">Fixed height</string>
+    <string name="resize_mode_fixed_width">Fixed width</string>
+
+    <string name="video_tracks">Video tracks</string>
+    <string name="audio_tracks">Audio tracks</string>
+    <string name="subtitles">Subtitles</string>
+
     <string name="shared_search_back" translatable="false">search_back</string>
 
     <string name="vk_page">https://vk.com/fess_kiev</string>

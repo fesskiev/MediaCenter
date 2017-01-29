@@ -38,53 +38,56 @@
                     style="@style/VideoPlayerTextAppearance"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
                     android:layout_weight="1"
                     android:drawablePadding="10dp"
                     android:drawableTop="@drawable/icon_video_resize"
                     android:ellipsize="end"
                     android:gravity="center"
                     android:maxLines="2"
-                    tools:text="@string/app_name" />
+                    tools:text="Fixed height" />
 
                 <TextView
                     android:id="@+id/audioTrackButton"
                     style="@style/VideoPlayerTextAppearance"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
                     android:layout_weight="1"
                     android:drawablePadding="10dp"
                     android:drawableTop="@drawable/icon_track_audio"
                     android:ellipsize="end"
                     android:gravity="center"
                     android:maxLines="2"
-                    android:text="Audio Tracks" />
+                    android:text="@string/audio_tracks" />
 
                 <TextView
                     android:id="@+id/videoTrackButton"
                     style="@style/VideoPlayerTextAppearance"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
                     android:layout_weight="1"
                     android:drawablePadding="10dp"
                     android:drawableTop="@drawable/icon_track_video"
                     android:ellipsize="end"
                     android:gravity="center"
                     android:maxLines="2"
-                    android:text="Video Tracks" />
+                    android:text="@string/video_tracks" />
 
                 <TextView
                     android:id="@+id/subTrackButton"
                     style="@style/VideoPlayerTextAppearance"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
                     android:layout_weight="1"
                     android:drawablePadding="10dp"
                     android:drawableTop="@drawable/icon_track_subtitle"
                     android:ellipsize="end"
                     android:gravity="center"
                     android:maxLines="2"
-                    android:text="Subtitles" />
-
+                    android:text="@string/subtitles" />
 
             </LinearLayout>
 

@@ -158,6 +158,15 @@
     <string name="snackbar_last_video">Пооследний видеофайл в списке</string>
     <string name="snackbar_first_video">Первый видеофайл в списке</string>
 
+    <string name="resize_mode_fit">Оптимальный</string>
+    <string name="resize_mode_fill">Заполнение</string>
+    <string name="resize_mode_fixed_height">Фикс.высота</string>
+    <string name="resize_mode_fixed_width">Фикс.ширина</string>
+
+    <string name="video_tracks">Видео дорожки</string>
+    <string name="audio_tracks">Аудио дорожки</string>
+    <string name="subtitles">Субтитры</string>
+
 
     <string name="mail_subject">(Media Center) Отзыв</string>
     <string name="mail_chooser">(Media Center) Отправить отзыв</string>
