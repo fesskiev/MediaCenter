@@ -80,4 +80,6 @@
 
     <dimen name="text_effect_name">16sp</dimen>
 
+    <dimen name="text_video_player">14sp</dimen>
+
 </resources>

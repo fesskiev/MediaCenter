@@ -78,6 +78,8 @@
 
     <dimen name="text_checkbox">9sp</dimen>
 
-    <dimen name="text_effect_name">16sp</dimen>
+    <dimen name="text_effect_name">12sp</dimen>
+
+    <dimen name="text_video_player">12sp</dimen>
 
 </resources>
