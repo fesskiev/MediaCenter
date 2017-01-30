@@ -422,7 +422,7 @@ public class VideoControlView extends FrameLayout {
         disableView = (CheckedTextView) inflater.inflate(
                 R.layout.item_video_track_single_layout, root, false);
         disableView.setBackgroundResource(selectableItemBackgroundResourceId);
-        disableView.setText("Disabled");
+        disableView.setText(getResources().getString(R.string.video_track_disable));
         disableView.setFocusable(true);
         disableView.setOnClickListener(onClickListener);
         root.addView(disableView);
@@ -430,7 +430,7 @@ public class VideoControlView extends FrameLayout {
         // View for clearing the override to allow the selector to use its default selection logic.
         defaultView = (CheckedTextView) inflater.inflate(R.layout.item_video_track_single_layout, root, false);
         defaultView.setBackgroundResource(selectableItemBackgroundResourceId);
-        defaultView.setText("Default");
+        defaultView.setText(getResources().getString(R.string.video_track_default));
         defaultView.setFocusable(true);
         defaultView.setOnClickListener(onClickListener);
         root.addView(inflater.inflate(R.layout.item_video_list_divider, root, false));
@@ -472,13 +472,13 @@ public class VideoControlView extends FrameLayout {
 
         if (!haveSupportedTracks) {
             // Indicate that the default selection will be nothing.
-            defaultView.setText("Default (none)");
+            defaultView.setText(getResources().getString(R.string.video_track_default_none));
         } else if (haveAdaptiveTracks) {
             // View for using random adaptation.
             enableRandomAdaptationView = (CheckedTextView) inflater.inflate(
                     R.layout.item_video_track_multiple_layout, root, false);
             enableRandomAdaptationView.setBackgroundResource(selectableItemBackgroundResourceId);
-            enableRandomAdaptationView.setText("Enable random adaptation");
+            enableRandomAdaptationView.setText(getResources().getString(R.string.video_track_adaptation));
             enableRandomAdaptationView.setOnClickListener(onClickListener);
             root.addView(inflater.inflate(R.layout.item_video_list_divider, root, false));
             root.addView(enableRandomAdaptationView);

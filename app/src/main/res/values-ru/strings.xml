@@ -167,6 +167,10 @@
     <string name="audio_tracks">Аудио дорожки</string>
     <string name="subtitles">Субтитры</string>
 
+    <string name="video_track_disable">Отключить</string>
+    <string name="video_track_default">По умолчанию</string>
+    <string name="video_track_default_none">По умолчанию (отключено)</string>
+    <string name="video_track_adaptation">Включить переменный битрейт</string>
 
     <string name="mail_subject">(Media Center) Отзыв</string>
     <string name="mail_chooser">(Media Center) Отправить отзыв</string>

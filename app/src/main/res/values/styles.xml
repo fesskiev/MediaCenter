@@ -70,8 +70,9 @@
     </style>
 
     <style name="Custom.Widget.CheckBoxStyle" parent="Base.Widget.AppCompat.CompoundButton.CheckBox">
-        <item name="colorControlNormal">@color/primary_light</item>
-        <item name="colorControlActivated">@color/primary</item>
+        <item name="colorControlNormal">@color/primary</item>
+        <item name="colorControlActivated">@color/primary_dark</item>
+        <item name="android:colorControlHighlight">@color/primary_light</item>
     </style>
 
 

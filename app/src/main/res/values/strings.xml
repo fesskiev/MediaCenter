@@ -193,6 +193,11 @@
     <string name="error_querying_decoders">Unable to query device decoders</string>
     <string name="error_instantiating_decoder">Unable to instantiate decoder <xliff:g id="decoder_name">%1$s</xliff:g></string>
 
+    <string name="video_track_disable">Disabled</string>
+    <string name="video_track_default">Default</string>
+    <string name="video_track_default_none">Default (none)</string>
+    <string name="video_track_adaptation">Enable bitrate adaptation</string>
+
     <string name="button_video_select">Select</string>
 
 </resources>
