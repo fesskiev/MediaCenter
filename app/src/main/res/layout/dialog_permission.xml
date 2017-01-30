@@ -7,8 +7,8 @@
 
     <ImageView
         android:id="@+id/permissionIcon"
-        android:layout_width="55dp"
-        android:layout_height="55dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         android:contentDescription="@string/app_name"
         android:src="@drawable/icon_permission" />
 
@@ -20,6 +20,7 @@
         android:layout_toEndOf="@+id/permissionIcon"
         android:gravity="center"
         android:minLines="3"
+        android:ellipsize="end"
         android:text="@string/permission_read_external_storage" />
 
     <LinearLayout

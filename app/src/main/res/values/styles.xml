@@ -332,7 +332,6 @@
 
 
 
-
     <style name="DescriptionVideoTextAppearance" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/white_text</item>
         <item name="android:textSize">12sp</item>

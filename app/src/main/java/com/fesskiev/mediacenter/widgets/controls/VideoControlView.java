@@ -484,7 +484,22 @@ public class VideoControlView extends FrameLayout {
             root.addView(enableRandomAdaptationView);
         }
 
+        root.addView(inflater.inflate(R.layout.item_video_list_divider, root, false));
+
+        View buttonRoot = inflater.inflate(R.layout.item_video_track_select_button, root, false);
+        buttonRoot.findViewById(R.id.buttonSelectTrack).setOnClickListener(v -> selectTrack());
+        root.addView(buttonRoot);
+
         updateViews();
+    }
+
+    private void selectTrack() {
+        selector.setRendererDisabled(rendererIndex, isDisabled);
+        if (override != null) {
+            selector.setSelectionOverride(rendererIndex, trackGroups, override);
+        } else {
+            selector.clearSelectionOverrides(rendererIndex);
+        }
     }
 
     private void updateViews() {

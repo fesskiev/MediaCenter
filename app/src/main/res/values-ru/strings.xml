@@ -171,4 +171,6 @@
     <string name="mail_subject">(Media Center) Отзыв</string>
     <string name="mail_chooser">(Media Center) Отправить отзыв</string>
 
+    <string name="button_video_select">Выбрать</string>
+
 </resources>
