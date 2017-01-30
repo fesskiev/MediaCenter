@@ -139,6 +139,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         }
 
         checkAudioContentItem();
+        addAudioFragment();
     }
 
     private void showToolbarTimer() {
@@ -280,12 +281,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
@@ -304,12 +299,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 break;
         }
         return true;
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        addAudioFragment();
     }
 
     @Override
