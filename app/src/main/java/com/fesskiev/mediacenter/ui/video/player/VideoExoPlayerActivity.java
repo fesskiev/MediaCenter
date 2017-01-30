@@ -345,7 +345,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     }
 
     private void showErrorShackBar(String errorString) {
-        Utils.showCustomSnackbar(getCurrentFocus(), getApplicationContext(),
+        Utils.showCustomSnackbar(findViewById(R.id.videoPlayerRoot), getApplicationContext(),
                 errorString, Snackbar.LENGTH_LONG).show();
     }
 
