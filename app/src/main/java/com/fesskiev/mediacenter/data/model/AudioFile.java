@@ -96,7 +96,7 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
             if (imageRawData != null) {
                 try {
                     File path = File.createTempFile(UUID.randomUUID().toString(),
-                            ".png", new File(CacheManager.IMAGES_CACHE_PATH));
+                            ".png", new File(CacheManager.IMAGES_AUDIO_CACHE_PATH));
 
                     BitmapHelper.getInstance().saveBitmap(artwork.getBinaryData(), path);
 

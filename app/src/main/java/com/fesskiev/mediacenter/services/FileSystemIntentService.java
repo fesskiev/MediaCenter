@@ -203,7 +203,6 @@ public class FileSystemIntentService extends IntentService {
         File root = new File(path);
         File[] list = root.listFiles();
         if (list == null) {
-            Log.w(TAG, "Root is null");
             return;
         }
         for (File child : list) {
@@ -216,7 +215,6 @@ public class FileSystemIntentService extends IntentService {
         File root = new File(path);
         File[] list = root.listFiles();
         if (list == null) {
-            Log.w(TAG, "Root is null");
             return;
         }
         for (File child : list) {

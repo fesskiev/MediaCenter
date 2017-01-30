@@ -64,8 +64,11 @@ public class VideoFile implements MediaFile {
     private void saveFrame(Bitmap bitmap) {
         try {
 
-            File path = File.createTempFile(UUID.randomUUID().toString(),
-                    ".png", new File(CacheManager.IMAGES_CACHE_PATH));
+            File dir = new File(CacheManager.IMAGES_VIDEO_CACHE_PATH);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            File path = File.createTempFile(UUID.randomUUID().toString(), ".png", dir);
 
             BitmapHelper.getInstance().saveBitmap(bitmap, path);
 

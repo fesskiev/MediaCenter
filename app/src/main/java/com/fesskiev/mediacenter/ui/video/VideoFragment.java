@@ -28,6 +28,7 @@ import com.fesskiev.mediacenter.services.FileSystemIntentService;
 import com.fesskiev.mediacenter.ui.video.player.VideoExoPlayerActivity;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
+import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.buttons.VideoCardView;
@@ -123,7 +124,6 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                     } else {
                         showEmptyContentCard();
                     }
-
                     AppLog.INFO("onNext:video: " + (videoFiles == null ? "null" : videoFiles.size()));
                 });
         if (swipeRefreshLayout.isRefreshing()) {
@@ -158,6 +158,8 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 (dialog, which) -> {
                     RxUtils.unsubscribe(subscription);
                     subscription = RxUtils.fromCallable(repository.resetVideoContentDatabase())
+                            .subscribeOn(Schedulers.io())
+                            .doOnNext(integer -> CacheManager.clearVideoImagesCache())
                             .subscribeOn(Schedulers.io())
                             .subscribe(aVoid -> FileSystemIntentService.startFetchVideo(getActivity()));
                 });
