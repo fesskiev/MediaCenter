@@ -23,7 +23,7 @@ android {
         }
 
         ndk {
-            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+            abiFilters 'x86', 'armeabi-v7a'
         }
 
         externalNativeBuild {
@@ -74,6 +74,7 @@ ext {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile files('libs/jaudiotagger-2.2.4.jar')
+    compile project(':extensions')
 
     compile "com.android.support:appcompat-v7:${supportLibVersion}"
     compile "com.android.support:recyclerview-v7:${supportLibVersion}"

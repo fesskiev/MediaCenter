@@ -22,6 +22,14 @@ import rx.plugins.RxJavaPlugins;
 
 public class MediaApplication extends Application {
 
+    static {
+        try {
+            System.loadLibrary("ffmpeg");
+        }
+        catch (UnsatisfiedLinkError e) {
+            e.printStackTrace();
+        }
+    }
 
     private static MediaApplication INSTANCE;
     private AudioPlayer audioPlayer;
@@ -91,10 +99,6 @@ public class MediaApplication extends Application {
 
     public HttpDataSource.Factory buildHttpDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {
         return new DefaultHttpDataSourceFactory(userAgent, bandwidthMeter);
-    }
-
-    public boolean useExtensionRenderers() {
-        return BuildConfig.FLAVOR.equals("withExtensions");
     }
 
     public AudioPlayer getAudioPlayer() {

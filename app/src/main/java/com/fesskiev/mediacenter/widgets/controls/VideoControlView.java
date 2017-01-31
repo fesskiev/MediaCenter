@@ -10,7 +10,6 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -392,8 +391,6 @@ public class VideoControlView extends FrameLayout {
     }
 
     private void setTrack() {
-        Log.e("test_", "setTrack: " + rendererIndex);
-
         MappingTrackSelector.MappedTrackInfo trackInfo = selector.getCurrentMappedTrackInfo();
 
         trackGroups = trackInfo.getTrackGroups(rendererIndex);
@@ -461,16 +458,16 @@ public class VideoControlView extends FrameLayout {
                         trackViewLayoutId, root, false);
                 trackView.setBackgroundResource(selectableItemBackgroundResourceId);
                 trackView.setText(buildTrackName(group.getFormat(trackIndex)));
-                if (trackInfo.getTrackFormatSupport(rendererIndex, groupIndex, trackIndex)
-                        == RendererCapabilities.FORMAT_HANDLED) {
+//                if (trackInfo.getTrackFormatSupport(rendererIndex, groupIndex, trackIndex)
+//                        == RendererCapabilities.FORMAT_HANDLED) {
                     trackView.setFocusable(true);
                     trackView.setTag(Pair.create(groupIndex, trackIndex));
                     trackView.setOnClickListener(onClickListener);
                     haveSupportedTracks = true;
-                } else {
-                    trackView.setFocusable(false);
-                    trackView.setEnabled(false);
-                }
+//                } else {
+//                    trackView.setFocusable(false);
+//                    trackView.setEnabled(false);
+//                }
                 trackViews[groupIndex][trackIndex] = trackView;
                 root.addView(trackView);
             }
