@@ -214,16 +214,22 @@ public class VideoControlView extends FrameLayout {
     }
 
     private void setSubTrack(int index) {
+        AnimationUtils.getInstance().scaleToSmallViews(audioTrackView, videoTrackView);
+        AnimationUtils.getInstance().scaleToOriginalView(subTrackView);
         rendererIndex = index;
         setTrack();
     }
 
     private void setVideoTrack(int index) {
+        AnimationUtils.getInstance().scaleToSmallViews(audioTrackView, subTrackView);
+        AnimationUtils.getInstance().scaleToOriginalView(videoTrackView);
         rendererIndex = index;
         setTrack();
     }
 
     private void setAudioTrack(int index) {
+        AnimationUtils.getInstance().scaleToSmallViews(subTrackView, videoTrackView);
+        AnimationUtils.getInstance().scaleToOriginalView(audioTrackView);
         rendererIndex = index;
         setTrack();
     }

@@ -63,6 +63,24 @@ public class AnimationUtils {
                 .setInterpolator(fastOutSlowInInterpolator);
     }
 
+    public void scaleToSmallViews(View... menu) {
+        for (View view : menu) {
+            view.animate()
+                    .scaleX(0.8f)
+                    .scaleY(0.8f)
+                    .setDuration(DURATION_300)
+                    .setInterpolator(fastOutSlowInInterpolator);
+        }
+    }
+
+    public void scaleToOriginalView(View view) {
+        view.animate()
+                .scaleX(1.0f)
+                .scaleY(1.0f)
+                .setDuration(DURATION_300)
+                .setInterpolator(fastOutSlowInInterpolator);
+    }
+
     public void errorAnimation(View view) {
         view.startAnimation(android.view.animation.AnimationUtils.loadAnimation(context, R.anim.shake_error));
     }
