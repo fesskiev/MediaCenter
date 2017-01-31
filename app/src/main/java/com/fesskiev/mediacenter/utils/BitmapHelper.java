@@ -141,6 +141,13 @@ public class BitmapHelper {
                 return true;
             }
         }
+
+        Glide.with(context)
+                .load(R.drawable.no_cover_player)
+                .fitCenter()
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .into(imageView);
+
         return false;
     }
 
