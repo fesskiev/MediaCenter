@@ -191,6 +191,7 @@ public class BitmapHelper {
                     .override(WIDTH, HEIGHT)
                     .crossFade()
                     .centerCrop()
+                    .transform(new CircleTransform(context))
                     .into(imageView);
         }
     }
@@ -206,8 +207,8 @@ public class BitmapHelper {
                     .crossFade()
                     .centerCrop()
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .transform(new CircleTransform(context)).
-                    into(imageView);
+                    .transform(new CircleTransform(context))
+                    .into(imageView);
             return;
         }
 
