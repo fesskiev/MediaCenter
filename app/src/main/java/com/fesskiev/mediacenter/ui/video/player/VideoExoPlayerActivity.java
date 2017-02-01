@@ -1,13 +1,16 @@
 package com.fesskiev.mediacenter.ui.video.player;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.media.AudioFormat;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.DocumentsContract;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -25,6 +28,7 @@ import com.fesskiev.mediacenter.widgets.controls.VideoControlView;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -38,6 +42,8 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MergingMediaSource;
+import com.google.android.exoplayer2.source.SingleSampleMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
@@ -53,12 +59,14 @@ import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.File;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -66,16 +74,18 @@ import java.util.UUID;
 
 public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlayer.EventListener {
 
-
     private static final String TAG = VideoExoPlayerActivity.class.getSimpleName();
 
-    private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
+    private static final int REQUEST_CODE_SUBTITLE = 1337;
 
     public static final String BUNDLE_PLAYER_POSITION = "com.fesskiev.player.BUNDLE_PLAYER_POSITION";
 
     public static final String ACTION_VIEW_URI = "com.fesskiev.player.action.VIEW_LIST";
     public static final String URI_EXTRA = "com.fesskiev.player.URI_EXTRA";
     public static final String VIDEO_NAME_EXTRA = "com.fesskiev.player.VIDEO_NAME_EXTRA";
+    public static final String SUB_EXTRA = "com.fesskiev.player.SUB_EXTRA";
+
+    private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
 
     private GestureDetector gestureDetector;
     private VideoPlayer videoPlayer;
@@ -130,6 +140,11 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
             }
 
             @Override
+            public void addSubButtonClick() {
+                performSubSearch();
+            }
+
+            @Override
             public void seekVideo(int progress) {
                 player.seekTo(progress * durationScale);
             }
@@ -171,6 +186,18 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
     }
 
+    private void performSubSearch() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        // Filter to show only images, using the image MIME data type.
+        // If one wanted to search for ogg vorbis files, the type would be "audio/ogg".
+        // To search for all documents available via installed storage providers, it would be
+        // "*/*".
+        intent.setType("*/*");
+        startActivityForResult(intent, REQUEST_CODE_SUBTITLE);
+    }
+
+
     private void previous() {
         if (videoPlayer.first()) {
             Utils.showCustomSnackbar(findViewById(R.id.videoPlayerRoot),
@@ -193,6 +220,29 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
             return;
         }
         videoPlayer.next();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        if (requestCode == REQUEST_CODE_SUBTITLE && resultCode == Activity.RESULT_OK) {
+            if (resultData != null) {
+                Uri uri = resultData.getData();
+                Log.i(TAG, "Uri: " + uri.toString());
+                final String docId = DocumentsContract.getDocumentId(uri);
+                final String[] split = docId.split(":");
+                final String type = split[0];
+
+                if ("primary".equalsIgnoreCase(type)) {
+                    Intent intent = new Intent();
+                    intent.putExtra(VideoExoPlayerActivity.URI_EXTRA, currentVideoPath);
+                    intent.putExtra(VideoExoPlayerActivity.VIDEO_NAME_EXTRA, currentVideoName);
+                    intent.putExtra(VideoExoPlayerActivity.SUB_EXTRA, Environment.getExternalStorageDirectory() + "/" + split[1]);
+                    intent.setAction(VideoExoPlayerActivity.ACTION_VIEW_URI);
+                    setIntent(intent);
+                }
+
+            }
+        }
     }
 
     @Override
@@ -355,6 +405,9 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
 
     }
 
+    String currentVideoPath;
+    String currentVideoName;
+
     private void initializePlayer() {
         Intent intent = getIntent();
         if (player == null) {
@@ -412,13 +465,31 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
             String action = intent.getAction();
             Uri uri;
             if (ACTION_VIEW_URI.equals(action)) {
-                uri = Uri.parse(intent.getStringExtra(URI_EXTRA));
-                videoControlView.setVideoName(intent.getStringExtra(VIDEO_NAME_EXTRA));
+                currentVideoPath = intent.getStringExtra(URI_EXTRA);
+                uri = Uri.parse(currentVideoPath);
+
+                currentVideoName = intent.getStringExtra(VIDEO_NAME_EXTRA);
+                videoControlView.setVideoName(currentVideoName);
             } else {
                 return;
             }
-            MediaSource mediaSource = buildMediaSource(uri);
-            player.prepare(mediaSource, !isTimelineStatic, !isTimelineStatic);
+            MediaSource videoSource = buildMediaSource(uri);
+
+            if (intent.hasExtra(SUB_EXTRA)) {
+                String subPath = intent.getStringExtra(SUB_EXTRA);
+
+                Format textFormat = Format.createTextSampleFormat(null, MimeTypes.APPLICATION_SUBRIP, null, Format.NO_VALUE,
+                        Format.NO_VALUE, "external", null, 0);
+                MediaSource textMediaSource = new SingleSampleMediaSource(Uri.fromFile(new File(subPath)),
+                        mediaDataSourceFactory, textFormat, C.TIME_UNSET);
+
+                MediaSource mergedSource = new MergingMediaSource(videoSource, textMediaSource);
+
+                player.prepare(mergedSource, !isTimelineStatic, !isTimelineStatic);
+            } else {
+                player.prepare(videoSource, !isTimelineStatic, !isTimelineStatic);
+            }
+
             playerNeedsSource = false;
 
 

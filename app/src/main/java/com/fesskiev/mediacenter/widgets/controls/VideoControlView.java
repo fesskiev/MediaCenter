@@ -53,6 +53,8 @@ public class VideoControlView extends FrameLayout {
 
         void playPauseButtonClick(boolean isPlaying);
 
+        void addSubButtonClick();
+
         void seekVideo(int progress);
 
         void nextVideo();
@@ -89,7 +91,6 @@ public class VideoControlView extends FrameLayout {
     private MappingTrackSelector selector;
     private TrackSelection.Factory adaptiveVideoTrackSelectionFactory;
     private MappingTrackSelector.SelectionOverride override;
-    private MappingTrackSelector.MappedTrackInfo trackInfo;
     private int rendererIndex;
     private TrackGroupArray trackGroups;
     private boolean[] trackGroupsAdaptive;
@@ -154,6 +155,11 @@ public class VideoControlView extends FrameLayout {
         resizeModeState = (TextView) view.findViewById(R.id.resizeModeState);
         videoName = (TextView) view.findViewById(R.id.videoName);
 
+        view.findViewById(R.id.addSubButton).setOnClickListener(v -> {
+            if(listener != null){
+                listener.addSubButtonClick();
+            }
+        });
 
         ImageView settingsButton = (ImageView) view.findViewById(R.id.settingsButton);
         settingsButton.setOnClickListener(v -> {
@@ -318,7 +324,7 @@ public class VideoControlView extends FrameLayout {
         this.selector = selector;
         this.adaptiveVideoTrackSelectionFactory = adaptiveVideoTrackSelectionFactory;
 
-        trackInfo = selector.getCurrentMappedTrackInfo();
+        MappingTrackSelector.MappedTrackInfo trackInfo = selector.getCurrentMappedTrackInfo();
         if (trackInfo == null) {
             return;
         }
@@ -386,7 +392,7 @@ public class VideoControlView extends FrameLayout {
                 }
             }
         }
-        // Update the views with the new state.
+
         updateViews();
     }
 
@@ -458,16 +464,11 @@ public class VideoControlView extends FrameLayout {
                         trackViewLayoutId, root, false);
                 trackView.setBackgroundResource(selectableItemBackgroundResourceId);
                 trackView.setText(buildTrackName(group.getFormat(trackIndex)));
-//                if (trackInfo.getTrackFormatSupport(rendererIndex, groupIndex, trackIndex)
-//                        == RendererCapabilities.FORMAT_HANDLED) {
-                    trackView.setFocusable(true);
-                    trackView.setTag(Pair.create(groupIndex, trackIndex));
-                    trackView.setOnClickListener(onClickListener);
-                    haveSupportedTracks = true;
-//                } else {
-//                    trackView.setFocusable(false);
-//                    trackView.setEnabled(false);
-//                }
+                trackView.setFocusable(true);
+                trackView.setTag(Pair.create(groupIndex, trackIndex));
+                trackView.setOnClickListener(onClickListener);
+                haveSupportedTracks = true;
+
                 trackViews[groupIndex][trackIndex] = trackView;
                 root.addView(trackView);
             }
@@ -553,15 +554,12 @@ public class VideoControlView extends FrameLayout {
     private static String buildTrackName(Format format) {
         String trackName;
         if (MimeTypes.isVideo(format.sampleMimeType)) {
-            trackName = joinWithSeparator(joinWithSeparator(buildResolutionString(format),
-                    buildBitrateString(format)), buildTrackIdString(format));
+            trackName = joinWithSeparator(buildResolutionString(format), buildBitrateString(format));
         } else if (MimeTypes.isAudio(format.sampleMimeType)) {
-            trackName = joinWithSeparator(joinWithSeparator(joinWithSeparator(buildLanguageString(format),
-                    buildAudioPropertyString(format)), buildBitrateString(format)),
-                    buildTrackIdString(format));
-        } else {
             trackName = joinWithSeparator(joinWithSeparator(buildLanguageString(format),
-                    buildBitrateString(format)), buildTrackIdString(format));
+                    buildAudioPropertyString(format)), buildBitrateString(format));
+        } else {
+            trackName = joinWithSeparator(buildLanguageString(format), buildBitrateString(format));
         }
         return trackName.length() == 0 ? "unknown" : trackName;
     }
@@ -589,11 +587,6 @@ public class VideoControlView extends FrameLayout {
     private static String joinWithSeparator(String first, String second) {
         return first.length() == 0 ? second : (second.length() == 0 ? first : first + ", " + second);
     }
-
-    private static String buildTrackIdString(Format format) {
-        return format.id == null ? "" : ("id:" + format.id);
-    }
-
 
     private void hidePanel(int duration) {
         if (!animatePanel) {

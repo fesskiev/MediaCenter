@@ -30,6 +30,8 @@
             android:layout_gravity="bottom"
             android:layout_marginBottom="5dp"
             android:gravity="center"
+            android:maxLines="2"
+            android:ellipsize="end"
             tools:text="480x320" />
 
         <ImageView

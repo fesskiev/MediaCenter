@@ -45,8 +45,8 @@ public class VideoFile implements MediaFile {
 
             StringBuilder sb = new StringBuilder();
             String name = filePath.getName();
-            if (name.length() >= 14) {
-                String cutName = name.substring(name.length() - 14);
+            if (name.length() > 20) {
+                String cutName = name.substring(0, 20);
                 sb.append(cutName);
             }
             sb.append(":");
