@@ -10,7 +10,11 @@ import com.fesskiev.mediacenter.data.model.effects.EQState;
 import com.fesskiev.mediacenter.data.model.effects.EchoState;
 import com.fesskiev.mediacenter.data.model.effects.ReverbState;
 import com.fesskiev.mediacenter.data.model.effects.WhooshState;
+import com.fesskiev.mediacenter.data.model.video.RendererState;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.util.Set;
 
 public class AppSettingsManager {
 
@@ -34,6 +38,8 @@ public class AppSettingsManager {
 
     private static final String KEY_ECHO_ENABLE = "com.fesskiev.player.KEY_ECHO_ENABLE";
     private static final String KEY_ECHO_STATE = "com.fesskiev.player.KEY_ECHO_STATE";
+
+    private static final String KEY_RENDERER_STATE = "com.fesskiev.player.KEY_RENDERER_STATE";
 
 
     private SharedPreferences sharedPreferences;
@@ -205,6 +211,25 @@ public class AppSettingsManager {
     public void setEchoEnable(boolean enable) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(KEY_ECHO_ENABLE, enable);
+        editor.apply();
+    }
+
+
+    public void setRendererState(Set<RendererState> rendererState) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(KEY_RENDERER_STATE, new Gson().toJson(rendererState));
+        editor.apply();
+    }
+
+    public Set<RendererState> getRendererState() {
+        String stateJson = sharedPreferences.getString(KEY_RENDERER_STATE, "");
+        return new Gson().fromJson(stateJson, new TypeToken<Set<RendererState>>() {
+        }.getType());
+    }
+
+    public void clearRendererState() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(KEY_RENDERER_STATE, "");
         editor.apply();
     }
 }

@@ -29,6 +29,11 @@ public class Utils {
 
     private static final String TAG = Utils.class.getName();
 
+    public static String getVideoFileTimeFormat(long milliseconds) {
+       return getDurationString((int) (milliseconds / 1000));
+    }
+
+
     public static String getTimeFromMillisecondsString(long millis) {
         return String.format(Locale.getDefault(),
                 "%02d:%02d",

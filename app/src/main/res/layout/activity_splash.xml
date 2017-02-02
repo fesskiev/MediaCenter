@@ -34,7 +34,7 @@
             android:layout_marginTop="8dp"
             android:alpha="0"
             android:gravity="center"
-            android:text="Better media player for you"
+            android:text="Power media player for you"
             tools:alpha="1" />
 
     </LinearLayout>

@@ -208,7 +208,8 @@ public class SplashActivity extends AppCompatActivity {
         for (int i = 0; i < container.getChildCount(); i++) {
             View v = container.getChildAt(i);
             ViewCompat.animate(v)
-                    .translationY(50).alpha(1)
+                    .translationY(50)
+                    .alpha(1)
                     .setStartDelay((ITEM_DELAY * i) + 500)
                     .setDuration(1000)
                     .start();

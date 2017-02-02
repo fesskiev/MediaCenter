@@ -121,8 +121,10 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
 
         videoPlayer = MediaApplication.getInstance().getVideoPlayer();
 
+        Log.wtf(TAG, "onCreate(Bundle savedInstanceState): " + (savedInstanceState == null));
         if (savedInstanceState != null) {
             playerPosition = savedInstanceState.getLong(BUNDLE_PLAYER_POSITION);
+            isTimelineStatic = true;
         }
 
         gestureDetector = new GestureDetector(getApplicationContext(), new GestureListener());
@@ -259,6 +261,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
 
     @Override
     public void onSaveInstanceState(Bundle out) {
+        Log.wtf(TAG, "onSaveInstanceState()");
         out.putLong(BUNDLE_PLAYER_POSITION, playerPosition);
         super.onSaveInstanceState(out);
     }
@@ -271,6 +274,8 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     @Override
     public void onStart() {
         super.onStart();
+        Log.wtf(TAG, "onStart()");
+
         if (Util.SDK_INT > 23) {
             initializePlayer();
         }
@@ -279,6 +284,8 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     @Override
     public void onResume() {
         super.onResume();
+        Log.wtf(TAG, "onResume()");
+
         setFullScreen();
         if ((Util.SDK_INT <= 23 || player == null)) {
             initializePlayer();
@@ -288,6 +295,8 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     @Override
     public void onPause() {
         super.onPause();
+        Log.wtf(TAG, "onPause()");
+
         if (Util.SDK_INT <= 23) {
             releasePlayer();
         }
@@ -296,16 +305,22 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     @Override
     public void onStop() {
         super.onStop();
+        Log.wtf(TAG, "onStop()");
+
         if (Util.SDK_INT > 23) {
             releasePlayer();
         }
         stopUpdateTimer();
+        videoControlView.saveRendererState();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.wtf(TAG, "onDestroy()");
+
         EventBus.getDefault().unregister(this);
+        videoControlView.clearRendererState();
     }
 
 
@@ -357,7 +372,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
                 break;
             case ExoPlayer.STATE_READY:
                 Log.wtf(TAG, "ready");
-                videoControlView.setVideoTimeTotal(Utils.getTimeFromMillisecondsString(player.getDuration()));
+                videoControlView.setVideoTimeTotal(Utils.getVideoFileTimeFormat(player.getDuration()));
                 updateProgressControls();
                 startUpdateTimer();
                 videoControlView.setVideoTrackInfo(player, trackSelector, videoTrackSelectionFactory);
@@ -410,6 +425,9 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
 
     private void initializePlayer() {
         Intent intent = getIntent();
+
+        Log.wtf(TAG, "INIT PLAYER: " + (player == null));
+
         if (player == null) {
 
             videoTrackSelectionFactory = new AdaptiveVideoTrackSelection.Factory(BANDWIDTH_METER);
@@ -550,7 +568,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
 
     private void updateProgressControls() {
         if (player != null) {
-            videoControlView.setVideoTimeCount(Utils.getTimeFromMillisecondsString(player.getCurrentPosition()));
+            videoControlView.setVideoTimeCount(Utils.getVideoFileTimeFormat(player.getCurrentPosition()));
             playerPosition = player.getCurrentPosition();
             durationScale = player.getDuration() / 100;
             if (durationScale != 0) {

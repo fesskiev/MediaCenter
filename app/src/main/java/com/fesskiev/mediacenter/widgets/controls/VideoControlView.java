@@ -10,6 +10,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,7 +24,9 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.data.model.video.RendererState;
 import com.fesskiev.mediacenter.utils.AnimationUtils;
+import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.widgets.buttons.PlayPauseButton;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -38,8 +41,12 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.util.MimeTypes;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.TreeSet;
 
 import static com.google.android.exoplayer2.ui.AspectRatioFrameLayout.RESIZE_MODE_FILL;
 import static com.google.android.exoplayer2.ui.AspectRatioFrameLayout.RESIZE_MODE_FIT;
@@ -101,6 +108,9 @@ public class VideoControlView extends FrameLayout {
     private CheckedTextView enableRandomAdaptationView;
     private CheckedTextView[][] trackViews;
 
+    private Set<RendererState> rendererStates;
+    private boolean restoreRenderer;
+
 
     public VideoControlView(Context context) {
         super(context);
@@ -122,6 +132,8 @@ public class VideoControlView extends FrameLayout {
                 Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.video_player_control, this, true);
 
+        rendererStates = new TreeSet<>();
+
         showControl = true;
         showPanel = true;
         videoControlPanel = view.findViewById(R.id.videoControlPanel);
@@ -141,8 +153,6 @@ public class VideoControlView extends FrameLayout {
         videoTimeCount = (TextView) view.findViewById(R.id.videoTimeCount);
         videoTimeTotal = (TextView) view.findViewById(R.id.videoTimeTotal);
 
-        view.findViewById(R.id.resizeModeState).setOnClickListener(v -> changeResizeMode());
-
         audioTrackView = (TextView) view.findViewById(R.id.audioTrackButton);
         audioTrackView.setOnClickListener(v -> setAudioTrack((int) v.getTag()));
 
@@ -152,11 +162,13 @@ public class VideoControlView extends FrameLayout {
         subTrackView = (TextView) view.findViewById(R.id.subTrackButton);
         subTrackView.setOnClickListener(v -> setSubTrack((int) v.getTag()));
 
-        resizeModeState = (TextView) view.findViewById(R.id.resizeModeState);
         videoName = (TextView) view.findViewById(R.id.videoName);
 
+        resizeModeState = (TextView) view.findViewById(R.id.resizeModeState);
+        resizeModeState.setOnClickListener(v -> changeResizeMode());
+
         view.findViewById(R.id.addSubButton).setOnClickListener(v -> {
-            if(listener != null){
+            if (listener != null) {
                 listener.addSubButtonClick();
             }
         });
@@ -348,6 +360,8 @@ public class VideoControlView extends FrameLayout {
                 }
             }
         }
+
+        restoreTracksState();
     }
 
 
@@ -396,7 +410,38 @@ public class VideoControlView extends FrameLayout {
         updateViews();
     }
 
+    private void restoreTracksState() {
+
+        Set<RendererState> rendererStates = AppSettingsManager.getInstance().getRendererState();
+
+        if (restoreRenderer && rendererStates != null && !rendererStates.isEmpty()) {
+
+            MappingTrackSelector.MappedTrackInfo trackInfo = selector.getCurrentMappedTrackInfo();
+
+            for (RendererState rendererState : rendererStates) {
+
+                Log.e("test", "restore renderer state!" + rendererState.toString());
+
+                boolean disable = rendererState.isDisabled();
+                selector.setRendererDisabled(rendererState.getIndex(), disable);
+                if (disable) {
+                    selector.clearSelectionOverrides(rendererState.getIndex());
+                } else {
+                    TrackGroupArray trackGroups = trackInfo.getTrackGroups(rendererState.getIndex());
+
+                    MappingTrackSelector.SelectionOverride override = new MappingTrackSelector.SelectionOverride(FIXED_FACTORY,
+                            rendererState.getGroupIndex(), rendererState.getTrackIndex());
+
+                    selector.setSelectionOverride(rendererState.getIndex(), trackGroups, override);
+                }
+
+            }
+            restoreRenderer = false;
+        }
+    }
+
     private void setTrack() {
+
         MappingTrackSelector.MappedTrackInfo trackInfo = selector.getCurrentMappedTrackInfo();
 
         trackGroups = trackInfo.getTrackGroups(rendererIndex);
@@ -421,6 +466,8 @@ public class VideoControlView extends FrameLayout {
                 Context.LAYOUT_INFLATER_SERVICE);
         ViewGroup root = (ViewGroup) trackSelectionPanel.findViewById(R.id.trackSelectionRoot);
         root.removeAllViews();
+
+        root.addView(inflater.inflate(R.layout.item_video_list_divider, root, false));
 
         TypedArray attributeArray = context.getTheme().obtainStyledAttributes(
                 new int[]{android.R.attr.selectableItemBackground});
@@ -498,12 +545,40 @@ public class VideoControlView extends FrameLayout {
     }
 
     private void selectTrack() {
+        Log.e("test", "selectTrack disabled? " + isDisabled);
+
         selector.setRendererDisabled(rendererIndex, isDisabled);
+
+        RendererState rendererState;
         if (override != null) {
             selector.setSelectionOverride(rendererIndex, trackGroups, override);
+
+            rendererState = new RendererState(rendererIndex, override.groupIndex, override.tracks[0], isDisabled);
+
         } else {
             selector.clearSelectionOverrides(rendererIndex);
+
+            rendererState = new RendererState(rendererIndex, -1, -1, isDisabled);
         }
+
+
+        if(rendererStates.contains(rendererState)){
+            rendererStates.remove(rendererState);
+            Log.e("test", "remove old state");
+        }
+        Log.e("test", "add renderer stat" + rendererState.toString());
+        rendererStates.add(rendererState);
+    }
+
+    public void saveRendererState() {
+        AppSettingsManager.getInstance().setRendererState(rendererStates);
+        Log.e("test", "save renderer state");
+        restoreRenderer = true;
+    }
+
+    public void clearRendererState() {
+        AppSettingsManager.getInstance().clearRendererState();
+        Log.e("test", "clear renderer state");
     }
 
     private void updateViews() {
