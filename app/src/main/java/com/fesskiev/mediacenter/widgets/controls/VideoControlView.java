@@ -13,6 +13,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -41,9 +42,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.util.MimeTypes;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
@@ -80,6 +79,7 @@ public class VideoControlView extends FrameLayout {
     private TextView videoTimeTotal;
     private TextView resizeModeState;
     private TextView videoName;
+    private ImageView videoLockScreen;
 
     private TextView audioTrackView;
     private TextView videoTrackView;
@@ -110,6 +110,7 @@ public class VideoControlView extends FrameLayout {
 
     private Set<RendererState> rendererStates;
     private boolean restoreRenderer;
+    private boolean lockScreen;
 
 
     public VideoControlView(Context context) {
@@ -136,6 +137,8 @@ public class VideoControlView extends FrameLayout {
 
         showControl = true;
         showPanel = true;
+        lockScreen = false;
+
         videoControlPanel = view.findViewById(R.id.videoControlPanel);
         videoControlPanel.getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -153,6 +156,8 @@ public class VideoControlView extends FrameLayout {
         videoTimeCount = (TextView) view.findViewById(R.id.videoTimeCount);
         videoTimeTotal = (TextView) view.findViewById(R.id.videoTimeTotal);
 
+        videoName = (TextView) view.findViewById(R.id.videoName);
+
         audioTrackView = (TextView) view.findViewById(R.id.audioTrackButton);
         audioTrackView.setOnClickListener(v -> setAudioTrack((int) v.getTag()));
 
@@ -162,7 +167,6 @@ public class VideoControlView extends FrameLayout {
         subTrackView = (TextView) view.findViewById(R.id.subTrackButton);
         subTrackView.setOnClickListener(v -> setSubTrack((int) v.getTag()));
 
-        videoName = (TextView) view.findViewById(R.id.videoName);
 
         resizeModeState = (TextView) view.findViewById(R.id.resizeModeState);
         resizeModeState.setOnClickListener(v -> changeResizeMode());
@@ -173,11 +177,11 @@ public class VideoControlView extends FrameLayout {
             }
         });
 
+        videoLockScreen = (ImageView) view.findViewById(R.id.videoLockScreen);
+        videoLockScreen.setOnClickListener(v -> toggleLockScreen());
+
         ImageView settingsButton = (ImageView) view.findViewById(R.id.settingsButton);
-        settingsButton.setOnClickListener(v -> {
-            AnimationUtils.getInstance().rotateAnimation(settingsButton);
-            togglePanel();
-        });
+        settingsButton.setOnClickListener(v -> togglePanel(settingsButton));
 
         ImageView nextVideo = (ImageView) findViewById(R.id.nextVideo);
         nextVideo.setOnClickListener(v -> {
@@ -202,7 +206,6 @@ public class VideoControlView extends FrameLayout {
             if (listener != null) {
                 listener.playPauseButtonClick(isPlaying);
             }
-
         });
 
         seekVideo = (SeekBar) findViewById(R.id.seekVideo);
@@ -230,6 +233,7 @@ public class VideoControlView extends FrameLayout {
         });
     }
 
+
     private void setSubTrack(int index) {
         AnimationUtils.getInstance().scaleToSmallViews(audioTrackView, videoTrackView);
         AnimationUtils.getInstance().scaleToOriginalView(subTrackView);
@@ -252,6 +256,7 @@ public class VideoControlView extends FrameLayout {
     }
 
     private void changeResizeMode() {
+        AnimationUtils.getInstance().errorAnimation(resizeModeState);
         switch (resizeMode) {
             case RESIZE_MODE_FIT:
                 resizeModeState.setText(getResources().getString(R.string.resize_mode_fill));
@@ -364,6 +369,22 @@ public class VideoControlView extends FrameLayout {
         restoreTracksState();
     }
 
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent e) {
+        if (isPointInsideView(e.getRawX(), e.getRawY(), videoLockScreen)) {
+            return false;
+        }
+        return lockScreen;
+    }
+
+    private boolean isPointInsideView(float x, float y, View view) {
+        int location[] = new int[2];
+        view.getLocationOnScreen(location);
+        int viewX = location[0];
+        int viewY = location[1];
+        return (x > viewX && x < (viewX + view.getWidth())) &&
+                (y > viewY && y < (viewY + view.getHeight()));
+    }
 
     private OnClickListener onClickListener = this::handleTrackClick;
 
@@ -562,7 +583,7 @@ public class VideoControlView extends FrameLayout {
         }
 
 
-        if(rendererStates.contains(rendererState)){
+        if (rendererStates.contains(rendererState)) {
             rendererStates.remove(rendererState);
             Log.e("test", "remove old state");
         }
@@ -717,7 +738,8 @@ public class VideoControlView extends FrameLayout {
         }
     }
 
-    private void togglePanel() {
+    private void togglePanel(ImageView settingsButton) {
+        AnimationUtils.getInstance().rotateAnimation(settingsButton);
         if (showPanel) {
             hidePanel(800);
         } else {
@@ -730,6 +752,16 @@ public class VideoControlView extends FrameLayout {
             hideControl();
         } else {
             showControl();
+        }
+    }
+
+    private void toggleLockScreen() {
+        AnimationUtils.getInstance().errorAnimation(videoLockScreen);
+        lockScreen = !lockScreen;
+        if (lockScreen) {
+            videoLockScreen.setImageResource(R.drawable.icon_video_lock_screen);
+        } else {
+            videoLockScreen.setImageResource(R.drawable.icon_video_unlock_screen);
         }
     }
 
