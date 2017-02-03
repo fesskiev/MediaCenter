@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.widgets.effects.WhooshControlView;
+import com.fesskiev.mediacenter.widgets.fetch.FetchContentView;
 import com.fesskiev.mediacenter.widgets.recycleview.ScrollingLinearLayoutManager;
 
 
@@ -33,10 +33,12 @@ public class MediaNavigationView extends NavigationView {
     private OnEffectChangedListener listener;
 
     private EffectsAdapter adapter;
+    private FetchContentView fetchContentView;
     private boolean enableEQ;
     private boolean enableReverb;
     private boolean enableWhoosh;
     private boolean enableEcho;
+
 
     public MediaNavigationView(Context context) {
         super(context);
@@ -81,6 +83,8 @@ public class MediaNavigationView extends NavigationView {
         private static final int VIEW_TYPE_REVERB = 1;
         private static final int VIEW_TYPE_ECHO = 2;
         private static final int VIEW_TYPE_WHOOSH = 3;
+        private static final int VIEW_TYPE_FETCH_CONTENT = 4;
+
 
         public class EchoViewHolder extends RecyclerView.ViewHolder {
 
@@ -95,6 +99,14 @@ public class MediaNavigationView extends NavigationView {
                         listener.onEchoStateChanged(checked);
                     }
                 });
+            }
+        }
+
+        public class FetchContentHolder extends RecyclerView.ViewHolder {
+
+            public FetchContentHolder(View v) {
+                super(v);
+                fetchContentView = (FetchContentView) v.findViewById(R.id.fetchContentView);
             }
         }
 
@@ -167,6 +179,10 @@ public class MediaNavigationView extends NavigationView {
                     v = LayoutInflater.from(parent.getContext())
                             .inflate(R.layout.nav_drawer_whoosh_layout, parent, false);
                     return new WhooshViewHolder(v);
+                case VIEW_TYPE_FETCH_CONTENT:
+                    v = LayoutInflater.from(parent.getContext())
+                            .inflate(R.layout.nav_drawer_fetch_content, parent, false);
+                    return new FetchContentHolder(v);
             }
             return null;
         }
@@ -186,6 +202,8 @@ public class MediaNavigationView extends NavigationView {
                 case VIEW_TYPE_WHOOSH:
                     createWhooshItem((WhooshViewHolder) holder);
                     break;
+                case VIEW_TYPE_FETCH_CONTENT:
+                    break;
             }
         }
 
@@ -200,14 +218,15 @@ public class MediaNavigationView extends NavigationView {
                     return VIEW_TYPE_ECHO;
                 case 3:
                     return VIEW_TYPE_WHOOSH;
-
+                case 4:
+                    return VIEW_TYPE_FETCH_CONTENT;
             }
             return -1;
         }
 
         @Override
         public int getItemCount() {
-            return 4;
+            return 5;
         }
 
         private void createEchoItem(EchoViewHolder holder) {
@@ -225,7 +244,6 @@ public class MediaNavigationView extends NavigationView {
         private void createWhooshItem(EffectsAdapter.WhooshViewHolder holder) {
             holder.whooshStateSwitch.setChecked(enableWhoosh);
         }
-
     }
 
 
@@ -253,4 +271,7 @@ public class MediaNavigationView extends NavigationView {
         adapter.notifyDataSetChanged();
     }
 
+    public FetchContentView getFetchContentView() {
+        return fetchContentView;
+    }
 }

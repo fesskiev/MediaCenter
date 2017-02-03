@@ -67,8 +67,8 @@
     <dimen name="text_user_first_name">16sp</dimen>
     <dimen name="text_user_second_name">14sp</dimen>
 
-    <dimen name="text_fetch_dialog_title">16sp</dimen>
-    <dimen name="text_fetch_dialog_desc">14sp</dimen>
+    <dimen name="text_fetch_dialog_title">14sp</dimen>
+    <dimen name="text_fetch_dialog_desc">12sp</dimen>
 
     <dimen name="text_permission_dialog">14sp</dimen>
 

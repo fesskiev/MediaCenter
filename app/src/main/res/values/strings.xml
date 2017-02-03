@@ -79,6 +79,7 @@
 
     <string name="dialog_fetch_audio_folder_name">Searching folders....</string>
     <string name="dialog_fetch_audio_track_name">Searching tracks....</string>
+    <string name="dialog_fetch_audio_title">File searching</string>
 
     <string name="dialog_refresh_folders_title">Music search</string>
     <string name="dialog_refresh_folders_message">Make a full music search?</string>
@@ -201,5 +202,7 @@
     <string name="button_video_select">Select</string>
 
     <string name="splash_screen_title">Power media player</string>
+
+    <string name="splash_snackbar_stop_fetch">Do you want stop searching files?</string>
 
 </resources>

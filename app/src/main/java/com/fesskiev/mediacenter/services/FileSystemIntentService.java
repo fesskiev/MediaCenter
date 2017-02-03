@@ -27,7 +27,6 @@ public class FileSystemIntentService extends IntentService {
 
     private static final String TAG = FileSystemIntentService.class.getSimpleName();
 
-
     public static final String ACTION_VIDEO_FILE = "com.fesskiev.player.action.VIDEO_FILE";
 
     private static final String ACTION_START_FETCH_MEDIA_SERVICE =
@@ -53,6 +52,7 @@ public class FileSystemIntentService extends IntentService {
 
     public static final String EXTRA_VIDEO_FILE_NAME = "com.fesskiev.player.action.EXTRA_VIDEO_FILE_NAME";
 
+    public static volatile boolean shouldContinue;
 
     public FileSystemIntentService() {
         super(FileSystemIntentService.class.getName());
@@ -170,6 +170,7 @@ public class FileSystemIntentService extends IntentService {
     }
 
     private void getMediaContent() {
+        shouldContinue = true;
         String sdCardState = Environment.getExternalStorageState();
         if (sdCardState.equals(Environment.MEDIA_MOUNTED)) {
             sendStartFetchMediaBroadcast();
@@ -185,6 +186,7 @@ public class FileSystemIntentService extends IntentService {
     }
 
     public void walkAudio(String path) {
+        shouldContinue = true;
         File root = new File(path);
         File[] list = root.listFiles();
         if (list == null) {
@@ -200,6 +202,7 @@ public class FileSystemIntentService extends IntentService {
     }
 
     public void walkVideo(String path) {
+        shouldContinue = true;
         File root = new File(path);
         File[] list = root.listFiles();
         if (list == null) {
@@ -212,6 +215,10 @@ public class FileSystemIntentService extends IntentService {
     }
 
     public void walk(String path) {
+        Log.w(TAG, "walk: " + shouldContinue);
+        if (!shouldContinue) {
+            return;
+        }
         File root = new File(path);
         File[] list = root.listFiles();
         if (list == null) {
@@ -253,7 +260,7 @@ public class FileSystemIntentService extends IntentService {
         if (directoryFiles != null) {
             for (File directoryFile : directoryFiles) {
                 File[] audioFiles = directoryFile.listFiles(audioFilter());
-                if (audioFiles != null && audioFiles.length > 0) {
+                if (audioFiles != null && audioFiles.length > 0 && shouldContinue) {
                     Log.w(TAG, "audio folder created");
 
                     AudioFolder audioFolder = new AudioFolder();
@@ -348,8 +355,10 @@ public class FileSystemIntentService extends IntentService {
     }
 
     public void sendEndFetchMediaBroadcast() {
-        Intent intent = new Intent(ACTION_END_FETCH_MEDIA_CONTENT);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        if (shouldContinue) {
+            Intent intent = new Intent(ACTION_END_FETCH_MEDIA_CONTENT);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        }
     }
 
     public void sendAudioTrackNameBroadcast(String trackName) {

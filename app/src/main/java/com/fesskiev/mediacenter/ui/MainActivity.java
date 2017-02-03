@@ -16,6 +16,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -73,7 +74,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         AnimationUtils.getInstance().animateToolbar(toolbar);
 
         timerView = (ImageView) findViewById(R.id.timer);
-        timerView.setOnClickListener(v -> fetchMediaFilesManager.toggleShowDialog());
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -105,14 +105,30 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         });
         toggle.syncState();
 
-
         setEffectsNavView();
         setMainNavView();
 
-        fetchMediaFilesManager = new FetchMediaFilesManager(this);
+        if (!settingsManager.isAuthTokenEmpty()) {
+            setUserInfo();
+        } else {
+            setEmptyUserInfo();
+        }
+
+        checkAudioContentItem();
+        addAudioFragment();
+    }
+
+    @Override
+    public void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
+        fetchMediaFilesManager = new FetchMediaFilesManager(null);
+        fetchMediaFilesManager.isNeedTimer(false);
         fetchMediaFilesManager.setOnFetchMediaFilesListener(new FetchMediaFilesManager.OnFetchMediaFilesListener() {
             @Override
             public void onFetchContentStart() {
+                fetchMediaFilesManager.setFetchContentView(mediaNavigationView.getFetchContentView());
+                fetchMediaFilesManager.setTextPrimary();
                 showToolbarTimer();
             }
 
@@ -132,14 +148,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             }
         });
 
-        if (!settingsManager.isAuthTokenEmpty()) {
-            setUserInfo();
-        } else {
-            setEmptyUserInfo();
-        }
-
-        checkAudioContentItem();
-        addAudioFragment();
     }
 
     private void showToolbarTimer() {

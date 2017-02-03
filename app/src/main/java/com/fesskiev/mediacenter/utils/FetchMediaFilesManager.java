@@ -1,35 +1,36 @@
 package com.fesskiev.mediacenter.utils;
 
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 
+import com.fesskiev.mediacenter.MediaApplication;
+import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.services.FileSystemIntentService;
-import com.fesskiev.mediacenter.widgets.dialogs.FetchMediaContentDialog;
+import com.fesskiev.mediacenter.widgets.fetch.FetchContentView;
 
 
 public class FetchMediaFilesManager {
-
-    private FetchMediaContentDialog mediaContentDialog;
-
 
     public interface OnFetchMediaFilesListener {
 
         void onFetchContentStart();
 
         void onFetchContentFinish();
+
     }
 
-    private Activity activity;
     private OnFetchMediaFilesListener listener;
+    private FetchContentView fetchContentView;
     private boolean fetchStart;
+    private boolean needTimer;
 
-    public FetchMediaFilesManager(Activity activity) {
-        this.activity = activity;
+    public FetchMediaFilesManager(FetchContentView fetchContentView) {
+        this.fetchContentView = fetchContentView;
         registerBroadcastReceiver();
     }
 
@@ -39,7 +40,6 @@ public class FetchMediaFilesManager {
 
     public void unregister() {
         unregisterBroadcastReceiver();
-        hideDialog();
     }
 
 
@@ -50,12 +50,13 @@ public class FetchMediaFilesManager {
         filter.addAction(FileSystemIntentService.ACTION_AUDIO_FOLDER_NAME);
         filter.addAction(FileSystemIntentService.ACTION_AUDIO_TRACK_NAME);
         filter.addAction(FileSystemIntentService.ACTION_VIDEO_FILE);
-        LocalBroadcastManager.getInstance(activity).registerReceiver(broadcastReceiver,
-                filter);
+        LocalBroadcastManager.getInstance(MediaApplication.getInstance().getApplicationContext())
+                .registerReceiver(broadcastReceiver, filter);
     }
 
     private void unregisterBroadcastReceiver() {
-        LocalBroadcastManager.getInstance(activity).unregisterReceiver(broadcastReceiver);
+        LocalBroadcastManager.getInstance(MediaApplication.getInstance().getApplicationContext())
+                .unregisterReceiver(broadcastReceiver);
     }
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -64,64 +65,69 @@ public class FetchMediaFilesManager {
         public void onReceive(final Context context, Intent intent) {
             switch (intent.getAction()) {
                 case FileSystemIntentService.ACTION_START_FETCH_MEDIA_CONTENT:
-                    mediaContentDialog = FetchMediaContentDialog.newInstance(activity);
-                    mediaContentDialog.show();
                     if (listener != null) {
                         listener.onFetchContentStart();
+                    }
+                    fetchContentView.setVisibleContent();
+                    if (needTimer) {
+                        fetchContentView.showTimer();
                     }
                     fetchStart = true;
                     break;
                 case FileSystemIntentService.ACTION_END_FETCH_MEDIA_CONTENT:
-                    if (mediaContentDialog != null) {
-                        mediaContentDialog.hide();
-                        mediaContentDialog.dismiss();
-                    }
                     if (listener != null) {
                         listener.onFetchContentFinish();
+                    }
+                    fetchContentView.setInvisibleContent();
+                    if (needTimer) {
+                        fetchContentView.hideTimer();
                     }
                     fetchStart = false;
                     break;
                 case FileSystemIntentService.ACTION_AUDIO_FOLDER_NAME:
                     String folderName =
                             intent.getStringExtra(FileSystemIntentService.EXTRA_AUDIO_FOLDER_NAME);
-                    if (mediaContentDialog != null) {
-                        mediaContentDialog.setFolderName(folderName);
+                    if (fetchContentView != null) {
+                        fetchContentView.setAudioFolderName(folderName);
                     }
                     break;
                 case FileSystemIntentService.ACTION_AUDIO_TRACK_NAME:
                     String trackName =
                             intent.getStringExtra(FileSystemIntentService.EXTRA_AUDIO_TRACK_NAME);
-                    if (mediaContentDialog != null) {
-                        mediaContentDialog.setFileName(trackName);
+                    if (fetchContentView != null) {
+                        fetchContentView.setAudioFileName(trackName);
                     }
                     break;
                 case FileSystemIntentService.ACTION_VIDEO_FILE:
                     String videoFileName =
                             intent.getStringExtra(FileSystemIntentService.EXTRA_VIDEO_FILE_NAME);
-                    if (mediaContentDialog != null) {
-                        mediaContentDialog.setFileName(videoFileName);
+                    if (fetchContentView != null) {
+                        fetchContentView.setVideoFileName(videoFileName);
                     }
                     break;
             }
         }
     };
 
-    private void hideDialog() {
-        if (mediaContentDialog != null && mediaContentDialog.isShowing()) {
-            mediaContentDialog.hide();
-            mediaContentDialog.dismiss();
-        }
+    public void setFetchContentView(FetchContentView fetchContentView) {
+        this.fetchContentView = fetchContentView;
     }
 
     public boolean isFetchStart() {
         return fetchStart;
     }
 
-    public void toggleShowDialog() {
-        if (mediaContentDialog.isShowing()){
-            mediaContentDialog.hide();
-        } else {
-            mediaContentDialog.show();
-        }
+    public void setTextWhite() {
+        fetchContentView.setTextColor(ContextCompat.getColor(MediaApplication.getInstance().getApplicationContext(),
+                R.color.white));
+    }
+
+    public void setTextPrimary() {
+        fetchContentView.setTextColor(ContextCompat.getColor(MediaApplication.getInstance().getApplicationContext(),
+                R.color.primary));
+    }
+
+    public void isNeedTimer(boolean needTimer) {
+        this.needTimer = needTimer;
     }
 }

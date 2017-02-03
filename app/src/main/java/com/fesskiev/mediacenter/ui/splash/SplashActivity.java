@@ -12,6 +12,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
@@ -28,6 +29,7 @@ import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.dialogs.PermissionDialog;
+import com.fesskiev.mediacenter.widgets.fetch.FetchContentView;
 
 
 import rx.Observable;
@@ -48,6 +50,7 @@ public class SplashActivity extends AppCompatActivity {
     private DataRepository repository;
     private Subscription subscription;
     private FetchMediaFilesManager fetchMediaFilesManager;
+    private FetchContentView fetchContentView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,27 +61,62 @@ public class SplashActivity extends AppCompatActivity {
         repository = MediaApplication.getInstance().getRepository();
         settingsManager = AppSettingsManager.getInstance();
 
-        fetchMediaFilesManager = new FetchMediaFilesManager(this);
-        fetchMediaFilesManager.setOnFetchMediaFilesListener(
-                new FetchMediaFilesManager.OnFetchMediaFilesListener() {
-                    @Override
-                    public void onFetchContentStart() {
+        fetchContentView = (FetchContentView) findViewById(R.id.fetchContentView);
 
-                    }
+        fetchMediaFilesManager = new FetchMediaFilesManager(fetchContentView);
+        fetchMediaFilesManager.isNeedTimer(true);
+        fetchMediaFilesManager.setTextWhite();
+        fetchMediaFilesManager.setOnFetchMediaFilesListener(new FetchMediaFilesManager.OnFetchMediaFilesListener() {
+            @Override
+            public void onFetchContentStart() {
+                ViewCompat.animate(fetchContentView)
+                        .translationY(-Utils.dipToPixels(getApplicationContext(), 100))
+                        .setDuration(ANIM_ITEM_DURATION)
+                        .start();
+            }
 
-                    @Override
-                    public void onFetchContentFinish() {
-                        settingsManager.setFirstStartApp();
-                        loadMediaFiles();
-                    }
-                });
+            @Override
+            public void onFetchContentFinish() {
+                settingsManager.setFirstStartApp();
+                loadMediaFiles();
+            }
+        });
 
         animate();
     }
 
     @Override
+    public void onBackPressed() {
+        if (fetchMediaFilesManager.isFetchStart()) {
+            Utils.showCustomSnackbar(findViewById(R.id.splashRoot), getApplicationContext(),
+                    getString(R.string.splash_snackbar_stop_fetch),
+                    Snackbar.LENGTH_LONG)
+                    .setAction(getString(R.string.snack_exit_action), v -> {
+                        stopFetchFiles();
+                        finish();
+                    })
+                    .show();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    private void stopFetchFiles() {
+        FileSystemIntentService.shouldContinue = false;
+
+        DataRepository repository = MediaApplication.getInstance().getRepository();
+        Observable.zip(RxUtils.fromCallable(repository.resetAudioContentDatabase()),
+                RxUtils.fromCallable(repository.resetVideoContentDatabase()), (integer, integer2) -> Observable.empty())
+                .subscribeOn(Schedulers.io())
+                .subscribe();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (fetchMediaFilesManager.isFetchStart()) {
+            stopFetchFiles();
+        }
         fetchMediaFilesManager.unregister();
         RxUtils.unsubscribe(subscription);
     }
@@ -88,7 +126,7 @@ public class SplashActivity extends AppCompatActivity {
                                            @Nullable String permissions[], @Nullable int[] grantResults) {
         switch (requestCode) {
             case PERMISSION_REQ: {
-                if (grantResults.length > 0) {
+                if (grantResults != null && grantResults.length > 0) {
                     if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                         fetchAudioContent();
 
@@ -208,7 +246,6 @@ public class SplashActivity extends AppCompatActivity {
         for (int i = 0; i < container.getChildCount(); i++) {
             View v = container.getChildAt(i);
             ViewCompat.animate(v)
-                    .translationY(50)
                     .alpha(1)
                     .setStartDelay((ITEM_DELAY * i) + 500)
                     .setDuration(1000)
@@ -234,6 +271,8 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void loadMediaFiles() {
+        Log.d("test", "loadMediaFiles");
+
         subscription = Observable.zip(
                 repository.getAudioFolders(),
                 repository.getGenres(),
@@ -241,6 +280,7 @@ public class SplashActivity extends AppCompatActivity {
                 (audioFolders, genres, artists) -> Observable.just(null))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .first()
                 .subscribe(o -> {
                     startActivity(new Intent(this, MainActivity.class));
                     finish();

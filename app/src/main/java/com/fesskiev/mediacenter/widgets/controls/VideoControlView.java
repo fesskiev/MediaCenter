@@ -16,7 +16,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.CheckedTextView;
 import android.widget.FrameLayout;
@@ -136,20 +135,10 @@ public class VideoControlView extends FrameLayout {
         rendererStates = new TreeSet<>();
 
         showControl = true;
-        showPanel = true;
+        showPanel = false;
         lockScreen = false;
 
         videoControlPanel = view.findViewById(R.id.videoControlPanel);
-        videoControlPanel.getViewTreeObserver().addOnGlobalLayoutListener(
-                new ViewTreeObserver.OnGlobalLayoutListener() {
-
-                    @Override
-                    public void onGlobalLayout() {
-
-                        hidePanel(100);
-                        getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                    }
-                });
 
         trackSelectionPanel = view.findViewById(R.id.trackSelectionPanel);
 
@@ -684,12 +673,12 @@ public class VideoControlView extends FrameLayout {
         return first.length() == 0 ? second : (second.length() == 0 ? first : first + ", " + second);
     }
 
-    private void hidePanel(int duration) {
+    private void hidePanel() {
         if (!animatePanel) {
             animatePanel = true;
             ViewCompat.animate(videoControlPanel)
                     .translationY(-videoControlPanel.getHeight())
-                    .setDuration(duration)
+                    .setDuration(800)
                     .setInterpolator(new DecelerateInterpolator(1.2f))
                     .setListener(new ViewPropertyAnimatorListener() {
                         @Override
@@ -741,7 +730,7 @@ public class VideoControlView extends FrameLayout {
     private void togglePanel(ImageView settingsButton) {
         AnimationUtils.getInstance().rotateAnimation(settingsButton);
         if (showPanel) {
-            hidePanel(800);
+            hidePanel();
         } else {
             showPanel();
         }
