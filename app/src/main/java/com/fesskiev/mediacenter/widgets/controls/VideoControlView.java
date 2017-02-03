@@ -781,6 +781,7 @@ public class VideoControlView extends FrameLayout {
                         public void onAnimationEnd(View view) {
                             showControl = false;
                             animateControl = false;
+                            lockScreen = true;
                         }
 
                         @Override
@@ -807,6 +808,8 @@ public class VideoControlView extends FrameLayout {
                         public void onAnimationEnd(View view) {
                             showControl = true;
                             animateControl = false;
+                            lockScreen = false;
+                            videoLockScreen.setImageResource(R.drawable.icon_video_unlock_screen);
                         }
 
                         @Override

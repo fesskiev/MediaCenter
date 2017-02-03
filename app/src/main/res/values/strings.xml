@@ -200,4 +200,6 @@
 
     <string name="button_video_select">Select</string>
 
+    <string name="splash_screen_title">Power media player</string>
+
 </resources>

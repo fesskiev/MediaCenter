@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
-import android.media.AudioFormat;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -30,7 +29,6 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
@@ -433,14 +431,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
             videoTrackSelectionFactory = new AdaptiveVideoTrackSelection.Factory(BANDWIDTH_METER);
             trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
 
-            AudioCapabilities audioCapabilities = AudioCapabilities.getCapabilities(this);
-            boolean passthrough = audioCapabilities.supportsEncoding(AudioFormat.ENCODING_AC3);
-
-            Log.i(TAG, "audio passthrough: " + (passthrough ? "enabled" : "disabled"));
-
             player = new SimpleMediaCenterPlayer(this, trackSelector, true);
-
-
             player.addListener(this);
             eventLogger = new EventLogger(trackSelector);
             player.addListener(eventLogger);

@@ -177,4 +177,6 @@
 
     <string name="button_video_select">Выбрать</string>
 
+    <string name="splash_screen_title">Power media player</string>
+
 </resources>

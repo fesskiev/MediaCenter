@@ -390,7 +390,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {
-                        if (!finish) {
+                        if (!finish && isAudioFragmentShow()) {
                             showPlayback();
                         }
                     }
