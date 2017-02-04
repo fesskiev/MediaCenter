@@ -271,8 +271,6 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void loadMediaFiles() {
-        Log.d("test", "loadMediaFiles");
-
         subscription = Observable.zip(
                 repository.getAudioFolders(),
                 repository.getGenres(),

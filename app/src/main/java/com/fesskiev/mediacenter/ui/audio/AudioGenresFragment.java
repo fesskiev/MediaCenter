@@ -30,7 +30,7 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class AudioGenresFragment extends GridFragment {
+public class AudioGenresFragment extends GridFragment implements AudioContent {
 
     public static AudioGenresFragment newInstance() {
         return new AudioGenresFragment();
@@ -41,12 +41,11 @@ public class AudioGenresFragment extends GridFragment {
     @Override
     public void onStart() {
         super.onStart();
-        fetchGenres();
+        fetch();
     }
 
-
-    public void fetchGenres() {
-
+    @Override
+    public void fetch() {
         subscription = MediaApplication.getInstance().getRepository().getGenres()
                 .first()
                 .subscribeOn(Schedulers.io())
@@ -62,6 +61,11 @@ public class AudioGenresFragment extends GridFragment {
                         }
                     }
                 });
+    }
+
+    @Override
+    public void clear(){
+        ((AudioGenresAdapter) adapter).clearAdapter();
     }
 
 
@@ -142,6 +146,11 @@ public class AudioGenresFragment extends GridFragment {
         public void refresh(List<Genre> receiveGenres) {
             genres.clear();
             genres.addAll(receiveGenres);
+            notifyDataSetChanged();
+        }
+
+        public void clearAdapter() {
+            genres.clear();
             notifyDataSetChanged();
         }
     }

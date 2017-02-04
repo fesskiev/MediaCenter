@@ -22,7 +22,6 @@ import com.fesskiev.mediacenter.utils.RxUtils;
 import java.util.List;
 
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 
@@ -70,15 +69,17 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
 
         List<Fragment> fragments = getRegisteredFragments();
         for (Fragment fragment : fragments) {
-            if (fragment instanceof AudioFoldersFragment) {
-                ((AudioFoldersFragment) fragment).fetchAudioFolders();
-            } else if (fragment instanceof AudioArtistFragment) {
-                ((AudioArtistFragment) fragment).fetchArtists();
-            } else if (fragment instanceof AudioGenresFragment) {
-                ((AudioGenresFragment) fragment).fetchGenres();
-            }
+            ((AudioContent) fragment).fetch();
         }
     }
+
+    public void clearAudioContent() {
+        List<Fragment> fragments = getRegisteredFragments();
+        for (Fragment fragment : fragments) {
+            ((AudioContent) fragment).clear();
+        }
+    }
+
 
     @Override
     public void onRefresh() {

@@ -30,7 +30,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 
-public class AudioArtistFragment extends GridFragment {
+public class AudioArtistFragment extends GridFragment implements AudioContent {
 
     public static AudioArtistFragment newInstance() {
         return new AudioArtistFragment();
@@ -42,10 +42,12 @@ public class AudioArtistFragment extends GridFragment {
     @Override
     public void onStart() {
         super.onStart();
-        fetchArtists();
+        fetch();
     }
 
-    public void fetchArtists() {
+
+    @Override
+    public void fetch() {
         subscription = MediaApplication.getInstance().getRepository().getArtists()
                 .first()
                 .subscribeOn(Schedulers.io())
@@ -61,6 +63,11 @@ public class AudioArtistFragment extends GridFragment {
                         }
                     }
                 });
+    }
+
+    @Override
+    public void clear(){
+        ((AudioArtistsAdapter) adapter).clearAdapter();
     }
 
     @Override
@@ -139,6 +146,11 @@ public class AudioArtistFragment extends GridFragment {
         public void refresh(List<Artist> receiveArtists) {
             artists.clear();
             artists.addAll(receiveArtists);
+            notifyDataSetChanged();
+        }
+
+        public void clearAdapter() {
+            artists.clear();
             notifyDataSetChanged();
         }
     }

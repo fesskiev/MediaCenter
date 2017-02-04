@@ -139,7 +139,6 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         showEmptyFolderCard();
         showEmptyTrackCard();
 
-
         registerNotificationReceiver();
 
     }
@@ -420,6 +419,22 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
             audioFiles.addAll(receiverAudioFiles);
             notifyDataSetChanged();
         }
+
+        public void clearAdapter() {
+            audioFiles.clear();
+            notifyDataSetChanged();
+        }
+    }
+
+    public void clearPlayback() {
+        currentTrack = null;
+        adapter.clearAdapter();
+        track.setText("");
+        artist.setText("");
+        durationText.setText("");
+        cover.setImageResource(0);
+        showEmptyTrackCard();
+        showEmptyFolderCard();
     }
 
     private void showEmptyFolderCard() {
@@ -437,4 +452,5 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     private void hideEmptyTrackCard() {
         emptyTrack.setVisibility(View.GONE);
     }
+
 }

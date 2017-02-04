@@ -23,7 +23,10 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.data.source.DataRepository;
+import com.fesskiev.mediacenter.services.FileSystemIntentService;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.about.AboutActivity;
 import com.fesskiev.mediacenter.ui.audio.AudioFragment;
@@ -38,10 +41,14 @@ import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CountDownTimer;
 import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
+import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.vk.VKActivity;
 import com.fesskiev.mediacenter.vk.VKAuthActivity;
 import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
+
+import rx.Observable;
+import rx.schedulers.Schedulers;
 
 
 public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -130,6 +137,13 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 fetchMediaFilesManager.setFetchContentView(mediaNavigationView.getFetchContentView());
                 fetchMediaFilesManager.setTextPrimary();
                 showToolbarTimer();
+
+                if (isAudioFragmentShow()) {
+                    clearPlayback();
+                    AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
+                            findFragmentByTag(AudioFragment.class.getName());
+                    audioFragment.clearAudioContent();
+                }
             }
 
             @Override
@@ -320,19 +334,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        settingsManager.setEQEnable(false);
-        settingsManager.setReverbEnable(false);
-        settingsManager.setWhooshEnable(false);
-        settingsManager.setEchoEnable(false);
-
-        fetchMediaFilesManager.unregister();
-        PlaybackService.destroyPlayer(getApplicationContext());
-
-    }
-
     private void clearItems() {
         int size = navigationViewMain.getMenu().size();
         for (int i = 0; i < size; i++) {
@@ -388,6 +389,17 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             hidePlayback();
             View view = findViewById(R.id.content);
             if (view != null) {
+                if (fetchMediaFilesManager.isFetchStart()) {
+                    Utils.showCustomSnackbar(view, getApplicationContext(),
+                            getString(R.string.splash_snackbar_stop_fetch),
+                            Snackbar.LENGTH_LONG)
+                            .setAction(getString(R.string.snack_exit_action), v -> {
+                                stopFetchFiles();
+                                finish();
+                            })
+                            .show();
+                    return;
+                }
                 Utils.showCustomSnackbar(view, getApplicationContext(),
                         getString(R.string.snack_exit_text),
                         Snackbar.LENGTH_LONG)
@@ -412,6 +424,33 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 super.onBackPressed();
             }
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        settingsManager.setEQEnable(false);
+        settingsManager.setReverbEnable(false);
+        settingsManager.setWhooshEnable(false);
+        settingsManager.setEchoEnable(false);
+
+        if (fetchMediaFilesManager.isFetchStart()) {
+            stopFetchFiles();
+        }
+
+        fetchMediaFilesManager.unregister();
+        PlaybackService.destroyPlayer(getApplicationContext());
+
+    }
+
+    private void stopFetchFiles() {
+        FileSystemIntentService.shouldContinue = false;
+
+        DataRepository repository = MediaApplication.getInstance().getRepository();
+        Observable.zip(RxUtils.fromCallable(repository.resetAudioContentDatabase()),
+                RxUtils.fromCallable(repository.resetVideoContentDatabase()), (integer, integer2) -> Observable.empty())
+                .subscribeOn(Schedulers.io())
+                .subscribe();
     }
 
     private void addAudioFragment() {
