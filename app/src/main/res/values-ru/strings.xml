@@ -140,7 +140,7 @@
     <string name="auth_text_password">Пароль</string>
     <string name="auth_text_title">Пожалуйста авторизируйстесь в социальной сети</string>
     <string name="auth_text_button">Войти</string>
-    <string name="auth_text_check_box">Сохранить пароль</string>
+    <string name="auth_text_check_box">Сохранить пароль безопасно</string>
 
     <string name="snackbar_permission_title">Пожалуйста включите все разрешения для работы с приложением</string>
     <string name="snackbar_permission_button">OK</string>

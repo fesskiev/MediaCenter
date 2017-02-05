@@ -18,7 +18,6 @@ import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.data.source.remote.ErrorHelper;
 import com.fesskiev.mediacenter.utils.AnimationUtils;
-import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.data.model.vk.User;
@@ -39,7 +38,7 @@ public class VKAuthActivity extends AppCompatActivity {
     private EditText loginEditText;
     private EditText passwordEditText;
     private Button signInButton;
-    private CheckBox rememberUser;
+    private CheckBox safeDataChechkBox;
     private String login;
     private String password;
 
@@ -61,8 +60,8 @@ public class VKAuthActivity extends AppCompatActivity {
         login = "";
         password = "";
 
-        rememberUser = (CheckBox) findViewById(R.id.rememberCheckBox);
-        rememberUser.setOnCheckedChangeListener((buttonView, isChecked) -> rememberUser(isChecked));
+        safeDataChechkBox = (CheckBox) findViewById(R.id.safeCheckBox);
+        safeDataChechkBox.setOnCheckedChangeListener((buttonView, isChecked) -> safeData(isChecked));
 
         signInButton = (Button) findViewById(R.id.signInButton);
         signInButton.setOnClickListener(view -> singIn(login, password));
@@ -76,6 +75,12 @@ public class VKAuthActivity extends AppCompatActivity {
 
         loginEditText.addTextChangedListener(loginTextWatcher);
         passwordEditText.addTextChangedListener(loginTextWatcher);
+    }
+
+    private void safeData(boolean isChecked) {
+        if (isChecked) {
+
+        }
     }
 
     @Override
@@ -145,10 +150,6 @@ public class VKAuthActivity extends AppCompatActivity {
     private void finishAuth() {
         setResult(Activity.RESULT_OK);
         finish();
-    }
-
-    private void rememberUser(boolean isChecked) {
-
     }
 
     public void showProgressBar() {

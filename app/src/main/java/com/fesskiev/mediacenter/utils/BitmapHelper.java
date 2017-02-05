@@ -332,6 +332,18 @@ public class BitmapHelper {
         }
     }
 
+    public void loadVideoFileCover(String path, ImageView placeholder) {
+        if (path != null) {
+            Glide.with(context)
+                    .load(path)
+                    .override(WIDTH * 2, HEIGHT * 2)
+                    .crossFade()
+                    .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .into(placeholder);
+        }
+    }
+
     public void saveBitmap(Bitmap bitmap, File path) {
         FileOutputStream out = null;
         try {

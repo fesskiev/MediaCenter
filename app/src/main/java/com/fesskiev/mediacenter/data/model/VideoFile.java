@@ -7,6 +7,7 @@ import android.media.MediaMetadataRetriever;
 import com.fesskiev.mediacenter.data.source.local.db.DatabaseHelper;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
+import com.fesskiev.mediacenter.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +32,11 @@ public class VideoFile implements MediaFile {
     }
 
     public VideoFile(File path) {
-        this.filePath = path;
+        File newPath = new File(path.getParent(), Utils.replaceSymbols(path.getName()));
+        boolean rename = path.renameTo(newPath);
+        if (rename) {
+            filePath = newPath;
+        }
 
         fetchVideoData();
     }

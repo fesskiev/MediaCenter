@@ -18,7 +18,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
 
-import com.bumptech.glide.Glide;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.VideoFile;
@@ -299,11 +298,8 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 holder.videoCard.setDescription(videoFile.description);
 
                 if (videoFile.framePath != null) {
-                    BitmapHelper.getInstance().loadURIBitmap(videoFile.framePath,
+                    BitmapHelper.getInstance().loadVideoFileCover(videoFile.framePath,
                             holder.videoCard.getFrameView());
-                } else {
-                    Glide.with(getContext()).
-                            load(R.drawable.no_cover_track_icon).into(holder.videoCard.getFrameView());
                 }
             }
         }

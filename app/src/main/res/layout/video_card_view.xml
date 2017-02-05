@@ -20,7 +20,7 @@
             android:contentDescription="@string/app_name"
             android:minHeight="@dimen/card_min_height"
             android:scaleType="centerCrop"
-            tools:src="@drawable/cover" />
+            android:background="@color/search_background" />
 
         <TextView
             android:id="@+id/fileDescription"
