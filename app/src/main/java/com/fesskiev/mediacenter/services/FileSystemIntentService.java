@@ -242,7 +242,6 @@ public class FileSystemIntentService extends IntentService {
     private void checkMediaFile(File file) {
         String path = file.getAbsolutePath().toLowerCase();
         if (path.endsWith(".mp4") ||
-                path.endsWith(".avi") ||
                 path.endsWith(".ts") ||
                 path.endsWith(".mkv")) {
 

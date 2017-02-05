@@ -73,7 +73,7 @@ public class FetchContentView extends FrameLayout {
         setVisibility(INVISIBLE);
     }
 
-    public void setTextColor(int color){
+    public void setTextColor(int color) {
         titleNameText.setTextColor(color);
         descNameText.setTextColor(color);
         titleFetchText.setTextColor(color);
@@ -90,8 +90,9 @@ public class FetchContentView extends FrameLayout {
     public void hideTimer() {
         timerView.setVisibility(View.INVISIBLE);
         ((Animatable) timerView.getDrawable()).stop();
-
-        countDownTimer.stop();
+        if (countDownTimer != null) {
+            countDownTimer.stop();
+        }
     }
 }
 
