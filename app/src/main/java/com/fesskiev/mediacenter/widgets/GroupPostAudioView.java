@@ -22,6 +22,7 @@ import com.fesskiev.mediacenter.utils.download.DownloadGroupAudioFile;
 import com.fesskiev.mediacenter.utils.download.DownloadManager;
 
 import java.util.List;
+import java.util.Locale;
 
 public class GroupPostAudioView extends FrameLayout {
 
@@ -117,7 +118,7 @@ public class GroupPostAudioView extends FrameLayout {
                                 startPauseDownload.setImageResource(R.drawable.pause_icon);
                                 downloadProgress.setProgress((int) downloadManager.getProgress());
 
-                                progressValue.setText(String.format("%1$d %2$s",
+                                progressValue.setText(String.format(Locale.getDefault(), "%1$d %2$s",
                                         (int) downloadManager.getProgress(), "\u0025"));
                                 break;
                             case DownloadManager.COMPLETE:

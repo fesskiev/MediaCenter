@@ -30,6 +30,7 @@ import com.fesskiev.mediacenter.widgets.recycleview.ScrollingLinearLayoutManager
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public abstract class RecyclerAudioFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -142,25 +143,25 @@ public abstract class RecyclerAudioFragment extends Fragment implements SwipeRef
     }
 
     public void showProgressBar() {
-        if(progressBar != null) {
+        if (progressBar != null) {
             progressBar.setVisibility(View.VISIBLE);
         }
     }
 
     public void hideProgressBar() {
-        if(progressBar != null) {
+        if (progressBar != null) {
             progressBar.setVisibility(View.GONE);
         }
     }
 
     public void showRefresh() {
-        if(swipeRefreshLayout != null && !swipeRefreshLayout.isRefreshing()) {
+        if (swipeRefreshLayout != null && !swipeRefreshLayout.isRefreshing()) {
             swipeRefreshLayout.setRefreshing(true);
         }
     }
 
     public void hideRefresh() {
-        if(swipeRefreshLayout != null && swipeRefreshLayout.isRefreshing()) {
+        if (swipeRefreshLayout != null && swipeRefreshLayout.isRefreshing()) {
             swipeRefreshLayout.setRefreshing(false);
         }
     }
@@ -265,7 +266,7 @@ public abstract class RecyclerAudioFragment extends Fragment implements SwipeRef
                             holder.cancelDownload.setVisibility(View.GONE);
                             holder.startPauseDownload.setImageResource(R.drawable.pause_icon);
                             holder.downloadProgress.setProgress((int) downloadManager.getProgress());
-                            holder.progressValue.setText(String.format("%1$d %2$s",
+                            holder.progressValue.setText(String.format(Locale.getDefault(), "%1$d %2$s",
                                     (int) downloadManager.getProgress(), "\u0025"));
                             break;
                         case DownloadManager.COMPLETE:
