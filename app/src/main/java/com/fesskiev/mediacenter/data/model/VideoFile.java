@@ -46,7 +46,10 @@ public class VideoFile implements MediaFile {
         try {
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
             retriever.setDataSource(filePath.getAbsolutePath());
-            saveFrame(retriever.getFrameAtTime());
+            Bitmap frame = retriever.getFrameAtTime();
+            if (frame != null) {
+                saveFrame(frame);
+            }
 
             StringBuilder sb = new StringBuilder();
             String name = filePath.getName();

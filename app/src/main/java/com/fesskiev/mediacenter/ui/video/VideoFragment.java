@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 
 import com.fesskiev.mediacenter.MediaApplication;
@@ -297,9 +298,14 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             if (videoFile != null) {
                 holder.videoCard.setDescription(videoFile.description);
 
-                if (videoFile.framePath != null) {
-                    BitmapHelper.getInstance().loadVideoFileCover(videoFile.framePath,
-                            holder.videoCard.getFrameView());
+                ImageView frameView = holder.videoCard.getFrameView();
+                String framePath = videoFile.framePath;
+                if (framePath != null) {
+                    BitmapHelper.getInstance().loadVideoFileCover(framePath, frameView);
+                } else {
+                    frameView.setImageResource(0);
+                    frameView.setBackgroundColor(ContextCompat.getColor(getContext().getApplicationContext(),
+                            R.color.search_background));
                 }
             }
         }
