@@ -38,7 +38,6 @@ public class VKAuthActivity extends AppCompatActivity {
     private EditText loginEditText;
     private EditText passwordEditText;
     private Button signInButton;
-    private CheckBox safeDataChechkBox;
     private String login;
     private String password;
 
@@ -60,8 +59,8 @@ public class VKAuthActivity extends AppCompatActivity {
         login = "";
         password = "";
 
-        safeDataChechkBox = (CheckBox) findViewById(R.id.safeCheckBox);
-        safeDataChechkBox.setOnCheckedChangeListener((buttonView, isChecked) -> safeData(isChecked));
+        CheckBox safeDataChechBox = (CheckBox) findViewById(R.id.safeCheckBox);
+        safeDataChechBox.setOnCheckedChangeListener((buttonView, isChecked) -> safeData(isChecked));
 
         signInButton = (Button) findViewById(R.id.signInButton);
         signInButton.setOnClickListener(view -> singIn(login, password));

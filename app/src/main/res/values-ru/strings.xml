@@ -125,7 +125,7 @@
 
     <string name="settings_media_title">Медиа</string>
     <string name="settings_download_title">Загрузка</string>
-    <string name="settings_play_music">Проигрывание музыки при старте</string>
+    <string name="settings_play_music">Проигрывание музыки при подключении наушников</string>
     <string name="settings_searching_files">Фоновый поиск файлов</string>
     <string name="settings_wifi_download">Загрузка только по Wi-Fi</string>
 
@@ -158,6 +158,9 @@
 
     <string name="snackbar_last_video">Пооследний видеофайл в списке</string>
     <string name="snackbar_first_video">Первый видеофайл в списке</string>
+
+    <string name="snackbar_download_only_wifi">Загрузка только по Wi-Fi!Изменить настройки?</string>
+    <string name="snackbar_download_only_open">Открыть</string>
 
     <string name="resize_mode_fit">Оптимальный</string>
     <string name="resize_mode_fill">Заполнение</string>

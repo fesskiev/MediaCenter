@@ -2,19 +2,32 @@ package com.fesskiev.mediacenter.ui.settings;
 
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.utils.AppSettingsManager;
 
 
-public class SettingsFragment extends Fragment {
+public class SettingsFragment extends Fragment implements CompoundButton.OnCheckedChangeListener {
 
 
     public static SettingsFragment newInstance() {
         return new SettingsFragment();
+    }
+
+    private AppSettingsManager appSettingsManager;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        appSettingsManager = AppSettingsManager.getInstance();
     }
 
     @Override
@@ -23,4 +36,52 @@ public class SettingsFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_settings, container, false);
     }
 
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        SwitchCompat[] switches = new SwitchCompat[]{
+                (SwitchCompat) view.findViewById(R.id.play_headset_plug_in_switch),
+                (SwitchCompat) view.findViewById(R.id.search_media_switch),
+                (SwitchCompat) view.findViewById(R.id.download_wifi_switch)
+        };
+
+        for (SwitchCompat switchCompat : switches) {
+            switchCompat.setOnCheckedChangeListener(this);
+        }
+
+        setSettingsState(switches);
+    }
+
+    private void setSettingsState(SwitchCompat[] switches) {
+        for (SwitchCompat switchCompat : switches) {
+            switch (switchCompat.getId()) {
+                case R.id.play_headset_plug_in_switch:
+                    switchCompat.setChecked(appSettingsManager.isPlayPlugInHeadset());
+                    break;
+                case R.id.search_media_switch:
+                    switchCompat.setChecked(appSettingsManager.isBackgroundSearch());
+                    break;
+                case R.id.download_wifi_switch:
+                    switchCompat.setChecked(appSettingsManager.isDownloadWiFiOnly());
+                    break;
+            }
+        }
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton switchCompat, boolean isChecked) {
+        switch (switchCompat.getId()) {
+            case R.id.play_headset_plug_in_switch:
+                appSettingsManager.setPlayPlugInHeadset(isChecked);
+                break;
+            case R.id.search_media_switch:
+                appSettingsManager.setBackgroundSearch(isChecked);
+                break;
+            case R.id.download_wifi_switch:
+                appSettingsManager.setDownloadWiFiOnly(isChecked);
+                break;
+        }
+    }
 }

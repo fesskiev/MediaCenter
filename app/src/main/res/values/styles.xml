@@ -300,6 +300,12 @@
         <item name="android:fontFamily">sans-serif</item>
     </style>
 
+    <style name="SettingsTitleAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/white_text</item>
+        <item name="android:textSize">@dimen/text_about_title</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
     <style name="AboutAppNameTextAppearance" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/white_text</item>
         <item name="android:textSize">@dimen/text_about_app</item>

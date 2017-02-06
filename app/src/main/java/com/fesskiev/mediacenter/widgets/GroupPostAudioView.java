@@ -2,6 +2,7 @@ package com.fesskiev.mediacenter.widgets;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.text.Html;
@@ -17,6 +18,10 @@ import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.vk.Audio;
+import com.fesskiev.mediacenter.ui.MainActivity;
+import com.fesskiev.mediacenter.ui.settings.SettingsActivity;
+import com.fesskiev.mediacenter.utils.AppSettingsManager;
+import com.fesskiev.mediacenter.utils.NetworkHelper;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.download.DownloadGroupAudioFile;
 import com.fesskiev.mediacenter.utils.download.DownloadManager;
@@ -109,42 +114,42 @@ public class GroupPostAudioView extends FrameLayout {
         });
 
         downloadGroupAudioFile.setOnDownloadAudioListener(downloadManager -> {
-                    if (downloadManager != null) {
-                        downloadContainer.setVisibility(VISIBLE);
-                        switch (downloadManager.getStatus()) {
-                            case DownloadManager.DOWNLOADING:
-                                downloadContainer.setVisibility(View.VISIBLE);
-                                cancelDownload.setVisibility(View.GONE);
-                                startPauseDownload.setImageResource(R.drawable.pause_icon);
-                                downloadProgress.setProgress((int) downloadManager.getProgress());
+            if (downloadManager != null) {
+                downloadContainer.setVisibility(VISIBLE);
+                switch (downloadManager.getStatus()) {
+                    case DownloadManager.DOWNLOADING:
+                        downloadContainer.setVisibility(View.VISIBLE);
+                        cancelDownload.setVisibility(View.GONE);
+                        startPauseDownload.setImageResource(R.drawable.pause_icon);
+                        downloadProgress.setProgress((int) downloadManager.getProgress());
 
-                                progressValue.setText(String.format(Locale.getDefault(), "%1$d %2$s",
-                                        (int) downloadManager.getProgress(), "\u0025"));
-                                break;
-                            case DownloadManager.COMPLETE:
-                                downloadContainer.setVisibility(View.GONE);
-                                itemContainer.setBackgroundColor(ContextCompat.getColor(getContext(),
-                                        R.color.primary_light));
-                                break;
-                            case DownloadManager.PAUSED:
-                                startPauseDownload.setImageResource(R.drawable.download_icon);
-                                cancelDownload.setVisibility(View.VISIBLE);
-                                break;
-                            case DownloadManager.CANCELLED:
-                                downloadContainer.setVisibility(View.GONE);
-                                break;
-                            case DownloadManager.ERROR:
-                                downloadContainer.setBackgroundColor(ContextCompat.getColor(getContext(),
-                                        R.color.red));
-                                cancelDownload.setVisibility(View.VISIBLE);
-                                startPauseDownload.setVisibility(View.GONE);
-                                break;
-                        }
+                        progressValue.setText(String.format(Locale.getDefault(), "%1$d %2$s",
+                                (int) downloadManager.getProgress(), "\u0025"));
+                        break;
+                    case DownloadManager.COMPLETE:
+                        downloadContainer.setVisibility(View.GONE);
+                        itemContainer.setBackgroundColor(ContextCompat.getColor(getContext(),
+                                R.color.primary_light));
+                        break;
+                    case DownloadManager.PAUSED:
+                        startPauseDownload.setImageResource(R.drawable.download_icon);
+                        cancelDownload.setVisibility(View.VISIBLE);
+                        break;
+                    case DownloadManager.CANCELLED:
+                        downloadContainer.setVisibility(View.GONE);
+                        break;
+                    case DownloadManager.ERROR:
+                        downloadContainer.setBackgroundColor(ContextCompat.getColor(getContext(),
+                                R.color.red));
+                        cancelDownload.setVisibility(View.VISIBLE);
+                        startPauseDownload.setVisibility(View.GONE);
+                        break;
+                }
 
-                    } else {
-                        downloadContainer.setVisibility(GONE);
-                    }
-                });
+            } else {
+                downloadContainer.setVisibility(GONE);
+            }
+        });
 
 
         Audio audio = downloadGroupAudioFile.getAudio();
@@ -160,7 +165,22 @@ public class GroupPostAudioView extends FrameLayout {
     private OnClickListener clickListener = v -> {
         DownloadGroupAudioFile downloadGroupAudioFile = (DownloadGroupAudioFile) v.getTag();
         if (downloadGroupAudioFile != null) {
+            if (AppSettingsManager.getInstance().isDownloadWiFiOnly()) {
+                if (NetworkHelper.isConnectedWifi(getContext().getApplicationContext())) {
+                    downloadGroupAudioFile.startDownload();
+                } else {
+                    Utils.showCustomSnackbar(GroupPostAudioView.this, getContext().getApplicationContext(),
+                            getResources().getString(R.string.snackbar_download_only_wifi), Snackbar.LENGTH_LONG)
+                            .setAction(getResources().getString(R.string.snackbar_download_only_open), v1 -> startSettingsActivity())
+                            .show();
+                }
+                return;
+            }
             downloadGroupAudioFile.startDownload();
         }
     };
+
+    private void startSettingsActivity() {
+        getContext().startActivity(new Intent(getContext(), SettingsActivity.class));
+    }
 }

@@ -128,7 +128,7 @@
 
     <string name="settings_media_title">Media</string>
     <string name="settings_download_title">Downloading</string>
-    <string name="settings_play_music">Play music when app start</string>
+    <string name="settings_play_music">Play music when headphone plugged</string>
     <string name="settings_searching_files">Background file search</string>
     <string name="settings_wifi_download">Wi-Fi download only</string>
 
@@ -165,6 +165,9 @@
 
     <string name="snackbar_last_video">Last video in list</string>
     <string name="snackbar_first_video">First video in list</string>
+
+    <string name="snackbar_download_only_wifi">Downloading only by Wi-Fi!Change settings?</string>
+    <string name="snackbar_download_only_open">Open</string>
 
     <string name="resize_mode_fit">Fit</string>
     <string name="resize_mode_fill">Fill</string>

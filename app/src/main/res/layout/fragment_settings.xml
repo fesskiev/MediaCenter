@@ -1,20 +1,19 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="@dimen/activity_horizontal_margin"
-    android:background="@color/primary"
-    tools:context="com.fesskiev.mediacenter.ui.settings.SettingsFragment">
-
+    android:background="@color/primary">
 
     <RelativeLayout
         android:id="@+id/audioSettingsContainer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
 
         <TextView
             android:id="@+id/audioSettingsTitle"
-            style="@style/AboutTitleAppearance"
+            style="@style/SettingsTitleAppearance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/settings_media_title" />
@@ -35,7 +34,7 @@
             android:layout_marginTop="10dp">
 
             <android.support.v7.widget.SwitchCompat
-                android:id="@+id/play_audio_switch"
+                android:id="@+id/play_headset_plug_in_switch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -81,13 +80,15 @@
         android:id="@+id/downloadSettingContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingTop="20dp"
         android:layout_below="@+id/audioSettingsContainer"
-        android:paddingTop="20dp">
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="6dp">
 
 
         <TextView
             android:id="@+id/downloadSettingsTitle"
-            style="@style/AboutTitleAppearance"
+            style="@style/SettingsTitleAppearance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/settings_download_title" />
@@ -108,7 +109,7 @@
             android:layout_marginTop="10dp">
 
             <android.support.v7.widget.SwitchCompat
-                android:id="@+id/downloading_wifi_switch"
+                android:id="@+id/download_wifi_switch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"

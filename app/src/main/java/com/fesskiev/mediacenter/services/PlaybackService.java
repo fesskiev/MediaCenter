@@ -425,7 +425,7 @@ public class PlaybackService extends Service {
                         } else if (!headsetConnected && intent.getIntExtra("state", 0) == 1) {
                             if (!isInitialStickyBroadcast()) {
                                 Log.w(TAG, "PLUG IN");
-                                if (!playing) {
+                                if (AppSettingsManager.getInstance().isPlayPlugInHeadset() && !playing) {
                                     play();
                                 }
                             }
@@ -474,7 +474,7 @@ public class PlaybackService extends Service {
 
     private void createWhooshIfNeed() {
         WhooshState whooshState = AppSettingsManager.getInstance().getWhooshState();
-        if(whooshState != null){
+        if (whooshState != null) {
             Log.wtf(TAG, "create Whoosh state");
             setWhooshValue((int) whooshState.getMix(), (int) whooshState.getFrequency());
         }

@@ -1,6 +1,7 @@
 package com.fesskiev.mediacenter.vk;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -20,9 +21,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.ui.settings.SettingsActivity;
+import com.fesskiev.mediacenter.utils.AppSettingsManager;
+import com.fesskiev.mediacenter.utils.NetworkHelper;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.download.DownloadFile;
 import com.fesskiev.mediacenter.utils.download.DownloadManager;
+import com.fesskiev.mediacenter.widgets.GroupPostAudioView;
 import com.fesskiev.mediacenter.widgets.MaterialProgressBar;
 import com.fesskiev.mediacenter.widgets.recycleview.EndlessScrollListener;
 import com.fesskiev.mediacenter.widgets.recycleview.RecyclerItemTouchClickListener;
@@ -131,6 +136,20 @@ public abstract class RecyclerAudioFragment extends Fragment implements SwipeRef
         builder.setMessage(R.string.dialog_download_message);
         builder.setPositiveButton(R.string.dialog_download_ok,
                 (dialog, which) -> {
+
+                    if (AppSettingsManager.getInstance().isDownloadWiFiOnly()) {
+                        if (NetworkHelper.isConnectedWifi(getContext().getApplicationContext())) {
+                            musicFile.downloadMusicFile(position);
+                            removeTouchListener();
+                        } else {
+                            Utils.showCustomSnackbar(swipeRefreshLayout,
+                                    getContext().getApplicationContext(), getString(R.string.snackbar_download_only_wifi), Snackbar.LENGTH_LONG)
+                                    .setAction(getResources().getString(R.string.snackbar_download_only_open), v1 -> startSettingsActivity())
+                                    .show();
+                        }
+                        return;
+                    }
+
                     musicFile.downloadMusicFile(position);
                     removeTouchListener();
                 });
@@ -141,6 +160,11 @@ public abstract class RecyclerAudioFragment extends Fragment implements SwipeRef
                 });
         builder.show();
     }
+
+    private void startSettingsActivity() {
+        startActivity(new Intent(getContext(), SettingsActivity.class));
+    }
+
 
     public void showProgressBar() {
         if (progressBar != null) {

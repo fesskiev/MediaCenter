@@ -19,6 +19,11 @@ import java.util.Set;
 public class AppSettingsManager {
 
     private static final String APP_SETTINGS_PREFERENCES = "com.fesskiev.player_settings_preferences";
+
+    private static final String KEY_PLAY_PLUG_IN_HEADSET = "com.fesskiev.player.PLAY_PLUG_IN_HEADSET";
+    private static final String KEY_BACKGROUND_SEARCH = "com.fesskiev.player.BACKGROUND_SEARCH";
+    private static final String KEY_DOWNLOAD_WIFI_ONLY = "com.fesskiev.player.DOWNLOAD_WIFI_ONLY";
+
     private static final String KEY_OAUTH_TOKEN = "com.fesskiev.player.SAVE_STATE_KEY_OAUTH_TOKEN";
     private static final String KEY_USER_ID = "com.fesskiev.player.SAVE_STATE_KEY_USER_ID";
     private static final String KEY_USER_FIRST_NAME = "com.fesskiev.player.KEY_USER_FIRST_NAME";
@@ -230,6 +235,36 @@ public class AppSettingsManager {
     public void clearRendererState() {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(KEY_RENDERER_STATE, "");
+        editor.apply();
+    }
+
+    public boolean isPlayPlugInHeadset() {
+        return sharedPreferences.getBoolean(KEY_PLAY_PLUG_IN_HEADSET, false);
+    }
+
+    public void setPlayPlugInHeadset(boolean state) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_PLAY_PLUG_IN_HEADSET, state);
+        editor.apply();
+    }
+
+    public boolean isBackgroundSearch() {
+        return sharedPreferences.getBoolean(KEY_BACKGROUND_SEARCH, false);
+    }
+
+    public void setBackgroundSearch(boolean state) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_BACKGROUND_SEARCH, state);
+        editor.apply();
+    }
+
+    public boolean isDownloadWiFiOnly() {
+        return sharedPreferences.getBoolean(KEY_DOWNLOAD_WIFI_ONLY, false);
+    }
+
+    public void setDownloadWiFiOnly(boolean state) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_DOWNLOAD_WIFI_ONLY, state);
         editor.apply();
     }
 }
