@@ -351,9 +351,7 @@ public class FileSystemService extends JobService {
 
                     CountDownLatch latch = new CountDownLatch(audioFiles.length);
 
-                    for (File file : audioFiles) {
-                        new Thread(new FetchAudioInfo(audioFolder, file, latch)).start();
-                    }
+                    new Thread(new FetchAudioInfo(audioFolder, audioFiles, latch)).start();
 
                     try {
                         latch.await();
@@ -394,27 +392,30 @@ public class FileSystemService extends JobService {
 
         private CountDownLatch latch;
         private AudioFolder audioFolder;
-        private File file;
+        private File[] audioPaths;
 
-        public FetchAudioInfo(AudioFolder audioFolder, File file, CountDownLatch latch) {
+        public FetchAudioInfo(AudioFolder audioFolder, File[] audioPaths, CountDownLatch latch) {
             this.audioFolder = audioFolder;
-            this.file = file;
+            this.audioPaths = audioPaths;
             this.latch = latch;
         }
 
         @Override
         public void run() {
 
-            final AudioFile audioFile = new AudioFile(getApplicationContext(), file, audioFile1 -> {
-                audioFile1.id = audioFolder.id;
+            for (File path : audioPaths) {
+                final AudioFile audioFile = new AudioFile(getApplicationContext(), path, audioFile1 -> {
+                    audioFile1.id = audioFolder.id;
 
-                MediaApplication.getInstance().getRepository().insertAudioFile(audioFile1);
+                    MediaApplication.getInstance().getRepository().insertAudioFile(audioFile1);
 
-                sendAudioTrackNameBroadcast(audioFile1.artist + "-" + audioFile1.title);
-                latch.countDown();
-            });
+                    sendAudioTrackNameBroadcast(audioFile1.artist + "-" + audioFile1.title);
+                    latch.countDown();
+                });
 
-            audioFolder.audioFiles.add(audioFile);
+                audioFolder.audioFiles.add(audioFile);
+            }
+
         }
     }
 

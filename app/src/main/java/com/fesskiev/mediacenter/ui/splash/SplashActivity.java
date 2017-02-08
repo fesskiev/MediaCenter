@@ -81,6 +81,7 @@ public class SplashActivity extends AppCompatActivity {
             }
         });
 
+        FileSystemService.startFileSystemService(getApplicationContext());
         animate();
     }
 
@@ -261,7 +262,6 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void fetchAudioContent() {
-        FileSystemService.startFileSystemService(getApplicationContext());
         if (settingsManager.isFirstStartApp()) {
             BitmapHelper.getInstance().saveDownloadFolderIcon();
             FileSystemService.startFetchMedia(getApplicationContext());
