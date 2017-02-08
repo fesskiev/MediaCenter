@@ -49,7 +49,7 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     }
 
     private VideoFilesAdapter adapter;
-    private CardView emptyAudioContent;
+    private CardView emptyVideoContent;
     private SwipeRefreshLayout swipeRefreshLayout;
     private Subscription subscription;
     private DataRepository repository;
@@ -82,7 +82,7 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         adapter = new VideoFilesAdapter();
         recyclerView.setAdapter(adapter);
 
-        emptyAudioContent = (CardView) view.findViewById(R.id.emptyAudioContentCard);
+        emptyVideoContent = (CardView) view.findViewById(R.id.emptyVideoContentCard);
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.primary_light));
@@ -141,11 +141,11 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     }
 
     protected void showEmptyContentCard() {
-        emptyAudioContent.setVisibility(View.VISIBLE);
+        emptyVideoContent.setVisibility(View.VISIBLE);
     }
 
     protected void hideEmptyContentCard() {
-        emptyAudioContent.setVisibility(View.GONE);
+        emptyVideoContent.setVisibility(View.GONE);
     }
 
     @Override
