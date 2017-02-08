@@ -23,7 +23,6 @@ import com.fesskiev.mediacenter.utils.CacheManager;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
 
 
 public class FileSystemService extends JobService {
@@ -178,32 +177,30 @@ public class FileSystemService extends JobService {
 
     private void checkDownloadFolder() {
         DataRepository repository = MediaApplication.getInstance().getRepository();
-        String folderId = null;
         File root = new File(CacheManager.CHECK_DOWNLOADS_FOLDER_PATH);
         File[] list = root.listFiles();
         for (File child : list) {
             if (!repository.containAudioTrack(child.getAbsolutePath())) {
+                String folderId = repository.getDownloadFolderID();
                 if (folderId == null) {
-                    folderId = repository.getDownloadFolderID();
-                    if (folderId == null) {
-                        AudioFolder audioFolder = new AudioFolder();
-                        audioFolder.folderImage = CacheManager.getDownloadFolderIconPath();
-                        audioFolder.folderPath = new File(CacheManager.CHECK_DOWNLOADS_FOLDER_PATH);
-                        audioFolder.folderName = "Downloads";
-                        audioFolder.id = UUID.randomUUID().toString();
+                    AudioFolder audioFolder = new AudioFolder();
+                    audioFolder.folderImage = CacheManager.getDownloadFolderIconPath();
+                    audioFolder.folderPath = new File(CacheManager.CHECK_DOWNLOADS_FOLDER_PATH);
+                    audioFolder.folderName = "Downloads";
+                    audioFolder.id = UUID.randomUUID().toString();
 
-                        DataRepository dataRepository = MediaApplication.getInstance().getRepository();
-                        dataRepository.insertAudioFolder(audioFolder);
+                    MediaApplication.getInstance().getRepository().insertAudioFolder(audioFolder);
 
-                        repository.getMemorySource().setCacheArtistsDirty(true);
-                        repository.getMemorySource().setCacheGenresDirty(true);
-                        repository.getMemorySource().setCacheFoldersDirty(true);
+                    repository.getMemorySource().setCacheArtistsDirty(true);
+                    repository.getMemorySource().setCacheGenresDirty(true);
+                    repository.getMemorySource().setCacheFoldersDirty(true);
 
-                        folderId = audioFolder.id;
+                    folderId = audioFolder.id;
 
-                    }
                 }
-                new Thread(new FetchDownloadAudioInfo(child, folderId)).start();
+
+                new AudioFile(getApplicationContext(), child, folderId,
+                        audioFile -> MediaApplication.getInstance().getRepository().insertAudioFile(audioFile));
             }
         }
     }
@@ -328,8 +325,8 @@ public class FileSystemService extends JobService {
 
         if (directoryFiles != null) {
             for (File directoryFile : directoryFiles) {
-                File[] audioFiles = directoryFile.listFiles(audioFilter());
-                if (audioFiles != null && audioFiles.length > 0 && shouldContinue) {
+                File[] audioPaths = directoryFile.listFiles(audioFilter());
+                if (audioPaths != null && audioPaths.length > 0 && shouldContinue) {
                     Log.w(TAG, "audio folder created");
 
                     AudioFolder audioFolder = new AudioFolder();
@@ -347,75 +344,22 @@ public class FileSystemService extends JobService {
                     audioFolder.folderName = directoryFile.getName();
                     audioFolder.id = UUID.randomUUID().toString();
 
-                    sendAudioFolderNameBroadcast(audioFolder.folderName);
-
-                    CountDownLatch latch = new CountDownLatch(audioFiles.length);
-
-                    new Thread(new FetchAudioInfo(audioFolder, audioFiles, latch)).start();
-
-                    try {
-                        latch.await();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
                     MediaApplication.getInstance().getRepository().insertAudioFolder(audioFolder);
 
+                    sendAudioFolderNameBroadcast(audioFolder.folderName);
+
+                    for (File path : audioPaths) {
+                        new AudioFile(getApplicationContext(), path, audioFolder.id, audioFile -> {
+
+                            Log.w(TAG, "audio file created");
+
+                            MediaApplication.getInstance().getRepository().insertAudioFile(audioFile);
+
+                            sendAudioTrackNameBroadcast(audioFile.artist + "-" + audioFile.title);
+                        });
+                    }
                 }
             }
-        }
-    }
-
-    private class FetchDownloadAudioInfo implements Runnable {
-
-        private File file;
-        private String id;
-
-        public FetchDownloadAudioInfo(File file, String id) {
-            this.file = file;
-            this.id = id;
-        }
-
-        @Override
-        public void run() {
-
-            new AudioFile(getApplicationContext(), file,
-                    audioFile -> {
-                        audioFile.id = id;
-                        MediaApplication.getInstance().getRepository().insertAudioFile(audioFile);
-
-                    });
-        }
-    }
-
-    private class FetchAudioInfo implements Runnable {
-
-        private CountDownLatch latch;
-        private AudioFolder audioFolder;
-        private File[] audioPaths;
-
-        public FetchAudioInfo(AudioFolder audioFolder, File[] audioPaths, CountDownLatch latch) {
-            this.audioFolder = audioFolder;
-            this.audioPaths = audioPaths;
-            this.latch = latch;
-        }
-
-        @Override
-        public void run() {
-
-            for (File path : audioPaths) {
-                final AudioFile audioFile = new AudioFile(getApplicationContext(), path, audioFile1 -> {
-                    audioFile1.id = audioFolder.id;
-
-                    MediaApplication.getInstance().getRepository().insertAudioFile(audioFile1);
-
-                    sendAudioTrackNameBroadcast(audioFile1.artist + "-" + audioFile1.title);
-                    latch.countDown();
-                });
-
-                audioFolder.audioFiles.add(audioFile);
-            }
-
         }
     }
 

@@ -54,7 +54,8 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
         fillEmptyFields();
     }
 
-    public AudioFile(Context context, File filePath, OnAudioTagListener listener) {
+    public AudioFile(Context context, File filePath, String folderId, OnAudioTagListener listener) {
+        this.id = folderId;
         this.context = context;
         this.filePath = filePath;
         this.listener = listener;
