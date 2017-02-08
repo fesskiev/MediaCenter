@@ -1,21 +1,24 @@
 package com.fesskiev.mediacenter.services;
 
-import android.app.IntentService;
+import android.app.job.JobParameters;
+import android.app.job.JobService;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Message;
+import android.os.Process;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.fesskiev.mediacenter.MediaApplication;
-import com.fesskiev.mediacenter.data.source.DataRepository;
-import com.fesskiev.mediacenter.data.source.local.LocalSource;
-import com.fesskiev.mediacenter.data.source.local.db.LocalDataSource;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.model.VideoFile;
+import com.fesskiev.mediacenter.data.source.DataRepository;
+import com.fesskiev.mediacenter.data.source.local.db.LocalDataSource;
 import com.fesskiev.mediacenter.utils.CacheManager;
-import com.fesskiev.mediacenter.utils.Utils;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -23,11 +26,10 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 
-public class FileSystemIntentService extends IntentService {
+public class FileSystemService extends JobService {
 
-    private static final String TAG = FileSystemIntentService.class.getSimpleName();
+    private static final String TAG = FileSystemService.class.getSimpleName();
 
-    public static final String ACTION_VIDEO_FILE = "com.fesskiev.player.action.VIDEO_FILE";
 
     private static final String ACTION_START_FETCH_MEDIA_SERVICE =
             "com.fesskiev.player.action.ACTION_FETCH_MEDIA_SERVICE";
@@ -44,67 +46,135 @@ public class FileSystemIntentService extends IntentService {
     public static final String ACTION_END_FETCH_MEDIA_CONTENT
             = "com.fesskiev.player.action.ACTION_END_FETCH_MEDIA_CONTENT";
 
+    public static final String ACTION_VIDEO_FILE = "com.fesskiev.player.action.VIDEO_FILE";
     public static final String ACTION_AUDIO_FOLDER_NAME = "com.fesskiev.player.action.ACTION_AUDIO_FOLDER_NAME";
     public static final String ACTION_AUDIO_TRACK_NAME = "com.fesskiev.player.action.ACTION_AUDIO_TRACK_NAME";
 
     public static final String EXTRA_AUDIO_FOLDER_NAME = "com.fesskiev.player.action.EXTRA_AUDIO_FOLDER_NAME";
     public static final String EXTRA_AUDIO_TRACK_NAME = "com.fesskiev.player.action.EXTRA_AUDIO_TRACK_NAME";
-
     public static final String EXTRA_VIDEO_FILE_NAME = "com.fesskiev.player.action.EXTRA_VIDEO_FILE_NAME";
 
+
+    private Handler handler;
     public static volatile boolean shouldContinue;
 
-    public FileSystemIntentService() {
-        super(FileSystemIntentService.class.getName());
+    public static void startFileSystemService(Context context) {
+        Intent intent = new Intent(context, FileSystemService.class);
+        context.startService(intent);
     }
 
+    public static void stopFileSystemService(Context context) {
+        Intent intent = new Intent(context, FileSystemService.class);
+        context.stopService(intent);
+    }
 
     public static void startFetchMedia(Context context) {
-        Intent intent = new Intent(context, FileSystemIntentService.class);
+        Intent intent = new Intent(context, FileSystemService.class);
         intent.setAction(ACTION_START_FETCH_MEDIA_SERVICE);
         context.startService(intent);
     }
 
     public static void startFetchAudio(Context context) {
-        Intent intent = new Intent(context, FileSystemIntentService.class);
+        Intent intent = new Intent(context, FileSystemService.class);
         intent.setAction(ACTION_START_FETCH_AUDIO_SERVICE);
         context.startService(intent);
     }
 
     public static void startFetchVideo(Context context) {
-        Intent intent = new Intent(context, FileSystemIntentService.class);
+        Intent intent = new Intent(context, FileSystemService.class);
         intent.setAction(ACTION_START_FETCH_VIDEO_SERVICE);
         context.startService(intent);
     }
 
     public static void startCheckDownloadFolderService(Context context) {
-        Intent intent = new Intent(context, FileSystemIntentService.class);
+        Intent intent = new Intent(context, FileSystemService.class);
         intent.setAction(ACTION_CHECK_DOWNLOAD_FOLDER_SERVICE);
         context.startService(intent);
     }
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.i(TAG, "File System Service created");
+
+        new FetchContentThread().start();
+    }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
+    public void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG, "File System Service destroyed");
+    }
+
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null) {
             final String action = intent.getAction();
-            Log.w(TAG, "HANDLE INTENT: " + action);
-            switch (action) {
-                case ACTION_START_FETCH_MEDIA_SERVICE:
-                    getMediaContent();
-                    break;
-                case ACTION_START_FETCH_VIDEO_SERVICE:
-                    getVideoContent();
-                    break;
-                case ACTION_START_FETCH_AUDIO_SERVICE:
-                    getAudioContent();
-                    break;
-                case ACTION_CHECK_DOWNLOAD_FOLDER_SERVICE:
-                    checkDownloadFolder();
-                    break;
+            if (action != null) {
+                Log.w(TAG, "HANDLE INTENT: " + action);
+                switch (action) {
+                    case ACTION_START_FETCH_MEDIA_SERVICE:
+                        handler.sendEmptyMessage(0);
+                        break;
+                    case ACTION_START_FETCH_VIDEO_SERVICE:
+                        handler.sendEmptyMessage(1);
+                        break;
+                    case ACTION_START_FETCH_AUDIO_SERVICE:
+                        handler.sendEmptyMessage(2);
+                        break;
+                    case ACTION_CHECK_DOWNLOAD_FOLDER_SERVICE:
+                        handler.sendEmptyMessage(3);
+                        break;
+                }
             }
         }
+        return START_NOT_STICKY;
     }
+
+    private class FetchContentThread extends HandlerThread {
+
+        public FetchContentThread() {
+            super(FetchContentThread.class.getName(), Process.THREAD_PRIORITY_BACKGROUND);
+        }
+
+        @Override
+        protected void onLooperPrepared() {
+            super.onLooperPrepared();
+            handler = new Handler(getLooper()) {
+                @Override
+                public void handleMessage(Message msg) {
+                    switch (msg.what) {
+                        case 0:
+                            getMediaContent();
+                            break;
+                        case 1:
+                            getVideoContent();
+                            break;
+                        case 2:
+                            getAudioContent();
+                            break;
+                        case 3:
+                            checkDownloadFolder();
+                            break;
+                    }
+                }
+            };
+        }
+    }
+
+    @Override
+    public boolean onStartJob(JobParameters params) {
+        Log.i(TAG, "File System Service onStartJob");
+        return true;
+    }
+
+    @Override
+    public boolean onStopJob(JobParameters params) {
+        Log.i(TAG, "File System Service onStopJob");
+        return false;
+    }
+
 
     private void checkDownloadFolder() {
         DataRepository repository = MediaApplication.getInstance().getRepository();

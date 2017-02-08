@@ -10,7 +10,7 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.services.FileSystemIntentService;
+import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.widgets.fetch.FetchContentView;
 
 
@@ -45,11 +45,11 @@ public class FetchMediaFilesManager {
 
     private void registerBroadcastReceiver() {
         IntentFilter filter = new IntentFilter();
-        filter.addAction(FileSystemIntentService.ACTION_START_FETCH_MEDIA_CONTENT);
-        filter.addAction(FileSystemIntentService.ACTION_END_FETCH_MEDIA_CONTENT);
-        filter.addAction(FileSystemIntentService.ACTION_AUDIO_FOLDER_NAME);
-        filter.addAction(FileSystemIntentService.ACTION_AUDIO_TRACK_NAME);
-        filter.addAction(FileSystemIntentService.ACTION_VIDEO_FILE);
+        filter.addAction(FileSystemService.ACTION_START_FETCH_MEDIA_CONTENT);
+        filter.addAction(FileSystemService.ACTION_END_FETCH_MEDIA_CONTENT);
+        filter.addAction(FileSystemService.ACTION_AUDIO_FOLDER_NAME);
+        filter.addAction(FileSystemService.ACTION_AUDIO_TRACK_NAME);
+        filter.addAction(FileSystemService.ACTION_VIDEO_FILE);
         LocalBroadcastManager.getInstance(MediaApplication.getInstance().getApplicationContext())
                 .registerReceiver(broadcastReceiver, filter);
     }
@@ -64,7 +64,7 @@ public class FetchMediaFilesManager {
         @Override
         public void onReceive(final Context context, Intent intent) {
             switch (intent.getAction()) {
-                case FileSystemIntentService.ACTION_START_FETCH_MEDIA_CONTENT:
+                case FileSystemService.ACTION_START_FETCH_MEDIA_CONTENT:
                     if (listener != null) {
                         listener.onFetchContentStart();
                     }
@@ -74,7 +74,7 @@ public class FetchMediaFilesManager {
                     }
                     fetchStart = true;
                     break;
-                case FileSystemIntentService.ACTION_END_FETCH_MEDIA_CONTENT:
+                case FileSystemService.ACTION_END_FETCH_MEDIA_CONTENT:
                     if (listener != null) {
                         listener.onFetchContentFinish();
                     }
@@ -84,23 +84,23 @@ public class FetchMediaFilesManager {
                     }
                     fetchStart = false;
                     break;
-                case FileSystemIntentService.ACTION_AUDIO_FOLDER_NAME:
+                case FileSystemService.ACTION_AUDIO_FOLDER_NAME:
                     String folderName =
-                            intent.getStringExtra(FileSystemIntentService.EXTRA_AUDIO_FOLDER_NAME);
+                            intent.getStringExtra(FileSystemService.EXTRA_AUDIO_FOLDER_NAME);
                     if (fetchContentView != null) {
                         fetchContentView.setAudioFolderName(folderName);
                     }
                     break;
-                case FileSystemIntentService.ACTION_AUDIO_TRACK_NAME:
+                case FileSystemService.ACTION_AUDIO_TRACK_NAME:
                     String trackName =
-                            intent.getStringExtra(FileSystemIntentService.EXTRA_AUDIO_TRACK_NAME);
+                            intent.getStringExtra(FileSystemService.EXTRA_AUDIO_TRACK_NAME);
                     if (fetchContentView != null) {
                         fetchContentView.setAudioFileName(trackName);
                     }
                     break;
-                case FileSystemIntentService.ACTION_VIDEO_FILE:
+                case FileSystemService.ACTION_VIDEO_FILE:
                     String videoFileName =
-                            intent.getStringExtra(FileSystemIntentService.EXTRA_VIDEO_FILE_NAME);
+                            intent.getStringExtra(FileSystemService.EXTRA_VIDEO_FILE_NAME);
                     if (fetchContentView != null) {
                         fetchContentView.setVideoFileName(videoFileName);
                     }
