@@ -148,15 +148,14 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             @Override
             public void onFetchContentFinish() {
                 hideToolbarTimer();
+            }
 
-                if (isAudioFragmentShow()) {
-                    AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
-                            findFragmentByTag(AudioFragment.class.getName());
+            @Override
+            public void onAudioFolderCreated() {
+                AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
+                        findFragmentByTag(AudioFragment.class.getName());
+                if (audioFragment != null) {
                     audioFragment.refreshAudioContent();
-                } else {
-                    VideoFragment videoFragment = (VideoFragment) getSupportFragmentManager().
-                            findFragmentByTag(VideoFragment.class.getName());
-                    videoFragment.refreshVideoContent();
                 }
             }
         });

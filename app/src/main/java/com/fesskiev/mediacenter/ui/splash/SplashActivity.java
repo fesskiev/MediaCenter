@@ -79,6 +79,11 @@ public class SplashActivity extends AppCompatActivity {
                 settingsManager.setFirstStartApp();
                 loadMediaFiles();
             }
+
+            @Override
+            public void onAudioFolderCreated() {
+
+            }
         });
 
         FileSystemService.startFileSystemService(getApplicationContext());

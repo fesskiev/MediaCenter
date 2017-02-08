@@ -22,6 +22,7 @@ public class FetchMediaFilesManager {
 
         void onFetchContentFinish();
 
+        void onAudioFolderCreated();
     }
 
     private OnFetchMediaFilesListener listener;
@@ -47,6 +48,7 @@ public class FetchMediaFilesManager {
         IntentFilter filter = new IntentFilter();
         filter.addAction(FileSystemService.ACTION_START_FETCH_MEDIA_CONTENT);
         filter.addAction(FileSystemService.ACTION_END_FETCH_MEDIA_CONTENT);
+        filter.addAction(FileSystemService.ACTION_AUDIO_FOLDER_CREATED);
         filter.addAction(FileSystemService.ACTION_AUDIO_FOLDER_NAME);
         filter.addAction(FileSystemService.ACTION_AUDIO_TRACK_NAME);
         filter.addAction(FileSystemService.ACTION_VIDEO_FILE);
@@ -89,6 +91,12 @@ public class FetchMediaFilesManager {
                             intent.getStringExtra(FileSystemService.EXTRA_AUDIO_FOLDER_NAME);
                     if (fetchContentView != null) {
                         fetchContentView.setAudioFolderName(folderName);
+                    }
+                    break;
+
+                case FileSystemService.ACTION_AUDIO_FOLDER_CREATED:
+                    if (listener != null) {
+                        listener.onAudioFolderCreated();
                     }
                     break;
                 case FileSystemService.ACTION_AUDIO_TRACK_NAME:

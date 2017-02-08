@@ -48,6 +48,7 @@ public class FileSystemService extends JobService {
     public static final String ACTION_VIDEO_FILE = "com.fesskiev.player.action.VIDEO_FILE";
     public static final String ACTION_AUDIO_FOLDER_NAME = "com.fesskiev.player.action.ACTION_AUDIO_FOLDER_NAME";
     public static final String ACTION_AUDIO_TRACK_NAME = "com.fesskiev.player.action.ACTION_AUDIO_TRACK_NAME";
+    public static final String ACTION_AUDIO_FOLDER_CREATED = "com.fesskiev.player.action.ACTION_AUDIO_FOLDER_CREATED";
 
     public static final String EXTRA_AUDIO_FOLDER_NAME = "com.fesskiev.player.action.EXTRA_AUDIO_FOLDER_NAME";
     public static final String EXTRA_AUDIO_TRACK_NAME = "com.fesskiev.player.action.EXTRA_AUDIO_TRACK_NAME";
@@ -358,6 +359,8 @@ public class FileSystemService extends JobService {
                             sendAudioTrackNameBroadcast(audioFile.artist + "-" + audioFile.title);
                         });
                     }
+
+                    sendAudioFolderCreatedBroadcast();
                 }
             }
         }
@@ -386,6 +389,12 @@ public class FileSystemService extends JobService {
         intent.putExtra(EXTRA_AUDIO_FOLDER_NAME, folderName);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
+
+    public void sendAudioFolderCreatedBroadcast() {
+        Intent intent = new Intent(ACTION_AUDIO_FOLDER_CREATED);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
 
     public void sendVideoFileBroadcast(String fileName) {
         Intent intent = new Intent(ACTION_VIDEO_FILE);
