@@ -12,7 +12,6 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
@@ -21,7 +20,7 @@ import android.widget.ImageView;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.source.DataRepository;
-import com.fesskiev.mediacenter.services.FileSystemIntentService;
+import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.ui.MainActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
@@ -82,6 +81,7 @@ public class SplashActivity extends AppCompatActivity {
             }
         });
 
+        FileSystemService.startFileSystemService(getApplicationContext());
         animate();
     }
 
@@ -102,7 +102,7 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void stopFetchFiles() {
-        FileSystemIntentService.shouldContinue = false;
+        FileSystemService.shouldContinue = false;
 
         DataRepository repository = MediaApplication.getInstance().getRepository();
         Observable.zip(RxUtils.fromCallable(repository.resetAudioContentDatabase()),
@@ -264,7 +264,7 @@ public class SplashActivity extends AppCompatActivity {
     private void fetchAudioContent() {
         if (settingsManager.isFirstStartApp()) {
             BitmapHelper.getInstance().saveDownloadFolderIcon();
-            FileSystemIntentService.startFetchMedia(getApplicationContext());
+            FileSystemService.startFetchMedia(getApplicationContext());
         } else {
             loadMediaFiles();
         }

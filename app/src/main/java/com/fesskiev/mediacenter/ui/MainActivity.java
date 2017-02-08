@@ -16,7 +16,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,7 +25,7 @@ import android.widget.TextView;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.source.DataRepository;
-import com.fesskiev.mediacenter.services.FileSystemIntentService;
+import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.about.AboutActivity;
 import com.fesskiev.mediacenter.ui.audio.AudioFragment;
@@ -176,7 +175,9 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         timerView.setVisibility(View.INVISIBLE);
         ((Animatable) timerView.getDrawable()).stop();
 
-        countDownTimer.stop();
+        if (countDownTimer != null) {
+            countDownTimer.stop();
+        }
     }
 
     @Override
@@ -440,11 +441,12 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
         fetchMediaFilesManager.unregister();
         PlaybackService.destroyPlayer(getApplicationContext());
+        FileSystemService.stopFileSystemService(getApplicationContext());
 
     }
 
     private void stopFetchFiles() {
-        FileSystemIntentService.shouldContinue = false;
+        FileSystemService.shouldContinue = false;
 
         DataRepository repository = MediaApplication.getInstance().getRepository();
         Observable.zip(RxUtils.fromCallable(repository.resetAudioContentDatabase()),

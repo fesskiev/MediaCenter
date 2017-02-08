@@ -3,7 +3,7 @@ package com.fesskiev.mediacenter.utils.download;
 
 
 import com.fesskiev.mediacenter.MediaApplication;
-import com.fesskiev.mediacenter.services.FileSystemIntentService;
+import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.Utils;
 
@@ -169,7 +169,7 @@ public class DownloadManager implements Runnable {
                 status = COMPLETE;
                 stateChanged();
 
-                FileSystemIntentService
+                FileSystemService
                         .startCheckDownloadFolderService(MediaApplication.getInstance()
                                 .getApplicationContext());
             }

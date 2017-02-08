@@ -24,7 +24,7 @@ import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.players.VideoPlayer;
-import com.fesskiev.mediacenter.services.FileSystemIntentService;
+import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.ui.video.player.VideoExoPlayerActivity;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
@@ -162,7 +162,7 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                             .subscribeOn(Schedulers.io())
                             .doOnNext(integer -> CacheManager.clearVideoImagesCache())
                             .subscribeOn(Schedulers.io())
-                            .subscribe(aVoid -> FileSystemIntentService.startFetchVideo(getActivity()));
+                            .subscribe(aVoid -> FileSystemService.startFetchVideo(getActivity()));
                 });
 
         builder.setNegativeButton(R.string.dialog_refresh_video_cancel,

@@ -13,7 +13,7 @@ import android.view.View;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.source.DataRepository;
-import com.fesskiev.mediacenter.services.FileSystemIntentService;
+import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.ui.ViewPagerFragment;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
@@ -99,7 +99,7 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
                             })
                             .subscribeOn(Schedulers.io())
                             .subscribe(integer -> {
-                                FileSystemIntentService.startFetchAudio(getActivity());
+                                FileSystemService.startFetchAudio(getActivity());
                             });
                 });
 

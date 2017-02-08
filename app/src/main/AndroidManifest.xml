@@ -11,6 +11,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <uses-feature
         android:name="android.hardware.location"
         android:required="false" />
@@ -202,8 +204,9 @@
         </activity>
 
         <service
-            android:name=".services.FileSystemIntentService"
-            android:exported="false" />
+            android:name=".services.FileSystemService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="true" />
 
         <service
             android:name=".services.PlaybackService"
