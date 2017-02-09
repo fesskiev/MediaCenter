@@ -84,6 +84,11 @@ public class SplashActivity extends AppCompatActivity {
             public void onAudioFolderCreated() {
 
             }
+
+            @Override
+            public void onVideoFileCreated() {
+
+            }
         });
 
         FileSystemService.startFileSystemService(getApplicationContext());

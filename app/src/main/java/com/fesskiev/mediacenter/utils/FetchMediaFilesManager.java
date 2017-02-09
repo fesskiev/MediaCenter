@@ -23,6 +23,8 @@ public class FetchMediaFilesManager {
         void onFetchContentFinish();
 
         void onAudioFolderCreated();
+
+        void onVideoFileCreated();
     }
 
     private OnFetchMediaFilesListener listener;
@@ -111,6 +113,9 @@ public class FetchMediaFilesManager {
                             intent.getStringExtra(FileSystemService.EXTRA_VIDEO_FILE_NAME);
                     if (fetchContentView != null) {
                         fetchContentView.setVideoFileName(videoFileName);
+                    }
+                    if (listener != null) {
+                        listener.onVideoFileCreated();
                     }
                     break;
             }

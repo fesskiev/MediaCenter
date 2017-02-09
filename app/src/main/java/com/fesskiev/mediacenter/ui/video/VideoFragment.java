@@ -105,6 +105,9 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         fetchVideoContent();
     }
 
+    public void clearVideoContent() {
+        adapter.clearAdapter();
+    }
 
     public void fetchVideoContent() {
         RxUtils.unsubscribe(subscription);
@@ -179,7 +182,6 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         super.onPause();
         RxUtils.unsubscribe(subscription);
     }
-
 
     private class VideoFilesAdapter extends RecyclerView.Adapter<VideoFilesAdapter.ViewHolder> {
 
@@ -326,5 +328,11 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             notifyItemRemoved(position);
             notifyItemRangeChanged(position, getItemCount());
         }
+
+        public void clearAdapter() {
+            videoFiles.clear();
+            notifyDataSetChanged();
+        }
+
     }
 }

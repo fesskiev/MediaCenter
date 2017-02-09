@@ -30,25 +30,19 @@ public class FileSystemService extends JobService {
     private static final String TAG = FileSystemService.class.getSimpleName();
 
 
-    private static final String ACTION_START_FETCH_MEDIA_SERVICE =
-            "com.fesskiev.player.action.ACTION_FETCH_MEDIA_SERVICE";
-    private static final String ACTION_START_FETCH_AUDIO_SERVICE =
-            "com.fesskiev.player.action.ACTION_START_FETCH_AUDIO_SERVICE";
-    private static final String ACTION_START_FETCH_VIDEO_SERVICE =
-            "com.fesskiev.player.action.ACTION_START_FETCH_VIDEO_SERVICE";
+    private static final String ACTION_START_FETCH_MEDIA_SERVICE = "com.fesskiev.player.action.FETCH_MEDIA_SERVICE";
+    private static final String ACTION_START_FETCH_AUDIO_SERVICE = "com.fesskiev.player.action.START_FETCH_AUDIO_SERVICE";
+    private static final String ACTION_START_FETCH_VIDEO_SERVICE = "com.fesskiev.player.action.START_FETCH_VIDEO_SERVICE";
 
-    private static final String ACTION_CHECK_DOWNLOAD_FOLDER_SERVICE =
-            "com.fesskiev.player.action.ACTION_CHECK_DOWNLOAD_FOLDER_SERVICE";
+    private static final String ACTION_CHECK_DOWNLOAD_FOLDER_SERVICE = "com.fesskiev.player.action.CHECK_DOWNLOAD_FOLDER_SERVICE";
 
-    public static final String ACTION_START_FETCH_MEDIA_CONTENT
-            = "com.fesskiev.player.action.ACTION_START_FETCH_MEDIA_CONTENT";
-    public static final String ACTION_END_FETCH_MEDIA_CONTENT
-            = "com.fesskiev.player.action.ACTION_END_FETCH_MEDIA_CONTENT";
+    public static final String ACTION_START_FETCH_MEDIA_CONTENT = "com.fesskiev.player.action.START_FETCH_MEDIA_CONTENT";
+    public static final String ACTION_END_FETCH_MEDIA_CONTENT = "com.fesskiev.player.action.END_FETCH_MEDIA_CONTENT";
 
     public static final String ACTION_VIDEO_FILE = "com.fesskiev.player.action.VIDEO_FILE";
-    public static final String ACTION_AUDIO_FOLDER_NAME = "com.fesskiev.player.action.ACTION_AUDIO_FOLDER_NAME";
-    public static final String ACTION_AUDIO_TRACK_NAME = "com.fesskiev.player.action.ACTION_AUDIO_TRACK_NAME";
-    public static final String ACTION_AUDIO_FOLDER_CREATED = "com.fesskiev.player.action.ACTION_AUDIO_FOLDER_CREATED";
+    public static final String ACTION_AUDIO_FOLDER_NAME = "com.fesskiev.player.action.AUDIO_FOLDER_NAME";
+    public static final String ACTION_AUDIO_TRACK_NAME = "com.fesskiev.player.action.AUDIO_TRACK_NAME";
+    public static final String ACTION_AUDIO_FOLDER_CREATED = "com.fesskiev.player.action.AUDIO_FOLDER_CREATED";
 
     public static final String EXTRA_AUDIO_FOLDER_NAME = "com.fesskiev.player.action.EXTRA_AUDIO_FOLDER_NAME";
     public static final String EXTRA_AUDIO_TRACK_NAME = "com.fesskiev.player.action.EXTRA_AUDIO_TRACK_NAME";
@@ -190,7 +184,7 @@ public class FileSystemService extends JobService {
                     audioFolder.folderName = "Downloads";
                     audioFolder.id = UUID.randomUUID().toString();
 
-                    MediaApplication.getInstance().getRepository().insertAudioFolder(audioFolder);
+                    repository.insertAudioFolder(audioFolder);
 
                     repository.getMemorySource().setCacheArtistsDirty(true);
                     repository.getMemorySource().setCacheGenresDirty(true);

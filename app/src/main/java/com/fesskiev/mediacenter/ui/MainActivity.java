@@ -141,7 +141,15 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                     clearPlayback();
                     AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
                             findFragmentByTag(AudioFragment.class.getName());
-                    audioFragment.clearAudioContent();
+                    if (audioFragment != null) {
+                        audioFragment.clearAudioContent();
+                    }
+                } else if (isVideoFragmentShow()) {
+                    VideoFragment videoFragment = (VideoFragment) getSupportFragmentManager().
+                            findFragmentByTag(VideoFragment.class.getName());
+                    if (videoFragment != null) {
+                        videoFragment.clearVideoContent();
+                    }
                 }
             }
 
@@ -156,6 +164,15 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                         findFragmentByTag(AudioFragment.class.getName());
                 if (audioFragment != null) {
                     audioFragment.refreshAudioContent();
+                }
+            }
+
+            @Override
+            public void onVideoFileCreated() {
+                VideoFragment videoFragment = (VideoFragment) getSupportFragmentManager().
+                        findFragmentByTag(VideoFragment.class.getName());
+                if (videoFragment != null) {
+                    videoFragment.refreshVideoContent();
                 }
             }
         });
@@ -448,6 +465,11 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         FileSystemService.shouldContinue = false;
 
         DataRepository repository = MediaApplication.getInstance().getRepository();
+        repository.getMemorySource().setCacheArtistsDirty(true);
+        repository.getMemorySource().setCacheGenresDirty(true);
+        repository.getMemorySource().setCacheFoldersDirty(true);
+        repository.getMemorySource().setCacheVideoFilesDirty(true);
+
         Observable.zip(RxUtils.fromCallable(repository.resetAudioContentDatabase()),
                 RxUtils.fromCallable(repository.resetVideoContentDatabase()), (integer, integer2) -> Observable.empty())
                 .subscribeOn(Schedulers.io())
