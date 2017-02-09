@@ -21,7 +21,6 @@ public class AppSettingsManager {
     private static final String APP_SETTINGS_PREFERENCES = "com.fesskiev.player_settings_preferences";
 
     private static final String KEY_PLAY_PLUG_IN_HEADSET = "com.fesskiev.player.PLAY_PLUG_IN_HEADSET";
-    private static final String KEY_BACKGROUND_SEARCH = "com.fesskiev.player.BACKGROUND_SEARCH";
     private static final String KEY_DOWNLOAD_WIFI_ONLY = "com.fesskiev.player.DOWNLOAD_WIFI_ONLY";
 
     private static final String KEY_OAUTH_TOKEN = "com.fesskiev.player.SAVE_STATE_KEY_OAUTH_TOKEN";
@@ -45,6 +44,8 @@ public class AppSettingsManager {
     private static final String KEY_ECHO_STATE = "com.fesskiev.player.KEY_ECHO_STATE";
 
     private static final String KEY_RENDERER_STATE = "com.fesskiev.player.KEY_RENDERER_STATE";
+
+    private static final String KEY_MEDIA_CONTENT_UPDATE_TIME = "com.fesskiev.player.KEY_MEDIA_CONTENT_UPDATE_TIME";
 
 
     private SharedPreferences sharedPreferences;
@@ -248,16 +249,6 @@ public class AppSettingsManager {
         editor.apply();
     }
 
-    public boolean isBackgroundSearch() {
-        return sharedPreferences.getBoolean(KEY_BACKGROUND_SEARCH, false);
-    }
-
-    public void setBackgroundSearch(boolean state) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(KEY_BACKGROUND_SEARCH, state);
-        editor.apply();
-    }
-
     public boolean isDownloadWiFiOnly() {
         return sharedPreferences.getBoolean(KEY_DOWNLOAD_WIFI_ONLY, false);
     }
@@ -267,6 +258,17 @@ public class AppSettingsManager {
         editor.putBoolean(KEY_DOWNLOAD_WIFI_ONLY, state);
         editor.apply();
     }
+
+    public long getMediaContentUpdateTime() {
+        return sharedPreferences.getInt(KEY_MEDIA_CONTENT_UPDATE_TIME, 0);
+    }
+
+    public void setMediaContentUpdateTime(int update) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(KEY_MEDIA_CONTENT_UPDATE_TIME, update);
+        editor.apply();
+    }
+
 }
 
 

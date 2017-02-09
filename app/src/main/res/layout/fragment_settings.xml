@@ -1,15 +1,65 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/activity_horizontal_margin"
-    android:background="@color/primary">
+    android:background="@color/primary"
+    android:padding="@dimen/activity_horizontal_margin">
+
+    <RelativeLayout
+        android:id="@+id/downloadSettingContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/audioSettingsContainer"
+        android:layout_marginStart="6dp"
+        android:paddingTop="20dp">
+
+        <TextView
+            android:id="@+id/downloadSettingsTitle"
+            style="@style/SettingsTitleAppearance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_download_title" />
+
+        <View
+            android:id="@+id/divider5"
+            style="@style/DividerStyle"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@+id/downloadSettingsTitle"
+            android:layout_marginTop="10dp" />
+
+        <RelativeLayout
+            android:id="@+id/downloadingContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/divider5"
+            android:layout_marginTop="10dp">
+
+            <android.support.v7.widget.SwitchCompat
+                android:id="@+id/download_wifi_switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/settings_wifi_download" />
+
+        </RelativeLayout>
+
+        <View
+            android:id="@+id/divider6"
+            style="@style/DividerStyle"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@+id/downloadingContainer"
+            android:layout_marginTop="10dp" />
+
+    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/audioSettingsContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true">
 
         <TextView
             android:id="@+id/audioSettingsTitle"
@@ -57,12 +107,42 @@
             android:layout_below="@id/divider3"
             android:layout_marginTop="10dp">
 
-            <android.support.v7.widget.SwitchCompat
-                android:id="@+id/search_media_switch"
+            <RelativeLayout
+                android:id="@+id/searchFilesTitleContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/timerView"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerHorizontal="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/app_name"
+                    android:gravity="center"
+                    android:src="@drawable/avd_clock_timer" />
+
+                <TextView
+                    android:id="@+id/searchFilesTitle"
+                    style="@style/SettingsTextAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_alignBottom="@+id/timerView"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerHorizontal="true"
+                    android:gravity="center"
+                    android:text="@string/settings_searching_files" />
+
+            </RelativeLayout>
+
+            <com.fesskiev.mediacenter.widgets.settings.MediaContentUpdateTimeView
+                android:id="@+id/mediaContentUpdateTime"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/settings_searching_files" />
+                android:layout_below="@+id/searchFilesTitleContainer"
+                android:layout_marginTop="10dp"
+                android:visibility="gone" />
 
         </RelativeLayout>
 
@@ -72,57 +152,6 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_below="@+id/searchContainer"
-            android:layout_marginTop="10dp" />
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/downloadSettingContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="20dp"
-        android:layout_below="@+id/audioSettingsContainer"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="6dp">
-
-
-        <TextView
-            android:id="@+id/downloadSettingsTitle"
-            style="@style/SettingsTitleAppearance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/settings_download_title" />
-
-        <View
-            android:id="@+id/divider5"
-            style="@style/DividerStyle"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_below="@+id/downloadSettingsTitle"
-            android:layout_marginTop="10dp" />
-
-        <RelativeLayout
-            android:id="@+id/downloadingContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/divider5"
-            android:layout_marginTop="10dp">
-
-            <android.support.v7.widget.SwitchCompat
-                android:id="@+id/download_wifi_switch"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/settings_wifi_download" />
-
-        </RelativeLayout>
-
-        <View
-            android:id="@+id/divider6"
-            style="@style/DividerStyle"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_below="@+id/downloadingContainer"
             android:layout_marginTop="10dp" />
 
     </RelativeLayout>

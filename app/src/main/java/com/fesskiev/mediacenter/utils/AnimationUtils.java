@@ -1,11 +1,12 @@
 package com.fesskiev.mediacenter.utils;
 
 
+import android.animation.Animator;
 import android.content.Context;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.view.animation.DecelerateInterpolator;
+import android.view.ViewAnimationUtils;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.MediaApplication;
@@ -24,7 +25,6 @@ public class AnimationUtils {
 
     private Context context;
     private FastOutSlowInInterpolator fastOutSlowInInterpolator;
-    private DecelerateInterpolator decelerateInterpolator;
 
     public static AnimationUtils getInstance() {
         if (INSTANCE == null) {
@@ -37,7 +37,6 @@ public class AnimationUtils {
         context = MediaApplication.getInstance().getApplicationContext();
 
         fastOutSlowInInterpolator = new FastOutSlowInInterpolator();
-        decelerateInterpolator = new DecelerateInterpolator(3.f);
 
     }
 
@@ -87,6 +86,28 @@ public class AnimationUtils {
 
     public void rotateAnimation(View view) {
         view.startAnimation(android.view.animation.AnimationUtils.loadAnimation(context, R.anim.rotate));
+    }
+
+    public void createCircularRevealAnim(View view) {
+        view.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right,
+                                       int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+
+                if (left == 0 && top == 0 && right == 0 && bottom == 0) {
+                    return;
+                }
+                int cx = view.getWidth() / 2;
+                int cy = view.getHeight() / 2;
+                int finalRadius = Math.max(view.getWidth(), view.getHeight());
+                Animator anim =
+                        ViewAnimationUtils.createCircularReveal(view, cx, cy, 0, finalRadius);
+                anim.setDuration(DURATION_MIDDLE);
+                anim.start();
+                view.setVisibility(View.VISIBLE);
+                view.removeOnLayoutChangeListener(this);
+            }
+        });
     }
 
 }

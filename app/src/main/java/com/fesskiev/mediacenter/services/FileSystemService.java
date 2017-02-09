@@ -160,13 +160,16 @@ public class FileSystemService extends JobService {
     @Override
     public boolean onStartJob(JobParameters params) {
         Log.i(TAG, "File System Service onStartJob");
+
+//        jobFinished(params, false);
+
         return true;
     }
 
     @Override
     public boolean onStopJob(JobParameters params) {
         Log.i(TAG, "File System Service onStopJob");
-        return false;
+        return true;
     }
 
 
