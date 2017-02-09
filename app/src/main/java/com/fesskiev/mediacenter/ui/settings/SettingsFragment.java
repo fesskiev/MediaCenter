@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SwitchCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +19,6 @@ import android.widget.ImageView;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
-import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.settings.MediaContentUpdateTimeView;
 
 
@@ -32,7 +30,6 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
     }
 
     private static final int JOB_ID = 31;
-    private static final long REFRESH_INTERVAL = 15 * 60 * 1000;
 
     private AppSettingsManager appSettingsManager;
 
@@ -69,12 +66,12 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
                 .OnMediaContentTimeUpdateListener() {
             @Override
             public void onUpdateByTime(int time) {
-
+                startBackgroundJob(time);
             }
 
             @Override
             public void onCancelUpdateByTime() {
-
+                stopBackgroundJob();
             }
         });
 
@@ -112,26 +109,21 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
         }
     }
 
-    private void updateBackgroundSearch(boolean isChecked) {
+    private void startBackgroundJob(int periodic) {
+
+        JobInfo.Builder builder = new JobInfo.Builder(0, new ComponentName(getActivity(), FileSystemService.class));
+        builder.setMinimumLatency(periodic); // wait at least
+        builder.setOverrideDeadline(periodic + (30 * 1000)); // maximum delay
+        builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED); // require unmetered network
+        builder.setRequiresDeviceIdle(true); // device should be idle
+        builder.setRequiresCharging(false); // we don't care if the device is charging or not
+
         JobScheduler jobScheduler = (JobScheduler) getActivity().getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        if (isChecked) {
-            Log.wtf("job", "START JOB");
-            JobInfo job;
-            if (Utils.isNougat()) {
-                job = new JobInfo.Builder(JOB_ID, new ComponentName(getActivity(), FileSystemService.class))
-                        .setPersisted(true)
-                        .setPeriodic(REFRESH_INTERVAL)
-                        .build();
-            } else {
-                job = new JobInfo.Builder(JOB_ID, new ComponentName(getActivity(), FileSystemService.class))
-                        .setPersisted(true)
-                        .setPeriodic(REFRESH_INTERVAL)
-                        .build();
-            }
-            jobScheduler.schedule(job);
-        } else {
-            Log.wtf("job", "Cancel JOB");
-            jobScheduler.cancel(JOB_ID);
-        }
+        jobScheduler.schedule(builder.build());
+    }
+
+    private void stopBackgroundJob() {
+        JobScheduler jobScheduler = (JobScheduler) getActivity().getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        jobScheduler.cancel(JOB_ID);
     }
 }
