@@ -117,7 +117,7 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
         builder.setMinimumLatency(periodic); // wait at least
         builder.setOverrideDeadline(periodic + (30 * 1000)); // maximum delay
         builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED); // require unmetered network
-        builder.setRequiresDeviceIdle(true); // device should be idle
+        builder.setRequiresDeviceIdle(false); // device should be idle
         builder.setRequiresCharging(false); // we don't care if the device is charging or not
 
         JobScheduler jobScheduler = (JobScheduler) getActivity().getSystemService(Context.JOB_SCHEDULER_SERVICE);

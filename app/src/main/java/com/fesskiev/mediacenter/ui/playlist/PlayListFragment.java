@@ -2,6 +2,7 @@ package com.fesskiev.mediacenter.ui.playlist;
 
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
@@ -16,10 +17,11 @@ import android.widget.TextView;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.AudioFile;
+import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.players.AudioPlayer;
-import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity;
+import com.fesskiev.mediacenter.ui.video.player.VideoExoPlayerActivity;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
@@ -34,6 +36,7 @@ import java.util.List;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 
 public class PlayListFragment extends Fragment {
@@ -82,13 +85,12 @@ public class PlayListFragment extends Fragment {
 
     private void fetchPLayListFiles() {
         DataRepository repository = MediaApplication.getInstance().getRepository();
-        subscription = Observable.concat(
-                repository.getAudioFilePlaylist(),
-                repository.getVideoFilePlaylist())
-                .first()
+        subscription = Observable.merge(repository.getAudioFilePlaylist(), repository.getVideoFilePlaylist())
+                .take(2)
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(mediaFiles -> {
-                    AppLog.DEBUG("size: " + mediaFiles.size());
+                    AppLog.DEBUG("playlist size: " + mediaFiles.size());
                     if (!mediaFiles.isEmpty()) {
                         adapter.refreshAdapter(mediaFiles);
                         hideEmptyCardPlaylist();
@@ -181,19 +183,24 @@ public class PlayListFragment extends Fragment {
         }
 
         private void startPlayerActivity(int position) {
-            MediaFile mediaFile = mediaFiles.get(position);
-            if (mediaFile != null) {
-                switch (mediaFile.getMediaType()) {
-                    case VIDEO:
-                        break;
-                    case AUDIO:
-                        Activity act = activity.get();
-                        if (act != null) {
+            Activity act = activity.get();
+            if (act != null) {
+                MediaFile mediaFile = mediaFiles.get(position);
+                if (mediaFile != null) {
+                    switch (mediaFile.getMediaType()) {
+                        case VIDEO:
+                            Intent intent = new Intent(act, VideoExoPlayerActivity.class);
+                            intent.putExtra(VideoExoPlayerActivity.URI_EXTRA, mediaFile.getFilePath());
+                            intent.putExtra(VideoExoPlayerActivity.VIDEO_NAME_EXTRA, mediaFile.getFileName());
+                            intent.setAction(VideoExoPlayerActivity.ACTION_VIEW_URI);
+                            act.startActivity(intent);
+                            break;
+                        case AUDIO:
                             AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
                             audioPlayer.setCurrentAudioFileAndPlay((AudioFile) mediaFile);
                             AudioPlayerActivity.startPlayerActivity(act);
-                        }
-                        break;
+                            break;
+                    }
                 }
             }
         }

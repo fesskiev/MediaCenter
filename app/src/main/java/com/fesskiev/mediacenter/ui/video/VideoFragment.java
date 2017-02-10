@@ -139,7 +139,6 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         intent.putExtra(VideoExoPlayerActivity.URI_EXTRA, videoFile.getFilePath());
         intent.putExtra(VideoExoPlayerActivity.VIDEO_NAME_EXTRA, videoFile.getFileName());
         intent.setAction(VideoExoPlayerActivity.ACTION_VIEW_URI);
-
         startActivity(intent);
     }
 
@@ -233,7 +232,6 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             final Menu menu = popupMenu.getMenu();
             popupMenu.getMenuInflater().inflate(R.menu.menu_popup_item_video, menu);
             popupMenu.setOnMenuItemClickListener(item -> {
-
                 switch (item.getItemId()) {
                     case R.id.delete:
                         deleteVideo(position);
@@ -281,7 +279,7 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 MediaApplication.getInstance().getRepository().updateVideoFile(videoFile);
                 Utils.showCustomSnackbar(getView(),
                         getContext().getApplicationContext(),
-                        getString(R.string.add_to_playlist_text),
+                        getString(R.string.add_to_playlist_video_text),
                         Snackbar.LENGTH_SHORT).show();
             }
         }
