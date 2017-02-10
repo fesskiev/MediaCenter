@@ -19,6 +19,7 @@ import com.fesskiev.mediacenter.data.model.effects.WhooshState;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.AudioFocusManager;
 import com.fesskiev.mediacenter.utils.AudioNotificationHelper;
+import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.CountDownTimer;
 
 import org.greenrobot.eventbus.EventBus;
@@ -452,7 +453,8 @@ public class PlaybackService extends Service {
         }
 
         Log.d(TAG, "create audio player!");
-        createAudioPlayer(Integer.valueOf(sampleRateString), Integer.valueOf(bufferSizeString));
+        createAudioPlayer(Integer.valueOf(sampleRateString), Integer.valueOf(bufferSizeString),
+                CacheManager.RECORDER_TEMP_PATH);
 
         setEffects();
     }
@@ -569,7 +571,7 @@ public class PlaybackService extends Service {
 
     public native void unregisterCallback();
 
-    public native void createAudioPlayer(int sampleRate, int bufferSize);
+    public native void createAudioPlayer(int sampleRate, int bufferSize, String recorderTempPath);
 
     public native void openAudioFile(String path);
 
@@ -608,6 +610,13 @@ public class PlaybackService extends Service {
     public native void setWhooshValue(int wet, int frequency);
 
     public native void enableWhoosh(boolean enable);
+
+    /***
+     * Recording
+     */
+    public native void startRecording(String destinationPath);
+
+    public native void stopRecording();
 
 
     @Keep

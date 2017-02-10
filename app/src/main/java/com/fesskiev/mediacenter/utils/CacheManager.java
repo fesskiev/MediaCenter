@@ -13,6 +13,7 @@ public class CacheManager {
     public final static String IMAGES_AUDIO_CACHE_PATH = EXTERNAL_STORAGE + "/MediaCenter/Images/Audio/";
     public final static String IMAGES_VIDEO_CACHE_PATH = EXTERNAL_STORAGE + "/MediaCenter/Images/Video/";
     public final static String CHECK_DOWNLOADS_FOLDER_PATH = EXTERNAL_STORAGE + "/MediaCenter/Downloads";
+    public final static String RECORDER_TEMP_PATH = EXTERNAL_STORAGE + "/MediaCenter/Temp/";
 
     public static void clearAudioImagesCache() {
         File folder = new File(IMAGES_AUDIO_CACHE_PATH);

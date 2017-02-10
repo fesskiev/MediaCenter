@@ -1,7 +1,6 @@
 #include "SuperpoweredPlayer.h"
 #include "SuperpoweredSimple.h"
 #include <jni.h>
-#include <stdio.h>
 #include <android/log.h>
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_AndroidConfiguration.h>
@@ -87,7 +86,8 @@ static bool audioProcessing(void *clientdata, short int *audioIO, int numberOfSa
     return ((SuperpoweredPlayer *) clientdata)->process(audioIO, (unsigned int) numberOfSamples);
 }
 
-SuperpoweredPlayer::SuperpoweredPlayer(unsigned int samplerate, unsigned int buffersize) : volume(
+SuperpoweredPlayer::SuperpoweredPlayer(unsigned int samplerate, unsigned int buffersize,
+                                       const char *recorderTempPath) : volume(
         1.0f) {
 
     buffer = (float *) memalign(16, (buffersize + 16) * sizeof(float) * 2);
@@ -104,12 +104,13 @@ SuperpoweredPlayer::SuperpoweredPlayer(unsigned int samplerate, unsigned int buf
     left = 1.0f;
     right = 1.0f;
 
-
     bandEQ = new Superpowered3BandEQ(samplerate);
     echo = new SuperpoweredEcho(samplerate);
     reverb = new SuperpoweredReverb(samplerate);
     gate = new SuperpoweredGate(samplerate);
     whoosh = new SuperpoweredWhoosh(samplerate);
+
+    recorder = new SuperpoweredRecorder(recorderTempPath, samplerate);
 }
 
 bool SuperpoweredPlayer::process(short int *output, unsigned int numberOfSamples) {
@@ -148,6 +149,10 @@ bool SuperpoweredPlayer::process(short int *output, unsigned int numberOfSamples
             whoosh->process(buffer, buffer, numberOfSamples);
         }
 
+        if (record) {
+            recorder->process(buffer, buffer, numberOfSamples);
+        }
+
         SuperpoweredFloatToShortInt(buffer, output, numberOfSamples);
 
     }
@@ -168,6 +173,7 @@ SuperpoweredPlayer::~SuperpoweredPlayer() {
     delete whoosh;
     delete bandEQ;
     delete mixer;
+    delete recorder;
     delete audioSystem;
     delete player;
     free(buffer);
@@ -301,6 +307,17 @@ bool SuperpoweredPlayer::isEnableWhoosh() {
     return whoosh->enabled;
 }
 
+void SuperpoweredPlayer::startRecording(const char *destinationPath) {
+    record = true;
+    recorder->start(destinationPath);
+
+}
+
+void SuperpoweredPlayer::stopRecording() {
+    record = false;
+    recorder->stop();
+}
+
 
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     gJavaVM = vm;
@@ -400,8 +417,13 @@ extern "C" JNIEXPORT void
 Java_com_fesskiev_mediacenter_services_PlaybackService_createAudioPlayer(JNIEnv *env,
                                                                          jobject instance,
                                                                          jint sampleRate,
-                                                                         jint bufferSize) {
-    player = new SuperpoweredPlayer((unsigned int) sampleRate, (unsigned int) bufferSize);
+                                                                         jint bufferSize,
+                                                                         jstring recordTempPath) {
+    const char *str = env->GetStringUTFChars(recordTempPath, 0);
+
+    player = new SuperpoweredPlayer((unsigned int) sampleRate, (unsigned int) bufferSize, str);
+
+    env->ReleaseStringUTFChars(recordTempPath, str);
 }
 
 extern "C" JNIEXPORT void
@@ -471,5 +493,21 @@ extern "C" JNIEXPORT void
 Java_com_fesskiev_mediacenter_services_PlaybackService_enableWhoosh(JNIEnv *env, jobject instance,
                                                                     jboolean enable) {
     player->enableWhoosh(enable);
+}
+
+JNIEXPORT void JNICALL
+Java_com_fesskiev_mediacenter_services_PlaybackService_startRecording(JNIEnv *env, jobject instance,
+                                                                      jstring destination) {
+    const char *destinationPath = env->GetStringUTFChars(destination, 0);
+
+    player->startRecording(destinationPath);
+
+    env->ReleaseStringUTFChars(destination, destinationPath);
+}
+
+JNIEXPORT void JNICALL
+Java_com_fesskiev_mediacenter_services_PlaybackService_stopRecording(JNIEnv *env,
+                                                                     jobject instance) {
+    player->stopRecording();
 }
 

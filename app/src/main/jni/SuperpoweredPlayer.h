@@ -9,6 +9,7 @@
 #include <SuperpoweredMixer.h>
 #include <SuperpoweredGate.h>
 #include <SuperpoweredWhoosh.h>
+#include <SuperpoweredRecorder.h>
 
 #include "SuperpoweredPlayer.h"
 #include "SuperpoweredAdvancedAudioPlayer.h"
@@ -19,7 +20,8 @@ class SuperpoweredPlayer {
 
 public:
 
-    SuperpoweredPlayer(unsigned int samplerate, unsigned int buffersize);
+    SuperpoweredPlayer(unsigned int samplerate, unsigned int buffersize,
+                       const char *recorderTempPath);
 
     ~SuperpoweredPlayer();
 
@@ -36,6 +38,9 @@ public:
     bool isLooping();
     void setLooping(bool looping);
     void open(const char *path);
+
+    void startRecording(const char *destinationPath);
+    void stopRecording();
 
     void setEQBands(int index, int value);
     void enableEQ(bool enable);
@@ -60,6 +65,7 @@ public:
 
 private:
     SuperpoweredAndroidAudioIO *audioSystem;
+    SuperpoweredRecorder *recorder;
     SuperpoweredAdvancedAudioPlayer *player;
     Superpowered3BandEQ *bandEQ;
     SuperpoweredStereoMixer *mixer;
@@ -70,6 +76,7 @@ private:
 
     float *buffer;
     float volume;
+    bool record;
 
     float left;
     float right;
