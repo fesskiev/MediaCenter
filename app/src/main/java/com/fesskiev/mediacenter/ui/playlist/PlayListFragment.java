@@ -80,10 +80,10 @@ public class PlayListFragment extends Fragment {
             actionMenu.hideMenu(true);
         });
 
-        fetchPLayListFiles();
+        fetchPlayListFiles();
     }
 
-    private void fetchPLayListFiles() {
+    private void fetchPlayListFiles() {
         DataRepository repository = MediaApplication.getInstance().getRepository();
         subscription = Observable.merge(repository.getAudioFilePlaylist(), repository.getVideoFilePlaylist())
                 .take(2)

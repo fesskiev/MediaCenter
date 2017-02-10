@@ -472,13 +472,20 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         }
         if (playerNeedsSource) {
             String action = intent.getAction();
-            Uri uri;
+            Uri uri = null;
             if (ACTION_VIEW_URI.equals(action)) {
                 currentVideoPath = intent.getStringExtra(URI_EXTRA);
                 uri = Uri.parse(currentVideoPath);
 
                 currentVideoName = intent.getStringExtra(VIDEO_NAME_EXTRA);
                 videoControlView.setVideoName(currentVideoName);
+            } else if (Intent.ACTION_VIEW.equals(action)) {
+                String type = intent.getType();
+                if (type != null) {
+                    if (type.startsWith("video/")) {
+                        uri = intent.getData();
+                    }
+                }
             } else {
                 return;
             }
