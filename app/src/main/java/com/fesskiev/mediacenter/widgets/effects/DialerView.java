@@ -19,7 +19,7 @@ public abstract class DialerView extends View {
         void onAttachDealerView(DialerView view);
     }
 
-    public abstract void rotateDialer(float currentAngle, float [] values);
+    public abstract void rotateDialer(float currentAngle, float[] values);
 
     private OnDialerViewListener listener;
 
@@ -64,7 +64,7 @@ public abstract class DialerView extends View {
         cx = getWidth() / 2f;
         cy = getHeight() / 2f;
 
-        if(listener != null){
+        if (listener != null) {
             listener.onAttachDealerView(this);
         }
 
@@ -142,10 +142,12 @@ public abstract class DialerView extends View {
         }
     }
 
-    public void setLevel(float[] values) {
+    public void setLevel(float[] values, boolean customStartPos) {
         if (values != null) {
             matrix.setValues(values);
             postInvalidate();
+        } else if (customStartPos) {
+            matrix.postRotate(180, cx, cy);
         }
     }
 

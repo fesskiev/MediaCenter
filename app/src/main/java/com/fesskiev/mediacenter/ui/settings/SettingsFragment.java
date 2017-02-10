@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SwitchCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -110,8 +111,9 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
     }
 
     private void startBackgroundJob(int periodic) {
+        Log.d("job", "startBackgroundJob: " + periodic);
 
-        JobInfo.Builder builder = new JobInfo.Builder(0, new ComponentName(getActivity(), FileSystemService.class));
+        JobInfo.Builder builder = new JobInfo.Builder(JOB_ID, new ComponentName(getActivity(), FileSystemService.class));
         builder.setMinimumLatency(periodic); // wait at least
         builder.setOverrideDeadline(periodic + (30 * 1000)); // maximum delay
         builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED); // require unmetered network
@@ -123,6 +125,8 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
     }
 
     private void stopBackgroundJob() {
+        Log.d("job", "stopBackgroundJob");
+
         JobScheduler jobScheduler = (JobScheduler) getActivity().getSystemService(Context.JOB_SCHEDULER_SERVICE);
         jobScheduler.cancel(JOB_ID);
     }

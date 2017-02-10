@@ -121,17 +121,17 @@ public class OtherEffectsFragment extends Fragment implements EchoControlView.On
         String name = view.getName();
         switch (name) {
             case WHOOSH_FREQUENCY:
-                view.setLevel(whooshState.getFrequencyValues());
+                view.setLevel(whooshState.getFrequencyValues(), false);
                 break;
             case WHOOSH_MIX:
-                view.setLevel(whooshState.getMixValues());
+                view.setLevel(whooshState.getMixValues(), false);
                 break;
 
         }
     }
 
     private void setEchoLevel(EchoControlView view) {
-        view.setLevel(echoState.getLevelValues());
+        view.setLevel(echoState.getLevelValues(), false);
     }
 
     @Override

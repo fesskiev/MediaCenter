@@ -255,7 +255,7 @@ public class PlaybackService extends Service {
                 volume *= 100f;
             }
 
-            Log.d("event", "ev: " + PlaybackService.this.toString());
+//            Log.d("event", "ev: " + PlaybackService.this.toString());
             EventBus.getDefault().post(PlaybackService.this);
         });
 

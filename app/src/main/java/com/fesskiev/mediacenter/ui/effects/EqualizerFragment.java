@@ -83,13 +83,13 @@ public class EqualizerFragment extends Fragment implements EQBandControlView.OnB
         int band = ((EQBandControlView) view).getBand();
         switch (band) {
             case 0:
-                view.setLevel(state.getLowValues());
+                view.setLevel(state.getLowValues(), true);
                 break;
             case 1:
-                view.setLevel(state.getMidValues());
+                view.setLevel(state.getMidValues(), true);
                 break;
             case 2:
-                view.setLevel(state.getHighValues());
+                view.setLevel(state.getHighValues(), true);
                 break;
         }
     }

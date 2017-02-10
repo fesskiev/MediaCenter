@@ -91,16 +91,16 @@ public class ReverbFragment extends Fragment implements DialerView.OnDialerViewL
         String name = ((ReverbControlView) view).getName();
         switch (name) {
             case REVERB_WIDTH:
-                view.setLevel(state.getWeightValues());
+                view.setLevel(state.getWeightValues(), false);
                 break;
             case REVERB_MIX:
-                view.setLevel(state.getMixValues());
+                view.setLevel(state.getMixValues(), false);
                 break;
             case REVERB_DAMP:
-                view.setLevel(state.getDampValues());
+                view.setLevel(state.getDampValues(), false);
                 break;
             case REVERB_ROOM_SIZE:
-                view.setLevel(state.getRoomSizeValues());
+                view.setLevel(state.getRoomSizeValues(), false);
                 break;
         }
     }
