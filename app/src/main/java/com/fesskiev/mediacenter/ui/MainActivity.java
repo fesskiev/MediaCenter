@@ -257,6 +257,15 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             public void onEchoStateChanged(boolean enable) {
                 PlaybackService.changeEchoEnable(getApplicationContext(), enable);
             }
+
+            @Override
+            public void onRecordStateChanged(boolean recording) {
+                if (recording) {
+                    PlaybackService.startRecording(getApplicationContext());
+                } else {
+                    PlaybackService.stopRecording(getApplicationContext());
+                }
+            }
         });
 
         mediaNavigationView.setNavigationItemSelectedListener(this);

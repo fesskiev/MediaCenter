@@ -10,10 +10,12 @@ public class CacheManager {
     private final static String EXTERNAL_STORAGE = Environment.getExternalStorageDirectory().toString();
     private final static String DOWNLOADS_FOLDER_PATH = EXTERNAL_STORAGE + "/MediaCenter/Downloads/";
     private final static String USER_PHOTO_PATH = EXTERNAL_STORAGE + "/MediaCenter/UserPhoto/";
+    private final static String RECORDER_TEMP_PATH = EXTERNAL_STORAGE + "/MediaCenter/Temp/";
+    private final static String RECORDER_DEST_PATH = EXTERNAL_STORAGE + "/MediaCenter/Records/";
     public final static String IMAGES_AUDIO_CACHE_PATH = EXTERNAL_STORAGE + "/MediaCenter/Images/Audio/";
     public final static String IMAGES_VIDEO_CACHE_PATH = EXTERNAL_STORAGE + "/MediaCenter/Images/Video/";
     public final static String CHECK_DOWNLOADS_FOLDER_PATH = EXTERNAL_STORAGE + "/MediaCenter/Downloads";
-    public final static String RECORDER_TEMP_PATH = EXTERNAL_STORAGE + "/MediaCenter/Temp/";
+
 
     public static void clearAudioImagesCache() {
         File folder = new File(IMAGES_AUDIO_CACHE_PATH);
@@ -41,6 +43,22 @@ public class CacheManager {
             folder.mkdirs();
         }
         return new File(folder.getAbsolutePath(), "user_photo.png");
+    }
+
+    public static String getRecordTempPath() {
+        File temp = new File(RECORDER_TEMP_PATH);
+        if (!temp.exists()) {
+            temp.mkdirs();
+        }
+        return temp.getAbsolutePath();
+    }
+
+    public static String getRecordDestPath() {
+        File dest = new File(RECORDER_DEST_PATH);
+        if (!dest.exists()) {
+            dest.mkdirs();
+        }
+        return dest.getAbsolutePath();
     }
 
 

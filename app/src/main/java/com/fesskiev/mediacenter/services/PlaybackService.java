@@ -65,6 +65,11 @@ public class PlaybackService extends Service {
     public static final String ACTION_PLAYBACK_WHOOSH_LEVEL =
             "com.fesskiev.player.action.ACTION_PLAYBACK_WHOOSH_LEVEL";
 
+    public static final String ACTION_START_RECORDING =
+            "com.fesskiev.player.action.ACTION_START_RECORDING";
+    public static final String ACTION_STOP_RECORDING =
+            "com.fesskiev.player.action.ACTION_STOP_RECORDING";
+
 
     public static final String PLAYBACK_EXTRA_MUSIC_FILE_PATH
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_MUSIC_FILE_PATH";
@@ -130,6 +135,19 @@ public class PlaybackService extends Service {
         intent.setAction(ACTION_STOP_FOREGROUND);
         context.startService(intent);
     }
+
+    public static void startRecording(Context context) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_START_RECORDING);
+        context.startService(intent);
+    }
+
+    public static void stopRecording(Context context) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_STOP_RECORDING);
+        context.startService(intent);
+    }
+
 
     public static void requestPlaybackStateIfNeed(Context context) {
         Intent intent = new Intent(context, PlaybackService.class);
@@ -376,6 +394,12 @@ public class PlaybackService extends Service {
                     case ACTION_PLAYBACK_STATE:
                         sendPlaybackStateIfNeed();
                         break;
+                    case ACTION_START_RECORDING:
+                        startRecording(CacheManager.getRecordDestPath());
+                        break;
+                    case ACTION_STOP_RECORDING:
+                        stopRecording();
+                        break;
                 }
             }
         }
@@ -454,10 +478,11 @@ public class PlaybackService extends Service {
 
         Log.d(TAG, "create audio player!");
         createAudioPlayer(Integer.valueOf(sampleRateString), Integer.valueOf(bufferSizeString),
-                CacheManager.RECORDER_TEMP_PATH);
+                CacheManager.getRecordTempPath());
 
         setEffects();
     }
+
 
     private void setEffects() {
         createEQStateIfNeed();

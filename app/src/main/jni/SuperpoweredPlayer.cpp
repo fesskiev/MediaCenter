@@ -149,13 +149,15 @@ bool SuperpoweredPlayer::process(short int *output, unsigned int numberOfSamples
             whoosh->process(buffer, buffer, numberOfSamples);
         }
 
-        if (record) {
-            recorder->process(buffer, buffer, numberOfSamples);
-        }
-
         SuperpoweredFloatToShortInt(buffer, output, numberOfSamples);
-
     }
+
+    if (record) {
+        SuperpoweredShortIntToFloat(output, buffer, numberOfSamples);
+        recorder->process(buffer, NULL, numberOfSamples);
+        return true;
+    }
+
 
     return !silence;
 }
@@ -495,7 +497,7 @@ Java_com_fesskiev_mediacenter_services_PlaybackService_enableWhoosh(JNIEnv *env,
     player->enableWhoosh(enable);
 }
 
-JNIEXPORT void JNICALL
+extern "C" JNIEXPORT void
 Java_com_fesskiev_mediacenter_services_PlaybackService_startRecording(JNIEnv *env, jobject instance,
                                                                       jstring destination) {
     const char *destinationPath = env->GetStringUTFChars(destination, 0);
@@ -505,7 +507,7 @@ Java_com_fesskiev_mediacenter_services_PlaybackService_startRecording(JNIEnv *en
     env->ReleaseStringUTFChars(destination, destinationPath);
 }
 
-JNIEXPORT void JNICALL
+extern "C" JNIEXPORT void
 Java_com_fesskiev_mediacenter_services_PlaybackService_stopRecording(JNIEnv *env,
                                                                      jobject instance) {
     player->stopRecording();
