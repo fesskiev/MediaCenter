@@ -1,5 +1,6 @@
 #include "SuperpoweredPlayer.h"
 #include "SuperpoweredSimple.h"
+#include <SuperpoweredCPU.h>
 #include <jni.h>
 #include <android/log.h>
 #include <SLES/OpenSLES.h>
@@ -149,21 +150,20 @@ bool SuperpoweredPlayer::process(short int *output, unsigned int numberOfSamples
             whoosh->process(buffer, buffer, numberOfSamples);
         }
 
+        if (record) {
+            recorder->process(buffer, 0, numberOfSamples);
+        }
+
         SuperpoweredFloatToShortInt(buffer, output, numberOfSamples);
     }
-
-    if (record) {
-        SuperpoweredShortIntToFloat(output, buffer, numberOfSamples);
-        recorder->process(buffer, NULL, numberOfSamples);
-        return true;
-    }
-
 
     return !silence;
 }
 
 void SuperpoweredPlayer::togglePlayback() {
     player->togglePlayback();
+
+    SuperpoweredCPU::setSustainedPerformanceMode(player->playing);
 }
 
 

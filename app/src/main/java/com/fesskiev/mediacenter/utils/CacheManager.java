@@ -45,20 +45,20 @@ public class CacheManager {
         return new File(folder.getAbsolutePath(), "user_photo.png");
     }
 
-    public static String getRecordTempPath() {
+    public static File getRecordTempPath() {
         File temp = new File(RECORDER_TEMP_PATH);
         if (!temp.exists()) {
             temp.mkdirs();
         }
-        return temp.getAbsolutePath();
+        return new File(temp.getAbsolutePath(), "record_temp.wav");
     }
 
-    public static String getRecordDestPath() {
+    public static File getRecordDestPath() {
         File dest = new File(RECORDER_DEST_PATH);
         if (!dest.exists()) {
             dest.mkdirs();
         }
-        return dest.getAbsolutePath();
+        return new File(dest.getAbsolutePath(), String.valueOf(System.currentTimeMillis()));
     }
 
 

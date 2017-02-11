@@ -10,7 +10,6 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.fesskiev.mediacenter.MediaApplication;
@@ -59,9 +58,6 @@ public class VKAuthActivity extends AppCompatActivity {
         login = "";
         password = "";
 
-        CheckBox safeDataChechBox = (CheckBox) findViewById(R.id.safeCheckBox);
-        safeDataChechBox.setOnCheckedChangeListener((buttonView, isChecked) -> safeData(isChecked));
-
         signInButton = (Button) findViewById(R.id.signInButton);
         signInButton.setOnClickListener(view -> singIn(login, password));
 
@@ -76,11 +72,6 @@ public class VKAuthActivity extends AppCompatActivity {
         passwordEditText.addTextChangedListener(loginTextWatcher);
     }
 
-    private void safeData(boolean isChecked) {
-        if (isChecked) {
-
-        }
-    }
 
     @Override
     protected void onDestroy() {

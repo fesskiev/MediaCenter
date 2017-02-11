@@ -144,7 +144,6 @@
     <string name="auth_text_password">Password</string>
     <string name="auth_text_title">Please auth in social network</string>
     <string name="auth_text_button">SignIn</string>
-    <string name="auth_text_check_box">Safe password</string>
 
     <string name="snackbar_permission_title">Please turn on this permissions for using the application</string>
     <string name="snackbar_permission_button">OK</string>

@@ -395,7 +395,7 @@ public class PlaybackService extends Service {
                         sendPlaybackStateIfNeed();
                         break;
                     case ACTION_START_RECORDING:
-                        startRecording(CacheManager.getRecordDestPath());
+                        startRecording(CacheManager.getRecordDestPath().getAbsolutePath());
                         break;
                     case ACTION_STOP_RECORDING:
                         stopRecording();
@@ -478,7 +478,7 @@ public class PlaybackService extends Service {
 
         Log.d(TAG, "create audio player!");
         createAudioPlayer(Integer.valueOf(sampleRateString), Integer.valueOf(bufferSizeString),
-                CacheManager.getRecordTempPath());
+                CacheManager.getRecordTempPath().getAbsolutePath());
 
         setEffects();
     }

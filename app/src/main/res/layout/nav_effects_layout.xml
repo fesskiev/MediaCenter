@@ -165,6 +165,12 @@
 
             </RelativeLayout>
 
+            <View
+                android:id="@+id/divider0"
+                style="@style/DividerStyle"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"/>
+
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
@@ -198,6 +204,12 @@
                     android:layout_centerVertical="true" />
 
             </RelativeLayout>
+
+            <View
+                android:id="@+id/divider1"
+                style="@style/DividerStyle"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
