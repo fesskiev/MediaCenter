@@ -75,8 +75,9 @@ private:
     SuperpoweredWhoosh *whoosh;
 
     float *buffer;
+    float *bufferRecording;
     float volume;
-    bool record;
+    bool record = false;
 
     float left;
     float right;

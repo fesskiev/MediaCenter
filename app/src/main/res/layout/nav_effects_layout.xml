@@ -30,7 +30,7 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="58dp"
                 android:background="@color/white"
                 android:orientation="vertical"
                 android:padding="8dp">
@@ -48,9 +48,12 @@
                     style="@style/MediaDrawerTextAppearance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toEndOf="@+id/itemCover1"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="16dp"
+                    android:layout_toEndOf="@+id/itemCover1"
+                    android:layout_toStartOf="@+id/eqSwitch"
+                    android:ellipsize="end"
+                    android:maxLines="1"
                     android:text="@string/drawer_item_eq" />
 
                 <android.support.v7.widget.SwitchCompat
@@ -64,7 +67,7 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="58dp"
                 android:background="@color/white"
                 android:orientation="vertical"
                 android:padding="8dp">
@@ -83,9 +86,12 @@
                     style="@style/MediaDrawerTextAppearance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toEndOf="@+id/itemCover2"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="16dp"
+                    android:layout_toEndOf="@+id/itemCover2"
+                    android:layout_toStartOf="@+id/reverbSwitch"
+                    android:ellipsize="end"
+                    android:maxLines="1"
                     android:text="@string/drawer_item_reverb" />
 
                 <android.support.v7.widget.SwitchCompat
@@ -99,7 +105,7 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="58dp"
                 android:background="@color/white"
                 android:orientation="vertical"
                 android:padding="8dp">
@@ -117,9 +123,12 @@
                     style="@style/MediaDrawerTextAppearance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toEndOf="@+id/itemCover3"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="16dp"
+                    android:layout_toEndOf="@+id/itemCover3"
+                    android:layout_toStartOf="@+id/echoSwitch"
+                    android:ellipsize="end"
+                    android:maxLines="1"
                     android:text="@string/effect_echo_name" />
 
                 <android.support.v7.widget.SwitchCompat
@@ -133,7 +142,7 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="58dp"
                 android:background="@color/white"
                 android:orientation="vertical"
                 android:padding="8dp">
@@ -151,9 +160,12 @@
                     style="@style/MediaDrawerTextAppearance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toEndOf="@+id/itemCover"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="16dp"
+                    android:layout_toEndOf="@+id/itemCover"
+                    android:layout_toStartOf="@+id/whooshSwitch"
+                    android:ellipsize="end"
+                    android:maxLines="1"
                     android:text="@string/effect_whoosh_name" />
 
                 <android.support.v7.widget.SwitchCompat
@@ -169,11 +181,11 @@
                 android:id="@+id/divider0"
                 style="@style/DividerStyle"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"/>
+                android:layout_height="1dp" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="58dp"
                 android:background="@color/white"
                 android:orientation="vertical"
                 android:padding="8dp">
@@ -191,10 +203,13 @@
                     style="@style/MediaDrawerTextAppearance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toEndOf="@+id/itemCover4"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="16dp"
-                    android:text="Recording" />
+                    android:layout_toEndOf="@+id/itemCover4"
+                    android:layout_toStartOf="@+id/recordSwitch"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="@string/nav_recording_name" />
 
                 <android.support.v7.widget.SwitchCompat
                     android:id="@+id/recordSwitch"
@@ -209,7 +224,7 @@
                 android:id="@+id/divider1"
                 style="@style/DividerStyle"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"/>
+                android:layout_height="1dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"

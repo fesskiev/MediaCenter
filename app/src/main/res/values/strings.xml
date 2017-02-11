@@ -159,6 +159,7 @@
 
     <string name="effect_echo_name">Echo</string>
     <string name="effect_whoosh_name">Whoosh</string>
+    <string name="nav_recording_name">Recording</string>
 
     <string name="snackbar_last_track">Last track in list</string>
     <string name="snackbar_first_track">First track in list</string>

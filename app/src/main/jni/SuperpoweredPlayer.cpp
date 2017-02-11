@@ -92,11 +92,12 @@ SuperpoweredPlayer::SuperpoweredPlayer(unsigned int samplerate, unsigned int buf
         1.0f) {
 
     buffer = (float *) memalign(16, (buffersize + 16) * sizeof(float) * 2);
+    bufferRecording = (float *)memalign(16, (buffersize + 16) * sizeof(float) * 2);
 
     player = new SuperpoweredAdvancedAudioPlayer(&player, playerEventCallback, samplerate, 0);
     player->syncMode = SuperpoweredAdvancedAudioPlayerSyncMode_None;
 
-    audioSystem = new SuperpoweredAndroidAudioIO(samplerate, buffersize, false, true,
+    audioSystem = new SuperpoweredAndroidAudioIO(samplerate, buffersize, true, true,
                                                  audioProcessing, this, -1, SL_ANDROID_STREAM_MEDIA,
                                                  buffersize * 2);
 
@@ -114,7 +115,7 @@ SuperpoweredPlayer::SuperpoweredPlayer(unsigned int samplerate, unsigned int buf
     recorder = new SuperpoweredRecorder(recorderTempPath, samplerate);
 }
 
-bool SuperpoweredPlayer::process(short int *output, unsigned int numberOfSamples) {
+bool SuperpoweredPlayer::process(short int *inputOutput, unsigned int numberOfSamples) {
 
 
     bool silence = !player->process(buffer, false, numberOfSamples, volume);
@@ -150,11 +151,13 @@ bool SuperpoweredPlayer::process(short int *output, unsigned int numberOfSamples
             whoosh->process(buffer, buffer, numberOfSamples);
         }
 
-        if (record) {
-            recorder->process(buffer, 0, numberOfSamples);
-        }
+        SuperpoweredFloatToShortInt(buffer, inputOutput, numberOfSamples);
+    }
 
-        SuperpoweredFloatToShortInt(buffer, output, numberOfSamples);
+    if (record) {
+        SuperpoweredShortIntToFloat(inputOutput, bufferRecording, numberOfSamples);
+        recorder->process(bufferRecording, NULL, numberOfSamples);
+        return true;
     }
 
     return !silence;

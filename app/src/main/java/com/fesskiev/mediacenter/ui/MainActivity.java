@@ -241,21 +241,25 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             @Override
             public void onEQStateChanged(boolean enable) {
                 PlaybackService.changeEQEnable(getApplicationContext(), enable);
+                AppSettingsManager.getInstance().setEQEnable(enable);
             }
 
             @Override
             public void onReverbStateChanged(boolean enable) {
                 PlaybackService.changeReverbEnable(getApplicationContext(), enable);
+                AppSettingsManager.getInstance().setReverbEnable(enable);
             }
 
             @Override
             public void onWhooshStateChanged(boolean enable) {
                 PlaybackService.changeWhooshEnable(getApplicationContext(), enable);
+                AppSettingsManager.getInstance().setWhooshEnable(enable);
             }
 
             @Override
             public void onEchoStateChanged(boolean enable) {
                 PlaybackService.changeEchoEnable(getApplicationContext(), enable);
+                AppSettingsManager.getInstance().setEchoEnable(enable);
             }
 
             @Override

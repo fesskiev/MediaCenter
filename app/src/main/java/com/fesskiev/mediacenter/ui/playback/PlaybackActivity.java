@@ -179,7 +179,6 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            Log.d("test", "NOTIFICATION INTENT :" + action);
             switch (action) {
                 case AudioNotificationHelper.ACTION_MEDIA_CONTROL_PLAY:
                     audioPlayer.play();
@@ -239,6 +238,8 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
             lastEnableEQ = enableEq;
             AppSettingsManager.getInstance().setEQEnable(lastEnableEQ);
             getMediaNavigationView().setEQEnable(lastEnableEQ);
+
+            Log.wtf("test", "EQ STATE:" + lastEnableEQ);
         }
 
         boolean enableReverb = playbackState.isEnableReverb();
@@ -246,6 +247,8 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
             lastEnableReverb = enableReverb;
             AppSettingsManager.getInstance().setReverbEnable(lastEnableReverb);
             getMediaNavigationView().setReverbEnable(lastEnableReverb);
+
+            Log.wtf("test", "REVERB STATE:" + lastEnableReverb);
         }
 
         boolean enableWhoosh = playbackState.isEnableWhoosh();
@@ -253,6 +256,8 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
             lastEnableWhoosh = enableWhoosh;
             AppSettingsManager.getInstance().setWhooshEnable(lastEnableWhoosh);
             getMediaNavigationView().setWhooshEnable(lastEnableWhoosh);
+
+            Log.wtf("test", "WHOOSH STATE:" + lastEnableWhoosh);
         }
 
         boolean enableEcho = playbackState.isEnableEcho();
@@ -260,6 +265,8 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
             lastEnableEcho = enableEcho;
             AppSettingsManager.getInstance().setEchoEnable(lastEnableEcho);
             getMediaNavigationView().setEchoEnable(lastEnableEcho);
+
+            Log.wtf("test", "ECHO STATE:" + lastEnableEcho);
         }
 
     }
@@ -269,8 +276,6 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     public void onCurrentTrackEvent(AudioFile currentTrack) {
         this.currentTrack = currentTrack;
 
-        Log.wtf("test", "PLAYBACK onCurrentTrackEvent: " + currentTrack.toString());
-
         setMusicFileInfo(currentTrack);
         hideEmptyTrackCard();
 
@@ -279,7 +284,6 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onCurrentTrackListEvent(List<AudioFile> currentTrackList) {
-        Log.wtf("test", "PLAYBACK onCurrentTrackListEvent");
 
         adapter.refreshAdapter(currentTrackList);
         hideEmptyFolderCard();

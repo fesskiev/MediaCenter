@@ -240,7 +240,7 @@ public class AudioPlayer implements Playable {
         }
 
         public void findPosition() {
-            if (currentTrackList.contains(currentTrack)) {
+            if (currentTrackList != null && currentTrackList.contains(currentTrack)) {
                 position = currentTrackList.indexOf(currentTrack);
             }
         }
