@@ -137,6 +137,7 @@ public class VideoControlView extends FrameLayout {
         showControl = true;
         showPanel = false;
         lockScreen = false;
+        restoreRenderer = true;
 
         videoControlPanel = view.findViewById(R.id.videoControlPanel);
 
@@ -424,28 +425,41 @@ public class VideoControlView extends FrameLayout {
 
         Set<RendererState> rendererStates = AppSettingsManager.getInstance().getRendererState();
 
-        if (restoreRenderer && rendererStates != null && !rendererStates.isEmpty()) {
-
+        if (restoreRenderer) {
             MappingTrackSelector.MappedTrackInfo trackInfo = selector.getCurrentMappedTrackInfo();
+            if (rendererStates != null && !rendererStates.isEmpty()) {
 
-            for (RendererState rendererState : rendererStates) {
+                for (RendererState rendererState : rendererStates) {
 
-                Log.e("test", "restore renderer state!" + rendererState.toString());
+                    Log.e("test", "restore renderer state!" + rendererState.toString());
 
-                boolean disable = rendererState.isDisabled();
-                selector.setRendererDisabled(rendererState.getIndex(), disable);
-                if (disable) {
-                    selector.clearSelectionOverrides(rendererState.getIndex());
-                } else {
-                    TrackGroupArray trackGroups = trackInfo.getTrackGroups(rendererState.getIndex());
+                    boolean disable = rendererState.isDisabled();
+                    selector.setRendererDisabled(rendererState.getIndex(), disable);
+                    if (disable) {
+                        selector.clearSelectionOverrides(rendererState.getIndex());
+                    } else {
+                        TrackGroupArray trackGroups = trackInfo.getTrackGroups(rendererState.getIndex());
 
-                    MappingTrackSelector.SelectionOverride override = new MappingTrackSelector.SelectionOverride(FIXED_FACTORY,
-                            rendererState.getGroupIndex(), rendererState.getTrackIndex());
+                        MappingTrackSelector.SelectionOverride override = new MappingTrackSelector.SelectionOverride(FIXED_FACTORY,
+                                rendererState.getGroupIndex(), rendererState.getTrackIndex());
 
-                    selector.setSelectionOverride(rendererState.getIndex(), trackGroups, override);
+                        selector.setSelectionOverride(rendererState.getIndex(), trackGroups, override);
+                    }
                 }
+            } else {
+                /**
+                 *  set default audio renderer
+                 */
+                Log.e("test", "set default audio renderer state");
 
+                TrackGroupArray trackGroups = trackInfo.getTrackGroups(C.TRACK_TYPE_AUDIO);
+
+                selector.setRendererDisabled(C.TRACK_TYPE_AUDIO, false);
+                MappingTrackSelector.SelectionOverride override
+                        = new MappingTrackSelector.SelectionOverride(FIXED_FACTORY, 0, 0);
+                selector.setSelectionOverride(C.TRACK_TYPE_AUDIO, trackGroups, override);
             }
+
             restoreRenderer = false;
         }
     }
