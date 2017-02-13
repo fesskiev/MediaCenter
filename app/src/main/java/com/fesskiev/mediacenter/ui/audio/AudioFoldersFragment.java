@@ -189,18 +189,6 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                         .subscribe(integer -> {
                             removeFolder(position);
                         });
-
-//                if(CacheManager.deleteDirectory(audioFolder.folderPath)){
-//                    DataRepository repository = MediaApplication.getInstance().getRepository();
-//                    repository.getMemorySource().setCacheFoldersDirty(true);
-//
-//                    RxUtils.fromCallable(repository.deleteAudioFolder(audioFolder))
-//                            .first()
-//                            .subscribeOn(Schedulers.io())
-//                            .subscribe(integer -> {
-//                                removeFolder(position);
-//                            });
-//                }
             }
         }
 
