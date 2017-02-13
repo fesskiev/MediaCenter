@@ -1,47 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="@dimen/card_min_height"
-    app:cardCornerRadius="@dimen/card_view_corner_radius"
-    app:cardElevation="@dimen/card_view_elevation">
+    android:orientation="vertical">
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/frameView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/search_background"
             android:contentDescription="@string/app_name"
             android:minHeight="@dimen/card_min_height"
-            android:scaleType="centerCrop"
-            android:background="@color/search_background" />
-
-        <TextView
-            android:id="@+id/fileDescription"
-            style="@style/DescriptionVideoTextAppearance"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_marginBottom="5dp"
-            android:gravity="center"
-            android:maxLines="2"
-            android:ellipsize="end"
-            tools:text="480x320" />
-
-        <ImageView
-            android:id="@+id/popupMenu"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_gravity="end|top"
-            android:layout_marginTop="4dp"
-            android:contentDescription="@string/app_name"
-            android:src="@drawable/icon_video_menu" />
+            android:scaleType="centerCrop" />
 
         <ImageView
             android:id="@+id/playVideoButton"
@@ -53,4 +28,36 @@
 
     </FrameLayout>
 
-</android.support.v7.widget.CardView>
+    <View
+        android:id="@+id/divider0"
+        style="@style/DividerStyle"
+        android:layout_width="match_parent"
+        android:layout_height="1dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/popupMenu"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="start|center_vertical"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/icon_popup_menu_primary" />
+
+        <TextView
+            android:id="@+id/fileDescription"
+            style="@style/DescriptionVideoTextAppearance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="2"
+            tools:text="480x320" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,50 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/audioCover"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/app_name"
+        android:minHeight="@dimen/card_min_height"
+        android:scaleType="centerCrop"
+        tools:src="@drawable/cover" />
+
+    <View
+        android:id="@+id/divider0"
+        style="@style/DividerStyle"
+        android:layout_width="match_parent"
+        android:layout_height="1dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="42dp"
+        android:orientation="horizontal">
 
         <ImageView
-            android:id="@+id/audioCover"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:id="@+id/popupMenu"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="start|center_vertical"
             android:contentDescription="@string/app_name"
-            android:minHeight="@dimen/card_min_height"
-            android:scaleType="centerCrop"
-            tools:src="@drawable/cover" />
+            android:src="@drawable/icon_popup_menu_primary" />
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/audioName"
+            style="@style/FoldersNameTextAppearance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="6dp"
-            android:layout_marginTop="6dp">
-
-            <TextView
-                android:id="@+id/audioName"
-                style="@style/FoldersNameTextAppearance"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:gravity="center"
-                android:maxLines="2"
-                tools:text="Drum and Bass" />
-
-        </LinearLayout>
+            android:layout_gravity="center_vertical"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="2"
+            tools:text="Drum and Bass" />
 
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/popupMenu"
-        android:layout_width="26dp"
-        android:layout_height="26dp"
-        android:layout_gravity="start|top"
-        android:layout_marginTop="4dp"
-        android:contentDescription="@string/app_name"
-        android:src="@drawable/icon_popup_menu_primary"/>
-
-</FrameLayout>
+</LinearLayout>

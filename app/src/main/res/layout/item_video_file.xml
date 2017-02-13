@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.fesskiev.mediacenter.widgets.item.VideoCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.fesskiev.mediacenter.widgets.item.VideoCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/videoCardView"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"/>
+    android:layout_height="wrap_content"
+    android:minHeight="@dimen/card_min_height"
+    app:cardBackgroundColor="@color/track_background"
+    app:cardCornerRadius="@dimen/card_view_corner_radius"
+    app:cardElevation="@dimen/card_view_elevation" />
