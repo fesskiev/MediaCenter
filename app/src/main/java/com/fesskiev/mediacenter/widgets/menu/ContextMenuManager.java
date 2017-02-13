@@ -9,9 +9,6 @@ import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
 
-import com.fesskiev.mediacenter.MediaApplication;
-import com.fesskiev.mediacenter.utils.Utils;
-
 
 public class ContextMenuManager extends RecyclerView.OnScrollListener implements View.OnAttachStateChangeListener {
 
@@ -92,9 +89,8 @@ public class ContextMenuManager extends RecyclerView.OnScrollListener implements
     private void setupContextMenuInitialPosition(View openingView) {
         final int[] openingViewLocation = new int[2];
         openingView.getLocationOnScreen(openingViewLocation);
-        int additionalBottomMargin = (int) Utils.dipToPixels(MediaApplication.getInstance().getApplicationContext(), 24);
         contextMenuView.setTranslationX(openingViewLocation[0]);
-        contextMenuView.setTranslationY(openingViewLocation[1] + additionalBottomMargin);
+        contextMenuView.setTranslationY(openingViewLocation[1] - contextMenuView.getHeight());
     }
 
     private void performShowAnimation() {
