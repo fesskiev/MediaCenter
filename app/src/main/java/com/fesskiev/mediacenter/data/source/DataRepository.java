@@ -187,6 +187,10 @@ public class DataRepository {
         });
     }
 
+    public Callable<Integer> deleteAudioFolder(AudioFolder audioFolder) {
+        return localSource.deleteAudioFolderWithFiles(audioFolder);
+    }
+
     public void clearPlaylist() {
         localSource.clearPlaylist();
     }
@@ -198,7 +202,6 @@ public class DataRepository {
     public Observable<List<MediaFile>> getVideoFilePlaylist() {
         return localSource.getVideoFilePlaylist();
     }
-
 
     public Callable<Integer> resetVideoContentDatabase() {
         return localSource.resetVideoContentDatabase();

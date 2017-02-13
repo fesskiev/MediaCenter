@@ -269,6 +269,20 @@ public class LocalDataSource implements LocalSource {
                 DatabaseHelper.TRACK_PATH + "=" + "'" + path + "'");
     }
 
+
+    public Callable<Integer> deleteAudioFolderWithFiles(AudioFolder audioFolder) {
+        return () -> {
+            briteDatabase.delete(
+                    DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME,
+                    DatabaseHelper.FOLDER_PATH + "=" + "'" + audioFolder.folderPath.getAbsolutePath() + "'");
+
+            return briteDatabase.delete(
+                    DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
+                    DatabaseHelper.ID + "=" + "'" + audioFolder.id + "'");
+
+        };
+    }
+
     public Observable<List<String>> getFoldersPath() {
 
         String sql = String.format("SELECT %s FROM %s",

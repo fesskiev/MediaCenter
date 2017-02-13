@@ -91,10 +91,10 @@
     <string name="dialog_permission_ok">ДА</string>
     <string name="dialog_permission_cancel">НЕТ</string>
 
-    <string name="popup_menu_delete">Удалить</string>
-    <string name="popup_menu_add_playlist">В плейлист</string>
-    <string name="popup_menu_cancel">Закрыть</string>
-
+    <string name="context_menu_audio_delete">Удалить папку</string>
+    <string name="context_menu_video_delete">Удалить видео</string>
+    <string name="context_menu_video_add_playlist">В плейлист</string>
+    <string name="context_menu_cancel">Зкрыть</string>
 
     <string name="dialog_bass_boost_title">Выберите уровень:</string>
 

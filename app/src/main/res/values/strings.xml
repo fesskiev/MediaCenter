@@ -94,9 +94,10 @@
     <string name="dialog_permission_ok">YES</string>
     <string name="dialog_permission_cancel">NO</string>
 
-    <string name="popup_menu_delete">Remove</string>
-    <string name="popup_menu_add_playlist">To playlist</string>
-    <string name="popup_menu_cancel">Cancel</string>
+    <string name="context_menu_audio_delete">Delete folder</string>
+    <string name="context_menu_video_delete">Delete video</string>
+    <string name="context_menu_video_add_playlist">To playlist</string>
+    <string name="context_menu_cancel">Cancel</string>
 
     <string name="dialog_bass_boost_title">Select level:</string>
 

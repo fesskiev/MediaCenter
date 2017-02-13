@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +14,14 @@ import android.view.ViewGroup;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
+import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.ui.GridFragment;
 import com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity;
 import com.fesskiev.mediacenter.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.mediacenter.ui.audio.utils.Constants;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
+import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.widgets.item.AudioCardView;
 import com.fesskiev.mediacenter.widgets.menu.AudioContextMenu;
@@ -32,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -148,11 +152,10 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                 });
             }
 
-            private void showAudioContextMenu(View view, int adapterPosition) {
-                ContextMenuManager.getInstance().toggleAudioContextMenu(view,
-                        () -> {
-
-                        });
+            private void showAudioContextMenu(View view, int position) {
+                ContextMenuManager.getInstance().toggleAudioContextMenu(view, () -> {
+                    removeAudioFolder(position);
+                });
             }
 
             @Override
@@ -165,6 +168,39 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                 itemView.setAlpha(1.0f);
                 updateAudioFolderIndex(position);
                 notifyDataSetChanged();
+            }
+        }
+
+        private void removeAudioFolder(int position) {
+            AudioFolder audioFolder = audioFolders.get(position);
+            if (audioFolder != null) {
+                Observable.just(CacheManager.deleteDirectory(audioFolder.folderPath))
+                        .subscribeOn(Schedulers.io())
+                        .flatMap(result -> {
+                            if (result) {
+                                DataRepository repository = MediaApplication.getInstance().getRepository();
+                                repository.getMemorySource().setCacheFoldersDirty(true);
+                                return RxUtils.fromCallable(repository.deleteAudioFolder(audioFolder));
+                            }
+                            return Observable.empty();
+                        })
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(integer -> {
+                            removeFolder(position);
+                        });
+
+//                if(CacheManager.deleteDirectory(audioFolder.folderPath)){
+//                    DataRepository repository = MediaApplication.getInstance().getRepository();
+//                    repository.getMemorySource().setCacheFoldersDirty(true);
+//
+//                    RxUtils.fromCallable(repository.deleteAudioFolder(audioFolder))
+//                            .first()
+//                            .subscribeOn(Schedulers.io())
+//                            .subscribe(integer -> {
+//                                removeFolder(position);
+//                            });
+//                }
             }
         }
 
@@ -224,6 +260,12 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
         public void clearAdapter() {
             audioFolders.clear();
             notifyDataSetChanged();
+        }
+
+        public void removeFolder(int position) {
+            audioFolders.remove(position);
+            notifyItemRemoved(position);
+            notifyItemRangeChanged(position, getItemCount());
         }
     }
 }
