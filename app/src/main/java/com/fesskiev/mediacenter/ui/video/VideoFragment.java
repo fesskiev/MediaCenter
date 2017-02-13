@@ -31,7 +31,7 @@ import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
-import com.fesskiev.mediacenter.widgets.buttons.VideoCardView;
+import com.fesskiev.mediacenter.widgets.item.VideoCardView;
 import com.fesskiev.mediacenter.widgets.recycleview.GridDividerDecoration;
 
 import java.util.ArrayList;

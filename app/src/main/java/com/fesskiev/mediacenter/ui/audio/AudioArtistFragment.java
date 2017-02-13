@@ -7,19 +7,18 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.Artist;
 import com.fesskiev.mediacenter.ui.GridFragment;
+import com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity;
 import com.fesskiev.mediacenter.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.mediacenter.ui.audio.utils.Constants;
-import com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
+import com.fesskiev.mediacenter.widgets.item.AudioCardView;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -66,7 +65,7 @@ public class AudioArtistFragment extends GridFragment implements AudioContent {
     }
 
     @Override
-    public void clear(){
+    public void clear() {
         ((AudioArtistsAdapter) adapter).clearAdapter();
     }
 
@@ -93,24 +92,31 @@ public class AudioArtistFragment extends GridFragment implements AudioContent {
 
         public class ViewHolder extends RecyclerView.ViewHolder {
 
-            TextView genreName;
-            ImageView cover;
+            AudioCardView audioCardView;
+
 
             public ViewHolder(View v) {
                 super(v);
 
-                genreName = (TextView) v.findViewById(R.id.audioName);
-                cover = (ImageView) v.findViewById(R.id.audioCover);
+                audioCardView = (AudioCardView) v.findViewById(R.id.audioCardView);
+                audioCardView.setOnAudioCardViewListener(new AudioCardView.OnAudioCardViewListener() {
 
-                v.setOnClickListener(view -> {
-                    Artist artist = artists.get(getAdapterPosition());
-                    if (artist != null) {
-                        Activity act = activity.get();
-                        if (act != null) {
-                            Intent i = new Intent(act, TrackListActivity.class);
-                            i.putExtra(Constants.EXTRA_CONTENT_TYPE, CONTENT_TYPE.ARTIST);
-                            i.putExtra(Constants.EXTRA_CONTENT_TYPE_VALUE, artist.name);
-                            act.startActivity(i);
+                    @Override
+                    public void onPopupMenuButtonCall(View view) {
+
+                    }
+
+                    @Override
+                    public void onOpenTrackListCall() {
+                        Artist artist = artists.get(getAdapterPosition());
+                        if (artist != null) {
+                            Activity act = activity.get();
+                            if (act != null) {
+                                Intent i = new Intent(act, TrackListActivity.class);
+                                i.putExtra(Constants.EXTRA_CONTENT_TYPE, CONTENT_TYPE.ARTIST);
+                                i.putExtra(Constants.EXTRA_CONTENT_TYPE_VALUE, artist.name);
+                                act.startActivity(i);
+                            }
                         }
                     }
                 });
@@ -130,8 +136,11 @@ public class AudioArtistFragment extends GridFragment implements AudioContent {
             Artist artist = artists.get(position);
             if (artist != null) {
 
-                holder.genreName.setText(artist.name);
-                BitmapHelper.getInstance().loadAudioArtistsFolderArtwork(artist, holder.cover);
+                holder.audioCardView.setAlbumName(artist.name);
+                BitmapHelper.getInstance().loadAudioArtistsFolderArtwork(artist,
+                        holder.audioCardView.getCoverView());
+
+                holder.audioCardView.needMenuVisible(false);
             }
         }
 

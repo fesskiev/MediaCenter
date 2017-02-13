@@ -1,5 +1,4 @@
-package com.fesskiev.mediacenter.widgets.buttons;
-
+package com.fesskiev.mediacenter.widgets.item;
 
 import android.content.Context;
 import android.support.v7.widget.CardView;
@@ -13,33 +12,34 @@ import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
 
-public class VideoCardView extends CardView {
 
-    public interface OnVideoCardViewListener {
+public class AudioCardView extends CardView {
+
+    public interface OnAudioCardViewListener {
 
         void onPopupMenuButtonCall(View view);
 
-        void onPlayButtonCall();
+        void onOpenTrackListCall();
     }
 
+    private OnAudioCardViewListener listener;
     private GestureDetector detector;
     private ImageView popupMenu;
-    private ImageView frameView;
-    private ImageView playButton;
-    private TextView description;
-    private OnVideoCardViewListener listener;
+    private ImageView coverView;
+    private TextView albumName;
+    private boolean menuVisible;
 
-    public VideoCardView(Context context) {
+    public AudioCardView(Context context) {
         super(context);
         init(context);
     }
 
-    public VideoCardView(Context context, AttributeSet attrs) {
+    public AudioCardView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
 
-    public VideoCardView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AudioCardView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context);
     }
@@ -47,40 +47,26 @@ public class VideoCardView extends CardView {
     private void init(Context context) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.video_card_view, this, true);
+        View view = inflater.inflate(R.layout.audio_card_view, this, true);
 
         popupMenu = (ImageView) view.findViewById(R.id.popupMenu);
-        frameView = (ImageView) view.findViewById(R.id.frameView);
-        playButton = (ImageView) view.findViewById(R.id.playVideoButton);
-        description = (TextView) view.findViewById(R.id.fileDescription);
+        albumName = (TextView) view.findViewById(R.id.audioName);
+        coverView = (ImageView) view.findViewById(R.id.audioCover);
+
 
         detector = new GestureDetector(getContext(), new GestureListener());
     }
 
-    public void setOnVideoCardViewListener(OnVideoCardViewListener l) {
-        this.listener = l;
-    }
-
-    public void setDescription(String text) {
-        description.setText(text);
-    }
-
-    public ImageView getFrameView() {
-        return frameView;
-    }
 
     private class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
-            if (isPointInsideView(e.getRawX(), e.getRawY(), popupMenu)) {
-                if (listener != null) {
+            if (listener != null) {
+                if (isPointInsideView(e.getRawX(), e.getRawY(), popupMenu) && menuVisible) {
                     listener.onPopupMenuButtonCall(popupMenu);
-                }
-            }
-            if (isPointInsideView(e.getRawX(), e.getRawY(), playButton)) {
-                if (listener != null) {
-                    listener.onPlayButtonCall();
+                } else {
+                    listener.onOpenTrackListCall();
                 }
             }
             return true;
@@ -103,4 +89,24 @@ public class VideoCardView extends CardView {
         return true;
     }
 
+    public ImageView getCoverView() {
+        return coverView;
+    }
+
+    public void setAlbumName(String name) {
+        albumName.setText(name);
+    }
+
+    public void setOnAudioCardViewListener(OnAudioCardViewListener l) {
+        this.listener = l;
+    }
+
+    public void needMenuVisible(boolean visible) {
+        if (visible) {
+            popupMenu.setVisibility(VISIBLE);
+        } else {
+            popupMenu.setVisibility(GONE);
+        }
+        this.menuVisible = visible;
+    }
 }

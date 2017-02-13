@@ -9,19 +9,19 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.ui.GridFragment;
+import com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity;
 import com.fesskiev.mediacenter.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.mediacenter.ui.audio.utils.Constants;
-import com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
+import com.fesskiev.mediacenter.widgets.item.AudioCardView;
+import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.recycleview.helper.ItemTouchHelperAdapter;
 import com.fesskiev.mediacenter.widgets.recycleview.helper.ItemTouchHelperViewHolder;
 import com.fesskiev.mediacenter.widgets.recycleview.helper.SimpleItemTouchHelperCallback;
@@ -30,7 +30,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -91,7 +90,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
     }
 
     @Override
-    public void clear(){
+    public void clear() {
         ((AudioFoldersAdapter) adapter).clearAdapter();
     }
 
@@ -115,32 +114,37 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
 
         public class ViewHolder extends RecyclerView.ViewHolder implements ItemTouchHelperViewHolder {
 
-            TextView albumName;
-            ImageView cover;
+            AudioCardView audioCardView;
 
             public ViewHolder(View v) {
                 super(v);
 
-                albumName = (TextView) v.findViewById(R.id.audioName);
-                cover = (ImageView) v.findViewById(R.id.audioCover);
-                v.setOnClickListener(view -> {
-                    AudioFolder audioFolder = audioFolders.get(getAdapterPosition());
-                    if (audioFolder != null) {
+                audioCardView = (AudioCardView) v.findViewById(R.id.audioCardView);
+                audioCardView.setOnAudioCardViewListener(new AudioCardView.OnAudioCardViewListener() {
 
-                        MediaApplication.getInstance().getAudioPlayer().setCurrentTrackList(audioFolder);
+                    @Override
+                    public void onPopupMenuButtonCall(View view) {
+                        ContextMenuManager.getInstance().toggleContextMenuFromView(view);
+                    }
 
+                    @Override
+                    public void onOpenTrackListCall() {
+                        AudioFolder audioFolder = audioFolders.get(getAdapterPosition());
+                        if (audioFolder != null) {
 
-                        Activity act = activity.get();
-                        if (act != null) {
-                            Intent i = new Intent(act, TrackListActivity.class);
-                            i.putExtra(Constants.EXTRA_CONTENT_TYPE, CONTENT_TYPE.FOLDERS);
-                            i.putExtra(Constants.EXTRA_CONTENT_TYPE_VALUE, audioFolder.id);
-                            i.putExtra(Constants.EXTRA_AUDIO_FOLDER_TITLE_VALUE, audioFolder.folderName);
-                            act.startActivity(i);
+                            MediaApplication.getInstance().getAudioPlayer().setCurrentTrackList(audioFolder);
+
+                            Activity act = activity.get();
+                            if (act != null) {
+                                Intent i = new Intent(act, TrackListActivity.class);
+                                i.putExtra(Constants.EXTRA_CONTENT_TYPE, CONTENT_TYPE.FOLDERS);
+                                i.putExtra(Constants.EXTRA_CONTENT_TYPE_VALUE, audioFolder.id);
+                                i.putExtra(Constants.EXTRA_AUDIO_FOLDER_TITLE_VALUE, audioFolder.folderName);
+                                act.startActivity(i);
+                            }
                         }
                     }
                 });
-
             }
 
             @Override
@@ -189,8 +193,11 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
 
             AudioFolder audioFolder = audioFolders.get(position);
             if (audioFolder != null) {
-                holder.albumName.setText(audioFolder.folderName);
-                BitmapHelper.getInstance().loadAudioFolderArtwork(audioFolder, holder.cover);
+                holder.audioCardView.setAlbumName(audioFolder.folderName);
+                BitmapHelper.getInstance().loadAudioFolderArtwork(audioFolder,
+                        holder.audioCardView.getCoverView());
+
+                holder.audioCardView.needMenuVisible(true);
 
             }
         }

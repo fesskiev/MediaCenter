@@ -1,43 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.fesskiev.mediacenter.widgets.SquareRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/tools"
-    xmlns:tools="http://schemas.android.com/tools"
+<com.fesskiev.mediacenter.widgets.item.AudioCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/audioCardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="@dimen/card_min_height">
-
-    <android.support.v7.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:cardBackgroundColor="@color/track_background">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <ImageView
-                android:id="@+id/audioCover"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0.75"
-                android:contentDescription="@string/app_name"
-                android:scaleType="centerCrop"
-                tools:src="@drawable/cover" />
-
-            <TextView
-                android:id="@+id/audioName"
-                style="@style/FoldersNameTextAppearance"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0.25"
-                android:maxLines="2"
-                android:ellipsize="end"
-                android:gravity="center"
-                tools:text="Drum and Bass" />
-
-        </LinearLayout>
-
-    </android.support.v7.widget.CardView>
-
-</com.fesskiev.mediacenter.widgets.SquareRelativeLayout>
+    android:minHeight="@dimen/card_min_height"
+    app:cardBackgroundColor="@color/track_background"
+    app:cardCornerRadius="@dimen/card_view_corner_radius"
+    app:cardElevation="@dimen/card_view_elevation" />

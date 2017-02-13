@@ -29,7 +29,7 @@ public abstract class GridFragment extends HidingPlaybackFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 3,
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2,
                 GridLayoutManager.VERTICAL, false);
 
         recyclerView = (RecyclerView) view.findViewById(R.id.foldersGridView);

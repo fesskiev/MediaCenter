@@ -7,24 +7,22 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.Genre;
 import com.fesskiev.mediacenter.ui.GridFragment;
+import com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity;
 import com.fesskiev.mediacenter.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.mediacenter.ui.audio.utils.Constants;
-import com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
+import com.fesskiev.mediacenter.widgets.item.AudioCardView;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-
 
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -51,7 +49,7 @@ public class AudioGenresFragment extends GridFragment implements AudioContent {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(genres -> {
-                    if(genres != null) {
+                    if (genres != null) {
                         AppLog.INFO("onNext:genres: " + genres.size());
                         if (!genres.isEmpty()) {
                             ((AudioGenresAdapter) adapter).refresh(genres);
@@ -64,7 +62,7 @@ public class AudioGenresFragment extends GridFragment implements AudioContent {
     }
 
     @Override
-    public void clear(){
+    public void clear() {
         ((AudioGenresAdapter) adapter).clearAdapter();
     }
 
@@ -93,24 +91,30 @@ public class AudioGenresFragment extends GridFragment implements AudioContent {
 
         public class ViewHolder extends RecyclerView.ViewHolder {
 
-            TextView genreName;
-            ImageView cover;
+            AudioCardView audioCardView;
 
             public ViewHolder(View v) {
                 super(v);
 
-                genreName = (TextView) v.findViewById(R.id.audioName);
-                cover = (ImageView) v.findViewById(R.id.audioCover);
+                audioCardView = (AudioCardView) v.findViewById(R.id.audioCardView);
+                audioCardView.setOnAudioCardViewListener(new AudioCardView.OnAudioCardViewListener() {
 
-                v.setOnClickListener(view -> {
-                    Genre genre = genres.get(getAdapterPosition());
-                    if (genre != null) {
-                        Activity act = activity.get();
-                        if (act != null) {
-                            Intent i = new Intent(act, TrackListActivity.class);
-                            i.putExtra(Constants.EXTRA_CONTENT_TYPE, CONTENT_TYPE.GENRE);
-                            i.putExtra(Constants.EXTRA_CONTENT_TYPE_VALUE, genre.name);
-                            act.startActivity(i);
+                    @Override
+                    public void onPopupMenuButtonCall(View view) {
+
+                    }
+
+                    @Override
+                    public void onOpenTrackListCall() {
+                        Genre genre = genres.get(getAdapterPosition());
+                        if (genre != null) {
+                            Activity act = activity.get();
+                            if (act != null) {
+                                Intent i = new Intent(act, TrackListActivity.class);
+                                i.putExtra(Constants.EXTRA_CONTENT_TYPE, CONTENT_TYPE.GENRE);
+                                i.putExtra(Constants.EXTRA_CONTENT_TYPE_VALUE, genre.name);
+                                act.startActivity(i);
+                            }
                         }
                     }
                 });
@@ -130,8 +134,11 @@ public class AudioGenresFragment extends GridFragment implements AudioContent {
             Genre genre = genres.get(position);
             if (genre != null) {
 
-                holder.genreName.setText(genre.name);
-                BitmapHelper.getInstance().loadAudioGenresFolderArtwork(genre, holder.cover);
+                holder.audioCardView.setAlbumName(genre.name);
+                BitmapHelper.getInstance().loadAudioGenresFolderArtwork(genre,
+                        holder.audioCardView.getCoverView());
+
+                holder.audioCardView.needMenuVisible(false);
             }
         }
 

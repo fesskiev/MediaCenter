@@ -31,8 +31,8 @@ public class BitmapHelper {
         void onFailed();
     }
 
-    private static final int WIDTH = 180;
-    private static final int HEIGHT = 180;
+    private static final int WIDTH = 140;
+    private static final int HEIGHT = 140;
 
     private static BitmapHelper INSTANCE;
     private Context context;
@@ -271,7 +271,7 @@ public class BitmapHelper {
         if (path != null) {
             Glide.with(context)
                     .load(path)
-                    .override(WIDTH, HEIGHT)
+                    .override(WIDTH * 2, HEIGHT * 2)
                     .crossFade()
                     .centerCrop()
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
@@ -279,7 +279,7 @@ public class BitmapHelper {
         } else {
             Glide.with(context)
                     .load(R.drawable.no_cover_folder_icon)
-                    .override(WIDTH, HEIGHT)
+                    .override(WIDTH * 2, HEIGHT * 2)
                     .crossFade()
                     .centerCrop()
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
@@ -294,7 +294,7 @@ public class BitmapHelper {
         if (path != null) {
             Glide.with(context)
                     .load(path)
-                    .override(WIDTH, HEIGHT)
+                    .override(WIDTH * 2, HEIGHT * 2)
                     .crossFade()
                     .centerCrop()
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
@@ -316,7 +316,7 @@ public class BitmapHelper {
         if (coverFile != null) {
             Glide.with(context)
                     .load(coverFile)
-                    .override(WIDTH, HEIGHT)
+                    .override(WIDTH * 2, HEIGHT * 2)
                     .crossFade()
                     .centerCrop()
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
@@ -324,7 +324,7 @@ public class BitmapHelper {
         } else {
             Glide.with(context)
                     .load(R.drawable.no_cover_folder_icon)
-                    .override(WIDTH, HEIGHT)
+                    .override(WIDTH * 2, HEIGHT * 2)
                     .crossFade()
                     .centerCrop()
                     .diskCacheStrategy(DiskCacheStrategy.NONE)

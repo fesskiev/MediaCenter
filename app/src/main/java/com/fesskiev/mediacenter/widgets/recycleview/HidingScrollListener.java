@@ -3,6 +3,8 @@ package com.fesskiev.mediacenter.widgets.recycleview;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
+import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
+
 public abstract class HidingScrollListener extends RecyclerView.OnScrollListener {
 
     public abstract void onHide();
@@ -34,6 +36,8 @@ public abstract class HidingScrollListener extends RecyclerView.OnScrollListener
         super.onScrolled(recyclerView, dx, dy);
         int firstVisibleItem = ((LinearLayoutManager)
                 recyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
+
+        ContextMenuManager.getInstance().onScrolled(recyclerView, dx, dy);
 
         if (firstVisibleItem == 0) {
             if (!controlsVisible) {
