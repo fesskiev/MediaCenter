@@ -93,6 +93,7 @@
 
     <string name="popup_menu_delete">Удалить</string>
     <string name="popup_menu_add_playlist">В плейлист</string>
+    <string name="popup_menu_cancel">Закрыть</string>
 
 
     <string name="dialog_bass_boost_title">Выберите уровень:</string>

@@ -1,8 +1,6 @@
 package com.fesskiev.mediacenter.widgets.menu;
 
 import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
@@ -18,9 +16,6 @@ public class ContextMenu extends LinearLayout {
     }
 
     private void init(Context context) {
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(
-                Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.context_menu_layout, this, true);
         setBackgroundResource(R.drawable.bg_container_shadow);
         setOrientation(VERTICAL);
 

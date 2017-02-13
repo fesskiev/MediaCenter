@@ -96,6 +96,7 @@
 
     <string name="popup_menu_delete">Remove</string>
     <string name="popup_menu_add_playlist">To playlist</string>
+    <string name="popup_menu_cancel">Cancel</string>
 
     <string name="dialog_bass_boost_title">Select level:</string>
 

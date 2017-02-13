@@ -33,33 +33,61 @@ public class ContextMenuManager extends RecyclerView.OnScrollListener implements
 
     }
 
-public void toggleContextMenuFromView(View openingView) {
-    if (contextMenuView == null) {
-        showContextMenuFromView(openingView);
-    } else {
-        hideContextMenu();
-    }
-}
+    public void toggleVideoContextMenu(View openingView,
+                                       VideoContextMenu.OnVideoContextMenuListener listener) {
+        if (contextMenuView == null) {
+            if (!isContextMenuShowing) {
+                isContextMenuShowing = true;
 
-    private void showContextMenuFromView(final View openingView) {
-        if (!isContextMenuShowing) {
-            isContextMenuShowing = true;
-            contextMenuView = new ContextMenu(openingView.getContext());
-            contextMenuView.addOnAttachStateChangeListener(this);
+                contextMenuView = new VideoContextMenu(openingView.getContext());
+                ((VideoContextMenu) contextMenuView).setOnVideoContextMenuListener(listener);
 
-            ((ViewGroup) openingView.getRootView().findViewById(android.R.id.content)).addView(contextMenuView);
+                contextMenuView.addOnAttachStateChangeListener(this);
 
-            contextMenuView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                @Override
-                public boolean onPreDraw() {
-                    contextMenuView.getViewTreeObserver().removeOnPreDrawListener(this);
-                    setupContextMenuInitialPosition(openingView);
-                    performShowAnimation();
-                    return false;
-                }
-            });
+                ((ViewGroup) openingView.getRootView().findViewById(android.R.id.content)).addView(contextMenuView);
+
+                contextMenuView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                    @Override
+                    public boolean onPreDraw() {
+                        contextMenuView.getViewTreeObserver().removeOnPreDrawListener(this);
+                        setupContextMenuInitialPosition(openingView);
+                        performShowAnimation();
+                        return false;
+                    }
+                });
+            }
+        } else {
+            hideContextMenu();
         }
     }
+
+    public void toggleAudioContextMenu(View openingView,
+                                       AudioContextMenu.OnAudioContextMenuListener listener) {
+        if (contextMenuView == null) {
+            if (!isContextMenuShowing) {
+                isContextMenuShowing = true;
+
+                contextMenuView = new AudioContextMenu(openingView.getContext());
+                ((AudioContextMenu) contextMenuView).setOnAudioContextMenuListener(listener);
+                contextMenuView.addOnAttachStateChangeListener(this);
+
+                ((ViewGroup) openingView.getRootView().findViewById(android.R.id.content)).addView(contextMenuView);
+
+                contextMenuView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                    @Override
+                    public boolean onPreDraw() {
+                        contextMenuView.getViewTreeObserver().removeOnPreDrawListener(this);
+                        setupContextMenuInitialPosition(openingView);
+                        performShowAnimation();
+                        return false;
+                    }
+                });
+            }
+        } else {
+            hideContextMenu();
+        }
+    }
+
 
     private void setupContextMenuInitialPosition(View openingView) {
         final int[] openingViewLocation = new int[2];
@@ -127,5 +155,9 @@ public void toggleContextMenuFromView(View openingView) {
     @Override
     public void onViewDetachedFromWindow(View v) {
         contextMenuView = null;
+    }
+
+    public boolean isContextMenuShow() {
+        return contextMenuView != null;
     }
 }

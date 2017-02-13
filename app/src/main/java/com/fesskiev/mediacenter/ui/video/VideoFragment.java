@@ -13,11 +13,9 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
@@ -32,6 +30,8 @@ import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.item.VideoCardView;
+import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
+import com.fesskiev.mediacenter.widgets.menu.VideoContextMenu;
 import com.fesskiev.mediacenter.widgets.recycleview.GridDividerDecoration;
 
 import java.util.ArrayList;
@@ -201,8 +201,9 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 videoCard.setOnVideoCardViewListener(new VideoCardView.OnVideoCardViewListener() {
                     @Override
                     public void onPopupMenuButtonCall(View view) {
-                        showPopupMenu(view, getAdapterPosition());
+                        showVideoContextMenu(view, getAdapterPosition());
                     }
+
 
                     @Override
                     public void onPlayButtonCall() {
@@ -227,22 +228,19 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             }
         }
 
-        private void showPopupMenu(final View view, final int position) {
-            final PopupMenu popupMenu = new PopupMenu(getActivity(), view);
-            final Menu menu = popupMenu.getMenu();
-            popupMenu.getMenuInflater().inflate(R.menu.menu_popup_item_video, menu);
-            popupMenu.setOnMenuItemClickListener(item -> {
-                switch (item.getItemId()) {
-                    case R.id.delete:
-                        deleteVideo(position);
-                        break;
-                    case R.id.add_playlist:
-                        addToPlaylist(position);
-                        break;
-                }
-                return true;
-            });
-            popupMenu.show();
+        private void showVideoContextMenu(View view, int position) {
+            ContextMenuManager.getInstance().toggleVideoContextMenu(view,
+                    new VideoContextMenu.OnVideoContextMenuListener() {
+                        @Override
+                        public void onAddVideoToPlayList() {
+                            addToPlaylist(position);
+                        }
+
+                        @Override
+                        public void onDeleteVideo() {
+                            deleteVideo(position);
+                        }
+                    });
         }
 
         private void deleteVideo(final int position) {

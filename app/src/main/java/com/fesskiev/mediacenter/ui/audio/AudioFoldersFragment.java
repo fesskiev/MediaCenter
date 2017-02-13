@@ -21,6 +21,7 @@ import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.widgets.item.AudioCardView;
+import com.fesskiev.mediacenter.widgets.menu.AudioContextMenu;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.recycleview.helper.ItemTouchHelperAdapter;
 import com.fesskiev.mediacenter.widgets.recycleview.helper.ItemTouchHelperViewHolder;
@@ -124,7 +125,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
 
                     @Override
                     public void onPopupMenuButtonCall(View view) {
-                        ContextMenuManager.getInstance().toggleContextMenuFromView(view);
+                        showAudioContextMenu(view, getAdapterPosition());
                     }
 
                     @Override
@@ -145,6 +146,13 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                         }
                     }
                 });
+            }
+
+            private void showAudioContextMenu(View view, int adapterPosition) {
+                ContextMenuManager.getInstance().toggleAudioContextMenu(view,
+                        () -> {
+
+                        });
             }
 
             @Override

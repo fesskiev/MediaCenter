@@ -44,6 +44,7 @@ import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.vk.VKActivity;
 import com.fesskiev.mediacenter.vk.VKAuthActivity;
+import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
 
 import rx.Observable;
@@ -93,6 +94,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
             @Override
             public void onDrawerOpened(View drawerView) {
+
             }
 
             @Override
@@ -106,7 +108,10 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
             @Override
             public void onDrawerStateChanged(int newState) {
-
+                if (newState == DrawerLayout.STATE_DRAGGING &&
+                        ContextMenuManager.getInstance().isContextMenuShow()) {
+                    ContextMenuManager.getInstance().hideContextMenu();
+                }
             }
         });
         toggle.syncState();

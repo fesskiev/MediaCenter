@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <Button
+        android:id="@+id/menuDeleteAudioFolder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_context_menu"
+        android:gravity="start|center_vertical"
+        android:paddingEnd="20dp"
+        android:paddingStart="20dp"
+        android:text="@string/popup_menu_delete"
+        android:textColor="@color/white"
+        android:textSize="14sp" />
+
+    <View
+        android:id="@+id/divider0"
+        style="@style/DividerStyle"
+        android:layout_width="match_parent"
+        android:layout_height="1dp" />
+
+    <Button
+        android:id="@+id/menuCancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_context_menu"
+        android:gravity="start|center_vertical"
+        android:paddingEnd="20dp"
+        android:paddingStart="20dp"
+        android:text="@string/popup_menu_cancel"
+        android:textColor="@color/white"
+        android:textSize="14sp" />
+
+</LinearLayout>
