@@ -54,6 +54,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:ellipsize="end"
+            android:paddingEnd="20dp"
             android:gravity="center"
             android:maxLines="2"
             tools:text="480x320" />
