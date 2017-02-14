@@ -1,6 +1,7 @@
 package com.fesskiev.mediacenter.ui.video;
 
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -34,9 +35,11 @@ import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.menu.VideoContextMenu;
 import com.fesskiev.mediacenter.widgets.recycleview.GridDividerDecoration;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -79,7 +82,7 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.foldersGridView);
         recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.addItemDecoration(new GridDividerDecoration(getActivity()));
-        adapter = new VideoFilesAdapter();
+        adapter = new VideoFilesAdapter(getActivity());
         recyclerView.setAdapter(adapter);
 
         emptyVideoContent = (CardView) view.findViewById(R.id.emptyVideoContentCard);
@@ -134,14 +137,6 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         }
     }
 
-    private void startExoPlayerActivity(VideoFile videoFile) {
-        Intent intent = new Intent(getContext(), VideoExoPlayerActivity.class);
-        intent.putExtra(VideoExoPlayerActivity.URI_EXTRA, videoFile.getFilePath());
-        intent.putExtra(VideoExoPlayerActivity.VIDEO_NAME_EXTRA, videoFile.getFileName());
-        intent.setAction(VideoExoPlayerActivity.ACTION_VIEW_URI);
-        startActivity(intent);
-    }
-
     protected void showEmptyContentCard() {
         emptyVideoContent.setVisibility(View.VISIBLE);
     }
@@ -182,11 +177,13 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         RxUtils.unsubscribe(subscription);
     }
 
-    private class VideoFilesAdapter extends RecyclerView.Adapter<VideoFilesAdapter.ViewHolder> {
+    private static class VideoFilesAdapter extends RecyclerView.Adapter<VideoFilesAdapter.ViewHolder> {
 
-        List<VideoFile> videoFiles;
+        private WeakReference<Activity> activity;
+        private List<VideoFile> videoFiles;
 
-        public VideoFilesAdapter() {
+        public VideoFilesAdapter(Activity activity) {
+            this.activity = new WeakReference<>(activity);
             this.videoFiles = new ArrayList<>();
         }
 
@@ -215,17 +212,29 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         }
 
         private void startVideoPlayer(int position) {
-            VideoFile videoFile = videoFiles.get(position);
-            if (videoFile != null) {
-                if (videoFile.exists()) {
-                    videoPlayer.setCurrentVideoFile(videoFile);
-                    startExoPlayerActivity(videoFile);
-                } else {
-                    Utils.showCustomSnackbar(getView(),
-                            getContext(), getString(R.string.snackbar_file_not_exist),
-                            Snackbar.LENGTH_LONG).show();
+            Activity act = activity.get();
+            if (act != null) {
+                VideoFile videoFile = videoFiles.get(position);
+                if (videoFile != null) {
+                    if (videoFile.exists()) {
+                        MediaApplication.getInstance().getVideoPlayer().setCurrentVideoFile(videoFile);
+                        startExoPlayerActivity(act, videoFile);
+                    } else {
+                        Utils.showCustomSnackbar(act.getCurrentFocus(), act,
+                                act.getString(R.string.snackbar_file_not_exist),
+                                Snackbar.LENGTH_LONG)
+                                .show();
+                    }
                 }
             }
+        }
+
+        private void startExoPlayerActivity(Activity act, VideoFile videoFile) {
+            Intent intent = new Intent(act, VideoExoPlayerActivity.class);
+            intent.putExtra(VideoExoPlayerActivity.URI_EXTRA, videoFile.getFilePath());
+            intent.putExtra(VideoExoPlayerActivity.VIDEO_NAME_EXTRA, videoFile.getFileName());
+            intent.setAction(VideoExoPlayerActivity.ACTION_VIEW_URI);
+            act.startActivity(intent);
         }
 
         private void showVideoContextMenu(View view, int position) {
@@ -244,41 +253,55 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         }
 
         private void deleteVideo(final int position) {
-            final VideoFile videoFile = videoFiles.get(position);
-            if (videoFile != null) {
-                AlertDialog.Builder builder =
-                        new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
-                builder.setTitle(getString(R.string.dialog_delete_file_title));
-                builder.setMessage(R.string.dialog_delete_file_message);
-                builder.setPositiveButton(R.string.dialog_delete_file_ok,
-                        (dialog, which) -> {
-                            if (videoFile.filePath.delete()) {
-                                Utils.showCustomSnackbar(getView(),
-                                        getContext(),
-                                        getString(R.string.shackbar_delete_file),
-                                        Snackbar.LENGTH_LONG).show();
-
-                                repository.getMemorySource().setCacheVideoFilesDirty(true);
-                                repository.deleteVideoFile(videoFile.getFilePath());
-                                adapter.removeItem(position);
-
-                            }
-                        });
-                builder.setNegativeButton(R.string.dialog_delete_file_cancel,
-                        (dialog, which) -> dialog.cancel());
-                builder.show();
+            Activity act = activity.get();
+            if (act != null) {
+                final VideoFile videoFile = videoFiles.get(position);
+                if (videoFile != null) {
+                    AlertDialog.Builder builder =
+                            new AlertDialog.Builder(act, R.style.AppCompatAlertDialogStyle);
+                    builder.setTitle(act.getString(R.string.dialog_delete_file_title));
+                    builder.setMessage(R.string.dialog_delete_file_message);
+                    builder.setPositiveButton(R.string.dialog_delete_file_ok,
+                            (dialog, which) -> {
+                                Observable.just(videoFile.filePath.delete())
+                                        .first()
+                                        .subscribeOn(Schedulers.io())
+                                        .flatMap(result -> {
+                                            if (result) {
+                                                DataRepository repository = MediaApplication.getInstance().getRepository();
+                                                repository.getMemorySource().setCacheVideoFilesDirty(true);
+                                                return RxUtils.fromCallable(repository.deleteVideoFile(videoFile.getFilePath()));
+                                            }
+                                            return Observable.empty();
+                                        })
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(integer -> {
+                                            Utils.showCustomSnackbar(act.getCurrentFocus(),
+                                                    act, act.getString(R.string.shackbar_delete_file),
+                                                    Snackbar.LENGTH_LONG)
+                                                    .show();
+                                            removeItem(position);
+                                        });
+                            });
+                    builder.setNegativeButton(R.string.dialog_delete_file_cancel,
+                            (dialog, which) -> dialog.cancel());
+                    builder.show();
+                }
             }
         }
 
         private void addToPlaylist(int position) {
-            VideoFile videoFile = videoFiles.get(position);
-            if (videoFile != null) {
-                videoFile.inPlayList = true;
-                MediaApplication.getInstance().getRepository().updateVideoFile(videoFile);
-                Utils.showCustomSnackbar(getView(),
-                        getContext().getApplicationContext(),
-                        getString(R.string.add_to_playlist_video_text),
-                        Snackbar.LENGTH_SHORT).show();
+            Activity act = activity.get();
+            if (act != null) {
+                VideoFile videoFile = videoFiles.get(position);
+                if (videoFile != null) {
+                    videoFile.inPlayList = true;
+                    MediaApplication.getInstance().getRepository().updateVideoFile(videoFile);
+                    Utils.showCustomSnackbar(act.getCurrentFocus(), act,
+                            act.getString(R.string.add_to_playlist_video_text), Snackbar.LENGTH_SHORT)
+                            .show();
+                }
             }
         }
 
@@ -292,18 +315,20 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            final VideoFile videoFile = videoFiles.get(position);
-            if (videoFile != null) {
-                holder.videoCard.setDescription(videoFile.description);
+            Activity act = activity.get();
+            if (act != null) {
+                final VideoFile videoFile = videoFiles.get(position);
+                if (videoFile != null) {
+                    holder.videoCard.setDescription(videoFile.description);
 
-                ImageView frameView = holder.videoCard.getFrameView();
-                String framePath = videoFile.framePath;
-                if (framePath != null) {
-                    BitmapHelper.getInstance().loadVideoFileCover(framePath, frameView);
-                } else {
-                    frameView.setImageResource(0);
-                    frameView.setBackgroundColor(ContextCompat.getColor(getContext().getApplicationContext(),
-                            R.color.search_background));
+                    ImageView frameView = holder.videoCard.getFrameView();
+                    String framePath = videoFile.framePath;
+                    if (framePath != null) {
+                        BitmapHelper.getInstance().loadVideoFileCover(framePath, frameView);
+                    } else {
+                        frameView.setImageResource(0);
+                        frameView.setBackgroundColor(ContextCompat.getColor(act, R.color.search_background));
+                    }
                 }
             }
         }

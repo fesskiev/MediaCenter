@@ -62,12 +62,15 @@
 
     <string name="button_save_track_info_text">Сохранить</string>
 
-    <string name="dialog_delete_file_title">Удаление</string>
-    <string name="dialog_delete_file_message">Удалить файл?</string>
+    <string name="dialog_delete_file_title">Внимание</string>
+    <string name="dialog_delete_file_message">Удалить данное видео?</string>
     <string name="dialog_delete_file_ok">Да</string>
     <string name="dialog_delete_file_cancel">Нет</string>
 
-    <string name="shackbar_delete_file">Файл удален</string>
+    <string name="dialog_delete_folder_message">Удалить папку с файлами?</string>
+
+    <string name="shackbar_delete_file">Видео удалено</string>
+    <string name="shackbar_delete_folder">Папка с файлами удалена</string>
 
     <string name="shackbar_connection_error">Отсутствует подключение к интернету</string>
     <string name="shackbar_connection_slow">Медленное подключение к интернету</string>

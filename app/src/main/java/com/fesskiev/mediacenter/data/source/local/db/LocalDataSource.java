@@ -118,12 +118,6 @@ public class LocalDataSource implements LocalSource {
         briteDatabase.insert(DatabaseHelper.VIDEO_FILES_TABLE_NAME, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
-    public void deleteVideoFile(String path) {
-        briteDatabase.delete(
-                DatabaseHelper.VIDEO_FILES_TABLE_NAME,
-                DatabaseHelper.VIDEO_FILE_PATH + "=" + "'" + path + "'");
-
-    }
 
     public void updateAudioFolderIndex(AudioFolder audioFolder) {
 
@@ -281,6 +275,12 @@ public class LocalDataSource implements LocalSource {
                     DatabaseHelper.ID + "=" + "'" + audioFolder.id + "'");
 
         };
+    }
+
+    public Callable<Integer> deleteVideoFile(String path) {
+        return () -> briteDatabase.delete(
+                DatabaseHelper.VIDEO_FILES_TABLE_NAME,
+                DatabaseHelper.VIDEO_FILE_PATH + "=" + "'" + path + "'");
     }
 
     public Observable<List<String>> getFoldersPath() {

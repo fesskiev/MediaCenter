@@ -63,7 +63,7 @@ public interface LocalSource {
 
     void deleteAudioFile(String path);
 
-    void deleteVideoFile(String path);
+    Callable<Integer> deleteVideoFile(String path);
 
     void clearPlaylist();
 

@@ -64,12 +64,16 @@
 
     <string name="button_save_track_info_text">Save</string>
 
-    <string name="dialog_delete_file_title">Delete</string>
-    <string name="dialog_delete_file_message">Do you want delete file?</string>
+    <string name="dialog_delete_file_title">Attention</string>
+    <string name="dialog_delete_file_message">Do you want delete this file?</string>
     <string name="dialog_delete_file_ok">YES</string>
     <string name="dialog_delete_file_cancel">NO</string>
 
-    <string name="shackbar_delete_file">File has been deleted</string>
+    <string name="dialog_delete_folder_message">Do you want delete this folder?</string>
+
+
+    <string name="shackbar_delete_file">Video file has been deleted</string>
+    <string name="shackbar_delete_folder">Folder with files has been deleted</string>
 
     <string name="shackbar_connection_error">Internet connection error!</string>
     <string name="shackbar_connection_slow">Internet connection slow!</string>

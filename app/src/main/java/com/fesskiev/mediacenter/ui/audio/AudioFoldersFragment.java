@@ -4,6 +4,8 @@ package com.fesskiev.mediacenter.ui.audio;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
@@ -22,6 +24,7 @@ import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
+import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.item.AudioCardView;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.recycleview.helper.ItemTouchHelperAdapter;
@@ -152,7 +155,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
 
             private void showAudioContextMenu(View view, int position) {
                 ContextMenuManager.getInstance().toggleAudioContextMenu(view, () -> {
-                    removeAudioFolder(position);
+                    deleteAudioFolder(position);
                 });
             }
 
@@ -169,24 +172,44 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
             }
         }
 
-        private void removeAudioFolder(int position) {
-            AudioFolder audioFolder = audioFolders.get(position);
-            if (audioFolder != null) {
-                Observable.just(CacheManager.deleteDirectory(audioFolder.folderPath))
-                        .subscribeOn(Schedulers.io())
-                        .flatMap(result -> {
-                            if (result) {
-                                DataRepository repository = MediaApplication.getInstance().getRepository();
-                                repository.getMemorySource().setCacheFoldersDirty(true);
-                                return RxUtils.fromCallable(repository.deleteAudioFolder(audioFolder));
-                            }
-                            return Observable.empty();
-                        })
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(integer -> {
-                            removeFolder(position);
-                        });
+        private void deleteAudioFolder(int position) {
+            Activity act = activity.get();
+            if (act != null) {
+                AudioFolder audioFolder = audioFolders.get(position);
+                if (audioFolder != null) {
+                    AlertDialog.Builder builder =
+                            new AlertDialog.Builder(act, R.style.AppCompatAlertDialogStyle);
+                    builder.setTitle(act.getString(R.string.dialog_delete_file_title));
+                    builder.setMessage(R.string.dialog_delete_folder_message);
+                    builder.setPositiveButton(R.string.dialog_delete_file_ok,
+                            (dialog, which) -> {
+
+                                Observable.just(CacheManager.deleteDirectory(audioFolder.folderPath))
+                                        .first()
+                                        .subscribeOn(Schedulers.io())
+                                        .flatMap(result -> {
+                                            if (result) {
+                                                DataRepository repository = MediaApplication.getInstance().getRepository();
+                                                repository.getMemorySource().setCacheFoldersDirty(true);
+                                                return RxUtils.fromCallable(repository.deleteAudioFolder(audioFolder));
+                                            }
+                                            return Observable.empty();
+                                        })
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(integer -> {
+                                            removeFolder(position);
+                                            Utils.showCustomSnackbar(act.getCurrentFocus(),
+                                                    act,
+                                                    act.getString(R.string.shackbar_delete_folder),
+                                                    Snackbar.LENGTH_LONG)
+                                                    .show();
+                                        });
+                            });
+                    builder.setNegativeButton(R.string.dialog_delete_file_cancel,
+                            (dialog, which) -> dialog.cancel());
+                    builder.show();
+                }
             }
         }
 

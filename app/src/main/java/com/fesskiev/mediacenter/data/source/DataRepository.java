@@ -211,8 +211,8 @@ public class DataRepository {
         return localSource.resetAudioContentDatabase();
     }
 
-    public void deleteVideoFile(String path) {
-        localSource.deleteVideoFile(path);
+    public Callable<Integer> deleteVideoFile(String path) {
+        return localSource.deleteVideoFile(path);
     }
 
     public void updateVideoFile(VideoFile videoFile) {
