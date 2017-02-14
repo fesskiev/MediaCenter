@@ -114,14 +114,19 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
         Log.d("job", "startBackgroundJob: " + periodic);
 
         JobInfo.Builder builder = new JobInfo.Builder(JOB_ID, new ComponentName(getActivity(), FileSystemService.class));
-        builder.setMinimumLatency(periodic); // wait at least
-        builder.setOverrideDeadline(periodic + (30 * 1000)); // maximum delay
-        builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED); // require unmetered network
-        builder.setRequiresDeviceIdle(false); // device should be idle
-        builder.setRequiresCharging(false); // we don't care if the device is charging or not
+        builder.setMinimumLatency(periodic);
+        builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED);
+        builder.setPersisted(true);
+        builder.setRequiresDeviceIdle(false);
+        builder.setRequiresCharging(false);
 
         JobScheduler jobScheduler = (JobScheduler) getActivity().getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        jobScheduler.schedule(builder.build());
+        int jobValue = jobScheduler.schedule(builder.build());
+        if (jobValue <= 0) {
+            Log.w("job", "JobScheduler launch the task failure");
+        } else {
+            Log.w("job", "JobScheduler launch the task success: " + jobValue);
+        }
     }
 
     private void stopBackgroundJob() {

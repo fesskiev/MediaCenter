@@ -196,7 +196,6 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                                             }
                                             return Observable.empty();
                                         })
-                                        .subscribeOn(Schedulers.io())
                                         .observeOn(AndroidSchedulers.mainThread())
                                         .subscribe(integer -> {
                                             if (MediaApplication.getInstance().getAudioPlayer()

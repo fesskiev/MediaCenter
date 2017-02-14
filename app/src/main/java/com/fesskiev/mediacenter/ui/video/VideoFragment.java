@@ -274,7 +274,6 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                                             }
                                             return Observable.empty();
                                         })
-                                        .subscribeOn(Schedulers.io())
                                         .observeOn(AndroidSchedulers.mainThread())
                                         .subscribe(integer -> {
                                             Utils.showCustomSnackbar(act.getCurrentFocus(),
