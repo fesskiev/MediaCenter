@@ -158,7 +158,6 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                     subscription = RxUtils.fromCallable(repository.resetVideoContentDatabase())
                             .subscribeOn(Schedulers.io())
                             .doOnNext(integer -> CacheManager.clearVideoImagesCache())
-                            .subscribeOn(Schedulers.io())
                             .subscribe(aVoid -> FileSystemService.startFetchVideo(getActivity()));
                 });
 
