@@ -106,6 +106,8 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
     public void onDestroy() {
         super.onDestroy();
         RxUtils.unsubscribe(subscription);
+        ((AudioFoldersAdapter) adapter).updateAudioFoldersIndexes();
+        MediaApplication.getInstance().getRepository().getMemorySource().setCacheFoldersDirty(true);
     }
 
     private static class AudioFoldersAdapter extends RecyclerView.Adapter<AudioFoldersAdapter.ViewHolder>
@@ -155,9 +157,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
             }
 
             private void showAudioContextMenu(View view, int position) {
-                ContextMenuManager.getInstance().toggleAudioContextMenu(view, () -> {
-                    deleteAudioFolder(position);
-                });
+                ContextMenuManager.getInstance().toggleAudioContextMenu(view, () -> deleteAudioFolder(position));
             }
 
             @Override
@@ -168,7 +168,6 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
             @Override
             public void onItemClear(int position) {
                 itemView.setAlpha(1.0f);
-                updateAudioFolderIndex(position);
                 notifyDataSetChanged();
             }
         }
@@ -215,14 +214,6 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                             (dialog, which) -> dialog.cancel());
                     builder.show();
                 }
-            }
-        }
-
-        private void updateAudioFolderIndex(int position) {
-            AudioFolder audioFolder = audioFolders.get(position);
-            if (audioFolder != null) {
-                audioFolder.index = position;
-                MediaApplication.getInstance().getRepository().updateAudioFolderIndex(audioFolder);
             }
         }
 
@@ -280,6 +271,10 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
             audioFolders.remove(position);
             notifyItemRemoved(position);
             notifyItemRangeChanged(position, getItemCount());
+        }
+
+        public void updateAudioFoldersIndexes() {
+            MediaApplication.getInstance().getRepository().updateAudioFoldersIndex(audioFolders);
         }
     }
 }

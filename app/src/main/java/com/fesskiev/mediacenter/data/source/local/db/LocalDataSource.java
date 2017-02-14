@@ -5,7 +5,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.Artist;
@@ -119,14 +118,18 @@ public class LocalDataSource implements LocalSource {
     }
 
 
-    public void updateAudioFolderIndex(AudioFolder audioFolder) {
+    public void updateAudioFoldersIndex(List<AudioFolder> audioFolders) {
+        for (int index = 0; index < audioFolders.size(); index++) {
+            AudioFolder audioFolder = audioFolders.get(index);
+            if (audioFolder != null) {
+                ContentValues values = new ContentValues();
+                values.put(DatabaseHelper.FOLDER_INDEX, index);
 
-        ContentValues values = new ContentValues();
-        values.put(DatabaseHelper.FOLDER_INDEX, audioFolder.index);
+                String sql = DatabaseHelper.FOLDER_PATH + "=" + "'" + audioFolder.folderPath + "'";
 
-        String sql = DatabaseHelper.FOLDER_PATH + "=" + "'" + audioFolder.folderPath + "'";
-
-        briteDatabase.update(DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME, values, sql);
+                briteDatabase.update(DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME, values, sql);
+            }
+        }
     }
 
     public void updateVideoFile(VideoFile videoFile) {

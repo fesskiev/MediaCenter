@@ -148,8 +148,8 @@ public class DataRepository {
         localSource.updateSelectedAudioFolder(audioFolder);
     }
 
-    public void updateAudioFolderIndex(AudioFolder audioFolder) {
-        localSource.updateAudioFolderIndex(audioFolder);
+    public void updateAudioFoldersIndex(List<AudioFolder> audioFolders) {
+        localSource.updateAudioFoldersIndex(audioFolders);
     }
 
 

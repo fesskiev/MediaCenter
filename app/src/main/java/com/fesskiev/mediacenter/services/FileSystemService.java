@@ -141,6 +141,7 @@ public class FileSystemService extends JobService {
                     switch (msg.what) {
                         case 0:
                             getMediaContent();
+                            jobFinished((JobParameters) msg.obj, false);
                             break;
                         case 1:
                             getVideoContent();
@@ -161,9 +162,12 @@ public class FileSystemService extends JobService {
     public boolean onStartJob(JobParameters params) {
         Log.i(TAG, "File System Service onStartJob");
 
-//        jobFinished(params, false);
+        Message msg = handler.obtainMessage();
+        msg.obj = params;
+        msg.what = 0;
+        handler.sendMessage(msg);
 
-        return true;
+        return false;
     }
 
     @Override

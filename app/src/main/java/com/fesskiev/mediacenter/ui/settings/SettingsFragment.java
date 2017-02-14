@@ -114,15 +114,16 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
         Log.d("job", "startBackgroundJob: " + periodic);
 
         JobInfo.Builder builder = new JobInfo.Builder(JOB_ID, new ComponentName(getActivity(), FileSystemService.class));
-        builder.setMinimumLatency(periodic);
-        builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED);
         builder.setPersisted(true);
-        builder.setRequiresDeviceIdle(false);
+        builder.setOverrideDeadline(5000);
+        builder.setMinimumLatency(15 * 1000 * 60);
+        builder.setRequiresDeviceIdle(true);
         builder.setRequiresCharging(false);
+        builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
 
         JobScheduler jobScheduler = (JobScheduler) getActivity().getSystemService(Context.JOB_SCHEDULER_SERVICE);
         int jobValue = jobScheduler.schedule(builder.build());
-        if (jobValue <= 0) {
+        if (jobValue == JobScheduler.RESULT_FAILURE) {
             Log.w("job", "JobScheduler launch the task failure");
         } else {
             Log.w("job", "JobScheduler launch the task success: " + jobValue);
