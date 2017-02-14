@@ -193,6 +193,21 @@ public class AudioPlayer implements Playable {
         return currentTrackList;
     }
 
+    public boolean isDeletedFolderSelect(AudioFolder audioFolder) {
+        if (currentTrack != null && currentTrack.id.equals(audioFolder.id)) {
+            return true;
+        }
+        if (currentTrackList != null) {
+            for (AudioFile audioFile : currentTrackList) {
+                if (audioFile.id.equals(audioFolder.id)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
     private class TrackListIterator implements ListIterator<AudioFile> {
 
         public TrackListIterator() {

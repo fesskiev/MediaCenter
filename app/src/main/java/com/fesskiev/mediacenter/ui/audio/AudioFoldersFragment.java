@@ -20,6 +20,7 @@ import com.fesskiev.mediacenter.ui.GridFragment;
 import com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity;
 import com.fesskiev.mediacenter.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.mediacenter.ui.audio.utils.Constants;
+import com.fesskiev.mediacenter.ui.playback.PlaybackActivity;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
@@ -198,12 +199,17 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                                         .subscribeOn(Schedulers.io())
                                         .observeOn(AndroidSchedulers.mainThread())
                                         .subscribe(integer -> {
+                                            if (MediaApplication.getInstance().getAudioPlayer()
+                                                    .isDeletedFolderSelect(audioFolder)) {
+                                                ((PlaybackActivity) act).clearPlayback();
+                                            }
                                             removeFolder(position);
                                             Utils.showCustomSnackbar(act.getCurrentFocus(),
                                                     act,
                                                     act.getString(R.string.shackbar_delete_folder),
                                                     Snackbar.LENGTH_LONG)
                                                     .show();
+
                                         });
                             });
                     builder.setNegativeButton(R.string.dialog_delete_file_cancel,
