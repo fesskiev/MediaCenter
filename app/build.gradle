@@ -75,6 +75,7 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile files('libs/jaudiotagger-2.2.4.jar')
     compile project(':extensions')
+    compile project(':ffmpeg')
 
     compile "com.android.support:appcompat-v7:${supportLibVersion}"
     compile "com.android.support:recyclerview-v7:${supportLibVersion}"

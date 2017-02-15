@@ -2,6 +2,7 @@ package com.fesskiev.mediacenter;
 
 import android.app.Application;
 import android.content.ComponentCallbacks2;
+import android.util.Log;
 
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.data.source.local.db.LocalDataSource;
@@ -10,6 +11,8 @@ import com.fesskiev.mediacenter.data.source.remote.RemoteDataSource;
 import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.players.VideoPlayer;
 import com.fesskiev.mediacenter.utils.AppLog;
+import com.fesskiev.mediacenter.utils.converter.AndroidAudioConverter;
+import com.fesskiev.mediacenter.utils.converter.ILoadCallback;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -47,6 +50,18 @@ public class MediaApplication extends Application {
 
         audioPlayer = new AudioPlayer(repository);
         videoPlayer = new VideoPlayer();
+
+        AndroidAudioConverter.load(this, new ILoadCallback() {
+            @Override
+            public void onSuccess() {
+                Log.e("ffmpef", "FFMPEG LOAD");
+            }
+            @Override
+            public void onFailure(Exception error) {
+                Log.e("ffmpef", "FFMPEG FAIL");
+                error.printStackTrace();
+            }
+        });
 
         RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
             @Override

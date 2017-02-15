@@ -11,9 +11,13 @@ import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.playback.Playable;
+import com.fesskiev.mediacenter.utils.converter.AndroidAudioConverter;
+import com.fesskiev.mediacenter.utils.converter.AudioFormat;
+import com.fesskiev.mediacenter.utils.converter.IConvertCallback;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.File;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -146,6 +150,9 @@ public class AudioPlayer implements Playable {
 
     public void setCurrentAudioFileAndPlay(AudioFile audioFile) {
         currentTrack = audioFile;
+        if (isAudioFileFLAC(audioFile)) {
+            convertAudio(audioFile);
+        }
 
         trackListIterator.findPosition();
 
@@ -211,6 +218,26 @@ public class AudioPlayer implements Playable {
         String path = audioFile.getFilePath();
         String extension = path.substring(path.lastIndexOf("."));
         return extension.equalsIgnoreCase(".flac");
+    }
+
+    public void convertAudio(AudioFile audioFile) {
+        File flacFile = new File(audioFile.getFilePath());
+        IConvertCallback callback = new IConvertCallback() {
+            @Override
+            public void onSuccess(File convertedFile) {
+                Log.e("ffmpeg", "SUCCESS: " + convertedFile.getPath());
+            }
+
+            @Override
+            public void onFailure(Exception error) {
+                Log.e("ffmpeg", "ERROR: " + error.getMessage());
+            }
+        };
+        AndroidAudioConverter.with(context)
+                .setFile(flacFile)
+                .setFormat(AudioFormat.WAV)
+                .setCallback(callback)
+                .convert();
     }
 
 
