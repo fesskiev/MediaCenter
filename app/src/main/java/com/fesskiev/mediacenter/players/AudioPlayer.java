@@ -207,6 +207,12 @@ public class AudioPlayer implements Playable {
         return false;
     }
 
+    public boolean isAudioFileFLAC(AudioFile audioFile) {
+        String path = audioFile.getFilePath();
+        String extension = path.substring(path.lastIndexOf("."));
+        return extension.equalsIgnoreCase(".flac");
+    }
+
 
     private class TrackListIterator implements ListIterator<AudioFile> {
 
