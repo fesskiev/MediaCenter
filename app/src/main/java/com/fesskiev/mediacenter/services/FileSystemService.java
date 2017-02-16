@@ -50,6 +50,7 @@ public class FileSystemService extends JobService {
 
 
     private Handler handler;
+    private FetchContentThread fetchContentThread;
     public static volatile boolean shouldContinue;
 
     public static void startFileSystemService(Context context) {
@@ -91,13 +92,16 @@ public class FileSystemService extends JobService {
         super.onCreate();
         Log.i(TAG, "File System Service created");
 
-        new FetchContentThread().start();
+        fetchContentThread = new FetchContentThread();
+        fetchContentThread.start();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         Log.i(TAG, "File System Service destroyed");
+
+        fetchContentThread.quitSafely();
     }
 
 
@@ -141,7 +145,10 @@ public class FileSystemService extends JobService {
                     switch (msg.what) {
                         case 0:
                             getMediaContent();
-                            jobFinished((JobParameters) msg.obj, false);
+                            JobParameters jobParameters = (JobParameters) msg.obj;
+                            if (jobParameters != null) {
+                                jobFinished(jobParameters, false);
+                            }
                             break;
                         case 1:
                             getVideoContent();
