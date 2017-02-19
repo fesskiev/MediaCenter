@@ -1,6 +1,7 @@
 package com.fesskiev.mediacenter.widgets.controls;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,7 +17,6 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.utils.Utils;
 
 
 public class AudioVolumeSeekView extends View {
@@ -72,6 +72,7 @@ public class AudioVolumeSeekView extends View {
 
 
     private void init(Context context, AttributeSet attrs, int defStyle) {
+        final Resources res = context.getResources();
 
         final TypedArray a = getContext().obtainStyledAttributes(
                 attrs, R.styleable.AudioVolumeSeekView, defStyle, 0);
@@ -85,16 +86,18 @@ public class AudioVolumeSeekView extends View {
 
         a.recycle();
 
-        seekSlider = new Slider(Utils.dipToPixels(context, 20), R.drawable.icon_time_control);
-        volumeSlider = new Slider(Utils.dipToPixels(context, 20), R.drawable.icon_volume_control);
+        seekSlider = new Slider(res.getDimensionPixelSize(R.dimen.seek_slider), R.drawable.icon_time_control);
+        volumeSlider = new Slider(res.getDimensionPixelSize(R.dimen.volume_slider), R.drawable.icon_volume_control);
 
 
-        radiusVolume = (int) Utils.dipToPixels(context, 80);
-        radiusSeek = (int) Utils.dipToPixels(context, 135);
-        lineRadius = (int) Utils.dipToPixels(context, 135);
-        float circleStrokeWidth = Utils.dipToPixels(context, 15);
-        markSize = (int) Utils.dipToPixels(context, 50);
-        padding =  (int) Utils.dipToPixels(context, 3);
+        radiusVolume = res.getDimensionPixelSize(R.dimen.volume_radius);
+        radiusSeek = res.getDimensionPixelSize(R.dimen.seek_radius);
+
+        lineRadius = res.getDimensionPixelSize(R.dimen.line_radius);
+        float circleStrokeWidth = res.getDimensionPixelSize(R.dimen.circle_stroke_with);
+
+        markSize = res.getDimensionPixelSize(R.dimen.mark_size);
+        padding = res.getDimensionPixelSize(R.dimen.audio_control_padding);
 
         linePaint = new Paint();
         linePaint.setColor(circleColor);

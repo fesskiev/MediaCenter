@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="card_view_recycler_margin_top_big">1dp</dimen>
+    <dimen name="card_view_recycler_margin_bottom_big">1dp</dimen>
+    <dimen name="card_view_recycler_margin_top">0dp</dimen>
+    <dimen name="card_view_recycler_margin_bottom">0dp</dimen>
+    <dimen name="card_view_recycler_margin_start">1dp</dimen>
+    <dimen name="card_view_recycler_margin_end">1dp</dimen>
+    <dimen name="card_view_recycler_content_padding">0dp</dimen>
+
+    <dimen name="card_view_margin_top_big">4dp</dimen>
+    <dimen name="card_view_margin_bottom_big">4dp</dimen>
+    <dimen name="card_view_margin_top">2dp</dimen>
+    <dimen name="card_view_margin_bottom">2dp</dimen>
+    <dimen name="card_view_margin_start">4dp</dimen>
+    <dimen name="card_view_margin_end">4dp</dimen>
+
+    <dimen name="card_view_elevation">4dp</dimen>
+    <dimen name="card_view_corner_radius">4dp</dimen>
+    <dimen name="card_view_content_padding">8dp</dimen>
+
+    <dimen name="card_view_content_padding_big">16dp</dimen>
+
+    <dimen name="card_view_empty_content_height">160dp</dimen>
+
+    <bool name="isTablet">true</bool>
+
+    <dimen name="card_min_height">180dp</dimen>
+    <dimen name="app_bar_height">512dp</dimen>
+
+    <dimen name="audio_control_width">410dp</dimen>
+    <dimen name="audio_control_height">410dp</dimen>
+
+    <dimen name="pause_bar_big_width">16dp</dimen>
+    <dimen name="pause_bar_big_distance">12dp</dimen>
+    <dimen name="pause_bar_big_height">52dp</dimen>
+
+    <dimen name="seek_slider">25dp</dimen>
+    <dimen name="volume_slider">25dp</dimen>
+    <dimen name="seek_radius">170dp</dimen>
+    <dimen name="volume_radius">110dp</dimen>
+    <dimen name="line_radius">170dp</dimen>
+    <dimen name="circle_stroke_with">20dp</dimen>
+    <dimen name="mark_size">60dp</dimen>
+    <dimen name="audio_control_padding">1dp</dimen>
+
+
+</resources>

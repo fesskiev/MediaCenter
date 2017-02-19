@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 
 import java.text.SimpleDateFormat;
@@ -30,7 +31,7 @@ public class Utils {
     private static final String TAG = Utils.class.getName();
 
     public static String getVideoFileTimeFormat(long milliseconds) {
-       return getDurationString((int) (milliseconds / 1000));
+        return getDurationString((int) (milliseconds / 1000));
     }
 
 
@@ -177,4 +178,9 @@ public class Utils {
         }
         return orientation;
     }
+
+    public static boolean isTablet() {
+        return MediaApplication.getInstance().getResources().getBoolean(R.bool.isTablet);
+    }
+
 }

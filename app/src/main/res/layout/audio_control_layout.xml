@@ -7,8 +7,8 @@
 
     <com.fesskiev.mediacenter.widgets.controls.AudioVolumeSeekView
         android:id="@+id/audioVolumeControl"
-        android:layout_width="360dp"
-        android:layout_height="360dp"
+        android:layout_width="@dimen/audio_control_width"
+        android:layout_height="@dimen/audio_control_height"
         android:layout_centerInParent="true"
         app:circleColor="@color/primary_light"
         app:progressColor="@color/primary"

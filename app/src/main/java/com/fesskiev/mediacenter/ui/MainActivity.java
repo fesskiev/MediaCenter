@@ -80,41 +80,45 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         setSupportActionBar(toolbar);
         AnimationUtils.getInstance().animateToolbar(toolbar);
 
+
         timerView = (ImageView) findViewById(R.id.timer);
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        drawer.addDrawerListener(new DrawerLayout.DrawerListener() {
-            @Override
-            public void onDrawerSlide(View drawerView, float slideOffset) {
+        if (!Utils.isTablet()) {
+            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                    this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+            drawer.addDrawerListener(toggle);
+            drawer.addDrawerListener(new DrawerLayout.DrawerListener() {
+                @Override
+                public void onDrawerSlide(View drawerView, float slideOffset) {
 
-            }
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-
-            }
-
-            @Override
-            public void onDrawerClosed(View drawerView) {
-
-                if (selectedActivity != null) {
-                    startActivity(new Intent(MainActivity.this, selectedActivity));
-                    selectedActivity = null;
                 }
-            }
 
-            @Override
-            public void onDrawerStateChanged(int newState) {
-                if (newState == DrawerLayout.STATE_DRAGGING &&
-                        ContextMenuManager.getInstance().isContextMenuShow()) {
-                    ContextMenuManager.getInstance().hideContextMenu();
+                @Override
+                public void onDrawerOpened(View drawerView) {
+
                 }
-            }
-        });
-        toggle.syncState();
+
+                @Override
+                public void onDrawerClosed(View drawerView) {
+
+                    if (selectedActivity != null) {
+                        startSelectedActivity();
+                    }
+                }
+
+                @Override
+                public void onDrawerStateChanged(int newState) {
+                    if (newState == DrawerLayout.STATE_DRAGGING &&
+                            ContextMenuManager.getInstance().isContextMenuShow()) {
+                        ContextMenuManager.getInstance().hideContextMenu();
+                    }
+                }
+            });
+            toggle.syncState();
+        } else {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        }
 
         setEffectsNavView();
         setMainNavView();
@@ -240,7 +244,11 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             @Override
             public void onEffectClick() {
                 selectedActivity = EffectsActivity.class;
-                drawer.closeDrawer(GravityCompat.END);
+                if(!Utils.isTablet()) {
+                    drawer.closeDrawer(GravityCompat.END);
+                } else {
+                   startSelectedActivity();
+                }
             }
 
             @Override
@@ -400,9 +408,18 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 break;
         }
 
-        drawer.closeDrawer(GravityCompat.START);
+        if (!Utils.isTablet()) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else if (selectedActivity != null) {
+           startSelectedActivity();
+        }
 
         return true;
+    }
+
+    private void startSelectedActivity(){
+        startActivity(new Intent(MainActivity.this, selectedActivity));
+        selectedActivity = null;
     }
 
     private void checkAudioContentItem() {
