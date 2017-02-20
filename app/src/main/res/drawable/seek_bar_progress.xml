@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item
-        android:id="@android:id/background"
-        android:drawable="@drawable/seek_bar_background" />
+    <item android:id="@android:id/background">
+        <shape android:shape="rectangle">
+            <corners android:radius="4dp"/>
+            <stroke android:width="4dp"
+                android:color="@color/primary" />
+        </shape>
+    </item>
+
     <item android:id="@android:id/progress">
-        <clip android:drawable="@drawable/seek_bar_progress_fill" />
+        <clip>
+            <shape android:shape="rectangle">
+                <corners android:radius="4dp"/>
+                <solid android:color="@color/primary_light" />
+                <stroke android:width="4dp"
+                    android:color="@color/primary" />
+            </shape>
+        </clip>
     </item>
 
 </layer-list>

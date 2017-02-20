@@ -32,11 +32,11 @@
         style="@style/VideoPlayerTextAppearance"
         android:layout_width="wrap_content"
         android:layout_height="34dp"
+        android:layout_above="@+id/controlContainer"
         android:layout_alignParentStart="true"
         android:layout_marginBottom="16dp"
         android:layout_marginStart="8dp"
         android:drawablePadding="10dp"
-        android:layout_above="@+id/controlContainer"
         android:drawableStart="@drawable/icon_video_resize"
         android:ellipsize="end"
         android:gravity="center"
@@ -80,8 +80,8 @@
             android:layout_height="wrap_content"
             android:background="@color/track_background"
             android:orientation="vertical"
-            android:translationY="-100dp"
-            android:padding="8dp">
+            android:padding="8dp"
+            android:translationY="-100dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
