@@ -48,6 +48,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
     public abstract MediaNavigationView getMediaNavigationView();
 
+    private AudioNotificationHelper notificationHelper;
     private AudioPlayer audioPlayer;
     private AudioFile currentTrack;
 
@@ -77,6 +78,8 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         super.onPostCreate(savedInstanceState);
 
         EventBus.getDefault().register(this);
+
+        notificationHelper = AudioNotificationHelper.getInstance(getApplicationContext());
 
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
         audioPlayer.getCurrentTrackAndTrackList();
@@ -155,8 +158,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         lastPlaying = !lastPlaying;
         playPauseButton.setPlay(lastPlaying);
 
-        AudioNotificationHelper.getInstance(getApplicationContext())
-                .updateNotification(currentTrack, lastCover, lastPositionSeconds, lastPlaying);
+        notificationHelper.updateNotification(currentTrack, lastCover, lastPositionSeconds, lastPlaying);
 
         adapter.notifyDataSetChanged();
     }
@@ -178,20 +180,22 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     private BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            switch (action) {
-                case AudioNotificationHelper.ACTION_MEDIA_CONTROL_PLAY:
-                    audioPlayer.play();
-                    break;
-                case AudioNotificationHelper.ACTION_MEDIA_CONTROL_PAUSE:
-                    audioPlayer.pause();
-                    break;
-                case AudioNotificationHelper.ACTION_MEDIA_CONTROL_PREVIOUS:
-                    audioPlayer.previous();
-                    break;
-                case AudioNotificationHelper.ACTION_MEDIA_CONTROL_NEXT:
-                    audioPlayer.next();
-                    break;
+            if (currentTrack != null) {
+                final String action = intent.getAction();
+                switch (action) {
+                    case AudioNotificationHelper.ACTION_MEDIA_CONTROL_PLAY:
+                        audioPlayer.play();
+                        break;
+                    case AudioNotificationHelper.ACTION_MEDIA_CONTROL_PAUSE:
+                        audioPlayer.pause();
+                        break;
+                    case AudioNotificationHelper.ACTION_MEDIA_CONTROL_PREVIOUS:
+                        audioPlayer.previous();
+                        break;
+                    case AudioNotificationHelper.ACTION_MEDIA_CONTROL_NEXT:
+                        audioPlayer.next();
+                        break;
+                }
             }
         }
     };
@@ -203,7 +207,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         EventBus.getDefault().unregister(this);
         unregisterNotificationReceiver();
 
-        AudioNotificationHelper.getInstance(getApplicationContext()).stopNotification();
+        notificationHelper.stopNotification();
         PlaybackService.stopPlaybackForegroundService(getApplicationContext());
     }
 
@@ -220,8 +224,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
             lastPlaying = playing;
             playPauseButton.setPlay(playing);
 
-            AudioNotificationHelper.getInstance(getApplicationContext())
-                    .updateNotification(currentTrack, lastCover, lastPositionSeconds, lastPlaying);
+            notificationHelper.updateNotification(currentTrack, lastCover, lastPositionSeconds, lastPlaying);
 
             adapter.notifyDataSetChanged();
 
@@ -268,7 +271,6 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
             Log.wtf("test", "ECHO STATE:" + lastEnableEcho);
         }
-
     }
 
 
@@ -287,8 +289,6 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
         adapter.refreshAdapter(currentTrackList);
         hideEmptyFolderCard();
-
-        adapter.notifyDataSetChanged();
     }
 
     private void setMusicFileInfo(AudioFile audioFile) {
@@ -307,8 +307,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
                                     lastCover = bitmap;
 
-                                    AudioNotificationHelper.getInstance(getApplicationContext())
-                                            .updateNotification(audioFile, lastCover, 0, lastPlaying);
+                                    notificationHelper.updateNotification(audioFile, lastCover, 0, lastPlaying);
 
                                     PlaybackService.startPlaybackForegroundService(getApplicationContext());
                                 }
@@ -439,6 +438,13 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         cover.setImageResource(0);
         showEmptyTrackCard();
         showEmptyFolderCard();
+
+        lastPlaying = false;
+        playPauseButton.setPlay(false);
+
+        notificationHelper.updateNotification(currentTrack, lastCover, lastPositionSeconds, lastPlaying);
+
+        adapter.notifyDataSetChanged();
     }
 
     private void showEmptyFolderCard() {

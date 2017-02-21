@@ -487,7 +487,10 @@ public class TrackListFragment extends Fragment implements View.OnClickListener 
 
                         }
                         return sortedList;
-                    }).subscribe(this::refreshAdapter);
+                    }).subscribe(sortedList -> {
+                        actionMenu.close(true);
+                        refreshAdapter(sortedList);
+                    });
         }
     }
 }
