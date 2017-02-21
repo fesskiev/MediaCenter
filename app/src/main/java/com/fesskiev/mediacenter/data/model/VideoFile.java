@@ -21,6 +21,9 @@ public class VideoFile implements MediaFile {
     public String framePath;
     public String description;
     public boolean inPlayList;
+    public long size;
+    public long timestamp;
+    public int length;
 
     public VideoFile(Cursor cursor) {
 
@@ -29,6 +32,9 @@ public class VideoFile implements MediaFile {
         framePath = cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_FRAME_PATH));
         description = cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_DESCRIPTION));
         inPlayList = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.VIDEO_IN_PLAY_LIST)) == 1;
+        length = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.VIDEO_LENGTH));
+        size = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.VIDEO_SIZE));
+        timestamp = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.VIDEO_TIMESTAMP));
     }
 
     public VideoFile(File path) {
@@ -42,13 +48,23 @@ public class VideoFile implements MediaFile {
     }
 
     private void fetchVideoData() {
+
         id = UUID.randomUUID().toString();
+        size = filePath.length();
+
+        timestamp = System.currentTimeMillis();
+
         try {
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
             retriever.setDataSource(filePath.getAbsolutePath());
             Bitmap frame = retriever.getFrameAtTime();
             if (frame != null) {
                 saveFrame(frame);
+            }
+
+            String duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            if (duration != null) {
+                length = Integer.valueOf(duration);
             }
 
             StringBuilder sb = new StringBuilder();
@@ -118,6 +134,16 @@ public class VideoFile implements MediaFile {
     }
 
     @Override
+    public long getSize() {
+        return size;
+    }
+
+    @Override
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    @Override
     public boolean exists() {
         return filePath.exists();
     }
@@ -150,10 +176,13 @@ public class VideoFile implements MediaFile {
     public String toString() {
         return "VideoFile{" +
                 "id='" + id + '\'' +
-                ", filePath='" + filePath + '\'' +
+                ", filePath=" + filePath +
                 ", framePath='" + framePath + '\'' +
                 ", description='" + description + '\'' +
                 ", inPlayList=" + inPlayList +
+                ", size=" + size +
+                ", timestamp=" + timestamp +
+                ", length=" + length +
                 '}';
     }
 }

@@ -15,6 +15,10 @@ public interface MediaFile {
 
     int getLength();
 
+    long getSize();
+
+    long getTimestamp();
+
     boolean exists();
 
     boolean isDownloaded();

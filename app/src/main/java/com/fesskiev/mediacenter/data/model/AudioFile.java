@@ -46,6 +46,8 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
     public String artworkPath;
     public int trackNumber;
     public int length;
+    public long size;
+    public long timestamp;
     public boolean inPlayList;
     public boolean isSelected;
     private OnAudioTagListener listener;
@@ -78,6 +80,8 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
         inPlayList = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_IN_PLAY_LIST)) == 1;
         isSelected = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_SELECTED)) == 1;
         length = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_LENGTH));
+        size = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_SIZE));
+        timestamp = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_TIMESTAMP));
 
     }
 
@@ -133,6 +137,10 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
     }
 
     private void parseMetadataTagger() {
+
+        size = filePath.length();
+        timestamp = System.currentTimeMillis();
+
         try {
             TagOptionSingleton.getInstance().setAndroid(true);
             org.jaudiotagger.audio.AudioFile file = AudioFileIO.read(filePath);
@@ -241,6 +249,16 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
     }
 
     @Override
+    public long getSize() {
+        return size;
+    }
+
+    @Override
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    @Override
     public boolean exists() {
         return filePath.exists();
     }
@@ -284,7 +302,8 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
     @Override
     public String toString() {
         return "AudioFile{" +
-                "filePath=" + filePath +
+                "id='" + id + '\'' +
+                ", filePath=" + filePath +
                 ", artist='" + artist + '\'' +
                 ", title='" + title + '\'' +
                 ", album='" + album + '\'' +
@@ -294,9 +313,10 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
                 ", artworkPath='" + artworkPath + '\'' +
                 ", trackNumber=" + trackNumber +
                 ", length=" + length +
+                ", size=" + size +
+                ", timestamp=" + timestamp +
                 ", inPlayList=" + inPlayList +
                 ", isSelected=" + isSelected +
-                ", id='" + id + '\'' +
                 '}';
     }
 }

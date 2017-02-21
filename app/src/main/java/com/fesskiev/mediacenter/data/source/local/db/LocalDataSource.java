@@ -71,6 +71,8 @@ public class LocalDataSource implements LocalSource {
         values.put(DatabaseHelper.TRACK_PATH, audioFile.getFilePath());
         values.put(DatabaseHelper.TRACK_BITRATE, audioFile.bitrate);
         values.put(DatabaseHelper.TRACK_LENGTH, audioFile.length);
+        values.put(DatabaseHelper.TRACK_SIZE, audioFile.size);
+        values.put(DatabaseHelper.TRACK_TIMESTAMP, audioFile.timestamp);
         values.put(DatabaseHelper.TRACK_NUMBER, audioFile.trackNumber);
         values.put(DatabaseHelper.TRACK_SAMPLE_RATE, audioFile.sampleRate);
         values.put(DatabaseHelper.TRACK_IN_PLAY_LIST, audioFile.inPlayList ? 1 : 0);
@@ -92,6 +94,8 @@ public class LocalDataSource implements LocalSource {
         values.put(DatabaseHelper.TRACK_PATH, audioFile.getFilePath());
         values.put(DatabaseHelper.TRACK_BITRATE, audioFile.bitrate);
         values.put(DatabaseHelper.TRACK_LENGTH, audioFile.length);
+        values.put(DatabaseHelper.TRACK_SIZE, audioFile.size);
+        values.put(DatabaseHelper.TRACK_TIMESTAMP, audioFile.timestamp);
         values.put(DatabaseHelper.TRACK_NUMBER, audioFile.trackNumber);
         values.put(DatabaseHelper.TRACK_SAMPLE_RATE, audioFile.sampleRate);
         values.put(DatabaseHelper.TRACK_IN_PLAY_LIST, audioFile.inPlayList ? 1 : 0);
@@ -111,6 +115,9 @@ public class LocalDataSource implements LocalSource {
         values.put(DatabaseHelper.VIDEO_FILE_PATH, videoFile.getFilePath());
         values.put(DatabaseHelper.VIDEO_FRAME_PATH, videoFile.framePath);
         values.put(DatabaseHelper.VIDEO_DESCRIPTION, videoFile.description);
+        values.put(DatabaseHelper.VIDEO_LENGTH, videoFile.length);
+        values.put(DatabaseHelper.VIDEO_SIZE, videoFile.size);
+        values.put(DatabaseHelper.VIDEO_TIMESTAMP, videoFile.timestamp);
         values.put(DatabaseHelper.VIDEO_IN_PLAY_LIST, videoFile.inPlayList ? 1 : 0);
 
 
@@ -140,6 +147,9 @@ public class LocalDataSource implements LocalSource {
         values.put(DatabaseHelper.VIDEO_FILE_PATH, videoFile.getFilePath());
         values.put(DatabaseHelper.VIDEO_FRAME_PATH, videoFile.framePath);
         values.put(DatabaseHelper.VIDEO_DESCRIPTION, videoFile.description);
+        values.put(DatabaseHelper.VIDEO_LENGTH, videoFile.length);
+        values.put(DatabaseHelper.VIDEO_SIZE, videoFile.size);
+        values.put(DatabaseHelper.VIDEO_TIMESTAMP, videoFile.timestamp);
         values.put(DatabaseHelper.VIDEO_IN_PLAY_LIST, videoFile.inPlayList ? 1 : 0);
 
         briteDatabase.update(

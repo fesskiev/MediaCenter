@@ -150,6 +150,7 @@ public class AudioPlayer implements Playable {
 
     public void setCurrentAudioFileAndPlay(AudioFile audioFile) {
         currentTrack = audioFile;
+
         if (isAudioFileFLAC(audioFile)) {
             convertAudio(audioFile);
         }

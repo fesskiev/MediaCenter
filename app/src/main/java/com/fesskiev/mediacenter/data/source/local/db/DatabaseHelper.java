@@ -24,6 +24,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String VIDEO_DESCRIPTION = "VideoDescription";
     public static final String VIDEO_IN_PLAY_LIST = "VideoInPlayList";
     public static final String VIDEO_SELECTED = "VideoSelected";
+    public static final String VIDEO_LENGTH = "VideoLength";
+    public static final String VIDEO_SIZE = "VideoSize";
+    public static final String VIDEO_TIMESTAMP = "VideoTimestamp";
+
 
     /**
      * audio folder constants
@@ -47,6 +51,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TRACK_COVER = "TrackCover";
     public static final String TRACK_NUMBER = "TrackNumber";
     public static final String TRACK_LENGTH = "TrackLength";
+    public static final String TRACK_SIZE = "TrackSize";
+    public static final String TRACK_TIMESTAMP = "TrackTimestamp";
     public static final String TRACK_IN_PLAY_LIST = "TrackInPlayList";
     public static final String TRACK_SELECTED = "TrackSelected";
 
@@ -54,7 +60,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String KEY_TYPE = "TEXT NOT NULL";
     private static final String TEXT_TYPE = "TEXT";
     private static final String INTEGER_TYPE = "INTEGER";
-    private static final String REAL_TYPE = "REAL";
 
     public static final String CREATE_VIDEO_FILES_TABLE_SQL = "CREATE TABLE" + " " +
             VIDEO_FILES_TABLE_NAME + " " +
@@ -64,6 +69,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             VIDEO_FRAME_PATH + " " + TEXT_TYPE + " ," +
             VIDEO_DESCRIPTION + " " + TEXT_TYPE + " ," +
             VIDEO_SELECTED + " " + INTEGER_TYPE + " ," +
+            VIDEO_LENGTH + " " + INTEGER_TYPE + " ," +
+            VIDEO_SIZE + " " + INTEGER_TYPE + " ," +
+            VIDEO_TIMESTAMP + " " + INTEGER_TYPE + " ," +
             VIDEO_IN_PLAY_LIST + " " + INTEGER_TYPE +
             ")";
 
@@ -91,12 +99,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             TRACK_BITRATE + " " + INTEGER_TYPE + " ," +
             TRACK_SAMPLE_RATE + " " + INTEGER_TYPE + " ," +
             TRACK_NUMBER + " " + INTEGER_TYPE + " ," +
-            TRACK_LENGTH + " " + REAL_TYPE + " ," +
+            TRACK_LENGTH + " " + INTEGER_TYPE + " ," +
+            TRACK_TIMESTAMP + " " + INTEGER_TYPE + " ," +
+            TRACK_SIZE + " " + INTEGER_TYPE + " ," +
             TRACK_IN_PLAY_LIST + " " + INTEGER_TYPE + " ," +
             TRACK_SELECTED + " " + INTEGER_TYPE + " ," +
             TRACK_COVER + " " + TEXT_TYPE +
             ")";
-
 
 
     public DatabaseHelper(Context context) {

@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -23,6 +24,7 @@ import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.mediacenter.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.mediacenter.ui.audio.utils.Constants;
+import com.fesskiev.mediacenter.utils.AnimationUtils;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
@@ -31,6 +33,8 @@ import com.fesskiev.mediacenter.widgets.cards.SlidingCardView;
 import com.fesskiev.mediacenter.widgets.dialogs.EditTrackDialog;
 import com.fesskiev.mediacenter.widgets.recycleview.HidingScrollListener;
 import com.fesskiev.mediacenter.widgets.recycleview.ScrollingLinearLayoutManager;
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -45,7 +49,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 
-public class TrackListFragment extends Fragment {
+public class TrackListFragment extends Fragment implements View.OnClickListener {
 
     public static TrackListFragment newInstance(CONTENT_TYPE contentType, String contentValue) {
         TrackListFragment fragment = new TrackListFragment();
@@ -58,13 +62,15 @@ public class TrackListFragment extends Fragment {
 
     private Subscription subscription;
     private DataRepository repository;
+
     private TrackListAdapter adapter;
     private AudioPlayer audioPlayer;
     private List<SlidingCardView> openCards;
     private CONTENT_TYPE contentType;
     private String contentValue;
-
     private boolean lastPlaying;
+
+    private FloatingActionMenu actionMenu;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,6 +99,20 @@ public class TrackListFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        actionMenu = (FloatingActionMenu) view.findViewById(R.id.menuSorting);
+        actionMenu.setIconAnimated(true);
+
+        FloatingActionButton[] sortButtons = new FloatingActionButton[]{
+                (FloatingActionButton) view.findViewById(R.id.menuSortDuration),
+                (FloatingActionButton) view.findViewById(R.id.menuSortFileSize),
+                (FloatingActionButton) view.findViewById(R.id.menuSortNumeric),
+                (FloatingActionButton) view.findViewById(R.id.menuSortTimestamp)
+        };
+
+        for (FloatingActionButton sortButton : sortButtons) {
+            sortButton.setOnClickListener(this);
+        }
+
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false, 1000));
@@ -101,12 +121,12 @@ public class TrackListFragment extends Fragment {
         recyclerView.addOnScrollListener(new HidingScrollListener() {
             @Override
             public void onHide() {
-
+                hideViews();
             }
 
             @Override
             public void onShow() {
-
+                showViews();
             }
 
             @Override
@@ -116,6 +136,20 @@ public class TrackListFragment extends Fragment {
         });
 
         fetchContentByType();
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.menuSortDuration:
+                break;
+            case R.id.menuSortFileSize:
+                break;
+            case R.id.menuSortNumeric:
+                break;
+            case R.id.menuSortTimestamp:
+                break;
+        }
     }
 
     @Override
@@ -187,6 +221,18 @@ public class TrackListFragment extends Fragment {
         }
     }
 
+    private void hideViews() {
+        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) actionMenu.getLayoutParams();
+        int fabBottomMargin = lp.bottomMargin;
+        AnimationUtils.getInstance().translate(actionMenu, actionMenu.getHeight()
+                + fabBottomMargin);
+
+    }
+
+    private void showViews() {
+        AnimationUtils.getInstance().translate(actionMenu, 0);
+    }
+
 
     private class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.ViewHolder> {
 
@@ -199,6 +245,7 @@ public class TrackListFragment extends Fragment {
         public class ViewHolder extends RecyclerView.ViewHolder {
 
             TextView duration;
+            TextView size;
             TextView title;
             TextView filePath;
             ImageView cover;
@@ -208,6 +255,7 @@ public class TrackListFragment extends Fragment {
                 super(v);
 
                 duration = (TextView) v.findViewById(R.id.itemDuration);
+                size = (TextView) v.findViewById(R.id.itemSize);
                 title = (TextView) v.findViewById(R.id.itemTitle);
                 filePath = (TextView) v.findViewById(R.id.filePath);
                 cover = (ImageView) v.findViewById(R.id.itemCover);
@@ -344,6 +392,7 @@ public class TrackListFragment extends Fragment {
             if (audioFile != null) {
 
                 holder.duration.setText(Utils.getDurationString(audioFile.length));
+                holder.size.setText(Utils.humanReadableByteCount(audioFile.size, false));
                 holder.title.setText(audioFile.title);
                 holder.filePath.setText(audioFile.filePath.getName());
 

@@ -17,6 +17,7 @@
     <color name="search_background">#99B6B6B6</color>
     <color name="colorSnackBarError">#D94E20</color>
     <color name="context_menu_background">#99766767</color>
+    <color name="colorFabBackground">#cc3e4854</color>
 
 
     <color name="red">#f74343</color>
