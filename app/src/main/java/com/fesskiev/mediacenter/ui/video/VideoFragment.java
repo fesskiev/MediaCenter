@@ -24,6 +24,7 @@ import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.players.VideoPlayer;
 import com.fesskiev.mediacenter.services.FileSystemService;
+import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.video.player.VideoExoPlayerActivity;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
@@ -34,6 +35,10 @@ import com.fesskiev.mediacenter.widgets.item.VideoCardView;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.menu.VideoContextMenu;
 import com.fesskiev.mediacenter.widgets.recycleview.GridDividerDecoration;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -65,6 +70,8 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
 
         videoPlayer = MediaApplication.getInstance().getVideoPlayer();
         repository = MediaApplication.getInstance().getRepository();
+
+        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -99,6 +106,24 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         super.onResume();
         fetchVideoContent();
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        RxUtils.unsubscribe(subscription);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onPlaybackStateEvent(PlaybackService playbackState) {
+        adapter.setPlaying(playbackState.isPlaying());
+    }
+
 
     public void refreshVideoContent() {
         swipeRefreshLayout.setRefreshing(false);
@@ -170,16 +195,11 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         builder.show();
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        RxUtils.unsubscribe(subscription);
-    }
-
     private static class VideoFilesAdapter extends RecyclerView.Adapter<VideoFilesAdapter.ViewHolder> {
 
         private WeakReference<Activity> activity;
         private List<VideoFile> videoFiles;
+        private boolean isPlaying;
 
         public VideoFilesAdapter(Activity activity) {
             this.activity = new WeakReference<>(activity);
@@ -217,6 +237,7 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 if (videoFile != null) {
                     if (videoFile.exists()) {
                         MediaApplication.getInstance().getVideoPlayer().setCurrentVideoFile(videoFile);
+                        checkNeedStopAudioPlaying();
                         startExoPlayerActivity(act, videoFile);
                     } else {
                         Utils.showCustomSnackbar(act.getCurrentFocus(), act,
@@ -225,6 +246,12 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                                 .show();
                     }
                 }
+            }
+        }
+
+        private void checkNeedStopAudioPlaying() {
+            if (isPlaying) {
+                MediaApplication.getInstance().getAudioPlayer().pause();
             }
         }
 
@@ -353,5 +380,8 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             notifyDataSetChanged();
         }
 
+        public void setPlaying(boolean playing) {
+            isPlaying = playing;
+        }
     }
 }

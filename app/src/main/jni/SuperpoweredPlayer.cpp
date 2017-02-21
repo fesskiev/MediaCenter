@@ -66,11 +66,13 @@ static void playerEventCallback(void *clientData, SuperpoweredAdvancedAudioPlaye
     SuperpoweredAdvancedAudioPlayer *player = *((SuperpoweredAdvancedAudioPlayer **) clientData);
     switch (event) {
         case SuperpoweredAdvancedAudioPlayerEvent_LoadSuccess:
-//            player->setPosition(player->firstBeatMs, false, false);
             __android_log_print(ANDROID_LOG_DEBUG, "MediaCenter", "LOAD SUCCESS");
+            handlingCallback(3);
             break;
         case SuperpoweredAdvancedAudioPlayerEvent_LoadError:
             __android_log_print(ANDROID_LOG_DEBUG, "MediaCenter", "Open error: %s", (char *) value);
+            player->playing = false;
+            handlingCallback(2);
             break;
         case SuperpoweredAdvancedAudioPlayerEvent_EOF:
             __android_log_print(ANDROID_LOG_DEBUG, "MediaCenter", "END SONG");

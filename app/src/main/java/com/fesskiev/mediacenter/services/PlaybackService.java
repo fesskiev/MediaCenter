@@ -29,6 +29,8 @@ public class PlaybackService extends Service {
     private static final String TAG = PlaybackService.class.getSimpleName();
 
     private static final int END_TRACK = 1;
+    private static final int LOAD_ERROR = 2;
+    private static final int LOAD_SUCCESS = 3;
 
     public static final String ACTION_START_FOREGROUND =
             "com.fesskiev.player.action.ACTION_START_FOREGROUND";
@@ -117,6 +119,9 @@ public class PlaybackService extends Service {
     private boolean enableEcho;
     private boolean enableWhoosh;
     private boolean headsetConnected;
+
+    private boolean loadSuccess;
+    private boolean loadError;
 
 
     public static void startPlaybackService(Context context) {
@@ -274,7 +279,7 @@ public class PlaybackService extends Service {
                 volume *= 100f;
             }
 
-//            Log.d("event", PlaybackService.this.toString());
+            Log.d("event", PlaybackService.this.toString());
             EventBus.getDefault().post(PlaybackService.this);
         });
 
@@ -646,8 +651,18 @@ public class PlaybackService extends Service {
 
     @Keep
     public void playStatusCallback(int status) {
-        if (status == END_TRACK) {
-            next();
+        switch (status) {
+            case END_TRACK:
+                next();
+                break;
+            case LOAD_SUCCESS:
+                loadSuccess = true;
+                loadError = false;
+                break;
+            case LOAD_ERROR:
+                loadSuccess = false;
+                loadError = true;
+                break;
         }
     }
 
@@ -692,6 +707,14 @@ public class PlaybackService extends Service {
         return enableEcho;
     }
 
+    public boolean isLoadSuccess() {
+        return loadSuccess;
+    }
+
+    public boolean isLoadError() {
+        return loadError;
+    }
+
     @Override
     public String toString() {
         return "PlaybackService{" +
@@ -706,6 +729,9 @@ public class PlaybackService extends Service {
                 ", enableReverb=" + enableReverb +
                 ", enableEcho=" + enableEcho +
                 ", enableWhoosh=" + enableWhoosh +
+                ", headsetConnected=" + headsetConnected +
+                ", loadSuccess=" + loadSuccess +
+                ", loadError=" + loadError +
                 '}';
     }
 }
