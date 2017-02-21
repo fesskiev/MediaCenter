@@ -8,6 +8,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,9 @@ import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
+import com.fesskiev.mediacenter.utils.comparators.SortByDuration;
+import com.fesskiev.mediacenter.utils.comparators.SortByFileSize;
+import com.fesskiev.mediacenter.utils.comparators.SortByTimestamp;
 import com.fesskiev.mediacenter.widgets.cards.SlidingCardView;
 import com.fesskiev.mediacenter.widgets.dialogs.EditTrackDialog;
 import com.fesskiev.mediacenter.widgets.recycleview.HidingScrollListener;
@@ -41,6 +45,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import rx.Observable;
@@ -50,6 +55,12 @@ import rx.schedulers.Schedulers;
 
 
 public class TrackListFragment extends Fragment implements View.OnClickListener {
+
+
+    private static final int SORT_DURATION = 0;
+    private static final int SORT_FILE_SIZE = 1;
+    private static final int SORT_TRACK_NUMBER = 2;
+    private static final int SORT_TIMESTAMP = 3;
 
     public static TrackListFragment newInstance(CONTENT_TYPE contentType, String contentValue) {
         TrackListFragment fragment = new TrackListFragment();
@@ -105,7 +116,7 @@ public class TrackListFragment extends Fragment implements View.OnClickListener 
         FloatingActionButton[] sortButtons = new FloatingActionButton[]{
                 (FloatingActionButton) view.findViewById(R.id.menuSortDuration),
                 (FloatingActionButton) view.findViewById(R.id.menuSortFileSize),
-                (FloatingActionButton) view.findViewById(R.id.menuSortNumeric),
+                (FloatingActionButton) view.findViewById(R.id.menuSortTrackNumber),
                 (FloatingActionButton) view.findViewById(R.id.menuSortTimestamp)
         };
 
@@ -142,12 +153,16 @@ public class TrackListFragment extends Fragment implements View.OnClickListener 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.menuSortDuration:
+                adapter.sortTracks(SORT_DURATION);
                 break;
             case R.id.menuSortFileSize:
+                adapter.sortTracks(SORT_FILE_SIZE);
                 break;
-            case R.id.menuSortNumeric:
+            case R.id.menuSortTrackNumber:
+                adapter.sortTracks(SORT_TRACK_NUMBER);
                 break;
             case R.id.menuSortTimestamp:
+                adapter.sortTracks(SORT_TIMESTAMP);
                 break;
         }
     }
@@ -448,6 +463,31 @@ public class TrackListFragment extends Fragment implements View.OnClickListener 
         public void updateItem(int position, AudioFile audioFile) {
             audioFiles.set(position, audioFile);
             notifyItemChanged(position);
+        }
+
+        public void sortTracks(int type) {
+            subscription = Observable.just(audioFiles)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .map(unsortedList -> {
+                        List<AudioFile> sortedList = new ArrayList<>(unsortedList);
+                        switch (type) {
+                            case SORT_DURATION:
+                                Collections.sort(sortedList, new SortByDuration());
+                                break;
+                            case SORT_FILE_SIZE:
+                                Collections.sort(sortedList, new SortByFileSize());
+                                break;
+                            case SORT_TIMESTAMP:
+                                Collections.sort(sortedList, new SortByTimestamp());
+                                break;
+                            case SORT_TRACK_NUMBER:
+                                Collections.sort(sortedList);
+                                break;
+
+                        }
+                        return sortedList;
+                    }).subscribe(this::refreshAdapter);
         }
     }
 }

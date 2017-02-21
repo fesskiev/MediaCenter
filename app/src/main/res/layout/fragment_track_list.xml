@@ -54,10 +54,10 @@
             fab:fab_size="mini" />
 
         <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/menuSortNumeric"
+            android:id="@+id/menuSortTrackNumber"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/icon_sort_numeric"
+            android:src="@drawable/icon_sort_track_number"
             fab:fab_colorNormal="@color/accent"
             fab:fab_colorPressed="@color/accent"
             fab:fab_colorRipple="@color/accent"
