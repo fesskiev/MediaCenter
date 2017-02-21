@@ -26,13 +26,13 @@
     <RelativeLayout
         android:id="@+id/fetchDataContainer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="120dp"
         android:layout_below="@+id/divider0">
 
         <ImageView
             android:id="@+id/timer"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:layout_centerVertical="true"
             android:contentDescription="@string/app_name"
             android:scaleType="fitCenter"
@@ -42,6 +42,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@+id/timer"
+            android:layout_centerVertical="true"
             android:orientation="vertical">
 
             <TextView

@@ -18,10 +18,10 @@
     <string name="title_activity_equalizer">EqualizerActivity</string>
     <string name="title_activity_music_vk">MusicVKActivity</string>
 
-    <string name="empty_music_file_artist">Артист не определен</string>
-    <string name="empty_music_file_title">Название не определено</string>
-    <string name="empty_music_file_album">Альбон не определен</string>
-    <string name="empty_music_file_genre">Жанр не определен</string>
+    <string name="empty_music_file_artist">Артист неизвестен</string>
+    <string name="empty_music_file_title">Название неизвестно</string>
+    <string name="empty_music_file_album">Альбон неизвестен</string>
+    <string name="empty_music_file_genre">Жанр неизвестен</string>
 
     <string name="drawer_item_donate">Поддержать проект</string>
     <string name="drawer_item_about">О проекте</string>

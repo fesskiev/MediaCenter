@@ -18,10 +18,10 @@
     <string name="title_activity_equalizer">EqualizerActivity</string>
     <string name="title_activity_music_vk">MusicVKActivity</string>
 
-    <string name="empty_music_file_artist">artist is not defined</string>
-    <string name="empty_music_file_title">title is not defined</string>
-    <string name="empty_music_file_album">album is not defined</string>
-    <string name="empty_music_file_genre">genre is not defined</string>
+    <string name="empty_music_file_artist">artist</string>
+    <string name="empty_music_file_title">title</string>
+    <string name="empty_music_file_album">album</string>
+    <string name="empty_music_file_genre">genre</string>
 
     <string name="drawer_item_donate">Donate</string>
     <string name="drawer_item_about">About</string>
@@ -139,7 +139,7 @@
     <string name="settings_searching_files">Background file search</string>
     <string name="settings_wifi_download">Wi-Fi download only</string>
 
-    <string name="snackbar_unexpected_error">Unexpectred error</string>
+    <string name="snackbar_unexpected_error">Unexpected error</string>
     <string name="snackbar_internet_disable_error">No internet connection</string>
     <string name="snackbar_internet_connection_error">Connection error</string>
     <string name="snackbar_server_error">Server connecting error</string>
