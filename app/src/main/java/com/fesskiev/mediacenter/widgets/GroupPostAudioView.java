@@ -13,12 +13,10 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.vk.Audio;
-import com.fesskiev.mediacenter.ui.MainActivity;
 import com.fesskiev.mediacenter.ui.progress.NumberProgressBar;
 import com.fesskiev.mediacenter.ui.settings.SettingsActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
@@ -28,7 +26,6 @@ import com.fesskiev.mediacenter.utils.download.DownloadGroupAudioFile;
 import com.fesskiev.mediacenter.utils.download.DownloadManager;
 
 import java.util.List;
-import java.util.Locale;
 
 public class GroupPostAudioView extends FrameLayout {
 

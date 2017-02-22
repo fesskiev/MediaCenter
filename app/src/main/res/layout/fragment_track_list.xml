@@ -39,7 +39,7 @@
             fab:fab_colorNormal="@color/accent"
             fab:fab_colorPressed="@color/accent"
             fab:fab_colorRipple="@color/accent"
-            fab:fab_label="Продолжительность"
+            fab:fab_label="@string/sort_by_duration"
             fab:fab_size="mini" />
 
         <com.github.clans.fab.FloatingActionButton
@@ -50,7 +50,7 @@
             fab:fab_colorNormal="@color/accent"
             fab:fab_colorPressed="@color/accent"
             fab:fab_colorRipple="@color/accent"
-            fab:fab_label="Размер файла"
+            fab:fab_label="@string/sort_by_file_size"
             fab:fab_size="mini" />
 
         <com.github.clans.fab.FloatingActionButton
@@ -61,7 +61,7 @@
             fab:fab_colorNormal="@color/accent"
             fab:fab_colorPressed="@color/accent"
             fab:fab_colorRipple="@color/accent"
-            fab:fab_label="Порядок"
+            fab:fab_label="@string/sort_by_track_number"
             fab:fab_size="mini" />
 
         <com.github.clans.fab.FloatingActionButton
@@ -72,7 +72,7 @@
             fab:fab_colorNormal="@color/accent"
             fab:fab_colorPressed="@color/accent"
             fab:fab_colorRipple="@color/accent"
-            fab:fab_label="Время добавления"
+            fab:fab_label="@string/sort_by_timestamp"
             fab:fab_size="mini" />
 
     </com.github.clans.fab.FloatingActionMenu>

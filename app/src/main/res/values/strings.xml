@@ -222,4 +222,9 @@
     <string name="update_period_6_hours">6 hours</string>
     <string name="update_period_24_hours">24 hours</string>
 
+    <string name="sort_by_duration">Duration</string>
+    <string name="sort_by_file_size">File size</string>
+    <string name="sort_by_track_number">Track number</string>
+    <string name="sort_by_timestamp">Adding time</string>
+
 </resources>

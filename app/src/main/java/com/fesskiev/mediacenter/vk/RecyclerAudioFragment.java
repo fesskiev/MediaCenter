@@ -17,7 +17,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
@@ -28,7 +27,6 @@ import com.fesskiev.mediacenter.utils.NetworkHelper;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.download.DownloadFile;
 import com.fesskiev.mediacenter.utils.download.DownloadManager;
-import com.fesskiev.mediacenter.widgets.GroupPostAudioView;
 import com.fesskiev.mediacenter.widgets.MaterialProgressBar;
 import com.fesskiev.mediacenter.widgets.recycleview.EndlessScrollListener;
 import com.fesskiev.mediacenter.widgets.recycleview.RecyclerItemTouchClickListener;
@@ -36,7 +34,6 @@ import com.fesskiev.mediacenter.widgets.recycleview.ScrollingLinearLayoutManager
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public abstract class RecyclerAudioFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 

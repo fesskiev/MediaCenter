@@ -197,4 +197,9 @@
     <string name="update_period_6_hours">6 часов</string>
     <string name="update_period_24_hours">24 часа</string>
 
+    <string name="sort_by_duration">Продолжительность</string>
+    <string name="sort_by_file_size">Размер файла</string>
+    <string name="sort_by_track_number">Номер трека</string>
+    <string name="sort_by_timestamp">Время добавления</string>
+
 </resources>
