@@ -6,21 +6,21 @@ import android.database.Cursor;
 import com.fesskiev.mediacenter.data.source.local.db.DatabaseHelper;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public class AudioFolder implements Comparable<AudioFolder> {
 
-    public List<AudioFile> audioFiles;
     public File folderPath;
     public File folderImage;
     public String id;
     public String folderName;
     public int index;
+    public int trackCount;
+    public long length;
+    public long size;
+    public long timestamp;
     public boolean isSelected;
 
     public AudioFolder(Cursor cursor) {
-        audioFiles = new ArrayList<>();
 
         id = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ID));
         folderName = cursor.getString(cursor.getColumnIndex(DatabaseHelper.FOLDER_NAME));
@@ -31,11 +31,14 @@ public class AudioFolder implements Comparable<AudioFolder> {
 
         index = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.FOLDER_INDEX));
         isSelected = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.FOLDER_SELECTED)) == 1;
+        length = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.FOLDER_LENGTH));
+        size = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.FOLDER_SIZE));
+        timestamp = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.FOLDER_TIMESTAMP));
+        trackCount = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.FOLDER_TRACK_COUNT));
     }
 
     public AudioFolder() {
-        audioFiles = new ArrayList<>();
-        index = Integer.MAX_VALUE;
+
     }
 
     @Override
@@ -57,6 +60,10 @@ public class AudioFolder implements Comparable<AudioFolder> {
                 ", id='" + id + '\'' +
                 ", folderName='" + folderName + '\'' +
                 ", index=" + index +
+                ", trackCount=" + trackCount +
+                ", length=" + length +
+                ", size=" + size +
+                ", timestamp=" + timestamp +
                 ", isSelected=" + isSelected +
                 '}';
     }

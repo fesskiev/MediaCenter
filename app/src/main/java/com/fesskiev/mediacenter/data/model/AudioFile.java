@@ -45,7 +45,7 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
     public String sampleRate;
     public String artworkPath;
     public int trackNumber;
-    public int length;
+    public long length;
     public long size;
     public long timestamp;
     public boolean inPlayList;
@@ -79,9 +79,9 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
         trackNumber = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_NUMBER));
         inPlayList = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_IN_PLAY_LIST)) == 1;
         isSelected = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_SELECTED)) == 1;
-        length = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_LENGTH));
-        size = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_SIZE));
-        timestamp = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_TIMESTAMP));
+        length = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.TRACK_LENGTH));
+        size = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.TRACK_SIZE));
+        timestamp = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.TRACK_TIMESTAMP));
 
     }
 
@@ -244,7 +244,7 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
     }
 
     @Override
-    public int getLength() {
+    public long getLength() {
         return length;
     }
 

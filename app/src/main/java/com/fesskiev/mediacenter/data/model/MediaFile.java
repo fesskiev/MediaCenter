@@ -13,7 +13,7 @@ public interface MediaFile {
 
     String getArtworkPath();
 
-    int getLength();
+    long getLength();
 
     long getSize();
 

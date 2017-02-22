@@ -23,7 +23,7 @@ public class VideoFile implements MediaFile {
     public boolean inPlayList;
     public long size;
     public long timestamp;
-    public int length;
+    public long length;
 
     public VideoFile(Cursor cursor) {
 
@@ -32,9 +32,9 @@ public class VideoFile implements MediaFile {
         framePath = cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_FRAME_PATH));
         description = cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_DESCRIPTION));
         inPlayList = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.VIDEO_IN_PLAY_LIST)) == 1;
-        length = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.VIDEO_LENGTH));
-        size = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.VIDEO_SIZE));
-        timestamp = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.VIDEO_TIMESTAMP));
+        length = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.VIDEO_LENGTH));
+        size = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.VIDEO_SIZE));
+        timestamp = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.VIDEO_TIMESTAMP));
     }
 
     public VideoFile(File path) {
@@ -129,8 +129,8 @@ public class VideoFile implements MediaFile {
     }
 
     @Override
-    public int getLength() {
-        return 0;
+    public long getLength() {
+        return length;
     }
 
     @Override

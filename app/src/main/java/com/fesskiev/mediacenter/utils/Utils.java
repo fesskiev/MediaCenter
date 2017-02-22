@@ -83,15 +83,15 @@ public class Utils {
         return snack;
     }
 
-    public static String getDurationString(int seconds) {
-        int hours = seconds / 3600;
-        int minutes = (seconds % 3600) / 60;
+    public static String getDurationString(long seconds) {
+        long hours = seconds / 3600;
+        long minutes = (seconds % 3600) / 60;
         seconds = seconds % 60;
 
         return twoDigitString(hours) + ":" + twoDigitString(minutes) + ":" + twoDigitString(seconds);
     }
 
-    private static String twoDigitString(int number) {
+    private static String twoDigitString(long number) {
 
         if (number == 0) {
             return "00";
