@@ -21,6 +21,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.ui.progress.NumberProgressBar;
 import com.fesskiev.mediacenter.ui.settings.SettingsActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.NetworkHelper;
@@ -206,8 +207,7 @@ public abstract class RecyclerAudioFragment extends Fragment implements SwipeRef
             TextView artist;
             TextView title;
             TextView duration;
-            ProgressBar downloadProgress;
-            TextView progressValue;
+            NumberProgressBar downloadProgress;
             ImageView startPauseDownload;
             ImageView cancelDownload;
 
@@ -219,8 +219,7 @@ public abstract class RecyclerAudioFragment extends Fragment implements SwipeRef
                 artist = (TextView) v.findViewById(R.id.itemArtist);
                 title = (TextView) v.findViewById(R.id.itemTitle);
                 duration = (TextView) v.findViewById(R.id.itemTime);
-                downloadProgress = (ProgressBar) v.findViewById(R.id.downloadProgressBar);
-                progressValue = (TextView) v.findViewById(R.id.progressValue);
+                downloadProgress = (NumberProgressBar) v.findViewById(R.id.downloadProgressBar);
                 startPauseDownload = (ImageView) v.findViewById(R.id.startPauseDownloadButton);
                 startPauseDownload.setOnClickListener(this);
                 cancelDownload = (ImageView) v.findViewById(R.id.cancelDownloadButton);
@@ -290,8 +289,6 @@ public abstract class RecyclerAudioFragment extends Fragment implements SwipeRef
                             holder.cancelDownload.setVisibility(View.GONE);
                             holder.startPauseDownload.setImageResource(R.drawable.pause_icon);
                             holder.downloadProgress.setProgress((int) downloadManager.getProgress());
-                            holder.progressValue.setText(String.format(Locale.getDefault(), "%1$d %2$s",
-                                    (int) downloadManager.getProgress(), "\u0025"));
                             break;
                         case DownloadManager.COMPLETE:
                             holder.downloadContainer.setVisibility(View.GONE);

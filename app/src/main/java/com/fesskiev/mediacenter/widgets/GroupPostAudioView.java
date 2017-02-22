@@ -19,6 +19,7 @@ import android.widget.TextView;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.vk.Audio;
 import com.fesskiev.mediacenter.ui.MainActivity;
+import com.fesskiev.mediacenter.ui.progress.NumberProgressBar;
 import com.fesskiev.mediacenter.ui.settings.SettingsActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.NetworkHelper;
@@ -87,8 +88,7 @@ public class GroupPostAudioView extends FrameLayout {
         final View downloadContainer = v.findViewById(R.id.downloadContainer);
         final View itemContainer = v.findViewById(R.id.itemContainer);
 
-        final ProgressBar downloadProgress = (ProgressBar) v.findViewById(R.id.downloadProgressBar);
-        final TextView progressValue = (TextView) v.findViewById(R.id.progressValue);
+        final NumberProgressBar downloadProgress = (NumberProgressBar) v.findViewById(R.id.downloadProgressBar);
         final ImageView startPauseDownload = (ImageView) v.findViewById(R.id.startPauseDownloadButton);
         startPauseDownload.setOnClickListener(v12 -> {
             DownloadManager downloadManager = downloadGroupAudioFile.getDownloadManager();
@@ -122,9 +122,6 @@ public class GroupPostAudioView extends FrameLayout {
                         cancelDownload.setVisibility(View.GONE);
                         startPauseDownload.setImageResource(R.drawable.pause_icon);
                         downloadProgress.setProgress((int) downloadManager.getProgress());
-
-                        progressValue.setText(String.format(Locale.getDefault(), "%1$d %2$s",
-                                (int) downloadManager.getProgress(), "\u0025"));
                         break;
                     case DownloadManager.COMPLETE:
                         downloadContainer.setVisibility(View.GONE);
