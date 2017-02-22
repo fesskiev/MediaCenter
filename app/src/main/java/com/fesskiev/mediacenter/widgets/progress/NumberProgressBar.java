@@ -1,4 +1,4 @@
-package com.fesskiev.mediacenter.ui.progress;
+package com.fesskiev.mediacenter.widgets.progress;
 
 import android.content.Context;
 import android.content.res.TypedArray;

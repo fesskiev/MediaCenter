@@ -125,7 +125,7 @@
 
             </LinearLayout>
 
-            <com.fesskiev.mediacenter.ui.progress.NumberProgressBar
+            <com.fesskiev.mediacenter.widgets.progress.NumberProgressBar
                 android:id="@+id/downloadProgressBar"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

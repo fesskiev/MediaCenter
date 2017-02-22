@@ -20,7 +20,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.ui.progress.NumberProgressBar;
+import com.fesskiev.mediacenter.widgets.progress.NumberProgressBar;
 import com.fesskiev.mediacenter.ui.settings.SettingsActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.NetworkHelper;
