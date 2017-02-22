@@ -116,6 +116,17 @@
         <item name="android:textAllCaps">true</item>
     </style>
 
+
+    <style name="CustomFragmentDialog" parent="@android:style/Theme.Dialog">
+        <item name="android:windowBackground">@color/primary</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowTitleStyle">@null</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+        <item name="android:gravity">center</item>
+    </style>
+
     <style name="SearchViewTheme" parent="@android:style/ThemeOverlay.Material.Dark.ActionBar">
         <item name="colorControlActivated">@color/white_text</item>
         <item name="android:searchViewStyle">@style/Widget.SearchView</item>
@@ -350,7 +361,11 @@
 
 
 
-
+    <style name="DetailsFolderTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
 
 
     <style name="DescriptionVideoTextAppearance" parent="@android:style/TextAppearance">

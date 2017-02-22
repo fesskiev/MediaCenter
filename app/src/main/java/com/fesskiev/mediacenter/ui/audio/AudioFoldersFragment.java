@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -26,7 +28,9 @@ import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
+import com.fesskiev.mediacenter.widgets.dialogs.AudioFolderDetailsDialog;
 import com.fesskiev.mediacenter.widgets.item.AudioCardView;
+import com.fesskiev.mediacenter.widgets.menu.AudioContextMenu;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.recycleview.helper.ItemTouchHelperAdapter;
 import com.fesskiev.mediacenter.widgets.recycleview.helper.ItemTouchHelperViewHolder;
@@ -157,8 +161,20 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
             }
 
             private void showAudioContextMenu(View view, int position) {
-                ContextMenuManager.getInstance().toggleAudioContextMenu(view, () -> deleteAudioFolder(position));
+                ContextMenuManager.getInstance().toggleAudioContextMenu(view,
+                        new AudioContextMenu.OnAudioContextMenuListener() {
+                            @Override
+                            public void onDeleteAudioFolder() {
+                                deleteAudioFolder(position);
+                            }
+
+                            @Override
+                            public void onDetailsAudioFolder() {
+                                showDetailsAudioFolder(position);
+                            }
+                        });
             }
+
 
             @Override
             public void onItemSelected() {
@@ -171,6 +187,21 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                 notifyDataSetChanged();
             }
         }
+
+        private void showDetailsAudioFolder(int position) {
+            Activity act = activity.get();
+            if (act != null) {
+                AudioFolder audioFolder = audioFolders.get(position);
+                if (audioFolder != null) {
+                    FragmentTransaction transaction =
+                            ((FragmentActivity)act).getSupportFragmentManager().beginTransaction();
+                    transaction.addToBackStack(null);
+                    AudioFolderDetailsDialog.newInstance(audioFolder)
+                            .show(transaction, AudioFolderDetailsDialog.class.getName());
+                }
+            }
+        }
+
 
         private void deleteAudioFolder(int position) {
             Activity act = activity.get();

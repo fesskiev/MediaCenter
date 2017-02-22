@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/folderCover"
+        android:layout_width="82dp"
+        android:layout_height="82dp"
+        android:layout_alignParentStart="true"
+        android:contentDescription="@string/app_name"
+        android:scaleType="fitCenter"
+        android:transitionName="cover"
+        tools:src="@drawable/cover" />
+
+    <View
+        android:id="@+id/divider0"
+        style="@style/DividerStyle"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/folderCover"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp" />
+
+    <LinearLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/divider0"
+        android:layout_centerVertical="true"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/folderName"
+            style="@style/DetailsFolderTextAppearance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:freezesText="true"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:maxLines="1"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            tools:text="Имя папки: Nikonn - Effrosyni (2016)" />
+
+        <TextView
+            android:id="@+id/folderPath"
+            style="@style/DetailsFolderTextAppearance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:ellipsize="marquee"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:freezesText="true"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:maxLines="1"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            tools:text="Путь: /storage/emulated/0/Music/Nikonn - Effrosyni (2016)" />
+
+        <View
+            android:id="@+id/divider1"
+            style="@style/DividerStyle"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="10dp" />
+
+        <TextView
+            android:id="@+id/folderSize"
+            style="@style/DetailsFolderTextAppearance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            tools:text="Размер папки: 256 MB" />
+
+        <TextView
+            android:id="@+id/folderLength"
+            style="@style/DetailsFolderTextAppearance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            tools:text="Общее время звучания: 02:56:00" />
+
+        <TextView
+            android:id="@+id/folderTrackCount"
+            style="@style/DetailsFolderTextAppearance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            tools:text="Треков в папке: 12" />
+
+        <TextView
+            android:id="@+id/folderTimestamp"
+            style="@style/DetailsFolderTextAppearance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            tools:text="Создана: 10.02.2017" />
+
+    </LinearLayout>
+
+</RelativeLayout>

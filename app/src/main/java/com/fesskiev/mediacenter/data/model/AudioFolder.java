@@ -2,12 +2,14 @@ package com.fesskiev.mediacenter.data.model;
 
 
 import android.database.Cursor;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.fesskiev.mediacenter.data.source.local.db.DatabaseHelper;
 
 import java.io.File;
 
-public class AudioFolder implements Comparable<AudioFolder> {
+public class AudioFolder implements Comparable<AudioFolder>,Parcelable {
 
     public File folderPath;
     public File folderImage;
@@ -19,6 +21,11 @@ public class AudioFolder implements Comparable<AudioFolder> {
     public long size;
     public long timestamp;
     public boolean isSelected;
+
+
+    public AudioFolder() {
+
+    }
 
     public AudioFolder(Cursor cursor) {
 
@@ -37,9 +44,19 @@ public class AudioFolder implements Comparable<AudioFolder> {
         trackCount = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.FOLDER_TRACK_COUNT));
     }
 
-    public AudioFolder() {
-
+    protected AudioFolder(Parcel in) {
+        this.folderPath = (File) in.readSerializable();
+        this.folderImage = (File) in.readSerializable();
+        this.id = in.readString();
+        this.folderName = in.readString();
+        this.index = in.readInt();
+        this.trackCount = in.readInt();
+        this.length = in.readLong();
+        this.size = in.readLong();
+        this.timestamp = in.readLong();
+        this.isSelected = in.readByte() != 0;
     }
+
 
     @Override
     public int compareTo(AudioFolder another) {
@@ -51,6 +68,7 @@ public class AudioFolder implements Comparable<AudioFolder> {
         }
         return 1;
     }
+
 
     @Override
     public String toString() {
@@ -67,4 +85,35 @@ public class AudioFolder implements Comparable<AudioFolder> {
                 ", isSelected=" + isSelected +
                 '}';
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeSerializable(this.folderPath);
+        dest.writeSerializable(this.folderImage);
+        dest.writeString(this.id);
+        dest.writeString(this.folderName);
+        dest.writeInt(this.index);
+        dest.writeInt(this.trackCount);
+        dest.writeLong(this.length);
+        dest.writeLong(this.size);
+        dest.writeLong(this.timestamp);
+        dest.writeByte(this.isSelected ? (byte) 1 : (byte) 0);
+    }
+
+    public static final Parcelable.Creator<AudioFolder> CREATOR = new Parcelable.Creator<AudioFolder>() {
+        @Override
+        public AudioFolder createFromParcel(Parcel source) {
+            return new AudioFolder(source);
+        }
+
+        @Override
+        public AudioFolder[] newArray(int size) {
+            return new AudioFolder[size];
+        }
+    };
 }

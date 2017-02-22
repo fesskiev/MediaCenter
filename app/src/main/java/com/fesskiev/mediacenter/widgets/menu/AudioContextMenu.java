@@ -11,6 +11,8 @@ public class AudioContextMenu extends ContextMenu{
     public interface OnAudioContextMenuListener {
 
         void onDeleteAudioFolder();
+
+        void onDetailsAudioFolder();
     }
 
     private OnAudioContextMenuListener listener;
@@ -21,6 +23,13 @@ public class AudioContextMenu extends ContextMenu{
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.audio_context_menu_layout, this, true);
+
+        findViewById(R.id.menuDetailsAudioFolder).setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onDetailsAudioFolder();
+            }
+            ContextMenuManager.getInstance().hideContextMenu();
+        });
 
         findViewById(R.id.menuDeleteAudioFolder).setOnClickListener(v -> {
             if (listener != null) {

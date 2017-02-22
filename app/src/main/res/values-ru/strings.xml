@@ -94,6 +94,7 @@
     <string name="dialog_permission_ok">ДА</string>
     <string name="dialog_permission_cancel">НЕТ</string>
 
+    <string name="context_menu_audio_details">Детали</string>
     <string name="context_menu_audio_delete">Удалить папку</string>
     <string name="context_menu_video_delete">Удалить видео</string>
     <string name="context_menu_video_add_playlist">В плейлист</string>
@@ -201,5 +202,12 @@
     <string name="sort_by_file_size">Размер файла</string>
     <string name="sort_by_track_number">Номер трека</string>
     <string name="sort_by_timestamp">Время добавления</string>
+
+    <string name="folder_details_name">Имя папки:</string>
+    <string name="folder_details_path">Путь:</string>
+    <string name="folder_details_size">Размер:</string>
+    <string name="folder_details_duration">Общее время звучания:</string>
+    <string name="folder_details_count">Треков в папке:</string>
+    <string name="folder_details_timestamp">Создана:</string>
 
 </resources>

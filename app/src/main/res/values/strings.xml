@@ -98,6 +98,7 @@
     <string name="dialog_permission_ok">YES</string>
     <string name="dialog_permission_cancel">NO</string>
 
+    <string name="context_menu_audio_details">Details</string>
     <string name="context_menu_audio_delete">Delete folder</string>
     <string name="context_menu_video_delete">Delete video</string>
     <string name="context_menu_video_add_playlist">To playlist</string>
@@ -226,5 +227,12 @@
     <string name="sort_by_file_size">File size</string>
     <string name="sort_by_track_number">Track number</string>
     <string name="sort_by_timestamp">Adding time</string>
+
+    <string name="folder_details_name">Folder name:</string>
+    <string name="folder_details_path">Path:</string>
+    <string name="folder_details_size">Size:</string>
+    <string name="folder_details_duration">Total time:</string>
+    <string name="folder_details_count">Track count:</string>
+    <string name="folder_details_timestamp">Created:</string>
 
 </resources>
