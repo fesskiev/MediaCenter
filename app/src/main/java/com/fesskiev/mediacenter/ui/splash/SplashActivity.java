@@ -69,7 +69,7 @@ public class SplashActivity extends AppCompatActivity {
             @Override
             public void onFetchContentStart() {
                 ViewCompat.animate(fetchContentView)
-                        .translationY(-Utils.dipToPixels(getApplicationContext(), 100))
+                        .translationY(-Utils.dipToPixels(getApplicationContext(), 70))
                         .setDuration(ANIM_ITEM_DURATION)
                         .start();
             }

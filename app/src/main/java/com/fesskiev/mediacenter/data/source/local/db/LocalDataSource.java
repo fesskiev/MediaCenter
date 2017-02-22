@@ -136,7 +136,7 @@ public class LocalDataSource implements LocalSource {
                 ContentValues values = new ContentValues();
                 values.put(DatabaseHelper.FOLDER_INDEX, index);
 
-                String sql = DatabaseHelper.FOLDER_PATH + "=" + "'" + audioFolder.folderPath + "'";
+                String sql = DatabaseHelper.FOLDER_PATH + "=" + "'" + audioFolder.folderPath.getAbsolutePath().replaceAll("'", "''") + "'";
 
                 briteDatabase.update(DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME, values, sql);
             }
@@ -239,7 +239,7 @@ public class LocalDataSource implements LocalSource {
         briteDatabase.update(
                 DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
                 dateValues,
-                DatabaseHelper.TRACK_PATH + "=" + "'" + audioFile.filePath + "'");
+                DatabaseHelper.TRACK_PATH + "=" + "'" + audioFile.filePath.getAbsolutePath().replaceAll("'", "''") + "'");
 
     }
 
@@ -255,11 +255,10 @@ public class LocalDataSource implements LocalSource {
         ContentValues dateValues = new ContentValues();
         dateValues.put(DatabaseHelper.FOLDER_SELECTED, audioFolder.isSelected ? 1 : 0);
 
-
         briteDatabase.update(
                 DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME,
                 dateValues,
-                DatabaseHelper.FOLDER_PATH + "=" + "'" + audioFolder.folderPath + "'");
+                DatabaseHelper.FOLDER_PATH + "=" + "'" + audioFolder.folderPath.getAbsolutePath().replaceAll("'", "''") + "'");
     }
 
     public Callable<Integer> resetVideoContentDatabase() {
@@ -285,7 +284,7 @@ public class LocalDataSource implements LocalSource {
         return () -> {
             briteDatabase.delete(
                     DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME,
-                    DatabaseHelper.FOLDER_PATH + "=" + "'" + audioFolder.folderPath.getAbsolutePath() + "'");
+                    DatabaseHelper.FOLDER_PATH + "=" + "'" + audioFolder.folderPath.getAbsolutePath().replaceAll("'", "''") + "'");
 
             return briteDatabase.delete(
                     DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
