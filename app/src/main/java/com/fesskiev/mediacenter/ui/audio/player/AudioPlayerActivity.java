@@ -6,7 +6,6 @@ import android.graphics.drawable.Animatable;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -54,8 +53,6 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     private TextView genre;
     private TextView album;
     private TextView trackDescription;
-
-    private boolean lastLoadSuccess;
 
     private boolean lastPlaying;
     private boolean lastLooping;
@@ -212,20 +209,6 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPlaybackStateEvent(PlaybackService playbackState) {
 
-        boolean isLoadSuccess = playbackState.isLoadSuccess();
-        if (lastLoadSuccess != isLoadSuccess) {
-            lastLoadSuccess = isLoadSuccess;
-            if (!lastLoadSuccess) {
-                Log.e("error", "LOAD FILE ERROR!");
-                Utils.showCustomSnackbar(findViewById(R.id.audioPlayerRoot),
-                        getApplicationContext(),
-                        "LOAD FILE ERROR!",
-                        Snackbar.LENGTH_LONG)
-                        .show();
-            }
-        }
-
-
         boolean playing = playbackState.isPlaying();
         if (lastPlaying != playing) {
             lastPlaying = playing;
@@ -259,7 +242,6 @@ public class AudioPlayerActivity extends AnalyticsActivity {
             setVolumeLevel(lastVolume);
         }
     }
-
 
     protected void setAudioTrackValues(AudioFile audioFile) {
         if (audioFile != null) {

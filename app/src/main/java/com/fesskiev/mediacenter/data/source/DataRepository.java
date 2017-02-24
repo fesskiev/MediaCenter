@@ -130,6 +130,10 @@ public class DataRepository {
         return remoteSource.getGroupPots(id, offset);
     }
 
+    public Observable<List<String>> getFolderFilePaths(String name) {
+        return localSource.getFolderFilePaths(name);
+    }
+
 
     public Observable<List<AudioFile>> getGenreTracks(String genreName) {
         return localSource.getGenreTracks(genreName);

@@ -43,6 +43,8 @@ public interface LocalSource {
 
     Observable<List<String>> getFoldersPath();
 
+    Observable<List<String>> getFolderFilePaths(String name);
+
     Observable<List<AudioFile>> getSelectedFolderAudioFiles(AudioFolder audioFolder);
 
     void updateAudioFile(AudioFile audioFile);

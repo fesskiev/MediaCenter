@@ -43,6 +43,7 @@ public class LocalDataSource implements LocalSource {
         briteDatabase = sqlBrite.wrapDatabaseHelper(dbHelper, Schedulers.io());
     }
 
+    @Override
     public void insertAudioFolder(AudioFolder audioFolder) {
 
         ContentValues values = new ContentValues();
@@ -63,6 +64,7 @@ public class LocalDataSource implements LocalSource {
 
     }
 
+    @Override
     public void insertAudioFile(AudioFile audioFile) {
 
         ContentValues values = new ContentValues();
@@ -86,6 +88,7 @@ public class LocalDataSource implements LocalSource {
         briteDatabase.insert(DatabaseHelper.AUDIO_TRACKS_TABLE_NAME, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
+    @Override
     public void updateAudioFile(AudioFile audioFile) {
 
         ContentValues values = new ContentValues();
@@ -111,6 +114,7 @@ public class LocalDataSource implements LocalSource {
                 DatabaseHelper.TRACK_PATH + "=" + "'" + audioFile.filePath + "'");
     }
 
+    @Override
     public void insertVideoFile(VideoFile videoFile) {
 
         ContentValues values = new ContentValues();
@@ -128,7 +132,7 @@ public class LocalDataSource implements LocalSource {
         briteDatabase.insert(DatabaseHelper.VIDEO_FILES_TABLE_NAME, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
-
+    @Override
     public void updateAudioFoldersIndex(List<AudioFolder> audioFolders) {
         for (int index = 0; index < audioFolders.size(); index++) {
             AudioFolder audioFolder = audioFolders.get(index);
@@ -143,6 +147,7 @@ public class LocalDataSource implements LocalSource {
         }
     }
 
+    @Override
     public void updateVideoFile(VideoFile videoFile) {
 
         ContentValues values = new ContentValues();
@@ -162,7 +167,7 @@ public class LocalDataSource implements LocalSource {
                 DatabaseHelper.VIDEO_FILE_PATH + "=" + "'" + videoFile.filePath + "'");
     }
 
-
+    @Override
     public Observable<AudioFolder> getSelectedAudioFolder() {
 
         String sql = String.format("SELECT * FROM %s WHERE %s", DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME,
@@ -173,6 +178,7 @@ public class LocalDataSource implements LocalSource {
 
     }
 
+    @Override
     public Observable<AudioFile> getSelectedAudioFile() {
 
         String sql = String.format("SELECT * FROM %s WHERE %s", DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
@@ -183,6 +189,7 @@ public class LocalDataSource implements LocalSource {
 
     }
 
+    @Override
     public Observable<List<AudioFile>> getSelectedFolderAudioFiles(AudioFolder audioFolder) {
 
         String sql = String.format("SELECT * FROM %s WHERE %s ORDER BY %s ASC", DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
@@ -192,6 +199,7 @@ public class LocalDataSource implements LocalSource {
 
     }
 
+    @Override
     public boolean containAudioTrack(String path) {
 
         String sql = String.format("SELECT * FROM %s WHERE %s",
@@ -206,6 +214,7 @@ public class LocalDataSource implements LocalSource {
         return contain;
     }
 
+    @Override
     public String getDownloadFolderID() {
 
         String id = null;
@@ -224,6 +233,7 @@ public class LocalDataSource implements LocalSource {
         return id;
     }
 
+    @Override
     public void updateSelectedAudioFile(AudioFile audioFile) {
         ContentValues clearValues = new ContentValues();
         clearValues.put(DatabaseHelper.TRACK_SELECTED, 0);
@@ -243,6 +253,7 @@ public class LocalDataSource implements LocalSource {
 
     }
 
+    @Override
     public void updateSelectedAudioFolder(AudioFolder audioFolder) {
         ContentValues clearValues = new ContentValues();
         clearValues.put(DatabaseHelper.FOLDER_SELECTED, 0);
@@ -261,10 +272,12 @@ public class LocalDataSource implements LocalSource {
                 DatabaseHelper.FOLDER_PATH + "=" + "'" + audioFolder.folderPath.getAbsolutePath().replaceAll("'", "''") + "'");
     }
 
+    @Override
     public Callable<Integer> resetVideoContentDatabase() {
         return () -> briteDatabase.delete(DatabaseHelper.VIDEO_FILES_TABLE_NAME, null);
     }
 
+    @Override
     public Callable<Integer> resetAudioContentDatabase() {
         return () -> {
             briteDatabase.delete(DatabaseHelper.AUDIO_TRACKS_TABLE_NAME, null);
@@ -272,6 +285,7 @@ public class LocalDataSource implements LocalSource {
         };
     }
 
+    @Override
     public void deleteAudioFile(String path) {
 
         briteDatabase.delete(
@@ -293,12 +307,14 @@ public class LocalDataSource implements LocalSource {
         };
     }
 
+    @Override
     public Callable<Integer> deleteVideoFile(String path) {
         return () -> briteDatabase.delete(
                 DatabaseHelper.VIDEO_FILES_TABLE_NAME,
                 DatabaseHelper.VIDEO_FILE_PATH + "=" + "'" + path + "'");
     }
 
+    @Override
     public Observable<List<String>> getFoldersPath() {
 
         String sql = String.format("SELECT %s FROM %s",
@@ -310,6 +326,7 @@ public class LocalDataSource implements LocalSource {
                 .mapToList(cursor -> cursor.getString(cursor.getColumnIndex(DatabaseHelper.FOLDER_PATH)));
     }
 
+    @Override
     public void clearPlaylist() {
 
         ContentValues contentValues;
@@ -332,7 +349,7 @@ public class LocalDataSource implements LocalSource {
                 null);
     }
 
-
+    @Override
     public Observable<List<VideoFile>> getVideoFiles() {
 
         String sql = String.format("SELECT * FROM %s", DatabaseHelper.VIDEO_FILES_TABLE_NAME);
@@ -342,7 +359,7 @@ public class LocalDataSource implements LocalSource {
                 .mapToList(VideoFile::new);
     }
 
-
+    @Override
     public Observable<List<AudioFolder>> getAudioFolders() {
 
         String sql = String.format("SELECT * FROM %s", DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME);
@@ -352,7 +369,7 @@ public class LocalDataSource implements LocalSource {
                 .mapToList(AudioFolder::new);
     }
 
-
+    @Override
     public Observable<List<Artist>> getArtists() {
 
         String[] projection = {
@@ -371,7 +388,7 @@ public class LocalDataSource implements LocalSource {
 
     }
 
-
+    @Override
     public Observable<List<Genre>> getGenres() {
 
         String[] projection = {
@@ -389,7 +406,7 @@ public class LocalDataSource implements LocalSource {
                 .mapToList(Genre::new);
     }
 
-
+    @Override
     public Observable<List<AudioFile>> getGenreTracks(String contentValue) {
 
         String sql = String.format("SELECT * FROM %s WHERE %s ORDER BY %s",
@@ -401,6 +418,7 @@ public class LocalDataSource implements LocalSource {
                 .mapToList(AudioFile::new);
     }
 
+    @Override
     public Observable<List<AudioFile>> getArtistTracks(String contentValue) {
 
         String sql = String.format("SELECT * FROM %s WHERE %s ORDER BY %s",
@@ -412,6 +430,7 @@ public class LocalDataSource implements LocalSource {
                 .mapToList(AudioFile::new);
     }
 
+    @Override
     public Observable<List<AudioFile>> getFolderTracks(String id) {
 
         String sql = String.format("SELECT * FROM %s WHERE %s ORDER BY %s",
@@ -423,6 +442,7 @@ public class LocalDataSource implements LocalSource {
                 .mapToList(AudioFile::new);
     }
 
+    @Override
     public Observable<List<MediaFile>> getAudioFilePlaylist() {
 
         String sql = String.format("SELECT * FROM %s WHERE %s",
@@ -433,6 +453,7 @@ public class LocalDataSource implements LocalSource {
                 .mapToList(AudioFile::new);
     }
 
+    @Override
     public Observable<List<MediaFile>> getVideoFilePlaylist() {
 
         String sql = String.format("SELECT * FROM %s WHERE %s",
@@ -443,6 +464,7 @@ public class LocalDataSource implements LocalSource {
                 .mapToList(VideoFile::new);
     }
 
+    @Override
     public Observable<AudioFile> getAudioFileByPath(String path) {
 
         String sql = String.format("SELECT * FROM %s WHERE %s",
@@ -453,6 +475,19 @@ public class LocalDataSource implements LocalSource {
                 .mapToOne(AudioFile::new);
     }
 
+    @Override
+    public Observable<List<String>> getFolderFilePaths(String name) {
+
+        String sql = String.format("SELECT * FROM %s WHERE %s",
+                DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME,
+                DatabaseHelper.FOLDER_NAME + "=" + "'" + name + "'");
+
+        return briteDatabase
+                .createQuery(DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME, sql)
+                .mapToList(cursor -> cursor.getString(cursor.getColumnIndex(DatabaseHelper.FOLDER_PATH)));
+    }
+
+    @Override
     public Observable<List<AudioFile>> getSearchAudioFiles(String query) {
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT * FROM ");

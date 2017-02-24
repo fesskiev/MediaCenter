@@ -69,6 +69,7 @@
         <activity
             android:name=".ui.audio.player.AudioPlayerActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
+            android:launchMode="singleTop"
             android:parentActivityName="com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity"
             android:screenOrientation="portrait">
             <meta-data
@@ -81,6 +82,7 @@
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
@@ -93,6 +95,7 @@
         <activity
             android:name=".ui.video.player.VideoExoPlayerActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:launchMode="singleTop"
             android:parentActivityName=".ui.MainActivity"
             android:theme="@style/Base.Theme.Player.VideoExoPlayer">
             <meta-data
@@ -101,6 +104,7 @@
 
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
@@ -109,7 +113,7 @@
 
                 <data android:scheme="content" />
                 <data android:scheme="file" />
-                <data android:mimeType="video/*"  />
+                <data android:mimeType="video/*" />
 
                 <data android:pathPattern=".*mkv" />
                 <data android:pathPattern=".*MKV" />
@@ -226,8 +230,8 @@
 
         <service
             android:name=".services.FileSystemService"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:exported="true" />
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <service
             android:name=".services.PlaybackService"

@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,6 +31,7 @@ import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.AudioNotificationHelper;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
+import com.fesskiev.mediacenter.utils.converter.AudioConverterHelper;
 import com.fesskiev.mediacenter.widgets.buttons.PlayPauseFloatingButton;
 import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
 
@@ -65,6 +67,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     private Bitmap lastCover;
     private int height;
     private boolean isShow = true;
+    private boolean lastLoadError;
 
     private boolean lastPlaying;
     private int lastPositionSeconds;
@@ -219,6 +222,16 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPlaybackStateEvent(PlaybackService playbackState) {
 
+        boolean isLoadError = playbackState.isLoadError();
+        if (lastLoadError != isLoadError) {
+            lastLoadError = isLoadError;
+            if (lastLoadError) {
+                if (AudioConverterHelper.isAudioFileFLAC(audioPlayer.getCurrentTrack())) {
+                    tryConvertAudioFile();
+                }
+            }
+        }
+
         boolean playing = playbackState.isPlaying();
         if (lastPlaying != playing) {
             lastPlaying = playing;
@@ -289,6 +302,36 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
         adapter.refreshAdapter(currentTrackList);
         hideEmptyFolderCard();
+    }
+
+    private void tryConvertAudioFile() {
+        Log.e("error", "LOAD FILE ERROR!");
+        AudioConverterHelper.getInstance().convertAudioIfNeed(audioPlayer.getCurrentTrack(),
+                new AudioConverterHelper.OnConvertProcessListener() {
+
+                    @Override
+                    public void onStart() {
+                        Log.e("error", "onStart() convert");
+                    }
+
+                    @Override
+                    public void onSuccess(AudioFile audioFile) {
+                        Log.e("error", "onSuccess convert");
+
+                        audioPlayer.setCurrentAudioFileAndPlay(audioFile);
+                    }
+
+                    @Override
+                    public void onFailure(Exception error) {
+                        Log.e("error", "onFailure");
+
+                        Utils.showCustomSnackbar(getCurrentFocus(),
+                                getApplicationContext(),
+                                error.getMessage(),
+                                Snackbar.LENGTH_LONG)
+                                .show();
+                    }
+                });
     }
 
     private void setMusicFileInfo(AudioFile audioFile) {
