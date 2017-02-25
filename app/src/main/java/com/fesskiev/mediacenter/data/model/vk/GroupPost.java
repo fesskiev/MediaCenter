@@ -3,6 +3,7 @@ package com.fesskiev.mediacenter.data.model.vk;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import com.fesskiev.mediacenter.utils.download.DownloadGroupAudioFile;
 import com.google.gson.annotations.Expose;
@@ -16,6 +17,10 @@ public class GroupPost implements Parcelable {
     @SerializedName("attachments")
     @Expose
     private List<Attachment> attachments = new ArrayList<>();
+
+    @SerializedName("copy_history")
+    @Expose
+    private CopyHistory copyHistory = new CopyHistory();
 
     @SerializedName("text")
     @Expose
@@ -81,9 +86,6 @@ public class GroupPost implements Parcelable {
         return attachments;
     }
 
-    public String getText() {
-        return text;
-    }
 
     public long getDate() {
         return date;
@@ -125,6 +127,14 @@ public class GroupPost implements Parcelable {
         this.reposts = reposts;
     }
 
+    public CopyHistory getCopyHistory() {
+        return copyHistory;
+    }
+
+    public void setCopyHistory(CopyHistory copyHistory) {
+        this.copyHistory = copyHistory;
+    }
+
     public List<DownloadGroupAudioFile> getDownloadGroupAudioFiles() {
         return downloadGroupAudioFiles;
     }
@@ -143,24 +153,62 @@ public class GroupPost implements Parcelable {
 
     public List<Audio> getAudio() {
         List<Audio> audios = new ArrayList<>();
+
+        List<Attachment> copyAttachments = copyHistory.getAttachments();
+        for (Attachment copyAttachment : copyAttachments) {
+            Audio copyAudio = copyAttachment.getAudio();
+            if (copyAudio != null) {
+                audios.add(copyAudio);
+            }
+        }
+
         for (Attachment attachment : attachments) {
             Audio audio = attachment.getAudio();
-            if(audio != null) {
+            if (audio != null) {
                 audios.add(audio);
             }
         }
         return audios;
     }
 
+    public Photo getPhoto() {
+        if (!attachments.isEmpty()) {
+            for (Attachment attachment : attachments) {
+                if (attachment.getType().equals(Attachment.TYPE_PHOTO)) {
+                    return attachment.getPhoto();
+                }
+            }
+        } else {
+            List<Attachment> copyAttachments = copyHistory.getAttachments();
+            for (Attachment copyAttachment : copyAttachments) {
+                if (copyAttachment.getType().equals(Attachment.TYPE_PHOTO)) {
+                    return copyAttachment.getPhoto();
+                }
+            }
+        }
+        return null;
+    }
+
+    public String getText() {
+        if (text != null && !TextUtils.isEmpty(text)) {
+            return text;
+        } else {
+            return copyHistory.getText();
+        }
+    }
+
     @Override
     public String toString() {
         return "GroupPost{" +
                 "attachments=" + attachments +
+                ", copyHistory=" + copyHistory +
                 ", text='" + text + '\'' +
                 ", date=" + date +
                 ", id=" + id +
                 ", likes=" + likes +
                 ", reposts=" + reposts +
+                ", downloadGroupAudioFiles=" + downloadGroupAudioFiles +
+                ", openMusicItems=" + openMusicItems +
                 '}';
     }
 }

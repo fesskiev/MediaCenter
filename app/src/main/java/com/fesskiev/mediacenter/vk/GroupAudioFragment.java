@@ -20,6 +20,7 @@ import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.vk.Audio;
 import com.fesskiev.mediacenter.data.model.vk.Group;
 import com.fesskiev.mediacenter.data.model.vk.GroupPost;
+import com.fesskiev.mediacenter.data.model.vk.Photo;
 import com.fesskiev.mediacenter.data.source.remote.ErrorHelper;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
@@ -286,10 +287,11 @@ public class GroupAudioFragment extends Fragment {
                 holder.shares.setText(String.valueOf(groupPost.getReposts().getCount()));
                 holder.time.setText(Utils.getDateStringFromSeconds(groupPost.getDate()));
 
-                if (groupPost.getAttachments().get(0).getPhoto() != null) {
+                Photo photo = groupPost.getPhoto();
+                if (photo != null) {
                     holder.postCover.setVisibility(View.VISIBLE);
 
-                    BitmapHelper.getInstance().loadURIBitmap(groupPost.getAttachments().get(0).getPhoto().getPhoto604(),
+                    BitmapHelper.getInstance().loadURIBitmap(photo.getPhoto604(),
                             holder.postCover);
                 } else {
                     holder.postCover.setVisibility(View.GONE);

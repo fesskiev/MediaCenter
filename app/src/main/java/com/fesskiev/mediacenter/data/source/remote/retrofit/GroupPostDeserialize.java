@@ -5,6 +5,7 @@ import android.net.ParseException;
 
 import com.fesskiev.mediacenter.data.model.vk.Attachment;
 import com.fesskiev.mediacenter.data.model.vk.Audio;
+import com.fesskiev.mediacenter.data.model.vk.CopyHistory;
 import com.fesskiev.mediacenter.data.model.vk.GroupPost;
 import com.fesskiev.mediacenter.data.model.vk.Likes;
 import com.fesskiev.mediacenter.data.model.vk.Photo;
@@ -44,8 +45,82 @@ public class GroupPostDeserialize implements JsonDeserializer<GroupPostsResponse
                 groupPost.setDate(object.get("date").getAsLong());
                 groupPost.setText(object.get("text").getAsString());
 
-                List<Attachment> attachments = new ArrayList<>();
+                if (object.has("copy_history")) {
+                    CopyHistory copyHistory = new CopyHistory();
+
+                    JsonArray copyJsonArray = object.getAsJsonArray("copy_history");
+
+                    copyHistory.setText(copyJsonArray.get(0).getAsJsonObject().get("text").getAsString());
+
+                    for (int j = 0; j < copyJsonArray.size(); j++) {
+                        JsonObject copyJsonObject = copyJsonArray.get(j).getAsJsonObject();
+
+                        if (copyJsonObject.has("attachments")) {
+                            List<Attachment> attachments = new ArrayList<>();
+
+                            JsonArray attachmentsArray = copyJsonObject.getAsJsonArray("attachments");
+                            for (int k = 0; k < attachmentsArray.size(); k++) {
+                                JsonObject attachmentsObject = attachmentsArray.get(k).getAsJsonObject();
+
+                                Attachment attachment = new Attachment();
+
+                                String type = attachmentsObject.get("type").getAsString();
+                                attachment.setType(type);
+
+                                if (type.equals("photo")) {
+
+                                    JsonObject photoObject = attachmentsObject.getAsJsonObject("photo");
+
+                                    Photo photo = new Photo();
+                                    if (photoObject.has("photo_75")) {
+                                        photo.setPhoto75(photoObject.get("photo_75").getAsString());
+                                    }
+                                    if (photoObject.has("photo_130")) {
+                                        photo.setPhoto130(photoObject.get("photo_130").getAsString());
+                                    }
+                                    if (photoObject.has("photo_604")) {
+                                        photo.setPhoto604(photoObject.get("photo_604").getAsString());
+                                    }
+                                    if (photoObject.has("photo_807")) {
+                                        photo.setPhoto807(photoObject.get("photo_807").getAsString());
+                                    }
+                                    if (photoObject.has("text")) {
+                                        photo.setText(photoObject.get("text").getAsString());
+                                    }
+                                    if (photoObject.has("date")) {
+                                        photo.setDate(photoObject.get("date").getAsInt());
+                                    }
+                                    attachment.setPhoto(photo);
+
+                                } else if (type.equals("audio")) {
+
+                                    JsonObject audioObject = attachmentsObject.getAsJsonObject("audio");
+
+                                    Audio audio = new Audio();
+                                    audio.setId(audioObject.get("id").getAsInt());
+                                    audio.setArtist(audioObject.get("artist").getAsString());
+                                    audio.setTitle(audioObject.get("title").getAsString());
+                                    audio.setDuration(audioObject.get("duration").getAsInt());
+                                    audio.setUrl(audioObject.get("url").getAsString());
+                                    if (audioObject.has("genre_id")) {
+                                        audio.setGenreId(audioObject.get("genre_id").getAsInt());
+                                    }
+
+                                    attachment.setAudio(audio);
+                                }
+
+                                attachments.add(attachment);
+                            }
+                            copyHistory.setAttachments(attachments);
+                        }
+                    }
+
+                    groupPost.setCopyHistory(copyHistory);
+                }
+
                 if (object.has("attachments")) {
+                    List<Attachment> attachments = new ArrayList<>();
+
                     JsonArray attachmentsArray = object.getAsJsonArray("attachments");
                     for (int j = 0; j < attachmentsArray.size(); j++) {
                         JsonObject attachmentsObject = attachmentsArray.get(j).getAsJsonObject();
@@ -100,8 +175,9 @@ public class GroupPostDeserialize implements JsonDeserializer<GroupPostsResponse
                         attachments.add(attachment);
                     }
                     groupPost.setAttachments(attachments);
-                    groupPosts.add(groupPost);
                 }
+
+                groupPosts.add(groupPost);
 
                 JsonObject likesObject = object.getAsJsonObject("likes");
                 Likes likes = new Likes();

@@ -44,4 +44,13 @@ public class Attachment {
     public void setAudio(Audio audio) {
         this.audio = audio;
     }
+
+    @Override
+    public String toString() {
+        return "Attachment{" +
+                "type='" + type + '\'' +
+                ", photo=" + photo +
+                ", audio=" + audio +
+                '}';
+    }
 }

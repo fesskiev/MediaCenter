@@ -77,4 +77,16 @@ public class Photo {
     public void setDate(int date) {
         this.date = date;
     }
+
+    @Override
+    public String toString() {
+        return "Photo{" +
+                "photo75='" + photo75 + '\'' +
+                ", photo130='" + photo130 + '\'' +
+                ", photo604='" + photo604 + '\'' +
+                ", photo807='" + photo807 + '\'' +
+                ", text='" + text + '\'' +
+                ", date=" + date +
+                '}';
+    }
 }
