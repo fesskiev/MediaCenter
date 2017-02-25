@@ -176,6 +176,13 @@ public class AudioPlayer implements Playable {
                 });
     }
 
+    public void setSortingTrackList(List<AudioFile> audioFiles) {
+
+        trackListIterator.findPosition();
+
+        currentTrackList = audioFiles;
+    }
+
     public Observable<AudioFile> getCurrentAudioFile() {
         return repository.getSelectedAudioFile();
     }

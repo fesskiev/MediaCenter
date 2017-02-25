@@ -469,28 +469,29 @@ public class TrackListFragment extends Fragment implements View.OnClickListener 
             subscription = Observable.just(audioFiles)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .map(unsortedList -> {
-                        List<AudioFile> sortedList = new ArrayList<>(unsortedList);
-                        switch (type) {
-                            case SORT_DURATION:
-                                Collections.sort(sortedList, new SortByDuration());
-                                break;
-                            case SORT_FILE_SIZE:
-                                Collections.sort(sortedList, new SortByFileSize());
-                                break;
-                            case SORT_TIMESTAMP:
-                                Collections.sort(sortedList, new SortByTimestamp());
-                                break;
-                            case SORT_TRACK_NUMBER:
-                                Collections.sort(sortedList);
-                                break;
+                    .map(unsortedList -> sortAudioFiles(type, unsortedList))
+                    .doOnNext(sortedList -> audioPlayer.setSortingTrackList(sortedList))
+                    .doOnNext(sortedList -> actionMenu.close(true))
+                    .subscribe(this::refreshAdapter);
+        }
 
-                        }
-                        return sortedList;
-                    }).subscribe(sortedList -> {
-                        actionMenu.close(true);
-                        refreshAdapter(sortedList);
-                    });
+        private List<AudioFile> sortAudioFiles(int type, List<AudioFile> unsortedList){
+            List<AudioFile> sortedList = new ArrayList<>(unsortedList);
+            switch (type) {
+                case SORT_DURATION:
+                    Collections.sort(sortedList, new SortByDuration());
+                    break;
+                case SORT_FILE_SIZE:
+                    Collections.sort(sortedList, new SortByFileSize());
+                    break;
+                case SORT_TIMESTAMP:
+                    Collections.sort(sortedList, new SortByTimestamp());
+                    break;
+                case SORT_TRACK_NUMBER:
+                    Collections.sort(sortedList);
+                    break;
+            }
+            return sortedList;
         }
     }
 }
