@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class AudioConverterHelper {
@@ -137,7 +138,7 @@ public class AudioConverterHelper {
     public void convertAudioIfNeed(AudioFile audioFile, OnConvertProcessListener listener) {
         MediaApplication.getInstance().getRepository().getFolderFilePaths("Temp")
                 .first()
-                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(paths -> {
                     String path = needConvert(paths, audioFile);
                     if (TextUtils.isEmpty(path)) {

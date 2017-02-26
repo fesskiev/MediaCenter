@@ -33,6 +33,7 @@ import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.converter.AudioConverterHelper;
 import com.fesskiev.mediacenter.widgets.buttons.PlayPauseFloatingButton;
+import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
 
 import org.greenrobot.eventbus.EventBus;
@@ -311,20 +312,20 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
                     @Override
                     public void onStart() {
+                        ContextMenuManager.getInstance().toggleConverterContextMenu((ViewGroup) PlaybackActivity.this.getWindow().getDecorView());
                         Log.e("error", "onStart() convert");
                     }
 
                     @Override
                     public void onSuccess(AudioFile audioFile) {
                         Log.e("error", "onSuccess convert");
-
+                        ContextMenuManager.getInstance().toggleConverterContextMenu((ViewGroup) PlaybackActivity.this.getWindow().getDecorView());
                         audioPlayer.setCurrentAudioFileAndPlay(audioFile);
                     }
 
                     @Override
                     public void onFailure(Exception error) {
                         Log.e("error", "onFailure");
-
                         Utils.showCustomSnackbar(getCurrentFocus(),
                                 getApplicationContext(),
                                 error.getMessage(),

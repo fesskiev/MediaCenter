@@ -97,6 +97,8 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     private DefaultTrackSelector trackSelector;
     private Timer timer;
 
+    private String currentVideoPath;
+    private String currentVideoName;
     private boolean isTimelineStatic;
     private boolean playerNeedsSource;
     private boolean shouldAutoPlay;
@@ -220,6 +222,18 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
             return;
         }
         videoPlayer.next();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Log.i(TAG, "onNewIntent");
+        videoControlView.resetIndicators();
+        isTimelineStatic = false;
+
+        releasePlayer();
+
+        setIntent(intent);
     }
 
     @Override
@@ -418,8 +432,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
 
     }
 
-    String currentVideoPath;
-    String currentVideoName;
+
 
     private void initializePlayer() {
         Intent intent = getIntent();
@@ -480,6 +493,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
                 currentVideoName = intent.getStringExtra(VIDEO_NAME_EXTRA);
                 videoControlView.setVideoName(currentVideoName);
             } else if (Intent.ACTION_VIEW.equals(action)) {
+                videoControlView.setVideoName("");
                 String type = intent.getType();
                 if (type != null) {
                     if (type.startsWith("video/")) {

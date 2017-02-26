@@ -30,6 +30,32 @@ public class ContextMenuManager extends RecyclerView.OnScrollListener implements
 
     }
 
+    public void toggleConverterContextMenu(ViewGroup decorView) {
+        if (contextMenuView == null) {
+            if (!isContextMenuShowing) {
+                isContextMenuShowing = true;
+
+                contextMenuView = new ConverterContextMenu(decorView.getContext());
+
+                contextMenuView.addOnAttachStateChangeListener(this);
+
+                decorView.addView(contextMenuView);
+
+                contextMenuView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                    @Override
+                    public boolean onPreDraw() {
+                        contextMenuView.getViewTreeObserver().removeOnPreDrawListener(this);
+                        setupContextMenuConvertInitialPosition(decorView);
+                        performShowAnimation();
+                        return false;
+                    }
+                });
+            }
+        } else {
+            hideContextMenu();
+        }
+    }
+
     public void toggleVideoContextMenu(View openingView,
                                        VideoContextMenu.OnVideoContextMenuListener listener) {
         if (contextMenuView == null) {
@@ -85,6 +111,12 @@ public class ContextMenuManager extends RecyclerView.OnScrollListener implements
         }
     }
 
+    private void setupContextMenuConvertInitialPosition(View openingView) {
+        final int[] openingViewLocation = new int[2];
+        openingView.getLocationOnScreen(openingViewLocation);
+        contextMenuView.setTranslationX(openingViewLocation[0]);
+        contextMenuView.setTranslationY(openingViewLocation[1]);
+    }
 
     private void setupContextMenuInitialPosition(View openingView) {
         final int[] openingViewLocation = new int[2];
@@ -99,7 +131,8 @@ public class ContextMenuManager extends RecyclerView.OnScrollListener implements
         contextMenuView.setScaleX(0.1f);
         contextMenuView.setScaleY(0.1f);
         contextMenuView.animate()
-                .scaleX(1f).scaleY(1f)
+                .scaleX(1f)
+                .scaleY(1f)
                 .setDuration(150)
                 .setInterpolator(new OvershootInterpolator())
                 .setListener(new AnimatorListenerAdapter() {
@@ -121,7 +154,8 @@ public class ContextMenuManager extends RecyclerView.OnScrollListener implements
         contextMenuView.setPivotX(contextMenuView.getWidth() / 2);
         contextMenuView.setPivotY(contextMenuView.getHeight());
         contextMenuView.animate()
-                .scaleX(0.1f).scaleY(0.1f)
+                .scaleX(0.1f)
+                .scaleY(0.1f)
                 .setDuration(150)
                 .setInterpolator(new AccelerateInterpolator())
                 .setStartDelay(100)

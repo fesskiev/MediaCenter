@@ -99,6 +99,7 @@
     <string name="context_menu_video_delete">Удалить видео</string>
     <string name="context_menu_video_add_playlist">В плейлист</string>
     <string name="context_menu_cancel">Зкрыть</string>
+    <string name="context_menu_converter_text">Конвертация из FLAC в WAV</string>
 
     <string name="dialog_bass_boost_title">Выберите уровень:</string>
 
