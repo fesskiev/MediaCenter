@@ -23,7 +23,6 @@
     <string name="empty_music_file_album">album</string>
     <string name="empty_music_file_genre">genre</string>
 
-    <string name="drawer_item_donate">Donate</string>
     <string name="drawer_item_about">About</string>
     <string name="drawer_item_settings">Settings</string>
     <string name="drawer_title_effects">Effects</string>
