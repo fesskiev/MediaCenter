@@ -452,26 +452,6 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
             player.setVideoDebugListener(eventLogger);
             player.setId3Output(eventLogger);
 
-
-//            VideoTextureView videoTextureView = new VideoTextureView(getApplicationContext());
-//            videoTextureView.setOnVideoTextureListener(new VideoTextureView.OnVideoTextureListener() {
-//                @Override
-//                public void onZoom() {
-//                    Log.d("test", "onZoom()");
-//                }
-//
-//                @Override
-//                public void onDrag() {
-//                    Log.d("test", "onDrag()");
-//                }
-//
-//                @Override
-//                public void onTouch() {
-//                    Log.d("test", "onTouch()");
-//                }
-//            });
-//            player.setVideoTextureView(videoTextureView);
-
             simpleExoPlayerView.setPlayer(player);
             if (isTimelineStatic) {
                 if (playerPosition == C.TIME_UNSET) {
