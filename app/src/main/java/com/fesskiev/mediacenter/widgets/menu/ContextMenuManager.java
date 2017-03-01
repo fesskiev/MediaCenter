@@ -44,7 +44,12 @@ public class ContextMenuManager extends RecyclerView.OnScrollListener implements
                 contextMenuView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
                     @Override
                     public boolean onPreDraw() {
-                        contextMenuView.getViewTreeObserver().removeOnPreDrawListener(this);
+                        /**
+                         * null pointer exception sometimes
+                         */
+                        if(contextMenuView != null) {
+                            contextMenuView.getViewTreeObserver().removeOnPreDrawListener(this);
+                        }
                         setupContextMenuConvertInitialPosition(decorView);
                         performShowAnimation();
                         return false;
