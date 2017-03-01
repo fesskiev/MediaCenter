@@ -57,7 +57,7 @@ public interface LocalSource {
 
     void updateSelectedAudioFolder(AudioFolder audioFolder);
 
-    void updateAudioFoldersIndex(List<AudioFolder> audioFolders);
+    Callable<Integer> updateAudioFoldersIndex(List<AudioFolder> audioFolders);
 
     void updateVideoFile(VideoFile videoFile);
 

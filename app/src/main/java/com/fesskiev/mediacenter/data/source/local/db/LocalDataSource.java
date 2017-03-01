@@ -132,20 +132,6 @@ public class LocalDataSource implements LocalSource {
         briteDatabase.insert(DatabaseHelper.VIDEO_FILES_TABLE_NAME, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
-    @Override
-    public void updateAudioFoldersIndex(List<AudioFolder> audioFolders) {
-        for (int index = 0; index < audioFolders.size(); index++) {
-            AudioFolder audioFolder = audioFolders.get(index);
-            if (audioFolder != null) {
-                ContentValues values = new ContentValues();
-                values.put(DatabaseHelper.FOLDER_INDEX, index);
-
-                String sql = DatabaseHelper.FOLDER_PATH + "=" + "'" + audioFolder.folderPath.getAbsolutePath().replaceAll("'", "''") + "'";
-
-                briteDatabase.update(DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME, values, sql);
-            }
-        }
-    }
 
     @Override
     public void updateVideoFile(VideoFile videoFile) {
@@ -304,6 +290,25 @@ public class LocalDataSource implements LocalSource {
                     DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
                     DatabaseHelper.ID + "=" + "'" + audioFolder.id + "'");
 
+        };
+    }
+
+    @Override
+    public Callable<Integer> updateAudioFoldersIndex(List<AudioFolder> audioFolders) {
+        return () -> {
+            for (int index = 0; index < audioFolders.size(); index++) {
+                AudioFolder audioFolder = audioFolders.get(index);
+                if (audioFolder != null) {
+                    ContentValues values = new ContentValues();
+                    values.put(DatabaseHelper.FOLDER_INDEX, index);
+
+                    String sql = DatabaseHelper.FOLDER_PATH + "=" + "'"
+                            + audioFolder.folderPath.getAbsolutePath().replaceAll("'", "''") + "'";
+
+                    briteDatabase.update(DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME, values, sql);
+                }
+            }
+            return 1;
         };
     }
 

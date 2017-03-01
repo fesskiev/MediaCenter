@@ -110,7 +110,6 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
     public void onDestroy() {
         super.onDestroy();
         RxUtils.unsubscribe(subscription);
-        ((AudioFoldersAdapter) adapter).updateAudioFoldersIndexes();
         MediaApplication.getInstance().getRepository().getMemorySource().setCacheFoldersDirty(true);
     }
 
@@ -184,7 +183,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
             @Override
             public void onItemClear(int position) {
                 itemView.setAlpha(1.0f);
-                notifyDataSetChanged();
+                updateAudioFoldersIndexes();
             }
         }
 
@@ -194,7 +193,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                 AudioFolder audioFolder = audioFolders.get(position);
                 if (audioFolder != null) {
                     FragmentTransaction transaction =
-                            ((FragmentActivity)act).getSupportFragmentManager().beginTransaction();
+                            ((FragmentActivity) act).getSupportFragmentManager().beginTransaction();
                     transaction.addToBackStack(null);
                     AudioFolderDetailsDialog.newInstance(audioFolder)
                             .show(transaction, AudioFolderDetailsDialog.class.getName());
@@ -305,7 +304,14 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
         }
 
         public void updateAudioFoldersIndexes() {
-            MediaApplication.getInstance().getRepository().updateAudioFoldersIndex(audioFolders);
+            RxUtils.fromCallable(MediaApplication.getInstance().getRepository()
+                    .updateAudioFoldersIndex(audioFolders))
+                    .first()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(integer -> {
+                        notifyDataSetChanged();
+                    });
         }
     }
 }
