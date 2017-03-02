@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="80dp"
+    android:layout_height="56dp"
     android:orientation="vertical"
     android:padding="8dp">
 
     <ImageView
         android:id="@+id/convertCircularProgress"
-        android:layout_width="46dp"
-        android:layout_height="46dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
         android:contentDescription="@null"

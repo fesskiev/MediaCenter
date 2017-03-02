@@ -242,8 +242,6 @@ public class FileSystemService extends JobService {
 
         String parent = new File(path).getParent();
 
-        Log.e("test", "start fetch by path: " + parent);
-
         walkAudio(parent);
 
         sendEndFetchMediaBroadcast();
