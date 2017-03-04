@@ -14,7 +14,7 @@ android {
         applicationId = "com.fesskiev.mediacenter"
         minSdkVersion 21
         targetSdkVersion 25
-        versionCode = 2
+        versionCode = 3
         versionName = "1.0.0"
         vectorDrawables.useSupportLibrary = true
 
@@ -75,7 +75,7 @@ ext {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile files('libs/jaudiotagger-2.2.4.jar')
-    compile(name:'FFmpegAndroid', ext:'aar')
+    compile(name: 'FFmpegAndroid', ext: 'aar')
     compile project(':extensions')
 
     compile "com.android.support:appcompat-v7:${supportLibVersion}"
@@ -96,4 +96,5 @@ dependencies {
     compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
     compile 'com.squareup.sqlbrite:sqlbrite:0.7.0'
     compile 'org.greenrobot:eventbus:3.0.0'
+    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha9'
 }

@@ -29,6 +29,7 @@ import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.about.AboutActivity;
 import com.fesskiev.mediacenter.ui.audio.AudioFragment;
+import com.fesskiev.mediacenter.ui.billing.InAppBillingActivity;
 import com.fesskiev.mediacenter.ui.effects.EffectsActivity;
 import com.fesskiev.mediacenter.ui.playback.PlaybackActivity;
 import com.fesskiev.mediacenter.ui.playlist.PlayListActivity;
@@ -244,10 +245,10 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             @Override
             public void onEffectClick() {
                 selectedActivity = EffectsActivity.class;
-                if(!Utils.isTablet()) {
+                if (!Utils.isTablet()) {
                     drawer.closeDrawer(GravityCompat.END);
                 } else {
-                   startSelectedActivity();
+                    startSelectedActivity();
                 }
             }
 
@@ -387,6 +388,9 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.billing:
+                selectedActivity = InAppBillingActivity.class;
+                break;
             case R.id.settings:
                 selectedActivity = SettingsActivity.class;
                 break;
@@ -411,13 +415,13 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         if (!Utils.isTablet()) {
             drawer.closeDrawer(GravityCompat.START);
         } else if (selectedActivity != null) {
-           startSelectedActivity();
+            startSelectedActivity();
         }
 
         return true;
     }
 
-    private void startSelectedActivity(){
+    private void startSelectedActivity() {
         startActivity(new Intent(MainActivity.this, selectedActivity));
         selectedActivity = null;
     }

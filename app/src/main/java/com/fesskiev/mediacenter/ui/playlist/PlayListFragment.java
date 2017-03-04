@@ -85,8 +85,15 @@ public class PlayListFragment extends Fragment {
 
     private void fetchPlayListFiles() {
         DataRepository repository = MediaApplication.getInstance().getRepository();
-        subscription = Observable.merge(repository.getAudioFilePlaylist(), repository.getVideoFilePlaylist())
-                .take(2)
+        subscription = Observable.zip(repository.getAudioFilePlaylist(),
+                repository.getVideoFilePlaylist(),
+                (audioFiles, videoFiles) -> {
+                    List<MediaFile> mediaFiles = new ArrayList<>();
+                    mediaFiles.addAll(audioFiles);
+                    mediaFiles.addAll(videoFiles);
+                    return mediaFiles;
+                })
+                .first()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(mediaFiles -> {

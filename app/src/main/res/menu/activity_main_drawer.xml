@@ -47,4 +47,13 @@
             android:title="@string/drawer_item_about" />
     </group>
 
+    <group
+        android:id="@+id/menu_billing"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/billing"
+            android:title="InAppBilling" />
+    </group>
+
 </menu>
