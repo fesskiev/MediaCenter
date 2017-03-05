@@ -8,6 +8,7 @@ import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.model.MediaFile;
+import com.fesskiev.mediacenter.data.model.vk.AudioFiles;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.playback.Playable;
@@ -101,7 +102,6 @@ public class AudioPlayer implements Playable {
         if (trackListIterator.hasNext()) {
             AudioFile audioFile = trackListIterator.next();
             if (audioFile != null) {
-                Log.d("state", "NEXT: " + audioFile.toString());
                 currentTrack = audioFile;
 
                 audioFile.isSelected = true;
@@ -120,7 +120,6 @@ public class AudioPlayer implements Playable {
         if (trackListIterator.hasPrevious()) {
             AudioFile audioFile = trackListIterator.previous();
             if (audioFile != null) {
-                Log.d("state", "PREV: " + audioFile.toString());
                 currentTrack = audioFile;
 
                 audioFile.isSelected = true;
@@ -159,28 +158,24 @@ public class AudioPlayer implements Playable {
     }
 
 
-    public void setCurrentTrackList(AudioFolder audioFolder) {
-        position = -1;
+    public void setCurrentTrackList(AudioFolder audioFolder, List<AudioFile> audioFiles) {
+        currentTrackList = audioFiles;
+
         audioFolder.isSelected = true;
-
         repository.updateSelectedAudioFolder(audioFolder);
-        repository.getSelectedFolderAudioFiles()
-                .first()
-                .subscribeOn(Schedulers.io())
-                .subscribe(audioFiles -> {
-                    if (audioFiles != null) {
-                        currentTrackList = audioFiles;
 
-                        EventBus.getDefault().post(currentTrackList);
-                    }
-                });
+        EventBus.getDefault().post(currentTrackList);
+    }
+
+    public void setCurrentTrackList(List<AudioFile> audioFiles) {
+        currentTrackList = audioFiles;
+
+        EventBus.getDefault().post(currentTrackList);
     }
 
     public void setSortingTrackList(List<AudioFile> audioFiles) {
-
-        trackListIterator.findPosition();
-
         currentTrackList = audioFiles;
+        trackListIterator.findPosition();
     }
 
     public Observable<AudioFile> getCurrentAudioFile() {
@@ -263,6 +258,7 @@ public class AudioPlayer implements Playable {
         public void findPosition() {
             if (currentTrackList != null && currentTrackList.contains(currentTrack)) {
                 position = currentTrackList.indexOf(currentTrack);
+                Log.d("state", "find position: " + position);
             }
         }
 

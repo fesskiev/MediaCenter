@@ -110,4 +110,12 @@ public class AnimationUtils {
         });
     }
 
+    public void translateMenu(View menu, float value) {
+        menu.animate()
+                .translationY(value)
+                .setDuration(DURATION_300)
+                .setInterpolator(fastOutSlowInInterpolator);
+    }
+
+
 }

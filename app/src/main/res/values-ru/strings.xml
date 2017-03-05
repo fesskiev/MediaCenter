@@ -202,7 +202,7 @@
     <string name="sort_by_duration">Продолжительность</string>
     <string name="sort_by_file_size">Размер файла</string>
     <string name="sort_by_track_number">Номер трека</string>
-    <string name="sort_by_timestamp">Время добавления</string>
+    <string name="sort_by_timestamp">Недавние</string>
 
     <string name="folder_details_name">Имя папки:</string>
     <string name="folder_details_path">Путь:</string>

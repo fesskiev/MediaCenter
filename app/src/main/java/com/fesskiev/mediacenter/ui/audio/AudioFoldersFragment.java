@@ -143,15 +143,11 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                     public void onOpenTrackListCall() {
                         AudioFolder audioFolder = audioFolders.get(getAdapterPosition());
                         if (audioFolder != null) {
-
-                            MediaApplication.getInstance().getAudioPlayer().setCurrentTrackList(audioFolder);
-
                             Activity act = activity.get();
                             if (act != null) {
                                 Intent i = new Intent(act, TrackListActivity.class);
                                 i.putExtra(Constants.EXTRA_CONTENT_TYPE, CONTENT_TYPE.FOLDERS);
-                                i.putExtra(Constants.EXTRA_CONTENT_TYPE_VALUE, audioFolder.id);
-                                i.putExtra(Constants.EXTRA_AUDIO_FOLDER_TITLE_VALUE, audioFolder.folderName);
+                                i.putExtra(Constants.EXTRA_AUDIO_FOLDER, audioFolder);
                                 act.startActivity(i);
                             }
                         }
@@ -309,9 +305,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                     .first()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(integer -> {
-                        notifyDataSetChanged();
-                    });
+                    .subscribe(integer -> notifyDataSetChanged());
         }
     }
 }

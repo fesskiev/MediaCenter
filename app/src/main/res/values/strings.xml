@@ -228,7 +228,7 @@
     <string name="sort_by_duration">Duration</string>
     <string name="sort_by_file_size">File size</string>
     <string name="sort_by_track_number">Track number</string>
-    <string name="sort_by_timestamp">Adding time</string>
+    <string name="sort_by_timestamp">Recent</string>
 
     <string name="folder_details_name">Folder name:</string>
     <string name="folder_details_path">Path:</string>

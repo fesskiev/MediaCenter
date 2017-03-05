@@ -2,10 +2,10 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context=".ui.audio.tracklist.TrackListActivity">
+    android:fitsSystemWindows="true">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -22,10 +22,83 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <RelativeLayout
-        android:id="@+id/content"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="?android:attr/actionBarSize" />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?android:attr/actionBarSize">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycleView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:listitem="@layout/item_track_list"/>
+
+
+        <com.github.clans.fab.FloatingActionMenu
+            android:id="@+id/menuSorting"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="bottom|end"
+            android:padding="8dp"
+            fab:menu_backgroundColor="@color/colorFabBackground"
+            fab:menu_labels_textColor="@color/secondary_text"
+            fab:menu_labels_colorNormal="@color/white"
+            fab:menu_fab_label="Сортировка"
+            fab:menu_icon="@drawable/icon_sorting"
+            fab:menu_colorNormal="@color/accent"
+            fab:menu_colorPressed="@color/accent"
+            fab:menu_colorRipple="@color/accent"
+            fab:menu_labels_ellipsize="end"
+            fab:menu_labels_position="left"
+            fab:menu_labels_singleLine="true"
+            fab:menu_openDirection="up">
+
+            <com.github.clans.fab.FloatingActionButton
+                android:id="@+id/menuSortDuration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_sort_duration"
+                fab:fab_colorNormal="@color/accent"
+                fab:fab_colorPressed="@color/accent"
+                fab:fab_colorRipple="@color/accent"
+                fab:fab_label="@string/sort_by_duration"
+                fab:fab_size="mini" />
+
+            <com.github.clans.fab.FloatingActionButton
+                android:id="@+id/menuSortFileSize"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_sort_file_size"
+                fab:fab_colorNormal="@color/accent"
+                fab:fab_colorPressed="@color/accent"
+                fab:fab_colorRipple="@color/accent"
+                fab:fab_label="@string/sort_by_file_size"
+                fab:fab_size="mini" />
+
+            <com.github.clans.fab.FloatingActionButton
+                android:id="@+id/menuSortTrackNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_sort_track_number"
+                fab:fab_colorNormal="@color/accent"
+                fab:fab_colorPressed="@color/accent"
+                fab:fab_colorRipple="@color/accent"
+                fab:fab_label="@string/sort_by_track_number"
+                fab:fab_size="mini" />
+
+            <com.github.clans.fab.FloatingActionButton
+                android:id="@+id/menuSortTimestamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_sort_timestamp"
+                fab:fab_colorNormal="@color/accent"
+                fab:fab_colorPressed="@color/accent"
+                fab:fab_colorRipple="@color/accent"
+                fab:fab_label="@string/sort_by_timestamp"
+                fab:fab_size="mini" />
+
+        </com.github.clans.fab.FloatingActionMenu>
+
+    </FrameLayout>
 
 </android.support.design.widget.CoordinatorLayout>
