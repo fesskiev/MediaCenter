@@ -379,7 +379,7 @@ public class TrackListFragment extends Fragment implements View.OnClickListener 
                         if (audioFile.filePath.delete()) {
                             Utils.showCustomSnackbar(getView(),
                                     getContext(),
-                                    getString(R.string.shackbar_delete_file),
+                                    getString(R.string.shackbar_delete_audio_file),
                                     Snackbar.LENGTH_LONG).show();
 
                             repository.deleteAudioFile(audioFile.getFilePath());

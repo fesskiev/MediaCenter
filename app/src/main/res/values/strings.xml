@@ -72,6 +72,7 @@
 
 
     <string name="shackbar_delete_file">Video file has been deleted</string>
+    <string name="shackbar_delete_audio_file">Audio file has been deleted</string>
     <string name="shackbar_delete_folder">Folder with files has been deleted</string>
 
     <string name="shackbar_connection_error">Internet connection error!</string>

@@ -18,6 +18,7 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
+import com.google.firebase.crash.FirebaseCrash;
 
 import rx.plugins.RxJavaErrorHandler;
 import rx.plugins.RxJavaPlugins;
@@ -67,6 +68,7 @@ public class MediaApplication extends Application {
             @Override
             public void handleError(Throwable e) {
                 e.printStackTrace();
+                FirebaseCrash.report(e);
                 super.handleError(e);
             }
         });

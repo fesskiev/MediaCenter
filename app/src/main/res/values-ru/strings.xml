@@ -69,6 +69,7 @@
     <string name="dialog_delete_folder_message">Удалить папку с файлами?</string>
 
     <string name="shackbar_delete_file">Видео удалено</string>
+    <string name="shackbar_delete_audio_file">Трек удален</string>
     <string name="shackbar_delete_folder">Папка с файлами удалена</string>
 
     <string name="shackbar_connection_error">Отсутствует подключение к интернету</string>
