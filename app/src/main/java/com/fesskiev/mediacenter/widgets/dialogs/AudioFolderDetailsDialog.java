@@ -21,7 +21,7 @@ import java.util.Locale;
 
 public class AudioFolderDetailsDialog extends DialogFragment {
 
-    private static final String DETAIL_AUDIO_FOLDER = "com.fesskiev.mediacenter.DETAIL_AUDIO_FOLDER";
+    private static final String DETAIL_AUDIO_FOLDER = "com.fesskiev.player.DETAIL_AUDIO_FOLDER";
 
     public static AudioFolderDetailsDialog newInstance(AudioFolder audioFolder) {
         AudioFolderDetailsDialog dialog = new AudioFolderDetailsDialog();
@@ -32,7 +32,6 @@ public class AudioFolderDetailsDialog extends DialogFragment {
     }
 
     private AudioFolder audioFolder;
-
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

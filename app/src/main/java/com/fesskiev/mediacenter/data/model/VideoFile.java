@@ -3,6 +3,8 @@ package com.fesskiev.mediacenter.data.model;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.fesskiev.mediacenter.data.source.local.db.DatabaseHelper;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
@@ -14,12 +16,13 @@ import java.io.IOException;
 import java.util.UUID;
 
 
-public class VideoFile implements MediaFile {
+public class VideoFile implements MediaFile, Parcelable {
 
     public String id;
     public File filePath;
     public String framePath;
     public String description;
+    public String resolution;
     public boolean inPlayList;
     public long size;
     public long timestamp;
@@ -30,6 +33,7 @@ public class VideoFile implements MediaFile {
         id = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ID));
         filePath = new File(cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_FILE_PATH)));
         framePath = cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_FRAME_PATH));
+        resolution = cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_RESOLUTION));
         description = cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_DESCRIPTION));
         inPlayList = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.VIDEO_IN_PLAY_LIST)) == 1;
         length = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.VIDEO_LENGTH));
@@ -45,6 +49,18 @@ public class VideoFile implements MediaFile {
         }
 
         fetchVideoData();
+    }
+
+    protected VideoFile(Parcel in) {
+        this.id = in.readString();
+        this.filePath = (File) in.readSerializable();
+        this.framePath = in.readString();
+        this.description = in.readString();
+        this.resolution = in.readString();
+        this.inPlayList = in.readByte() != 0;
+        this.size = in.readLong();
+        this.timestamp = in.readLong();
+        this.length = in.readLong();
     }
 
     private void fetchVideoData() {
@@ -68,17 +84,12 @@ public class VideoFile implements MediaFile {
             }
 
             StringBuilder sb = new StringBuilder();
-            String name = filePath.getName();
-            if (name.length() > 20) {
-                String cutName = name.substring(0, 20);
-                sb.append(cutName);
-            }
-            sb.append(":");
             sb.append(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
             sb.append("x");
             sb.append(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+            resolution = sb.toString();
 
-            description = sb.toString();
+            description = filePath.getName();
             retriever.release();
         } catch (Exception e) {
             e.printStackTrace();
@@ -179,10 +190,41 @@ public class VideoFile implements MediaFile {
                 ", filePath=" + filePath +
                 ", framePath='" + framePath + '\'' +
                 ", description='" + description + '\'' +
+                ", resolution='" + resolution + '\'' +
                 ", inPlayList=" + inPlayList +
                 ", size=" + size +
                 ", timestamp=" + timestamp +
                 ", length=" + length +
                 '}';
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.id);
+        dest.writeSerializable(this.filePath);
+        dest.writeString(this.framePath);
+        dest.writeString(this.description);
+        dest.writeString(this.resolution);
+        dest.writeByte(this.inPlayList ? (byte) 1 : (byte) 0);
+        dest.writeLong(this.size);
+        dest.writeLong(this.timestamp);
+        dest.writeLong(this.length);
+    }
+
+    public static final Creator<VideoFile> CREATOR = new Creator<VideoFile>() {
+        @Override
+        public VideoFile createFromParcel(Parcel source) {
+            return new VideoFile(source);
+        }
+
+        @Override
+        public VideoFile[] newArray(int size) {
+            return new VideoFile[size];
+        }
+    };
 }

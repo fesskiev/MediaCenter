@@ -237,4 +237,7 @@
     <string name="folder_details_count">Track count:</string>
     <string name="folder_details_timestamp">Created:</string>
 
+    <string name="video_details_name">Video name:</string>
+    <string name="video_resolution">Resolution:</string>
+
 </resources>

@@ -122,6 +122,7 @@ public class LocalDataSource implements LocalSource {
         values.put(DatabaseHelper.ID, videoFile.id);
         values.put(DatabaseHelper.VIDEO_FILE_PATH, videoFile.getFilePath());
         values.put(DatabaseHelper.VIDEO_FRAME_PATH, videoFile.framePath);
+        values.put(DatabaseHelper.VIDEO_RESOLUTION, videoFile.resolution);
         values.put(DatabaseHelper.VIDEO_DESCRIPTION, videoFile.description);
         values.put(DatabaseHelper.VIDEO_LENGTH, videoFile.length);
         values.put(DatabaseHelper.VIDEO_SIZE, videoFile.size);
@@ -141,6 +142,7 @@ public class LocalDataSource implements LocalSource {
         values.put(DatabaseHelper.ID, videoFile.id);
         values.put(DatabaseHelper.VIDEO_FILE_PATH, videoFile.getFilePath());
         values.put(DatabaseHelper.VIDEO_FRAME_PATH, videoFile.framePath);
+        values.put(DatabaseHelper.VIDEO_RESOLUTION, videoFile.resolution);
         values.put(DatabaseHelper.VIDEO_DESCRIPTION, videoFile.description);
         values.put(DatabaseHelper.VIDEO_LENGTH, videoFile.length);
         values.put(DatabaseHelper.VIDEO_SIZE, videoFile.size);

@@ -13,6 +13,8 @@ public class VideoContextMenu extends ContextMenu {
         void onAddVideoToPlayList();
 
         void onDeleteVideo();
+
+        void onDetailsVideoFile();
     }
 
     private OnVideoContextMenuListener listener;
@@ -23,6 +25,13 @@ public class VideoContextMenu extends ContextMenu {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.video_context_menu_layout, this, true);
+
+        findViewById(R.id.menuDetailsVideoFile).setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onDetailsVideoFile();
+            }
+            ContextMenuManager.getInstance().hideContextMenu();
+        });
 
         findViewById(R.id.menuAddVideoToPlayList).setOnClickListener(v -> {
             if (listener != null) {

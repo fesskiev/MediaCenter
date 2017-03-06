@@ -207,8 +207,11 @@
     <string name="folder_details_name">Имя папки:</string>
     <string name="folder_details_path">Путь:</string>
     <string name="folder_details_size">Размер:</string>
-    <string name="folder_details_duration">Общее время звучания:</string>
+    <string name="folder_details_duration">Общее время:</string>
     <string name="folder_details_count">Треков в папке:</string>
-    <string name="folder_details_timestamp">Создана:</string>
+    <string name="folder_details_timestamp">Создан:</string>
+
+    <string name="video_details_name">Имя файла:</string>
+    <string name="video_resolution">Разрешение:</string>
 
 </resources>

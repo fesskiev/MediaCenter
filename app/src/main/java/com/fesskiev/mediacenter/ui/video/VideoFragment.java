@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
@@ -31,6 +33,7 @@ import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
+import com.fesskiev.mediacenter.widgets.dialogs.VideoFileDetailsDialog;
 import com.fesskiev.mediacenter.widgets.item.VideoCardView;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.menu.VideoContextMenu;
@@ -275,7 +278,26 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                         public void onDeleteVideo() {
                             deleteVideo(position);
                         }
+
+                        @Override
+                        public void onDetailsVideoFile() {
+                            videoFileDetails(position);
+                        }
                     });
+        }
+
+        private void videoFileDetails(int position) {
+            Activity act = activity.get();
+            if (act != null) {
+                final VideoFile videoFile = videoFiles.get(position);
+                if (videoFile != null) {
+                    FragmentTransaction transaction =
+                            ((FragmentActivity) act).getSupportFragmentManager().beginTransaction();
+                    transaction.addToBackStack(null);
+                    VideoFileDetailsDialog.newInstance(videoFile)
+                            .show(transaction, VideoFileDetailsDialog.class.getName());
+                }
+            }
         }
 
         private void deleteVideo(final int position) {
