@@ -6,7 +6,9 @@ import android.animation.AnimatorSet;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
+import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
@@ -19,6 +21,8 @@ public class PlayPauseButton extends ImageView {
 
     private PlayPauseDrawable drawable;
     private AnimatorSet animatorSet;
+    private Drawable timerDrawable;
+    private boolean showTimer;
 
     public PlayPauseButton(Context context) {
         super(context);
@@ -35,13 +39,15 @@ public class PlayPauseButton extends ImageView {
         init(context);
     }
 
-    private void init(Context context){
+    private void init(Context context) {
         final Resources res = context.getResources();
         drawable = new PlayPauseDrawable(context);
         drawable.setCallback(this);
         drawable.setPauseBarWidth(res.getDimensionPixelSize(R.dimen.pause_bar_big_width));
         drawable.setPauseBarHeight(res.getDimensionPixelSize(R.dimen.pause_bar_big_height));
         drawable.setPauseBarDistance(res.getDimensionPixelSize(R.dimen.pause_bar_big_distance));
+
+        timerDrawable = ContextCompat.getDrawable(context, R.drawable.avd_clock_timer_primary);
     }
 
     @Override
@@ -58,7 +64,9 @@ public class PlayPauseButton extends ImageView {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        drawable.draw(canvas);
+        if (!showTimer) {
+            drawable.draw(canvas);
+        }
     }
 
     public void setPlay(boolean play) {
@@ -73,8 +81,21 @@ public class PlayPauseButton extends ImageView {
         animatorSet.start();
     }
 
-    public void setColor(int color){
+    public void setColor(int color) {
         drawable.setColor(color);
+    }
+
+    public void startConvertState() {
+        showTimer = true;
+        setImageDrawable(timerDrawable);
+        ((AnimatedVectorDrawable) getDrawable()).start();
+
+    }
+
+    public void stopConvertState() {
+        showTimer = false;
+        ((AnimatedVectorDrawable) getDrawable()).stop();
+        setImageDrawable(null);
     }
 
 }

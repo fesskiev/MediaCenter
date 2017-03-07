@@ -111,6 +111,7 @@ public class PlaybackService extends Service {
     private int position;
     private float positionPercent;
     private float volume;
+    private float focusedVolume;
     private int durationScale;
     private boolean playing;
     private boolean looping;
@@ -268,7 +269,7 @@ public class PlaybackService extends Service {
 
         volume = 100;
 
-        timer = new CountDownTimer(1000);
+        timer = new CountDownTimer(500);
         timer.pause();
         timer.setOnCountDownListener(() -> {
             updatePlaybackState();
@@ -292,10 +293,11 @@ public class PlaybackService extends Service {
                             if (!playing) {
                                 play();
                             }
-                            setVolumeAudioPlayer(volume);
+                            setVolumeAudioPlayer(focusedVolume);
                             break;
                         case AudioFocusManager.AUDIO_NO_FOCUS_CAN_DUCK:
                             Log.d(TAG, "onFocusChanged: NO_FOCUS_CAN_DUCK");
+                            focusedVolume = volume;
                             setVolumeAudioPlayer(50);
                             break;
                         case AudioFocusManager.AUDIO_NO_FOCUS_NO_DUCK:

@@ -378,7 +378,7 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                                     }
                                 })
                                 .doOnNext(selectedTrack -> {
-                                    if (selectedTrack != null && !selectedTrack.equals(audioFile)) {
+                                    if (selectedTrack == null || !selectedTrack.equals(audioFile)) {
                                         audioPlayer.setCurrentAudioFileAndPlay(audioFile);
                                     }
                                 })

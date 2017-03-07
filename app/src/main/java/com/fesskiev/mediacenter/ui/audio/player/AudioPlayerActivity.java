@@ -20,6 +20,7 @@ import com.fesskiev.mediacenter.ui.audio.tracklist.PlayerTrackListActivity;
 import com.fesskiev.mediacenter.ui.effects.EffectsActivity;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
+import com.fesskiev.mediacenter.utils.converter.AudioConverterHelper;
 import com.fesskiev.mediacenter.widgets.buttons.MuteSoloButton;
 import com.fesskiev.mediacenter.widgets.buttons.RepeatButton;
 import com.fesskiev.mediacenter.widgets.cards.DescriptionCardView;
@@ -54,6 +55,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     private TextView album;
     private TextView trackDescription;
 
+    private boolean lastLoadError;
     private boolean lastPlaying;
     private boolean lastLooping;
     private int lastPositionSeconds = -1;
@@ -209,10 +211,23 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPlaybackStateEvent(PlaybackService playbackState) {
 
+
         boolean playing = playbackState.isPlaying();
         if (lastPlaying != playing) {
             lastPlaying = playing;
             controlView.setPlay(playing);
+        }
+
+        boolean isLoadError = playbackState.isLoadError();
+        if (lastLoadError != isLoadError) {
+            lastLoadError = isLoadError;
+            if (lastLoadError) {
+                if (AudioConverterHelper.isAudioFileFLAC(audioPlayer.getCurrentTrack())) {
+                    controlView.startConvertState();
+                }
+            } else {
+                controlView.stopConvertState();
+            }
         }
 
         int positionSeconds = playbackState.getPosition();

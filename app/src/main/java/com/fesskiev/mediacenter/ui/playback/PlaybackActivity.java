@@ -8,7 +8,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -33,7 +32,6 @@ import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.converter.AudioConverterHelper;
 import com.fesskiev.mediacenter.widgets.buttons.PlayPauseFloatingButton;
-import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
 
 import org.greenrobot.eventbus.EventBus;
@@ -312,25 +310,21 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
                     @Override
                     public void onStart() {
-                        ContextMenuManager.getInstance().toggleConverterContextMenu((ViewGroup) PlaybackActivity.this.getWindow().getDecorView());
+                        playPauseButton.startConvertState();
                         Log.e("error", "onStart() convert");
                     }
 
                     @Override
                     public void onSuccess(AudioFile audioFile) {
                         Log.e("error", "onSuccess convert");
-                        ContextMenuManager.getInstance().toggleConverterContextMenu((ViewGroup) PlaybackActivity.this.getWindow().getDecorView());
+                        playPauseButton.stopConvertState();
+
                         audioPlayer.setCurrentAudioFileAndPlay(audioFile);
                     }
 
                     @Override
                     public void onFailure(Exception error) {
-                        Log.e("error", "onFailure");
-                        Utils.showCustomSnackbar(getCurrentFocus(),
-                                getApplicationContext(),
-                                error.getMessage(),
-                                Snackbar.LENGTH_LONG)
-                                .show();
+                        Log.e("error", "onFailure: " + error.getMessage());
                     }
                 });
     }
@@ -343,26 +337,23 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
                 .first()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(audioFolder -> {
-                    BitmapHelper.getInstance().loadArtwork(audioFile, audioFolder, cover,
-                            new BitmapHelper.OnBitmapLoadListener() {
-                                @Override
-                                public void onLoaded(Bitmap bitmap) {
+                .subscribe(audioFolder -> BitmapHelper.getInstance().loadArtwork(audioFile, audioFolder, cover,
+                        new BitmapHelper.OnBitmapLoadListener() {
+                            @Override
+                            public void onLoaded(Bitmap bitmap) {
 
-                                    lastCover = bitmap;
+                                lastCover = bitmap;
 
-                                    notificationHelper.updateNotification(audioFile, lastCover, 0, lastPlaying);
+                                notificationHelper.updateNotification(audioFile, lastCover, 0, lastPlaying);
 
-                                    PlaybackService.startPlaybackForegroundService(getApplicationContext());
-                                }
+                                PlaybackService.startPlaybackForegroundService(getApplicationContext());
+                            }
 
-                                @Override
-                                public void onFailed() {
+                            @Override
+                            public void onFailed() {
 
-                                }
-                            });
-                });
-
+                            }
+                        }));
 
     }
 

@@ -30,37 +30,6 @@ public class ContextMenuManager extends RecyclerView.OnScrollListener implements
 
     }
 
-    public void toggleConverterContextMenu(ViewGroup decorView) {
-        if (contextMenuView == null) {
-            if (!isContextMenuShowing) {
-                isContextMenuShowing = true;
-
-                contextMenuView = new ConverterContextMenu(decorView.getContext());
-
-                contextMenuView.addOnAttachStateChangeListener(this);
-
-                decorView.addView(contextMenuView);
-
-                contextMenuView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                    @Override
-                    public boolean onPreDraw() {
-                        /**
-                         * null pointer exception sometimes
-                         */
-                        if(contextMenuView != null) {
-                            contextMenuView.getViewTreeObserver().removeOnPreDrawListener(this);
-                        }
-                        setupContextMenuConvertInitialPosition(decorView);
-                        performShowAnimation();
-                        return false;
-                    }
-                });
-            }
-        } else {
-            hideContextMenu();
-        }
-    }
-
     public void toggleVideoContextMenu(View openingView,
                                        VideoContextMenu.OnVideoContextMenuListener listener) {
         if (contextMenuView == null) {
@@ -114,13 +83,6 @@ public class ContextMenuManager extends RecyclerView.OnScrollListener implements
         } else {
             hideContextMenu();
         }
-    }
-
-    private void setupContextMenuConvertInitialPosition(View openingView) {
-        final int[] openingViewLocation = new int[2];
-        openingView.getLocationOnScreen(openingViewLocation);
-        contextMenuView.setTranslationX(openingViewLocation[0]);
-        contextMenuView.setTranslationY(openingViewLocation[1]);
     }
 
     private void setupContextMenuInitialPosition(View openingView) {
