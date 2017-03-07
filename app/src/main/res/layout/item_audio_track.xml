@@ -20,25 +20,22 @@
 
         <ImageView
             android:id="@+id/itemCover"
-            android:layout_width="62dp"
-            android:layout_height="62dp"
+            android:layout_width="54dp"
+            android:layout_height="54dp"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:contentDescription="@string/app_name"
             android:scaleType="fitCenter"
-            android:transitionName="cover"
             tools:src="@drawable/cover" />
 
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/content"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerVertical="true"
             android:layout_marginStart="12dp"
             android:layout_toEndOf="@+id/itemCover"
-            android:layout_toStartOf="@+id/itemDuration"
             android:orientation="vertical">
-
 
             <TextView
                 android:id="@+id/itemTitle"
@@ -47,31 +44,50 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
+                android:layout_marginTop="10dp"
                 tools:text="Nothing Heren" />
 
-            <TextView
-                android:id="@+id/filePath"
-                style="@style/AudioTrackDescTextAppearance"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:ellipsize="end"
-                android:maxLines="1"
-                tools:text="Nothing Heren.mp3" />
+                android:layout_below="@+id/itemTitle"
+                android:layout_marginTop="5dp">
 
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/itemPath"
+                    style="@style/AudioTrackDescTextAppearance"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:layout_weight="1.5"
+                    android:ellipsize="marquee"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:freezesText="true"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
+                    tools:text="Nothing Heren.mp3" />
 
-        <TextView
-            android:id="@+id/itemDuration"
-            style="@style/AudioTrackDescTextAppearance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="5dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            tools:text="02:28" />
+                <View
+                    style="@style/DividerStyle"
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent" />
+
+                <TextView
+                    android:id="@+id/itemDuration"
+                    style="@style/AudioTrackDescTextAppearance"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    tools:text="02:28" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
 
     </RelativeLayout>
 

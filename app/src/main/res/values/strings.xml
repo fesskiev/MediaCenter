@@ -230,6 +230,8 @@
     <string name="sort_by_track_number">Track number</string>
     <string name="sort_by_timestamp">Recent</string>
 
+    <string name="playlist_menu_clear">Clear</string>
+
     <string name="folder_details_name">Folder name:</string>
     <string name="folder_details_path">Path:</string>
     <string name="folder_details_size">Size:</string>

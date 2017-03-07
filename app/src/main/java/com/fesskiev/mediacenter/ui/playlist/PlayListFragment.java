@@ -145,10 +145,12 @@ public class PlayListFragment extends Fragment {
                 super(v);
                 v.setOnClickListener(v1 -> startPlayerActivity(getAdapterPosition()));
 
+                cover = (ImageView) v.findViewById(R.id.itemCover);
                 duration = (TextView) v.findViewById(R.id.itemDuration);
                 title = (TextView) v.findViewById(R.id.itemTitle);
-                filePath = (TextView) v.findViewById(R.id.filePath);
-                cover = (ImageView) v.findViewById(R.id.itemCover);
+                filePath = (TextView) v.findViewById(R.id.itemPath);
+                filePath.setSelected(true);
+
             }
         }
 
@@ -168,7 +170,14 @@ public class PlayListFragment extends Fragment {
 
                 BitmapHelper.getInstance().loadTrackListArtwork(mediaFile, null, holder.cover);
 
-                holder.duration.setText(Utils.getDurationString(mediaFile.getLength()));
+                switch (mediaFile.getMediaType()) {
+                    case VIDEO:
+                        holder.duration.setText(Utils.getVideoFileTimeFormat(mediaFile.getLength()));
+                        break;
+                    case AUDIO:
+                        holder.duration.setText(Utils.getDurationString(mediaFile.getLength()));
+                        break;
+                }
                 holder.title.setText(mediaFile.getTitle());
                 holder.filePath.setText(mediaFile.getFilePath());
             }

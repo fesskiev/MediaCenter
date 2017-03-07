@@ -58,6 +58,7 @@
             fab:fab_colorNormal="@color/accent"
             fab:fab_colorPressed="@color/accent"
             fab:fab_colorRipple="@color/accent"
+            fab:fab_label="@string/playlist_menu_clear"
             fab:fab_size="mini" />
 
     </com.github.clans.fab.FloatingActionMenu>
