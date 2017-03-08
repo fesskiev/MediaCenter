@@ -1,7 +1,6 @@
 package com.fesskiev.mediacenter.ui.about;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -33,7 +32,6 @@ public class AboutFragment extends Fragment implements View.OnClickListener {
         ((TextView)view.findViewById(R.id.versionValue)).setText(BuildConfig.VERSION_NAME);
 
         view.findViewById(R.id.mailContainer).setOnClickListener(this);
-        view.findViewById(R.id.vkContainer).setOnClickListener(this);
     }
 
     @Override
@@ -42,15 +40,7 @@ public class AboutFragment extends Fragment implements View.OnClickListener {
             case R.id.mailContainer:
                 sendMail();
                 break;
-            case R.id.vkContainer:
-                openVK();
-                break;
         }
-    }
-
-    private void openVK() {
-        Intent intent= new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.vk_page)));
-        startActivity(intent);
     }
 
     private void sendMail() {
