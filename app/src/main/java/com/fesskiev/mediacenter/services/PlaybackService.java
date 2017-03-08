@@ -67,6 +67,11 @@ public class PlaybackService extends Service {
     public static final String ACTION_PLAYBACK_WHOOSH_LEVEL =
             "com.fesskiev.player.action.ACTION_PLAYBACK_WHOOSH_LEVEL";
 
+    public static final String ACTION_PLAYBACK_PITCH_SHIFT =
+            "com.fesskiev.player.action.ACTION_PLAYBACK_PITCH_SHIFT";
+    public static final String ACTION_PLAYBACK_TEMPO =
+            "com.fesskiev.player.action.ACTION_PLAYBACK_TEMPO";
+
     public static final String ACTION_START_RECORDING =
             "com.fesskiev.player.action.ACTION_START_RECORDING";
     public static final String ACTION_STOP_RECORDING =
@@ -102,6 +107,11 @@ public class PlaybackService extends Service {
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_WHOOSH_STATE";
     public static final String PLAYBACK_EXTRA_WHOOSH_LEVEL
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_WHOOSH_LEVEL";
+
+    public static final String PLAYBACK_EXTRA_PITCH_SHIFT_LEVEL
+            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_PITCH_SHIFT_LEVEL";
+    public static final String PLAYBACK_EXTRA_TEMPO_LEVEL
+            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_TEMPO_LEVEL";
 
 
     private AudioFocusManager audioFocusManager;
@@ -141,6 +151,22 @@ public class PlaybackService extends Service {
         intent.setAction(ACTION_STOP_FOREGROUND);
         context.startService(intent);
     }
+
+    public static void setTempo(Context context, double tempo) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_PLAYBACK_TEMPO);
+        intent.putExtra(PLAYBACK_EXTRA_TEMPO_LEVEL, tempo);
+        context.startService(intent);
+    }
+
+
+    public static void setPitchShift(Context context, int pitchShift) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_PLAYBACK_PITCH_SHIFT);
+        intent.putExtra(PLAYBACK_EXTRA_PITCH_SHIFT_LEVEL, pitchShift);
+        context.startService(intent);
+    }
+
 
     public static void startRecording(Context context) {
         Intent intent = new Intent(context, PlaybackService.class);
@@ -398,6 +424,14 @@ public class PlaybackService extends Service {
                             setWhooshValue((int) whooshState.getMix(), (int) whooshState.getFrequency());
                         }
                         break;
+                    case ACTION_PLAYBACK_TEMPO:
+                        double tempoLevel = intent.getDoubleExtra(PLAYBACK_EXTRA_TEMPO_LEVEL, 0d);
+                        setTempo(tempoLevel);
+                        break;
+                    case ACTION_PLAYBACK_PITCH_SHIFT:
+                        int pitchShiftLevel = intent.getIntExtra(PLAYBACK_EXTRA_PITCH_SHIFT_LEVEL, 0);
+                        setPitchShift(pitchShiftLevel);
+                        break;
                     case ACTION_PLAYBACK_STATE:
                         sendPlaybackStateIfNeed();
                         break;
@@ -614,6 +648,10 @@ public class PlaybackService extends Service {
     public native void setSeekAudioPlayer(int value);
 
     public native void setLoopingAudioPlayer(boolean isLooping);
+
+    public native void setTempo(double tempo);
+
+    public native void setPitchShift(int pitchShift);
 
     /***
      * EQ methods

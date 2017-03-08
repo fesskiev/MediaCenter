@@ -37,8 +37,8 @@
 
                 <ImageView
                     android:id="@+id/itemCover1"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
                     android:contentDescription="@string/app_name"
@@ -74,8 +74,8 @@
 
                 <ImageView
                     android:id="@+id/itemCover2"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
                     android:contentDescription="@string/app_name"
@@ -112,8 +112,8 @@
 
                 <ImageView
                     android:id="@+id/itemCover3"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
                     android:contentDescription="@string/app_name"
@@ -149,8 +149,8 @@
 
                 <ImageView
                     android:id="@+id/itemCover"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
                     android:contentDescription="@string/app_name"
@@ -178,6 +178,50 @@
             </RelativeLayout>
 
             <View
+                android:id="@+id/divider2"
+                style="@style/DividerStyle"
+                android:layout_width="match_parent"
+                android:layout_height="1dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/MediaDrawerTextAppearance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="5dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="@string/effect_tempo_name" />
+
+                <SeekBar
+                    android:id="@+id/seekTempo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="5dp"
+                    android:max="100" />
+
+                <TextView
+                    android:id="@+id/tempoValue"
+                    style="@style/MediaDrawerTextAppearance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="1 X" />
+
+            </LinearLayout>
+
+            <View
                 android:id="@+id/divider0"
                 style="@style/DividerStyle"
                 android:layout_width="match_parent"
@@ -192,8 +236,8 @@
 
                 <ImageView
                     android:id="@+id/itemCover4"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
                     android:contentDescription="@string/app_name"

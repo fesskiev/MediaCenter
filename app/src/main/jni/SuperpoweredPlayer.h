@@ -39,6 +39,9 @@ public:
     void setLooping(bool looping);
     void open(const char *path);
 
+    void setTempo(double tempo);
+    void setPitchShift(int pitchShift);
+
     void startRecording(const char *destinationPath);
     void stopRecording();
 

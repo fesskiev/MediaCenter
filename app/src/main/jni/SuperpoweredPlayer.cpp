@@ -94,10 +94,10 @@ SuperpoweredPlayer::SuperpoweredPlayer(unsigned int samplerate, unsigned int buf
         1.0f) {
 
     buffer = (float *) memalign(16, (buffersize + 16) * sizeof(float) * 2);
-    bufferRecording = (float *)memalign(16, (buffersize + 16) * sizeof(float) * 2);
+    bufferRecording = (float *) memalign(16, (buffersize + 16) * sizeof(float) * 2);
 
     player = new SuperpoweredAdvancedAudioPlayer(&player, playerEventCallback, samplerate, 0);
-    player->syncMode = SuperpoweredAdvancedAudioPlayerSyncMode_None;
+    player->syncMode = SuperpoweredAdvancedAudioPlayerSyncMode_TempoAndBeat;
 
     audioSystem = new SuperpoweredAndroidAudioIO(samplerate, buffersize, true, true,
                                                  audioProcessing, this, -1, SL_ANDROID_STREAM_MEDIA,
@@ -325,6 +325,18 @@ void SuperpoweredPlayer::stopRecording() {
     recorder->stop();
 }
 
+void SuperpoweredPlayer::setTempo(double value) {
+
+    double tempo = value / 50.0f;
+    __android_log_print(ANDROID_LOG_VERBOSE, "MediaCenter", "setTempo: tempo = %f", tempo);
+
+    player->setTempo(tempo, false);
+}
+
+void SuperpoweredPlayer::setPitchShift(int pitchShift) {
+    player->setPitchShift(pitchShift);
+}
+
 
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     gJavaVM = vm;
@@ -516,5 +528,17 @@ extern "C" JNIEXPORT void
 Java_com_fesskiev_mediacenter_services_PlaybackService_stopRecording(JNIEnv *env,
                                                                      jobject instance) {
     player->stopRecording();
+}
+
+extern "C" JNIEXPORT void
+Java_com_fesskiev_mediacenter_services_PlaybackService_setPitchShift(JNIEnv *env, jobject instance,
+                                                                     jint pitchShift) {
+    player->setPitchShift(pitchShift);
+}
+
+extern "C" JNIEXPORT void
+Java_com_fesskiev_mediacenter_services_PlaybackService_setTempo(JNIEnv *env, jobject instance,
+                                                                jdouble tempo) {
+    player->setTempo(tempo);
 }
 
