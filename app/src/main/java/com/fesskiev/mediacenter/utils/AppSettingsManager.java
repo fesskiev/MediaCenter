@@ -30,6 +30,7 @@ public class AppSettingsManager {
     private static final String KEY_PHOTO_URL = "com.fesskiev.player.KEY_KEY_PHOTO_URL";
     private static final String KEY_FIRST_START_APP = "com.fesskiev.player.KEY_FIRST_START_APP";
 
+    private static final String KEY_SORT_TYPE = "com.fesskiev.player.KEY_SORT_TYPE";
 
     private static final String KEY_REVERB_ENABLE = "com.fesskiev.player.KEY_REVERB_ENABLE";
     private static final String KEY_REVERB_STATE = "com.fesskiev.player.KEY_REVERB_STATE";
@@ -268,6 +269,17 @@ public class AppSettingsManager {
         editor.putInt(KEY_MEDIA_CONTENT_UPDATE_TIME, update);
         editor.apply();
     }
+
+    public int getSortType() {
+        return sharedPreferences.getInt(KEY_SORT_TYPE, -1);
+    }
+
+    public void setSortType(int sortType) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(KEY_SORT_TYPE, sortType);
+        editor.apply();
+    }
+
 
 }
 
