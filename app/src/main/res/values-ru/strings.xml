@@ -160,6 +160,7 @@
     <string name="effect_whoosh_name">Whoosh</string>
     <string name="nav_recording_name">Запись</string>
     <string name="effect_tempo_name">Tемп</string>
+    <string name="effect_pitch_shift_name">Питч-шифтер</string>
 
     <string name="snackbar_last_track">Пооследний трек в списке</string>
     <string name="snackbar_first_track">Первый трек в списке</string>

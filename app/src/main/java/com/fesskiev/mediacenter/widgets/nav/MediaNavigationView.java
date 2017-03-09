@@ -7,7 +7,6 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -87,19 +86,10 @@ public class MediaNavigationView extends NavigationView implements View.OnClickL
         seekTempo.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
                 PlaybackService.setTempo(getContext().getApplicationContext(), progress);
 
-                float value = 1.0f;
-                if (progress < 50) {
-                    value = (float) progress / 50;
-//                    if (value < 0.5f) {
-//                        value = 0.5f;
-//                    }
-                } else if (progress > 50) {
-                    value = (float) progress / 50;
-                }
-
-                tempoValue.setText(String.format(Locale.ENGLISH, "%1$.1f X", value));
+                tempoValue.setText(String.format(Locale.ENGLISH, "%1$.2f X", (float) progress / 50));
             }
 
             @Override
@@ -124,7 +114,40 @@ public class MediaNavigationView extends NavigationView implements View.OnClickL
             v.onTouchEvent(event);
             return true;
         });
-        seekTempo.setProgress(50);
+
+        TextView pitchShiftValue = (TextView) view.findViewById(R.id.pitchShiftValue);
+        SeekBar seekPitchShift = (SeekBar) view.findViewById(R.id.seekPitchShift);
+        seekPitchShift.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+                PlaybackService.setPitchShift(getContext().getApplicationContext(), progress);
+
+                pitchShiftValue.setText(String.format(Locale.ENGLISH, "%1$.2f X", (float) progress / 50));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        seekPitchShift.setOnTouchListener((v, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    v.getParent().requestDisallowInterceptTouchEvent(true);
+                    break;
+                case MotionEvent.ACTION_UP:
+                    v.getParent().requestDisallowInterceptTouchEvent(false);
+                    break;
+            }
+            v.onTouchEvent(event);
+            return true;
+        });
     }
 
     @Override

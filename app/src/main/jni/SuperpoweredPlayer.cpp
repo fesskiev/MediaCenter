@@ -333,8 +333,13 @@ void SuperpoweredPlayer::setTempo(double value) {
     player->setTempo(tempo, false);
 }
 
-void SuperpoweredPlayer::setPitchShift(int pitchShift) {
-    player->setPitchShift(pitchShift);
+void SuperpoweredPlayer::setPitchShift(int value) {
+
+    double pitchShift = (value - 50) * (12 / 50.0f);
+    __android_log_print(ANDROID_LOG_VERBOSE, "MediaCenter", "setPitchShift: pitch = %i",
+                        (int)pitchShift);
+
+    player->setPitchShift((int)pitchShift);
 }
 
 
