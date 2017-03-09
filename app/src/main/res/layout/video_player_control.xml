@@ -194,10 +194,9 @@
             android:id="@+id/seekVideo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:max="100"
-            android:progressDrawable="@drawable/seek_bar_progress"
-            android:splitTrack="false"
-            android:thumb="@drawable/seek_bar_thumb" />
+            android:minHeight="2dp"
+            android:maxHeight="2dp"
+            android:max="100"/>
 
     </RelativeLayout>
 
