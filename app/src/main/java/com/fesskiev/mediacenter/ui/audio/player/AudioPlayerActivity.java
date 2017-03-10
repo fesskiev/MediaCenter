@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Animatable;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
@@ -54,6 +53,8 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     private TextView genre;
     private TextView album;
     private TextView trackDescription;
+    private ImageView prevTrack;
+    private ImageView nextTrack;
 
     private boolean lastLoadError;
     private boolean lastPlaying;
@@ -101,13 +102,13 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         album = (TextView) findViewById(R.id.album);
         volumeLevel = (TextView) findViewById(R.id.volumeLevel);
 
-        ImageView prevTrack = (ImageView) findViewById(R.id.previousTrack);
+        prevTrack = (ImageView) findViewById(R.id.previousTrack);
         prevTrack.setOnClickListener(v -> {
             ((Animatable) prevTrack.getDrawable()).start();
             previous();
         });
 
-        ImageView nextTrack = (ImageView) findViewById(R.id.nextTrack);
+        nextTrack = (ImageView) findViewById(R.id.nextTrack);
         nextTrack.setOnClickListener(v -> {
             ((Animatable) nextTrack.getDrawable()).start();
             next();
@@ -183,6 +184,8 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
         controlView.setPlay(false);
         PlaybackService.requestPlaybackStateIfNeed(getApplicationContext());
+
+        checkFirstOrLastTrack();
     }
 
     private void openTrackList() {
@@ -206,6 +209,30 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onCurrentTrackEvent(AudioFile currentTrack) {
         setAudioTrackValues(currentTrack);
+
+        checkFirstOrLastTrack();
+    }
+
+    private void checkFirstOrLastTrack() {
+        if (audioPlayer.first()) {
+            prevTrack.setAlpha(0.5f);
+            prevTrack.setEnabled(false);
+            prevTrack.setClickable(false);
+        } else {
+            prevTrack.setAlpha(1f);
+            prevTrack.setEnabled(true);
+            prevTrack.setClickable(true);
+        }
+
+        if (audioPlayer.last()) {
+            nextTrack.setAlpha(0.5f);
+            nextTrack.setEnabled(false);
+            nextTrack.setClickable(false);
+        } else {
+            nextTrack.setAlpha(1f);
+            nextTrack.setEnabled(true);
+            nextTrack.setClickable(true);
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -276,9 +303,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
                 .first()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(audioFolder -> {
-                    BitmapHelper.getInstance().loadAudioPlayerArtwork(audioFolder, audioFile, backdrop);
-                });
+                .subscribe(audioFolder -> BitmapHelper.getInstance().loadAudioPlayerArtwork(audioFolder, audioFile, backdrop));
     }
 
 
@@ -293,14 +318,6 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
 
     public void next() {
-        if (audioPlayer.last()) {
-            Utils.showCustomSnackbar(findViewById(R.id.audioPlayerRoot),
-                    getApplicationContext(),
-                    getString(R.string.snackbar_last_track),
-                    Snackbar.LENGTH_SHORT)
-                    .show();
-            return;
-        }
         if (!lastLooping) {
             audioPlayer.next();
             cardDescription.next();
@@ -310,14 +327,6 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     }
 
     public void previous() {
-        if (audioPlayer.first()) {
-            Utils.showCustomSnackbar(findViewById(R.id.audioPlayerRoot),
-                    getApplicationContext(),
-                    getString(R.string.snackbar_first_track),
-                    Snackbar.LENGTH_SHORT)
-                    .show();
-            return;
-        }
         if (!lastLooping) {
             audioPlayer.previous();
             cardDescription.previous();

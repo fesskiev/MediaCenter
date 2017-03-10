@@ -173,9 +173,6 @@
     <string name="effect_pitch_shift_name">Pitch shift</string>
 
 
-    <string name="snackbar_last_track">Last track in list</string>
-    <string name="snackbar_first_track">First track in list</string>
-
     <string name="snackbar_last_video">Last video in list</string>
     <string name="snackbar_first_video">First video in list</string>
 
