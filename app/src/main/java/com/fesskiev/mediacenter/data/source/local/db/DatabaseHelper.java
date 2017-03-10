@@ -38,10 +38,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String FOLDER_NAME = "FolderName";
     public static final String FOLDER_INDEX = "FolderIndex";
     public static final String FOLDER_SELECTED = "FolderSelected";
-    public static final String FOLDER_LENGTH = "FolderLength";
-    public static final String FOLDER_SIZE = "FolderSize";
     public static final String FOLDER_TIMESTAMP = "FolderTimestamp";
-    public static final String FOLDER_TRACK_COUNT = "FolderTrackCount";
 
     /**
      * audio file constants
@@ -89,10 +86,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             FOLDER_PATH + " " + TEXT_TYPE + " ," +
             FOLDER_NAME + " " + TEXT_TYPE + " ," +
             FOLDER_COVER + " " + TEXT_TYPE + " ," +
-            FOLDER_LENGTH + " " + INTEGER_TYPE + " ," +
-            FOLDER_SIZE + " " + INTEGER_TYPE + " ," +
             FOLDER_TIMESTAMP + " " + INTEGER_TYPE + " ," +
-            FOLDER_TRACK_COUNT + " " + INTEGER_TYPE + " ," +
             FOLDER_SELECTED + " " + INTEGER_TYPE + " ," +
             FOLDER_INDEX + " " + INTEGER_TYPE +
             ")";

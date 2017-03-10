@@ -53,10 +53,7 @@ public class LocalDataSource implements LocalSource {
         values.put(DatabaseHelper.FOLDER_NAME, audioFolder.folderName);
         values.put(DatabaseHelper.FOLDER_COVER,
                 audioFolder.folderImage != null ? audioFolder.folderImage.getAbsolutePath() : null);
-        values.put(DatabaseHelper.FOLDER_LENGTH, audioFolder.length);
-        values.put(DatabaseHelper.FOLDER_SIZE, audioFolder.size);
         values.put(DatabaseHelper.FOLDER_TIMESTAMP, audioFolder.timestamp);
-        values.put(DatabaseHelper.FOLDER_TRACK_COUNT, audioFolder.trackCount);
         values.put(DatabaseHelper.FOLDER_INDEX, audioFolder.index);
         values.put(DatabaseHelper.FOLDER_SELECTED, audioFolder.isSelected ? 1 : 0);
 

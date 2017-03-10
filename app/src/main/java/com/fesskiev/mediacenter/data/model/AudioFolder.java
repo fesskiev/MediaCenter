@@ -16,9 +16,6 @@ public class AudioFolder implements Comparable<AudioFolder>,Parcelable {
     public String id;
     public String folderName;
     public int index;
-    public int trackCount;
-    public long length;
-    public long size;
     public long timestamp;
     public boolean isSelected;
 
@@ -38,10 +35,7 @@ public class AudioFolder implements Comparable<AudioFolder>,Parcelable {
 
         index = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.FOLDER_INDEX));
         isSelected = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.FOLDER_SELECTED)) == 1;
-        length = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.FOLDER_LENGTH));
-        size = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.FOLDER_SIZE));
         timestamp = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.FOLDER_TIMESTAMP));
-        trackCount = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.FOLDER_TRACK_COUNT));
     }
 
     protected AudioFolder(Parcel in) {
@@ -50,9 +44,6 @@ public class AudioFolder implements Comparable<AudioFolder>,Parcelable {
         this.id = in.readString();
         this.folderName = in.readString();
         this.index = in.readInt();
-        this.trackCount = in.readInt();
-        this.length = in.readLong();
-        this.size = in.readLong();
         this.timestamp = in.readLong();
         this.isSelected = in.readByte() != 0;
     }
@@ -78,9 +69,6 @@ public class AudioFolder implements Comparable<AudioFolder>,Parcelable {
                 ", id='" + id + '\'' +
                 ", folderName='" + folderName + '\'' +
                 ", index=" + index +
-                ", trackCount=" + trackCount +
-                ", length=" + length +
-                ", size=" + size +
                 ", timestamp=" + timestamp +
                 ", isSelected=" + isSelected +
                 '}';
@@ -98,9 +86,6 @@ public class AudioFolder implements Comparable<AudioFolder>,Parcelable {
         dest.writeString(this.id);
         dest.writeString(this.folderName);
         dest.writeInt(this.index);
-        dest.writeInt(this.trackCount);
-        dest.writeLong(this.length);
-        dest.writeLong(this.size);
         dest.writeLong(this.timestamp);
         dest.writeByte(this.isSelected ? (byte) 1 : (byte) 0);
     }

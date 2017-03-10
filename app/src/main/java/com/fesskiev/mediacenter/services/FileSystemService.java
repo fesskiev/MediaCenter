@@ -56,10 +56,6 @@ public class FileSystemService extends JobService {
     private FetchContentThread fetchContentThread;
     public static volatile boolean shouldContinue;
 
-    private long folderSize = 0L;
-    private long folderLength = 0L;
-    private int folderTrackCount = 0;
-
     public static void startFileSystemService(Context context) {
         Intent intent = new Intent(context, FileSystemService.class);
         context.startService(intent);
@@ -386,12 +382,7 @@ public class FileSystemService extends JobService {
                     audioFolder.id = UUID.randomUUID().toString();
                     audioFolder.timestamp = System.currentTimeMillis();
 
-
                     sendAudioFolderNameBroadcast(audioFolder.folderName);
-
-                    folderSize = 0L;
-                    folderLength = 0L;
-                    folderTrackCount = 0;
 
                     for (File path : audioPaths) {
 
@@ -399,19 +390,11 @@ public class FileSystemService extends JobService {
 
                             Log.w(TAG, "audio file created");
 
-                            folderSize += audioFile.size;
-                            folderLength += audioFile.length;
-                            folderTrackCount += 1;
-
                             MediaApplication.getInstance().getRepository().insertAudioFile(audioFile);
 
                             sendAudioTrackNameBroadcast(audioFile.artist + "-" + audioFile.title);
                         });
                     }
-
-                    audioFolder.size = folderSize;
-                    audioFolder.length = folderLength;
-                    audioFolder.trackCount = folderTrackCount;
 
                     MediaApplication.getInstance().getRepository().insertAudioFolder(audioFolder);
 
