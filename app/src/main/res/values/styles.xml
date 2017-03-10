@@ -17,7 +17,7 @@
         <item name="colorControlHighlight">@color/white_text</item>
         <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
         <item name="switchStyle">@style/Custom.Widget.SwitchCompat</item>
-        <item name="seekBarStyle">@style/Custom.Widget.SeekBarStyle</item>
+        <item name="seekBarStyle">@style/Widget.SeekBarStyle</item>
         <item name="android:scrollbarThumbVertical">@android:color/transparent</item>
     </style>
 
@@ -63,14 +63,8 @@
         <item name="android:backgroundDimEnabled">false</item>
     </style>
 
-    <style name="Custom.Widget.SeekBarStyle" parent="Widget.AppCompat.SeekBar">
+    <style name="Widget.SeekBarStyle" parent="Widget.AppCompat.SeekBar">
         <item name="android:progressDrawable">@drawable/seek_bar_progress</item>
-        <item name="android:thumb">@drawable/seek_bar_thumb</item>
-        <item name="android:splitTrack">false</item>
-    </style>
-
-    <style name="NavView.Widget.SeekBarStyle" parent="Widget.AppCompat.SeekBar">
-        <item name="android:progressDrawable">@drawable/seek_bar_progress_2</item>
         <item name="android:thumb">@drawable/seek_bar_thumb</item>
         <item name="android:splitTrack">false</item>
     </style>

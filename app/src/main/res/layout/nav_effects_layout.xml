@@ -196,16 +196,15 @@
                     android:text="@string/effect_tempo_name" />
 
                 <SeekBar
-                    style="@style/NavView.Widget.SeekBarStyle"
                     android:id="@+id/seekTempo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginTop="5dp"
-                    android:minHeight="2dp"
-                    android:maxHeight="2dp"
                     android:max="100"
-                    android:progress="50"/>
+                    android:maxHeight="2dp"
+                    android:minHeight="2dp"
+                    android:progress="50" />
 
                 <TextView
                     android:id="@+id/tempoValue"
@@ -214,8 +213,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginBottom="5dp"
-                    android:minHeight="2dp"
-                    android:maxHeight="2dp"
+                    android:layout_marginTop="5dp"
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:text="1.0 X" />
@@ -244,15 +242,14 @@
                     android:text="@string/effect_pitch_shift_name" />
 
                 <SeekBar
-                    style="@style/NavView.Widget.SeekBarStyle"
                     android:id="@+id/seekPitchShift"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginTop="5dp"
-                    android:minHeight="2dp"
-                    android:maxHeight="2dp"
                     android:max="100"
+                    android:maxHeight="2dp"
+                    android:minHeight="2dp"
                     android:progress="50" />
 
                 <TextView
@@ -262,8 +259,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginBottom="5dp"
-                    android:minHeight="2dp"
-                    android:maxHeight="2dp"
+                    android:layout_marginTop="5dp"
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:text="1.0 X" />
