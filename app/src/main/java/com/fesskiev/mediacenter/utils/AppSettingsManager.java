@@ -271,7 +271,7 @@ public class AppSettingsManager {
     }
 
     public int getSortType() {
-        return sharedPreferences.getInt(KEY_SORT_TYPE, -1);
+        return sharedPreferences.getInt(KEY_SORT_TYPE, 3);
     }
 
     public void setSortType(int sortType) {

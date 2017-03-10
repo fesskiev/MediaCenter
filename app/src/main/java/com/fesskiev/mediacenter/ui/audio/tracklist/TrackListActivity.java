@@ -57,7 +57,6 @@ import rx.schedulers.Schedulers;
 
 public class TrackListActivity extends AnalyticsActivity implements View.OnClickListener {
 
-    private static final int SORT_UNDEFINED = -1;
     private static final int SORT_DURATION = 0;
     private static final int SORT_FILE_SIZE = 1;
     private static final int SORT_TRACK_NUMBER = 2;
@@ -214,34 +213,11 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                     .first()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(this::sortingAdapterIfNeed);
+                    .map(unsortedList -> adapter.sortAudioFiles(settingsManager.getSortType(), unsortedList))
+                    .doOnNext(sortedList -> audioPlayer.setSortingTrackList(sortedList))
+                    .subscribe(audioFiles -> adapter.refreshAdapter(audioFiles));
         }
     }
-
-    private void sortingAdapterIfNeed(List<AudioFile> audioFiles) {
-        AppLog.INFO("onNext:track list: " + audioFiles.size());
-
-        int sortType = settingsManager.getSortType();
-        if (sortType != SORT_UNDEFINED) {
-            switch (sortType) {
-                case SORT_DURATION:
-                    adapter.sortTracks(SORT_DURATION, audioFiles);
-                    break;
-                case SORT_FILE_SIZE:
-                    adapter.sortTracks(SORT_FILE_SIZE, audioFiles);
-                    break;
-                case SORT_TIMESTAMP:
-                    adapter.sortTracks(SORT_TIMESTAMP, audioFiles);
-                    break;
-                case SORT_TRACK_NUMBER:
-                    adapter.sortTracks(SORT_TRACK_NUMBER, audioFiles);
-                    break;
-            }
-        } else {
-            adapter.refreshAdapter(audioFiles);
-        }
-    }
-
 
     private void notifyTrackStateChanged() {
         if (adapter != null) {
@@ -565,16 +541,6 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                     .map(unsortedList -> sortAudioFiles(type, unsortedList))
                     .doOnNext(sortedList -> audioPlayer.setSortingTrackList(sortedList))
                     .doOnNext(sortedList -> settingsManager.setSortType(type))
-                    .doOnNext(sortedList -> actionMenu.close(true))
-                    .subscribe(this::refreshAdapter);
-        }
-
-        public void sortTracks(int type, List<AudioFile> audioFiles) {
-            subscription = Observable.just(audioFiles)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .map(unsortedList -> sortAudioFiles(type, unsortedList))
-                    .doOnNext(sortedList -> audioPlayer.setSortingTrackList(sortedList))
                     .doOnNext(sortedList -> actionMenu.close(true))
                     .subscribe(this::refreshAdapter);
         }
