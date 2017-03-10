@@ -64,18 +64,13 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
+        fetch();
     }
 
 
     @Override
     public RecyclerView.Adapter createAdapter() {
         return new AudioFoldersAdapter(getActivity());
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        fetch();
     }
 
     @Override

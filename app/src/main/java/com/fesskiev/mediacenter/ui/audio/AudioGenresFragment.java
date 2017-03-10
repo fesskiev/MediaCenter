@@ -3,6 +3,7 @@ package com.fesskiev.mediacenter.ui.audio;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,8 +38,8 @@ public class AudioGenresFragment extends GridFragment implements AudioContent {
     private Subscription subscription;
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         fetch();
     }
 
