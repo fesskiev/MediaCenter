@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -176,14 +177,30 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
             @Override
             public void onItemSelected() {
                 itemView.setAlpha(0.5f);
+                changeSwipeRefreshState(false);
             }
+
 
             @Override
             public void onItemClear(int position) {
                 itemView.setAlpha(1.0f);
+                changeSwipeRefreshState(true);
                 updateAudioFoldersIndexes();
             }
+
         }
+
+        private void changeSwipeRefreshState(boolean enable) {
+            Activity act = activity.get();
+            if (act != null) {
+                AudioFragment audioFragment = (AudioFragment) ((FragmentActivity) act).getSupportFragmentManager().
+                        findFragmentByTag(AudioFragment.class.getName());
+                if (audioFragment != null) {
+                    audioFragment.getSwipeRefreshLayout().setEnabled(enable);
+                }
+            }
+        }
+
 
         private void showDetailsAudioFolder(int position) {
             Activity act = activity.get();
