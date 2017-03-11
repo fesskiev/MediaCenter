@@ -67,6 +67,13 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
         fetch();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (MediaApplication.getInstance().getRepository().getMemorySource().isCacheFoldersDirty()) {
+            fetch();
+        }
+    }
 
     @Override
     public RecyclerView.Adapter createAdapter() {

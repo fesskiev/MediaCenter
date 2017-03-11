@@ -44,6 +44,14 @@ public class AudioGenresFragment extends GridFragment implements AudioContent {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        if (MediaApplication.getInstance().getRepository().getMemorySource().isCacheGenresDirty()) {
+            fetch();
+        }
+    }
+
+    @Override
     public void fetch() {
         subscription = MediaApplication.getInstance().getRepository().getGenres()
                 .first()

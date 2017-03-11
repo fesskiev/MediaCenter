@@ -45,6 +45,14 @@ public class AudioArtistFragment extends GridFragment implements AudioContent {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        if (MediaApplication.getInstance().getRepository().getMemorySource().isCacheArtistsDirty()) {
+            fetch();
+        }
+    }
+
+    @Override
     public void fetch() {
         subscription = MediaApplication.getInstance().getRepository().getArtists()
                 .first()
