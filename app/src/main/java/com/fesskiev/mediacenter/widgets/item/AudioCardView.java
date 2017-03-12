@@ -105,7 +105,7 @@ public class AudioCardView extends CardView {
         if (visible) {
             popupMenu.setVisibility(VISIBLE);
         } else {
-            popupMenu.setVisibility(GONE);
+            popupMenu.setVisibility(INVISIBLE);
         }
         this.menuVisible = visible;
     }

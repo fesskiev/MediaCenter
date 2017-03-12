@@ -26,7 +26,6 @@
 
     <bool name="isTablet">true</bool>
 
-    <dimen name="card_min_height">180dp</dimen>
     <dimen name="app_bar_height">512dp</dimen>
 
     <dimen name="audio_control_width">410dp</dimen>
