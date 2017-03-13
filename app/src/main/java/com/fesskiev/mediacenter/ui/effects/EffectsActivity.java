@@ -26,24 +26,25 @@ public class EffectsActivity extends AnalyticsActivity {
 
         BottomNavigationView bottomNavigationView = (BottomNavigationView)
                 findViewById(R.id.bottom_navigation);
+        if (bottomNavigationView != null) {
+            bottomNavigationView.setOnNavigationItemSelectedListener(
+                    item -> {
+                        switch (item.getItemId()) {
+                            case R.id.action_eq:
+                                addEQFragment();
+                                break;
+                            case R.id.action_reverb:
+                                addReverbFragment();
+                                break;
+                            case R.id.action_other:
+                                addOtherEffectsFragment();
+                                break;
+                        }
+                        return true;
+                    });
 
-        bottomNavigationView.setOnNavigationItemSelectedListener(
-                item -> {
-                    switch (item.getItemId()) {
-                        case R.id.action_eq:
-                            addEQFragment();
-                            break;
-                        case R.id.action_reverb:
-                            addReverbFragment();
-                            break;
-                        case R.id.action_other:
-                            addOtherEffectsFragment();
-                            break;
-                    }
-                    return true;
-                });
-
-        addEQFragment();
+            addEQFragment();
+        }
     }
 
     private void addOtherEffectsFragment() {
