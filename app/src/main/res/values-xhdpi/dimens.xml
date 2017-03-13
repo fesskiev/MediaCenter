@@ -23,10 +23,6 @@
 
     <dimen name="card_view_empty_content_height">100dp</dimen>
 
-    <dimen name="eq_margin_top">0dp</dimen>
-    <dimen name="eq_margin_band">0dp</dimen>
-    <dimen name="eq_margin_bottom">4dp</dimen>
-
     <dimen name="effect_control_weight">180dp</dimen>
     <dimen name="effect_control_height">180dp</dimen>
 

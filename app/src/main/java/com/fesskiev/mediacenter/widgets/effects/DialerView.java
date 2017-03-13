@@ -79,10 +79,11 @@ public abstract class DialerView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-
         int action = event.getActionMasked();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
+                getParent().requestDisallowInterceptTouchEvent(true);
+
                 startAngle = getAngle(event.getX(), event.getY());
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -99,6 +100,7 @@ public abstract class DialerView extends View {
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+                getParent().requestDisallowInterceptTouchEvent(false);
                 break;
         }
 

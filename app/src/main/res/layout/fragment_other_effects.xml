@@ -1,125 +1,156 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/primary">
+    android:background="@color/primary"
+    android:scrollbars="none">
 
-    <LinearLayout
+    <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <com.fesskiev.mediacenter.widgets.effects.EchoControlView
-            android:id="@+id/echoView"
-            android:layout_width="@dimen/effect_control_weight"
-            android:layout_height="@dimen/effect_control_height"
-            android:layout_gravity="center_horizontal" />
+        android:layout_gravity="center_vertical"
+        android:fillViewport="true"
+        android:scrollbars="none">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/eq_margin_bottom"
             android:orientation="vertical">
 
-            <View
-                android:id="@+id/divider2"
-                style="@style/DividerStyle"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
+            <com.fesskiev.mediacenter.widgets.effects.EchoControlView
+                android:id="@+id/echoView"
+                android:layout_width="@dimen/effect_control_weight"
+                android:layout_height="@dimen/effect_control_height"
+                android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="10dp" />
 
-
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-                <android.support.v7.widget.SwitchCompat
-                    android:id="@+id/stateEcho"
-                    android:layout_width="wrap_content"
+                <View
+                    android:id="@+id/divider2"
+                    style="@style/DividerStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="10dp" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <android.support.v7.widget.SwitchCompat
+                        android:id="@+id/stateEcho"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp" />
+
+                    <TextView
+                        style="@style/EffectNameTextAppearance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:text="@string/effect_echo_name" />
+
+                </RelativeLayout>
+
+                <View
+                    android:id="@+id/divider3"
+                    style="@style/DividerStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="10dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp" />
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="10dp"
+                    android:baselineAligned="false">
 
-                <TextView
-                    style="@style/EffectNameTextAppearance"
-                    android:layout_width="wrap_content"
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <com.fesskiev.mediacenter.widgets.effects.WhooshControlView
+                            android:id="@+id/whooshbMix"
+                            android:layout_width="@dimen/effect_control_weight"
+                            android:layout_height="@dimen/effect_control_height"
+                            android:layout_gravity="center"
+                            app:whooshName="Mix" />
+
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <com.fesskiev.mediacenter.widgets.effects.WhooshControlView
+                            android:id="@+id/whooshFreq"
+                            android:layout_width="@dimen/effect_control_weight"
+                            android:layout_height="@dimen/effect_control_height"
+                            android:layout_gravity="center"
+                            app:whooshName="Frequency" />
+
+                    </FrameLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:text="@string/effect_echo_name" />
+                    android:orientation="vertical">
 
-            </RelativeLayout>
+                    <View
+                        android:id="@+id/divider0"
+                        style="@style/DividerStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="10dp" />
 
-            <View
-                android:id="@+id/divider3"
-                style="@style/DividerStyle"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="10dp" />
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <android.support.v7.widget.SwitchCompat
+                            android:id="@+id/stateWhoosh"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp" />
+
+                        <TextView
+                            style="@style/EffectNameTextAppearance"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:text="@string/effect_whoosh_name" />
+
+                    </RelativeLayout>
+
+                    <View
+                        android:id="@+id/divider1"
+                        style="@style/DividerStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="10dp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
 
         </LinearLayout>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+    </HorizontalScrollView>
 
-            <com.fesskiev.mediacenter.widgets.effects.WhooshControlView
-                android:id="@+id/whooshbMix"
-                android:layout_width="@dimen/effect_control_weight"
-                android:layout_height="@dimen/effect_control_height"
-                android:layout_alignParentStart="true"
-                app:whooshName="Mix" />
-
-            <com.fesskiev.mediacenter.widgets.effects.WhooshControlView
-                android:id="@+id/whooshFreq"
-                android:layout_width="@dimen/effect_control_weight"
-                android:layout_height="@dimen/effect_control_height"
-                android:layout_alignParentEnd="true"
-                app:whooshName="Frequency" />
-
-        </RelativeLayout>
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/eq_margin_bottom"
-            android:orientation="vertical">
-
-            <View
-                android:id="@+id/divider0"
-                style="@style/DividerStyle"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginBottom="10dp" />
-
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <android.support.v7.widget.SwitchCompat
-                    android:id="@+id/stateWhoosh"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp" />
-
-                <TextView
-                    style="@style/EffectNameTextAppearance"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:text="@string/effect_whoosh_name" />
-
-            </RelativeLayout>
-
-            <View
-                android:id="@+id/divider1"
-                style="@style/DividerStyle"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="10dp" />
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-</FrameLayout>
+</ScrollView>
