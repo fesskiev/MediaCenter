@@ -221,5 +221,6 @@
     <string name="settings_hidden_files_text">Показывать скрытые файлы</string>
 
     <string name="hide_folder_text">Скрыть папку</string>
+    <string name="hide_video_file_text">Скрыть файл</string>
 
 </resources>

@@ -246,5 +246,6 @@
     <string name="settings_hidden_files_text">Show hidden files</string>
 
     <string name="hide_folder_text">Hide folder</string>
+    <string name="hide_video_file_text">Hide file</string>
 
 </resources>

@@ -29,6 +29,7 @@ import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.video.player.VideoExoPlayerActivity;
 import com.fesskiev.mediacenter.utils.AppLog;
+import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
@@ -146,6 +147,14 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 .first()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .flatMap(Observable::from)
+                .filter(file -> {
+                    if (AppSettingsManager.getInstance().isShowHiddenFiles()) {
+                        return true;
+                    }
+                    return !file.isHidden;
+                })
+                .toList()
                 .subscribe(videoFiles -> {
                     if (videoFiles != null) {
                         if (!videoFiles.isEmpty()) {
@@ -294,8 +303,16 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                     FragmentTransaction transaction =
                             ((FragmentActivity) act).getSupportFragmentManager().beginTransaction();
                     transaction.addToBackStack(null);
-                    VideoFileDetailsDialog.newInstance(videoFile)
-                            .show(transaction, VideoFileDetailsDialog.class.getName());
+                    VideoFileDetailsDialog dialog = VideoFileDetailsDialog.newInstance(videoFile);
+                    dialog.setOnVideoFileDetailsDialogListener(() -> {
+                        VideoFragment videoFragment = (VideoFragment) ((FragmentActivity) act).getSupportFragmentManager().
+                                findFragmentByTag(VideoFragment.class.getName());
+                        if (videoFragment != null) {
+                            videoFragment.refreshVideoContent();
+                        }
+                    });
+                    dialog.show(transaction, VideoFileDetailsDialog.class.getName());
+
                 }
             }
         }
@@ -375,6 +392,12 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                     } else {
                         frameView.setImageResource(0);
                         frameView.setBackgroundColor(ContextCompat.getColor(act, R.color.search_background));
+                    }
+
+                    if (videoFile.isHidden) {
+                        holder.videoCard.setAlpha(0.35f);
+                    } else {
+                        holder.videoCard.setAlpha(1f);
                     }
                 }
             }

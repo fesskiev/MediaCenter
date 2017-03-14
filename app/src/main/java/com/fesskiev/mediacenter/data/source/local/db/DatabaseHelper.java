@@ -24,6 +24,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String VIDEO_DESCRIPTION = "VideoDescription";
     public static final String VIDEO_IN_PLAY_LIST = "VideoInPlayList";
     public static final String VIDEO_SELECTED = "VideoSelected";
+    public static final String VIDEO_HIDDEN = "VideoHIDDEN";
     public static final String VIDEO_LENGTH = "VideoLength";
     public static final String VIDEO_RESOLUTION = "VideoResolution";
     public static final String VIDEO_SIZE = "VideoSize";
@@ -74,6 +75,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             VIDEO_RESOLUTION + " " + TEXT_TYPE + " ," +
             VIDEO_DESCRIPTION + " " + TEXT_TYPE + " ," +
             VIDEO_SELECTED + " " + INTEGER_TYPE + " ," +
+            VIDEO_HIDDEN + " " + INTEGER_TYPE + " ," +
             VIDEO_LENGTH + " " + INTEGER_TYPE + " ," +
             VIDEO_SIZE + " " + INTEGER_TYPE + " ," +
             VIDEO_TIMESTAMP + " " + INTEGER_TYPE + " ," +

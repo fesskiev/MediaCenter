@@ -24,6 +24,7 @@ public class VideoFile implements MediaFile, Parcelable {
     public String description;
     public String resolution;
     public boolean inPlayList;
+    public boolean isHidden;
     public long size;
     public long timestamp;
     public long length;
@@ -36,6 +37,7 @@ public class VideoFile implements MediaFile, Parcelable {
         resolution = cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_RESOLUTION));
         description = cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_DESCRIPTION));
         inPlayList = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.VIDEO_IN_PLAY_LIST)) == 1;
+        isHidden = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.VIDEO_HIDDEN)) == 1;
         length = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.VIDEO_LENGTH));
         size = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.VIDEO_SIZE));
         timestamp = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.VIDEO_TIMESTAMP));
@@ -58,6 +60,7 @@ public class VideoFile implements MediaFile, Parcelable {
         this.description = in.readString();
         this.resolution = in.readString();
         this.inPlayList = in.readByte() != 0;
+        this.isHidden = in.readByte() != 0;
         this.size = in.readLong();
         this.timestamp = in.readLong();
         this.length = in.readLong();
@@ -192,6 +195,7 @@ public class VideoFile implements MediaFile, Parcelable {
                 ", description='" + description + '\'' +
                 ", resolution='" + resolution + '\'' +
                 ", inPlayList=" + inPlayList +
+                ", isHidden=" + isHidden +
                 ", size=" + size +
                 ", timestamp=" + timestamp +
                 ", length=" + length +
@@ -211,6 +215,7 @@ public class VideoFile implements MediaFile, Parcelable {
         dest.writeString(this.description);
         dest.writeString(this.resolution);
         dest.writeByte(this.inPlayList ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isHidden ? (byte) 1 : (byte) 0);
         dest.writeLong(this.size);
         dest.writeLong(this.timestamp);
         dest.writeLong(this.length);

@@ -114,4 +114,22 @@
 
     </LinearLayout>
 
+    <View
+        android:id="@+id/divider2"
+        style="@style/DividerStyle"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp" />
+
+    <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/hiddenVideoFileCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/divider2"
+        android:buttonTint="@color/white"
+        android:text="@string/hide_video_file_text"
+        android:textColor="@color/white" />
+
 </RelativeLayout>

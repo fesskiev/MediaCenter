@@ -67,6 +67,8 @@ public interface LocalSource {
 
     void updateHiddenAudioFile(AudioFile audioFile);
 
+    void updateHiddenVideoFile(VideoFile videoFile);
+
     void deleteAudioFile(String path);
 
     Callable<Integer> deleteVideoFile(String path);

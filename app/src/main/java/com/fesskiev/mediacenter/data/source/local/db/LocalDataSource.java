@@ -129,6 +129,7 @@ public class LocalDataSource implements LocalSource {
         values.put(DatabaseHelper.VIDEO_SIZE, videoFile.size);
         values.put(DatabaseHelper.VIDEO_TIMESTAMP, videoFile.timestamp);
         values.put(DatabaseHelper.VIDEO_IN_PLAY_LIST, videoFile.inPlayList ? 1 : 0);
+        values.put(DatabaseHelper.VIDEO_HIDDEN, videoFile.inPlayList ? 1 : 0);
 
 
         briteDatabase.insert(DatabaseHelper.VIDEO_FILES_TABLE_NAME, values, SQLiteDatabase.CONFLICT_REPLACE);
@@ -284,6 +285,18 @@ public class LocalDataSource implements LocalSource {
                 values,
                 DatabaseHelper.TRACK_PATH + "=" + "'" + audioFile.filePath.getAbsolutePath().replaceAll("'", "''") + "'");
 
+    }
+
+    @Override
+    public void updateHiddenVideoFile(VideoFile videoFile) {
+        ContentValues values = new ContentValues();
+
+        values.put(DatabaseHelper.VIDEO_HIDDEN, videoFile.isHidden ? 1 : 0);
+
+        briteDatabase.update(
+                DatabaseHelper.VIDEO_FILES_TABLE_NAME,
+                values,
+                DatabaseHelper.VIDEO_FILE_PATH + "=" + "'" + videoFile.filePath + "'");
     }
 
     @Override

@@ -160,6 +160,10 @@ public class DataRepository {
         localSource.updateHiddenAudioFile(audioFile);
     }
 
+    public void updateHiddenVideoFile(VideoFile videoFile) {
+        localSource.updateHiddenVideoFile(videoFile);
+    }
+
     public Callable<Integer> updateAudioFoldersIndex(List<AudioFolder> audioFolders) {
         return localSource.updateAudioFoldersIndex(audioFolders);
     }
