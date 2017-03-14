@@ -8,7 +8,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -213,12 +212,7 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                     .first()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .flatMap(audioFiles -> {
-                        for (AudioFile audioFile : audioFiles) {
-                            Log.d("test", "hidden file: " + audioFile.isHidden);
-                        }
-                        return Observable.from(audioFiles);
-                    })
+                    .flatMap(Observable::from)
                     .filter(audioFile -> {
                         if (AppSettingsManager.getInstance().isShowHiddenFiles()) {
                             return true;
