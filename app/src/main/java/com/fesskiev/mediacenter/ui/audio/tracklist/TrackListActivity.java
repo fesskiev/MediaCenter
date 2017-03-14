@@ -8,6 +8,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +28,6 @@ import com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.mediacenter.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.mediacenter.ui.audio.utils.Constants;
 import com.fesskiev.mediacenter.utils.AnimationUtils;
-import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
@@ -213,6 +213,19 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                     .first()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
+                    .flatMap(audioFiles -> {
+                        for (AudioFile audioFile : audioFiles) {
+                            Log.d("test", "hidden file: " + audioFile.isHidden);
+                        }
+                        return Observable.from(audioFiles);
+                    })
+                    .filter(audioFile -> {
+                        if (AppSettingsManager.getInstance().isShowHiddenFiles()) {
+                            return true;
+                        }
+                        return !audioFile.isHidden;
+                    })
+                    .toList()
                     .map(unsortedList -> adapter.sortAudioFiles(settingsManager.getSortType(), unsortedList))
                     .doOnNext(sortedList -> audioPlayer.setSortingTrackList(sortedList))
                     .subscribe(audioFiles -> adapter.refreshAdapter(audioFiles));

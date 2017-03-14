@@ -17,7 +17,9 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.widgets.settings.MediaContentUpdateTimeView;
@@ -53,8 +55,10 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
         super.onViewCreated(view, savedInstanceState);
 
         SwitchCompat[] switches = new SwitchCompat[]{
-                (SwitchCompat) view.findViewById(R.id.play_headset_plug_in_switch),
-                (SwitchCompat) view.findViewById(R.id.download_wifi_switch)
+                (SwitchCompat) view.findViewById(R.id.playHeadsetPlugInSwitch),
+                (SwitchCompat) view.findViewById(R.id.downloadWifiSwitch),
+                (SwitchCompat) view.findViewById(R.id.encryptDataSwitch),
+                (SwitchCompat) view.findViewById(R.id.showHiddenFilesSwitch)
         };
 
         for (SwitchCompat switchCompat : switches) {
@@ -88,11 +92,17 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
     private void setSettingsState(SwitchCompat[] switches) {
         for (SwitchCompat switchCompat : switches) {
             switch (switchCompat.getId()) {
-                case R.id.play_headset_plug_in_switch:
+                case R.id.playHeadsetPlugInSwitch:
                     switchCompat.setChecked(appSettingsManager.isPlayPlugInHeadset());
                     break;
-                case R.id.download_wifi_switch:
+                case R.id.downloadWifiSwitch:
                     switchCompat.setChecked(appSettingsManager.isDownloadWiFiOnly());
+                    break;
+                case R.id.encryptDataSwitch:
+                    switchCompat.setChecked(appSettingsManager.isNeedEncrypt());
+                    break;
+                case R.id.showHiddenFilesSwitch:
+                    switchCompat.setChecked(appSettingsManager.isShowHiddenFiles());
                     break;
             }
         }
@@ -101,13 +111,27 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
     @Override
     public void onCheckedChanged(CompoundButton switchCompat, boolean isChecked) {
         switch (switchCompat.getId()) {
-            case R.id.play_headset_plug_in_switch:
+            case R.id.playHeadsetPlugInSwitch:
                 appSettingsManager.setPlayPlugInHeadset(isChecked);
                 break;
-            case R.id.download_wifi_switch:
+            case R.id.downloadWifiSwitch:
                 appSettingsManager.setDownloadWiFiOnly(isChecked);
                 break;
+            case R.id.encryptDataSwitch:
+                appSettingsManager.setEncrypt(isChecked);
+                break;
+            case R.id.showHiddenFilesSwitch:
+                appSettingsManager.setShowHiddenFiles(isChecked);
+                refreshRepository();
+                break;
         }
+    }
+
+    private void refreshRepository() {
+        DataRepository repository = MediaApplication.getInstance().getRepository();
+        repository.getMemorySource().setCacheArtistsDirty(true);
+        repository.getMemorySource().setCacheGenresDirty(true);
+        repository.getMemorySource().setCacheFoldersDirty(true);
     }
 
     private void startBackgroundJob(int periodic) {

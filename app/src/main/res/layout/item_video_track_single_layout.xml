@@ -7,4 +7,4 @@
     android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
     android:paddingStart="?android:attr/listPreferredItemPaddingStart"
     android:textAppearance="?android:attr/textAppearanceListItemSmall"
-    android:theme="@style/Custom.Widget.CheckBoxStyle"/>
+    android:theme="@style/Widget.CheckBoxStyle"/>

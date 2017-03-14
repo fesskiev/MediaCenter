@@ -38,6 +38,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String FOLDER_NAME = "FolderName";
     public static final String FOLDER_INDEX = "FolderIndex";
     public static final String FOLDER_SELECTED = "FolderSelected";
+    public static final String FOLDER_HIDDEN = "FolderHidden";
     public static final String FOLDER_TIMESTAMP = "FolderTimestamp";
 
     /**
@@ -57,6 +58,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TRACK_TIMESTAMP = "TrackTimestamp";
     public static final String TRACK_IN_PLAY_LIST = "TrackInPlayList";
     public static final String TRACK_SELECTED = "TrackSelected";
+    public static final String TRACK_HIDDEN = "TrackHidden";
 
 
     private static final String KEY_TYPE = "TEXT NOT NULL";
@@ -88,6 +90,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             FOLDER_COVER + " " + TEXT_TYPE + " ," +
             FOLDER_TIMESTAMP + " " + INTEGER_TYPE + " ," +
             FOLDER_SELECTED + " " + INTEGER_TYPE + " ," +
+            FOLDER_HIDDEN + " " + INTEGER_TYPE + " ," +
             FOLDER_INDEX + " " + INTEGER_TYPE +
             ")";
 
@@ -108,6 +111,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             TRACK_SIZE + " " + INTEGER_TYPE + " ," +
             TRACK_IN_PLAY_LIST + " " + INTEGER_TYPE + " ," +
             TRACK_SELECTED + " " + INTEGER_TYPE + " ," +
+            TRACK_HIDDEN + " " + INTEGER_TYPE + " ," +
             TRACK_COVER + " " + TEXT_TYPE +
             ")";
 

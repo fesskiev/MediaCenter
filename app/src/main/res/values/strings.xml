@@ -241,4 +241,10 @@
     <string name="video_details_name">Video name:</string>
     <string name="video_resolution">Resolution:</string>
 
+    <string name="settings_security_title">Security</string>
+    <string name="settings_security_switch_text">Encrypt data</string>
+    <string name="settings_hidden_files_text">Show hidden files</string>
+
+    <string name="hide_folder_text">Hide folder</string>
+
 </resources>

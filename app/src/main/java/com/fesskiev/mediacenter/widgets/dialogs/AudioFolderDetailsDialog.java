@@ -6,6 +6,7 @@ import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -13,6 +14,7 @@ import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
+import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
@@ -29,6 +31,11 @@ import rx.schedulers.Schedulers;
 
 public class AudioFolderDetailsDialog extends DialogFragment {
 
+    public interface OnAudioFolderDetailsDialogListener {
+
+        void onRefreshFolders();
+    }
+
     private static final String DETAIL_AUDIO_FOLDER = "com.fesskiev.player.DETAIL_AUDIO_FOLDER";
 
     public static AudioFolderDetailsDialog newInstance(AudioFolder audioFolder) {
@@ -39,11 +46,14 @@ public class AudioFolderDetailsDialog extends DialogFragment {
         return dialog;
     }
 
+    private OnAudioFolderDetailsDialogListener listener;
+
     private TextView folderSizeText;
     private TextView folderLengthText;
     private TextView folderTrackCountText;
 
     private Subscription subscription;
+    private DataRepository repository;
 
     private AudioFolder audioFolder;
 
@@ -58,13 +68,18 @@ public class AudioFolderDetailsDialog extends DialogFragment {
         setStyle(DialogFragment.STYLE_NO_TITLE, R.style.CustomFragmentDialog);
 
         audioFolder = getArguments().getParcelable(DETAIL_AUDIO_FOLDER);
+        repository = MediaApplication.getInstance().getRepository();
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.dialog_audio_folder_details, container, false);
+
+        /*
+         *  bug! http://stackoverflow.com/questions/32784009/styling-custom-dialog-fragment-not-working?noredirect=1&lq=1
+         */
+        return getActivity().getLayoutInflater().inflate(R.layout.dialog_audio_folder_details, null);
     }
 
     @Override
@@ -92,12 +107,46 @@ public class AudioFolderDetailsDialog extends DialogFragment {
             folderTimestamp.setText(String.format("%1$s %2$s", getString(R.string.folder_details_timestamp),
                     new SimpleDateFormat("MM/dd/yyyy HH:mm").format(new Date(audioFolder.timestamp))));
 
+            CheckBox hideFolder = (CheckBox) view.findViewById(R.id.hiddenFolderCheckBox);
+            if (audioFolder.isHidden) {
+                hideFolder.setChecked(true);
+            }
+            hideFolder.setOnCheckedChangeListener((buttonView, isChecked) -> changeHiddenFolderState(isChecked));
+
         }
         fetchTrackList();
     }
 
+    private void changeHiddenFolderState(boolean hidden) {
+        subscription = repository.getFolderTracks(audioFolder.id)
+                .first()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(audioFiles -> updateHiddenAudioFolder(hidden))
+                .doOnNext(audioFiles -> updateHiddenAudioFiles(audioFiles, hidden))
+                .subscribe(audioFiles -> refreshCache());
+    }
+
+    private void updateHiddenAudioFiles(List<AudioFile> audioFiles, boolean hidden) {
+        for (AudioFile audioFile : audioFiles) {
+            audioFile.isHidden = hidden;
+            repository.updateHiddenAudioFile(audioFile);
+        }
+    }
+
+    private void updateHiddenAudioFolder(boolean hidden) {
+        audioFolder.isHidden = hidden;
+        repository.updateHiddenAudioFolder(audioFolder);
+    }
+
+    private void refreshCache() {
+        if (listener != null) {
+            listener.onRefreshFolders();
+        }
+    }
+
     private void fetchTrackList() {
-        subscription = MediaApplication.getInstance().getRepository().getFolderTracks(audioFolder.id)
+        subscription = repository.getFolderTracks(audioFolder.id)
                 .first()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -126,5 +175,9 @@ public class AudioFolderDetailsDialog extends DialogFragment {
     public void onDestroy() {
         super.onDestroy();
         RxUtils.unsubscribe(subscription);
+    }
+
+    public void setOnAudioFolderDetailsDialogListener(OnAudioFolderDetailsDialogListener l) {
+        this.listener = l;
     }
 }

@@ -216,4 +216,10 @@
     <string name="video_details_name">Имя файла:</string>
     <string name="video_resolution">Разрешение:</string>
 
+    <string name="settings_security_title">Безопасность</string>
+    <string name="settings_security_switch_text">Зашифровать данные</string>
+    <string name="settings_hidden_files_text">Показывать скрытые файлы</string>
+
+    <string name="hide_folder_text">Скрыть папку</string>
+
 </resources>

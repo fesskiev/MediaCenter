@@ -10,7 +10,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +24,7 @@ import com.fesskiev.mediacenter.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.mediacenter.ui.audio.utils.Constants;
 import com.fesskiev.mediacenter.ui.playback.PlaybackActivity;
 import com.fesskiev.mediacenter.utils.AppLog;
+import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
@@ -87,6 +87,14 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                 .first()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .flatMap(Observable::from)
+                .filter(folder -> {
+                    if (AppSettingsManager.getInstance().isShowHiddenFiles()) {
+                        return true;
+                    }
+                    return !folder.isHidden;
+                })
+                .toList()
                 .subscribe(audioFolders -> {
                     if (audioFolders != null) {
                         AppLog.INFO("onNext:folders: " + audioFolders.size());
@@ -210,8 +218,15 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                     FragmentTransaction transaction =
                             ((FragmentActivity) act).getSupportFragmentManager().beginTransaction();
                     transaction.addToBackStack(null);
-                    AudioFolderDetailsDialog.newInstance(audioFolder)
-                            .show(transaction, AudioFolderDetailsDialog.class.getName());
+                    AudioFolderDetailsDialog dialog = AudioFolderDetailsDialog.newInstance(audioFolder);
+                    dialog.setOnAudioFolderDetailsDialogListener(() -> {
+                        AudioFragment audioFragment = (AudioFragment) ((FragmentActivity) act).getSupportFragmentManager().
+                                findFragmentByTag(AudioFragment.class.getName());
+                        if (audioFragment != null) {
+                            audioFragment.refreshAudioContent();
+                        }
+                    });
+                    dialog.show(transaction, AudioFolderDetailsDialog.class.getName());
                 }
             }
         }
@@ -293,6 +308,11 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
 
                 holder.audioCardView.needMenuVisible(true);
 
+                if (audioFolder.isHidden) {
+                    holder.audioCardView.setAlpha(0.35f);
+                } else {
+                    holder.audioCardView.setAlpha(1f);
+                }
             }
         }
 

@@ -18,6 +18,7 @@ public class AudioFolder implements Comparable<AudioFolder>,Parcelable {
     public int index;
     public long timestamp;
     public boolean isSelected;
+    public boolean isHidden;
 
 
     public AudioFolder() {
@@ -35,6 +36,7 @@ public class AudioFolder implements Comparable<AudioFolder>,Parcelable {
 
         index = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.FOLDER_INDEX));
         isSelected = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.FOLDER_SELECTED)) == 1;
+        isHidden = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.FOLDER_HIDDEN)) == 1;
         timestamp = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.FOLDER_TIMESTAMP));
     }
 
@@ -46,6 +48,7 @@ public class AudioFolder implements Comparable<AudioFolder>,Parcelable {
         this.index = in.readInt();
         this.timestamp = in.readLong();
         this.isSelected = in.readByte() != 0;
+        this.isHidden = in.readByte() != 0;
     }
 
 
@@ -71,6 +74,7 @@ public class AudioFolder implements Comparable<AudioFolder>,Parcelable {
                 ", index=" + index +
                 ", timestamp=" + timestamp +
                 ", isSelected=" + isSelected +
+                ", isHidden=" + isHidden +
                 '}';
     }
 
@@ -88,6 +92,7 @@ public class AudioFolder implements Comparable<AudioFolder>,Parcelable {
         dest.writeInt(this.index);
         dest.writeLong(this.timestamp);
         dest.writeByte(this.isSelected ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isHidden ? (byte) 1 : (byte) 0);
     }
 
     public static final Parcelable.Creator<AudioFolder> CREATOR = new Parcelable.Creator<AudioFolder>() {

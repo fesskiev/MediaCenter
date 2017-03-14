@@ -56,6 +56,7 @@ public class LocalDataSource implements LocalSource {
         values.put(DatabaseHelper.FOLDER_TIMESTAMP, audioFolder.timestamp);
         values.put(DatabaseHelper.FOLDER_INDEX, audioFolder.index);
         values.put(DatabaseHelper.FOLDER_SELECTED, audioFolder.isSelected ? 1 : 0);
+        values.put(DatabaseHelper.FOLDER_HIDDEN, audioFolder.isHidden ? 1 : 0);
 
         briteDatabase.insert(DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME, values, SQLiteDatabase.CONFLICT_REPLACE);
 
@@ -80,6 +81,7 @@ public class LocalDataSource implements LocalSource {
         values.put(DatabaseHelper.TRACK_SAMPLE_RATE, audioFile.sampleRate);
         values.put(DatabaseHelper.TRACK_IN_PLAY_LIST, audioFile.inPlayList ? 1 : 0);
         values.put(DatabaseHelper.TRACK_SELECTED, audioFile.isSelected ? 1 : 0);
+        values.put(DatabaseHelper.TRACK_HIDDEN, audioFile.isHidden ? 1 : 0);
         values.put(DatabaseHelper.TRACK_COVER, audioFile.artworkPath);
 
         briteDatabase.insert(DatabaseHelper.AUDIO_TRACKS_TABLE_NAME, values, SQLiteDatabase.CONFLICT_REPLACE);
@@ -103,6 +105,8 @@ public class LocalDataSource implements LocalSource {
         values.put(DatabaseHelper.TRACK_NUMBER, audioFile.trackNumber);
         values.put(DatabaseHelper.TRACK_SAMPLE_RATE, audioFile.sampleRate);
         values.put(DatabaseHelper.TRACK_IN_PLAY_LIST, audioFile.inPlayList ? 1 : 0);
+        values.put(DatabaseHelper.TRACK_SELECTED, audioFile.isSelected ? 1 : 0);
+        values.put(DatabaseHelper.TRACK_HIDDEN, audioFile.isHidden ? 1 : 0);
         values.put(DatabaseHelper.TRACK_COVER, audioFile.artworkPath);
 
         briteDatabase.update(
@@ -228,12 +232,12 @@ public class LocalDataSource implements LocalSource {
                 clearValues,
                 null);
 
-        ContentValues dateValues = new ContentValues();
-        dateValues.put(DatabaseHelper.TRACK_SELECTED, audioFile.isSelected ? 1 : 0);
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.TRACK_SELECTED, audioFile.isSelected ? 1 : 0);
 
         briteDatabase.update(
                 DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
-                dateValues,
+                values,
                 DatabaseHelper.TRACK_PATH + "=" + "'" + audioFile.filePath.getAbsolutePath().replaceAll("'", "''") + "'");
 
     }
@@ -248,13 +252,38 @@ public class LocalDataSource implements LocalSource {
                 clearValues,
                 null);
 
-        ContentValues dateValues = new ContentValues();
-        dateValues.put(DatabaseHelper.FOLDER_SELECTED, audioFolder.isSelected ? 1 : 0);
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.FOLDER_SELECTED, audioFolder.isSelected ? 1 : 0);
 
         briteDatabase.update(
                 DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME,
-                dateValues,
+                values,
                 DatabaseHelper.FOLDER_PATH + "=" + "'" + audioFolder.folderPath.getAbsolutePath().replaceAll("'", "''") + "'");
+    }
+
+    @Override
+    public void updateHiddenAudioFolder(AudioFolder audioFolder) {
+
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.FOLDER_HIDDEN, audioFolder.isHidden ? 1 : 0);
+
+        briteDatabase.update(
+                DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME,
+                values,
+                DatabaseHelper.FOLDER_PATH + "=" + "'" + audioFolder.folderPath.getAbsolutePath().replaceAll("'", "''") + "'");
+    }
+
+    @Override
+    public void updateHiddenAudioFile(AudioFile audioFile) {
+
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.TRACK_HIDDEN, audioFile.isHidden ? 1 : 0);
+
+        briteDatabase.update(
+                DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
+                values,
+                DatabaseHelper.TRACK_PATH + "=" + "'" + audioFile.filePath.getAbsolutePath().replaceAll("'", "''") + "'");
+
     }
 
     @Override

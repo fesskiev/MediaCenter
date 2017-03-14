@@ -50,6 +50,8 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
     public long timestamp;
     public boolean inPlayList;
     public boolean isSelected;
+    public boolean isHidden;
+
     private OnAudioTagListener listener;
 
     public AudioFile() {
@@ -79,6 +81,7 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
         trackNumber = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_NUMBER));
         inPlayList = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_IN_PLAY_LIST)) == 1;
         isSelected = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_SELECTED)) == 1;
+        isHidden= cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_HIDDEN)) == 1;
         length = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.TRACK_LENGTH));
         size = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.TRACK_SIZE));
         timestamp = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.TRACK_TIMESTAMP));
@@ -317,6 +320,7 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
                 ", timestamp=" + timestamp +
                 ", inPlayList=" + inPlayList +
                 ", isSelected=" + isSelected +
+                ", isHidden=" + isHidden +
                 '}';
     }
 }
