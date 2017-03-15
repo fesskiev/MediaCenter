@@ -63,6 +63,27 @@ public class LocalDataSource implements LocalSource {
     }
 
     @Override
+    public void updateAudioFolder(AudioFolder audioFolder) {
+        ContentValues values = new ContentValues();
+
+        values.put(DatabaseHelper.ID, audioFolder.id);
+        values.put(DatabaseHelper.FOLDER_PATH, audioFolder.folderPath.getAbsolutePath());
+        values.put(DatabaseHelper.FOLDER_NAME, audioFolder.folderName);
+        values.put(DatabaseHelper.FOLDER_COVER,
+                audioFolder.folderImage != null ? audioFolder.folderImage.getAbsolutePath() : null);
+        values.put(DatabaseHelper.FOLDER_TIMESTAMP, audioFolder.timestamp);
+        values.put(DatabaseHelper.FOLDER_INDEX, audioFolder.index);
+        values.put(DatabaseHelper.FOLDER_SELECTED, audioFolder.isSelected ? 1 : 0);
+        values.put(DatabaseHelper.FOLDER_HIDDEN, audioFolder.isHidden ? 1 : 0);
+
+        briteDatabase.update(
+                DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME,
+                values,
+                DatabaseHelper.FOLDER_PATH + "=" + "'" + audioFolder.folderPath.getAbsolutePath().replaceAll("'", "''") + "'");
+    }
+
+
+    @Override
     public void insertAudioFile(AudioFile audioFile) {
 
         ContentValues values = new ContentValues();
@@ -150,6 +171,7 @@ public class LocalDataSource implements LocalSource {
         values.put(DatabaseHelper.VIDEO_SIZE, videoFile.size);
         values.put(DatabaseHelper.VIDEO_TIMESTAMP, videoFile.timestamp);
         values.put(DatabaseHelper.VIDEO_IN_PLAY_LIST, videoFile.inPlayList ? 1 : 0);
+        values.put(DatabaseHelper.VIDEO_HIDDEN, videoFile.isHidden ? 1 : 0);
 
         briteDatabase.update(
                 DatabaseHelper.VIDEO_FILES_TABLE_NAME,
@@ -260,43 +282,6 @@ public class LocalDataSource implements LocalSource {
                 DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME,
                 values,
                 DatabaseHelper.FOLDER_PATH + "=" + "'" + audioFolder.folderPath.getAbsolutePath().replaceAll("'", "''") + "'");
-    }
-
-    @Override
-    public void updateHiddenAudioFolder(AudioFolder audioFolder) {
-
-        ContentValues values = new ContentValues();
-        values.put(DatabaseHelper.FOLDER_HIDDEN, audioFolder.isHidden ? 1 : 0);
-
-        briteDatabase.update(
-                DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME,
-                values,
-                DatabaseHelper.FOLDER_PATH + "=" + "'" + audioFolder.folderPath.getAbsolutePath().replaceAll("'", "''") + "'");
-    }
-
-    @Override
-    public void updateHiddenAudioFile(AudioFile audioFile) {
-
-        ContentValues values = new ContentValues();
-        values.put(DatabaseHelper.TRACK_HIDDEN, audioFile.isHidden ? 1 : 0);
-
-        briteDatabase.update(
-                DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
-                values,
-                DatabaseHelper.TRACK_PATH + "=" + "'" + audioFile.filePath.getAbsolutePath().replaceAll("'", "''") + "'");
-
-    }
-
-    @Override
-    public void updateHiddenVideoFile(VideoFile videoFile) {
-        ContentValues values = new ContentValues();
-
-        values.put(DatabaseHelper.VIDEO_HIDDEN, videoFile.isHidden ? 1 : 0);
-
-        briteDatabase.update(
-                DatabaseHelper.VIDEO_FILES_TABLE_NAME,
-                values,
-                DatabaseHelper.VIDEO_FILE_PATH + "=" + "'" + videoFile.filePath + "'");
     }
 
     @Override

@@ -130,13 +130,13 @@ public class AudioFolderDetailsDialog extends DialogFragment {
     private void updateHiddenAudioFiles(List<AudioFile> audioFiles, boolean hidden) {
         for (AudioFile audioFile : audioFiles) {
             audioFile.isHidden = hidden;
-            repository.updateHiddenAudioFile(audioFile);
+            repository.updateAudioFile(audioFile);
         }
     }
 
     private void updateHiddenAudioFolder(boolean hidden) {
         audioFolder.isHidden = hidden;
-        repository.updateHiddenAudioFolder(audioFolder);
+        repository.updateAudioFolder(audioFolder);
     }
 
     private void refreshCache() {

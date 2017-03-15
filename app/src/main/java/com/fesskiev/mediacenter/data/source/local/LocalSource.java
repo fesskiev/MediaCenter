@@ -51,23 +51,19 @@ public interface LocalSource {
 
     void insertAudioFolder(AudioFolder audioFolder);
 
+    void updateAudioFolder(AudioFolder audioFolder);
+
     void insertAudioFile(AudioFile audioFile);
 
     void insertVideoFile(VideoFile videoFile);
+
+    void updateVideoFile(VideoFile videoFile);
 
     void updateSelectedAudioFolder(AudioFolder audioFolder);
 
     Callable<Integer> updateAudioFoldersIndex(List<AudioFolder> audioFolders);
 
-    void updateVideoFile(VideoFile videoFile);
-
     void updateSelectedAudioFile(AudioFile audioFile);
-
-    void updateHiddenAudioFolder(AudioFolder audioFolder);
-
-    void updateHiddenAudioFile(AudioFile audioFile);
-
-    void updateHiddenVideoFile(VideoFile videoFile);
 
     void deleteAudioFile(String path);
 

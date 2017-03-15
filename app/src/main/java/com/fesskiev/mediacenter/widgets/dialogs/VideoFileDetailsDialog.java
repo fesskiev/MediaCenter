@@ -131,7 +131,7 @@ public class VideoFileDetailsDialog extends DialogFragment {
 
     private void updateHiddenVideoFilesState(boolean hidden) {
         videoFile.isHidden = hidden;
-        repository.updateHiddenVideoFile(videoFile);
+        repository.updateVideoFile(videoFile);
     }
 
     @Override

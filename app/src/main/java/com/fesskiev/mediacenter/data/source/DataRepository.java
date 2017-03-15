@@ -152,16 +152,8 @@ public class DataRepository {
         localSource.updateSelectedAudioFolder(audioFolder);
     }
 
-    public void updateHiddenAudioFolder(AudioFolder audioFolder) {
-        localSource.updateHiddenAudioFolder(audioFolder);
-    }
-
-    public void updateHiddenAudioFile(AudioFile audioFile) {
-        localSource.updateHiddenAudioFile(audioFile);
-    }
-
-    public void updateHiddenVideoFile(VideoFile videoFile) {
-        localSource.updateHiddenVideoFile(videoFile);
+    public void updateAudioFolder(AudioFolder audioFolder) {
+        localSource.updateAudioFolder(audioFolder);
     }
 
     public Callable<Integer> updateAudioFoldersIndex(List<AudioFolder> audioFolders) {
