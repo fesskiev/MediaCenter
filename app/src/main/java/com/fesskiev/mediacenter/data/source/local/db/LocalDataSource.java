@@ -442,7 +442,7 @@ public class LocalDataSource implements LocalSource {
 
         String sql = String.format("SELECT * FROM %s WHERE %s ORDER BY %s",
                 DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
-                DatabaseHelper.TRACK_GENRE + "=" + "'" + contentValue + "'",
+                DatabaseHelper.TRACK_GENRE + "=" + "'" + contentValue.replaceAll("'", "''") + "'",
                 DatabaseHelper.TRACK_NUMBER + " ASC");
 
         return briteDatabase.createQuery(DatabaseHelper.AUDIO_TRACKS_TABLE_NAME, sql)
@@ -454,7 +454,7 @@ public class LocalDataSource implements LocalSource {
 
         String sql = String.format("SELECT * FROM %s WHERE %s ORDER BY %s",
                 DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
-                DatabaseHelper.TRACK_ARTIST + "=" + "'" + contentValue + "'",
+                DatabaseHelper.TRACK_ARTIST + "=" + "'" + contentValue.replaceAll("'", "''") + "'",
                 DatabaseHelper.TRACK_NUMBER + " ASC");
 
         return briteDatabase.createQuery(DatabaseHelper.AUDIO_TRACKS_TABLE_NAME, sql)
