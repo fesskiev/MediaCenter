@@ -54,14 +54,16 @@ import rx.schedulers.Schedulers;
 
 public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener {
 
+    private Class<? extends Activity> selectedActivity;
     private CountDownTimer countDownTimer;
-    private Class selectedActivity;
+
+    private AppSettingsManager settingsManager;
+    private FetchMediaFilesManager fetchMediaFilesManager;
+
     private Toolbar toolbar;
     private MediaNavigationView mediaNavigationView;
     private NavigationView navigationViewMain;
     private DrawerLayout drawer;
-    private AppSettingsManager settingsManager;
-    private FetchMediaFilesManager fetchMediaFilesManager;
     private ImageView timerView;
     private ImageView userPhoto;
     private ImageView logoutButton;
