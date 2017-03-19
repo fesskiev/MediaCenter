@@ -3,6 +3,7 @@ package com.fesskiev.mediacenter.utils.billing;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.text.TextUtils;
 
 /**
@@ -22,6 +23,7 @@ class PlayStoreBroadcastReceiver extends BroadcastReceiver {
 
     void setOnPlayStoreListener(OnPlayStoreListener listener) {
         this.listener = listener;
+        context.registerReceiver(this, new IntentFilter(ACTION));
     }
 
     void removeOnPlayStoreListener() {

@@ -23,8 +23,10 @@ public class AppSettingsManager {
     private static final String KEY_PLAY_PLUG_IN_HEADSET = "com.fesskiev.player.PLAY_PLUG_IN_HEADSET";
     private static final String KEY_DOWNLOAD_WIFI_ONLY = "com.fesskiev.player.DOWNLOAD_WIFI_ONLY";
 
-    private static final String KEY_OAUTH_TOKEN = "com.fesskiev.player.SAVE_STATE_KEY_OAUTH_TOKEN";
-    private static final String KEY_USER_ID = "com.fesskiev.player.SAVE_STATE_KEY_USER_ID";
+    private static final String KEY_USER_PRO = "com.fesskiev.player.KEY_USER_PRO";
+
+    private static final String KEY_OAUTH_TOKEN = "com.fesskiev.player.KEY_OAUTH_TOKEN";
+    private static final String KEY_USER_ID = "com.fesskiev.player.KEY_USER_ID";
     private static final String KEY_USER_FIRST_NAME = "com.fesskiev.player.KEY_USER_FIRST_NAME";
     private static final String KEY_USER_LAST_NAME = "com.fesskiev.player.KEY_USER_LAST_NAME";
     private static final String KEY_PHOTO_URL = "com.fesskiev.player.KEY_KEY_PHOTO_URL";
@@ -302,6 +304,15 @@ public class AppSettingsManager {
         return sharedPreferences.getBoolean(KEY_SHOW_HIDDEN_FILES, false);
     }
 
+    public boolean isUserPro() {
+        return sharedPreferences.getBoolean(KEY_USER_PRO, false);
+    }
+
+    public void setUserPro(boolean pro) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_USER_PRO, pro);
+        editor.apply();
+    }
 
 }
 

@@ -65,9 +65,11 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     private View peakView;
     private Bitmap lastCover;
     private int height;
-    private boolean isShow = true;
-    private boolean lastLoadError;
 
+    private boolean startForeground;
+    private boolean isShow = true;
+
+    private boolean lastLoadError;
     private boolean lastPlaying;
     private int lastPositionSeconds;
     private boolean lastEnableEQ;
@@ -211,6 +213,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
         notificationHelper.stopNotification();
         PlaybackService.stopPlaybackForegroundService(getApplicationContext());
+        startForeground = false;
     }
 
     @Override
@@ -237,7 +240,6 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
             playPauseButton.setPlay(playing);
 
             notificationHelper.updateNotification(currentTrack, lastCover, lastPositionSeconds, lastPlaying);
-
             adapter.notifyDataSetChanged();
 
         }
@@ -253,8 +255,6 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
             lastEnableEQ = enableEq;
             AppSettingsManager.getInstance().setEQEnable(lastEnableEQ);
             getMediaNavigationView().setEQEnable(lastEnableEQ);
-
-            Log.wtf("test", "EQ STATE:" + lastEnableEQ);
         }
 
         boolean enableReverb = playbackState.isEnableReverb();
@@ -262,8 +262,6 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
             lastEnableReverb = enableReverb;
             AppSettingsManager.getInstance().setReverbEnable(lastEnableReverb);
             getMediaNavigationView().setReverbEnable(lastEnableReverb);
-
-            Log.wtf("test", "REVERB STATE:" + lastEnableReverb);
         }
 
         boolean enableWhoosh = playbackState.isEnableWhoosh();
@@ -271,8 +269,6 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
             lastEnableWhoosh = enableWhoosh;
             AppSettingsManager.getInstance().setWhooshEnable(lastEnableWhoosh);
             getMediaNavigationView().setWhooshEnable(lastEnableWhoosh);
-
-            Log.wtf("test", "WHOOSH STATE:" + lastEnableWhoosh);
         }
 
         boolean enableEcho = playbackState.isEnableEcho();
@@ -280,8 +276,6 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
             lastEnableEcho = enableEcho;
             AppSettingsManager.getInstance().setEchoEnable(lastEnableEcho);
             getMediaNavigationView().setEchoEnable(lastEnableEcho);
-
-            Log.wtf("test", "ECHO STATE:" + lastEnableEcho);
         }
     }
 
@@ -345,8 +339,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
                                 lastCover = bitmap;
 
                                 notificationHelper.updateNotification(audioFile, lastCover, 0, lastPlaying);
-
-                                PlaybackService.startPlaybackForegroundService(getApplicationContext());
+                                startForegroundService();
                             }
 
                             @Override
@@ -355,6 +348,13 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
                             }
                         }));
 
+    }
+
+    private void startForegroundService() {
+        if (!startForeground) {
+            startForeground = true;
+            PlaybackService.startPlaybackForegroundService(getApplicationContext());
+        }
     }
 
     public void showPlayback() {

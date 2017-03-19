@@ -53,7 +53,8 @@
 
         <item
             android:id="@+id/billing"
-            android:title="InAppBilling" />
+            android:title="@string/drawer_remove_banners"
+            android:icon="@drawable/icon_remove_banners"/>
     </group>
 
 </menu>

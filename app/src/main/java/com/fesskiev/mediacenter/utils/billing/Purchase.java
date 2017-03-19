@@ -80,6 +80,8 @@ public class Purchase {
     @Expose
     private boolean autoRenewing;
 
+    private String signature;
+
     public Purchase() {
 
     }
@@ -148,6 +150,14 @@ public class Purchase {
         this.autoRenewing = autoRenewing;
     }
 
+    public String getSignature() {
+        return signature;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
+
     @Override
     public String toString() {
         return "Purchase{" +
@@ -159,6 +169,7 @@ public class Purchase {
                 ", state=" + state +
                 ", token='" + token + '\'' +
                 ", autoRenewing=" + autoRenewing +
+                ", signature='" + signature + '\'' +
                 '}';
     }
 }

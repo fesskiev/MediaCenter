@@ -9,15 +9,19 @@ import android.support.v7.app.AlertDialog;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.ui.ViewPagerFragment;
+import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
+import com.fesskiev.mediacenter.utils.admob.AdMobHelper;
 
 import java.util.List;
 
@@ -57,7 +61,9 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
             return false;
         });
 
-
+        if (!AppSettingsManager.getInstance().isUserPro()) {
+            AdMobHelper.getInstance().createAdView((RelativeLayout) view.findViewById(R.id.adViewContainer), AdMobHelper.KEY_AUDIO_BANNER);
+        }
     }
 
     public void refreshAudioContent() {

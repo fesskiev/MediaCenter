@@ -19,6 +19,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -43,6 +44,7 @@ import com.fesskiev.mediacenter.utils.CountDownTimer;
 import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
+import com.fesskiev.mediacenter.utils.admob.AdMobHelper;
 import com.fesskiev.mediacenter.vk.VKActivity;
 import com.fesskiev.mediacenter.vk.VKAuthActivity;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
@@ -369,16 +371,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         return true;
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        clearItems();
-        if (isAudioFragmentShow()) {
-            checkAudioContentItem();
-        } else if (isVideoFragmentShow()) {
-            checkVideoContentItem();
-        }
-    }
 
     private void clearItems() {
         int size = navigationViewMain.getMenu().size();
@@ -438,6 +430,10 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         navigationViewMain.getMenu().getItem(0).getSubMenu().getItem(1).setChecked(true);
     }
 
+    private void hideDrawerPurchaseItem() {
+        navigationViewMain.getMenu().getItem(4).setVisible(false);
+    }
+
 
     @Override
     public void onBackPressed() {
@@ -485,6 +481,31 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        clearItems();
+        if (isAudioFragmentShow()) {
+            checkAudioContentItem();
+        } else if (isVideoFragmentShow()) {
+            checkVideoContentItem();
+        }
+        if (!settingsManager.isUserPro()) {
+            AdMobHelper.getInstance().resumeAdMob();
+        } else {
+            AdMobHelper.getInstance().destroyAdView();
+            hideDrawerPurchaseItem();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (!settingsManager.isUserPro()) {
+            AdMobHelper.getInstance().pauseAdMob();
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         settingsManager.setEQEnable(false);
@@ -500,6 +521,9 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         PlaybackService.destroyPlayer(getApplicationContext());
         FileSystemService.stopFileSystemService(getApplicationContext());
 
+        if (!settingsManager.isUserPro()) {
+            AdMobHelper.getInstance().destroyAdView();
+        }
     }
 
     private void stopFetchFiles() {

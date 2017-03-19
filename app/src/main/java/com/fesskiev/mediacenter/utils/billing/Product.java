@@ -7,22 +7,28 @@ public class Product {
 
     @SerializedName("productId")
     @Expose
-    private String productId;
+    private String sku;
+
     @SerializedName("type")
     @Expose
     private String type;
+
     @SerializedName("price")
     @Expose
     private String price;
+
     @SerializedName("price_amount_micros")
     @Expose
     private int priceAmountMicros;
+
     @SerializedName("price_currency_code")
     @Expose
     private String priceCurrencyCode;
+
     @SerializedName("title")
     @Expose
     private String title;
+
     @SerializedName("description")
     @Expose
     private String description;
@@ -30,7 +36,7 @@ public class Product {
     @Override
     public String toString() {
         return "InAppProduct{" +
-                "productId='" + productId + '\'' +
+                "productId='" + sku + '\'' +
                 ", type='" + type + '\'' +
                 ", price='" + price + '\'' +
                 ", priceAmountMicros=" + priceAmountMicros +
@@ -40,8 +46,7 @@ public class Product {
                 '}';
     }
 
-    public String getSku() {
-        return productId;
+    public String getSku() {return sku;
     }
 
     public String getType() {

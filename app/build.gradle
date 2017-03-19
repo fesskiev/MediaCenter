@@ -14,7 +14,7 @@ android {
         applicationId = "com.fesskiev.mediacenter"
         minSdkVersion 21
         targetSdkVersion 25
-        versionCode = 3
+        versionCode = 4
         versionName = "1.0.0"
         vectorDrawables.useSupportLibrary = true
 
@@ -76,7 +76,8 @@ android {
 
 
 ext {
-    supportLibVersion = '25.2.0'
+    supportLibVersion = '25.3.0'
+    firebaseLibVersion = '10.2.0'
 }
 
 dependencies {
@@ -92,6 +93,10 @@ dependencies {
     compile "com.android.support:support-v4:${supportLibVersion}"
     compile "com.android.support:percent:${supportLibVersion}"
 
+    compile "com.google.firebase:firebase-crash:${firebaseLibVersion}"
+    compile "com.google.firebase:firebase-ads:${firebaseLibVersion}"
+    compile "com.google.firebase:firebase-analytics:${firebaseLibVersion}"
+
     compile 'com.github.clans:fab:1.6.3'
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'com.google.android.exoplayer:exoplayer:r2.1.1'
@@ -103,7 +108,7 @@ dependencies {
     compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
     compile 'com.squareup.sqlbrite:sqlbrite:0.7.0'
     compile 'org.greenrobot:eventbus:3.0.0'
-    compile 'com.google.firebase:firebase-crash:10.0.1'
+
 }
 
 apply plugin: 'com.google.gms.google-services'

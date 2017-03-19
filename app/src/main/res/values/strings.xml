@@ -33,6 +33,7 @@
     <string name="drawer_item_audio">Audio</string>
     <string name="drawer_item_video">Video</string>
     <string name="drawer_item_playlist">Playlist</string>
+    <string name="drawer_remove_banners">Remove banners</string>
 
     <string name="title_activity_vkplayer">VKPlayerActivity</string>
     <string name="title_activity_settings">SettingsActivity</string>
@@ -248,4 +249,10 @@
     <string name="hide_folder_text">Hide folder</string>
     <string name="hide_video_file_text">Hide file</string>
 
+    <string name="banner_ad_unit_id">ca-app-pub-9301351302187198/2368614266</string>
+    <string name="banner_ad_unit_id_1">ca-app-pub-9301351302187198/9833005460</string>
+
+    <string name="billing_api_key">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAr9C+V0KqpnB7BUz8Tk7VehGHaRt9WiyT84pl8iXuLUrZdyHY+Tv2GTKNPq9SyqKH9I3jIZQFZ3beLbf0mGf8pTzpKFVwNxFGr/RKe2dHM5u4/4+hs8ptBem/Vcbq3eCZH8Y6BvbJpA81Jc83t6dOLe10GKA3fgNdMJO+rDVkWM4rW8SyDJD+dIt2KkmpbPeQUQx0iyP+nsLUiUrRksLJmdfbv0RVNJ7TBycCLJj/TeKYZjc+fjvJl0yqcrvTWISU46SZ5OMDiDa2rLvKAVPcM5ntcpgikZxw1YytCpdwP/3Thkmpa10ReA4S2Tzxfu7VRHBW78mQUgPTtQ+/WYpSGQIDAQAB</string>
+
+    <string name="billing_developer_payload">cUPtq3S2e</string>
 </resources>

@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
@@ -34,6 +35,7 @@ import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
+import com.fesskiev.mediacenter.utils.admob.AdMobHelper;
 import com.fesskiev.mediacenter.widgets.dialogs.VideoFileDetailsDialog;
 import com.fesskiev.mediacenter.widgets.item.VideoCardView;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
@@ -102,6 +104,10 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.primary_light));
         swipeRefreshLayout.setProgressViewOffset(false, 0,
                 (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
+
+        if (!AppSettingsManager.getInstance().isUserPro()) {
+            AdMobHelper.getInstance().createAdView((RelativeLayout) view.findViewById(R.id.adViewContainer), AdMobHelper.KEY_VIDEO_BANNER);
+        }
 
     }
 
