@@ -16,7 +16,7 @@
 
     <dimen name="playback_controls_albumart_horizontal_margin">8dp</dimen>
     <dimen name="playback_controls_albumart_size">64dp</dimen>
-    <dimen name="playback_controls_padding">4dp</dimen>
+    <dimen name="playback_controls_padding">8dp</dimen>
 
     <dimen name="pause_bar_width">6dp</dimen>
     <dimen name="pause_bar_distance">5dp</dimen>
