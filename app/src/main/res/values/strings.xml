@@ -173,10 +173,6 @@
     <string name="effect_tempo_name">Tempo</string>
     <string name="effect_pitch_shift_name">Pitch shift</string>
 
-
-    <string name="snackbar_last_video">Last video in list</string>
-    <string name="snackbar_first_video">First video in list</string>
-
     <string name="snackbar_download_only_wifi">Downloading only by Wi-Fi!Change settings?</string>
     <string name="snackbar_download_only_open">Open</string>
 

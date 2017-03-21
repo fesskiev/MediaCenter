@@ -305,7 +305,7 @@ public class AppSettingsManager {
     }
 
     public boolean isUserPro() {
-        return sharedPreferences.getBoolean(KEY_USER_PRO, false);
+        return sharedPreferences.getBoolean(KEY_USER_PRO, true);
     }
 
     public void setUserPro(boolean pro) {

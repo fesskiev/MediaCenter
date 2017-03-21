@@ -3,7 +3,6 @@ package com.fesskiev.mediacenter.ui.audio.player;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.AudioFile;
@@ -46,6 +45,9 @@ public class AudioURIActivity extends AudioPlayerActivity {
                                 return repository.getAudioFileByPath(uri.getPath());
                             }
                             return Observable.just(parseAudioFile(uri.getPath()));
+                        }).doOnNext(audioFile -> {
+                            disablePreviousTrackButton();
+                            disableNextTrackButton();
                         })
                         .first()
                         .subscribe(this::openPlayURIAudioFile);

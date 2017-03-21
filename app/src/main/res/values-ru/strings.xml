@@ -163,10 +163,6 @@
     <string name="effect_tempo_name">Tемп</string>
     <string name="effect_pitch_shift_name">Питч-шифтер</string>
 
-
-    <string name="snackbar_last_video">Пооследний видеофайл в списке</string>
-    <string name="snackbar_first_video">Первый видеофайл в списке</string>
-
     <string name="snackbar_download_only_wifi">Загрузка только по Wi-Fi!Изменить настройки?</string>
     <string name="snackbar_download_only_open">Открыть</string>
 

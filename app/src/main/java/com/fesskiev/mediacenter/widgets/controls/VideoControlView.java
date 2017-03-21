@@ -53,7 +53,6 @@ import static com.google.android.exoplayer2.ui.AspectRatioFrameLayout.RESIZE_MOD
 
 public class VideoControlView extends FrameLayout {
 
-
     public interface OnVideoPlayerControlListener {
 
         void playPauseButtonClick(boolean isPlaying);
@@ -79,6 +78,9 @@ public class VideoControlView extends FrameLayout {
     private TextView resizeModeState;
     private TextView videoName;
     private ImageView videoLockScreen;
+
+    private ImageView nextVideo;
+    private ImageView previousVideo;
 
     private TextView audioTrackView;
     private TextView videoTrackView;
@@ -173,7 +175,7 @@ public class VideoControlView extends FrameLayout {
         ImageView settingsButton = (ImageView) view.findViewById(R.id.settingsButton);
         settingsButton.setOnClickListener(v -> togglePanel(settingsButton));
 
-        ImageView nextVideo = (ImageView) findViewById(R.id.nextVideo);
+        nextVideo = (ImageView) findViewById(R.id.nextVideo);
         nextVideo.setOnClickListener(v -> {
             ((Animatable) nextVideo.getDrawable()).start();
             if (listener != null) {
@@ -181,7 +183,7 @@ public class VideoControlView extends FrameLayout {
             }
         });
 
-        ImageView previousVideo = (ImageView) findViewById(R.id.previousVideo);
+        previousVideo = (ImageView) findViewById(R.id.previousVideo);
         previousVideo.setOnClickListener(v -> {
             ((Animatable) previousVideo.getDrawable()).start();
             if (listener != null) {
@@ -822,4 +824,29 @@ public class VideoControlView extends FrameLayout {
                     }).start();
         }
     }
+
+    public void disablePreviousVideoButton() {
+        previousVideo.setAlpha(0.5f);
+        previousVideo.setEnabled(false);
+        previousVideo.setClickable(false);
+    }
+
+    public void enablePreviousVideoButton() {
+        previousVideo.setAlpha(1f);
+        previousVideo.setEnabled(true);
+        previousVideo.setClickable(true);
+    }
+
+    public void enableNextVideoButton(){
+        nextVideo.setAlpha(1f);
+        nextVideo.setEnabled(true);
+        nextVideo.setClickable(true);
+    }
+
+    public void disableNextVideoButton(){
+        nextVideo.setAlpha(0.5f);
+        nextVideo.setEnabled(false);
+        nextVideo.setClickable(false);
+    }
+
 }

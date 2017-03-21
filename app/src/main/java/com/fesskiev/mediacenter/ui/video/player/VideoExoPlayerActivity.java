@@ -177,6 +177,8 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         videoControlView.setResizeModeState(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH);
 
         EventBus.getDefault().register(this);
+
+        checkFirstOrLastVideoFile();
     }
 
     private void setFullScreen() {
@@ -201,26 +203,10 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
 
 
     private void previous() {
-        if (videoPlayer.first()) {
-            Utils.showCustomSnackbar(findViewById(R.id.videoPlayerRoot),
-                    getApplicationContext(),
-                    getString(R.string.snackbar_first_video),
-                    Snackbar.LENGTH_SHORT)
-                    .show();
-            return;
-        }
         videoPlayer.previous();
     }
 
     private void next() {
-        if (videoPlayer.last()) {
-            Utils.showCustomSnackbar(findViewById(R.id.videoPlayerRoot),
-                    getApplicationContext(),
-                    getString(R.string.snackbar_last_video),
-                    Snackbar.LENGTH_SHORT)
-                    .show();
-            return;
-        }
         videoPlayer.next();
     }
 
@@ -352,6 +338,22 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
 
         initializePlayer();
 
+        checkFirstOrLastVideoFile();
+
+    }
+
+    private void checkFirstOrLastVideoFile() {
+        if (videoPlayer.first()) {
+            videoControlView.disablePreviousVideoButton();
+        } else {
+            videoControlView.enablePreviousVideoButton();
+        }
+
+        if (videoPlayer.last()) {
+            videoControlView.disableNextVideoButton();
+        } else {
+            videoControlView.enableNextVideoButton();
+        }
     }
 
     @Override
@@ -433,7 +435,6 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     }
 
 
-
     private void initializePlayer() {
         Intent intent = getIntent();
 
@@ -480,6 +481,8 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
                         uri = intent.getData();
                     }
                 }
+                videoControlView.disableNextVideoButton();
+                videoControlView.disablePreviousVideoButton();
             } else {
                 return;
             }

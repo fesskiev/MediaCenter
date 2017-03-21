@@ -215,24 +215,40 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
     private void checkFirstOrLastTrack() {
         if (audioPlayer.first()) {
-            prevTrack.setAlpha(0.5f);
-            prevTrack.setEnabled(false);
-            prevTrack.setClickable(false);
+           disablePreviousTrackButton();
         } else {
-            prevTrack.setAlpha(1f);
-            prevTrack.setEnabled(true);
-            prevTrack.setClickable(true);
+          enablePreviousTrackButton();
         }
 
         if (audioPlayer.last()) {
-            nextTrack.setAlpha(0.5f);
-            nextTrack.setEnabled(false);
-            nextTrack.setClickable(false);
+            disableNextTrackButton();
         } else {
-            nextTrack.setAlpha(1f);
-            nextTrack.setEnabled(true);
-            nextTrack.setClickable(true);
+            enableNextTrackButton();
         }
+    }
+
+    public void enablePreviousTrackButton(){
+        prevTrack.setAlpha(1f);
+        prevTrack.setEnabled(true);
+        prevTrack.setClickable(true);
+    }
+
+    public void disablePreviousTrackButton(){
+        prevTrack.setAlpha(0.5f);
+        prevTrack.setEnabled(false);
+        prevTrack.setClickable(false);
+    }
+
+    public void enableNextTrackButton(){
+        nextTrack.setAlpha(1f);
+        nextTrack.setEnabled(true);
+        nextTrack.setClickable(true);
+    }
+
+    public void disableNextTrackButton(){
+        nextTrack.setAlpha(0.5f);
+        nextTrack.setEnabled(false);
+        nextTrack.setClickable(false);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
