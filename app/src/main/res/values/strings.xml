@@ -237,6 +237,7 @@
 
     <string name="video_details_name">Video name:</string>
     <string name="video_resolution">Resolution:</string>
+    <string name="video_details_refresh">Refresh</string>
 
     <string name="settings_security_title">Security</string>
     <string name="settings_security_switch_text">Encrypt data</string>

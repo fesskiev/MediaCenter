@@ -66,7 +66,7 @@ public class VideoFile implements MediaFile, Parcelable {
         this.length = in.readLong();
     }
 
-    private void fetchVideoData() {
+    public VideoFile fetchVideoData() {
 
         id = UUID.randomUUID().toString();
         size = filePath.length();
@@ -97,6 +97,8 @@ public class VideoFile implements MediaFile, Parcelable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return this;
     }
 
     private void saveFrame(Bitmap bitmap) {

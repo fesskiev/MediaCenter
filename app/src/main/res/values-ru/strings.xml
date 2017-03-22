@@ -212,6 +212,7 @@
 
     <string name="video_details_name">Имя файла:</string>
     <string name="video_resolution">Разрешение:</string>
+    <string name="video_details_refresh">Обновить</string>
 
     <string name="settings_security_title">Безопасность</string>
     <string name="settings_security_switch_text">Зашифровать данные</string>

@@ -13,7 +13,6 @@
         android:layout_alignParentStart="true"
         android:contentDescription="@string/app_name"
         android:scaleType="fitCenter"
-        android:transitionName="cover"
         tools:src="@drawable/cover" />
 
     <View
@@ -123,13 +122,32 @@
         android:layout_marginBottom="10dp"
         android:layout_marginTop="10dp" />
 
-    <android.support.v7.widget.AppCompatCheckBox
-        android:id="@+id/hiddenVideoFileCheckBox"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/divider2"
-        android:buttonTint="@color/white"
-        android:text="@string/hide_video_file_text"
-        android:textColor="@color/white" />
+        android:layout_below="@+id/divider2">
+
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/hiddenVideoFileCheckBox"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:buttonTint="@color/white"
+            android:text="@string/hide_video_file_text"
+            android:textColor="@color/white" />
+
+        <TextView
+            android:id="@+id/refreshVideoFile"
+            style="@style/DetailsFolderTextAppearance"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:contentDescription="@string/app_name"
+            android:drawablePadding="6dp"
+            android:drawableStart="@drawable/icon_content_refresh"
+            android:text="@string/video_details_refresh" />
+
+    </LinearLayout>
 
 </RelativeLayout>

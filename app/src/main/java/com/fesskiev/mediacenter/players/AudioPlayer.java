@@ -8,7 +8,6 @@ import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.model.MediaFile;
-import com.fesskiev.mediacenter.data.model.vk.AudioFiles;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.playback.Playable;
@@ -17,11 +16,14 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Locale;
 
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
 public class AudioPlayer implements Playable {
+
+    private static final String TAG = AudioPlayer.class.getSimpleName();
 
 
     private Context context;
@@ -64,7 +66,7 @@ public class AudioPlayer implements Playable {
                 })
                 .first()
                 .subscribeOn(Schedulers.io())
-                .subscribe();
+                .subscribe(object -> Log.e(TAG, AudioPlayer.this.toString()));
     }
 
     @Override
@@ -84,6 +86,8 @@ public class AudioPlayer implements Playable {
         } else {
             PlaybackService.openFile(context, audioFile.getFilePath());
         }
+
+        Log.e(TAG, AudioPlayer.this.toString());
     }
 
 
@@ -111,6 +115,8 @@ public class AudioPlayer implements Playable {
 
                 PlaybackService.openFile(context, audioFile.getFilePath());
                 PlaybackService.startPlayback(context);
+
+                Log.e(TAG, AudioPlayer.this.toString());
             }
         }
     }
@@ -129,6 +135,8 @@ public class AudioPlayer implements Playable {
 
                 PlaybackService.openFile(context, audioFile.getFilePath());
                 PlaybackService.startPlayback(context);
+
+                Log.e(TAG, AudioPlayer.this.toString());
             }
         }
     }
@@ -155,6 +163,8 @@ public class AudioPlayer implements Playable {
         play();
 
         EventBus.getDefault().post(currentTrack);
+
+        Log.e(TAG, AudioPlayer.this.toString());
     }
 
 
@@ -165,12 +175,16 @@ public class AudioPlayer implements Playable {
         repository.updateSelectedAudioFolder(audioFolder);
 
         EventBus.getDefault().post(currentTrackList);
+
+        Log.e(TAG, AudioPlayer.this.toString());
     }
 
     public void setCurrentTrackList(List<AudioFile> audioFiles) {
         currentTrackList = audioFiles;
 
         EventBus.getDefault().post(currentTrackList);
+
+        Log.e(TAG, AudioPlayer.this.toString());
     }
 
     public void setSortingTrackList(List<AudioFile> audioFiles) {
@@ -228,13 +242,24 @@ public class AudioPlayer implements Playable {
         @Override
         public AudioFile next() {
             nextIndex();
-            return currentTrackList.get(position);
+            try {
+                return currentTrackList.get(position);
+            } catch (IndexOutOfBoundsException e) {
+                e.printStackTrace();
+            }
+            return null;
         }
 
         @Override
         public AudioFile previous() {
             previousIndex();
-            return currentTrackList.get(position);
+            try {
+                return currentTrackList.get(position);
+            } catch (IndexOutOfBoundsException e) {
+                e.printStackTrace();
+            }
+
+            return null;
         }
 
         @Override
@@ -258,7 +283,6 @@ public class AudioPlayer implements Playable {
         public void findPosition() {
             if (currentTrackList != null && currentTrackList.contains(currentTrack)) {
                 position = currentTrackList.indexOf(currentTrack);
-                Log.d("state", "find position: " + position);
             }
         }
 
@@ -278,4 +302,22 @@ public class AudioPlayer implements Playable {
         }
     }
 
+    @Override
+    public String toString() {
+        return "AudioPlayer{" +
+                "currentTrackList=" + "\n" + printCurrentTrackList() +
+                "currentTrack=" + currentTrack + "\n" +
+                "position=" + position +
+                '}';
+    }
+
+    private String printCurrentTrackList() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < currentTrackList.size(); i++) {
+            AudioFile audioFile = currentTrackList.get(i);
+            sb.append(String.format(Locale.getDefault(), "%d. %s", i, audioFile.getFileName()));
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
 }

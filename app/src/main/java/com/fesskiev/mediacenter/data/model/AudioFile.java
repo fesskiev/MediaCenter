@@ -81,7 +81,7 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
         trackNumber = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_NUMBER));
         inPlayList = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_IN_PLAY_LIST)) == 1;
         isSelected = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_SELECTED)) == 1;
-        isHidden= cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_HIDDEN)) == 1;
+        isHidden = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_HIDDEN)) == 1;
         length = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.TRACK_LENGTH));
         size = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.TRACK_SIZE));
         timestamp = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.TRACK_TIMESTAMP));
@@ -305,21 +305,21 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
     @Override
     public String toString() {
         return "AudioFile{" +
-                "id='" + id + '\'' +
+                "id='" + id + "\n" +
                 ", filePath=" + filePath +
-                ", artist='" + artist + '\'' +
-                ", title='" + title + '\'' +
-                ", album='" + album + '\'' +
-                ", genre='" + genre + '\'' +
-                ", bitrate='" + bitrate + '\'' +
-                ", sampleRate='" + sampleRate + '\'' +
-                ", artworkPath='" + artworkPath + '\'' +
-                ", trackNumber=" + trackNumber +
-                ", length=" + length +
-                ", size=" + size +
-                ", timestamp=" + timestamp +
-                ", inPlayList=" + inPlayList +
-                ", isSelected=" + isSelected +
+                ", artist='" + artist + "\n" +
+                ", title='" + title + "\n" +
+                ", album='" + album + "\n" +
+                ", genre='" + genre + "\n" +
+                ", bitrate='" + bitrate + "\n" +
+                ", sampleRate='" + sampleRate + "\n" +
+                ", artworkPath='" + artworkPath + "\n" +
+                ", trackNumber=" + trackNumber + "\n" +
+                ", length=" + length + "\n" +
+                ", size=" + size + "\n" +
+                ", timestamp=" + timestamp + "\n" +
+                ", inPlayList=" + inPlayList + "\n" +
+                ", isSelected=" + isSelected + "\n" +
                 ", isHidden=" + isHidden +
                 '}';
     }

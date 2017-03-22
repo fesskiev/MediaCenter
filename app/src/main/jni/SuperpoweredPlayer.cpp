@@ -170,7 +170,7 @@ bool SuperpoweredPlayer::process(short int *inputOutput, unsigned int numberOfSa
 void SuperpoweredPlayer::togglePlayback() {
     player->togglePlayback();
 
-    SuperpoweredCPU::setSustainedPerformanceMode(player->playing);
+//    SuperpoweredCPU::setSustainedPerformanceMode(player->playing);
 }
 
 

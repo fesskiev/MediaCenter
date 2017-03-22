@@ -3,7 +3,6 @@ package com.fesskiev.mediacenter.widgets.dialogs;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,6 +52,15 @@ public class VideoFileDetailsDialog extends DialogFragment {
 
     private VideoFile videoFile;
 
+    private ImageView cover;
+    private TextView filerName;
+    private TextView filePath;
+    private TextView fileSize;
+    private TextView fileLength;
+    private TextView fileResolution;
+    private TextView fileTimestamp;
+    private CheckBox hideFolder;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,41 +86,55 @@ public class VideoFileDetailsDialog extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
         if (videoFile != null) {
 
-            ImageView cover = (ImageView) view.findViewById(R.id.fileCover);
-            BitmapHelper.getInstance().loadVideoFileCover(videoFile.framePath, cover);
-
-            TextView filerName = (TextView) view.findViewById(R.id.fileName);
-            filerName.setText(String.format(Locale.US, "%1$s %2$s", getString(R.string.video_details_name),
-                    videoFile.description));
-            filerName.setSelected(true);
-
-            TextView filePath = (TextView) view.findViewById(R.id.filePath);
-            filePath.setText(String.format(Locale.US, "%1$s %2$s", getString(R.string.folder_details_path),
-                    videoFile.filePath.getAbsolutePath()));
-            filePath.setSelected(true);
-
-            TextView fileSize = (TextView) view.findViewById(R.id.fileSize);
-            fileSize.setText(String.format(Locale.US, "%1$s %2$s", getString(R.string.folder_details_size),
-                    Utils.humanReadableByteCount(videoFile.size, false)));
-
-            TextView fileLength = (TextView) view.findViewById(R.id.fileLength);
-            fileLength.setText(String.format(Locale.US, "%1$s %2$s", getString(R.string.folder_details_duration),
-                    Utils.getVideoFileTimeFormat(videoFile.length)));
-
-            TextView fileResolution = (TextView) view.findViewById(R.id.fileResolution);
-            fileResolution.setText(String.format(Locale.US, "%1$s %2$s", getString(R.string.video_resolution),
-                    videoFile.resolution));
-
-            TextView fileTimestamp = (TextView) view.findViewById(R.id.fileTimestamp);
-            fileTimestamp.setText(String.format("%1$s %2$s", getString(R.string.folder_details_timestamp),
-                    new SimpleDateFormat("MM/dd/yyyy HH:mm").format(new Date(videoFile.timestamp))));
-
-            CheckBox hideFolder = (CheckBox) view.findViewById(R.id.hiddenVideoFileCheckBox);
-            if (videoFile.isHidden) {
-                hideFolder.setChecked(true);
-            }
+            cover = (ImageView) view.findViewById(R.id.fileCover);
+            filerName = (TextView) view.findViewById(R.id.fileName);
+            filePath = (TextView) view.findViewById(R.id.filePath);
+            fileSize = (TextView) view.findViewById(R.id.fileSize);
+            fileLength = (TextView) view.findViewById(R.id.fileLength);
+            fileResolution = (TextView) view.findViewById(R.id.fileResolution);
+            fileTimestamp = (TextView) view.findViewById(R.id.fileTimestamp);
+            hideFolder = (CheckBox) view.findViewById(R.id.hiddenVideoFileCheckBox);
             hideFolder.setOnCheckedChangeListener((buttonView, isChecked) -> changeHiddenFleState(isChecked));
+
+            view.findViewById(R.id.refreshVideoFile).setOnClickListener(v -> refreshVideoFile());
+
+            updateDialog(videoFile);
         }
+    }
+
+    private void refreshVideoFile() {
+        subscription = Observable.just(videoFile.fetchVideoData())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(videoFile -> repository.updateVideoFile(videoFile))
+                .doOnNext(this::updateDialog)
+                .subscribe(aBoolean -> refreshCache());
+    }
+
+    private void updateDialog(VideoFile videoFile) {
+        BitmapHelper.getInstance().loadVideoFileCover(videoFile.framePath, cover);
+
+        filerName.setText(String.format(Locale.US, "%1$s %2$s", getString(R.string.video_details_name),
+                videoFile.description));
+        filerName.setSelected(true);
+        filePath.setText(String.format(Locale.US, "%1$s %2$s", getString(R.string.folder_details_path),
+                videoFile.filePath.getAbsolutePath()));
+        filePath.setSelected(true);
+        fileSize.setText(String.format(Locale.US, "%1$s %2$s", getString(R.string.folder_details_size),
+                Utils.humanReadableByteCount(videoFile.size, false)));
+        fileLength.setText(String.format(Locale.US, "%1$s %2$s", getString(R.string.folder_details_duration),
+                Utils.getVideoFileTimeFormat(videoFile.length)));
+        fileResolution.setText(String.format(Locale.US, "%1$s %2$s", getString(R.string.video_resolution),
+                videoFile.resolution));
+        fileTimestamp.setText(String.format("%1$s %2$s", getString(R.string.folder_details_timestamp),
+                new SimpleDateFormat("MM/dd/yyyy HH:mm").format(new Date(videoFile.timestamp))));
+
+        if (videoFile.isHidden) {
+            hideFolder.setChecked(true);
+        } else {
+            hideFolder.setChecked(false);
+        }
+
     }
 
     private void changeHiddenFleState(boolean hide) {
