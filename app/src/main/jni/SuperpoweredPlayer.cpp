@@ -157,6 +157,8 @@ bool SuperpoweredPlayer::process(short int *inputOutput, unsigned int numberOfSa
     }
 
     if (record) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "SuperpoweredExample", "recording....");
+
         SuperpoweredShortIntToFloat(inputOutput, bufferRecording, numberOfSamples);
         recorder->process(bufferRecording, NULL, numberOfSamples);
         return true;
@@ -184,6 +186,7 @@ SuperpoweredPlayer::~SuperpoweredPlayer() {
     delete audioSystem;
     delete player;
     free(buffer);
+    free(bufferRecording);
 }
 
 void SuperpoweredPlayer::setVolume(float value) {

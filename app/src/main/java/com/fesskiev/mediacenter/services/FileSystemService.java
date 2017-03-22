@@ -32,8 +32,6 @@ public class FileSystemService extends JobService {
 
     private static final String ACTION_START_FETCH_MEDIA_SERVICE = "com.fesskiev.player.action.FETCH_MEDIA_SERVICE";
     private static final String ACTION_START_FETCH_AUDIO_SERVICE = "com.fesskiev.player.action.START_FETCH_AUDIO_SERVICE";
-    private static final String ACTION_START_FETCH_AUDIO_BY_PATH_SERVICE
-            = "com.fesskiev.player.action.ACTION_START_FETCH_AUDIO_BY_PATH_SERVICE";
     private static final String ACTION_START_FETCH_VIDEO_SERVICE = "com.fesskiev.player.action.START_FETCH_VIDEO_SERVICE";
 
     private static final String ACTION_CHECK_DOWNLOAD_FOLDER_SERVICE = "com.fesskiev.player.action.CHECK_DOWNLOAD_FOLDER_SERVICE";
@@ -49,7 +47,6 @@ public class FileSystemService extends JobService {
     public static final String EXTRA_AUDIO_FOLDER_NAME = "com.fesskiev.player.action.EXTRA_AUDIO_FOLDER_NAME";
     public static final String EXTRA_AUDIO_TRACK_NAME = "com.fesskiev.player.action.EXTRA_AUDIO_TRACK_NAME";
     public static final String EXTRA_VIDEO_FILE_NAME = "com.fesskiev.player.action.EXTRA_VIDEO_FILE_NAME";
-    public static final String EXTRA_AUDIO_FILE_PATH = "com.fesskiev.player.action.EXTRA_AUDIO_FILE_PATH";
 
 
     private Handler handler;
@@ -75,13 +72,6 @@ public class FileSystemService extends JobService {
     public static void startFetchAudio(Context context) {
         Intent intent = new Intent(context, FileSystemService.class);
         intent.setAction(ACTION_START_FETCH_AUDIO_SERVICE);
-        context.startService(intent);
-    }
-
-    public static void startFetchAudioByPath(Context context, String path) {
-        Intent intent = new Intent(context, FileSystemService.class);
-        intent.setAction(ACTION_START_FETCH_AUDIO_BY_PATH_SERVICE);
-        intent.putExtra(EXTRA_AUDIO_FILE_PATH, path);
         context.startService(intent);
     }
 
@@ -134,12 +124,6 @@ public class FileSystemService extends JobService {
                     case ACTION_CHECK_DOWNLOAD_FOLDER_SERVICE:
                         handler.sendEmptyMessage(3);
                         break;
-                    case ACTION_START_FETCH_AUDIO_BY_PATH_SERVICE:
-                        Message msg = handler.obtainMessage();
-                        msg.obj = intent.getStringExtra(EXTRA_AUDIO_FILE_PATH);
-                        msg.what = 4;
-                        handler.sendMessage(msg);
-                        break;
                 }
             }
         }
@@ -174,9 +158,6 @@ public class FileSystemService extends JobService {
                             break;
                         case 3:
                             checkDownloadFolder();
-                            break;
-                        case 4:
-                            getAudioContentByPath((String) msg.obj);
                             break;
                     }
                 }
@@ -231,16 +212,6 @@ public class FileSystemService extends JobService {
                         audioFile -> MediaApplication.getInstance().getRepository().insertAudioFile(audioFile));
             }
         }
-    }
-
-    private void getAudioContentByPath(String path){
-        sendStartFetchMediaBroadcast();
-
-        String parent = new File(path).getParent();
-
-        walkAudio(parent);
-
-        sendEndFetchMediaBroadcast();
     }
 
     private void getAudioContent() {
