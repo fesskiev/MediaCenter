@@ -14,6 +14,7 @@ import com.fesskiev.mediacenter.utils.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 public class VideoFile implements MediaFile, Parcelable {
@@ -74,16 +75,18 @@ public class VideoFile implements MediaFile, Parcelable {
         timestamp = System.currentTimeMillis();
 
         try {
+
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
             retriever.setDataSource(filePath.getAbsolutePath());
-            Bitmap frame = retriever.getFrameAtTime();
-            if (frame != null) {
-                saveFrame(frame);
-            }
 
             String duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
             if (duration != null) {
                 length = Integer.valueOf(duration);
+            }
+
+            Bitmap frame = retriever.getFrameAtTime(ThreadLocalRandom.current().nextInt(0, (int) length) * 1000000);
+            if (frame != null) {
+                saveFrame(frame);
             }
 
             StringBuilder sb = new StringBuilder();

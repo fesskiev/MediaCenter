@@ -112,7 +112,6 @@ public class VideoFileDetailsDialog extends DialogFragment {
     }
 
     private void updateDialog(VideoFile videoFile) {
-        BitmapHelper.getInstance().loadVideoFileCover(videoFile.framePath, cover);
 
         filerName.setText(String.format(Locale.US, "%1$s %2$s", getString(R.string.video_details_name),
                 videoFile.description));
@@ -134,7 +133,7 @@ public class VideoFileDetailsDialog extends DialogFragment {
         } else {
             hideFolder.setChecked(false);
         }
-
+        BitmapHelper.getInstance().loadVideoFileCover(videoFile.framePath, cover);
     }
 
     private void changeHiddenFleState(boolean hide) {
