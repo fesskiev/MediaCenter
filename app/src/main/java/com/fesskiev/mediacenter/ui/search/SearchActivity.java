@@ -188,7 +188,7 @@ public class SearchActivity extends AppCompatActivity {
                 v.setOnClickListener(v1 -> startPlayerActivity(getAdapterPosition()));
                 duration = (TextView) v.findViewById(R.id.itemDuration);
                 title = (TextView) v.findViewById(R.id.itemTitle);
-                filePath = (TextView) v.findViewById(R.id.filePath);
+                filePath = (TextView) v.findViewById(R.id.itemPath);
                 cover = (ImageView) v.findViewById(R.id.itemCover);
             }
         }
