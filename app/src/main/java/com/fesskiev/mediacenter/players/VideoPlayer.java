@@ -147,7 +147,7 @@ public class VideoPlayer implements Playable {
         }
 
         public void findPosition() {
-            if (videoFiles.contains(currentVideoFile)) {
+            if (videoFiles != null && videoFiles.contains(currentVideoFile)) {
                 position = videoFiles.indexOf(currentVideoFile);
             }
         }

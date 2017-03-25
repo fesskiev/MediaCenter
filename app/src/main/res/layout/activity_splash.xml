@@ -1,56 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/splashRoot"
+    android:id="@+id/content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?colorPrimary"
-    android:orientation="vertical">
-
-    <LinearLayout
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingTop="64dp">
-
-        <TextView
-            style="@style/SplashScreenTitleTextAppearance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp"
-            android:alpha="0"
-            android:text="@string/app_name"
-            tools:alpha="1" />
-
-        <TextView
-            style="@style/SplashScreenTextAppearance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="8dp"
-            android:alpha="0"
-            android:gravity="center"
-            android:text="@string/splash_screen_title"
-            tools:alpha="1" />
-
-    </LinearLayout>
-
-    <ImageView
-        android:id="@+id/appLogo"
-        android:layout_width="96dp"
-        android:layout_height="96dp"
-        android:layout_gravity="center"
-        android:contentDescription="@string/app_name"
-        android:src="@mipmap/ic_launcher" />
-
-    <com.fesskiev.mediacenter.widgets.fetch.FetchContentView
-        android:id="@+id/fetchContentView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"/>
-
-</FrameLayout>
+    android:orientation="vertical"/>

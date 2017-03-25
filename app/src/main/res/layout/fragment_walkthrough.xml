@@ -1,0 +1,48 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="@dimen/activity_horizontal_margin">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/divider">
+
+        <com.fesskiev.mediacenter.widgets.pager.DisableSwipingViewPager
+            android:id="@+id/viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <com.fesskiev.mediacenter.widgets.InkPageIndicator
+            android:id="@+id/indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginBottom="10dp"
+            app:dotDiameter="8dp"
+            app:currentPageIndicatorColor="@color/white"
+            app:pageIndicatorColor="@color/white" />
+
+    </FrameLayout>
+
+    <View
+        android:id="@+id/divider"
+        style="@style/DividerStyle"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginBottom="10dp"
+        android:layout_above="@+id/enterAppButton"
+        android:layout_marginTop="10dp" />
+
+    <Button
+        android:id="@+id/enterAppButton"
+        style="@style/ButtonStyle"
+        android:layout_width="140dp"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:gravity="center"
+        android:text="Войти" />
+
+</RelativeLayout>

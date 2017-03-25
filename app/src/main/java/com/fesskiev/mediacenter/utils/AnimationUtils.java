@@ -118,4 +118,7 @@ public class AnimationUtils {
     }
 
 
+    public FastOutSlowInInterpolator getFastOutSlowInInterpolator() {
+        return fastOutSlowInInterpolator;
+    }
 }

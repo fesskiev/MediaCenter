@@ -245,7 +245,8 @@
     <style name="PermissionDialogTextAppearance" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/white_text</item>
         <item name="android:textSize">@dimen/text_permission_dialog</item>
-        <item name="android:fontFamily">sans-serif-thin</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontFamily">sans-serif</item>
     </style>
 
     <style name="LoginTextAppearance" parent="@android:style/TextAppearance">

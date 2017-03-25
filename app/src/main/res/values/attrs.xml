@@ -1,64 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-  <declare-styleable name="MaterialProgressBar">
-    <attr name="progressColour" format="color" />
-    <attr name="secondaryProgressColour" format="color" />
-    <attr name="backgroundColour" format="color" />
-    <attr name="duration" format="integer" />
-  </declare-styleable>
+    <declare-styleable name="MaterialProgressBar">
+        <attr name="progressColour" format="color" />
+        <attr name="secondaryProgressColour" format="color" />
+        <attr name="backgroundColour" format="color" />
+        <attr name="duration" format="integer" />
+    </declare-styleable>
 
-  <declare-styleable name="ElasticDragDismissFrameLayout">
-    <attr name="dragDismissDistance" format="dimension" />
-    <attr name="dragDismissFraction" format="float" />
-    <attr name="dragDismissScale" format="float" />
-    <attr name="dragElasticity" format="float" />
-  </declare-styleable>
+    <declare-styleable name="ElasticDragDismissFrameLayout">
+        <attr name="dragDismissDistance" format="dimension" />
+        <attr name="dragDismissFraction" format="float" />
+        <attr name="dragDismissScale" format="float" />
+        <attr name="dragElasticity" format="float" />
+    </declare-styleable>
 
-  <declare-styleable name="AudioVolumeSeekView">
-    <attr name="text" format="string" />
-    <attr name="circleColor" format="color" />
-    <attr name="textColor" format="color" />
-    <attr name="progressColor" format="color" />
-  </declare-styleable>
+    <declare-styleable name="AudioVolumeSeekView">
+        <attr name="text" format="string" />
+        <attr name="circleColor" format="color" />
+        <attr name="textColor" format="color" />
+        <attr name="progressColor" format="color" />
+    </declare-styleable>
 
-  <declare-styleable name="EQBandControlView">
-    <attr name="band" format="integer" />
-    <attr name="bandName" format="string" />
-  </declare-styleable>
+    <declare-styleable name="EQBandControlView">
+        <attr name="band" format="integer" />
+        <attr name="bandName" format="string" />
+    </declare-styleable>
 
-  <declare-styleable name="ReverbControlView">
-    <attr name="reverbName" format="string" />
-  </declare-styleable>
+    <declare-styleable name="ReverbControlView">
+        <attr name="reverbName" format="string" />
+    </declare-styleable>
 
-  <declare-styleable name="WhooshControlView">
-    <attr name="whooshName" format="string" />
-  </declare-styleable>
+    <declare-styleable name="WhooshControlView">
+        <attr name="whooshName" format="string" />
+    </declare-styleable>
 
-  <declare-styleable name="Themes">
-    <attr name="numberProgressBarStyle" format="reference"/>
-  </declare-styleable>
+    <declare-styleable name="Themes">
+        <attr name="numberProgressBarStyle" format="reference" />
+    </declare-styleable>
 
-  <declare-styleable name="NumberProgressBar">
-    <attr name="progress" format="integer"/>
-    <attr name="max" format="integer"/>
+    <declare-styleable name="NumberProgressBar">
+        <attr name="progress" format="integer" />
+        <attr name="max" format="integer" />
 
-    <attr name="progress_unreached_color" format="color"/>
-    <attr name="progress_reached_color" format="color"/>
+        <attr name="progress_unreached_color" format="color" />
+        <attr name="progress_reached_color" format="color" />
 
-    <attr name="progress_reached_bar_height" format="dimension"/>
-    <attr name="progress_unreached_bar_height" format="dimension"/>
+        <attr name="progress_reached_bar_height" format="dimension" />
+        <attr name="progress_unreached_bar_height" format="dimension" />
 
-    <attr name="progress_text_size" format="dimension"/>
-    <attr name="progress_text_color" format="color"/>
+        <attr name="progress_text_size" format="dimension" />
+        <attr name="progress_text_color" format="color" />
 
-    <attr name="progress_text_offset" format="dimension"/>
+        <attr name="progress_text_offset" format="dimension" />
 
-    <attr name="progress_text_visibility" format="enum">
-      <enum name="visible" value="0"/>
-      <enum name="invisible" value="1"/>
-    </attr>
-  </declare-styleable>
+        <attr name="progress_text_visibility" format="enum">
+            <enum name="visible" value="0" />
+            <enum name="invisible" value="1" />
+        </attr>
+    </declare-styleable>
 
+    <declare-styleable name="InkPageIndicator">
+        <attr name="dotDiameter" format="dimension" />
+        <attr name="dotGap" format="dimension" />
+        <attr name="animationDuration" format="integer" />
+        <attr name="pageIndicatorColor" format="color" />
+        <attr name="currentPageIndicatorColor" format="color" />
+    </declare-styleable>
 
 </resources>
