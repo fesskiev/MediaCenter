@@ -273,10 +273,16 @@ public class AudioPlayer implements Playable {
         }
 
         public boolean lastTrack() {
+            if (currentTrackList == null) {
+                return true;
+            }
             return position == (currentTrackList.size() - 1);
         }
 
         public boolean firstTrack() {
+            if (currentTrackList == null) {
+                return true;
+            }
             return position == 0;
         }
 
@@ -312,12 +318,15 @@ public class AudioPlayer implements Playable {
     }
 
     private String printCurrentTrackList() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < currentTrackList.size(); i++) {
-            AudioFile audioFile = currentTrackList.get(i);
-            sb.append(String.format(Locale.getDefault(), "%d. %s", i, audioFile.getFileName()));
-            sb.append("\n");
+        if (currentTrackList != null) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < currentTrackList.size(); i++) {
+                AudioFile audioFile = currentTrackList.get(i);
+                sb.append(String.format(Locale.getDefault(), "%d. %s", i, audioFile.getFileName()));
+                sb.append("\n");
+            }
+            return sb.toString();
         }
-        return sb.toString();
+        return null;
     }
 }

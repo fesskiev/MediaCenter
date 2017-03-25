@@ -133,10 +133,16 @@ public class VideoPlayer implements Playable {
         }
 
         private boolean firstVideo() {
+            if (videoFiles == null) {
+                return true;
+            }
             return position == 0;
         }
 
         private boolean lastVideo() {
+            if (videoFiles == null) {
+                return true;
+            }
             return position == (videoFiles.size() - 1);
         }
 
