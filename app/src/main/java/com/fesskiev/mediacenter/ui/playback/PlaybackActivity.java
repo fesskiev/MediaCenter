@@ -212,8 +212,12 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         unregisterNotificationReceiver();
 
         notificationHelper.stopNotification();
-        PlaybackService.stopPlaybackForegroundService(getApplicationContext());
-        startForeground = false;
+
+        if (startForeground) {
+            PlaybackService.stopPlaybackForegroundService(getApplicationContext());
+            PlaybackService.destroyPlayer(getApplicationContext());
+            startForeground = false;
+        }
     }
 
     @Override

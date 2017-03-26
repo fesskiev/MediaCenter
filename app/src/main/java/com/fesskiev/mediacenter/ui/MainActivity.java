@@ -516,9 +516,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         if (fetchMediaFilesManager.isFetchStart()) {
             stopFetchFiles();
         }
-
         fetchMediaFilesManager.unregister();
-        PlaybackService.destroyPlayer(getApplicationContext());
+
         FileSystemService.stopFileSystemService(getApplicationContext());
 
         if (!settingsManager.isUserPro()) {

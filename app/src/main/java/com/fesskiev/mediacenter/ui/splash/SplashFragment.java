@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.source.DataRepository;
+import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.ui.MainActivity;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
@@ -43,6 +44,7 @@ public class SplashFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         repository = MediaApplication.getInstance().getRepository();
+        FileSystemService.startFileSystemService(getContext().getApplicationContext());
     }
 
     @Override

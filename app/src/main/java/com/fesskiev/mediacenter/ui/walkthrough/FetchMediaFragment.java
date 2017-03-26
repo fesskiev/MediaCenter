@@ -110,6 +110,7 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
     }
 
     private void skipFetchMediaFiles() {
+        hideButtons();
         fetchMediaFilesSuccess();
     }
 
@@ -136,23 +137,6 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
             button.setVisibility(View.GONE);
         }
     }
-
-
-//    @Override
-//    public void onBackPressed() {
-//        if (fetchMediaFilesManager.isFetchStart()) {
-//            Utils.showCustomSnackbar(findViewById(R.id.splashRoot), getApplicationContext(),
-//                    getString(R.string.splash_snackbar_stop_fetch),
-//                    Snackbar.LENGTH_LONG)
-//                    .setAction(getString(R.string.snack_exit_action), v -> {
-//                        stopFetchFiles();
-//                        finish();
-//                    })
-//                    .show();
-//        } else {
-//            super.onBackPressed();
-//        }
-//    }
 
     @Override
     public void onDestroy() {

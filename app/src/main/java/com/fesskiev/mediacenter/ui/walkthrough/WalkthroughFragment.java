@@ -49,6 +49,7 @@ public class WalkthroughFragment extends Fragment {
                     FetchMediaFragment.newInstance(),
                     ProUserFragment.newInstance()
             };
+            permissionGranted = true;
         }
     }
 
@@ -76,7 +77,8 @@ public class WalkthroughFragment extends Fragment {
         });
 
         disableEnterButton();
-        viewPager.setSwipingEnabled(false);
+
+        viewPager.setSwipingEnabled(permissionGranted);
     }
 
     private void disableEnterButton() {
