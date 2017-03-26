@@ -5,8 +5,12 @@
     <string name="permission_granted">All permissions granted. Thank you</string>
     <string name="button_ok">OK</string>
 
+    <string name="button_enter">Enter</string>
+
     <string name="search_media_files_title">You can search media files now or skip this step. Search now?</string>
     <string name="search_media_files_success">Searching files has been completed. Thank you</string>
+
+    <string name="ad_mob_text">You can remove AdMob and support project. Remove AdMob?</string>
 
     <string name="snack_exit_text">Do you want exit from app?</string>
     <string name="snack_exit_action">EXIT</string>

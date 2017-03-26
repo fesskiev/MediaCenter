@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +32,7 @@ public class WalkthroughFragment extends Fragment {
 
     private boolean permissionGranted;
     private boolean fetchMediaGranted;
+    private boolean proUseerGranted;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -82,7 +82,7 @@ public class WalkthroughFragment extends Fragment {
     }
 
     private void disableEnterButton() {
-        enterAppButton.setAlpha(0.5f);
+        enterAppButton.setAlpha(0.2f);
         enterAppButton.setEnabled(false);
         enterAppButton.setClickable(false);
     }
@@ -104,8 +104,13 @@ public class WalkthroughFragment extends Fragment {
         checkEnableEnterButton();
     }
 
+    public void proUserGranted() {
+        proUseerGranted = true;
+        checkEnableEnterButton();
+    }
+
     private void checkEnableEnterButton() {
-        if (permissionGranted && fetchMediaGranted) {
+        if (permissionGranted && fetchMediaGranted && proUseerGranted) {
             enableEnterButton();
         }
     }
@@ -114,6 +119,7 @@ public class WalkthroughFragment extends Fragment {
         startActivity(new Intent(getActivity(), MainActivity.class));
         getActivity().finish();
     }
+
 
     private class WalkthroughPagerAdapter extends FragmentStatePagerAdapter {
 

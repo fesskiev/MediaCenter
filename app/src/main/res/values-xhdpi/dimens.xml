@@ -69,7 +69,7 @@
     <dimen name="text_fetch_dialog_title">14sp</dimen>
     <dimen name="text_fetch_dialog_desc">12sp</dimen>
 
-    <dimen name="text_permission_dialog">14sp</dimen>
+    <dimen name="text_walk_through">14sp</dimen>
 
     <dimen name="text_vk_login">14sp</dimen>
 

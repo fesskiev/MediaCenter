@@ -5,8 +5,12 @@
     <string name="permission_granted">Спасибо, все разрешения получены!</string>
     <string name="button_ok">Да</string>
 
-    <string name="search_media_files_title">Вы можете выполнить поиск медиафайлы сейчас или пропустить этот шаг. Выполнить поиск ?</string>
+    <string name="button_enter">Войти</string>
+
+    <string name="search_media_files_title">Вы можете выполнить поиск медиафайов сейчас или пропустить этот шаг. Выполнить поиск ?</string>
     <string name="search_media_files_success">Спасибо, поиск медиа файлов завершен!</string>
+
+    <string name="ad_mob_text">Вы можете убрать рекламу из приложения и поддержать проект. Убрать рекламу?</string>
 
     <string name="snack_exit_text">Выйти из приложения?</string>
     <string name="snack_exit_action">Выход</string>

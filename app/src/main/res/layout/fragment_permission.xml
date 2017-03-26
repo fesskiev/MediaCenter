@@ -7,7 +7,7 @@
 
     <TextView
         android:id="@+id/permissionText"
-        style="@style/PermissionDialogTextAppearance"
+        style="@style/WalkThroughTextAppearance"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
@@ -28,7 +28,7 @@
 
         <Button
             android:id="@+id/buttonGranted"
-            style="@style/PermissionButtonTextAppearance"
+            style="@style/WalkThroughButtonTextAppearance"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:background="?android:selectableItemBackground"
@@ -40,7 +40,7 @@
 
         <Button
             android:id="@+id/buttonCancel"
-            style="@style/PermissionButtonTextAppearance"
+            style="@style/WalkThroughButtonTextAppearance"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:background="?android:selectableItemBackground"

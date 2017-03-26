@@ -17,7 +17,7 @@
 
     <TextView
         android:id="@+id/fetchText"
-        style="@style/PermissionDialogTextAppearance"
+        style="@style/WalkThroughTextAppearance"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
@@ -38,7 +38,7 @@
 
         <Button
             android:id="@+id/fetchMediaButton"
-            style="@style/PermissionButtonTextAppearance"
+            style="@style/WalkThroughButtonTextAppearance"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:background="?android:selectableItemBackground"
@@ -50,7 +50,7 @@
 
         <Button
             android:id="@+id/fetchMediaSkipButton"
-            style="@style/PermissionButtonTextAppearance"
+            style="@style/WalkThroughButtonTextAppearance"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:background="?android:selectableItemBackground"

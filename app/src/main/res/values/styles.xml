@@ -242,10 +242,16 @@
         <item name="android:fontFamily">sans-serif</item>
     </style>
 
-    <style name="PermissionDialogTextAppearance" parent="@android:style/TextAppearance">
+    <style name="WalkThroughTextAppearance" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/white_text</item>
-        <item name="android:textSize">@dimen/text_permission_dialog</item>
+        <item name="android:textSize">@dimen/text_walk_through</item>
         <item name="android:textStyle">normal</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="WalkThroughButtonTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/white_text</item>
+        <item name="android:textSize">@dimen/text_walk_through</item>
         <item name="android:fontFamily">sans-serif</item>
     </style>
 
@@ -445,13 +451,6 @@
     <style name="MediaDrawerValueAppearance" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/secondary_text</item>
         <item name="android:textSize">12sp</item>
-        <item name="android:fontFamily">sans-serif</item>
-    </style>
-
-
-    <style name="PermissionButtonTextAppearance" parent="@android:style/TextAppearance">
-        <item name="android:textColor">@color/white_text</item>
-        <item name="android:textSize">18sp</item>
         <item name="android:fontFamily">sans-serif</item>
     </style>
 

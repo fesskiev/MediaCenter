@@ -1,6 +1,55 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/activity_horizontal_margin"
+    android:orientation="vertical">
 
+    <TextView
+        android:id="@+id/adMobText"
+        style="@style/WalkThroughTextAppearance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:drawableTop="@drawable/icon_remove_banners"
+        android:drawablePadding="8dp"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:text="@string/ad_mob_text" />
 
-</FrameLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:baselineAligned="false"
+        android:orientation="horizontal"
+        android:splitMotionEvents="false">
+
+        <Button
+            android:id="@+id/buttonRemoveAdMob"
+            style="@style/WalkThroughButtonTextAppearance"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:background="?android:selectableItemBackground"
+            android:gravity="center_vertical"
+            android:minWidth="48dp"
+            android:paddingEnd="16dp"
+            android:paddingStart="16dp"
+            android:text="@string/dialog_permission_ok" />
+
+        <Button
+            android:id="@+id/buttonSkipRemoveAdMob"
+            style="@style/WalkThroughButtonTextAppearance"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:background="?android:selectableItemBackground"
+            android:gravity="center_vertical"
+            android:minWidth="48dp"
+            android:paddingEnd="16dp"
+            android:paddingStart="16dp"
+            android:text="@string/dialog_permission_cancel" />
+
+    </LinearLayout>
+
+</RelativeLayout>
