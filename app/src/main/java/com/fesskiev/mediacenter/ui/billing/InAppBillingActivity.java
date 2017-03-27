@@ -5,8 +5,9 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
@@ -37,9 +38,13 @@ public class InAppBillingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_in_app_billing);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
+        TypedValue typedValue = new TypedValue();
+        getResources().getValue(R.dimen.activity_window_height, typedValue, true);
+        float scaleValue = typedValue.getFloat();
+
+        int height = (int) (getResources().getDisplayMetrics().heightPixels * scaleValue);
+        getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, height);
         fab = (FloatingActionButton) findViewById(R.id.fabPurchaseProduct);
         fab.setOnClickListener(v -> purchaseProduct());
 

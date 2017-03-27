@@ -235,7 +235,8 @@
         <activity
             android:name=".ui.billing.InAppBillingActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/ActivityDialog.Theme.MediaCenter"/>
 
         <service
             android:name=".services.FileSystemService"

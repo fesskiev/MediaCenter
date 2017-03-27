@@ -1,6 +1,7 @@
 package com.fesskiev.mediacenter.ui.walkthrough;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -10,9 +11,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.ui.billing.InAppBillingActivity;
+import com.fesskiev.mediacenter.utils.AppSettingsManager;
 
 
-public class ProUserFragment extends Fragment implements View.OnClickListener  {
+public class ProUserFragment extends Fragment implements View.OnClickListener {
 
     public static ProUserFragment newInstance() {
         return new ProUserFragment();
@@ -41,15 +44,40 @@ public class ProUserFragment extends Fragment implements View.OnClickListener  {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        if (AppSettingsManager.getInstance().isUserPro()) {
+            showSuccessPurchase();
+            notifyProUserGranted();
+            hideButtons();
+        }
+    }
+
+
+    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.buttonRemoveAdMob:
+                startBillingActivity();
                 break;
             case R.id.buttonSkipRemoveAdMob:
+                showSkipPurchase();
                 notifyProUserGranted();
                 hideButtons();
                 break;
         }
+    }
+
+    private void showSkipPurchase() {
+
+    }
+
+    private void showSuccessPurchase() {
+
+    }
+
+    private void startBillingActivity() {
+        startActivity(new Intent(getActivity(), InAppBillingActivity.class));
     }
 
 
