@@ -11,6 +11,12 @@
     <string name="search_media_files_success">Спасибо, поиск медиа файлов завершен!</string>
 
     <string name="ad_mob_text">Вы можете убрать рекламу из приложения и поддержать проект. Убрать рекламу?</string>
+    <string name="ad_mob_remove_success">Все показы рекламы в приложении отелючены. Спасибо за поддержку!</string>
+    <string name="ad_mob_remove_skip">В дальнейшем Вы можете отключить рекламу в приложении</string>
+
+    <string name="billing_error_purchase">Ошибка покупки!</string>
+    <string name="billing_error_not_support">Покупки в приложении не поддерживаются</string>
+    <string name="billing_error_connection">Ошибка соединения</string>
 
     <string name="snack_exit_text">Выйти из приложения?</string>
     <string name="snack_exit_action">Выход</string>

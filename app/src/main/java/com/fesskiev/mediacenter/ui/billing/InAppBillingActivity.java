@@ -125,7 +125,19 @@ public class InAppBillingActivity extends AppCompatActivity {
         hideFab();
 
         Utils.showCustomSnackbar(findViewById(R.id.billingRoot), getApplicationContext(),
-                "Yua are pro!", Snackbar.LENGTH_LONG).show();
+                getString(R.string.ad_mob_remove_success), Snackbar.LENGTH_INDEFINITE)
+                .setAction(getString(R.string.snack_exit_action), v -> finishWithResult())
+                .addCallback(new Snackbar.Callback() {
+                    @Override
+                    public void onDismissed(Snackbar snackbar, int event) {
+                        super.onDismissed(snackbar, event);
+                        finishWithResult();
+                    }
+                }).show();
+    }
+
+    private void finishWithResult() {
+        finish();
     }
 
 
@@ -153,17 +165,17 @@ public class InAppBillingActivity extends AppCompatActivity {
 
     private void showErrorPurchaseView() {
         Utils.showCustomSnackbar(findViewById(R.id.billingRoot), getApplicationContext(),
-                "Purchase Error", Snackbar.LENGTH_LONG).show();
+                getString(R.string.billing_error_purchase), Snackbar.LENGTH_LONG).show();
     }
 
     private void showBillingNotSupportedView() {
         Utils.showCustomSnackbar(findViewById(R.id.billingRoot), getApplicationContext(),
-                "Billing not support", Snackbar.LENGTH_LONG).show();
+                getString(R.string.billing_error_not_support), Snackbar.LENGTH_LONG).show();
     }
 
     private void showConnectedErrorView() {
         Utils.showCustomSnackbar(findViewById(R.id.billingRoot), getApplicationContext(),
-                "Billing connecting error", Snackbar.LENGTH_LONG).show();
+                getString(R.string.billing_error_connection), Snackbar.LENGTH_LONG).show();
     }
 
     private void showThrowable(Throwable throwable) {

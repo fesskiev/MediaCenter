@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
 
 
@@ -95,6 +96,7 @@ public class PermissionFragment extends Fragment implements View.OnClickListener
             case PERMISSION_REQ: {
                 if (grantResults != null && grantResults.length > 0) {
                     if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        BitmapHelper.getInstance().saveDownloadFolderIcon();
                         showSuccessPermissions();
                     } else if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
                         boolean showRationale =
@@ -113,8 +115,9 @@ public class PermissionFragment extends Fragment implements View.OnClickListener
 
     private void showSuccessPermissions() {
         permissionText.setText(getString(R.string.permission_granted));
-        permissionText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.icon_permission_granted, 0, 0);
+        permissionText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.icon_walk_through_ok, 0, 0);
         permissionText.setCompoundDrawablePadding((int) Utils.dipToPixels(getContext().getApplicationContext(), 8));
+
         hideButtons();
         notifyPermissionGranted();
     }

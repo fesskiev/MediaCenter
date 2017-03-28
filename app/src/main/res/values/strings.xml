@@ -11,6 +11,13 @@
     <string name="search_media_files_success">Searching files has been completed. Thank you</string>
 
     <string name="ad_mob_text">You can remove AdMob and support project. Remove AdMob?</string>
+    <string name="ad_mob_remove_success">You are pro user. Thank you for support!</string>
+    <string name="ad_mob_remove_skip">In the future, you can disable AdMob in the application</string>
+
+    <string name="billing_error_purchase">Purchase error!</string>
+    <string name="billing_error_not_support">Billing not support</string>
+    <string name="billing_error_connection">Billing connecting error</string>
+
 
     <string name="snack_exit_text">Do you want exit from app?</string>
     <string name="snack_exit_action">EXIT</string>

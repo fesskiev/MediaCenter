@@ -118,7 +118,7 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
     private void fetchMediaFilesSuccess() {
         fetchText.setVisibility(View.VISIBLE);
         fetchText.setText(getString(R.string.search_media_files_success));
-        fetchText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.icon_permission_granted, 0, 0);
+        fetchText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.icon_walk_through_ok, 0, 0);
         fetchText.setCompoundDrawablePadding((int) Utils.dipToPixels(getContext().getApplicationContext(), 8));
 
         notifyFetchMediaGranted();

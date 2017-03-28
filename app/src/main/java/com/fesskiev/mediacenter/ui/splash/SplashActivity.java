@@ -7,8 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.ui.walkthrough.WalkthroughFragment;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
-import com.fesskiev.mediacenter.utils.BitmapHelper;
-
 
 
 public class SplashActivity extends AppCompatActivity {
@@ -20,7 +18,6 @@ public class SplashActivity extends AppCompatActivity {
 
         AppSettingsManager settingsManager = AppSettingsManager.getInstance();
         if (settingsManager.isFirstStartApp()) {
-            BitmapHelper.getInstance().saveDownloadFolderIcon();
 
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.content, WalkthroughFragment.newInstance(),
@@ -36,5 +33,4 @@ public class SplashActivity extends AppCompatActivity {
 
         }
     }
-
 }

@@ -4,15 +4,27 @@ package com.fesskiev.mediacenter.ui.walkthrough;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.ui.billing.InAppBillingActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
+import com.fesskiev.mediacenter.utils.RxUtils;
+import com.fesskiev.mediacenter.utils.Utils;
+import com.fesskiev.mediacenter.utils.billing.Billing;
+import com.fesskiev.mediacenter.utils.billing.Inventory;
+import com.fesskiev.mediacenter.utils.billing.Purchase;
+
+import rx.Observable;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 
 public class ProUserFragment extends Fragment implements View.OnClickListener {
@@ -21,6 +33,10 @@ public class ProUserFragment extends Fragment implements View.OnClickListener {
         return new ProUserFragment();
     }
 
+    private Subscription subscription;
+    private Billing billing;
+
+    private TextView adMobText;
     private Button[] buttons;
 
     @Override
@@ -33,6 +49,8 @@ public class ProUserFragment extends Fragment implements View.OnClickListener {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        adMobText = (TextView) view.findViewById(R.id.adMobText);
+
         buttons = new Button[]{
                 (Button) view.findViewById(R.id.buttonRemoveAdMob),
                 (Button) view.findViewById(R.id.buttonSkipRemoveAdMob)
@@ -41,6 +59,24 @@ public class ProUserFragment extends Fragment implements View.OnClickListener {
         for (Button button : buttons) {
             button.setOnClickListener(this);
         }
+
+        createBilling();
+    }
+
+    private void createBilling() {
+        billing = new Billing(getActivity());
+        billing.connect(this::fetchBillingState);
+        billing.setOnPurchaseProductListener(new Billing.OnPurchaseProductListener() {
+            @Override
+            public void onProductPurchased(Purchase purchase) {
+
+            }
+
+            @Override
+            public void onProductPurchaseError() {
+                showErrorPurchaseView();
+            }
+        });
     }
 
     @Override
@@ -48,9 +84,80 @@ public class ProUserFragment extends Fragment implements View.OnClickListener {
         super.onResume();
         if (AppSettingsManager.getInstance().isUserPro()) {
             showSuccessPurchase();
-            notifyProUserGranted();
-            hideButtons();
         }
+    }
+
+
+    private void fetchBillingState(boolean connected) {
+        if (connected) {
+            subscription = billing.isBillingSupported()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .flatMap(supported -> {
+                        if (supported) {
+                            return Observable.zip(billing.getProducts(), billing.getPurchases(), Inventory::new);
+                        } else {
+                            showBillingNotSupportedView();
+                            return Observable.just(null);
+                        }
+                    }).subscribe(this::checkInventory, this::showThrowable);
+        } else {
+            showConnectedErrorView();
+        }
+    }
+
+    private void checkInventory(Inventory inventory) {
+        if (inventory != null) {
+            Purchase purchase = inventory.isProductPurchased(Billing.PRODUCT_SKU);
+            if (purchase != null) {
+                showSuccessPurchase();
+                AppSettingsManager.getInstance().setUserPro(true);
+            }
+        }
+    }
+
+
+    private void showSuccessPurchase() {
+        adMobText.setText(getString(R.string.ad_mob_remove_success));
+        adMobText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.icon_walk_through_ok, 0, 0);
+        adMobText.setCompoundDrawablePadding((int) Utils.dipToPixels(getContext().getApplicationContext(), 8));
+
+        hideButtons();
+        notifyProUserGranted();
+
+    }
+
+    private void showSkipPurchase() {
+        adMobText.setText(getString(R.string.ad_mob_remove_skip));
+        adMobText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.icon_walk_through_ok, 0, 0);
+        adMobText.setCompoundDrawablePadding((int) Utils.dipToPixels(getContext().getApplicationContext(), 8));
+    }
+
+    private void showErrorPurchaseView() {
+        Utils.showCustomSnackbar(getView(), getContext(),
+                getString(R.string.billing_error_purchase), Snackbar.LENGTH_LONG).show();
+    }
+
+    private void showBillingNotSupportedView() {
+        Utils.showCustomSnackbar(getView(), getContext(),
+                getString(R.string.billing_error_not_support), Snackbar.LENGTH_LONG).show();
+    }
+
+    private void showConnectedErrorView() {
+        Utils.showCustomSnackbar(getView(), getContext(),
+                getString(R.string.billing_error_connection), Snackbar.LENGTH_LONG).show();
+    }
+
+    private void showThrowable(Throwable throwable) {
+        Utils.showCustomSnackbar(getView(), getContext(),
+                throwable.getMessage(), Snackbar.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        RxUtils.unsubscribe(subscription);
+        billing.disconnect();
     }
 
 
@@ -68,13 +175,6 @@ public class ProUserFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    private void showSkipPurchase() {
-
-    }
-
-    private void showSuccessPurchase() {
-
-    }
 
     private void startBillingActivity() {
         startActivity(new Intent(getActivity(), InAppBillingActivity.class));
