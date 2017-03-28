@@ -190,6 +190,10 @@ public class AudioPlayer implements Playable {
     public void setSortingTrackList(List<AudioFile> audioFiles) {
         currentTrackList = audioFiles;
         trackListIterator.findPosition();
+
+        EventBus.getDefault().post(currentTrackList);
+
+        Log.e(TAG, AudioPlayer.this.toString());
     }
 
     public Observable<AudioFile> getCurrentAudioFile() {

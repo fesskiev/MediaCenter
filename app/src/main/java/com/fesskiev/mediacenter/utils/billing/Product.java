@@ -52,4 +52,24 @@ public class Product {
     public String getType() {
         return type;
     }
+
+    public String getPrice() {
+        return price;
+    }
+
+    public int getPriceAmountMicros() {
+        return priceAmountMicros;
+    }
+
+    public String getPriceCurrencyCode() {
+        return priceCurrencyCode;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 }

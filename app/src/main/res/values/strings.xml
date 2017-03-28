@@ -18,6 +18,7 @@
     <string name="billing_error_not_support">Billing not support</string>
     <string name="billing_error_connection">Billing connecting error</string>
 
+    <string name="product_price">Price:</string>
 
     <string name="snack_exit_text">Do you want exit from app?</string>
     <string name="snack_exit_action">EXIT</string>

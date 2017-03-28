@@ -5,7 +5,9 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.util.TypedValue;
+import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -31,8 +33,7 @@ public class InAppBillingActivity extends AppCompatActivity {
 
     private Product product;
 
-    private FloatingActionButton fab;
-    private TextView textData;
+    private FloatingActionButton purchaseButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,10 +46,9 @@ public class InAppBillingActivity extends AppCompatActivity {
 
         int height = (int) (getResources().getDisplayMetrics().heightPixels * scaleValue);
         getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, height);
-        fab = (FloatingActionButton) findViewById(R.id.fabPurchaseProduct);
-        fab.setOnClickListener(v -> purchaseProduct());
 
-        textData = (TextView) findViewById(R.id.textData);
+        purchaseButton = (FloatingActionButton) findViewById(R.id.fabPurchaseProduct);
+        purchaseButton.setOnClickListener(v -> purchaseProduct());
 
         billing = new Billing(this);
         billing.connect(this::fetchBillingState);
@@ -56,7 +56,7 @@ public class InAppBillingActivity extends AppCompatActivity {
             @Override
             public void onProductPurchased(Purchase purchase) {
                 if (verifyDeveloperPayload(purchase)) {
-                    showSuccessPurchaseView(purchase);
+                    showSuccessPurchaseView();
                 }
             }
 
@@ -97,9 +97,7 @@ public class InAppBillingActivity extends AppCompatActivity {
     private void checkInventory(Inventory inventory) {
         if (inventory != null) {
             Purchase purchase = inventory.isProductPurchased(Billing.PRODUCT_SKU);
-            if (purchase != null) {
-                showProductPurchasedView(purchase);
-            } else {
+            if (purchase == null) {
                 showPurchaseProductView(inventory.findProductBySku(Billing.PRODUCT_SKU));
             }
         }
@@ -119,11 +117,9 @@ public class InAppBillingActivity extends AppCompatActivity {
     }
 
 
-    private void showSuccessPurchaseView(Purchase purchase) {
+    private void showSuccessPurchaseView() {
         AppSettingsManager.getInstance().setUserPro(true);
-        fillPurchaseInfo(purchase);
         hideFab();
-
         Utils.showCustomSnackbar(findViewById(R.id.billingRoot), getApplicationContext(),
                 getString(R.string.ad_mob_remove_success), Snackbar.LENGTH_INDEFINITE)
                 .setAction(getString(R.string.snack_exit_action), v -> finishWithResult())
@@ -147,20 +143,19 @@ public class InAppBillingActivity extends AppCompatActivity {
         showFab();
     }
 
-    private void showProductPurchasedView(Purchase purchase) {
-        fillPurchaseInfo(purchase);
-        hideFab();
-    }
-
-    private void fillPurchaseInfo(Purchase purchase) {
-        textData.setText("");
-        textData.setText(purchase.toString());
-    }
-
 
     private void fillProductInfo(Product product) {
-        textData.setText("");
-        textData.setText(product.toString());
+        CardView view = (CardView) findViewById(R.id.purchaseCard);
+        view.setVisibility(View.VISIBLE);
+
+        TextView amount = (TextView) view.findViewById(R.id.productAmount);
+        TextView title = (TextView) view.findViewById(R.id.productTitle);
+        TextView description = (TextView) view.findViewById(R.id.productDesc);
+
+        amount.setText(String.format("%s %s", getString(R.string.product_price), product.getPrice()));
+        title.setText(product.getTitle());
+        description.setText(product.getDescription());
+
     }
 
     private void showErrorPurchaseView() {
@@ -184,11 +179,11 @@ public class InAppBillingActivity extends AppCompatActivity {
     }
 
     private void showFab() {
-        fab.setVisibility(View.VISIBLE);
+        purchaseButton.setVisibility(View.VISIBLE);
     }
 
     private void hideFab() {
-        fab.setVisibility(View.GONE);
+        purchaseButton.setVisibility(View.GONE);
     }
 
 }

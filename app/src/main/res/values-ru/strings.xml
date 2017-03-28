@@ -18,6 +18,8 @@
     <string name="billing_error_not_support">Покупки в приложении не поддерживаются</string>
     <string name="billing_error_connection">Ошибка соединения</string>
 
+    <string name="product_price">Стоимость:</string>
+
     <string name="snack_exit_text">Выйти из приложения?</string>
     <string name="snack_exit_action">Выход</string>
 
