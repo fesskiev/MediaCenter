@@ -199,6 +199,9 @@ public class AudioPlayer implements Playable {
     }
 
     private boolean isSortingCurrentTrackList(List<AudioFile> audioFiles) {
+        if (currentTrackList == null) {
+            return false;
+        }
         return currentTrackList.containsAll(audioFiles);
     }
 
