@@ -4,11 +4,15 @@ import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Context;
 import android.content.Intent;
+import android.database.ContentObserver;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.os.Process;
+import android.provider.MediaStore;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -28,6 +32,8 @@ import java.util.UUID;
 public class FileSystemService extends JobService {
 
     private static final String TAG = FileSystemService.class.getSimpleName();
+
+    private Uri MEDIA_URI = Uri.parse("content://" + MediaStore.AUTHORITY + "/");
 
 
     private static final String ACTION_START_FETCH_MEDIA_SERVICE = "com.fesskiev.player.action.FETCH_MEDIA_SERVICE";
@@ -51,6 +57,8 @@ public class FileSystemService extends JobService {
 
     private Handler handler;
     private FetchContentThread fetchContentThread;
+    private MediaObserver observer;
+
     public static volatile boolean shouldContinue;
 
     public static void startFileSystemService(Context context) {
@@ -94,6 +102,12 @@ public class FileSystemService extends JobService {
 
         fetchContentThread = new FetchContentThread();
         fetchContentThread.start();
+
+        observer = new MediaObserver(handler);
+        getContentResolver().registerContentObserver(
+                MEDIA_URI,
+                true,
+                observer);
     }
 
     @Override
@@ -102,6 +116,8 @@ public class FileSystemService extends JobService {
         Log.i(TAG, "File System Service destroyed");
 
         fetchContentThread.quitSafely();
+
+        getContentResolver().unregisterContentObserver(observer);
     }
 
 
@@ -128,6 +144,34 @@ public class FileSystemService extends JobService {
             }
         }
         return START_NOT_STICKY;
+    }
+
+    private class MediaObserver extends ContentObserver {
+
+        public MediaObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            Cursor cursor = null;
+            try {
+                String[] projection = {MediaStore.Audio.Media.DATA, MediaStore.Audio.Media._ID};
+                cursor = getContentResolver().query(uri, projection, null, null, null);
+                if (cursor != null) {
+                    if (cursor.moveToLast()) {
+                        String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
+                        String id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
+
+                        Log.w("test_", "OBSERVER CHANGED!: " + path + " id: " + id + " self: " + selfChange);
+                    }
+                }
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+        }
     }
 
     private class FetchContentThread extends HandlerThread {
