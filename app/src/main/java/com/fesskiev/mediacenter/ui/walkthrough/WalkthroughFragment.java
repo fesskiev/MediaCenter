@@ -32,7 +32,7 @@ public class WalkthroughFragment extends Fragment {
 
     private boolean permissionGranted;
     private boolean fetchMediaGranted;
-    private boolean proUseerGranted;
+    private boolean proUserGranted;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -105,12 +105,12 @@ public class WalkthroughFragment extends Fragment {
     }
 
     public void proUserGranted() {
-        proUseerGranted = true;
+        proUserGranted = true;
         checkEnableEnterButton();
     }
 
     private void checkEnableEnterButton() {
-        if (permissionGranted && fetchMediaGranted && proUseerGranted) {
+        if (permissionGranted && fetchMediaGranted && proUserGranted) {
             enableEnterButton();
         }
     }

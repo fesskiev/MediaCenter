@@ -28,7 +28,11 @@ class PlayStoreBroadcastReceiver extends BroadcastReceiver {
 
     void removeOnPlayStoreListener() {
         listener = null;
-        context.unregisterReceiver(this);
+        try {
+            context.unregisterReceiver(this);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
     }
 
 
