@@ -1,1 +1,1 @@
-include ':app', ':extensions'
+include ':app', ':extensions', ':cuelib'

@@ -97,6 +97,7 @@ dependencies {
     compile files('libs/jaudiotagger-2.2.4.jar')
     compile(name: 'FFmpegAndroid', ext: 'aar')
     compile project(':extensions')
+    compile project(':cuelib')
 
     compile "com.android.support:appcompat-v7:${supportLibVersion}"
     compile "com.android.support:recyclerview-v7:${supportLibVersion}"
