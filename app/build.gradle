@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'me.tatarka.retrolambda'
 
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
@@ -18,10 +19,6 @@ android {
         versionName = "1.0.0"
         vectorDrawables.useSupportLibrary = true
 
-        jackOptions {
-            enabled true
-        }
-
         ndk {
             abiFilters 'x86', 'armeabi-v7a'
         }
@@ -33,6 +30,10 @@ android {
                 cppFlags '-fsigned-char', "-I${superpowered_sdk_path}"
             }
         }
+    }
+
+    dexOptions {
+        jumboMode true
     }
 
     signingConfigs {
