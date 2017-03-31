@@ -57,6 +57,16 @@ android {
         }
     }
 
+    productFlavors {
+        free {
+            versionName = "1.0.0"
+        }
+
+        pro {
+            versionName = "1.0.0-pro"
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8

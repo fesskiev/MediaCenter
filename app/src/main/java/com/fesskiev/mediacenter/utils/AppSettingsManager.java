@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.text.TextUtils;
 
 import com.fesskiev.mediacenter.MediaApplication;
+import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.effects.EQState;
 import com.fesskiev.mediacenter.data.model.effects.EchoState;
 import com.fesskiev.mediacenter.data.model.effects.ReverbState;
@@ -305,7 +306,8 @@ public class AppSettingsManager {
     }
 
     public boolean isUserPro() {
-        return sharedPreferences.getBoolean(KEY_USER_PRO, false);
+        return sharedPreferences.getBoolean(KEY_USER_PRO,
+                MediaApplication.getInstance().getResources().getBoolean(R.bool.isProUser));
     }
 
     public void setUserPro(boolean pro) {
