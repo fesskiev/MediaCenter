@@ -1,5 +1,4 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name">MKPlayer</string>
 
     <string name="permission_read_external_storage">Read external storage are needed to access</string>
     <string name="permission_granted">All permissions granted. Thank you</string>

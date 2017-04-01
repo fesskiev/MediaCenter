@@ -175,6 +175,7 @@
                 style="@style/DividerStyle"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
+                android:visibility="gone"
                 android:layout_below="@+id/securitySettingsTitle"
                 android:layout_marginTop="10dp" />
 
@@ -183,6 +184,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/divider8"
+                android:visibility="gone"
                 android:layout_marginTop="10dp">
 
                 <android.support.v7.widget.SwitchCompat
