@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.util.List;
 
 import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class AudioConverterHelper {
 
