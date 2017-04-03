@@ -290,9 +290,13 @@ public class FileSystemService extends JobService {
                     getMediaContent();
 
                     if (jobParameters != null) {
-                        scheduleJob(getApplicationContext(),
-                                (int) AppSettingsManager.getInstance().getMediaContentUpdateTime());
-                        jobFinished(jobParameters, false);
+                        int interval = (int) AppSettingsManager.getInstance().getMediaContentUpdateTime();
+                        if (interval > 0) {
+                            scheduleJob(getApplicationContext(), interval);
+                            jobFinished(jobParameters, false);
+                        } else {
+                            jobFinished(jobParameters, true);
+                        }
                     }
                 });
     }

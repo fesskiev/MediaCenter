@@ -146,8 +146,7 @@ public class AudioNotificationHelper {
                 .setContentTitle("Fetch content start")
                 .setContentText("Job schedule start fetching content")
                 .setWhen(System.currentTimeMillis())
-                .setShowWhen(true)
-                .setUsesChronometer(true);
+                .setShowWhen(true);
 
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
