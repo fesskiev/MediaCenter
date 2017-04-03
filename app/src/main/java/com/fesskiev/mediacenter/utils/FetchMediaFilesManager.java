@@ -16,6 +16,8 @@ import com.fesskiev.mediacenter.widgets.fetch.FetchContentView;
 
 public class FetchMediaFilesManager {
 
+    private final static int DELAY = 3;
+
     public interface OnFetchMediaFilesListener {
 
         void onFetchContentStart();
@@ -31,6 +33,8 @@ public class FetchMediaFilesManager {
     private FetchContentView fetchContentView;
     private boolean fetchStart;
     private boolean needTimer;
+    private int folderCount;
+    private int videoCount;
 
     public FetchMediaFilesManager(FetchContentView fetchContentView) {
         this.fetchContentView = fetchContentView;
@@ -81,12 +85,17 @@ public class FetchMediaFilesManager {
                 case FileSystemService.ACTION_END_FETCH_MEDIA_CONTENT:
                     if (listener != null) {
                         listener.onFetchContentFinish();
+                        listener.onAudioFolderCreated();
+                        listener.onVideoFileCreated();
                     }
+
                     fetchContentView.setInvisibleContent();
                     if (needTimer) {
                         fetchContentView.hideTimer();
                     }
                     fetchStart = false;
+                    videoCount = 0;
+                    folderCount = 0;
                     break;
                 case FileSystemService.ACTION_AUDIO_FOLDER_NAME:
                     String folderName =
@@ -97,8 +106,10 @@ public class FetchMediaFilesManager {
                     break;
 
                 case FileSystemService.ACTION_AUDIO_FOLDER_CREATED:
-                    if (listener != null) {
+                    folderCount++;
+                    if (listener != null && folderCount == DELAY) {
                         listener.onAudioFolderCreated();
+                        folderCount = 0;
                     }
                     break;
                 case FileSystemService.ACTION_AUDIO_TRACK_NAME:
@@ -114,8 +125,9 @@ public class FetchMediaFilesManager {
                     if (fetchContentView != null) {
                         fetchContentView.setVideoFileName(videoFileName);
                     }
-                    if (listener != null) {
+                    if (listener != null && videoCount == DELAY) {
                         listener.onVideoFileCreated();
+                        videoCount = 0;
                     }
                     break;
             }

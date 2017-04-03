@@ -1,12 +1,16 @@
 package com.fesskiev.mediacenter.services;
 
+import android.app.job.JobInfo;
 import android.app.job.JobParameters;
+import android.app.job.JobScheduler;
 import android.app.job.JobService;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -22,10 +26,13 @@ import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.data.source.local.db.LocalDataSource;
+import com.fesskiev.mediacenter.utils.AppSettingsManager;
+import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -33,7 +40,9 @@ public class FileSystemService extends JobService {
 
     private static final String TAG = FileSystemService.class.getSimpleName();
 
-    private Uri MEDIA_URI = Uri.parse("content://" + MediaStore.AUTHORITY + "/");
+    private static Uri MEDIA_URI = Uri.parse("content://" + MediaStore.AUTHORITY + "/");
+
+    private static final int MEDIA_CONTENT_JOB = 31;
 
 
     private static final String ACTION_START_FETCH_MEDIA_SERVICE = "com.fesskiev.player.action.FETCH_MEDIA_SERVICE";
@@ -93,6 +102,57 @@ public class FileSystemService extends JobService {
         Intent intent = new Intent(context, FileSystemService.class);
         intent.setAction(ACTION_CHECK_DOWNLOAD_FOLDER_SERVICE);
         context.startService(intent);
+    }
+
+
+    public static void scheduleJob(Context context, int periodic) {
+
+        JobScheduler js = (JobScheduler)
+                context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+
+        JobInfo.Builder builder = new JobInfo.Builder(MEDIA_CONTENT_JOB,
+                new ComponentName(context, FileSystemService.class));
+
+        int testPeriod = 4 * 1000 * 60;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            builder.setMinimumLatency(testPeriod);
+        } else {
+            builder.setPeriodic(testPeriod);
+        }
+        builder.setOverrideDeadline(testPeriod);
+        builder.setRequiresDeviceIdle(false);
+        builder.setRequiresCharging(false);
+
+//        builder.addTriggerContentUri(new JobInfo.TriggerContentUri(MEDIA_URI,
+//                JobInfo.TriggerContentUri.FLAG_NOTIFY_FOR_DESCENDANTS));
+        int jobValue = js.schedule(builder.build());
+        if (jobValue == JobScheduler.RESULT_FAILURE) {
+            Log.w(TAG, "JobScheduler launch the task failure");
+        } else {
+            Log.w(TAG, "JobScheduler launch the task success: " + jobValue);
+        }
+
+        Log.i(TAG, "JOB SCHEDULED!");
+    }
+
+    public static boolean isScheduled(Context context) {
+        JobScheduler js = (JobScheduler)
+                context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        List<JobInfo> jobs = js.getAllPendingJobs();
+        for (int i = 0; i < jobs.size(); i++) {
+            if (jobs.get(i).getId() == MEDIA_CONTENT_JOB) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void cancelJob(Context context) {
+        JobScheduler js = (JobScheduler)
+                context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        js.cancel(MEDIA_CONTENT_JOB);
+
+        Log.i(TAG, "JOB SCHEDULED? " + isScheduled(context));
     }
 
     @Override
@@ -188,11 +248,7 @@ public class FileSystemService extends JobService {
                 public void handleMessage(Message msg) {
                     switch (msg.what) {
                         case 0:
-                            getMediaContent();
-                            JobParameters jobParameters = (JobParameters) msg.obj;
-                            if (jobParameters != null) {
-                                jobFinished(jobParameters, false);
-                            }
+                            getMediaContent(msg);
                             break;
                         case 1:
                             getVideoContent();
@@ -209,22 +265,41 @@ public class FileSystemService extends JobService {
         }
     }
 
+    private void getMediaContent(Message msg) {
+        DataRepository repository = MediaApplication.getInstance().getRepository();
+        repository.resetAudioContentDatabase();
+        repository.resetVideoContentDatabase();
+
+        CacheManager.clearAudioImagesCache();
+        BitmapHelper.getInstance().saveDownloadFolderIcon();
+
+        getMediaContent();
+
+        JobParameters jobParameters = (JobParameters) msg.obj;
+        if (jobParameters != null) {
+            scheduleJob(getApplicationContext(),
+                    (int) AppSettingsManager.getInstance().getMediaContentUpdateTime());
+            jobFinished(jobParameters, false);
+        }
+    }
+
     @Override
     public boolean onStartJob(JobParameters params) {
-        Log.i(TAG, "File System Service onStartJob");
-
-        Message msg = handler.obtainMessage();
-        msg.obj = params;
-        msg.what = 0;
-        handler.sendMessage(msg);
-
-        return false;
+        Log.i(TAG, "onStartJob");
+        if (handler != null) {
+            Message msg = handler.obtainMessage();
+            msg.obj = params;
+            msg.what = 0;
+            handler.sendMessage(msg);
+            Log.i(TAG, "Send job...");
+        }
+        return true;
     }
 
     @Override
     public boolean onStopJob(JobParameters params) {
-        Log.i(TAG, "File System Service onStopJob");
-        return true;
+        Log.i(TAG, "onStopJob");
+        return false;
     }
 
 
@@ -335,7 +410,6 @@ public class FileSystemService extends JobService {
     }
 
     public void walk(String path) {
-        Log.w(TAG, "walk: " + shouldContinue);
         if (!shouldContinue) {
             return;
         }

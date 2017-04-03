@@ -1,16 +1,11 @@
 package com.fesskiev.mediacenter.ui.settings;
 
 
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
-import android.content.Context;
 import android.graphics.drawable.Animatable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SwitchCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,8 +26,6 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
     public static SettingsFragment newInstance() {
         return new SettingsFragment();
     }
-
-    private static final int JOB_ID = 31;
 
     private AppSettingsManager appSettingsManager;
 
@@ -135,29 +128,10 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
     }
 
     private void startBackgroundJob(int periodic) {
-        Log.d("job", "startBackgroundJob: " + periodic);
-
-        JobInfo.Builder builder = new JobInfo.Builder(JOB_ID, new ComponentName(getActivity(), FileSystemService.class));
-        builder.setPersisted(true);
-        builder.setOverrideDeadline(5000);
-        builder.setMinimumLatency(15 * 1000 * 60);
-        builder.setRequiresDeviceIdle(true);
-        builder.setRequiresCharging(false);
-        builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
-
-        JobScheduler jobScheduler = (JobScheduler) getActivity().getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        int jobValue = jobScheduler.schedule(builder.build());
-        if (jobValue == JobScheduler.RESULT_FAILURE) {
-            Log.w("job", "JobScheduler launch the task failure");
-        } else {
-            Log.w("job", "JobScheduler launch the task success: " + jobValue);
-        }
+        FileSystemService.scheduleJob(getContext().getApplicationContext(), periodic);
     }
 
     private void stopBackgroundJob() {
-        Log.d("job", "stopBackgroundJob");
-
-        JobScheduler jobScheduler = (JobScheduler) getActivity().getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        jobScheduler.cancel(JOB_ID);
+        FileSystemService.cancelJob(getContext().getApplicationContext());
     }
 }
