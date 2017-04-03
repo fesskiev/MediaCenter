@@ -33,6 +33,7 @@ public class AudioNotificationHelper {
     }
 
     public static final int NOTIFICATION_ID = 412;
+    public static final int NOTIFICATION_FETCH_ID = 411;
     private static final int REQUEST_CODE = 100;
 
     public static final String ACTION_MEDIA_CONTROL_PLAY = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_PLAY";
@@ -77,7 +78,7 @@ public class AudioNotificationHelper {
                 .setStyle(new NotificationCompat.MediaStyle()
                         .setShowActionsInCompactView(0, 1, 2))
                 .setLargeIcon(bitmap)
-                .setColor(ContextCompat.getColor(context, R.color.primary))
+                .setColor(ContextCompat.getColor(context, R.color.primary_light))
                 .setSmallIcon(R.drawable.icon_notification)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setContentIntent(createContentIntent())
@@ -131,5 +132,23 @@ public class AudioNotificationHelper {
 
     public Notification getNotification() {
         return notification;
+    }
+
+    public void createFetchNotification() {
+
+        NotificationCompat.Builder notificationBuilder
+                = new NotificationCompat.Builder(context);
+        notificationBuilder
+                .setColor(ContextCompat.getColor(context, R.color.primary_light))
+                .setSmallIcon(R.drawable.icon_notification)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setContentIntent(createContentIntent())
+                .setContentTitle("Fetch content start")
+                .setContentText("Job schedule start fetching content");
+
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(NOTIFICATION_FETCH_ID, notificationBuilder.build());
+
     }
 }

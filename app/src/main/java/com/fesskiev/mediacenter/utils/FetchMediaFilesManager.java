@@ -76,9 +76,11 @@ public class FetchMediaFilesManager {
                     if (listener != null) {
                         listener.onFetchContentStart();
                     }
-                    fetchContentView.setVisibleContent();
-                    if (needTimer) {
-                        fetchContentView.showTimer();
+                    if(fetchContentView != null) {
+                        fetchContentView.setVisibleContent();
+                        if (needTimer) {
+                            fetchContentView.showTimer();
+                        }
                     }
                     fetchStart = true;
                     break;
@@ -89,9 +91,11 @@ public class FetchMediaFilesManager {
                         listener.onVideoFileCreated();
                     }
 
-                    fetchContentView.setInvisibleContent();
-                    if (needTimer) {
-                        fetchContentView.hideTimer();
+                    if(fetchContentView != null) {
+                        fetchContentView.setInvisibleContent();
+                        if (needTimer) {
+                            fetchContentView.hideTimer();
+                        }
                     }
                     fetchStart = false;
                     videoCount = 0;
@@ -125,6 +129,8 @@ public class FetchMediaFilesManager {
                     if (fetchContentView != null) {
                         fetchContentView.setVideoFileName(videoFileName);
                     }
+
+                    videoCount++;
                     if (listener != null && videoCount == DELAY) {
                         listener.onVideoFileCreated();
                         videoCount = 0;

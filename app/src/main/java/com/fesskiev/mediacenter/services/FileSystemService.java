@@ -26,14 +26,19 @@ import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.data.source.local.db.LocalDataSource;
+import com.fesskiev.mediacenter.data.source.memory.MemoryDataSource;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
+import com.fesskiev.mediacenter.utils.AudioNotificationHelper;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
+import com.fesskiev.mediacenter.utils.RxUtils;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.List;
 import java.util.UUID;
+
+import rx.Observable;
 
 
 public class FileSystemService extends JobService {
@@ -113,7 +118,9 @@ public class FileSystemService extends JobService {
         JobInfo.Builder builder = new JobInfo.Builder(MEDIA_CONTENT_JOB,
                 new ComponentName(context, FileSystemService.class));
 
+        //TODO remove test value
         int testPeriod = 4 * 1000 * 60;
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             builder.setMinimumLatency(testPeriod);
         } else {
@@ -267,20 +274,41 @@ public class FileSystemService extends JobService {
 
     private void getMediaContent(Message msg) {
         DataRepository repository = MediaApplication.getInstance().getRepository();
-        repository.resetAudioContentDatabase();
-        repository.resetVideoContentDatabase();
 
+        Observable.zip(RxUtils.fromCallable(repository.resetAudioContentDatabase()),
+                RxUtils.fromCallable(repository.resetVideoContentDatabase()),
+                (integer, integer2) -> Observable.empty())
+                .doOnNext(observable -> refreshRepository(repository))
+                .doOnNext(observable -> clearImagesCache())
+                .subscribe(observable -> {
+                    JobParameters jobParameters = (JobParameters) msg.obj;
+
+                    if (jobParameters != null) {
+                        AudioNotificationHelper.getInstance(getApplicationContext()).createFetchNotification();
+                    }
+
+                    getMediaContent();
+
+                    if (jobParameters != null) {
+                        scheduleJob(getApplicationContext(),
+                                (int) AppSettingsManager.getInstance().getMediaContentUpdateTime());
+                        jobFinished(jobParameters, false);
+                    }
+                });
+    }
+
+    private void clearImagesCache() {
         CacheManager.clearAudioImagesCache();
         BitmapHelper.getInstance().saveDownloadFolderIcon();
+    }
 
-        getMediaContent();
+    private void refreshRepository(DataRepository repository) {
+        MemoryDataSource memoryDataSource = repository.getMemorySource();
 
-        JobParameters jobParameters = (JobParameters) msg.obj;
-        if (jobParameters != null) {
-            scheduleJob(getApplicationContext(),
-                    (int) AppSettingsManager.getInstance().getMediaContentUpdateTime());
-            jobFinished(jobParameters, false);
-        }
+        memoryDataSource.setCacheArtistsDirty(true);
+        memoryDataSource.setCacheGenresDirty(true);
+        memoryDataSource.setCacheFoldersDirty(true);
+        memoryDataSource.setCacheVideoFilesDirty(true);
     }
 
     @Override
