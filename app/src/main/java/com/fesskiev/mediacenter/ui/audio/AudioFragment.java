@@ -103,9 +103,7 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
                                 CacheManager.clearAudioImagesCache();
                                 BitmapHelper.getInstance().saveDownloadFolderIcon();
                             })
-                            .subscribe(integer -> {
-                                FileSystemService.startFetchAudio(getActivity());
-                            });
+                            .subscribe(integer -> FileSystemService.startFetchAudio(getActivity()));
                 });
 
         builder.setNegativeButton(R.string.dialog_refresh_folders_cancel,

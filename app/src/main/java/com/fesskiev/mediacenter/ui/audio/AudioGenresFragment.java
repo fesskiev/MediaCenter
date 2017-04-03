@@ -61,11 +61,11 @@ public class AudioGenresFragment extends GridFragment implements AudioContent {
                     if (genres != null) {
                         AppLog.INFO("onNext:genres: " + genres.size());
                         if (!genres.isEmpty()) {
-                            ((AudioGenresAdapter) adapter).refresh(genres);
                             hideEmptyContentCard();
                         } else {
                             showEmptyContentCard();
                         }
+                        ((AudioGenresAdapter) adapter).refresh(genres);
                     }
                 });
     }

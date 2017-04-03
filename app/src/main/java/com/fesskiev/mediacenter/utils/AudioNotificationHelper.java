@@ -78,8 +78,8 @@ public class AudioNotificationHelper {
                 .setStyle(new NotificationCompat.MediaStyle()
                         .setShowActionsInCompactView(0, 1, 2))
                 .setLargeIcon(bitmap)
-                .setColor(ContextCompat.getColor(context, R.color.primary_light))
-                .setSmallIcon(R.drawable.icon_notification)
+                .setColor(ContextCompat.getColor(context, R.color.primary))
+                .setSmallIcon(R.drawable.icon_notification_player)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setContentIntent(createContentIntent())
                 .setContentTitle(artist)
@@ -139,12 +139,15 @@ public class AudioNotificationHelper {
         NotificationCompat.Builder notificationBuilder
                 = new NotificationCompat.Builder(context);
         notificationBuilder
-                .setColor(ContextCompat.getColor(context, R.color.primary_light))
-                .setSmallIcon(R.drawable.icon_notification)
+                .setColor(ContextCompat.getColor(context, R.color.primary))
+                .setSmallIcon(R.drawable.icon_notification_fetch)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setContentIntent(createContentIntent())
                 .setContentTitle("Fetch content start")
-                .setContentText("Job schedule start fetching content");
+                .setContentText("Job schedule start fetching content")
+                .setWhen(System.currentTimeMillis())
+                .setShowWhen(true)
+                .setUsesChronometer(true);
 
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
