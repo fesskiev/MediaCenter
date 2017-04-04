@@ -236,6 +236,12 @@ public class AudioPlayer implements Playable {
         return false;
     }
 
+    public void nextAfterEnd() {
+        if (!last()) {
+            next();
+        }
+    }
+
     private class TrackListIterator implements ListIterator<AudioFile> {
 
         public TrackListIterator() {

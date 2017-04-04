@@ -343,7 +343,7 @@ public class PlaybackService extends Service {
 
     private void next() {
         Log.w(TAG, "NEXT FROM SERVICE");
-        MediaApplication.getInstance().getAudioPlayer().next();
+        MediaApplication.getInstance().getAudioPlayer().nextAfterEnd();
     }
 
     @Override

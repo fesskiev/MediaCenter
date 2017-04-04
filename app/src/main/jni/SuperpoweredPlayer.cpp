@@ -76,6 +76,8 @@ static void playerEventCallback(void *clientData, SuperpoweredAdvancedAudioPlaye
             break;
         case SuperpoweredAdvancedAudioPlayerEvent_EOF:
             __android_log_print(ANDROID_LOG_DEBUG, "MediaCenter", "END SONG");
+            player->seek(0);
+            player->togglePlayback();
             handlingCallback(1);
             break;
         default:;

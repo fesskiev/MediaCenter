@@ -215,9 +215,9 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
     private void checkFirstOrLastTrack() {
         if (audioPlayer.first()) {
-           disablePreviousTrackButton();
+            disablePreviousTrackButton();
         } else {
-          enablePreviousTrackButton();
+            enablePreviousTrackButton();
         }
 
         if (audioPlayer.last()) {
@@ -227,25 +227,25 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         }
     }
 
-    public void enablePreviousTrackButton(){
+    public void enablePreviousTrackButton() {
         prevTrack.setAlpha(1f);
         prevTrack.setEnabled(true);
         prevTrack.setClickable(true);
     }
 
-    public void disablePreviousTrackButton(){
+    public void disablePreviousTrackButton() {
         prevTrack.setAlpha(0.5f);
         prevTrack.setEnabled(false);
         prevTrack.setClickable(false);
     }
 
-    public void enableNextTrackButton(){
+    public void enableNextTrackButton() {
         nextTrack.setAlpha(1f);
         nextTrack.setEnabled(true);
         nextTrack.setClickable(true);
     }
 
-    public void disableNextTrackButton(){
+    public void disableNextTrackButton() {
         nextTrack.setAlpha(0.5f);
         nextTrack.setEnabled(false);
         nextTrack.setClickable(false);
@@ -253,7 +253,6 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPlaybackStateEvent(PlaybackService playbackState) {
-
 
         boolean playing = playbackState.isPlaying();
         if (lastPlaying != playing) {
