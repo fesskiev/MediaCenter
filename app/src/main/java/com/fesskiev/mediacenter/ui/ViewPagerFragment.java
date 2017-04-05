@@ -1,6 +1,7 @@
 package com.fesskiev.mediacenter.ui;
 
 
+import android.animation.LayoutTransition;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -14,6 +15,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
@@ -94,7 +96,14 @@ public abstract class ViewPagerFragment extends Fragment {
         tabLayout.setupWithViewPager(viewPager);
 
         createTabs();
+        addTransition(view);
+    }
 
+    private void addTransition(View view) {
+        RelativeLayout transitionLayout = (RelativeLayout) view.findViewById(R.id.layoutTransition);
+
+        LayoutTransition layoutTransition = transitionLayout.getLayoutTransition();
+        layoutTransition.setDuration(250);
     }
 
 
@@ -111,6 +120,14 @@ public abstract class ViewPagerFragment extends Fragment {
                 }
             }
         }
+    }
+
+    public void hideTabs() {
+        tabLayout.setVisibility(View.GONE);
+    }
+
+    public void showTabs() {
+        tabLayout.setVisibility(View.VISIBLE);
     }
 
 

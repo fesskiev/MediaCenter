@@ -13,7 +13,7 @@ public abstract class HidingScrollListener extends RecyclerView.OnScrollListener
 
     public abstract void onItemPosition(int position);
 
-    private static final int HIDE_THRESHOLD = 20;
+    private static final int HIDE_THRESHOLD = 150;
 
     private int scrolledDistance = 0;
     private boolean controlsVisible = true;
@@ -22,7 +22,7 @@ public abstract class HidingScrollListener extends RecyclerView.OnScrollListener
     public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
         super.onScrollStateChanged(recyclerView, newState);
 
-        if(newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+        if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
             int completelyPosition = ((LinearLayoutManager)
                     recyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
 

@@ -20,6 +20,7 @@ import com.fesskiev.mediacenter.utils.AnimationUtils;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.data.model.vk.User;
+import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.MaterialProgressBar;
 
 import rx.Subscription;
@@ -104,6 +105,7 @@ public class VKAuthActivity extends AppCompatActivity {
 
     private void singIn(String login, String password) {
         if (!TextUtils.isEmpty(login) && !TextUtils.isEmpty(password)) {
+            Utils.hideKeyboard(this);
             showProgressBar();
             DataRepository repository = MediaApplication.getInstance().getRepository();
             subscription = repository.auth(login, password)
