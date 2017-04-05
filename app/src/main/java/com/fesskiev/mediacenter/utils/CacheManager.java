@@ -3,7 +3,11 @@ package com.fesskiev.mediacenter.utils;
 
 import android.os.Environment;
 
+import com.fesskiev.mediacenter.MediaApplication;
+
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class CacheManager {
 
@@ -16,6 +20,10 @@ public class CacheManager {
     public final static String IMAGES_VIDEO_CACHE_PATH = EXTERNAL_STORAGE + "/MediaCenter/Images/Video/";
     public final static String CHECK_DOWNLOADS_FOLDER_PATH = EXTERNAL_STORAGE + "/MediaCenter/Downloads";
 
+    public final static String ASSETS_REVERB = "reverb_state.json";
+    public final static String ASSETS_EQ = "eq_state.json";
+    public final static String ASSETS_ECHO = "echo_state.json";
+    public final static String ASSETS_WHOOSH = "whoosh_state.json";
 
     public static void clearAudioImagesCache() {
         File folder = new File(IMAGES_AUDIO_CACHE_PATH);
@@ -92,5 +100,20 @@ public class CacheManager {
             }
         }
         return (directory.delete());
+    }
+
+    public static String loadJSONFromAssets(String path) {
+        String json;
+        try (InputStream inputStream = MediaApplication.getInstance().getAssets().open(path)) {
+            int size = inputStream.available();
+            byte[] buffer = new byte[size];
+            inputStream.read(buffer);
+
+            json = new String(buffer, "UTF-8");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return "";
+        }
+        return json;
     }
 }

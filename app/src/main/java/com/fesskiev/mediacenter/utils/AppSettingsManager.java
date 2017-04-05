@@ -4,6 +4,7 @@ package com.fesskiev.mediacenter.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
@@ -156,7 +157,8 @@ public class AppSettingsManager {
     }
 
     public ReverbState getReverbState() {
-        String stateJson = sharedPreferences.getString(KEY_REVERB_STATE, "");
+        String stateJson = sharedPreferences.getString(KEY_REVERB_STATE,
+                CacheManager.loadJSONFromAssets(CacheManager.ASSETS_REVERB));
         return new Gson().fromJson(stateJson, ReverbState.class);
     }
 
@@ -178,7 +180,8 @@ public class AppSettingsManager {
     }
 
     public EQState getEQState() {
-        String stateJson = sharedPreferences.getString(KEY_EQ_STATE, "");
+        String stateJson = sharedPreferences.getString(KEY_EQ_STATE,
+                CacheManager.loadJSONFromAssets(CacheManager.ASSETS_EQ));
         return new Gson().fromJson(stateJson, EQState.class);
     }
 
@@ -190,7 +193,9 @@ public class AppSettingsManager {
     }
 
     public WhooshState getWhooshState() {
-        String stateJson = sharedPreferences.getString(KEY_WHOOSH_STATE, "");
+        String stateJson = sharedPreferences.getString(KEY_WHOOSH_STATE,
+                CacheManager.loadJSONFromAssets(CacheManager.ASSETS_WHOOSH));
+
         return new Gson().fromJson(stateJson, WhooshState.class);
     }
 
@@ -212,7 +217,8 @@ public class AppSettingsManager {
     }
 
     public EchoState getEchoState() {
-        String stateJson = sharedPreferences.getString(KEY_ECHO_STATE, "");
+        String stateJson = sharedPreferences.getString(KEY_ECHO_STATE,
+                CacheManager.loadJSONFromAssets(CacheManager.ASSETS_ECHO));
         return new Gson().fromJson(stateJson, EchoState.class);
     }
 

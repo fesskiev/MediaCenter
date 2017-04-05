@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SwitchCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -107,7 +106,6 @@ public class ReverbFragment extends Fragment implements DialerView.OnDialerViewL
 
     @Override
     public void onReverbControlChanged(String name, float level, float[] values) {
-        Log.d("reverb", "reverb name: " + name + " level: " + level);
         switch (name) {
             case REVERB_WIDTH:
                 state.setWeightValues(values);
