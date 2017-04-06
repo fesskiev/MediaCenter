@@ -130,15 +130,12 @@ public class FileSystemService extends JobService {
         JobInfo.Builder builder = new JobInfo.Builder(MEDIA_CONTENT_JOB,
                 new ComponentName(context, FileSystemService.class));
 
-        //TODO remove test value
-        int testPeriod = 4 * 1000 * 60;
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            builder.setMinimumLatency(testPeriod);
+            builder.setMinimumLatency(periodic);
         } else {
-            builder.setPeriodic(testPeriod);
+            builder.setPeriodic(periodic);
         }
-        builder.setOverrideDeadline(testPeriod);
+        builder.setOverrideDeadline(periodic);
         builder.setRequiresDeviceIdle(false);
         builder.setRequiresCharging(false);
 
@@ -652,6 +649,13 @@ public class FileSystemService extends JobService {
         return (dir, name) -> {
             String lowercaseName = name.toLowerCase();
             return (lowercaseName.endsWith(".png") || lowercaseName.endsWith(".jpg"));
+        };
+    }
+
+    private FilenameFilter videoFilter() {
+        return (dir, name) -> {
+            String lowercaseName = name.toLowerCase();
+            return (lowercaseName.endsWith(".mp4") || lowercaseName.endsWith(".ts") || lowercaseName.endsWith(".mkv"));
         };
     }
 }
