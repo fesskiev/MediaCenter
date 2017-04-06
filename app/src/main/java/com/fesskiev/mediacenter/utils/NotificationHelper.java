@@ -14,22 +14,24 @@ import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.ui.MainActivity;
 
+import java.io.File;
 
-public class AudioNotificationHelper {
 
-    private static AudioNotificationHelper audioNotificationHelper;
+public class NotificationHelper {
+
+    private static NotificationHelper notificationHelper;
     private Notification notification;
     private Context context;
 
-    private AudioNotificationHelper(Context context) {
+    private NotificationHelper(Context context) {
         this.context = context;
     }
 
-    public static AudioNotificationHelper getInstance(Context context) {
-        if (audioNotificationHelper == null) {
-            audioNotificationHelper = new AudioNotificationHelper(context);
+    public static NotificationHelper getInstance(Context context) {
+        if (notificationHelper == null) {
+            notificationHelper = new NotificationHelper(context);
         }
-        return audioNotificationHelper;
+        return notificationHelper;
     }
 
     public static final int NOTIFICATION_ID = 412;
@@ -40,6 +42,8 @@ public class AudioNotificationHelper {
     public static final String ACTION_MEDIA_CONTROL_PAUSE = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_PAUSE";
     public static final String ACTION_MEDIA_CONTROL_NEXT = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_NEXT";
     public static final String ACTION_MEDIA_CONTROL_PREVIOUS = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_PREVIOUS";
+
+    public static final String EXTRA_MEDIA_PATH = "com.fesskiev.player.extra.EXTRA_MEDIA_PATH";
 
     public void updateNotification(AudioFile audioFile, Bitmap bitmap, int position, boolean isPlaying) {
         if (isPlaying) {
@@ -120,8 +124,8 @@ public class AudioNotificationHelper {
 
     private PendingIntent createContentIntent() {
         Intent intent = new Intent(context, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        return PendingIntent.getActivity(context, REQUEST_CODE, intent, 0);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        return PendingIntent.getActivity(context, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     public void stopNotification() {
@@ -151,6 +155,31 @@ public class AudioNotificationHelper {
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(NOTIFICATION_FETCH_ID, notificationBuilder.build());
+
+    }
+
+    public void createMediaFoundNotification(File file) {
+
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.putExtra(EXTRA_MEDIA_PATH, file.getAbsolutePath());
+
+        NotificationCompat.Builder notificationBuilder
+                = new NotificationCompat.Builder(context);
+        notificationBuilder
+                .setColor(ContextCompat.getColor(context, R.color.primary))
+                .setSmallIcon(R.drawable.icon_notification_fetch)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setContentIntent(PendingIntent.getActivity(context, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT))
+                .setContentTitle(file.getName())
+                .setContentText(file.getAbsolutePath())
+                .setAutoCancel(true)
+                .setWhen(System.currentTimeMillis())
+                .setShowWhen(true);
+
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(0, notificationBuilder.build());
 
     }
 }

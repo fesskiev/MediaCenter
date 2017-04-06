@@ -27,15 +27,18 @@ import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.data.source.local.db.LocalDataSource;
 import com.fesskiev.mediacenter.data.source.memory.MemoryDataSource;
+import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
-import com.fesskiev.mediacenter.utils.AudioNotificationHelper;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
+import com.fesskiev.mediacenter.utils.NotificationHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import rx.Observable;
@@ -50,11 +53,12 @@ public class FileSystemService extends JobService {
     private static final int MEDIA_CONTENT_JOB = 31;
 
 
-    private static final String ACTION_START_FETCH_MEDIA_SERVICE = "com.fesskiev.player.action.FETCH_MEDIA_SERVICE";
-    private static final String ACTION_START_FETCH_AUDIO_SERVICE = "com.fesskiev.player.action.START_FETCH_AUDIO_SERVICE";
-    private static final String ACTION_START_FETCH_VIDEO_SERVICE = "com.fesskiev.player.action.START_FETCH_VIDEO_SERVICE";
+    private static final String ACTION_START_FETCH_MEDIA = "com.fesskiev.player.action.FETCH_MEDIA";
+    private static final String ACTION_START_FETCH_FOUND_MEDIA = "com.fesskiev.player.action.FETCH_FOUND_MEDIA";
+    private static final String ACTION_START_FETCH_AUDIO = "com.fesskiev.player.action.START_FETCH_AUDIO";
+    private static final String ACTION_START_FETCH_VIDEO = "com.fesskiev.player.action.START_FETCH_VIDEO";
 
-    private static final String ACTION_CHECK_DOWNLOAD_FOLDER_SERVICE = "com.fesskiev.player.action.CHECK_DOWNLOAD_FOLDER_SERVICE";
+    private static final String ACTION_CHECK_DOWNLOAD_FOLDER = "com.fesskiev.player.action.CHECK_DOWNLOAD_FOLDER";
 
     public static final String ACTION_START_FETCH_MEDIA_CONTENT = "com.fesskiev.player.action.START_FETCH_MEDIA_CONTENT";
     public static final String ACTION_END_FETCH_MEDIA_CONTENT = "com.fesskiev.player.action.END_FETCH_MEDIA_CONTENT";
@@ -64,9 +68,10 @@ public class FileSystemService extends JobService {
     public static final String ACTION_AUDIO_TRACK_NAME = "com.fesskiev.player.action.AUDIO_TRACK_NAME";
     public static final String ACTION_AUDIO_FOLDER_CREATED = "com.fesskiev.player.action.AUDIO_FOLDER_CREATED";
 
-    public static final String EXTRA_AUDIO_FOLDER_NAME = "com.fesskiev.player.action.EXTRA_AUDIO_FOLDER_NAME";
-    public static final String EXTRA_AUDIO_TRACK_NAME = "com.fesskiev.player.action.EXTRA_AUDIO_TRACK_NAME";
-    public static final String EXTRA_VIDEO_FILE_NAME = "com.fesskiev.player.action.EXTRA_VIDEO_FILE_NAME";
+    public static final String EXTRA_AUDIO_FOLDER_NAME = "com.fesskiev.player.extra.EXTRA_AUDIO_FOLDER_NAME";
+    public static final String EXTRA_AUDIO_TRACK_NAME = "com.fesskiev.player.extra.EXTRA_AUDIO_TRACK_NAME";
+    public static final String EXTRA_VIDEO_FILE_NAME = "com.fesskiev.player.extra.EXTRA_VIDEO_FILE_NAME";
+    public static final String EXTRA_MEDIA_PATH = "com.fesskiev.player.extra.EXTRA_MEDIA_PATH";
 
 
     private Handler handler;
@@ -87,25 +92,32 @@ public class FileSystemService extends JobService {
 
     public static void startFetchMedia(Context context) {
         Intent intent = new Intent(context, FileSystemService.class);
-        intent.setAction(ACTION_START_FETCH_MEDIA_SERVICE);
+        intent.setAction(ACTION_START_FETCH_MEDIA);
+        context.startService(intent);
+    }
+
+    public static void startFetchFoundMedia(Context context, String path) {
+        Intent intent = new Intent(context, FileSystemService.class);
+        intent.setAction(ACTION_START_FETCH_FOUND_MEDIA);
+        intent.putExtra(EXTRA_MEDIA_PATH, path);
         context.startService(intent);
     }
 
     public static void startFetchAudio(Context context) {
         Intent intent = new Intent(context, FileSystemService.class);
-        intent.setAction(ACTION_START_FETCH_AUDIO_SERVICE);
+        intent.setAction(ACTION_START_FETCH_AUDIO);
         context.startService(intent);
     }
 
     public static void startFetchVideo(Context context) {
         Intent intent = new Intent(context, FileSystemService.class);
-        intent.setAction(ACTION_START_FETCH_VIDEO_SERVICE);
+        intent.setAction(ACTION_START_FETCH_VIDEO);
         context.startService(intent);
     }
 
     public static void startCheckDownloadFolderService(Context context) {
         Intent intent = new Intent(context, FileSystemService.class);
-        intent.setAction(ACTION_CHECK_DOWNLOAD_FOLDER_SERVICE);
+        intent.setAction(ACTION_CHECK_DOWNLOAD_FOLDER);
         context.startService(intent);
     }
 
@@ -130,8 +142,6 @@ public class FileSystemService extends JobService {
         builder.setRequiresDeviceIdle(false);
         builder.setRequiresCharging(false);
 
-//        builder.addTriggerContentUri(new JobInfo.TriggerContentUri(MEDIA_URI,
-//                JobInfo.TriggerContentUri.FLAG_NOTIFY_FOR_DESCENDANTS));
         int jobValue = js.schedule(builder.build());
         if (jobValue == JobScheduler.RESULT_FAILURE) {
             Log.w(TAG, "JobScheduler launch the task failure");
@@ -195,17 +205,23 @@ public class FileSystemService extends JobService {
             if (action != null) {
                 Log.w(TAG, "HANDLE INTENT: " + action);
                 switch (action) {
-                    case ACTION_START_FETCH_MEDIA_SERVICE:
+                    case ACTION_START_FETCH_MEDIA:
                         handler.sendEmptyMessage(0);
                         break;
-                    case ACTION_START_FETCH_VIDEO_SERVICE:
+                    case ACTION_START_FETCH_VIDEO:
                         handler.sendEmptyMessage(1);
                         break;
-                    case ACTION_START_FETCH_AUDIO_SERVICE:
+                    case ACTION_START_FETCH_AUDIO:
                         handler.sendEmptyMessage(2);
                         break;
-                    case ACTION_CHECK_DOWNLOAD_FOLDER_SERVICE:
+                    case ACTION_CHECK_DOWNLOAD_FOLDER:
                         handler.sendEmptyMessage(3);
+                        break;
+                    case ACTION_START_FETCH_FOUND_MEDIA:
+                        Message msg = handler.obtainMessage();
+                        msg.obj = intent.getStringExtra(EXTRA_MEDIA_PATH);
+                        msg.what = 4;
+                        handler.sendMessage(msg);
                         break;
                 }
             }
@@ -215,28 +231,74 @@ public class FileSystemService extends JobService {
 
     private class MediaObserver extends ContentObserver {
 
+        private Set<String> foldersPath;
+        private Set<String> filesPath;
+
+        private long lastTimeCall = 0L;
+        private long lastTimeUpdate = 0L;
+        private long threshold = 100;
+
         public MediaObserver(Handler handler) {
             super(handler);
+            foldersPath = new TreeSet<>();
+            filesPath = new TreeSet<>();
         }
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
-            Cursor cursor = null;
-            try {
-                String[] projection = {MediaStore.Audio.Media.DATA, MediaStore.Audio.Media._ID};
-                cursor = getContentResolver().query(uri, projection, null, null, null);
-                if (cursor != null) {
-                    if (cursor.moveToLast()) {
-                        String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
-                        String id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
+            super.onChange(selfChange);
+            Log.e(TAG, "onChange");
 
-                        Log.w("test_", "OBSERVER CHANGED!: " + path + " id: " + id + " self: " + selfChange);
+            lastTimeCall = System.currentTimeMillis();
+
+            if (lastTimeCall - lastTimeUpdate > threshold) {
+
+                Cursor cursor = null;
+                try {
+                    String[] projection = {MediaStore.Audio.Media.DATA};
+                    cursor = getContentResolver().query(uri, projection, null, null, null);
+                    if (cursor != null) {
+                        if (cursor.moveToLast()) {
+                            String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
+                            File file = new File(path);
+
+                            File parent = file.getParentFile();
+                            if (parent.isDirectory()) {
+                                String parentPath = parent.getAbsolutePath();
+                                if (!foldersPath.contains(parentPath)) {
+                                    foldersPath.add(parentPath);
+
+                                    NotificationHelper.getInstance(getApplicationContext())
+                                            .createMediaFoundNotification(parent);
+                                }
+                            } else if (file.isFile()) {
+                                String filePath = file.getAbsolutePath();
+                                if (!filesPath.contains(filePath)) {
+                                    filesPath.add(filePath);
+
+                                    NotificationHelper.getInstance(getApplicationContext())
+                                            .createMediaFoundNotification(file);
+                                }
+                            }
+                        }
+                    }
+                } finally {
+                    if (cursor != null) {
+                        cursor.close();
                     }
                 }
-            } finally {
-                if (cursor != null) {
-                    cursor.close();
-                }
+
+                lastTimeUpdate = System.currentTimeMillis();
+            }
+        }
+
+        public void removeFoundPath(String path) {
+            if (foldersPath.contains(path)) {
+                foldersPath.remove(path);
+                return;
+            }
+            if (filesPath.contains(path)) {
+                filesPath.remove(path);
             }
         }
     }
@@ -266,6 +328,9 @@ public class FileSystemService extends JobService {
                         case 3:
                             checkDownloadFolder();
                             break;
+                        case 4:
+                            getFoundMediaContent(msg);
+                            break;
                     }
                 }
             };
@@ -284,7 +349,7 @@ public class FileSystemService extends JobService {
                     JobParameters jobParameters = (JobParameters) msg.obj;
 
                     if (jobParameters != null) {
-                        AudioNotificationHelper.getInstance(getApplicationContext()).createFetchNotification();
+                        NotificationHelper.getInstance(getApplicationContext()).createFetchNotification();
                     }
 
                     getMediaContent();
@@ -365,6 +430,18 @@ public class FileSystemService extends JobService {
         }
     }
 
+    private void getFoundMediaContent(Message msg) {
+        String path = (String) msg.obj;
+        AppLog.INFO("fetch found media: " + path);
+
+        observer.removeFoundPath(path);
+
+        shouldContinue = true;
+        File file = new File(path);
+        checkAudioFolderWithFiles(file);
+        checkVideoFile(file);
+    }
+
     private void getAudioContent() {
         String sdCardState = Environment.getExternalStorageState();
         if (sdCardState.equals(Environment.MEDIA_MOUNTED)) {
@@ -422,7 +499,7 @@ public class FileSystemService extends JobService {
         }
         for (File child : list) {
             if (child.isDirectory()) {
-                checkAudioFilesFolder(child);
+                checkAudioFolderWithFiles(child);
                 walkAudio(child.getAbsolutePath());
             }
         }
@@ -436,7 +513,7 @@ public class FileSystemService extends JobService {
             return;
         }
         for (File child : list) {
-            checkMediaFile(child);
+            checkVideoFile(child);
             walkVideo(child.getAbsolutePath());
         }
     }
@@ -450,12 +527,13 @@ public class FileSystemService extends JobService {
         if (list == null) {
             return;
         }
+
         for (File child : list) {
             if (child.isDirectory()) {
-                checkAudioFilesFolder(child);
+                checkAudioFolderWithFiles(child);
                 walk(child.getAbsolutePath());
             } else if (child.isFile()) {
-                checkMediaFile(child);
+                checkVideoFile(child);
             }
         }
     }
@@ -465,7 +543,7 @@ public class FileSystemService extends JobService {
         return file.getAbsolutePath().equals(CacheManager.CHECK_DOWNLOADS_FOLDER_PATH);
     }
 
-    private void checkMediaFile(File file) {
+    private void checkVideoFile(File file) {
         String path = file.getAbsolutePath().toLowerCase();
         if (path.endsWith(".mp4") ||
                 path.endsWith(".ts") ||
@@ -478,12 +556,13 @@ public class FileSystemService extends JobService {
         }
     }
 
-    private void checkAudioFilesFolder(File child) {
+    private void checkAudioFolderWithFiles(File child) {
         File[] directoryFiles = child.listFiles();
 
         if (directoryFiles != null) {
             for (File directoryFile : directoryFiles) {
                 File[] audioPaths = directoryFile.listFiles(audioFilter());
+
                 if (audioPaths != null && audioPaths.length > 0 && shouldContinue) {
                     Log.w(TAG, "audio folder created");
 

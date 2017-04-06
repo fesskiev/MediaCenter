@@ -18,7 +18,7 @@ import com.fesskiev.mediacenter.data.model.effects.ReverbState;
 import com.fesskiev.mediacenter.data.model.effects.WhooshState;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.AudioFocusManager;
-import com.fesskiev.mediacenter.utils.AudioNotificationHelper;
+import com.fesskiev.mediacenter.utils.NotificationHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.CountDownTimer;
 
@@ -453,8 +453,8 @@ public class PlaybackService extends Service {
     }
 
     private void tryStartForeground() {
-        startForeground(AudioNotificationHelper.NOTIFICATION_ID,
-                AudioNotificationHelper.getInstance(getApplicationContext()).getNotification());
+        startForeground(NotificationHelper.NOTIFICATION_ID,
+                NotificationHelper.getInstance(getApplicationContext()).getNotification());
     }
 
     private void sendPlaybackStateIfNeed() {

@@ -27,7 +27,7 @@ import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.mediacenter.utils.AnimationUtils;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
-import com.fesskiev.mediacenter.utils.AudioNotificationHelper;
+import com.fesskiev.mediacenter.utils.NotificationHelper;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.converter.AudioConverterHelper;
@@ -49,7 +49,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
     public abstract MediaNavigationView getMediaNavigationView();
 
-    private AudioNotificationHelper notificationHelper;
+    private NotificationHelper notificationHelper;
     private AudioPlayer audioPlayer;
     private AudioFile currentTrack;
 
@@ -83,7 +83,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
         EventBus.getDefault().register(this);
 
-        notificationHelper = AudioNotificationHelper.getInstance(getApplicationContext());
+        notificationHelper = NotificationHelper.getInstance(getApplicationContext());
 
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
         audioPlayer.getCurrentTrackAndTrackList();
@@ -169,10 +169,10 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
     private void registerNotificationReceiver() {
         IntentFilter filter = new IntentFilter();
-        filter.addAction(AudioNotificationHelper.ACTION_MEDIA_CONTROL_PLAY);
-        filter.addAction(AudioNotificationHelper.ACTION_MEDIA_CONTROL_PAUSE);
-        filter.addAction(AudioNotificationHelper.ACTION_MEDIA_CONTROL_NEXT);
-        filter.addAction(AudioNotificationHelper.ACTION_MEDIA_CONTROL_PREVIOUS);
+        filter.addAction(NotificationHelper.ACTION_MEDIA_CONTROL_PLAY);
+        filter.addAction(NotificationHelper.ACTION_MEDIA_CONTROL_PAUSE);
+        filter.addAction(NotificationHelper.ACTION_MEDIA_CONTROL_NEXT);
+        filter.addAction(NotificationHelper.ACTION_MEDIA_CONTROL_PREVIOUS);
         registerReceiver(notificationReceiver, filter);
 
     }
@@ -187,16 +187,16 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
             if (currentTrack != null) {
                 final String action = intent.getAction();
                 switch (action) {
-                    case AudioNotificationHelper.ACTION_MEDIA_CONTROL_PLAY:
+                    case NotificationHelper.ACTION_MEDIA_CONTROL_PLAY:
                         audioPlayer.play();
                         break;
-                    case AudioNotificationHelper.ACTION_MEDIA_CONTROL_PAUSE:
+                    case NotificationHelper.ACTION_MEDIA_CONTROL_PAUSE:
                         audioPlayer.pause();
                         break;
-                    case AudioNotificationHelper.ACTION_MEDIA_CONTROL_PREVIOUS:
+                    case NotificationHelper.ACTION_MEDIA_CONTROL_PREVIOUS:
                         audioPlayer.previous();
                         break;
-                    case AudioNotificationHelper.ACTION_MEDIA_CONTROL_NEXT:
+                    case NotificationHelper.ACTION_MEDIA_CONTROL_NEXT:
                         audioPlayer.next();
                         break;
                 }

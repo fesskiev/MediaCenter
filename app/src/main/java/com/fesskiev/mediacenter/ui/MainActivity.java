@@ -37,10 +37,12 @@ import com.fesskiev.mediacenter.ui.search.SearchActivity;
 import com.fesskiev.mediacenter.ui.settings.SettingsActivity;
 import com.fesskiev.mediacenter.ui.video.VideoFragment;
 import com.fesskiev.mediacenter.utils.AnimationUtils;
+import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CountDownTimer;
 import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
+import com.fesskiev.mediacenter.utils.NotificationHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.admob.AdMobHelper;
@@ -135,6 +137,16 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
         checkAudioContentItem();
         addAudioFragment();
+    }
+
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        Bundle extras = intent.getExtras();
+        if (extras != null && extras.containsKey(NotificationHelper.EXTRA_MEDIA_PATH)) {
+            String mediaPath = extras.getString(NotificationHelper.EXTRA_MEDIA_PATH);
+            FileSystemService.startFetchFoundMedia(getApplicationContext(), mediaPath);
+        }
     }
 
     @Override
