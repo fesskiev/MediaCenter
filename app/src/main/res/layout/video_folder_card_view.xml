@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.fesskiev.mediacenter.widgets.SquareRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/divider">
+
+        <ImageView
+            android:id="@+id/frameView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/search_background"
+            android:contentDescription="@string/app_name"
+            android:scaleType="centerCrop"
+            tools:src="@drawable/cover"/>
+
+    </FrameLayout>
+
+    <View
+        android:id="@+id/divider"
+        style="@style/DividerStyle"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_above="@+id/videoItemFooter" />
+
+    <LinearLayout
+        android:id="@+id/videoItemFooter"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/popupMenu"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="start|center_vertical"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/icon_popup_menu_primary" />
+
+        <TextView
+            android:id="@+id/fileDescription"
+            style="@style/DescriptionVideoTextAppearance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="2"
+            android:paddingEnd="25dp"
+            tools:text="480x320" />
+
+    </LinearLayout>
+
+</com.fesskiev.mediacenter.widgets.SquareRelativeLayout>

@@ -20,6 +20,7 @@ import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
 import com.fesskiev.mediacenter.data.model.VideoFile;
+import com.fesskiev.mediacenter.data.model.VideoFolder;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.players.VideoPlayer;
 import com.fesskiev.mediacenter.services.PlaybackService;
@@ -77,6 +78,10 @@ public class VideoFilesActivity extends AnalyticsActivity {
         repository = MediaApplication.getInstance().getRepository();
 
         EventBus.getDefault().register(this);
+
+        VideoFolder videoFolder =
+                getIntent().getExtras().getParcelable(VideoFoldersFragment.EXTRA_VIDEO_FOLDER);
+        fetchVideoFolderFiles(videoFolder);
     }
 
     @Override
@@ -85,14 +90,13 @@ public class VideoFilesActivity extends AnalyticsActivity {
     }
 
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        fetchVideoFolderFiles();
-    }
 
-    private void fetchVideoFolderFiles() {
-
+    private void fetchVideoFolderFiles(VideoFolder videoFolder) {
+        subscription = repository.getVideoFiles(videoFolder.id)
+                .first()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(videoFiles -> adapter.refresh(videoFiles));
     }
 
     @Override

@@ -231,6 +231,10 @@ public class DataRepository {
         return localSource.getSearchAudioFiles(query);
     }
 
+    public Observable<List<VideoFile>> getVideoFiles(String id) {
+        return localSource.getVideoFiles(id);
+    }
+
     public void insertAudioFolder(AudioFolder audioFolder) {
         localSource.insertAudioFolder(audioFolder);
     }
@@ -254,5 +258,6 @@ public class DataRepository {
     public MemoryDataSource getMemorySource() {
         return memorySource;
     }
+
 
 }

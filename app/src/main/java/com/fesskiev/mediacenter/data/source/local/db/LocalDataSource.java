@@ -434,12 +434,13 @@ public class LocalDataSource implements LocalSource {
     }
 
     @Override
-    public Observable<List<VideoFile>> getVideoFiles() {
+    public Observable<List<VideoFile>> getVideoFiles(String id) {
 
-        String sql = String.format("SELECT * FROM %s", DatabaseHelper.VIDEO_FILES_TABLE_NAME);
+        String sql = String.format("SELECT * FROM %s WHERE %s",
+                DatabaseHelper.VIDEO_FILES_TABLE_NAME,
+                DatabaseHelper.ID + "=" + "'" + id + "'");
 
-        return briteDatabase
-                .createQuery(DatabaseHelper.VIDEO_FILES_TABLE_NAME, sql)
+        return briteDatabase.createQuery(DatabaseHelper.VIDEO_FILES_TABLE_NAME, sql)
                 .mapToList(VideoFile::new);
     }
 

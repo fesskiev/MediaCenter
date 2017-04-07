@@ -2,6 +2,7 @@ package com.fesskiev.mediacenter.ui.video;
 
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -27,6 +28,7 @@ import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.admob.AdMobHelper;
+import com.fesskiev.mediacenter.widgets.item.VideoFolderCardView;
 import com.fesskiev.mediacenter.widgets.recycleview.GridDividerDecoration;
 
 import java.lang.ref.WeakReference;
@@ -44,6 +46,8 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
     public static VideoFoldersFragment newInstance() {
         return new VideoFoldersFragment();
     }
+
+    public static final String EXTRA_VIDEO_FOLDER = "com.fesskiev.player.extra.EXTRA_VIDEO_FOLDER";
 
     private VideoFoldersAdapter adapter;
     private CardView emptyVideoContent;
@@ -185,26 +189,62 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
 
         public class ViewHolder extends RecyclerView.ViewHolder {
 
+            VideoFolderCardView folderCard;
 
             public ViewHolder(View v) {
                 super(v);
 
+                folderCard = (VideoFolderCardView) v.findViewById(R.id.videoFolderCardView);
+                folderCard.setOnVideoFolderCardViewListener(new VideoFolderCardView.OnVideoFolderCardViewListener() {
+                    @Override
+                    public void onPopupMenuButtonCall(View view) {
+
+                    }
+
+                    @Override
+                    public void onClick(View view) {
+                        startVideoFilesActivity(getAdapterPosition());
+                    }
+
+
+                });
             }
         }
 
+        private void startVideoFilesActivity(int position) {
+            final VideoFolder videoFolder = videoFolders.get(position);
+            if (videoFolder != null) {
+                Activity act = activity.get();
+                if (act != null) {
+                    Intent i = new Intent(act, VideoFilesActivity.class);
+                    i.putExtra(EXTRA_VIDEO_FOLDER, videoFolder);
+                    act.startActivity(i);
+                }
+            }
+        }
+
+
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return null;
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_video_folder, parent, false);
+            return new ViewHolder(v);
         }
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-
+            Activity act = activity.get();
+            if (act != null) {
+                final VideoFolder videoFolder = videoFolders.get(position);
+                if (videoFolder != null) {
+                    holder.folderCard.setDescription(videoFolder.folderName);
+                }
+            }
         }
 
         @Override
         public int getItemCount() {
-            return 0;
+            return videoFolders.size();
         }
 
         public void refresh(List<VideoFolder> receiveVideoFolders) {

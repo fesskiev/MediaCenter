@@ -24,7 +24,7 @@ public interface LocalSource {
 
     Observable<List<VideoFolder>> getVideoFolders();
 
-    Observable<List<VideoFile>> getVideoFiles();
+    Observable<List<VideoFile>> getVideoFiles(String id);
 
     Observable<List<MediaFile>> getAudioFilePlaylist();
 
