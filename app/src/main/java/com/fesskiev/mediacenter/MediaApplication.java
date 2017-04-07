@@ -1,7 +1,8 @@
 package com.fesskiev.mediacenter;
 
-import android.app.Application;
+
 import android.content.ComponentCallbacks2;
+import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
 import com.fesskiev.mediacenter.data.source.DataRepository;
@@ -23,7 +24,7 @@ import com.google.firebase.crash.FirebaseCrash;
 import rx.plugins.RxJavaErrorHandler;
 import rx.plugins.RxJavaPlugins;
 
-public class MediaApplication extends Application {
+public class MediaApplication extends MultiDexApplication {
 
     static {
         try {

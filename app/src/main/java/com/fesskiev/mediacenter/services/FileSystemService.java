@@ -11,7 +11,6 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
@@ -33,9 +32,16 @@ import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.NotificationHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
+import com.fesskiev.mediacenter.utils.StorageUtils;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -45,6 +51,11 @@ import rx.Observable;
 
 
 public class FileSystemService extends JobService {
+
+    private enum SCAN_TYPE {
+        AUDIO, VIDEO, BOTH
+    }
+
 
     private static final String TAG = FileSystemService.class.getSimpleName();
 
@@ -224,6 +235,159 @@ public class FileSystemService extends JobService {
             }
         }
         return START_NOT_STICKY;
+    }
+
+    private void startScan(SCAN_TYPE scanType) {
+        shouldContinue = true;
+
+        List<StorageUtils.StorageInfo> storageInfos = StorageUtils.getStorageList();
+        for (StorageUtils.StorageInfo storageInfo : storageInfos) {
+            Log.e(TAG, "storage: " + storageInfo.getDisplayName() + " path: " + storageInfo.path);
+            fileWalk(storageInfo.path, scanType);
+        }
+    }
+
+    private void fileWalk(String startPath, SCAN_TYPE scanType) {
+        Iterator<File> iterator = FileUtils.iterateFilesAndDirs(new File(startPath),
+                TrueFileFilter.INSTANCE,
+                new IOFileFilter() {
+                    @Override
+                    public boolean accept(File file) {
+                        try {
+                            return isPlainDir(file);
+                        } catch (IOException ex) {
+                            return false;
+                        }
+                    }
+
+                    @Override
+                    public boolean accept(File dir, String name) {
+                        try {
+                            return isPlainDir(dir);
+                        } catch (IOException ex) {
+                            return false;
+                        }
+                    }
+                });
+
+        File n;
+        try {
+            while (iterator.hasNext() && shouldContinue) {
+                n = iterator.next();
+                if (isPlainDir(n)) {
+                    checkDir(n, scanType);
+                } else {
+                    checkFile(n, scanType);
+                }
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+
+    private void checkFile(File file, SCAN_TYPE scanType) {
+        switch (scanType) {
+            case BOTH:
+                filterAudioFile(file);
+                filterVideoFile(file);
+                break;
+            case AUDIO:
+                filterAudioFile(file);
+                break;
+            case VIDEO:
+                filterVideoFile(file);
+                break;
+        }
+    }
+
+    private void filterVideoFile(File file) {
+        String path = file.getAbsolutePath().toLowerCase();
+        if (path.endsWith(".mp4") ||
+                path.endsWith(".ts") ||
+                path.endsWith(".mkv")) {
+
+            VideoFile videoFile = new VideoFile(file);
+
+            Log.w(TAG, "create video file!: " + file.getAbsolutePath());
+
+            LocalDataSource.getInstance().insertVideoFile(videoFile);
+            sendVideoFileBroadcast(videoFile.description);
+        }
+    }
+
+    private void filterAudioFile(File file) {
+
+    }
+
+    private void checkDir(File dir, SCAN_TYPE scanType) {
+        switch (scanType) {
+            case BOTH:
+                filterAudioFolders(dir);
+                filterVideoFolders(dir);
+                break;
+            case AUDIO:
+                filterAudioFolders(dir);
+                break;
+            case VIDEO:
+                filterVideoFolders(dir);
+                break;
+        }
+
+    }
+
+    private void filterVideoFolders(File dir) {
+        File[] videoPaths = dir.listFiles(videoFilter());
+        if (videoPaths != null && videoPaths.length > 0) {
+
+            Log.w(TAG, "*******************************");
+            Log.i(TAG, "video folder created: " + dir.getAbsolutePath());
+
+            for (File path : videoPaths) {
+                Log.i(TAG, "video file created: " + path.getAbsolutePath());
+            }
+
+        }
+    }
+
+    private void filterAudioFolders(File directoryFile) {
+        File[] audioPaths = directoryFile.listFiles(audioFilter());
+        if (audioPaths != null && audioPaths.length > 0) {
+
+            AudioFolder audioFolder = new AudioFolder();
+
+            if (checkDownloadFolder(directoryFile)) {
+                audioFolder.folderImage = CacheManager.getDownloadFolderIconPath();
+            } else {
+                File[] filterImages = directoryFile.listFiles(folderImageFilter());
+                if (filterImages != null && filterImages.length > 0) {
+                    audioFolder.folderImage = filterImages[0];
+                }
+            }
+
+            audioFolder.folderPath = directoryFile;
+            audioFolder.folderName = directoryFile.getName();
+            audioFolder.id = UUID.randomUUID().toString();
+            audioFolder.timestamp = System.currentTimeMillis();
+
+            sendAudioFolderNameBroadcast(audioFolder.folderName);
+
+            for (File path : audioPaths) {
+
+                new AudioFile(getApplicationContext(), path, audioFolder.id, audioFile -> {
+
+                    Log.w(TAG, "audio file created");
+
+                    MediaApplication.getInstance().getRepository().insertAudioFile(audioFile);
+
+                    sendAudioTrackNameBroadcast(audioFile.artist + "-" + audioFile.title);
+                });
+            }
+
+            MediaApplication.getInstance().getRepository().insertAudioFolder(audioFolder);
+
+            sendAudioFolderCreatedBroadcast();
+        }
     }
 
     private class MediaObserver extends ContentObserver {
@@ -433,172 +597,37 @@ public class FileSystemService extends JobService {
 
         observer.removeFoundPath(path);
 
-        shouldContinue = true;
-        File file = new File(path);
-        checkAudioFolderWithFiles(file);
-        checkVideoFile(file);
+        //TODO add concrete path for scan
+        startScan(SCAN_TYPE.BOTH);
     }
 
     private void getAudioContent() {
-        String sdCardState = Environment.getExternalStorageState();
-        if (sdCardState.equals(Environment.MEDIA_MOUNTED)) {
-            sendStartFetchMediaBroadcast();
+        sendStartFetchMediaBroadcast();
 
-            File root = Environment.getExternalStorageDirectory();
-            walkAudio(root.getAbsolutePath());
+        startScan(SCAN_TYPE.AUDIO);
 
-            sendEndFetchMediaBroadcast();
-
-        } else {
-            Log.wtf(TAG, "NO SD CARD!");
-        }
-
+        sendEndFetchMediaBroadcast();
     }
 
     private void getVideoContent() {
-        String sdCardState = Environment.getExternalStorageState();
-        if (sdCardState.equals(Environment.MEDIA_MOUNTED)) {
-            sendStartFetchMediaBroadcast();
+        sendStartFetchMediaBroadcast();
 
-            File root = Environment.getExternalStorageDirectory();
-            walkVideo(root.getAbsolutePath());
+        startScan(SCAN_TYPE.VIDEO);
 
-            sendEndFetchMediaBroadcast();
-
-        } else {
-            Log.wtf(TAG, "NO SD CARD!");
-        }
+        sendEndFetchMediaBroadcast();
     }
 
     private void getMediaContent() {
-        shouldContinue = true;
-        String sdCardState = Environment.getExternalStorageState();
-        if (sdCardState.equals(Environment.MEDIA_MOUNTED)) {
-            sendStartFetchMediaBroadcast();
+        sendStartFetchMediaBroadcast();
 
-            File root = Environment.getExternalStorageDirectory();
-            walk(root.getAbsolutePath());
+        startScan(SCAN_TYPE.BOTH);
 
-            sendEndFetchMediaBroadcast();
-
-        } else {
-            Log.wtf(TAG, "NO SD CARD!");
-        }
-    }
-
-    public void walkAudio(String path) {
-        shouldContinue = true;
-        File root = new File(path);
-        File[] list = root.listFiles();
-        if (list == null) {
-            Log.w(TAG, "Root is null");
-            return;
-        }
-        for (File child : list) {
-            if (child.isDirectory()) {
-                checkAudioFolderWithFiles(child);
-                walkAudio(child.getAbsolutePath());
-            }
-        }
-    }
-
-    public void walkVideo(String path) {
-        shouldContinue = true;
-        File root = new File(path);
-        File[] list = root.listFiles();
-        if (list == null) {
-            return;
-        }
-        for (File child : list) {
-            checkVideoFile(child);
-            walkVideo(child.getAbsolutePath());
-        }
-    }
-
-    public void walk(String path) {
-        if (!shouldContinue) {
-            return;
-        }
-        File root = new File(path);
-        File[] list = root.listFiles();
-        if (list == null) {
-            return;
-        }
-
-        for (File child : list) {
-            if (child.isDirectory()) {
-                checkAudioFolderWithFiles(child);
-                walk(child.getAbsolutePath());
-            } else if (child.isFile()) {
-                checkVideoFile(child);
-            }
-        }
+        sendEndFetchMediaBroadcast();
     }
 
 
     public boolean checkDownloadFolder(File file) {
         return file.getAbsolutePath().equals(CacheManager.CHECK_DOWNLOADS_FOLDER_PATH);
-    }
-
-    private void checkVideoFile(File file) {
-        String path = file.getAbsolutePath().toLowerCase();
-        if (path.endsWith(".mp4") ||
-                path.endsWith(".ts") ||
-                path.endsWith(".mkv")) {
-
-            VideoFile videoFile = new VideoFile(file);
-            Log.w(TAG, "create video file!: " + file.getAbsolutePath());
-            LocalDataSource.getInstance().insertVideoFile(videoFile);
-            sendVideoFileBroadcast(videoFile.description);
-        }
-    }
-
-    private void checkAudioFolderWithFiles(File child) {
-        File[] directoryFiles = child.listFiles();
-
-        if (directoryFiles != null) {
-            for (File directoryFile : directoryFiles) {
-                File[] audioPaths = directoryFile.listFiles(audioFilter());
-
-                if (audioPaths != null && audioPaths.length > 0 && shouldContinue) {
-                    Log.w(TAG, "audio folder created");
-
-                    AudioFolder audioFolder = new AudioFolder();
-
-                    if (checkDownloadFolder(directoryFile)) {
-                        audioFolder.folderImage = CacheManager.getDownloadFolderIconPath();
-                    } else {
-                        File[] filterImages = directoryFile.listFiles(folderImageFilter());
-                        if (filterImages != null && filterImages.length > 0) {
-                            audioFolder.folderImage = filterImages[0];
-                        }
-                    }
-
-                    audioFolder.folderPath = directoryFile;
-                    audioFolder.folderName = directoryFile.getName();
-                    audioFolder.id = UUID.randomUUID().toString();
-                    audioFolder.timestamp = System.currentTimeMillis();
-
-                    sendAudioFolderNameBroadcast(audioFolder.folderName);
-
-                    for (File path : audioPaths) {
-
-                        new AudioFile(getApplicationContext(), path, audioFolder.id, audioFile -> {
-
-                            Log.w(TAG, "audio file created");
-
-                            MediaApplication.getInstance().getRepository().insertAudioFile(audioFile);
-
-                            sendAudioTrackNameBroadcast(audioFile.artist + "-" + audioFile.title);
-                        });
-                    }
-
-                    MediaApplication.getInstance().getRepository().insertAudioFolder(audioFolder);
-
-                    sendAudioFolderCreatedBroadcast();
-                }
-            }
-        }
     }
 
     public void sendStartFetchMediaBroadcast() {
@@ -657,5 +686,41 @@ public class FileSystemService extends JobService {
             String lowercaseName = name.toLowerCase();
             return (lowercaseName.endsWith(".mp4") || lowercaseName.endsWith(".ts") || lowercaseName.endsWith(".mkv"));
         };
+    }
+
+
+    /**
+     * Determine if {@code file} is a directory and is not a symbolic link.
+     *
+     * @param file File to test.
+     * @return True if {@code file} is a directory and is not a symbolic link.
+     * @throws IOException If a symbolic link could not be determined. This is ultimately
+     *                     caused by a call to {@link File#getCanonicalFile()}.
+     */
+    private static boolean isPlainDir(File file) throws IOException {
+        return file.isDirectory() && !isSymbolicLink(file);
+    }
+
+    /**
+     * Given a {@link File} object, test if it is likely to be a symbolic link.
+     *
+     * @param file File to test for symbolic link.
+     * @return {@code true} if {@code file} is a symbolic link.
+     * @throws NullPointerException If {@code file} is null.
+     * @throws IOException          If a symbolic link could not be determined. This is ultimately
+     *                              caused by a call to {@link File#getCanonicalFile()}.
+     */
+    private static boolean isSymbolicLink(File file) throws IOException {
+        if (file == null) {
+            throw new NullPointerException("File must not be null");
+        }
+        File canon;
+        if (file.getParent() == null) {
+            canon = file;
+        } else {
+            File canonDir = file.getParentFile().getCanonicalFile();
+            canon = new File(canonDir, file.getName());
+        }
+        return !canon.getCanonicalFile().equals(canon.getAbsoluteFile());
     }
 }
