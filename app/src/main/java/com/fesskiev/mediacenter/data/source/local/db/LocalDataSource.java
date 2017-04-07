@@ -338,7 +338,10 @@ public class LocalDataSource implements LocalSource {
 
     @Override
     public Callable<Integer> resetVideoContentDatabase() {
-        return () -> briteDatabase.delete(DatabaseHelper.VIDEO_FILES_TABLE_NAME, null);
+        return () -> {
+            briteDatabase.delete(DatabaseHelper.VIDEO_FILES_TABLE_NAME, null);
+            return briteDatabase.delete(DatabaseHelper.VIDEO_FOLDERS_TABLE_NAME, null);
+        };
     }
 
     @Override

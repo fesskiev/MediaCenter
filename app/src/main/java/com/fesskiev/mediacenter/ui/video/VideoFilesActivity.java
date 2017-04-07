@@ -11,6 +11,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,23 +65,30 @@ public class VideoFilesActivity extends AnalyticsActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_files);
 
+        EventBus.getDefault().register(this);
+
+        videoPlayer = MediaApplication.getInstance().getVideoPlayer();
+        repository = MediaApplication.getInstance().getRepository();
+
+        VideoFolder videoFolder =
+                getIntent().getExtras().getParcelable(VideoFoldersFragment.EXTRA_VIDEO_FOLDER);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        if (videoFolder != null) {
+            toolbar.setTitle(videoFolder.folderName);
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2,
                 GridLayoutManager.VERTICAL, false);
-
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.foldersGridView);
         recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.addItemDecoration(new GridDividerDecoration(this));
         adapter = new VideoFilesAdapter(this);
         recyclerView.setAdapter(adapter);
 
-
-        videoPlayer = MediaApplication.getInstance().getVideoPlayer();
-        repository = MediaApplication.getInstance().getRepository();
-
-        EventBus.getDefault().register(this);
-
-        VideoFolder videoFolder =
-                getIntent().getExtras().getParcelable(VideoFoldersFragment.EXTRA_VIDEO_FOLDER);
         fetchVideoFolderFiles(videoFolder);
     }
 
@@ -89,6 +97,11 @@ public class VideoFilesActivity extends AnalyticsActivity {
         return this.getLocalClassName();
     }
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
 
 
     private void fetchVideoFolderFiles(VideoFolder videoFolder) {
