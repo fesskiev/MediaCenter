@@ -35,9 +35,8 @@ import com.fesskiev.mediacenter.ui.playback.PlaybackActivity;
 import com.fesskiev.mediacenter.ui.playlist.PlayListActivity;
 import com.fesskiev.mediacenter.ui.search.SearchActivity;
 import com.fesskiev.mediacenter.ui.settings.SettingsActivity;
-import com.fesskiev.mediacenter.ui.video.VideoFragment;
+import com.fesskiev.mediacenter.ui.video.VideoFoldersFragment;
 import com.fesskiev.mediacenter.utils.AnimationUtils;
-import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CountDownTimer;
@@ -170,8 +169,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                         audioFragment.clearAudioContent();
                     }
                 } else if (isVideoFragmentShow()) {
-                    VideoFragment videoFragment = (VideoFragment) getSupportFragmentManager().
-                            findFragmentByTag(VideoFragment.class.getName());
+                    VideoFoldersFragment videoFragment = (VideoFoldersFragment) getSupportFragmentManager().
+                            findFragmentByTag(VideoFoldersFragment.class.getName());
                     if (videoFragment != null) {
                         videoFragment.clearVideoContent();
                     }
@@ -194,8 +193,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
             @Override
             public void onVideoFileCreated() {
-                VideoFragment videoFragment = (VideoFragment) getSupportFragmentManager().
-                        findFragmentByTag(VideoFragment.class.getName());
+                VideoFoldersFragment videoFragment = (VideoFoldersFragment) getSupportFragmentManager().
+                        findFragmentByTag(VideoFoldersFragment.class.getName());
                 if (videoFragment != null) {
                     videoFragment.refreshVideoContent();
                 }
@@ -543,7 +542,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         repository.getMemorySource().setCacheArtistsDirty(true);
         repository.getMemorySource().setCacheGenresDirty(true);
         repository.getMemorySource().setCacheFoldersDirty(true);
-        repository.getMemorySource().setCacheVideoFilesDirty(true);
+        repository.getMemorySource().setCacheVideoFoldersDirty(true);
 
         Observable.zip(RxUtils.fromCallable(repository.resetAudioContentDatabase()),
                 RxUtils.fromCallable(repository.resetVideoContentDatabase()), (integer, integer2) -> Observable.empty())
@@ -575,8 +574,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     private boolean isVideoFragmentShow() {
-        VideoFragment videoFragment = (VideoFragment) getSupportFragmentManager().
-                findFragmentByTag(VideoFragment.class.getName());
+        VideoFoldersFragment videoFragment = (VideoFoldersFragment) getSupportFragmentManager().
+                findFragmentByTag(VideoFoldersFragment.class.getName());
         return videoFragment != null && videoFragment.isAdded() && videoFragment.isVisible();
     }
 
@@ -585,12 +584,12 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
         hideVisibleFragment(transaction);
 
-        VideoFragment videoFragment = (VideoFragment) getSupportFragmentManager().
-                findFragmentByTag(VideoFragment.class.getName());
+        VideoFoldersFragment videoFragment = (VideoFoldersFragment) getSupportFragmentManager().
+                findFragmentByTag(VideoFoldersFragment.class.getName());
         if (videoFragment == null) {
-            transaction.add(R.id.content, VideoFragment.newInstance(),
-                    VideoFragment.class.getName());
-            transaction.addToBackStack(VideoFragment.class.getName());
+            transaction.add(R.id.content, VideoFoldersFragment.newInstance(),
+                    VideoFoldersFragment.class.getName());
+            transaction.addToBackStack(VideoFoldersFragment.class.getName());
         } else {
             transaction.show(videoFragment);
         }

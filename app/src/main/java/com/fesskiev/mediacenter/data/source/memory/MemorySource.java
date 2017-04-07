@@ -4,7 +4,7 @@ package com.fesskiev.mediacenter.data.source.memory;
 import com.fesskiev.mediacenter.data.model.Artist;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.model.Genre;
-import com.fesskiev.mediacenter.data.model.VideoFile;
+import com.fesskiev.mediacenter.data.model.VideoFolder;
 
 import java.util.List;
 
@@ -18,6 +18,6 @@ public interface MemorySource {
 
     Observable<List<AudioFolder>> getAudioFolders();
 
-    Observable<List<VideoFile>> getVideoFiles();
+    Observable<List<VideoFolder>> getVideoFolders();
 
 }

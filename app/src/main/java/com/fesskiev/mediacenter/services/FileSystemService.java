@@ -542,7 +542,7 @@ public class FileSystemService extends JobService {
         memoryDataSource.setCacheArtistsDirty(true);
         memoryDataSource.setCacheGenresDirty(true);
         memoryDataSource.setCacheFoldersDirty(true);
-        memoryDataSource.setCacheVideoFilesDirty(true);
+        memoryDataSource.setCacheVideoFoldersDirty(true);
     }
 
     @Override

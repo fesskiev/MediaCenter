@@ -6,7 +6,7 @@ import android.util.LruCache;
 import com.fesskiev.mediacenter.data.model.Artist;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.model.Genre;
-import com.fesskiev.mediacenter.data.model.VideoFile;
+import com.fesskiev.mediacenter.data.model.VideoFolder;
 
 import java.util.List;
 
@@ -22,12 +22,12 @@ public class MemoryDataSource implements MemorySource {
     private static final int GENRES = 0;
     private static final int ARTISTS = 1;
     private static final int FOLDERS = 2;
-    private static final int VIDEO_FILES = 3;
+    private static final int VIDEO_FOLDERS = 3;
 
     private boolean cacheGenresIsDirty = true;
     private boolean cacheArtistsIsDirty = true;
     private boolean cacheFoldersIsDirty = true;
-    private boolean cacheVideoFilesIsDirty = true;
+    private boolean cacheVideoFoldersIsDirty = true;
 
     public static MemoryDataSource getInstance() {
         if (INSTANCE == null) {
@@ -52,8 +52,8 @@ public class MemoryDataSource implements MemorySource {
         cache.put(FOLDERS, audioFolders);
     }
 
-    public void addVideoFiles(List<VideoFile> videoFiles) {
-        cache.put(VIDEO_FILES, videoFiles);
+    public void addVideoFolders(List<VideoFolder> videoFolders) {
+        cache.put(VIDEO_FOLDERS, videoFolders);
     }
 
     @Override
@@ -72,8 +72,8 @@ public class MemoryDataSource implements MemorySource {
     }
 
     @Override
-    public Observable<List<VideoFile>> getVideoFiles() {
-        return Observable.just((List<VideoFile>) cache.get(VIDEO_FILES));
+    public Observable<List<VideoFolder>> getVideoFolders() {
+        return Observable.just((List<VideoFolder>) cache.get(VIDEO_FOLDERS));
     }
 
 
@@ -97,12 +97,12 @@ public class MemoryDataSource implements MemorySource {
         return cacheFoldersIsDirty;
     }
 
-    public boolean isCacheVideoFilesDirty() {
-        return cacheVideoFilesIsDirty;
+    public boolean isCacheVideoFoldersDirty() {
+        return cacheVideoFoldersIsDirty;
     }
 
-    public void setCacheVideoFilesDirty(boolean cacheVideoIsDirty) {
-        this.cacheVideoFilesIsDirty = cacheVideoIsDirty;
+    public void setCacheVideoFoldersDirty(boolean cacheVideoIsDirty) {
+        this.cacheVideoFoldersIsDirty = cacheVideoIsDirty;
     }
 
     public void setCacheFoldersDirty(boolean cacheFoldersIsDirty) {
@@ -124,8 +124,8 @@ public class MemoryDataSource implements MemorySource {
         return genres != null && genres.isEmpty();
     }
 
-    public boolean isVideoFilesEmpty() {
-        List<Genre> video = (List<Genre>) cache.get(VIDEO_FILES);
+    public boolean isVideoFoldersEmpty() {
+        List<Genre> video = (List<Genre>) cache.get(VIDEO_FOLDERS);
         return video != null && video.isEmpty();
     }
 }

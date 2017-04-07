@@ -93,17 +93,17 @@ public class DataRepository {
         });
     }
 
-    public Observable<List<VideoFile>> getVideoFiles() {
-        if (!memorySource.isCacheVideoFilesDirty() && !memorySource.isVideoFilesEmpty()) {
+    public Observable<List<VideoFolder>> getVideoFolders() {
+        if (!memorySource.isCacheVideoFoldersDirty() && !memorySource.isVideoFoldersEmpty()) {
             Log.w(TAG, "get memory cached video");
-            return memorySource.getVideoFiles();
+            return memorySource.getVideoFolders();
         }
 
         Log.w(TAG, "get local cached video");
-        return localSource.getVideoFiles().flatMap(videoFiles -> {
-            memorySource.addVideoFiles(videoFiles);
-            memorySource.setCacheVideoFilesDirty(false);
-            return Observable.just(videoFiles);
+        return localSource.getVideoFolders().flatMap(videoFolders -> {
+            memorySource.addVideoFolders(videoFolders);
+            memorySource.setCacheVideoFoldersDirty(false);
+            return Observable.just(videoFolders);
         });
     }
 

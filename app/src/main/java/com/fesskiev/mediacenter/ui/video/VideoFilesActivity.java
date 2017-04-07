@@ -5,37 +5,28 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.players.VideoPlayer;
-import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.video.player.VideoExoPlayerActivity;
-import com.fesskiev.mediacenter.utils.AppLog;
-import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
-import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
-import com.fesskiev.mediacenter.utils.admob.AdMobHelper;
 import com.fesskiev.mediacenter.widgets.dialogs.VideoFileDetailsDialog;
 import com.fesskiev.mediacenter.widgets.item.VideoCardView;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
@@ -56,15 +47,13 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 
-public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class VideoFilesActivity extends AnalyticsActivity {
 
-    public static VideoFragment newInstance() {
-        return new VideoFragment();
+    public static VideoFilesActivity newInstance() {
+        return new VideoFilesActivity();
     }
 
     private VideoFilesAdapter adapter;
-    private CardView emptyVideoContent;
-    private SwipeRefreshLayout swipeRefreshLayout;
     private Subscription subscription;
     private DataRepository repository;
     private VideoPlayer videoPlayer;
@@ -72,7 +61,17 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
+        setContentView(R.layout.activity_video_files);
+
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2,
+                GridLayoutManager.VERTICAL, false);
+
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.foldersGridView);
+        recyclerView.setLayoutManager(gridLayoutManager);
+        recyclerView.addItemDecoration(new GridDividerDecoration(this));
+        adapter = new VideoFilesAdapter(this);
+        recyclerView.setAdapter(adapter);
+
 
         videoPlayer = MediaApplication.getInstance().getVideoPlayer();
         repository = MediaApplication.getInstance().getRepository();
@@ -81,40 +80,19 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_video, container, false);
+    public String getActivityName() {
+        return this.getLocalClassName();
     }
 
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2,
-                GridLayoutManager.VERTICAL, false);
-
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.foldersGridView);
-        recyclerView.setLayoutManager(gridLayoutManager);
-        recyclerView.addItemDecoration(new GridDividerDecoration(getActivity()));
-        adapter = new VideoFilesAdapter(getActivity());
-        recyclerView.setAdapter(adapter);
-
-        emptyVideoContent = (CardView) view.findViewById(R.id.emptyVideoContentCard);
-        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
-        swipeRefreshLayout.setOnRefreshListener(this);
-        swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.primary_light));
-        swipeRefreshLayout.setProgressViewOffset(false, 0,
-                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
-
-        if (!AppSettingsManager.getInstance().isUserPro()) {
-            AdMobHelper.getInstance().createAdView((RelativeLayout) view.findViewById(R.id.adViewContainer), AdMobHelper.KEY_VIDEO_BANNER);
-        }
-
-    }
 
     @Override
     public void onResume() {
         super.onResume();
-        fetchVideoContent();
+        fetchVideoFolderFiles();
+    }
+
+    private void fetchVideoFolderFiles() {
+
     }
 
     @Override
@@ -132,85 +110,6 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPlaybackStateEvent(PlaybackService playbackState) {
         adapter.setPlaying(playbackState.isPlaying());
-    }
-
-
-    public void refreshVideoContent() {
-        swipeRefreshLayout.setRefreshing(false);
-
-        repository.getMemorySource().setCacheVideoFilesDirty(true);
-
-        fetchVideoContent();
-    }
-
-    public void clearVideoContent() {
-        adapter.clearAdapter();
-    }
-
-    public void fetchVideoContent() {
-        RxUtils.unsubscribe(subscription);
-        subscription = repository.getVideoFiles()
-                .first()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(Observable::from)
-                .filter(file -> {
-                    if (AppSettingsManager.getInstance().isShowHiddenFiles()) {
-                        return true;
-                    }
-                    return !file.isHidden;
-                })
-                .toList()
-                .subscribe(videoFiles -> {
-                    if (videoFiles != null) {
-                        if (!videoFiles.isEmpty()) {
-                            hideEmptyContentCard();
-                        } else {
-                            showEmptyContentCard();
-                        }
-                        videoPlayer.setVideoFiles(videoFiles);
-                        adapter.refresh(videoFiles);
-                    } else {
-                        showEmptyContentCard();
-                    }
-                    AppLog.INFO("onNext:video: " + (videoFiles == null ? "null" : videoFiles.size()));
-                });
-        if (swipeRefreshLayout.isRefreshing()) {
-            swipeRefreshLayout.setRefreshing(false);
-        }
-    }
-
-    protected void showEmptyContentCard() {
-        emptyVideoContent.setVisibility(View.VISIBLE);
-    }
-
-    protected void hideEmptyContentCard() {
-        emptyVideoContent.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void onRefresh() {
-        AlertDialog.Builder builder =
-                new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
-        builder.setTitle(getString(R.string.dialog_refresh_video_title));
-        builder.setMessage(R.string.dialog_refresh_video_message);
-        builder.setPositiveButton(R.string.dialog_refresh_video_ok,
-                (dialog, which) -> {
-                    swipeRefreshLayout.setRefreshing(false);
-                    RxUtils.unsubscribe(subscription);
-                    subscription = RxUtils.fromCallable(repository.resetVideoContentDatabase())
-                            .subscribeOn(Schedulers.io())
-                            .doOnNext(integer -> CacheManager.clearVideoImagesCache())
-                            .subscribe(aVoid -> FileSystemService.startFetchVideo(getActivity()));
-                });
-
-        builder.setNegativeButton(R.string.dialog_refresh_video_cancel,
-                (dialog, which) -> {
-                    swipeRefreshLayout.setRefreshing(false);
-                    dialog.cancel();
-                });
-        builder.setOnCancelListener(dialog -> swipeRefreshLayout.setRefreshing(false));
-        builder.show();
     }
 
     private static class VideoFilesAdapter extends RecyclerView.Adapter<VideoFilesAdapter.ViewHolder> {
@@ -311,11 +210,7 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                     transaction.addToBackStack(null);
                     VideoFileDetailsDialog dialog = VideoFileDetailsDialog.newInstance(videoFile);
                     dialog.setOnVideoFileDetailsDialogListener(() -> {
-                        VideoFragment videoFragment = (VideoFragment) ((FragmentActivity) act).getSupportFragmentManager().
-                                findFragmentByTag(VideoFragment.class.getName());
-                        if (videoFragment != null) {
-                            videoFragment.refreshVideoContent();
-                        }
+
                     });
                     dialog.show(transaction, VideoFileDetailsDialog.class.getName());
 
@@ -340,7 +235,6 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                                         .flatMap(result -> {
                                             if (result) {
                                                 DataRepository repository = MediaApplication.getInstance().getRepository();
-                                                repository.getMemorySource().setCacheVideoFilesDirty(true);
                                                 return RxUtils.fromCallable(repository.deleteVideoFile(videoFile.getFilePath()));
                                             }
                                             return Observable.empty();
@@ -426,10 +320,6 @@ public class VideoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             notifyItemRangeChanged(position, getItemCount());
         }
 
-        public void clearAdapter() {
-            videoFiles.clear();
-            notifyDataSetChanged();
-        }
 
         public void setPlaying(boolean playing) {
             isPlaying = playing;
