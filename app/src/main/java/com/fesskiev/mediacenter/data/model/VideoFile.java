@@ -69,7 +69,6 @@ public class VideoFile implements MediaFile, Parcelable {
 
     public VideoFile fetchVideoData() {
 
-        id = UUID.randomUUID().toString();
         size = filePath.length();
 
         timestamp = System.currentTimeMillis();

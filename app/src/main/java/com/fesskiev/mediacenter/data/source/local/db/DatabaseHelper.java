@@ -11,6 +11,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
 
     public static final String AUDIO_FOLDERS_TABLE_NAME = "AudioFolders";
+    public static final String VIDEO_FOLDERS_TABLE_NAME = "VideoFolders";
     public static final String AUDIO_TRACKS_TABLE_NAME = "AudioTracks";
     public static final String VIDEO_FILES_TABLE_NAME = "VideoFiles";
 
@@ -32,7 +33,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     /**
-     * audio folder constants
+     * folder constants
      */
     public static final String FOLDER_PATH = "FolderPath";
     public static final String FOLDER_COVER = "FolderCover";
@@ -96,6 +97,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             FOLDER_INDEX + " " + INTEGER_TYPE +
             ")";
 
+    public static final String CREATE_VIDEO_FOLDERS_TABLE_SQL = "CREATE TABLE" + " " +
+            VIDEO_FOLDERS_TABLE_NAME + " " +
+            "(" + " " +
+            ID + " " + KEY_TYPE + " ," +
+            FOLDER_PATH + " " + TEXT_TYPE + " ," +
+            FOLDER_NAME + " " + TEXT_TYPE + " ," +
+            FOLDER_COVER + " " + TEXT_TYPE + " ," +
+            FOLDER_TIMESTAMP + " " + INTEGER_TYPE + " ," +
+            FOLDER_SELECTED + " " + INTEGER_TYPE + " ," +
+            FOLDER_HIDDEN + " " + INTEGER_TYPE + " ," +
+            FOLDER_INDEX + " " + INTEGER_TYPE +
+            ")";
+
     public static final String CREATE_AUDIO_TRACKS_TABLE_SQL = "CREATE TABLE" + " " +
             AUDIO_TRACKS_TABLE_NAME + " " +
             "(" + " " +
@@ -124,6 +138,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     private void dropTables(SQLiteDatabase db) {
+        db.execSQL("DROP TABLE IF EXISTS " + VIDEO_FOLDERS_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + AUDIO_FOLDERS_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + AUDIO_TRACKS_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + VIDEO_FILES_TABLE_NAME);
@@ -133,6 +148,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_AUDIO_FOLDERS_TABLE_SQL);
+        db.execSQL(CREATE_VIDEO_FOLDERS_TABLE_SQL);
         db.execSQL(CREATE_AUDIO_TRACKS_TABLE_SQL);
         db.execSQL(CREATE_VIDEO_FILES_TABLE_SQL);
     }

@@ -23,6 +23,7 @@ import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.model.VideoFile;
+import com.fesskiev.mediacenter.data.model.VideoFolder;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.data.source.local.db.LocalDataSource;
 import com.fesskiev.mediacenter.data.source.memory.MemoryDataSource;
@@ -237,13 +238,17 @@ public class FileSystemService extends JobService {
         return START_NOT_STICKY;
     }
 
-    private void startScan(SCAN_TYPE scanType) {
+    private void startScan(SCAN_TYPE scanType, String path) {
         shouldContinue = true;
 
-        List<StorageUtils.StorageInfo> storageInfos = StorageUtils.getStorageList();
-        for (StorageUtils.StorageInfo storageInfo : storageInfos) {
-            Log.e(TAG, "storage: " + storageInfo.getDisplayName() + " path: " + storageInfo.path);
-            fileWalk(storageInfo.path, scanType);
+        if (path == null) {
+            List<StorageUtils.StorageInfo> storageInfos = StorageUtils.getStorageList();
+            for (StorageUtils.StorageInfo storageInfo : storageInfos) {
+                Log.e(TAG, "storage: " + storageInfo.getDisplayName() + " path: " + storageInfo.path);
+                fileWalk(storageInfo.path, scanType);
+            }
+        } else {
+            fileWalk(path, scanType);
         }
     }
 
@@ -302,18 +307,7 @@ public class FileSystemService extends JobService {
     }
 
     private void filterVideoFile(File file) {
-        String path = file.getAbsolutePath().toLowerCase();
-        if (path.endsWith(".mp4") ||
-                path.endsWith(".ts") ||
-                path.endsWith(".mkv")) {
 
-            VideoFile videoFile = new VideoFile(file);
-
-            Log.w(TAG, "create video file!: " + file.getAbsolutePath());
-
-            LocalDataSource.getInstance().insertVideoFile(videoFile);
-            sendVideoFileBroadcast(videoFile.description);
-        }
     }
 
     private void filterAudioFile(File file) {
@@ -336,16 +330,28 @@ public class FileSystemService extends JobService {
 
     }
 
-    private void filterVideoFolders(File dir) {
-        File[] videoPaths = dir.listFiles(videoFilter());
+    private void filterVideoFolders(File  directoryFile) {
+        File[] videoPaths = directoryFile.listFiles(videoFilter());
         if (videoPaths != null && videoPaths.length > 0) {
 
-            Log.w(TAG, "*******************************");
-            Log.i(TAG, "video folder created: " + dir.getAbsolutePath());
+            VideoFolder videoFolder = new VideoFolder();
+
+            videoFolder.folderPath = directoryFile;
+            videoFolder.folderName = directoryFile.getName();
+            videoFolder.id = UUID.randomUUID().toString();
+            videoFolder.timestamp = System.currentTimeMillis();
 
             for (File path : videoPaths) {
-                Log.i(TAG, "video file created: " + path.getAbsolutePath());
+
+                VideoFile videoFile = new VideoFile(path);
+                videoFile.id = videoFolder.id;
+
+                LocalDataSource.getInstance().insertVideoFile(videoFile);
+
+                sendVideoFileBroadcast(videoFile.description);
             }
+
+            MediaApplication.getInstance().getRepository().insertVideoFolder(videoFolder);
 
         }
     }
@@ -375,8 +381,6 @@ public class FileSystemService extends JobService {
             for (File path : audioPaths) {
 
                 new AudioFile(getApplicationContext(), path, audioFolder.id, audioFile -> {
-
-                    Log.w(TAG, "audio file created");
 
                     MediaApplication.getInstance().getRepository().insertAudioFile(audioFile);
 
@@ -597,14 +601,17 @@ public class FileSystemService extends JobService {
 
         observer.removeFoundPath(path);
 
-        //TODO add concrete path for scan
-        startScan(SCAN_TYPE.BOTH);
+        sendStartFetchMediaBroadcast();
+
+        startScan(SCAN_TYPE.BOTH, path);
+
+        sendEndFetchMediaBroadcast();
     }
 
     private void getAudioContent() {
         sendStartFetchMediaBroadcast();
 
-        startScan(SCAN_TYPE.AUDIO);
+        startScan(SCAN_TYPE.AUDIO, null);
 
         sendEndFetchMediaBroadcast();
     }
@@ -612,7 +619,7 @@ public class FileSystemService extends JobService {
     private void getVideoContent() {
         sendStartFetchMediaBroadcast();
 
-        startScan(SCAN_TYPE.VIDEO);
+        startScan(SCAN_TYPE.VIDEO, null);
 
         sendEndFetchMediaBroadcast();
     }
@@ -620,7 +627,7 @@ public class FileSystemService extends JobService {
     private void getMediaContent() {
         sendStartFetchMediaBroadcast();
 
-        startScan(SCAN_TYPE.BOTH);
+        startScan(SCAN_TYPE.BOTH, null);
 
         sendEndFetchMediaBroadcast();
     }

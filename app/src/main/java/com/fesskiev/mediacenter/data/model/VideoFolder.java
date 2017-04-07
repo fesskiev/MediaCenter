@@ -9,10 +9,9 @@ import com.fesskiev.mediacenter.data.source.local.db.DatabaseHelper;
 
 import java.io.File;
 
-public class AudioFolder implements Comparable<AudioFolder>, Parcelable {
+public class VideoFolder implements Comparable<VideoFolder>, Parcelable {
 
     public File folderPath;
-    public File folderImage;
     public String id;
     public String folderName;
     public int index;
@@ -21,28 +20,25 @@ public class AudioFolder implements Comparable<AudioFolder>, Parcelable {
     public boolean isHidden;
 
 
-    public AudioFolder() {
+    public VideoFolder() {
 
     }
 
-    public AudioFolder(Cursor cursor) {
+    public VideoFolder(Cursor cursor) {
 
         id = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ID));
         folderName = cursor.getString(cursor.getColumnIndex(DatabaseHelper.FOLDER_NAME));
         folderPath = new File(cursor.getString(cursor.getColumnIndex(DatabaseHelper.FOLDER_PATH)));
 
-        String imagePath = cursor.getString(cursor.getColumnIndex(DatabaseHelper.FOLDER_COVER));
-        folderImage = imagePath != null ? new File(imagePath) : null;
-
         index = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.FOLDER_INDEX));
         isSelected = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.FOLDER_SELECTED)) == 1;
         isHidden = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.FOLDER_HIDDEN)) == 1;
         timestamp = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.FOLDER_TIMESTAMP));
+
     }
 
-    protected AudioFolder(Parcel in) {
+    protected VideoFolder(Parcel in) {
         this.folderPath = (File) in.readSerializable();
-        this.folderImage = (File) in.readSerializable();
         this.id = in.readString();
         this.folderName = in.readString();
         this.index = in.readInt();
@@ -53,7 +49,7 @@ public class AudioFolder implements Comparable<AudioFolder>, Parcelable {
 
 
     @Override
-    public int compareTo(AudioFolder another) {
+    public int compareTo(VideoFolder another) {
         if (this.index < another.index) {
             return -1;
         }
@@ -61,21 +57,6 @@ public class AudioFolder implements Comparable<AudioFolder>, Parcelable {
             return 0;
         }
         return 1;
-    }
-
-
-    @Override
-    public String toString() {
-        return "AudioFolder{" +
-                "folderPath=" + folderPath +
-                ", folderImage=" + folderImage +
-                ", id='" + id + '\'' +
-                ", folderName='" + folderName + '\'' +
-                ", index=" + index +
-                ", timestamp=" + timestamp +
-                ", isSelected=" + isSelected +
-                ", isHidden=" + isHidden +
-                '}';
     }
 
     @Override
@@ -86,7 +67,6 @@ public class AudioFolder implements Comparable<AudioFolder>, Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeSerializable(this.folderPath);
-        dest.writeSerializable(this.folderImage);
         dest.writeString(this.id);
         dest.writeString(this.folderName);
         dest.writeInt(this.index);
@@ -95,15 +75,15 @@ public class AudioFolder implements Comparable<AudioFolder>, Parcelable {
         dest.writeByte(this.isHidden ? (byte) 1 : (byte) 0);
     }
 
-    public static final Parcelable.Creator<AudioFolder> CREATOR = new Parcelable.Creator<AudioFolder>() {
+    public static final Creator<VideoFolder> CREATOR = new Creator<VideoFolder>() {
         @Override
-        public AudioFolder createFromParcel(Parcel source) {
-            return new AudioFolder(source);
+        public VideoFolder createFromParcel(Parcel source) {
+            return new VideoFolder(source);
         }
 
         @Override
-        public AudioFolder[] newArray(int size) {
-            return new AudioFolder[size];
+        public VideoFolder[] newArray(int size) {
+            return new VideoFolder[size];
         }
     };
 }

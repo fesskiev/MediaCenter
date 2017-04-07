@@ -13,6 +13,7 @@ import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.model.Genre;
 import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.data.model.VideoFile;
+import com.fesskiev.mediacenter.data.model.VideoFolder;
 import com.fesskiev.mediacenter.data.source.local.LocalSource;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.squareup.sqlbrite.BriteDatabase;
@@ -134,6 +135,57 @@ public class LocalDataSource implements LocalSource {
                 DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
                 values,
                 DatabaseHelper.TRACK_PATH + "=" + "'" + audioFile.filePath + "'");
+    }
+
+    @Override
+    public void insertVideoFolder(VideoFolder videoFolder) {
+
+        ContentValues values = new ContentValues();
+
+        values.put(DatabaseHelper.ID, videoFolder.id);
+        values.put(DatabaseHelper.FOLDER_PATH, videoFolder.folderPath.getAbsolutePath());
+        values.put(DatabaseHelper.FOLDER_NAME, videoFolder.folderName);
+        values.put(DatabaseHelper.FOLDER_TIMESTAMP, videoFolder.timestamp);
+        values.put(DatabaseHelper.FOLDER_INDEX, videoFolder.index);
+        values.put(DatabaseHelper.FOLDER_SELECTED, videoFolder.isSelected ? 1 : 0);
+        values.put(DatabaseHelper.FOLDER_HIDDEN, videoFolder.isHidden ? 1 : 0);
+
+        briteDatabase.insert(DatabaseHelper.VIDEO_FOLDERS_TABLE_NAME, values, SQLiteDatabase.CONFLICT_REPLACE);
+
+    }
+
+    @Override
+    public void updateVideoFolder(VideoFolder videoFolder) {
+
+        ContentValues values = new ContentValues();
+
+        values.put(DatabaseHelper.ID, videoFolder.id);
+        values.put(DatabaseHelper.FOLDER_PATH, videoFolder.folderPath.getAbsolutePath());
+        values.put(DatabaseHelper.FOLDER_NAME, videoFolder.folderName);
+        values.put(DatabaseHelper.FOLDER_TIMESTAMP, videoFolder.timestamp);
+        values.put(DatabaseHelper.FOLDER_INDEX, videoFolder.index);
+        values.put(DatabaseHelper.FOLDER_SELECTED, videoFolder.isSelected ? 1 : 0);
+        values.put(DatabaseHelper.FOLDER_HIDDEN, videoFolder.isHidden ? 1 : 0);
+
+        briteDatabase.update(
+                DatabaseHelper.VIDEO_FOLDERS_TABLE_NAME,
+                values,
+                DatabaseHelper.FOLDER_PATH + "=" + "'" + videoFolder.folderPath.getAbsolutePath().replaceAll("'", "''") + "'");
+
+    }
+
+    @Override
+    public Callable<Integer> deleteVideoFolderWithFiles(VideoFolder videoFolder) {
+        return () -> {
+            briteDatabase.delete(
+                    DatabaseHelper.VIDEO_FOLDERS_TABLE_NAME,
+                    DatabaseHelper.FOLDER_PATH + "=" + "'" + videoFolder.folderPath.getAbsolutePath().replaceAll("'", "''") + "'");
+
+            return briteDatabase.delete(
+                    DatabaseHelper.VIDEO_FILES_TABLE_NAME,
+                    DatabaseHelper.ID + "=" + "'" + videoFolder.id + "'");
+
+        };
     }
 
     @Override
@@ -306,6 +358,7 @@ public class LocalDataSource implements LocalSource {
     }
 
 
+    @Override
     public Callable<Integer> deleteAudioFolderWithFiles(AudioFolder audioFolder) {
         return () -> {
             briteDatabase.delete(

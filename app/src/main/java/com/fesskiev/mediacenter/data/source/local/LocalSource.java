@@ -7,6 +7,7 @@ import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.model.Genre;
 import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.data.model.VideoFile;
+import com.fesskiev.mediacenter.data.model.VideoFolder;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -53,6 +54,14 @@ public interface LocalSource {
 
     void updateAudioFolder(AudioFolder audioFolder);
 
+    Callable<Integer> deleteAudioFolderWithFiles(AudioFolder audioFolder);
+
+    void insertVideoFolder(VideoFolder videoFolder);
+
+    void updateVideoFolder(VideoFolder videoFolder);
+
+    Callable<Integer> deleteVideoFolderWithFiles(VideoFolder videoFolder);
+
     void insertAudioFile(AudioFile audioFile);
 
     void insertVideoFile(VideoFile videoFile);
@@ -78,6 +87,8 @@ public interface LocalSource {
     boolean containAudioTrack(String path);
 
     String getDownloadFolderID();
+
+
 
 
 }

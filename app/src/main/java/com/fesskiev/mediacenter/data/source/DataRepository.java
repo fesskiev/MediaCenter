@@ -9,6 +9,7 @@ import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.model.Genre;
 import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.data.model.VideoFile;
+import com.fesskiev.mediacenter.data.model.VideoFolder;
 import com.fesskiev.mediacenter.data.model.vk.OAuth;
 import com.fesskiev.mediacenter.data.model.vk.response.AudioFilesResponse;
 import com.fesskiev.mediacenter.data.model.vk.response.GroupPostsResponse;
@@ -232,6 +233,10 @@ public class DataRepository {
 
     public void insertAudioFolder(AudioFolder audioFolder) {
         localSource.insertAudioFolder(audioFolder);
+    }
+
+    public void insertVideoFolder(VideoFolder videoFolder) {
+        localSource.insertVideoFolder(videoFolder);
     }
 
     public void insertAudioFile(AudioFile audioFile) {
