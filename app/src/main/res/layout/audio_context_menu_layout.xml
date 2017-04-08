@@ -5,7 +5,7 @@
     android:orientation="vertical">
 
     <Button
-        android:id="@+id/menuDetailsAudioFolder"
+        android:id="@+id/menuDetailsFolder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/button_context_menu"
@@ -18,7 +18,7 @@
         android:textSize="14sp" />
 
     <Button
-        android:id="@+id/menuDeleteAudioFolder"
+        android:id="@+id/menuDeleteFolder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/button_context_menu"

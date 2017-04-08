@@ -6,41 +6,41 @@ import android.view.LayoutInflater;
 
 import com.fesskiev.mediacenter.R;
 
-public class AudioContextMenu extends ContextMenu{
+public class FolderContextMenu extends ContextMenu{
 
-    public interface OnAudioContextMenuListener {
+    public interface OnFolderContextMenuListener {
 
-        void onDeleteAudioFolder();
+        void onDeleteFolder();
 
-        void onDetailsAudioFolder();
+        void onDetailsFolder();
     }
 
-    private OnAudioContextMenuListener listener;
+    private OnFolderContextMenuListener listener;
 
-    public AudioContextMenu(Context context) {
+    public FolderContextMenu(Context context) {
         super(context);
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.audio_context_menu_layout, this, true);
 
-        findViewById(R.id.menuDetailsAudioFolder).setOnClickListener(v -> {
+        findViewById(R.id.menuDetailsFolder).setOnClickListener(v -> {
             if (listener != null) {
-                listener.onDetailsAudioFolder();
+                listener.onDetailsFolder();
             }
             ContextMenuManager.getInstance().hideContextMenu();
         });
 
-        findViewById(R.id.menuDeleteAudioFolder).setOnClickListener(v -> {
+        findViewById(R.id.menuDeleteFolder).setOnClickListener(v -> {
             if (listener != null) {
-                listener.onDeleteAudioFolder();
+                listener.onDeleteFolder();
             }
             ContextMenuManager.getInstance().hideContextMenu();
         });
         findViewById(R.id.menuCancel).setOnClickListener(v -> ContextMenuManager.getInstance().hideContextMenu());
     }
 
-    public void setOnAudioContextMenuListener(OnAudioContextMenuListener l) {
+    public void setOnFolderContextMenuListener(OnFolderContextMenuListener l) {
         this.listener = l;
     }
 }

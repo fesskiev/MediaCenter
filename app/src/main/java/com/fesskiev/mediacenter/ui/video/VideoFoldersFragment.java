@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
@@ -28,7 +30,11 @@ import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.admob.AdMobHelper;
+import com.fesskiev.mediacenter.widgets.dialogs.MediaFolderDetailsDialog;
+import com.fesskiev.mediacenter.widgets.dialogs.VideoFolderDetailsDialog;
 import com.fesskiev.mediacenter.widgets.item.VideoFolderCardView;
+import com.fesskiev.mediacenter.widgets.menu.FolderContextMenu;
+import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.recycleview.GridDividerDecoration;
 
 import java.lang.ref.WeakReference;
@@ -194,7 +200,7 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
                 folderCard.setOnVideoFolderCardViewListener(new VideoFolderCardView.OnVideoFolderCardViewListener() {
                     @Override
                     public void onPopupMenuButtonCall(View view) {
-
+                        showAudioContextMenu(view, getAdapterPosition());
                     }
 
                     @Override
@@ -205,6 +211,45 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
                 });
             }
         }
+
+        private void showAudioContextMenu(View view, int position) {
+            ContextMenuManager.getInstance().toggleAudioContextMenu(view,
+                    new FolderContextMenu.OnFolderContextMenuListener() {
+                        @Override
+                        public void onDeleteFolder() {
+
+                        }
+
+                        @Override
+                        public void onDetailsFolder() {
+                            showDetailsVideoFolder(position);
+                        }
+                    });
+        }
+
+        private void showDetailsVideoFolder(int position) {
+            Activity act = activity.get();
+            if (act != null) {
+                VideoFolder videoFolder = videoFolders.get(position);
+                if (videoFolder != null) {
+                    FragmentTransaction transaction =
+                            ((FragmentActivity) act).getSupportFragmentManager().beginTransaction();
+                    transaction.addToBackStack(null);
+                    MediaFolderDetailsDialog dialog = VideoFolderDetailsDialog.newInstance(videoFolder);
+                    dialog.setOnMediaFolderDetailsDialogListener(() -> refreshVideoContent(act));
+                    dialog.show(transaction, VideoFolderDetailsDialog.class.getName());
+                }
+            }
+        }
+
+        private void refreshVideoContent(Activity act) {
+            VideoFoldersFragment videoFoldersFragment = (VideoFoldersFragment) ((FragmentActivity) act)
+                    .getSupportFragmentManager().findFragmentByTag(VideoFoldersFragment.class.getName());
+            if (videoFoldersFragment != null) {
+                videoFoldersFragment.refreshVideoContent();
+            }
+        }
+
 
         private void startVideoFilesActivity(int position) {
             final VideoFolder videoFolder = videoFolders.get(position);

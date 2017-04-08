@@ -200,7 +200,7 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                 audioFilesObservable = repository.getGenreTracks(contentValue);
                 break;
             case FOLDERS:
-                audioFilesObservable = repository.getFolderTracks(audioFolder.id);
+                audioFilesObservable = repository.getAudioTracks(audioFolder.id);
                 break;
             case ARTIST:
                 audioFilesObservable = repository.getArtistTracks(contentValue);

@@ -541,7 +541,7 @@ public class LocalDataSource implements LocalSource {
     }
 
     @Override
-    public Observable<List<AudioFile>> getFolderTracks(String id) {
+    public Observable<List<AudioFile>> getAudioTracks(String id) {
 
         String sql = String.format("SELECT * FROM %s WHERE %s ORDER BY %s",
                 DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,

@@ -38,7 +38,7 @@ public interface LocalSource {
 
     Observable<List<AudioFile>> getArtistTracks(String contentValue);
 
-    Observable<List<AudioFile>> getFolderTracks(String id);
+    Observable<List<AudioFile>> getAudioTracks(String id);
 
     Observable<AudioFolder> getSelectedAudioFolder();
 

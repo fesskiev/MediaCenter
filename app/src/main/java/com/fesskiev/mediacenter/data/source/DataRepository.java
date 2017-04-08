@@ -140,8 +140,8 @@ public class DataRepository {
         return localSource.getGenreTracks(genreName);
     }
 
-    public Observable<List<AudioFile>> getFolderTracks(String id) {
-        return localSource.getFolderTracks(id);
+    public Observable<List<AudioFile>> getAudioTracks(String id) {
+        return localSource.getAudioTracks(id);
     }
 
     public Observable<List<AudioFile>> getArtistTracks(String artistName) {
@@ -155,6 +155,10 @@ public class DataRepository {
 
     public void updateAudioFolder(AudioFolder audioFolder) {
         localSource.updateAudioFolder(audioFolder);
+    }
+
+    public void updateVideoFolder(VideoFolder videoFolder) {
+        localSource.updateVideoFolder(videoFolder);
     }
 
     public Callable<Integer> updateAudioFoldersIndex(List<AudioFolder> audioFolders) {

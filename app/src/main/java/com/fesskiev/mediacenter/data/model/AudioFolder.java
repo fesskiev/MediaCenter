@@ -9,7 +9,7 @@ import com.fesskiev.mediacenter.data.source.local.db.DatabaseHelper;
 
 import java.io.File;
 
-public class AudioFolder implements Comparable<AudioFolder>, Parcelable {
+public class AudioFolder implements Comparable<AudioFolder>, Parcelable, MediaFolder {
 
     public File folderPath;
     public File folderImage;
@@ -51,6 +51,30 @@ public class AudioFolder implements Comparable<AudioFolder>, Parcelable {
         this.isHidden = in.readByte() != 0;
     }
 
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public String getPath() {
+        return folderPath.getAbsolutePath();
+    }
+
+    @Override
+    public String getFolderName() {
+        return folderName;
+    }
+
+    @Override
+    public boolean isHidden() {
+        return isHidden;
+    }
+
+    @Override
+    public long getTimestamp() {
+        return timestamp;
+    }
 
     @Override
     public int compareTo(AudioFolder another) {

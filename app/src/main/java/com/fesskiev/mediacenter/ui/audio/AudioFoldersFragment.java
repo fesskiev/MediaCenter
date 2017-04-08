@@ -30,8 +30,9 @@ import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.dialogs.AudioFolderDetailsDialog;
+import com.fesskiev.mediacenter.widgets.dialogs.MediaFolderDetailsDialog;
 import com.fesskiev.mediacenter.widgets.item.AudioCardView;
-import com.fesskiev.mediacenter.widgets.menu.AudioContextMenu;
+import com.fesskiev.mediacenter.widgets.menu.FolderContextMenu;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.recycleview.helper.ItemTouchHelperAdapter;
 import com.fesskiev.mediacenter.widgets.recycleview.helper.ItemTouchHelperViewHolder;
@@ -167,14 +168,14 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
 
             private void showAudioContextMenu(View view, int position) {
                 ContextMenuManager.getInstance().toggleAudioContextMenu(view,
-                        new AudioContextMenu.OnAudioContextMenuListener() {
+                        new FolderContextMenu.OnFolderContextMenuListener() {
                             @Override
-                            public void onDeleteAudioFolder() {
+                            public void onDeleteFolder() {
                                 deleteAudioFolder(position);
                             }
 
                             @Override
-                            public void onDetailsAudioFolder() {
+                            public void onDetailsFolder() {
                                 showDetailsAudioFolder(position);
                             }
                         });
@@ -217,16 +218,18 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                     FragmentTransaction transaction =
                             ((FragmentActivity) act).getSupportFragmentManager().beginTransaction();
                     transaction.addToBackStack(null);
-                    AudioFolderDetailsDialog dialog = AudioFolderDetailsDialog.newInstance(audioFolder);
-                    dialog.setOnAudioFolderDetailsDialogListener(() -> {
-                        AudioFragment audioFragment = (AudioFragment) ((FragmentActivity) act).getSupportFragmentManager().
-                                findFragmentByTag(AudioFragment.class.getName());
-                        if (audioFragment != null) {
-                            audioFragment.refreshAudioContent();
-                        }
-                    });
+                    MediaFolderDetailsDialog dialog = AudioFolderDetailsDialog.newInstance(audioFolder);
+                    dialog.setOnMediaFolderDetailsDialogListener(() -> refreshAudioContent(act));
                     dialog.show(transaction, AudioFolderDetailsDialog.class.getName());
                 }
+            }
+        }
+
+        private void refreshAudioContent(Activity act) {
+            AudioFragment audioFragment = (AudioFragment) ((FragmentActivity) act).getSupportFragmentManager().
+                    findFragmentByTag(AudioFragment.class.getName());
+            if (audioFragment != null) {
+                audioFragment.refreshAudioContent();
             }
         }
 
