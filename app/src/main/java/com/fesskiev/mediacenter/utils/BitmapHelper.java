@@ -4,8 +4,6 @@ package com.fesskiev.mediacenter.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.widget.ImageView;
@@ -344,6 +342,17 @@ public class BitmapHelper {
                 .into(placeholder);
     }
 
+    public void loadVideoFolderFrame(String path, ImageView placeholder) {
+        Glide.with(context)
+                .load(path)
+                .override(WIDTH, HEIGHT)
+                .crossFade()
+                .centerCrop()
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .into(placeholder);
+    }
+
+
     public void saveBitmap(Bitmap bitmap, File path) {
         FileOutputStream out = null;
         try {
@@ -404,16 +413,5 @@ public class BitmapHelper {
     public void saveDownloadFolderIcon() {
         saveBitmap(getBitmapFromResource(R.drawable.icon_folder_download),
                 CacheManager.getDownloadFolderIconPath());
-    }
-
-
-    private Bitmap mergeMultipleBitmaps(Bitmap[] parts){
-        Bitmap result = Bitmap.createBitmap(parts[0].getWidth() * 2, parts[0].getHeight() * 2, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(result);
-        Paint paint = new Paint();
-        for (int i = 0; i < parts.length; i++) {
-            canvas.drawBitmap(parts[i], parts[i].getWidth() * (i % 2), parts[i].getHeight() * (i / 2), paint);
-        }
-        return result;
     }
 }

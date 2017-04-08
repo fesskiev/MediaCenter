@@ -58,7 +58,6 @@ public class VideoFilesActivity extends AnalyticsActivity {
     private VideoFilesAdapter adapter;
     private Subscription subscription;
     private DataRepository repository;
-    private VideoPlayer videoPlayer;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,7 +66,6 @@ public class VideoFilesActivity extends AnalyticsActivity {
 
         EventBus.getDefault().register(this);
 
-        videoPlayer = MediaApplication.getInstance().getVideoPlayer();
         repository = MediaApplication.getInstance().getRepository();
 
         VideoFolder videoFolder =
@@ -170,7 +168,10 @@ public class VideoFilesActivity extends AnalyticsActivity {
                 VideoFile videoFile = videoFiles.get(position);
                 if (videoFile != null) {
                     if (videoFile.exists()) {
-                        MediaApplication.getInstance().getVideoPlayer().setCurrentVideoFile(videoFile);
+                        VideoPlayer videoPlayer = MediaApplication.getInstance().getVideoPlayer();
+                        videoPlayer.setVideoFiles(videoFiles);
+                        videoPlayer.setCurrentVideoFile(videoFile);
+
                         checkNeedStopAudioPlaying();
                         startExoPlayerActivity(act, videoFile);
                     } else {

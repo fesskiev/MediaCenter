@@ -46,6 +46,8 @@ public interface LocalSource {
 
     Observable<List<String>> getFoldersPath();
 
+    Observable<List<String>> getVideoFilesFrame(String id);
+
     Observable<List<String>> getFolderFilePaths(String name);
 
     Observable<List<AudioFile>> getSelectedFolderAudioFiles(AudioFolder audioFolder);

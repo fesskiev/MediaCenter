@@ -5,21 +5,84 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <FrameLayout
+    <LinearLayout
+        android:id="@+id/frameContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/divider">
+        android:layout_above="@+id/divider"
+        android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/frameView"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/search_background"
-            android:contentDescription="@string/app_name"
-            android:scaleType="centerCrop"
-            tools:src="@drawable/cover"/>
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal">
 
-    </FrameLayout>
+            <ImageView
+                android:id="@+id/frameView1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:contentDescription="@string/app_name"
+                android:scaleType="centerCrop"
+                tools:src="@drawable/cover" />
+
+            <View
+                android:id="@+id/divider2"
+                style="@style/DividerStyle"
+                android:layout_width="1dp"
+                android:layout_height="match_parent" />
+
+            <ImageView
+                android:id="@+id/frameView2"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:contentDescription="@string/app_name"
+                android:scaleType="centerCrop"
+                tools:src="@drawable/cover" />
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/divider1"
+            style="@style/DividerStyle"
+            android:layout_width="match_parent"
+            android:layout_height="1dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/frameView3"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:contentDescription="@string/app_name"
+                android:scaleType="centerCrop"
+                tools:src="@drawable/cover" />
+
+            <View
+                android:id="@+id/divider3"
+                style="@style/DividerStyle"
+                android:layout_width="1dp"
+                android:layout_height="match_parent" />
+
+            <ImageView
+                android:id="@+id/frameView4"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:contentDescription="@string/app_name"
+                android:scaleType="centerCrop"
+                tools:src="@drawable/cover" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
     <View
         android:id="@+id/divider"

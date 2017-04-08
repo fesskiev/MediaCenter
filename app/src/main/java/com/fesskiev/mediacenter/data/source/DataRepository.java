@@ -235,6 +235,10 @@ public class DataRepository {
         return localSource.getVideoFiles(id);
     }
 
+    public Observable<List<String>> getVideoFilesFrame(String id) {
+        return localSource.getVideoFilesFrame(id);
+    }
+
     public void insertAudioFolder(AudioFolder audioFolder) {
         localSource.insertAudioFolder(audioFolder);
     }

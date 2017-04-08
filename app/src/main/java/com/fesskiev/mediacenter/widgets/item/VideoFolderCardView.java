@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.utils.BitmapHelper;
 
 import java.util.List;
 
@@ -28,8 +29,10 @@ public class VideoFolderCardView extends CardView {
     private OnVideoFolderCardViewListener listener;
     private GestureDetector detector;
     private ImageView popupMenu;
-    private ImageView frameView;
+    private ImageView[] frameViews;
+    private View frameContainer;
     private TextView description;
+    private boolean isFrameLoaded;
 
     public VideoFolderCardView(Context context) {
         super(context);
@@ -52,7 +55,14 @@ public class VideoFolderCardView extends CardView {
         View view = inflater.inflate(R.layout.video_folder_card_view, this, true);
 
         popupMenu = (ImageView) view.findViewById(R.id.popupMenu);
-        frameView = (ImageView) view.findViewById(R.id.frameView);
+
+        frameContainer = view.findViewById(R.id.frameContainer);
+        frameViews = new ImageView[]{
+                (ImageView) view.findViewById(R.id.frameView1),
+                (ImageView) view.findViewById(R.id.frameView2),
+                (ImageView) view.findViewById(R.id.frameView3),
+                (ImageView) view.findViewById(R.id.frameView4)
+        };
         description = (TextView) view.findViewById(R.id.fileDescription);
 
         detector = new GestureDetector(getContext(), new GestureListener());
@@ -69,9 +79,9 @@ public class VideoFolderCardView extends CardView {
                 }
             }
 
-            if (isPointInsideView(e.getRawX(), e.getRawY(), frameView)) {
+            if (isPointInsideView(e.getRawX(), e.getRawY(), frameContainer)) {
                 if (listener != null) {
-                    listener.onClick(frameView);
+                    listener.onClick(frameContainer);
                 }
             }
             return true;
@@ -95,7 +105,15 @@ public class VideoFolderCardView extends CardView {
     }
 
     public void setFrameViewPaths(List<String> paths) {
-
+        for (int i = 0; i < paths.size(); i++) {
+            if (i == frameViews.length) {
+                break;
+            }
+            ImageView frameView = frameViews[i];
+            String path = paths.get(i);
+            BitmapHelper.getInstance().loadVideoFolderFrame(path, frameView);
+        }
+        isFrameLoaded = true;
     }
 
     public void setDescription(String description) {
@@ -104,5 +122,9 @@ public class VideoFolderCardView extends CardView {
 
     public void setOnVideoFolderCardViewListener(OnVideoFolderCardViewListener l) {
         this.listener = l;
+    }
+
+    public boolean isFrameLoaded() {
+        return isFrameLoaded;
     }
 }

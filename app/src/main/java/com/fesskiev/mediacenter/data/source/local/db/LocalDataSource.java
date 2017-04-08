@@ -448,6 +448,18 @@ public class LocalDataSource implements LocalSource {
     }
 
     @Override
+    public Observable<List<String>> getVideoFilesFrame(String id) {
+
+        String sql = String.format("SELECT * FROM %s WHERE %s",
+                DatabaseHelper.VIDEO_FILES_TABLE_NAME,
+                DatabaseHelper.ID + "=" + "'" + id + "'");
+
+        return briteDatabase
+                .createQuery(DatabaseHelper.VIDEO_FILES_TABLE_NAME, sql)
+                .mapToList(cursor -> cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_FRAME_PATH)));
+    }
+
+    @Override
     public Observable<List<AudioFolder>> getAudioFolders() {
 
         String sql = String.format("SELECT * FROM %s", DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME);
