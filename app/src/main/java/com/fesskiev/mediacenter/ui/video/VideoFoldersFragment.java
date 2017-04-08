@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -29,6 +30,7 @@ import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
+import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.admob.AdMobHelper;
 import com.fesskiev.mediacenter.widgets.dialogs.MediaFolderDetailsDialog;
 import com.fesskiev.mediacenter.widgets.dialogs.VideoFolderDetailsDialog;
@@ -204,10 +206,9 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
                     }
 
                     @Override
-                    public void onClick(View view) {
+                    public void onOpenVideoListCall(View view) {
                         startVideoFilesActivity(getAdapterPosition());
                     }
-
                 });
             }
         }
@@ -217,14 +218,53 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
                     new FolderContextMenu.OnFolderContextMenuListener() {
                         @Override
                         public void onDeleteFolder() {
-
+                            deleteVideoFolder(position);
                         }
+
 
                         @Override
                         public void onDetailsFolder() {
                             showDetailsVideoFolder(position);
                         }
                     });
+        }
+
+        private void deleteVideoFolder(int position) {
+            Activity act = activity.get();
+            if (act != null) {
+                VideoFolder videoFolder = videoFolders.get(position);
+                if (videoFolder != null) {
+                    AlertDialog.Builder builder =
+                            new AlertDialog.Builder(act, R.style.AppCompatAlertDialogStyle);
+                    builder.setTitle(act.getString(R.string.dialog_delete_file_title));
+                    builder.setMessage(R.string.dialog_delete_folder_message);
+                    builder.setPositiveButton(R.string.dialog_delete_file_ok,
+                            (dialog, which) -> Observable.just(CacheManager.deleteDirectory(videoFolder.folderPath))
+                                    .first()
+                                    .subscribeOn(Schedulers.io())
+                                    .flatMap(result -> {
+                                        if (result) {
+                                            DataRepository repository = MediaApplication.getInstance().getRepository();
+                                            repository.getMemorySource().setCacheVideoFoldersDirty(true);
+                                            return RxUtils.fromCallable(repository.deleteVideoFolder(videoFolder));
+                                        }
+                                        return Observable.empty();
+                                    })
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(integer -> {
+                                        removeFolder(position);
+                                        Utils.showCustomSnackbar(act.getCurrentFocus(),
+                                                act,
+                                                act.getString(R.string.shackbar_delete_folder),
+                                                Snackbar.LENGTH_LONG)
+                                                .show();
+
+                                    }));
+                    builder.setNegativeButton(R.string.dialog_delete_file_cancel,
+                            (dialog, which) -> dialog.cancel());
+                    builder.show();
+                }
+            }
         }
 
         private void showDetailsVideoFolder(int position) {
@@ -300,6 +340,12 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
             videoFolders.clear();
             videoFolders.addAll(receiveVideoFolders);
             notifyDataSetChanged();
+        }
+
+        public void removeFolder(int position) {
+            videoFolders.remove(position);
+            notifyItemRemoved(position);
+            notifyItemRangeChanged(position, getItemCount());
         }
 
         public void clearAdapter() {

@@ -203,6 +203,10 @@ public class DataRepository {
         return localSource.deleteAudioFolderWithFiles(audioFolder);
     }
 
+    public Callable<Integer> deleteVideoFolder(VideoFolder videoFolder) {
+        return localSource.deleteVideoFolderWithFiles(videoFolder);
+    }
+
     public void clearPlaylist() {
         localSource.clearPlaylist();
     }

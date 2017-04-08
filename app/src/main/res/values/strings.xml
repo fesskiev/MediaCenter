@@ -248,6 +248,7 @@
     <string name="folder_details_size">Size:</string>
     <string name="folder_details_duration">Total time:</string>
     <string name="folder_details_count">Track count:</string>
+    <string name="folder_details_video_count">Video count:</string>
     <string name="folder_details_timestamp">Created:</string>
 
     <string name="video_details_name">Video name:</string>

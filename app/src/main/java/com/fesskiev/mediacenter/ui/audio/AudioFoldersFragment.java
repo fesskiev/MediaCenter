@@ -244,34 +244,31 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                     builder.setTitle(act.getString(R.string.dialog_delete_file_title));
                     builder.setMessage(R.string.dialog_delete_folder_message);
                     builder.setPositiveButton(R.string.dialog_delete_file_ok,
-                            (dialog, which) -> {
+                            (dialog, which) -> Observable.just(CacheManager.deleteDirectory(audioFolder.folderPath))
+                                    .first()
+                                    .subscribeOn(Schedulers.io())
+                                    .flatMap(result -> {
+                                        if (result) {
+                                            DataRepository repository = MediaApplication.getInstance().getRepository();
+                                            repository.getMemorySource().setCacheFoldersDirty(true);
+                                            return RxUtils.fromCallable(repository.deleteAudioFolder(audioFolder));
+                                        }
+                                        return Observable.empty();
+                                    })
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(integer -> {
+                                        if (MediaApplication.getInstance().getAudioPlayer()
+                                                .isDeletedFolderSelect(audioFolder)) {
+                                            ((PlaybackActivity) act).clearPlayback();
+                                        }
+                                        removeFolder(position);
+                                        Utils.showCustomSnackbar(act.getCurrentFocus(),
+                                                act,
+                                                act.getString(R.string.shackbar_delete_folder),
+                                                Snackbar.LENGTH_LONG)
+                                                .show();
 
-                                Observable.just(CacheManager.deleteDirectory(audioFolder.folderPath))
-                                        .first()
-                                        .subscribeOn(Schedulers.io())
-                                        .flatMap(result -> {
-                                            if (result) {
-                                                DataRepository repository = MediaApplication.getInstance().getRepository();
-                                                repository.getMemorySource().setCacheFoldersDirty(true);
-                                                return RxUtils.fromCallable(repository.deleteAudioFolder(audioFolder));
-                                            }
-                                            return Observable.empty();
-                                        })
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe(integer -> {
-                                            if (MediaApplication.getInstance().getAudioPlayer()
-                                                    .isDeletedFolderSelect(audioFolder)) {
-                                                ((PlaybackActivity) act).clearPlayback();
-                                            }
-                                            removeFolder(position);
-                                            Utils.showCustomSnackbar(act.getCurrentFocus(),
-                                                    act,
-                                                    act.getString(R.string.shackbar_delete_folder),
-                                                    Snackbar.LENGTH_LONG)
-                                                    .show();
-
-                                        });
-                            });
+                                    }));
                     builder.setNegativeButton(R.string.dialog_delete_file_cancel,
                             (dialog, which) -> dialog.cancel());
                     builder.show();

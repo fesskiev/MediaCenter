@@ -22,7 +22,7 @@ public class VideoFolderCardView extends CardView {
 
         void onPopupMenuButtonCall(View view);
 
-        void onClick(View view);
+        void onOpenVideoListCall(View view);
 
     }
 
@@ -81,7 +81,7 @@ public class VideoFolderCardView extends CardView {
 
             if (isPointInsideView(e.getRawX(), e.getRawY(), frameContainer)) {
                 if (listener != null) {
-                    listener.onClick(frameContainer);
+                    listener.onOpenVideoListCall(frameContainer);
                 }
             }
             return true;
