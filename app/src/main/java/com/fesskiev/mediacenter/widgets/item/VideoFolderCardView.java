@@ -32,7 +32,6 @@ public class VideoFolderCardView extends CardView {
     private ImageView[] frameViews;
     private View frameContainer;
     private TextView description;
-    private boolean isFrameLoaded;
 
     public VideoFolderCardView(Context context) {
         super(context);
@@ -113,7 +112,6 @@ public class VideoFolderCardView extends CardView {
             String path = paths.get(i);
             BitmapHelper.getInstance().loadVideoFolderFrame(path, frameView);
         }
-        isFrameLoaded = true;
     }
 
     public void setDescription(String description) {
@@ -122,9 +120,5 @@ public class VideoFolderCardView extends CardView {
 
     public void setOnVideoFolderCardViewListener(OnVideoFolderCardViewListener l) {
         this.listener = l;
-    }
-
-    public boolean isFrameLoaded() {
-        return isFrameLoaded;
     }
 }

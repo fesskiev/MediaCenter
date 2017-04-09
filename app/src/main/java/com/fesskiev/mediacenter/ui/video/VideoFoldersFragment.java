@@ -101,6 +101,12 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
             AdMobHelper.getInstance().createAdView((RelativeLayout) view.findViewById(R.id.adViewContainer), AdMobHelper.KEY_VIDEO_BANNER);
         }
 
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         fetchVideoFolders();
     }
 
@@ -315,18 +321,17 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
         public void onBindViewHolder(ViewHolder holder, int position) {
             Activity act = activity.get();
             if (act != null) {
+
                 final VideoFolder videoFolder = videoFolders.get(position);
                 if (videoFolder != null) {
 
                     holder.folderCard.setDescription(videoFolder.folderName);
 
-                    if (!holder.folderCard.isFrameLoaded()) {
-                        MediaApplication.getInstance().getRepository().getVideoFilesFrame(videoFolder.id)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .take(4)
-                                .subscribe(paths -> holder.folderCard.setFrameViewPaths(paths));
-                    }
+                    MediaApplication.getInstance().getRepository().getVideoFilesFrame(videoFolder.id)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .take(4)
+                            .subscribe(paths -> holder.folderCard.setFrameViewPaths(paths));
                 }
             }
         }

@@ -26,6 +26,7 @@ import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.players.VideoPlayer;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.video.player.VideoExoPlayerActivity;
+import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
@@ -58,6 +59,7 @@ public class VideoFilesActivity extends AnalyticsActivity {
     private VideoFilesAdapter adapter;
     private Subscription subscription;
     private DataRepository repository;
+    private VideoFolder videoFolder;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,7 +70,7 @@ public class VideoFilesActivity extends AnalyticsActivity {
 
         repository = MediaApplication.getInstance().getRepository();
 
-        VideoFolder videoFolder =
+        videoFolder =
                 getIntent().getExtras().getParcelable(VideoFoldersFragment.EXTRA_VIDEO_FOLDER);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -86,8 +88,6 @@ public class VideoFilesActivity extends AnalyticsActivity {
         recyclerView.addItemDecoration(new GridDividerDecoration(this));
         adapter = new VideoFilesAdapter(this);
         recyclerView.setAdapter(adapter);
-
-        fetchVideoFolderFiles(videoFolder);
     }
 
     @Override
@@ -102,12 +102,30 @@ public class VideoFilesActivity extends AnalyticsActivity {
     }
 
 
-    private void fetchVideoFolderFiles(VideoFolder videoFolder) {
+    public void fetchVideoFolderFiles(VideoFolder videoFolder) {
         subscription = repository.getVideoFiles(videoFolder.id)
                 .first()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .flatMap(Observable::from)
+                .filter(file -> {
+                    if (AppSettingsManager.getInstance().isShowHiddenFiles()) {
+                        return true;
+                    }
+                    return !file.isHidden;
+                })
+                .toList()
                 .subscribe(videoFiles -> adapter.refresh(videoFiles));
+    }
+
+    public void refreshVideoContent() {
+        fetchVideoFolderFiles(videoFolder);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fetchVideoFolderFiles(videoFolder);
     }
 
     @Override
@@ -227,13 +245,15 @@ public class VideoFilesActivity extends AnalyticsActivity {
                             ((FragmentActivity) act).getSupportFragmentManager().beginTransaction();
                     transaction.addToBackStack(null);
                     VideoFileDetailsDialog dialog = VideoFileDetailsDialog.newInstance(videoFile);
-                    dialog.setOnVideoFileDetailsDialogListener(() -> {
-
-                    });
+                    dialog.setOnVideoFileDetailsDialogListener(() -> refreshVideoFiles(act));
                     dialog.show(transaction, VideoFileDetailsDialog.class.getName());
 
                 }
             }
+        }
+
+        private void refreshVideoFiles(Activity act) {
+            ((VideoFilesActivity)act).refreshVideoContent();
         }
 
         private void deleteVideo(final int position) {

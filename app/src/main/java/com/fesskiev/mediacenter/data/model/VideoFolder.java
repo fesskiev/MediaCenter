@@ -110,4 +110,17 @@ public class VideoFolder implements Comparable<VideoFolder>, Parcelable, MediaFo
             return new VideoFolder[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return "VideoFolder{" +
+                "folderPath=" + folderPath +
+                ", id='" + id + '\'' +
+                ", folderName='" + folderName + '\'' +
+                ", index=" + index +
+                ", timestamp=" + timestamp +
+                ", isSelected=" + isSelected +
+                ", isHidden=" + isHidden +
+                '}';
+    }
 }
