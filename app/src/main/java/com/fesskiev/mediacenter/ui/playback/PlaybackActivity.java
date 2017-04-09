@@ -114,7 +114,6 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
             }
         });
         playPauseButton.setPlay(false);
-        playPauseButton.startLoading();
 
         View bottomSheet = findViewById(R.id.bottom_sheet);
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
@@ -323,7 +322,6 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
                     @Override
                     public void onStart() {
-
                         Log.e("error", "onStart() convert");
                     }
 

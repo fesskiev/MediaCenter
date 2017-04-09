@@ -306,7 +306,7 @@ public class PlaybackService extends Service {
                 volume *= 100f;
             }
 
-//            Log.d("event", PlaybackService.this.toString());
+            Log.d("event", PlaybackService.this.toString());
             EventBus.getDefault().post(PlaybackService.this);
         });
 
@@ -581,6 +581,8 @@ public class PlaybackService extends Service {
 
     private void openFile(String path) {
         Log.d(TAG, "open audio file!");
+        loadSuccess = false;
+        loadError = false;
         openAudioFile(path);
     }
 
