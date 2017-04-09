@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -21,6 +22,7 @@ import com.fesskiev.mediacenter.ui.audio.tracklist.PlayerTrackListActivity;
 import com.fesskiev.mediacenter.ui.effects.EffectsActivity;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
+import com.fesskiev.mediacenter.utils.converter.AudioConverterHelper;
 import com.fesskiev.mediacenter.widgets.buttons.MuteSoloButton;
 import com.fesskiev.mediacenter.widgets.buttons.RepeatButton;
 import com.fesskiev.mediacenter.widgets.cards.DescriptionCardView;
@@ -279,7 +281,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         boolean isLoadError = playbackState.isLoadError();
         if (lastLoadError != isLoadError) {
             lastLoadError = isLoadError;
-            if (lastLoadError) {
+            if (lastLoadError && !AudioConverterHelper.isAudioFileFLAC(audioPlayer.getCurrentTrack())) {
                 showErrorAndClose();
             }
         }

@@ -560,7 +560,9 @@ public class PlaybackService extends Service {
     private void createEQStateIfNeed() {
         EQState eqState = AppSettingsManager.getInstance().getEQState();
         if (eqState != null) {
-            Log.wtf(TAG, "create EQ state");
+
+            Log.wtf(TAG, "create EQ state: " + eqState.toString());
+
             for (int i = 0; i < 3; i++) {
                 switch (i) {
                     case 0:

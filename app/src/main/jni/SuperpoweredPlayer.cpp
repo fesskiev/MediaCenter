@@ -228,6 +228,9 @@ void SuperpoweredPlayer::setEQBands(int index, int value) {
     if (index < 0 || index > 2) {
         return;
     }
+    if (value == 0) {
+        value = 49;
+    }
     float bandF = 1.0f;
     if (value < 50) {
         bandF = (float) value / 50.0f;
@@ -342,9 +345,9 @@ void SuperpoweredPlayer::setPitchShift(int value) {
 
     double pitchShift = (value - 50) * (12 / 50.0f);
     __android_log_print(ANDROID_LOG_VERBOSE, "MediaCenter", "setPitchShift: pitch = %i",
-                        (int)pitchShift);
+                        (int) pitchShift);
 
-    player->setPitchShift((int)pitchShift);
+    player->setPitchShift((int) pitchShift);
 }
 
 
