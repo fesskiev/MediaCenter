@@ -107,13 +107,13 @@ public class AudioControlView extends FrameLayout {
         playPauseButton.setPlay(isPlaying);
     }
 
-    public void startConvertState() {
-        playPauseButton.startConvertState();
+    public void startLoading() {
+        playPauseButton.startLoading();
     }
 
 
-    public void stopConvertState() {
-        playPauseButton.stopConvertState();
+    public void finishLoading() {
+        playPauseButton.finishLoading();
     }
 
 }

@@ -69,6 +69,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     private boolean startForeground;
     private boolean isShow = true;
 
+    private boolean lastLoadSuccess;
     private boolean lastLoadError;
     private boolean lastPlaying;
     private int lastPositionSeconds;
@@ -113,6 +114,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
             }
         });
         playPauseButton.setPlay(false);
+        playPauseButton.startLoading();
 
         View bottomSheet = findViewById(R.id.bottom_sheet);
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
@@ -228,6 +230,16 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPlaybackStateEvent(PlaybackService playbackState) {
 
+        boolean isLoadSuccess = playbackState.isLoadSuccess();
+        if (lastLoadSuccess != isLoadSuccess) {
+            lastLoadSuccess = isLoadSuccess;
+            if (!lastLoadSuccess) {
+                playPauseButton.startLoading();
+            } else {
+                playPauseButton.finishLoading();
+            }
+        }
+
         boolean isLoadError = playbackState.isLoadError();
         if (lastLoadError != isLoadError) {
             lastLoadError = isLoadError;
@@ -288,6 +300,9 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     public void onCurrentTrackEvent(AudioFile currentTrack) {
         this.currentTrack = currentTrack;
 
+        lastLoadSuccess = false;
+        playPauseButton.startLoading();
+
         setMusicFileInfo(currentTrack);
         hideEmptyTrackCard();
 
@@ -308,15 +323,13 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
                     @Override
                     public void onStart() {
-                        playPauseButton.startConvertState();
+
                         Log.e("error", "onStart() convert");
                     }
 
                     @Override
                     public void onSuccess(AudioFile audioFile) {
                         Log.e("error", "onSuccess convert");
-                        playPauseButton.stopConvertState();
-
                         audioPlayer.setCurrentAudioFileAndPlay(audioFile);
                     }
 

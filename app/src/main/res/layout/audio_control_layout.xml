@@ -17,8 +17,8 @@
 
     <com.fesskiev.mediacenter.widgets.buttons.PlayPauseButton
         android:id="@+id/playPauseButton"
-        android:layout_width="82dp"
-        android:layout_height="82dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:layout_centerInParent="true"
         android:layout_gravity="center_horizontal" />
 

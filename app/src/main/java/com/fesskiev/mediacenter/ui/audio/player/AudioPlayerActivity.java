@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Animatable;
 import android.os.Bundle;
+import android.support.design.widget.BaseTransientBottomBar;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
@@ -19,7 +21,6 @@ import com.fesskiev.mediacenter.ui.audio.tracklist.PlayerTrackListActivity;
 import com.fesskiev.mediacenter.ui.effects.EffectsActivity;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
-import com.fesskiev.mediacenter.utils.converter.AudioConverterHelper;
 import com.fesskiev.mediacenter.widgets.buttons.MuteSoloButton;
 import com.fesskiev.mediacenter.widgets.buttons.RepeatButton;
 import com.fesskiev.mediacenter.widgets.cards.DescriptionCardView;
@@ -56,6 +57,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     private ImageView prevTrack;
     private ImageView nextTrack;
 
+    private boolean lastLoadSuccess;
     private boolean lastLoadError;
     private boolean lastPlaying;
     private boolean lastLooping;
@@ -177,12 +179,13 @@ public class AudioPlayerActivity extends AnalyticsActivity {
             }
         });
 
-
         setAudioTrackValues(audioPlayer.getCurrentTrack());
 
         EventBus.getDefault().register(this);
 
         controlView.setPlay(false);
+        controlView.startLoading();
+
         PlaybackService.requestPlaybackStateIfNeed(getApplicationContext());
 
         checkFirstOrLastTrack();
@@ -208,6 +211,9 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onCurrentTrackEvent(AudioFile currentTrack) {
+        lastLoadSuccess = false;
+        controlView.startLoading();
+
         setAudioTrackValues(currentTrack);
 
         checkFirstOrLastTrack();
@@ -260,15 +266,21 @@ public class AudioPlayerActivity extends AnalyticsActivity {
             controlView.setPlay(playing);
         }
 
+        boolean isLoadSuccess = playbackState.isLoadSuccess();
+        if (lastLoadSuccess != isLoadSuccess) {
+            lastLoadSuccess = isLoadSuccess;
+            if (!lastLoadSuccess) {
+                controlView.startLoading();
+            } else {
+                controlView.finishLoading();
+            }
+        }
+
         boolean isLoadError = playbackState.isLoadError();
         if (lastLoadError != isLoadError) {
             lastLoadError = isLoadError;
             if (lastLoadError) {
-                if (AudioConverterHelper.isAudioFileFLAC(audioPlayer.getCurrentTrack())) {
-                    controlView.startConvertState();
-                }
-            } else {
-                controlView.stopConvertState();
+                showErrorAndClose();
             }
         }
 
@@ -298,6 +310,18 @@ public class AudioPlayerActivity extends AnalyticsActivity {
             lastVolume = volume;
             setVolumeLevel(lastVolume);
         }
+    }
+
+    private void showErrorAndClose() {
+        Utils.showCustomSnackbar(findViewById(R.id.audioPlayerRoot), getApplicationContext(),
+                getString(R.string.snackbar_loading_error),
+                Snackbar.LENGTH_LONG).addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
+            @Override
+            public void onDismissed(Snackbar snackbar, int event) {
+                super.onDismissed(snackbar, event);
+                finish();
+            }
+        }).show();
     }
 
     protected void setAudioTrackValues(AudioFile audioFile) {

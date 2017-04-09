@@ -158,6 +158,8 @@
     <string name="settings_searching_files">Background file search</string>
     <string name="settings_wifi_download">Wi-Fi download only</string>
 
+    <string name="snackbar_loading_error">Unexpected loading audio error</string>
+
     <string name="snackbar_unexpected_error">Unexpected error</string>
     <string name="snackbar_internet_disable_error">No internet connection</string>
     <string name="snackbar_internet_connection_error">Connection error</string>

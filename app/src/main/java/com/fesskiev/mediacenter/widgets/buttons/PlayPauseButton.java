@@ -9,13 +9,13 @@ import android.graphics.Canvas;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.ImageView;
 
 import com.fesskiev.mediacenter.R;
 
-public class PlayPauseButton extends ImageView {
+public class PlayPauseButton extends AppCompatImageView {
 
     private static final long PLAY_PAUSE_ANIMATION_DURATION = 200;
 
@@ -85,14 +85,14 @@ public class PlayPauseButton extends ImageView {
         drawable.setColor(color);
     }
 
-    public void startConvertState() {
+    public void startLoading() {
         showTimer = true;
         setImageDrawable(timerDrawable);
         ((AnimatedVectorDrawable) getDrawable()).start();
 
     }
 
-    public void stopConvertState() {
+    public void finishLoading() {
         showTimer = false;
         ((AnimatedVectorDrawable) getDrawable()).stop();
         setImageDrawable(null);

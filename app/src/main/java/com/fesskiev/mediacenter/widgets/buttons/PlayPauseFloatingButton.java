@@ -62,14 +62,14 @@ public class PlayPauseFloatingButton extends FloatingActionButton {
         animatorSet.start();
     }
 
-    public void startConvertState() {
+    public void startLoading() {
         showTimer = true;
         setImageDrawable(timerDrawable);
         ((AnimatedVectorDrawable) getDrawable()).start();
 
     }
 
-    public void stopConvertState() {
+    public void finishLoading() {
         showTimer = false;
         ((AnimatedVectorDrawable) getDrawable()).stop();
         setImageDrawable(null);

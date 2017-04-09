@@ -677,7 +677,7 @@ public class FileSystemService extends JobService {
     private FilenameFilter audioFilter() {
         return (dir, name) -> {
             String lowercaseName = name.toLowerCase();
-            return lowercaseName.endsWith(".mp3") || lowercaseName.endsWith(".flac") || lowercaseName.endsWith(".wav");
+            return lowercaseName.endsWith(".mp3") || lowercaseName.endsWith(".flac") || lowercaseName.endsWith(".wav") || lowercaseName.endsWith(".ape");
         };
     }
 
