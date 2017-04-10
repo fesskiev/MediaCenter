@@ -162,7 +162,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 showToolbarTimer();
 
                 if (isAudioFragmentShow()) {
-                    clearPlayback();
                     AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
                             findFragmentByTag(AudioFragment.class.getName());
                     if (audioFragment != null) {

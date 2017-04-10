@@ -359,7 +359,8 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
                             @Override
                             public void onFailed() {
-
+                                notificationHelper.updateNotification(audioFile, lastCover, 0, lastPlaying);
+                                startForegroundService();
                             }
                         }));
 

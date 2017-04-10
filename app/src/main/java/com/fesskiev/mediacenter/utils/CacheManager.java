@@ -3,7 +3,10 @@ package com.fesskiev.mediacenter.utils;
 
 import android.os.Environment;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
+import java.io.IOException;
 
 public class CacheManager {
 
@@ -18,21 +21,25 @@ public class CacheManager {
 
     public static void clearAudioImagesCache() {
         File folder = new File(IMAGES_AUDIO_CACHE_PATH);
-        File[] files = folder.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                file.delete();
-            }
+        if(!folder.exists()){
+            return;
+        }
+        try {
+            FileUtils.cleanDirectory(folder);
+        } catch (IOException e){
+            e.printStackTrace();
         }
     }
 
     public static void clearVideoImagesCache() {
         File folder = new File(IMAGES_VIDEO_CACHE_PATH);
-        File[] files = folder.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                file.delete();
-            }
+        if(!folder.exists()){
+            return;
+        }
+        try {
+            FileUtils.cleanDirectory(folder);
+        } catch (IOException e){
+            e.printStackTrace();
         }
     }
 
@@ -41,7 +48,7 @@ public class CacheManager {
         if (!folder.exists()) {
             folder.mkdirs();
         }
-        return new File(folder.getAbsolutePath(), "user_photo.png");
+        return new File(folder.getAbsolutePath(), "user_photo.jpg");
     }
 
     public static File getRecordTempPath() {
@@ -74,7 +81,7 @@ public class CacheManager {
         if (!folder.exists()) {
             folder.mkdirs();
         }
-        return new File(folder.getAbsolutePath(), "download_folder_icon.png");
+        return new File(folder.getAbsolutePath(), "download_folder_icon.jpg");
     }
 
     public static boolean deleteDirectory(File directory) {

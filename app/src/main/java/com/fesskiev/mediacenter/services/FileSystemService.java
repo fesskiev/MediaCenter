@@ -330,7 +330,7 @@ public class FileSystemService extends JobService {
 
     }
 
-    private void filterVideoFolders(File  directoryFile) {
+    private void filterVideoFolders(File directoryFile) {
         File[] videoPaths = directoryFile.listFiles(videoFilter());
         if (videoPaths != null && videoPaths.length > 0) {
 
@@ -397,7 +397,6 @@ public class FileSystemService extends JobService {
     private class MediaObserver extends ContentObserver {
 
         private Set<String> foldersPath;
-        private Set<String> filesPath;
 
         private long lastTimeCall = 0L;
         private long lastTimeUpdate = 0L;
@@ -406,7 +405,6 @@ public class FileSystemService extends JobService {
         public MediaObserver(Handler handler) {
             super(handler);
             foldersPath = new TreeSet<>();
-            filesPath = new TreeSet<>();
         }
 
         @Override
@@ -425,24 +423,26 @@ public class FileSystemService extends JobService {
                     if (cursor != null) {
                         if (cursor.moveToLast()) {
                             String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
-                            File file = new File(path);
 
+                            File file = new File(path);
                             File parent = file.getParentFile();
                             if (parent.isDirectory()) {
                                 String parentPath = parent.getAbsolutePath();
                                 if (!foldersPath.contains(parentPath)) {
-                                    foldersPath.add(parentPath);
+                                    File[] audioPaths = parent.listFiles(audioFilter());
+                                    if (audioPaths != null && audioPaths.length > 0) {
+                                        foldersPath.add(parentPath);
+                                        NotificationHelper.getInstance(getApplicationContext())
+                                                .createMediaFoundNotification(parent);
+                                    }
 
-                                    NotificationHelper.getInstance(getApplicationContext())
-                                            .createMediaFoundNotification(parent);
-                                }
-                            } else if (file.isFile()) {
-                                String filePath = file.getAbsolutePath();
-                                if (!filesPath.contains(filePath)) {
-                                    filesPath.add(filePath);
+                                    File[] videoPaths = parent.listFiles(videoFilter());
+                                    if (videoPaths != null && videoPaths.length > 0) {
+                                        foldersPath.add(parentPath);
+                                        NotificationHelper.getInstance(getApplicationContext())
+                                                .createMediaFoundNotification(parent);
+                                    }
 
-                                    NotificationHelper.getInstance(getApplicationContext())
-                                            .createMediaFoundNotification(file);
                                 }
                             }
                         }
@@ -460,10 +460,6 @@ public class FileSystemService extends JobService {
         public void removeFoundPath(String path) {
             if (foldersPath.contains(path)) {
                 foldersPath.remove(path);
-                return;
-            }
-            if (filesPath.contains(path)) {
-                filesPath.remove(path);
             }
         }
     }
@@ -532,6 +528,7 @@ public class FileSystemService extends JobService {
     }
 
     private void clearImagesCache() {
+        CacheManager.clearVideoImagesCache();
         CacheManager.clearAudioImagesCache();
         BitmapHelper.getInstance().saveDownloadFolderIcon();
     }
@@ -677,7 +674,7 @@ public class FileSystemService extends JobService {
     private FilenameFilter audioFilter() {
         return (dir, name) -> {
             String lowercaseName = name.toLowerCase();
-            return lowercaseName.endsWith(".mp3") || lowercaseName.endsWith(".flac") || lowercaseName.endsWith(".wav") || lowercaseName.endsWith(".ape");
+            return lowercaseName.endsWith(".mp3") || lowercaseName.endsWith(".flac") || lowercaseName.endsWith(".wav");
         };
     }
 
