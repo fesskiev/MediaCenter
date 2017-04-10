@@ -137,7 +137,11 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
             });
 
             peakView = findViewById(R.id.basicNavPlayerContainer);
-            peakView.setOnClickListener(v -> AudioPlayerActivity.startPlayerActivity(PlaybackActivity.this));
+            peakView.setOnClickListener(v -> {
+                if (checkTrackSelected()) {
+                    AudioPlayerActivity.startPlayerActivity(PlaybackActivity.this);
+                }
+            });
             peakView.post(() -> {
                 int marginTop = getResources().getDimensionPixelSize(R.dimen.bottom_sheet_margin_top);
                 height = peakView.getHeight() + marginTop;
