@@ -48,7 +48,7 @@ public class CacheManager {
         if (!folder.exists()) {
             folder.mkdirs();
         }
-        return new File(folder.getAbsolutePath(), "user_photo.jpg");
+        return new File(folder.getAbsolutePath(), "user_photo.png");
     }
 
     public static File getRecordTempPath() {
@@ -81,7 +81,7 @@ public class CacheManager {
         if (!folder.exists()) {
             folder.mkdirs();
         }
-        return new File(folder.getAbsolutePath(), "download_folder_icon.jpg");
+        return new File(folder.getAbsolutePath(), "download_folder_icon.png");
     }
 
     public static boolean deleteDirectory(File directory) {

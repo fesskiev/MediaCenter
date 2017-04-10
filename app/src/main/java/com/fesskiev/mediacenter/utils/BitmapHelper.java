@@ -401,6 +401,23 @@ public class BitmapHelper {
         }
     }
 
+    public void saveBitmapPng(Bitmap bitmap, File path) {
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(path);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     public void saveBitmap(Bitmap bitmap, File path) {
         FileOutputStream out = null;
@@ -448,7 +465,7 @@ public class BitmapHelper {
     }
 
     public void saveDownloadFolderIcon() {
-        saveBitmap(getBitmapFromResource(R.drawable.icon_folder_download),
+        saveBitmapPng(getBitmapFromResource(R.drawable.icon_folder_download),
                 CacheManager.getDownloadFolderIconPath());
     }
 }
