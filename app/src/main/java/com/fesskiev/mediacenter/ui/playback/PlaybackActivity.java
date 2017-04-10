@@ -27,8 +27,8 @@ import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.mediacenter.utils.AnimationUtils;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
-import com.fesskiev.mediacenter.utils.NotificationHelper;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
+import com.fesskiev.mediacenter.utils.NotificationHelper;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.converter.AudioConverterHelper;
 import com.fesskiev.mediacenter.widgets.buttons.PlayPauseFloatingButton;
@@ -53,6 +53,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     private AudioPlayer audioPlayer;
     private AudioFile currentTrack;
 
+    protected View bottomSheet;
     private BottomSheetBehavior bottomSheetBehavior;
     private TrackListAdapter adapter;
     private PlayPauseFloatingButton playPauseButton;
@@ -115,7 +116,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         });
         playPauseButton.setPlay(false);
 
-        View bottomSheet = findViewById(R.id.bottom_sheet);
+        bottomSheet = findViewById(R.id.bottom_sheet);
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_SETTLING);
         if (bottomSheetBehavior != null) {

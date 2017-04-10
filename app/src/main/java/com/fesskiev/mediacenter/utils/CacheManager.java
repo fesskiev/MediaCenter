@@ -13,7 +13,7 @@ public class CacheManager {
     private final static String EXTERNAL_STORAGE = Environment.getExternalStorageDirectory().toString();
     private final static String DOWNLOADS_FOLDER_PATH = EXTERNAL_STORAGE + "/MediaCenter/Downloads/";
     private final static String USER_PHOTO_PATH = EXTERNAL_STORAGE + "/MediaCenter/UserPhoto/";
-    private final static String RECORDER_TEMP_PATH = EXTERNAL_STORAGE + "/MediaCenter/Temp/";
+    private final static String TEMP_PATH = EXTERNAL_STORAGE + "/MediaCenter/Temp/";
     private final static String RECORDER_DEST_PATH = EXTERNAL_STORAGE + "/MediaCenter/Records/";
     public final static String IMAGES_AUDIO_CACHE_PATH = EXTERNAL_STORAGE + "/MediaCenter/Images/Audio/";
     public final static String IMAGES_VIDEO_CACHE_PATH = EXTERNAL_STORAGE + "/MediaCenter/Images/Video/";
@@ -21,24 +21,24 @@ public class CacheManager {
 
     public static void clearAudioImagesCache() {
         File folder = new File(IMAGES_AUDIO_CACHE_PATH);
-        if(!folder.exists()){
+        if (!folder.exists()) {
             return;
         }
         try {
             FileUtils.cleanDirectory(folder);
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public static void clearVideoImagesCache() {
         File folder = new File(IMAGES_VIDEO_CACHE_PATH);
-        if(!folder.exists()){
+        if (!folder.exists()) {
             return;
         }
         try {
             FileUtils.cleanDirectory(folder);
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -52,7 +52,7 @@ public class CacheManager {
     }
 
     public static File getRecordTempPath() {
-        File temp = new File(RECORDER_TEMP_PATH);
+        File temp = new File(TEMP_PATH);
         if (!temp.exists()) {
             temp.mkdirs();
         }
@@ -98,5 +98,18 @@ public class CacheManager {
             }
         }
         return (directory.delete());
+    }
+
+
+    public static void clearTempDir() {
+        File folder = new File(TEMP_PATH);
+        if (!folder.exists()) {
+            return;
+        }
+        try {
+            FileUtils.cleanDirectory(folder);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

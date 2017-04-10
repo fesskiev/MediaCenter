@@ -55,6 +55,14 @@ public class AnimationUtils {
         }
     }
 
+    public void animateBottomSheet(View view, boolean show) {
+            view.setAlpha(show ? 0f : 1f);
+            view.animate()
+                    .alpha(show ? 1f : 0f)
+                    .setDuration(1000)
+                    .setInterpolator(fastOutSlowInInterpolator);
+    }
+
     public void translate(View menu, float value) {
         menu.animate()
                 .translationY(value)

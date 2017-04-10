@@ -39,6 +39,7 @@ import com.fesskiev.mediacenter.ui.video.VideoFoldersFragment;
 import com.fesskiev.mediacenter.utils.AnimationUtils;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
+import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.CountDownTimer;
 import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
 import com.fesskiev.mediacenter.utils.NotificationHelper;
@@ -161,7 +162,11 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 fetchMediaFilesManager.setTextPrimary();
                 showToolbarTimer();
 
+
                 if (isAudioFragmentShow()) {
+                    clearPlayback();
+                    AnimationUtils.getInstance().animateBottomSheet(bottomSheet, false);
+
                     AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
                             findFragmentByTag(AudioFragment.class.getName());
                     if (audioFragment != null) {
@@ -178,6 +183,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
             @Override
             public void onFetchContentFinish() {
+                AnimationUtils.getInstance().animateBottomSheet(bottomSheet, true);
                 hideToolbarTimer();
             }
 
@@ -528,6 +534,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         fetchMediaFilesManager.unregister();
 
         FileSystemService.stopFileSystemService(getApplicationContext());
+        CacheManager.clearTempDir();
 
         if (!settingsManager.isUserPro()) {
             AdMobHelper.getInstance().destroyAdView();
