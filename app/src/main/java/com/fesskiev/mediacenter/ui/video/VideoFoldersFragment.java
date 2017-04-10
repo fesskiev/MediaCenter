@@ -332,6 +332,12 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
                             .observeOn(AndroidSchedulers.mainThread())
                             .take(4)
                             .subscribe(paths -> holder.folderCard.setFrameViewPaths(paths));
+
+                    if (videoFolder.isHidden) {
+                        holder.folderCard.setAlpha(0.35f);
+                    } else {
+                        holder.folderCard.setAlpha(1f);
+                    }
                 }
             }
         }

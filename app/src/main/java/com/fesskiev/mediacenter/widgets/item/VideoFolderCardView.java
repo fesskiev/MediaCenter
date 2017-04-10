@@ -104,6 +104,9 @@ public class VideoFolderCardView extends CardView {
     }
 
     public void setFrameViewPaths(List<String> paths) {
+        for(ImageView imageView : frameViews){
+            imageView.setImageBitmap(null);
+        }
         for (int i = 0; i < paths.size(); i++) {
             if (i == frameViews.length) {
                 break;

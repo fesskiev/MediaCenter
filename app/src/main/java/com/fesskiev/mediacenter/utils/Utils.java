@@ -112,7 +112,7 @@ public class Utils {
     }
 
     public static String replaceSymbols(String fileName) {
-        return fileName.replaceAll("[|\\?*%<\":>+'/]", "");
+        return fileName.replaceAll("[|\\?*%<\":>+'/#]", "");
     }
 
     public static float dipToPixels(Context context, float dipValue) {
