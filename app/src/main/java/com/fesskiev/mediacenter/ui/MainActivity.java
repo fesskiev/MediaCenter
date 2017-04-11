@@ -199,7 +199,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             }
 
             @Override
-            public void onVideoFileCreated() {
+            public void onVideoFolderCreated() {
                 VideoFoldersFragment videoFragment = (VideoFoldersFragment) getSupportFragmentManager().
                         findFragmentByTag(VideoFoldersFragment.class.getName());
                 if (videoFragment != null) {

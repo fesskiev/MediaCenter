@@ -15,8 +15,8 @@ import com.fesskiev.mediacenter.utils.CountDownTimer;
 
 public class FetchContentView extends FrameLayout {
 
-    private TextView titleNameText;
-    private TextView descNameText;
+    private TextView folderNameText;
+    private TextView fileNameText;
     private TextView titleFetchText;
     private ImageView timerView;
     private CountDownTimer countDownTimer;
@@ -41,8 +41,8 @@ public class FetchContentView extends FrameLayout {
                 Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.view_fetch_content, this, true);
 
-        titleNameText = (TextView) view.findViewById(R.id.fetchFolderName);
-        descNameText = (TextView) view.findViewById(R.id.fetchFileName);
+        folderNameText = (TextView) view.findViewById(R.id.fetchFolderName);
+        fileNameText = (TextView) view.findViewById(R.id.fetchFileName);
         titleFetchText = (TextView) view.findViewById(R.id.fetchTitle);
 
         timerView = (ImageView) view.findViewById(R.id.timer);
@@ -51,18 +51,18 @@ public class FetchContentView extends FrameLayout {
 
     }
 
-    public void setAudioFolderName(String folderName) {
-        titleNameText.setText(folderName);
-        descNameText.setText("");
+    public void setFolderName(String folderName) {
+        folderNameText.setText(folderName);
+        fileNameText.setText("");
     }
 
-    public void setAudioFileName(String trackName) {
-        descNameText.setText(trackName);
+    public void setFileName(String trackName) {
+        fileNameText.setText(trackName);
     }
 
-    public void setVideoFileName(String videoFileName) {
-        titleNameText.setText(videoFileName);
-        descNameText.setText("");
+    public void clear() {
+        folderNameText.setText("");
+        fileNameText.setText("");
     }
 
     public void setVisibleContent() {
@@ -74,8 +74,8 @@ public class FetchContentView extends FrameLayout {
     }
 
     public void setTextColor(int color) {
-        titleNameText.setTextColor(color);
-        descNameText.setTextColor(color);
+        folderNameText.setTextColor(color);
+        fileNameText.setTextColor(color);
         titleFetchText.setTextColor(color);
     }
 

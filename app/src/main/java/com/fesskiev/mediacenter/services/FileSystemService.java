@@ -75,11 +75,14 @@ public class FileSystemService extends JobService {
     public static final String ACTION_START_FETCH_MEDIA_CONTENT = "com.fesskiev.player.action.START_FETCH_MEDIA_CONTENT";
     public static final String ACTION_END_FETCH_MEDIA_CONTENT = "com.fesskiev.player.action.END_FETCH_MEDIA_CONTENT";
 
+    public static final String ACTION_VIDEO_FOLDER_CREATED= "com.fesskiev.player.action.VIDEO_FOLDER_CREATED";
+    public static final String ACTION_VIDEO_FOLDER_NAME = "com.fesskiev.player.action.VIDEO_FOLDER_NAME";
     public static final String ACTION_VIDEO_FILE = "com.fesskiev.player.action.VIDEO_FILE";
     public static final String ACTION_AUDIO_FOLDER_NAME = "com.fesskiev.player.action.AUDIO_FOLDER_NAME";
     public static final String ACTION_AUDIO_TRACK_NAME = "com.fesskiev.player.action.AUDIO_TRACK_NAME";
     public static final String ACTION_AUDIO_FOLDER_CREATED = "com.fesskiev.player.action.AUDIO_FOLDER_CREATED";
 
+    public static final String EXTRA_VIDEO_FOLDER_NAME = "com.fesskiev.player.extra.EXTRA_VIDEO_FOLDER_NAME";
     public static final String EXTRA_AUDIO_FOLDER_NAME = "com.fesskiev.player.extra.EXTRA_AUDIO_FOLDER_NAME";
     public static final String EXTRA_AUDIO_TRACK_NAME = "com.fesskiev.player.extra.EXTRA_AUDIO_TRACK_NAME";
     public static final String EXTRA_VIDEO_FILE_NAME = "com.fesskiev.player.extra.EXTRA_VIDEO_FILE_NAME";
@@ -341,6 +344,8 @@ public class FileSystemService extends JobService {
             videoFolder.id = UUID.randomUUID().toString();
             videoFolder.timestamp = System.currentTimeMillis();
 
+            sendVideoFolderNameBroadcast(videoFolder.folderName);
+
             for (File path : videoPaths) {
 
                 VideoFile videoFile = new VideoFile(path);
@@ -352,6 +357,8 @@ public class FileSystemService extends JobService {
             }
 
             MediaApplication.getInstance().getRepository().insertVideoFolder(videoFolder);
+
+            sendVideoFolderCreatedBroadcast();
 
         }
     }
@@ -663,6 +670,16 @@ public class FileSystemService extends JobService {
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
+    public void sendVideoFolderCreatedBroadcast() {
+        Intent intent = new Intent(ACTION_VIDEO_FOLDER_CREATED);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+    public void sendVideoFolderNameBroadcast(String folderName) {
+        Intent intent = new Intent(ACTION_VIDEO_FOLDER_NAME);
+        intent.putExtra(EXTRA_VIDEO_FOLDER_NAME, folderName);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
 
     public void sendVideoFileBroadcast(String fileName) {
         Intent intent = new Intent(ACTION_VIDEO_FILE);

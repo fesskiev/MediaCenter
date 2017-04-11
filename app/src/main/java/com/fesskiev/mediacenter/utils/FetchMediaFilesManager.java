@@ -26,15 +26,15 @@ public class FetchMediaFilesManager {
 
         void onAudioFolderCreated();
 
-        void onVideoFileCreated();
+        void onVideoFolderCreated();
     }
 
     private OnFetchMediaFilesListener listener;
     private FetchContentView fetchContentView;
     private boolean fetchStart;
     private boolean needTimer;
-    private int folderCount;
-    private int videoCount;
+    private int folderAudioCount;
+    private int folderVideoCount;
 
     public FetchMediaFilesManager(FetchContentView fetchContentView) {
         this.fetchContentView = fetchContentView;
@@ -57,6 +57,8 @@ public class FetchMediaFilesManager {
         filter.addAction(FileSystemService.ACTION_AUDIO_FOLDER_CREATED);
         filter.addAction(FileSystemService.ACTION_AUDIO_FOLDER_NAME);
         filter.addAction(FileSystemService.ACTION_AUDIO_TRACK_NAME);
+        filter.addAction(FileSystemService.ACTION_VIDEO_FOLDER_CREATED);
+        filter.addAction(FileSystemService.ACTION_VIDEO_FOLDER_NAME);
         filter.addAction(FileSystemService.ACTION_VIDEO_FILE);
         LocalBroadcastManager.getInstance(MediaApplication.getInstance().getApplicationContext())
                 .registerReceiver(broadcastReceiver, filter);
@@ -76,7 +78,7 @@ public class FetchMediaFilesManager {
                     if (listener != null) {
                         listener.onFetchContentStart();
                     }
-                    if(fetchContentView != null) {
+                    if (fetchContentView != null) {
                         fetchContentView.setVisibleContent();
                         if (needTimer) {
                             fetchContentView.showTimer();
@@ -88,52 +90,62 @@ public class FetchMediaFilesManager {
                     if (listener != null) {
                         listener.onFetchContentFinish();
                         listener.onAudioFolderCreated();
-                        listener.onVideoFileCreated();
+                        listener.onVideoFolderCreated();
                     }
 
-                    if(fetchContentView != null) {
+                    if (fetchContentView != null) {
                         fetchContentView.setInvisibleContent();
                         if (needTimer) {
                             fetchContentView.hideTimer();
+                            fetchContentView.clear();
                         }
                     }
                     fetchStart = false;
-                    videoCount = 0;
-                    folderCount = 0;
+                    folderVideoCount = 0;
+                    folderAudioCount = 0;
                     break;
                 case FileSystemService.ACTION_AUDIO_FOLDER_NAME:
                     String folderName =
                             intent.getStringExtra(FileSystemService.EXTRA_AUDIO_FOLDER_NAME);
                     if (fetchContentView != null) {
-                        fetchContentView.setAudioFolderName(folderName);
+                        fetchContentView.setFolderName(folderName);
                     }
                     break;
 
                 case FileSystemService.ACTION_AUDIO_FOLDER_CREATED:
-                    folderCount++;
-                    if (listener != null && folderCount == DELAY) {
+                    folderAudioCount++;
+                    if (listener != null && folderAudioCount == DELAY) {
                         listener.onAudioFolderCreated();
-                        folderCount = 0;
+                        folderAudioCount = 0;
                     }
                     break;
                 case FileSystemService.ACTION_AUDIO_TRACK_NAME:
                     String trackName =
                             intent.getStringExtra(FileSystemService.EXTRA_AUDIO_TRACK_NAME);
                     if (fetchContentView != null) {
-                        fetchContentView.setAudioFileName(trackName);
+                        fetchContentView.setFileName(trackName);
+                    }
+                    break;
+
+                case FileSystemService.ACTION_VIDEO_FOLDER_NAME:
+                    String fName =
+                            intent.getStringExtra(FileSystemService.EXTRA_VIDEO_FOLDER_NAME);
+                    if (fetchContentView != null) {
+                        fetchContentView.setFolderName(fName);
+                    }
+                    break;
+                case FileSystemService.ACTION_VIDEO_FOLDER_CREATED:
+                    folderVideoCount++;
+                    if (listener != null && folderVideoCount == DELAY) {
+                        listener.onVideoFolderCreated();
+                        folderVideoCount = 0;
                     }
                     break;
                 case FileSystemService.ACTION_VIDEO_FILE:
                     String videoFileName =
                             intent.getStringExtra(FileSystemService.EXTRA_VIDEO_FILE_NAME);
                     if (fetchContentView != null) {
-                        fetchContentView.setVideoFileName(videoFileName);
-                    }
-
-                    videoCount++;
-                    if (listener != null && videoCount == DELAY) {
-                        listener.onVideoFileCreated();
-                        videoCount = 0;
+                        fetchContentView.setFileName(videoFileName);
                     }
                     break;
             }

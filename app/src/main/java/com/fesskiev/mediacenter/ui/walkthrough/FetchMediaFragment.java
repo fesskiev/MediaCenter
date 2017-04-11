@@ -86,7 +86,7 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
             }
 
             @Override
-            public void onVideoFileCreated() {
+            public void onVideoFolderCreated() {
 
             }
         });
