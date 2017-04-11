@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Animatable;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -35,6 +36,7 @@ import com.fesskiev.mediacenter.ui.playback.PlaybackActivity;
 import com.fesskiev.mediacenter.ui.playlist.PlayListActivity;
 import com.fesskiev.mediacenter.ui.search.SearchActivity;
 import com.fesskiev.mediacenter.ui.settings.SettingsActivity;
+import com.fesskiev.mediacenter.ui.splash.SplashActivity;
 import com.fesskiev.mediacenter.ui.video.VideoFoldersFragment;
 import com.fesskiev.mediacenter.utils.AnimationUtils;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
@@ -43,16 +45,12 @@ import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.CountDownTimer;
 import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
 import com.fesskiev.mediacenter.utils.NotificationHelper;
-import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.admob.AdMobHelper;
 import com.fesskiev.mediacenter.vk.VKActivity;
 import com.fesskiev.mediacenter.vk.VKAuthActivity;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
-
-import rx.Observable;
-import rx.schedulers.Schedulers;
 
 
 public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -72,7 +70,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private ImageView logoutButton;
     private TextView firstName;
     private TextView lastName;
-    private boolean finish;
 
 
     @Override
@@ -143,9 +140,13 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     @Override
     protected void onNewIntent(Intent intent) {
         Bundle extras = intent.getExtras();
-        if (extras != null && extras.containsKey(NotificationHelper.EXTRA_MEDIA_PATH)) {
-            String mediaPath = extras.getString(NotificationHelper.EXTRA_MEDIA_PATH);
-            FileSystemService.startFetchFoundMedia(getApplicationContext(), mediaPath);
+        if (extras != null) {
+            if (extras.containsKey(NotificationHelper.EXTRA_MEDIA_PATH)) {
+                String mediaPath = extras.getString(NotificationHelper.EXTRA_MEDIA_PATH);
+                FileSystemService.startFetchFoundMedia(getApplicationContext(), mediaPath);
+            } else if (extras.containsKey(SplashActivity.EXTRA_OPEN_FROM_ACTION)) {
+                audioPlayer.getCurrentTrackAndTrackList();
+            }
         }
     }
 
@@ -486,11 +487,10 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            hidePlayback();
-            View view = findViewById(R.id.content);
+            CoordinatorLayout view = (CoordinatorLayout) findViewById(R.id.main_content);
             if (view != null) {
                 if (fetchMediaFilesManager.isFetchStart()) {
-                    Utils.showCustomSnackbar(view, getApplicationContext(),
+                    Utils.showTopCustomSnackbar(view, getApplicationContext(),
                             getString(R.string.splash_snackbar_stop_fetch),
                             Snackbar.LENGTH_LONG)
                             .setAction(getString(R.string.snack_exit_action), v -> {
@@ -500,26 +500,12 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                             .show();
                     return;
                 }
-                Utils.showCustomSnackbar(view, getApplicationContext(),
+                Utils.showTopCustomSnackbar(view, getApplicationContext(),
                         getString(R.string.snack_exit_text),
                         Snackbar.LENGTH_LONG)
                         .setAction(getString(R.string.snack_exit_action), v -> {
-                            finish = true;
                             finish();
-                        }).addCallback(new Snackbar.Callback() {
-
-                    @Override
-                    public void onDismissed(Snackbar snackbar, int event) {
-                        if (!finish && isAudioFragmentShow()) {
-                            showPlayback();
-                        }
-                    }
-
-                    @Override
-                    public void onShown(Snackbar snackbar) {
-
-                    }
-                }).show();
+                        }).show();
             } else {
                 super.onBackPressed();
             }
@@ -580,11 +566,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         repository.getMemorySource().setCacheGenresDirty(true);
         repository.getMemorySource().setCacheFoldersDirty(true);
         repository.getMemorySource().setCacheVideoFoldersDirty(true);
-
-        Observable.zip(RxUtils.fromCallable(repository.resetAudioContentDatabase()),
-                RxUtils.fromCallable(repository.resetVideoContentDatabase()), (integer, integer2) -> Observable.empty())
-                .subscribeOn(Schedulers.io())
-                .subscribe();
     }
 
     private void addAudioFragment() {

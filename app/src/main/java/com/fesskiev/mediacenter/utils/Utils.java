@@ -7,10 +7,12 @@ import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,6 +72,20 @@ public class Utils {
         ViewGroup group = (ViewGroup) snack.getView();
         group.setBackgroundColor(ContextCompat.getColor(context, R.color.primary_dark));
         return snack;
+    }
+
+    public static Snackbar showTopCustomSnackbar(CoordinatorLayout coordinatorLayout,
+                                                 Context context, String text, int duration) {
+        Snackbar snackbar = Snackbar.make(coordinatorLayout, text, duration);
+
+        ViewGroup group = (ViewGroup) snackbar.getView();
+        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams)
+                group.getLayoutParams();
+        params.gravity = Gravity.TOP;
+        group.setLayoutParams(params);
+
+        group.setBackgroundColor(ContextCompat.getColor(context, R.color.primary_dark));
+        return snackbar;
     }
 
     public static Snackbar showInternetErrorCustomSnackbar(View view, Context context, int stringRes, int duration) {

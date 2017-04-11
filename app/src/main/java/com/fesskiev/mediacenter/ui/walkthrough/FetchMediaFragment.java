@@ -10,17 +10,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
-import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.fetch.FetchContentView;
-
-import rx.Observable;
-import rx.schedulers.Schedulers;
 
 
 public class FetchMediaFragment extends Fragment implements View.OnClickListener {
@@ -144,16 +138,12 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
         if (fetchMediaFilesManager.isFetchStart()) {
             stopFetchFiles();
         }
+        FileSystemService.stopFileSystemService(getContext().getApplicationContext());
+
         fetchMediaFilesManager.unregister();
     }
 
     private void stopFetchFiles() {
         FileSystemService.shouldContinue = false;
-
-        DataRepository repository = MediaApplication.getInstance().getRepository();
-        Observable.zip(RxUtils.fromCallable(repository.resetAudioContentDatabase()),
-                RxUtils.fromCallable(repository.resetVideoContentDatabase()), (integer, integer2) -> Observable.empty())
-                .subscribeOn(Schedulers.io())
-                .subscribe();
     }
 }

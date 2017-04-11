@@ -50,7 +50,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     public abstract MediaNavigationView getMediaNavigationView();
 
     private NotificationHelper notificationHelper;
-    private AudioPlayer audioPlayer;
+    protected AudioPlayer audioPlayer;
     private AudioFile currentTrack;
 
     protected View bottomSheet;

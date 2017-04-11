@@ -135,11 +135,6 @@ public class PlaybackService extends Service {
     private boolean loadError;
 
 
-    public static void startPlaybackService(Context context) {
-        Intent intent = new Intent(context, PlaybackService.class);
-        context.startService(intent);
-    }
-
     public static void startPlaybackForegroundService(Context context) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_START_FOREGROUND);
