@@ -75,7 +75,7 @@ public class FileSystemService extends JobService {
     public static final String ACTION_START_FETCH_MEDIA_CONTENT = "com.fesskiev.player.action.START_FETCH_MEDIA_CONTENT";
     public static final String ACTION_END_FETCH_MEDIA_CONTENT = "com.fesskiev.player.action.END_FETCH_MEDIA_CONTENT";
 
-    public static final String ACTION_VIDEO_FOLDER_CREATED= "com.fesskiev.player.action.VIDEO_FOLDER_CREATED";
+    public static final String ACTION_VIDEO_FOLDER_CREATED = "com.fesskiev.player.action.VIDEO_FOLDER_CREATED";
     public static final String ACTION_VIDEO_FOLDER_NAME = "com.fesskiev.player.action.VIDEO_FOLDER_NAME";
     public static final String ACTION_VIDEO_FILE = "com.fesskiev.player.action.VIDEO_FILE";
     public static final String ACTION_AUDIO_FOLDER_NAME = "com.fesskiev.player.action.AUDIO_FOLDER_NAME";
@@ -282,6 +282,9 @@ public class FileSystemService extends JobService {
         try {
             while (iterator.hasNext() && shouldContinue) {
                 n = iterator.next();
+                if (n.getAbsolutePath().equals(startPath)) {
+                    continue;
+                }
                 if (isPlainDir(n)) {
                     checkDir(n, scanType);
                 } else {

@@ -21,6 +21,8 @@ import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.ui.MainActivity;
+import com.fesskiev.mediacenter.ui.walkthrough.WalkthroughActivity;
+import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
 
@@ -49,6 +51,15 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
+        AppSettingsManager settingsManager = AppSettingsManager.getInstance();
+        if (settingsManager.isFirstStartApp()) {
+            startWalkthroughActivity();
+        } else {
+            startApplication();
+        }
+    }
+
+    private void startApplication() {
         repository = MediaApplication.getInstance().getRepository();
 
         FileSystemService.startFileSystemService(getApplicationContext());
@@ -66,6 +77,11 @@ public class SplashActivity extends AppCompatActivity {
         } else {
             animateAndFetchData(false);
         }
+    }
+
+    private void startWalkthroughActivity() {
+        startActivity(new Intent(this, WalkthroughActivity.class));
+        finish();
     }
 
     private void parseActionViewPath(String path) {

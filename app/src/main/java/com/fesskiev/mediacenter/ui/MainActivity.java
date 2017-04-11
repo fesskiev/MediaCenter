@@ -11,6 +11,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -49,6 +50,7 @@ import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.admob.AdMobHelper;
 import com.fesskiev.mediacenter.vk.VKActivity;
 import com.fesskiev.mediacenter.vk.VKAuthActivity;
+import com.fesskiev.mediacenter.widgets.dialogs.ExitDialog;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
 
@@ -487,29 +489,27 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            CoordinatorLayout view = (CoordinatorLayout) findViewById(R.id.main_content);
-            if (view != null) {
-                if (fetchMediaFilesManager.isFetchStart()) {
-                    Utils.showTopCustomSnackbar(view, getApplicationContext(),
-                            getString(R.string.splash_snackbar_stop_fetch),
-                            Snackbar.LENGTH_LONG)
-                            .setAction(getString(R.string.snack_exit_action), v -> {
-                                stopFetchFiles();
-                                finish();
-                            })
-                            .show();
-                    return;
-                }
-                Utils.showTopCustomSnackbar(view, getApplicationContext(),
-                        getString(R.string.snack_exit_text),
-                        Snackbar.LENGTH_LONG)
-                        .setAction(getString(R.string.snack_exit_action), v -> {
-                            finish();
-                        }).show();
-            } else {
-                super.onBackPressed();
-            }
+            processExit();
         }
+    }
+
+    private void processExit() {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.addToBackStack(null);
+
+        ExitDialog exitDialog;
+        if (fetchMediaFilesManager.isFetchStart()) {
+            exitDialog = ExitDialog.newInstance(getString(R.string.splash_snackbar_stop_fetch));
+        } else {
+            exitDialog = ExitDialog.newInstance(getString(R.string.snack_exit_text));
+        }
+        exitDialog.show(transaction, ExitDialog.class.getName());
+        exitDialog.setOnExitListener(() -> {
+            if (fetchMediaFilesManager.isFetchStart()) {
+                stopFetchFiles();
+            }
+            finish();
+        });
     }
 
     @Override

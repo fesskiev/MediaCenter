@@ -19,7 +19,7 @@
 
     <string name="product_price">Стоимость:</string>
 
-    <string name="snack_exit_text">Выйти из приложения?</string>
+    <string name="snack_exit_text">Вы уверены, что хотите выйти?</string>
     <string name="snack_exit_action">Выход</string>
 
     <string name="title_music_vk_activity">Вконтакте</string>

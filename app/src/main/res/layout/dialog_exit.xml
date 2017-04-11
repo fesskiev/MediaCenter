@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:minWidth="540dp"
+    android:minHeight="160dp"
+    android:padding="@dimen/activity_horizontal_margin"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/exitText"
+        style="@style/ExitDialogTextAppearance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableTop="@drawable/icon_logout"
+        android:drawablePadding="16dp"
+        android:ellipsize="end"
+        android:gravity="center"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="end"
+        android:splitMotionEvents="false">
+
+        <Button
+            android:id="@+id/buttonExitConfirm"
+            style="@style/WalkThroughButtonTextAppearance"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:background="?android:selectableItemBackground"
+            android:gravity="center_vertical"
+            android:minWidth="48dp"
+            android:paddingEnd="16dp"
+            android:paddingStart="16dp"
+            android:text="@string/dialog_permission_ok" />
+
+        <Button
+            android:id="@+id/buttonExitDismiss"
+            style="@style/WalkThroughButtonTextAppearance"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:background="?android:selectableItemBackground"
+            android:gravity="center_vertical"
+            android:minWidth="48dp"
+            android:paddingEnd="16dp"
+            android:paddingStart="16dp"
+            android:text="@string/dialog_permission_cancel" />
+
+    </LinearLayout>
+
+</LinearLayout>
