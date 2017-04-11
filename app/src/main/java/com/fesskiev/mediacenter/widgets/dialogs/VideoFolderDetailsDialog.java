@@ -76,7 +76,7 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
                 Utils.humanReadableByteCount(folderSize, false)));
 
         folderLengthText.setText(String.format(Locale.US, "%1$s %2$s", getString(R.string.folder_details_duration),
-                Utils.getDurationString(folderLength)));
+                Utils.getVideoFileTimeFormat(folderLength)));
 
         folderTrackCountText.setText(String.format(Locale.US, "%1$s %2$s", getString(R.string.folder_details_video_count),
                 folderTrackCount));
