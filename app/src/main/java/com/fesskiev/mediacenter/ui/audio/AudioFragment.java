@@ -161,4 +161,5 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
     public SwipeRefreshLayout getSwipeRefreshLayout() {
         return swipeRefreshLayout;
     }
+
 }

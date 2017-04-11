@@ -185,6 +185,10 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
         adapter.clearAdapter();
     }
 
+    public SwipeRefreshLayout getSwipeRefreshLayout() {
+        return swipeRefreshLayout;
+    }
+
     private static class VideoFoldersAdapter extends RecyclerView.Adapter<VideoFoldersAdapter.ViewHolder> {
 
         private WeakReference<Activity> activity;

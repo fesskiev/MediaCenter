@@ -162,6 +162,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 fetchMediaFilesManager.setTextPrimary();
                 showToolbarTimer();
 
+                disableSwipeRefresh();
 
                 if (isAudioFragmentShow()) {
                     clearPlayback();
@@ -185,6 +186,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             public void onFetchContentFinish() {
                 AnimationUtils.getInstance().animateBottomSheet(bottomSheet, true);
                 hideToolbarTimer();
+                enableSwipeRefresh();
             }
 
             @Override
@@ -206,6 +208,35 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             }
         });
 
+    }
+
+    private void disableSwipeRefresh() {
+        VideoFoldersFragment videoFragment = (VideoFoldersFragment) getSupportFragmentManager().
+                findFragmentByTag(VideoFoldersFragment.class.getName());
+        if (videoFragment != null) {
+            videoFragment.getSwipeRefreshLayout().setEnabled(false);
+        }
+
+        AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
+                findFragmentByTag(AudioFragment.class.getName());
+        if (audioFragment != null) {
+            audioFragment.getSwipeRefreshLayout().setEnabled(false);
+        }
+
+    }
+
+    private void enableSwipeRefresh() {
+        VideoFoldersFragment videoFragment = (VideoFoldersFragment) getSupportFragmentManager().
+                findFragmentByTag(VideoFoldersFragment.class.getName());
+        if (videoFragment != null) {
+            videoFragment.getSwipeRefreshLayout().setEnabled(true);
+        }
+
+        AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
+                findFragmentByTag(AudioFragment.class.getName());
+        if (audioFragment != null) {
+            audioFragment.getSwipeRefreshLayout().setEnabled(true);
+        }
     }
 
     private void showToolbarTimer() {
