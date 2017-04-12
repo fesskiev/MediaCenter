@@ -602,18 +602,7 @@ public class FileSystemService extends JobService {
         }
     }
 
-    private void getFoundMediaContent(Message msg) {
-        String path = (String) msg.obj;
-        AppLog.INFO("fetch found media: " + path);
 
-        observer.removeFoundPath(path);
-
-        sendStartFetchMediaBroadcast();
-
-        startScan(SCAN_TYPE.BOTH, path);
-
-        sendEndFetchMediaBroadcast();
-    }
 
     private void getAudioContent() {
         sendStartFetchMediaBroadcast();
@@ -635,6 +624,18 @@ public class FileSystemService extends JobService {
         sendStartFetchMediaBroadcast();
 
         startScan(SCAN_TYPE.BOTH, null);
+
+        sendEndFetchMediaBroadcast();
+    }
+
+    private void getFoundMediaContent(Message msg) {
+        String path = (String) msg.obj;
+        AppLog.INFO("fetch found media: " + path);
+        observer.removeFoundPath(path);
+
+        sendStartFetchMediaBroadcast();
+
+        startScan(SCAN_TYPE.BOTH, path);
 
         sendEndFetchMediaBroadcast();
     }

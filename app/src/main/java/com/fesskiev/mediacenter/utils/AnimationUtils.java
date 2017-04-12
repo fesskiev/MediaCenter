@@ -59,6 +59,8 @@ public class AnimationUtils {
             view.setAlpha(show ? 0f : 1f);
             view.animate()
                     .alpha(show ? 1f : 0f)
+                    .scaleX(show ? 1f : 0f)
+                    .scaleY(show ? 1f : 0f)
                     .setDuration(1000)
                     .setInterpolator(fastOutSlowInInterpolator);
     }
