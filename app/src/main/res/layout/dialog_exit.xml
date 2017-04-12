@@ -2,8 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:minWidth="540dp"
-    android:minHeight="160dp"
+    android:minWidth="380dp"
+    android:minHeight="90dp"
     android:padding="@dimen/activity_horizontal_margin"
     android:orientation="vertical">
 
@@ -12,8 +12,8 @@
         style="@style/ExitDialogTextAppearance"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:drawableTop="@drawable/icon_logout"
-        android:drawablePadding="16dp"
+        android:drawableStart="@drawable/icon_logout"
+        android:drawablePadding="8dp"
         android:ellipsize="end"
         android:gravity="center"/>
 
@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:baselineAligned="false"
         android:orientation="horizontal"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="15dp"
         android:layout_gravity="end"
         android:splitMotionEvents="false">
 
