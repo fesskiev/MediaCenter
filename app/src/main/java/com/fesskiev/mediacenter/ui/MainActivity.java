@@ -7,11 +7,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Animatable;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -159,34 +156,40 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         fetchMediaFilesManager = new FetchMediaFilesManager(null);
         fetchMediaFilesManager.isNeedTimer(false);
         fetchMediaFilesManager.setOnFetchMediaFilesListener(new FetchMediaFilesManager.OnFetchMediaFilesListener() {
+
             @Override
-            public void onFetchContentStart() {
+            public void onFetchMediaPrepare() {
                 fetchMediaFilesManager.setFetchContentView(mediaNavigationView.getFetchContentView());
                 fetchMediaFilesManager.setTextPrimary();
                 showToolbarTimer();
-
                 disableSwipeRefresh();
+            }
 
-                if (isAudioFragmentShow()) {
-                    clearPlayback();
-                    AnimationUtils.getInstance().animateBottomSheet(bottomSheet, false);
+            @Override
+            public void onFetchAudioContentStart() {
 
-                    AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
-                            findFragmentByTag(AudioFragment.class.getName());
-                    if (audioFragment != null) {
-                        audioFragment.clearAudioContent();
-                    }
-                } else if (isVideoFragmentShow()) {
-                    VideoFoldersFragment videoFragment = (VideoFoldersFragment) getSupportFragmentManager().
-                            findFragmentByTag(VideoFoldersFragment.class.getName());
-                    if (videoFragment != null) {
-                        videoFragment.clearVideoContent();
-                    }
+                clearPlayback();
+                AnimationUtils.getInstance().animateBottomSheet(bottomSheet, false);
+
+                AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
+                        findFragmentByTag(AudioFragment.class.getName());
+                if (audioFragment != null) {
+                    audioFragment.clearAudioContent();
                 }
             }
 
             @Override
-            public void onFetchContentFinish() {
+            public void onFetchVideoContentStart() {
+
+                VideoFoldersFragment videoFragment = (VideoFoldersFragment) getSupportFragmentManager().
+                        findFragmentByTag(VideoFoldersFragment.class.getName());
+                if (videoFragment != null) {
+                    videoFragment.clearVideoContent();
+                }
+            }
+
+            @Override
+            public void onFetchMediaContentFinish() {
                 AnimationUtils.getInstance().animateBottomSheet(bottomSheet, true);
                 hideToolbarTimer();
                 enableSwipeRefresh();

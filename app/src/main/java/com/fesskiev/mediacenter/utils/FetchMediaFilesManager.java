@@ -1,17 +1,19 @@
 package com.fesskiev.mediacenter.utils;
 
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.widgets.fetch.FetchContentView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import static com.fesskiev.mediacenter.services.FileSystemService.FetchFolderCreate.AUDIO;
+import static com.fesskiev.mediacenter.services.FileSystemService.FetchFolderCreate.VIDEO;
 
 
 public class FetchMediaFilesManager {
@@ -20,9 +22,13 @@ public class FetchMediaFilesManager {
 
     public interface OnFetchMediaFilesListener {
 
-        void onFetchContentStart();
+        void onFetchMediaPrepare();
 
-        void onFetchContentFinish();
+        void onFetchAudioContentStart();
+
+        void onFetchVideoContentStart();
+
+        void onFetchMediaContentFinish();
 
         void onAudioFolderCreated();
 
@@ -38,7 +44,8 @@ public class FetchMediaFilesManager {
 
     public FetchMediaFilesManager(FetchContentView fetchContentView) {
         this.fetchContentView = fetchContentView;
-        registerBroadcastReceiver();
+        EventBus.getDefault().register(this);
+        ;
     }
 
     public void setOnFetchMediaFilesListener(OnFetchMediaFilesListener l) {
@@ -46,111 +53,105 @@ public class FetchMediaFilesManager {
     }
 
     public void unregister() {
-        unregisterBroadcastReceiver();
+        EventBus.getDefault().unregister(this);
     }
 
-
-    private void registerBroadcastReceiver() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(FileSystemService.ACTION_START_FETCH_MEDIA_CONTENT);
-        filter.addAction(FileSystemService.ACTION_END_FETCH_MEDIA_CONTENT);
-        filter.addAction(FileSystemService.ACTION_AUDIO_FOLDER_CREATED);
-        filter.addAction(FileSystemService.ACTION_AUDIO_FOLDER_NAME);
-        filter.addAction(FileSystemService.ACTION_AUDIO_TRACK_NAME);
-        filter.addAction(FileSystemService.ACTION_VIDEO_FOLDER_CREATED);
-        filter.addAction(FileSystemService.ACTION_VIDEO_FOLDER_NAME);
-        filter.addAction(FileSystemService.ACTION_VIDEO_FILE);
-        LocalBroadcastManager.getInstance(MediaApplication.getInstance().getApplicationContext())
-                .registerReceiver(broadcastReceiver, filter);
-    }
-
-    private void unregisterBroadcastReceiver() {
-        LocalBroadcastManager.getInstance(MediaApplication.getInstance().getApplicationContext())
-                .unregisterReceiver(broadcastReceiver);
-    }
-
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(final Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case FileSystemService.ACTION_START_FETCH_MEDIA_CONTENT:
-                    if (listener != null) {
-                        listener.onFetchContentStart();
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onPlaybackStateEvent(FileSystemService fileSystemService) {
+        FileSystemService.SCAN_STATE scanState = fileSystemService.getScanState();
+        switch (scanState) {
+            case PREPARE:
+                if (listener != null) {
+                    listener.onFetchMediaPrepare();
+                }
+                break;
+            case SCANNING:
+                if (fetchContentView != null) {
+                    fetchContentView.setVisibleContent();
+                    if (needTimer) {
+                        fetchContentView.showTimer();
                     }
-                    if (fetchContentView != null) {
-                        fetchContentView.setVisibleContent();
-                        if (needTimer) {
-                            fetchContentView.showTimer();
+                }
+                fetchStart = true;
+
+                FileSystemService.SCAN_TYPE scanType = fileSystemService.getScanType();
+                switch (scanType) {
+                    case AUDIO:
+                        if (listener != null) {
+                            listener.onFetchAudioContentStart();
                         }
-                    }
-                    fetchStart = true;
-                    break;
-                case FileSystemService.ACTION_END_FETCH_MEDIA_CONTENT:
-                    if (listener != null) {
-                        listener.onFetchContentFinish();
-                        listener.onAudioFolderCreated();
-                        listener.onVideoFolderCreated();
-                    }
-
-                    if (fetchContentView != null) {
-                        fetchContentView.setInvisibleContent();
-                        if (needTimer) {
-                            fetchContentView.hideTimer();
-                            fetchContentView.clear();
+                        break;
+                    case VIDEO:
+                        if (listener != null) {
+                            listener.onFetchVideoContentStart();
                         }
-                    }
-                    fetchStart = false;
-                    folderVideoCount = 0;
-                    folderAudioCount = 0;
-                    break;
-                case FileSystemService.ACTION_AUDIO_FOLDER_NAME:
-                    String folderName =
-                            intent.getStringExtra(FileSystemService.EXTRA_AUDIO_FOLDER_NAME);
-                    if (fetchContentView != null) {
-                        fetchContentView.setFolderName(folderName);
-                    }
-                    break;
+                        break;
+                    case BOTH:
+                        if (listener != null) {
+                            listener.onFetchAudioContentStart();
+                            listener.onFetchVideoContentStart();
+                        }
+                        break;
+                }
+                break;
+            case FINISHED:
+                if (listener != null) {
+                    listener.onFetchMediaContentFinish();
+                    listener.onAudioFolderCreated();
+                    listener.onVideoFolderCreated();
+                }
 
-                case FileSystemService.ACTION_AUDIO_FOLDER_CREATED:
-                    folderAudioCount++;
-                    if (listener != null && folderAudioCount == DELAY) {
-                        listener.onAudioFolderCreated();
-                        folderAudioCount = 0;
+                if (fetchContentView != null) {
+                    fetchContentView.setInvisibleContent();
+                    if (needTimer) {
+                        fetchContentView.hideTimer();
+                        fetchContentView.clear();
                     }
-                    break;
-                case FileSystemService.ACTION_AUDIO_TRACK_NAME:
-                    String trackName =
-                            intent.getStringExtra(FileSystemService.EXTRA_AUDIO_TRACK_NAME);
-                    if (fetchContentView != null) {
-                        fetchContentView.setFileName(trackName);
-                    }
-                    break;
+                }
+                fetchStart = false;
+                folderVideoCount = 0;
+                folderAudioCount = 0;
+                break;
+        }
+    }
 
-                case FileSystemService.ACTION_VIDEO_FOLDER_NAME:
-                    String fName =
-                            intent.getStringExtra(FileSystemService.EXTRA_VIDEO_FOLDER_NAME);
-                    if (fetchContentView != null) {
-                        fetchContentView.setFolderName(fName);
-                    }
-                    break;
-                case FileSystemService.ACTION_VIDEO_FOLDER_CREATED:
-                    folderVideoCount++;
-                    if (listener != null && folderVideoCount == DELAY) {
-                        listener.onVideoFolderCreated();
-                        folderVideoCount = 0;
-                    }
-                    break;
-                case FileSystemService.ACTION_VIDEO_FILE:
-                    String videoFileName =
-                            intent.getStringExtra(FileSystemService.EXTRA_VIDEO_FILE_NAME);
-                    if (fetchContentView != null) {
-                        fetchContentView.setFileName(videoFileName);
-                    }
-                    break;
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onFetchObjectEvent(FileSystemService.FetchDescription fetchDescription) {
+        if (fetchContentView != null) {
+
+            String folderName = fetchDescription.getFolderName();
+            if (folderName != null) {
+                fetchContentView.setFolderName(folderName);
+            }
+
+            String fileName = fetchDescription.getFileName();
+            if (fileName != null) {
+                fetchContentView.setFileName(fileName);
             }
         }
-    };
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onFetchFolderCreate(FileSystemService.FetchFolderCreate fetchFolderCreate) {
+        int type = fetchFolderCreate.getType();
+        switch (type) {
+            case AUDIO:
+                folderAudioCount++;
+                if (listener != null && folderAudioCount == DELAY) {
+                    listener.onAudioFolderCreated();
+                    folderAudioCount = 0;
+                }
+                break;
+            case VIDEO:
+                folderVideoCount++;
+                if (listener != null && folderVideoCount == DELAY) {
+                    listener.onVideoFolderCreated();
+                    folderVideoCount = 0;
+                }
+                break;
+        }
+
+    }
 
     public void setFetchContentView(FetchContentView fetchContentView) {
         this.fetchContentView = fetchContentView;

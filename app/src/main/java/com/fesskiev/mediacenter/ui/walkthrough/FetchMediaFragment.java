@@ -63,14 +63,25 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
         fetchMediaFilesManager.isNeedTimer(true);
         fetchMediaFilesManager.setTextWhite();
         fetchMediaFilesManager.setOnFetchMediaFilesListener(new FetchMediaFilesManager.OnFetchMediaFilesListener() {
+
             @Override
-            public void onFetchContentStart() {
+            public void onFetchMediaPrepare() {
                 fetchText.setVisibility(View.GONE);
                 hideButtons();
             }
 
             @Override
-            public void onFetchContentFinish() {
+            public void onFetchAudioContentStart() {
+
+            }
+
+            @Override
+            public void onFetchVideoContentStart() {
+
+            }
+
+            @Override
+            public void onFetchMediaContentFinish() {
                 fetchMediaFilesSuccess();
             }
 

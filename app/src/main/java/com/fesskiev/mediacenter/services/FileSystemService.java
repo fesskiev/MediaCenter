@@ -16,7 +16,6 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.os.Process;
 import android.provider.MediaStore;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.fesskiev.mediacenter.MediaApplication;
@@ -38,6 +37,7 @@ import com.fesskiev.mediacenter.utils.StorageUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -53,8 +53,12 @@ import rx.Observable;
 
 public class FileSystemService extends JobService {
 
-    private enum SCAN_TYPE {
+    public enum SCAN_TYPE {
         AUDIO, VIDEO, BOTH
+    }
+
+    public enum SCAN_STATE {
+        PREPARE, SCANNING, FINISHED
     }
 
 
@@ -72,20 +76,6 @@ public class FileSystemService extends JobService {
 
     private static final String ACTION_CHECK_DOWNLOAD_FOLDER = "com.fesskiev.player.action.CHECK_DOWNLOAD_FOLDER";
 
-    public static final String ACTION_START_FETCH_MEDIA_CONTENT = "com.fesskiev.player.action.START_FETCH_MEDIA_CONTENT";
-    public static final String ACTION_END_FETCH_MEDIA_CONTENT = "com.fesskiev.player.action.END_FETCH_MEDIA_CONTENT";
-
-    public static final String ACTION_VIDEO_FOLDER_CREATED = "com.fesskiev.player.action.VIDEO_FOLDER_CREATED";
-    public static final String ACTION_VIDEO_FOLDER_NAME = "com.fesskiev.player.action.VIDEO_FOLDER_NAME";
-    public static final String ACTION_VIDEO_FILE = "com.fesskiev.player.action.VIDEO_FILE";
-    public static final String ACTION_AUDIO_FOLDER_NAME = "com.fesskiev.player.action.AUDIO_FOLDER_NAME";
-    public static final String ACTION_AUDIO_TRACK_NAME = "com.fesskiev.player.action.AUDIO_TRACK_NAME";
-    public static final String ACTION_AUDIO_FOLDER_CREATED = "com.fesskiev.player.action.AUDIO_FOLDER_CREATED";
-
-    public static final String EXTRA_VIDEO_FOLDER_NAME = "com.fesskiev.player.extra.EXTRA_VIDEO_FOLDER_NAME";
-    public static final String EXTRA_AUDIO_FOLDER_NAME = "com.fesskiev.player.extra.EXTRA_AUDIO_FOLDER_NAME";
-    public static final String EXTRA_AUDIO_TRACK_NAME = "com.fesskiev.player.extra.EXTRA_AUDIO_TRACK_NAME";
-    public static final String EXTRA_VIDEO_FILE_NAME = "com.fesskiev.player.extra.EXTRA_VIDEO_FILE_NAME";
     public static final String EXTRA_MEDIA_PATH = "com.fesskiev.player.extra.EXTRA_MEDIA_PATH";
 
 
@@ -94,6 +84,9 @@ public class FileSystemService extends JobService {
     private MediaObserver observer;
 
     public static volatile boolean shouldContinue;
+
+    private SCAN_TYPE scanType;
+    private SCAN_STATE scanState;
 
     public static void startFileSystemService(Context context) {
         Intent intent = new Intent(context, FileSystemService.class);
@@ -241,18 +234,42 @@ public class FileSystemService extends JobService {
         return START_NOT_STICKY;
     }
 
-    private void startScan(SCAN_TYPE scanType, String path) {
-        shouldContinue = true;
+    private void prepareScan() {
+        scanState = SCAN_STATE.PREPARE;
+        EventBus.getDefault().post(FileSystemService.this);
+    }
 
+    private void startScan() {
+        shouldContinue = true;
+        scanState = SCAN_STATE.SCANNING;
+        EventBus.getDefault().post(FileSystemService.this);
+    }
+
+    private void finishScan() {
+        scanState = SCAN_STATE.FINISHED;
+        shouldContinue = false;
+        EventBus.getDefault().post(FileSystemService.this);
+
+    }
+
+    private void startScan(SCAN_TYPE scanType, String path) {
+        prepareScan();
         if (path == null) {
             List<StorageUtils.StorageInfo> storageInfos = StorageUtils.getStorageList();
-            for (StorageUtils.StorageInfo storageInfo : storageInfos) {
-                Log.e(TAG, "storage: " + storageInfo.getDisplayName() + " path: " + storageInfo.path);
-                fileWalk(storageInfo.path, scanType);
+            if (storageInfos != null && !storageInfos.isEmpty()) {
+                startScan();
+                for (StorageUtils.StorageInfo storageInfo : storageInfos) {
+                    Log.e(TAG, "storage: " + storageInfo.getDisplayName() + " path: " + storageInfo.path);
+                    fileWalk(storageInfo.path, scanType);
+                }
             }
         } else {
+            startScan();
+
             fileWalk(path, scanType);
         }
+
+        finishScan();
     }
 
     private void fileWalk(String startPath, SCAN_TYPE scanType) {
@@ -336,6 +353,18 @@ public class FileSystemService extends JobService {
 
     }
 
+    private void sendFileDescription(String name) {
+        EventBus.getDefault().post(new FetchDescription(null, name));
+    }
+
+    private void sendFolderDescription(String name) {
+        EventBus.getDefault().post(new FetchDescription(name, null));
+    }
+
+    private void sendFolderCreated(int type) {
+        EventBus.getDefault().post(new FetchFolderCreate(type));
+    }
+
     private void filterVideoFolders(File directoryFile) {
         File[] videoPaths = directoryFile.listFiles(videoFilter());
         if (videoPaths != null && videoPaths.length > 0) {
@@ -347,7 +376,8 @@ public class FileSystemService extends JobService {
             videoFolder.id = UUID.randomUUID().toString();
             videoFolder.timestamp = System.currentTimeMillis();
 
-            sendVideoFolderNameBroadcast(videoFolder.folderName);
+
+            sendFolderDescription(videoFolder.folderName);
 
             for (File path : videoPaths) {
 
@@ -356,12 +386,14 @@ public class FileSystemService extends JobService {
 
                 LocalDataSource.getInstance().insertVideoFile(videoFile);
 
-                sendVideoFileBroadcast(videoFile.description);
+                sendFileDescription(videoFile.description);
+
+
             }
 
             MediaApplication.getInstance().getRepository().insertVideoFolder(videoFolder);
 
-            sendVideoFolderCreatedBroadcast();
+            sendFolderCreated(FetchFolderCreate.VIDEO);
 
         }
     }
@@ -386,7 +418,7 @@ public class FileSystemService extends JobService {
             audioFolder.id = UUID.randomUUID().toString();
             audioFolder.timestamp = System.currentTimeMillis();
 
-            sendAudioFolderNameBroadcast(audioFolder.folderName);
+            sendFolderDescription(audioFolder.folderName);
 
             for (File path : audioPaths) {
 
@@ -394,13 +426,13 @@ public class FileSystemService extends JobService {
 
                     MediaApplication.getInstance().getRepository().insertAudioFile(audioFile);
 
-                    sendAudioTrackNameBroadcast(audioFile.artist + "-" + audioFile.title);
+                    sendFileDescription(audioFile.artist + "-" + audioFile.title);
                 });
             }
 
             MediaApplication.getInstance().getRepository().insertAudioFolder(audioFolder);
 
-            sendAudioFolderCreatedBroadcast();
+            sendFolderCreated(FetchFolderCreate.AUDIO);
         }
     }
 
@@ -602,30 +634,19 @@ public class FileSystemService extends JobService {
         }
     }
 
-
-
     private void getAudioContent() {
-        sendStartFetchMediaBroadcast();
-
-        startScan(SCAN_TYPE.AUDIO, null);
-
-        sendEndFetchMediaBroadcast();
+        scanType = SCAN_TYPE.AUDIO;
+        startScan(scanType, null);
     }
 
     private void getVideoContent() {
-        sendStartFetchMediaBroadcast();
-
-        startScan(SCAN_TYPE.VIDEO, null);
-
-        sendEndFetchMediaBroadcast();
+        scanType = SCAN_TYPE.VIDEO;
+        startScan(scanType, null);
     }
 
     private void getMediaContent() {
-        sendStartFetchMediaBroadcast();
-
-        startScan(SCAN_TYPE.BOTH, null);
-
-        sendEndFetchMediaBroadcast();
+        scanType = SCAN_TYPE.BOTH;
+        startScan(scanType, null);
     }
 
     private void getFoundMediaContent(Message msg) {
@@ -633,64 +654,14 @@ public class FileSystemService extends JobService {
         AppLog.INFO("fetch found media: " + path);
         observer.removeFoundPath(path);
 
-        sendStartFetchMediaBroadcast();
+        scanType = SCAN_TYPE.BOTH;
+        startScan(scanType, path);
 
-        startScan(SCAN_TYPE.BOTH, path);
-
-        sendEndFetchMediaBroadcast();
     }
-
 
     public boolean checkDownloadFolder(File file) {
         return file.getAbsolutePath().equals(CacheManager.CHECK_DOWNLOADS_FOLDER_PATH);
     }
-
-    public void sendStartFetchMediaBroadcast() {
-        Intent intent = new Intent(ACTION_START_FETCH_MEDIA_CONTENT);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    public void sendEndFetchMediaBroadcast() {
-        if (shouldContinue) {
-            Intent intent = new Intent(ACTION_END_FETCH_MEDIA_CONTENT);
-            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-        }
-    }
-
-    public void sendAudioTrackNameBroadcast(String trackName) {
-        Intent intent = new Intent(ACTION_AUDIO_TRACK_NAME);
-        intent.putExtra(EXTRA_AUDIO_TRACK_NAME, trackName);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    public void sendAudioFolderNameBroadcast(String folderName) {
-        Intent intent = new Intent(ACTION_AUDIO_FOLDER_NAME);
-        intent.putExtra(EXTRA_AUDIO_FOLDER_NAME, folderName);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    public void sendAudioFolderCreatedBroadcast() {
-        Intent intent = new Intent(ACTION_AUDIO_FOLDER_CREATED);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    public void sendVideoFolderCreatedBroadcast() {
-        Intent intent = new Intent(ACTION_VIDEO_FOLDER_CREATED);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    public void sendVideoFolderNameBroadcast(String folderName) {
-        Intent intent = new Intent(ACTION_VIDEO_FOLDER_NAME);
-        intent.putExtra(EXTRA_VIDEO_FOLDER_NAME, folderName);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    public void sendVideoFileBroadcast(String fileName) {
-        Intent intent = new Intent(ACTION_VIDEO_FILE);
-        intent.putExtra(EXTRA_VIDEO_FILE_NAME, fileName);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
 
     private FilenameFilter audioFilter() {
         return (dir, name) -> {
@@ -748,4 +719,48 @@ public class FileSystemService extends JobService {
         }
         return !canon.getCanonicalFile().equals(canon.getAbsoluteFile());
     }
+
+    public SCAN_TYPE getScanType() {
+        return scanType;
+    }
+
+    public SCAN_STATE getScanState() {
+        return scanState;
+    }
+
+    public static class FetchDescription {
+
+        private String folderName;
+        private String fileName;
+
+        public FetchDescription(String folderName, String fileName) {
+            this.folderName = folderName;
+            this.fileName = fileName;
+        }
+
+        public String getFolderName() {
+            return folderName;
+        }
+
+        public String getFileName() {
+            return fileName;
+        }
+    }
+
+    public static class FetchFolderCreate {
+
+        public static final int AUDIO = 0;
+        public static final int VIDEO = 1;
+
+        private int type;
+
+        public FetchFolderCreate(int type) {
+            this.type = type;
+        }
+
+        public int getType() {
+            return type;
+        }
+    }
+
 }
