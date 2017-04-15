@@ -321,7 +321,6 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     }
 
     private void tryConvertAudioFile() {
-        Log.e("error", "LOAD FILE ERROR!");
         AudioConverterHelper.getInstance().convertAudioIfNeed(audioPlayer.getCurrentTrack(),
                 new AudioConverterHelper.OnConvertProcessListener() {
 

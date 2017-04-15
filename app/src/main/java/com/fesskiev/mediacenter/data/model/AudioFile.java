@@ -37,6 +37,7 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
     private Context context;
     public String id;
     public File filePath;
+    public File convertedPath;
     public String artist;
     public String title;
     public String album;
@@ -243,7 +244,10 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
 
     @Override
     public String getFilePath() {
-        return filePath.getPath();
+        if (convertedPath != null) {
+            return convertedPath.getAbsolutePath();
+        }
+        return filePath.getAbsolutePath();
     }
 
     @Override
@@ -306,7 +310,8 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
     public String toString() {
         return "AudioFile{" +
                 "id='" + id + "\n" +
-                ", filePath=" + filePath +
+                ", filePath=" + filePath + "\n" +
+                ", convertedPath=" + convertedPath + "\n" +
                 ", artist='" + artist + "\n" +
                 ", title='" + title + "\n" +
                 ", album='" + album + "\n" +

@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.util.List;
 
 import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class AudioConverterHelper {
 
@@ -116,7 +115,7 @@ public class AudioConverterHelper {
 
                 @Override
                 public void onSuccess(String message) {
-                    audioFile.filePath = convertedFile;
+                    audioFile.convertedPath = convertedFile;
                     listener.onSuccess(audioFile);
                 }
 
@@ -144,7 +143,6 @@ public class AudioConverterHelper {
                     if (TextUtils.isEmpty(path)) {
                         convertAudio(audioFile, AudioFormat.WAV, listener);
                     } else {
-                        audioFile.filePath = new File(path);
                         listener.onSuccess(audioFile);
                     }
                 });

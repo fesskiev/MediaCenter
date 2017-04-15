@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:drawableTop="@drawable/icon_permission"
-        android:drawablePadding="8dp"
+        android:drawablePadding="16dp"
         android:ellipsize="end"
         android:gravity="center"
         android:text="@string/permission_read_external_storage" />
