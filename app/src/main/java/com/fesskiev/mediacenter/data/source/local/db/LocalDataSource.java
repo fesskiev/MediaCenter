@@ -268,7 +268,7 @@ public class LocalDataSource implements LocalSource {
 
         String sql = String.format("SELECT * FROM %s WHERE %s",
                 DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
-                DatabaseHelper.TRACK_PATH + "=" + "'" + path + "'");
+                DatabaseHelper.TRACK_PATH + "=" + "'" + path.replaceAll("'", "''") + "'");
 
         Cursor cursor = briteDatabase.query(sql);
 
