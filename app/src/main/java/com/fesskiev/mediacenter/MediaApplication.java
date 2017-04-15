@@ -54,16 +54,16 @@ public class MediaApplication extends MultiDexApplication {
 
         AudioConverterHelper.getInstance()
                 .loadFFmpegLibrary(new AudioConverterHelper.OnConverterLibraryLoadListener() {
-            @Override
-            public void onSuccess() {
-                Log.e("ffmpef", "FFMPEG LOAD");
-            }
+                    @Override
+                    public void onSuccess() {
+                        Log.e("ffmpef", "FFMPEG LOAD");
+                    }
 
-            @Override
-            public void onFailure() {
-                Log.e("ffmpef", "FFMPEG FAIL");
-            }
-        });
+                    @Override
+                    public void onFailure() {
+                        Log.e("ffmpef", "FFMPEG FAIL");
+                    }
+                });
 
         RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
             @Override

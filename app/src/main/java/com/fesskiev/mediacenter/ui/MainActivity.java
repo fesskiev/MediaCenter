@@ -77,6 +77,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         setContentView(R.layout.activity_main);
 
         settingsManager = AppSettingsManager.getInstance();
+        FileSystemService.startFileSystemService(getApplicationContext());
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

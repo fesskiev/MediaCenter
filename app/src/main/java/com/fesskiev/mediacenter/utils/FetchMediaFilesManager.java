@@ -45,7 +45,6 @@ public class FetchMediaFilesManager {
     public FetchMediaFilesManager(FetchContentView fetchContentView) {
         this.fetchContentView = fetchContentView;
         EventBus.getDefault().register(this);
-        ;
     }
 
     public void setOnFetchMediaFilesListener(OnFetchMediaFilesListener l) {

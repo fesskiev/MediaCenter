@@ -71,7 +71,10 @@ public class PlayPauseFloatingButton extends FloatingActionButton {
 
     public void finishLoading() {
         showTimer = false;
-        ((AnimatedVectorDrawable) getDrawable()).stop();
-        setImageDrawable(null);
+        AnimatedVectorDrawable drawable = ((AnimatedVectorDrawable) getDrawable());
+        if(drawable != null){
+            drawable.stop();
+            setImageDrawable(null);
+        }
     }
 }

@@ -184,12 +184,10 @@ public class AudioPlayerActivity extends AnalyticsActivity {
             }
         });
 
+        controlView.setPlay(lastPlaying);
         setAudioTrackValues(audioPlayer.getCurrentTrack());
 
         EventBus.getDefault().register(this);
-
-        controlView.setPlay(false);
-        controlView.startLoading();
 
         PlaybackService.requestPlaybackStateIfNeed(getApplicationContext());
 

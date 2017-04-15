@@ -10,7 +10,7 @@ import java.io.IOException;
 
 public class CacheManager {
 
-    private final static String EXTERNAL_STORAGE = Environment.getExternalStorageDirectory().toString();
+    public final static String EXTERNAL_STORAGE = Environment.getExternalStorageDirectory().toString();
     private final static String DOWNLOADS_FOLDER_PATH = EXTERNAL_STORAGE + "/MediaCenter/Downloads/";
     private final static String USER_PHOTO_PATH = EXTERNAL_STORAGE + "/MediaCenter/UserPhoto/";
     private final static String TEMP_PATH = EXTERNAL_STORAGE + "/MediaCenter/Temp/";

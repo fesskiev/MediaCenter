@@ -114,7 +114,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
                 togglePlayPause();
             }
         });
-        playPauseButton.setPlay(false);
+        playPauseButton.setPlay(lastPlaying);
 
         bottomSheet = findViewById(R.id.bottom_sheet);
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
@@ -303,9 +303,6 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onCurrentTrackEvent(AudioFile currentTrack) {
         this.currentTrack = currentTrack;
-
-        lastLoadSuccess = false;
-        playPauseButton.startLoading();
 
         setMusicFileInfo(currentTrack);
         hideEmptyTrackCard();

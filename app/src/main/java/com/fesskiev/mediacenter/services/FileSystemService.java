@@ -299,7 +299,8 @@ public class FileSystemService extends JobService {
         try {
             while (iterator.hasNext() && shouldContinue) {
                 n = iterator.next();
-                if (n.getAbsolutePath().equals(startPath)) {
+
+                if (n.getAbsolutePath().equals(CacheManager.EXTERNAL_STORAGE)) {
                     continue;
                 }
                 if (isPlainDir(n)) {
@@ -399,6 +400,7 @@ public class FileSystemService extends JobService {
     }
 
     private void filterAudioFolders(File directoryFile) {
+
         File[] audioPaths = directoryFile.listFiles(audioFilter());
         if (audioPaths != null && audioPaths.length > 0) {
 
@@ -419,6 +421,7 @@ public class FileSystemService extends JobService {
             audioFolder.timestamp = System.currentTimeMillis();
 
             sendFolderDescription(audioFolder.folderName);
+            AppLog.INFO("FOLDER CREATED: " + audioFolder.toString());
 
             for (File path : audioPaths) {
 

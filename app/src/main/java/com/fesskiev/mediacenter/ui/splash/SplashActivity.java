@@ -8,7 +8,6 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
@@ -19,7 +18,6 @@ import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.source.DataRepository;
-import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.ui.MainActivity;
 import com.fesskiev.mediacenter.ui.walkthrough.WalkthroughActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
@@ -61,8 +59,6 @@ public class SplashActivity extends AppCompatActivity {
 
     private void startApplication() {
         repository = MediaApplication.getInstance().getRepository();
-
-        FileSystemService.startFileSystemService(getApplicationContext());
 
         Intent intent = getIntent();
         String action = intent.getAction();
