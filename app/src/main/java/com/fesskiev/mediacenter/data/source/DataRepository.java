@@ -181,6 +181,10 @@ public class DataRepository {
         return localSource.getAudioFileByPath(path);
     }
 
+    public Observable<AudioFolder> getAudioFolderByPath(String path) {
+        return localSource.getAudioFolderByPath(path);
+    }
+
     public Observable<AudioFolder> getSelectedAudioFolder() {
         return localSource.getSelectedAudioFolder();
     }

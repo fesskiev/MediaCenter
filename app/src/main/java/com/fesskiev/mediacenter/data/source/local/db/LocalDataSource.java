@@ -586,6 +586,17 @@ public class LocalDataSource implements LocalSource {
     }
 
     @Override
+    public Observable<AudioFolder> getAudioFolderByPath(String path) {
+
+        String sql = String.format("SELECT * FROM %s WHERE %s",
+                DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME,
+                DatabaseHelper.FOLDER_PATH + "=" + "'" + path + "'");
+
+        return briteDatabase.createQuery(DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME, sql)
+                .mapToOne(AudioFolder::new);
+    }
+
+    @Override
     public Observable<List<String>> getFolderFilePaths(String name) {
 
         String sql = String.format("SELECT * FROM %s WHERE %s",

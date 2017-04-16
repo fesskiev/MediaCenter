@@ -62,7 +62,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TRACK_SELECTED = "TrackSelected";
     public static final String TRACK_HIDDEN = "TrackHidden";
 
-
+    private static final String PRIMARY_TYPE = "TEXT PRIMARY KEY";
     private static final String KEY_TYPE = "TEXT NOT NULL";
     private static final String TEXT_TYPE = "TEXT";
     private static final String INTEGER_TYPE = "INTEGER";
@@ -71,7 +71,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             VIDEO_FILES_TABLE_NAME + " " +
             "(" + " " +
             ID + " " + KEY_TYPE + " ," +
-            VIDEO_FILE_PATH + " " + TEXT_TYPE + " ," +
+            VIDEO_FILE_PATH + " " + PRIMARY_TYPE + " ," +
             VIDEO_FRAME_PATH + " " + TEXT_TYPE + " ," +
             VIDEO_RESOLUTION + " " + TEXT_TYPE + " ," +
             VIDEO_DESCRIPTION + " " + TEXT_TYPE + " ," +
@@ -88,7 +88,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             AUDIO_FOLDERS_TABLE_NAME + " " +
             "(" + " " +
             ID + " " + KEY_TYPE + " ," +
-            FOLDER_PATH + " " + TEXT_TYPE + " ," +
+            FOLDER_PATH + " " + PRIMARY_TYPE + " ," +
             FOLDER_NAME + " " + TEXT_TYPE + " ," +
             FOLDER_COVER + " " + TEXT_TYPE + " ," +
             FOLDER_TIMESTAMP + " " + INTEGER_TYPE + " ," +
@@ -101,7 +101,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             VIDEO_FOLDERS_TABLE_NAME + " " +
             "(" + " " +
             ID + " " + KEY_TYPE + " ," +
-            FOLDER_PATH + " " + TEXT_TYPE + " ," +
+            FOLDER_PATH + " " + PRIMARY_TYPE + " ," +
             FOLDER_NAME + " " + TEXT_TYPE + " ," +
             FOLDER_COVER + " " + TEXT_TYPE + " ," +
             FOLDER_TIMESTAMP + " " + INTEGER_TYPE + " ," +
@@ -114,7 +114,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             AUDIO_TRACKS_TABLE_NAME + " " +
             "(" + " " +
             ID + " " + KEY_TYPE + " ," +
-            TRACK_PATH + " " + TEXT_TYPE + " ," +
+            TRACK_PATH + " " + PRIMARY_TYPE + " ," +
             TRACK_ARTIST + " " + TEXT_TYPE + " ," +
             TRACK_TITLE + " " + TEXT_TYPE + " ," +
             TRACK_ALBUM + " " + TEXT_TYPE + " ," +

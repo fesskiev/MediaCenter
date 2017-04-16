@@ -4,10 +4,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
@@ -26,6 +27,7 @@ import com.fesskiev.mediacenter.utils.Utils;
 
 import java.io.File;
 import java.util.List;
+import java.util.UUID;
 
 import rx.Observable;
 import rx.Subscription;
@@ -85,53 +87,102 @@ public class SplashActivity extends AppCompatActivity {
                 .subscribeOn(Schedulers.io())
                 .flatMap(contain -> {
                     if (contain) {
-                        return repository.getAudioFileByPath(path);
+                        return selectAudioFolderAnFile(path);
                     }
-                    return parseAudioFile(path);
+                    return parseAudioFolder(path);
                 })
                 .first()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::openPlayURIAudioFile);
+                .subscribe(v -> animateAndFetchData(true));
 
     }
 
-    private void openPlayURIAudioFile(AudioFile audioFile) {
-        if (audioFile != null) {
-            audioFile.isSelected = true;
-            repository.updateSelectedAudioFile(audioFile);
-            animateAndFetchData(true);
-        }
-    }
 
-    private Observable<AudioFile> parseAudioFile(String path) {
-        return repository.getAudioFolders()
-                .flatMap(audioFolders -> Observable.just(getAudioFolderByPath(audioFolders, new File(path).getParent())))
-                .flatMap(audioFolder -> Observable.just(new AudioFile(getApplicationContext(), new File(path),
-                        audioFolder == null ? "" : audioFolder.id, null)))
+    private Observable<Void> selectAudioFolderAnFile(String path) {
+        return repository.getAudioFileByPath(path)
                 .flatMap(audioFile -> {
-                    if (!TextUtils.isEmpty(audioFile.id)) {
-
-                        repository.insertAudioFile(audioFile);
-
-                        repository.getMemorySource().setCacheArtistsDirty(true);
-                        repository.getMemorySource().setCacheGenresDirty(true);
-                        repository.getMemorySource().setCacheFoldersDirty(true);
+                    if (audioFile != null) {
+                        audioFile.isSelected = true;
+                        repository.updateSelectedAudioFile(audioFile);
                     }
                     return Observable.just(audioFile);
+                })
+                .flatMap(audioFile -> repository.getAudioFolderByPath(new File(path).getParent()))
+                .flatMap(audioFolder -> {
+                    if (audioFolder != null) {
+                        audioFolder.isSelected = true;
+                        repository.updateSelectedAudioFolder(audioFolder);
+                    }
+                    return Observable.just(null);
                 });
-
-
     }
 
-    private AudioFolder getAudioFolderByPath(List<AudioFolder> audioFolders, String path) {
-        for (AudioFolder audioFolder : audioFolders) {
-            if (audioFolder.folderPath.getAbsolutePath().equals(path)) {
-                return audioFolder;
+    private Observable<Void> parseAudioFolder(String path) {
+        return Observable.just(new File(path))
+                .flatMap(file -> {
+                    File dir = file.getParentFile();
+                    if (dir.isDirectory()) {
+                        createParsingFolderSnackBar(dir.getName());
+                        return Observable.just(dir);
+                    }
+                    return Observable.just(null);
+
+                }).flatMap(dir -> {
+                    if (dir != null) {
+                        parseAudioFolderAndFile(dir, path);
+                    }
+                    return Observable.just(null);
+                });
+    }
+
+    private void parseAudioFolderAndFile(File dir, String path) {
+        AudioFolder audioFolder = new AudioFolder();
+
+        audioFolder.folderPath = dir;
+        audioFolder.folderName = dir.getName();
+        audioFolder.id = UUID.randomUUID().toString();
+        audioFolder.timestamp = System.currentTimeMillis();
+
+        File[] filterImages = dir.listFiles((d, name) -> {
+            String lowercaseName = name.toLowerCase();
+            return (lowercaseName.endsWith(".png") || lowercaseName.endsWith(".jpg"));
+        });
+        if (filterImages != null && filterImages.length > 0) {
+            audioFolder.folderImage = filterImages[0];
+        }
+
+
+        File[] audioPaths = dir.listFiles((d, name) -> {
+            String lowercaseName = name.toLowerCase();
+            return lowercaseName.endsWith(".mp3") || lowercaseName.endsWith(".flac") || lowercaseName.endsWith(".wav");
+        });
+
+        if (audioPaths != null && audioPaths.length > 0) {
+            for (File p : audioPaths) {
+                new AudioFile(getApplicationContext(), p, audioFolder.id, audioFile -> {
+
+                    MediaApplication.getInstance().getRepository().insertAudioFile(audioFile);
+
+                    if (p.getAbsolutePath().equals(path)) {
+                        Log.d("test", "parse select file: " + audioFile.toString());
+                        audioFile.isSelected = true;
+                        repository.updateSelectedAudioFile(audioFile);
+                    }
+                });
             }
         }
-        return null;
+
+        MediaApplication.getInstance().getRepository().insertAudioFolder(audioFolder);
+
+        Log.d("test", "parse select folder: " + audioFolder.toString());
+        audioFolder.isSelected = true;
+        repository.updateSelectedAudioFolder(audioFolder);
     }
 
+    private void createParsingFolderSnackBar(String name) {
+        Utils.showCustomSnackbar(findViewById(R.id.splashRoot),
+                getApplicationContext(), "Start parsing audio folders: " + name, Snackbar.LENGTH_LONG).show();
+    }
 
     private void animateAndFetchData(boolean fromAction) {
         ImageView appLogo = (ImageView) findViewById(R.id.appLogo);

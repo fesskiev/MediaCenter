@@ -37,6 +37,7 @@ import com.fesskiev.mediacenter.ui.settings.SettingsActivity;
 import com.fesskiev.mediacenter.ui.splash.SplashActivity;
 import com.fesskiev.mediacenter.ui.video.VideoFoldersFragment;
 import com.fesskiev.mediacenter.utils.AnimationUtils;
+import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
@@ -82,7 +83,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         AnimationUtils.getInstance().animateToolbar(toolbar);
-
 
         timerView = (ImageView) findViewById(R.id.timer);
 
@@ -139,13 +139,16 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
     @Override
     protected void onNewIntent(Intent intent) {
+        AppLog.DEBUG("onNewIntent: " + intent);
         Bundle extras = intent.getExtras();
         if (extras != null) {
-            if (extras.containsKey(NotificationHelper.EXTRA_MEDIA_PATH)) {
-                String mediaPath = extras.getString(NotificationHelper.EXTRA_MEDIA_PATH);
-                FileSystemService.startFetchFoundMedia(getApplicationContext(), mediaPath);
-            } else if (extras.containsKey(SplashActivity.EXTRA_OPEN_FROM_ACTION)) {
+            if (extras.containsKey(SplashActivity.EXTRA_OPEN_FROM_ACTION)) {
                 audioPlayer.getCurrentTrackAndTrackList();
+                AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
+                        findFragmentByTag(AudioFragment.class.getName());
+                if (audioFragment != null) {
+                    audioFragment.refreshAudioContent();
+                }
             }
         }
     }
@@ -250,7 +253,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         timerView.setVisibility(View.VISIBLE);
         ((Animatable) timerView.getDrawable()).start();
 
-        countDownTimer = new CountDownTimer(3000);
+        countDownTimer = new CountDownTimer(2000);
         countDownTimer.setOnCountDownListener(() -> ((Animatable) timerView.getDrawable()).start());
     }
 

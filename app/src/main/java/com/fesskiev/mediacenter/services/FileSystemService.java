@@ -76,9 +76,6 @@ public class FileSystemService extends JobService {
 
     private static final String ACTION_CHECK_DOWNLOAD_FOLDER = "com.fesskiev.player.action.CHECK_DOWNLOAD_FOLDER";
 
-    public static final String EXTRA_MEDIA_PATH = "com.fesskiev.player.extra.EXTRA_MEDIA_PATH";
-
-
     private Handler handler;
     private FetchContentThread fetchContentThread;
     private MediaObserver observer;
@@ -101,13 +98,6 @@ public class FileSystemService extends JobService {
     public static void startFetchMedia(Context context) {
         Intent intent = new Intent(context, FileSystemService.class);
         intent.setAction(ACTION_START_FETCH_MEDIA);
-        context.startService(intent);
-    }
-
-    public static void startFetchFoundMedia(Context context, String path) {
-        Intent intent = new Intent(context, FileSystemService.class);
-        intent.setAction(ACTION_START_FETCH_FOUND_MEDIA);
-        intent.putExtra(EXTRA_MEDIA_PATH, path);
         context.startService(intent);
     }
 
@@ -221,12 +211,6 @@ public class FileSystemService extends JobService {
                         break;
                     case ACTION_CHECK_DOWNLOAD_FOLDER:
                         handler.sendEmptyMessage(3);
-                        break;
-                    case ACTION_START_FETCH_FOUND_MEDIA:
-                        Message msg = handler.obtainMessage();
-                        msg.obj = intent.getStringExtra(EXTRA_MEDIA_PATH);
-                        msg.what = 4;
-                        handler.sendMessage(msg);
                         break;
                 }
             }
@@ -421,7 +405,6 @@ public class FileSystemService extends JobService {
             audioFolder.timestamp = System.currentTimeMillis();
 
             sendFolderDescription(audioFolder.folderName);
-            AppLog.INFO("FOLDER CREATED: " + audioFolder.toString());
 
             for (File path : audioPaths) {
 
@@ -477,15 +460,27 @@ public class FileSystemService extends JobService {
                                     File[] audioPaths = parent.listFiles(audioFilter());
                                     if (audioPaths != null && audioPaths.length > 0) {
                                         foldersPath.add(parentPath);
+
                                         NotificationHelper.getInstance(getApplicationContext())
                                                 .createMediaFoundNotification(parent);
+
+                                        Message msg = handler.obtainMessage();
+                                        msg.obj = parentPath;
+                                        msg.what = 2;
+                                        handler.sendMessage(msg);
                                     }
 
                                     File[] videoPaths = parent.listFiles(videoFilter());
                                     if (videoPaths != null && videoPaths.length > 0) {
                                         foldersPath.add(parentPath);
+
                                         NotificationHelper.getInstance(getApplicationContext())
                                                 .createMediaFoundNotification(parent);
+
+                                        Message msg = handler.obtainMessage();
+                                        msg.obj = parentPath;
+                                        msg.what = 1;
+                                        handler.sendMessage(msg);
                                     }
 
                                 }
@@ -526,16 +521,13 @@ public class FileSystemService extends JobService {
                             getMediaContent(msg);
                             break;
                         case 1:
-                            getVideoContent();
+                            getVideoContent((String) msg.obj);
                             break;
                         case 2:
-                            getAudioContent();
+                            getAudioContent((String) msg.obj);
                             break;
                         case 3:
                             checkDownloadFolder();
-                            break;
-                        case 4:
-                            getFoundMediaContent(msg);
                             break;
                     }
                 }
@@ -637,29 +629,19 @@ public class FileSystemService extends JobService {
         }
     }
 
-    private void getAudioContent() {
+    private void getAudioContent(String path) {
         scanType = SCAN_TYPE.AUDIO;
-        startScan(scanType, null);
+        startScan(scanType, path);
     }
 
-    private void getVideoContent() {
+    private void getVideoContent(String path) {
         scanType = SCAN_TYPE.VIDEO;
-        startScan(scanType, null);
+        startScan(scanType, path);
     }
 
     private void getMediaContent() {
         scanType = SCAN_TYPE.BOTH;
         startScan(scanType, null);
-    }
-
-    private void getFoundMediaContent(Message msg) {
-        String path = (String) msg.obj;
-        AppLog.INFO("fetch found media: " + path);
-        observer.removeFoundPath(path);
-
-        scanType = SCAN_TYPE.BOTH;
-        startScan(scanType, path);
-
     }
 
     public boolean checkDownloadFolder(File file) {

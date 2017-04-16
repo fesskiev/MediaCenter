@@ -30,13 +30,6 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
 
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        FileSystemService.startFileSystemService(getContext().getApplicationContext());
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_fetch_media, container, false);
@@ -149,7 +142,7 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
         if (fetchMediaFilesManager.isFetchStart()) {
             stopFetchFiles();
         }
-        FileSystemService.stopFileSystemService(getContext().getApplicationContext());
+//        FileSystemService.stopFileSystemService(getContext().getApplicationContext());
 
         fetchMediaFilesManager.unregister();
     }

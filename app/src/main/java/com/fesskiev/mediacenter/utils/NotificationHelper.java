@@ -36,14 +36,14 @@ public class NotificationHelper {
 
     public static final int NOTIFICATION_ID = 412;
     public static final int NOTIFICATION_FETCH_ID = 411;
+    public static final int NOTIFICATION_FOUND_MEDIA = 410;
+
     private static final int REQUEST_CODE = 100;
 
     public static final String ACTION_MEDIA_CONTROL_PLAY = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_PLAY";
     public static final String ACTION_MEDIA_CONTROL_PAUSE = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_PAUSE";
     public static final String ACTION_MEDIA_CONTROL_NEXT = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_NEXT";
     public static final String ACTION_MEDIA_CONTROL_PREVIOUS = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_PREVIOUS";
-
-    public static final String EXTRA_MEDIA_PATH = "com.fesskiev.player.extra.EXTRA_MEDIA_PATH";
 
     public void updateNotification(AudioFile audioFile, Bitmap bitmap, int position, boolean isPlaying) {
         if (isPlaying) {
@@ -162,7 +162,6 @@ public class NotificationHelper {
 
         Intent intent = new Intent(context, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        intent.putExtra(EXTRA_MEDIA_PATH, file.getAbsolutePath());
 
         NotificationCompat.Builder notificationBuilder
                 = new NotificationCompat.Builder(context);
@@ -171,7 +170,7 @@ public class NotificationHelper {
                 .setSmallIcon(R.drawable.icon_notification_fetch)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setContentIntent(PendingIntent.getActivity(context, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT))
-                .setContentTitle(file.getName())
+                .setContentTitle("Folder found")
                 .setContentText(file.getAbsolutePath())
                 .setAutoCancel(true)
                 .setWhen(System.currentTimeMillis())
@@ -179,7 +178,7 @@ public class NotificationHelper {
 
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(0, notificationBuilder.build());
+        notificationManager.notify(NOTIFICATION_FOUND_MEDIA, notificationBuilder.build());
 
     }
 }

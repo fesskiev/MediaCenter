@@ -32,6 +32,8 @@ public interface LocalSource {
 
     Observable<AudioFile> getAudioFileByPath(String path);
 
+    Observable<AudioFolder> getAudioFolderByPath(String path);
+
     Observable<List<AudioFile>> getSearchAudioFiles(String query);
 
     Observable<List<AudioFile>> getGenreTracks(String contentValue);
