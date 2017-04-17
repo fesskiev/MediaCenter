@@ -157,6 +157,11 @@
     <string name="settings_play_music">Play music when headphone plugged</string>
     <string name="settings_searching_files">Background file search</string>
     <string name="settings_wifi_download">Wi-Fi download only</string>
+    <string name="settings_view_title">View</string>
+    <string name="settings_view_full_scree_enable">Enable full screen mode for audio player</string>
+
+    <string name="notification_folder_found">Folder found</string>
+    <string name="splash_folder_parsing">New folder scanning: </string>
 
     <string name="snackbar_loading_error">Unexpected loading audio error</string>
 

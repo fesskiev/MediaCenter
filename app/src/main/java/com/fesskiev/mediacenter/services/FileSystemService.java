@@ -24,9 +24,7 @@ import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
 import com.fesskiev.mediacenter.data.source.DataRepository;
-import com.fesskiev.mediacenter.data.source.local.db.LocalDataSource;
 import com.fesskiev.mediacenter.data.source.memory.MemoryDataSource;
-import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
@@ -58,7 +56,7 @@ public class FileSystemService extends JobService {
     }
 
     public enum SCAN_STATE {
-        PREPARE, SCANNING, FINISHED
+        PREPARE, SCANNING_ALL, SCANNING_FOUND, FINISHED
     }
 
 
@@ -68,9 +66,11 @@ public class FileSystemService extends JobService {
 
     private static final int MEDIA_CONTENT_JOB = 31;
 
+    private static final int AUDIO_FOLDER_FOUND_DELAY = 9000;
+    private static final int VIDEO_FOLDER_FOUND_DELAY = 5000;
+
 
     private static final String ACTION_START_FETCH_MEDIA = "com.fesskiev.player.action.FETCH_MEDIA";
-    private static final String ACTION_START_FETCH_FOUND_MEDIA = "com.fesskiev.player.action.FETCH_FOUND_MEDIA";
     private static final String ACTION_START_FETCH_AUDIO = "com.fesskiev.player.action.START_FETCH_AUDIO";
     private static final String ACTION_START_FETCH_VIDEO = "com.fesskiev.player.action.START_FETCH_VIDEO";
 
@@ -223,9 +223,15 @@ public class FileSystemService extends JobService {
         EventBus.getDefault().post(FileSystemService.this);
     }
 
-    private void startScan() {
+    private void startScanAll() {
         shouldContinue = true;
-        scanState = SCAN_STATE.SCANNING;
+        scanState = SCAN_STATE.SCANNING_ALL;
+        EventBus.getDefault().post(FileSystemService.this);
+    }
+
+    private void startScanFound() {
+        shouldContinue = true;
+        scanState = SCAN_STATE.SCANNING_FOUND;
         EventBus.getDefault().post(FileSystemService.this);
     }
 
@@ -241,15 +247,20 @@ public class FileSystemService extends JobService {
         if (path == null) {
             List<StorageUtils.StorageInfo> storageInfos = StorageUtils.getStorageList();
             if (storageInfos != null && !storageInfos.isEmpty()) {
-                startScan();
+                startScanAll();
                 for (StorageUtils.StorageInfo storageInfo : storageInfos) {
                     Log.e(TAG, "storage: " + storageInfo.getDisplayName() + " path: " + storageInfo.path);
                     fileWalk(storageInfo.path, scanType);
                 }
             }
         } else {
-            startScan();
-
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            startScanFound();
+            NotificationHelper.getInstance(getApplicationContext()).createMediaFoundNotification(path);
             fileWalk(path, scanType);
         }
 
@@ -369,11 +380,9 @@ public class FileSystemService extends JobService {
                 VideoFile videoFile = new VideoFile(path);
                 videoFile.id = videoFolder.id;
 
-                LocalDataSource.getInstance().insertVideoFile(videoFile);
+                MediaApplication.getInstance().getRepository().insertVideoFile(videoFile);
 
                 sendFileDescription(videoFile.description);
-
-
             }
 
             MediaApplication.getInstance().getRepository().insertVideoFolder(videoFolder);
@@ -438,7 +447,6 @@ public class FileSystemService extends JobService {
         @Override
         public void onChange(boolean selfChange, Uri uri) {
             super.onChange(selfChange);
-            Log.e(TAG, "onChange");
 
             lastTimeCall = System.currentTimeMillis();
 
@@ -461,26 +469,14 @@ public class FileSystemService extends JobService {
                                     if (audioPaths != null && audioPaths.length > 0) {
                                         foldersPath.add(parentPath);
 
-                                        NotificationHelper.getInstance(getApplicationContext())
-                                                .createMediaFoundNotification(parent);
-
-                                        Message msg = handler.obtainMessage();
-                                        msg.obj = parentPath;
-                                        msg.what = 2;
-                                        handler.sendMessage(msg);
+                                        sendAudioFolderFound(parentPath);
                                     }
 
                                     File[] videoPaths = parent.listFiles(videoFilter());
                                     if (videoPaths != null && videoPaths.length > 0) {
                                         foldersPath.add(parentPath);
 
-                                        NotificationHelper.getInstance(getApplicationContext())
-                                                .createMediaFoundNotification(parent);
-
-                                        Message msg = handler.obtainMessage();
-                                        msg.obj = parentPath;
-                                        msg.what = 1;
-                                        handler.sendMessage(msg);
+                                        sendVideoFolderFound(parentPath);
                                     }
 
                                 }
@@ -496,12 +492,20 @@ public class FileSystemService extends JobService {
                 lastTimeUpdate = System.currentTimeMillis();
             }
         }
+    }
 
-        public void removeFoundPath(String path) {
-            if (foldersPath.contains(path)) {
-                foldersPath.remove(path);
-            }
-        }
+    private void sendVideoFolderFound(String parentPath) {
+        Message msg = handler.obtainMessage();
+        msg.obj = parentPath;
+        msg.what = 1;
+        handler.sendMessageDelayed(msg, VIDEO_FOLDER_FOUND_DELAY);
+    }
+
+    private void sendAudioFolderFound(String parentPath) {
+        Message msg = handler.obtainMessage();
+        msg.obj = parentPath;
+        msg.what = 2;
+        handler.sendMessageDelayed(msg, AUDIO_FOLDER_FOUND_DELAY);
     }
 
     private class FetchContentThread extends HandlerThread {

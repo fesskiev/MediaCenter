@@ -180,8 +180,8 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void createParsingFolderSnackBar(String name) {
-        Utils.showCustomSnackbar(findViewById(R.id.splashRoot),
-                getApplicationContext(), "Start parsing audio folders: " + name, Snackbar.LENGTH_LONG).show();
+        Utils.showCustomSnackbar(findViewById(R.id.splashRoot), getApplicationContext(),
+                getString(R.string.splash_folder_parsing) + name, Snackbar.LENGTH_LONG).show();
     }
 
     private void animateAndFetchData(boolean fromAction) {

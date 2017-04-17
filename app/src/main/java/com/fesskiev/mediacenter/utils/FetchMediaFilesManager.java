@@ -24,9 +24,9 @@ public class FetchMediaFilesManager {
 
         void onFetchMediaPrepare();
 
-        void onFetchAudioContentStart();
+        void onFetchAudioContentStart(boolean clear);
 
-        void onFetchVideoContentStart();
+        void onFetchVideoContentStart(boolean clear);
 
         void onFetchMediaContentFinish();
 
@@ -60,59 +60,21 @@ public class FetchMediaFilesManager {
         FileSystemService.SCAN_STATE scanState = fileSystemService.getScanState();
         switch (scanState) {
             case PREPARE:
-                if (listener != null) {
-                    listener.onFetchMediaPrepare();
-                }
+                prepare();
                 break;
-            case SCANNING:
-                if (fetchContentView != null) {
-                    fetchContentView.setVisibleContent();
-                    if (needTimer) {
-                        fetchContentView.showTimer();
-                    }
-                }
-                fetchStart = true;
-
-                FileSystemService.SCAN_TYPE scanType = fileSystemService.getScanType();
-                switch (scanType) {
-                    case AUDIO:
-                        if (listener != null) {
-                            listener.onFetchAudioContentStart();
-                        }
-                        break;
-                    case VIDEO:
-                        if (listener != null) {
-                            listener.onFetchVideoContentStart();
-                        }
-                        break;
-                    case BOTH:
-                        if (listener != null) {
-                            listener.onFetchAudioContentStart();
-                            listener.onFetchVideoContentStart();
-                        }
-                        break;
-                }
+            case SCANNING_ALL:
+                scanning(fileSystemService.getScanType(), true);
+                break;
+            case SCANNING_FOUND:
+                scanning(fileSystemService.getScanType(), false);
                 break;
             case FINISHED:
-                if (listener != null) {
-                    listener.onFetchMediaContentFinish();
-                    listener.onAudioFolderCreated();
-                    listener.onVideoFolderCreated();
-                }
-
-                if (fetchContentView != null) {
-                    fetchContentView.setInvisibleContent();
-                    if (needTimer) {
-                        fetchContentView.hideTimer();
-                        fetchContentView.clear();
-                    }
-                }
-                fetchStart = false;
-                folderVideoCount = 0;
-                folderAudioCount = 0;
+                finish();
                 break;
         }
     }
+
+
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onFetchObjectEvent(FileSystemService.FetchDescription fetchDescription) {
@@ -150,6 +112,60 @@ public class FetchMediaFilesManager {
                 break;
         }
 
+    }
+
+    private void scanning(FileSystemService.SCAN_TYPE scanType, boolean clear) {
+        if (fetchContentView != null) {
+            fetchContentView.setVisibleContent();
+            if (needTimer) {
+                fetchContentView.showTimer();
+            }
+        }
+        fetchStart = true;
+
+        switch (scanType) {
+            case AUDIO:
+                if (listener != null) {
+                    listener.onFetchAudioContentStart(clear);
+                }
+                break;
+            case VIDEO:
+                if (listener != null) {
+                    listener.onFetchVideoContentStart(clear);
+                }
+                break;
+            case BOTH:
+                if (listener != null) {
+                    listener.onFetchAudioContentStart(clear);
+                    listener.onFetchVideoContentStart(clear);
+                }
+                break;
+        }
+    }
+
+    private void finish() {
+        if (listener != null) {
+            listener.onFetchMediaContentFinish();
+            listener.onAudioFolderCreated();
+            listener.onVideoFolderCreated();
+        }
+
+        if (fetchContentView != null) {
+            fetchContentView.setInvisibleContent();
+            if (needTimer) {
+                fetchContentView.hideTimer();
+                fetchContentView.clear();
+            }
+        }
+        fetchStart = false;
+        folderVideoCount = 0;
+        folderAudioCount = 0;
+    }
+
+    private void prepare() {
+        if (listener != null) {
+            listener.onFetchMediaPrepare();
+        }
     }
 
     public void setFetchContentView(FetchContentView fetchContentView) {

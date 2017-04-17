@@ -23,6 +23,7 @@ public class AppSettingsManager {
 
     private static final String KEY_PLAY_PLUG_IN_HEADSET = "com.fesskiev.player.PLAY_PLUG_IN_HEADSET";
     private static final String KEY_DOWNLOAD_WIFI_ONLY = "com.fesskiev.player.DOWNLOAD_WIFI_ONLY";
+    private static final String KEY_FULL_SCREEN_MODE = "com.fesskiev.player.FULL_SCREEN_MODE";
 
     private static final String KEY_USER_PRO = "com.fesskiev.player.KEY_USER_PRO";
 
@@ -255,6 +256,17 @@ public class AppSettingsManager {
         editor.putBoolean(KEY_PLAY_PLUG_IN_HEADSET, state);
         editor.apply();
     }
+
+    public boolean isFullScreenMode() {
+        return sharedPreferences.getBoolean(KEY_FULL_SCREEN_MODE, true);
+    }
+
+    public void setFullScreenMode(boolean state) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_FULL_SCREEN_MODE, state);
+        editor.apply();
+    }
+
 
     public boolean isDownloadWiFiOnly() {
         return sharedPreferences.getBoolean(KEY_DOWNLOAD_WIFI_ONLY, false);

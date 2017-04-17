@@ -14,7 +14,6 @@ import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.ui.MainActivity;
 
-import java.io.File;
 
 
 public class NotificationHelper {
@@ -158,7 +157,7 @@ public class NotificationHelper {
 
     }
 
-    public void createMediaFoundNotification(File file) {
+    public void createMediaFoundNotification(String path) {
 
         Intent intent = new Intent(context, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -170,8 +169,8 @@ public class NotificationHelper {
                 .setSmallIcon(R.drawable.icon_notification_fetch)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setContentIntent(PendingIntent.getActivity(context, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT))
-                .setContentTitle("Folder found")
-                .setContentText(file.getAbsolutePath())
+                .setContentTitle(context.getString(R.string.notification_folder_found))
+                .setContentText(path)
                 .setAutoCancel(true)
                 .setWhen(System.currentTimeMillis())
                 .setShowWhen(true);

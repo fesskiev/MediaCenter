@@ -51,7 +51,8 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
                 (SwitchCompat) view.findViewById(R.id.playHeadsetPlugInSwitch),
                 (SwitchCompat) view.findViewById(R.id.downloadWifiSwitch),
                 (SwitchCompat) view.findViewById(R.id.encryptDataSwitch),
-                (SwitchCompat) view.findViewById(R.id.showHiddenFilesSwitch)
+                (SwitchCompat) view.findViewById(R.id.showHiddenFilesSwitch),
+                (SwitchCompat) view.findViewById(R.id.fullScreenSwitch)
         };
 
         for (SwitchCompat switchCompat : switches) {
@@ -97,6 +98,9 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
                 case R.id.showHiddenFilesSwitch:
                     switchCompat.setChecked(appSettingsManager.isShowHiddenFiles());
                     break;
+                case R.id.fullScreenSwitch:
+                    switchCompat.setChecked(appSettingsManager.isFullScreenMode());
+                    break;
             }
         }
     }
@@ -104,6 +108,9 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
     @Override
     public void onCheckedChanged(CompoundButton switchCompat, boolean isChecked) {
         switch (switchCompat.getId()) {
+            case R.id.fullScreenSwitch:
+                appSettingsManager.setFullScreenMode(isChecked);
+                break;
             case R.id.playHeadsetPlugInSwitch:
                 appSettingsManager.setPlayPlugInHeadset(isChecked);
                 break;

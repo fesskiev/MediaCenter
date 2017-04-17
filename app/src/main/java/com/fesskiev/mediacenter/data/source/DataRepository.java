@@ -259,6 +259,10 @@ public class DataRepository {
         localSource.insertVideoFolder(videoFolder);
     }
 
+    public void insertVideoFile(VideoFile videoFile) {
+        localSource.insertVideoFile(videoFile);
+    }
+
     public void insertAudioFile(AudioFile audioFile) {
         localSource.insertAudioFile(audioFile);
     }
