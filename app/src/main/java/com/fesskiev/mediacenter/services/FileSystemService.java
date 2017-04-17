@@ -244,6 +244,12 @@ public class FileSystemService extends JobService {
 
     private void startScan(SCAN_TYPE scanType, String path) {
         prepareScan();
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         if (path == null) {
             List<StorageUtils.StorageInfo> storageInfos = StorageUtils.getStorageList();
             if (storageInfos != null && !storageInfos.isEmpty()) {
@@ -254,11 +260,6 @@ public class FileSystemService extends JobService {
                 }
             }
         } else {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
             startScanFound();
             NotificationHelper.getInstance(getApplicationContext()).createMediaFoundNotification(path);
             fileWalk(path, scanType);
