@@ -2,6 +2,7 @@ package com.fesskiev.mediacenter.ui.walkthrough;
 
 
 import android.content.Intent;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -11,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.ui.MainActivity;
@@ -81,6 +83,16 @@ public class WalkthroughFragment extends Fragment {
         disableEnterButton();
 
         viewPager.setSwipingEnabled(permissionGranted);
+
+        startAnimation(view);
+    }
+
+    private void startAnimation(View view) {
+        RelativeLayout layout = (RelativeLayout) view.findViewById(R.id.walkRoot);
+        AnimationDrawable animationDrawable = (AnimationDrawable) layout.getBackground();
+        animationDrawable.setEnterFadeDuration(2500);
+        animationDrawable.setExitFadeDuration(5000);
+        animationDrawable.start();
     }
 
     private void disableEnterButton() {

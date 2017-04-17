@@ -1,8 +1,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/walkRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="@dimen/activity_horizontal_margin">
+    android:background="@drawable/anim_background"
+    android:padding="@dimen/activity_horizontal_margin">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -20,8 +22,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="top|center_horizontal"
             android:layout_marginBottom="10dp"
-            app:dotDiameter="8dp"
             app:currentPageIndicatorColor="@color/ink"
+            app:dotDiameter="8dp"
             app:pageIndicatorColor="@color/white" />
 
     </FrameLayout>
@@ -31,15 +33,15 @@
         style="@style/DividerStyle"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginBottom="10dp"
         android:layout_above="@+id/enterAppButton"
-        android:layout_marginTop="10dp" />
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="@dimen/activity_horizontal_margin" />
 
     <Button
         android:id="@+id/enterAppButton"
         style="@style/ButtonStyle"
-        android:layout_width="140dp"
-        android:layout_height="48dp"
+        android:layout_width="164dp"
+        android:layout_height="54dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:gravity="center"
