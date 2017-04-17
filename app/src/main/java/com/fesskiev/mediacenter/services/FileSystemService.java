@@ -25,6 +25,7 @@ import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.data.source.memory.MemoryDataSource;
+import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
@@ -66,8 +67,7 @@ public class FileSystemService extends JobService {
 
     private static final int MEDIA_CONTENT_JOB = 31;
 
-    private static final int AUDIO_FOLDER_FOUND_DELAY = 9000;
-    private static final int VIDEO_FOLDER_FOUND_DELAY = 5000;
+    private static final int MEDIA_FOLDER_FOUND_DELAY = 10000;
 
 
     private static final String ACTION_START_FETCH_MEDIA = "com.fesskiev.player.action.FETCH_MEDIA";
@@ -242,7 +242,7 @@ public class FileSystemService extends JobService {
 
     }
 
-    private void startScan(SCAN_TYPE scanType, String path) {
+    private void startScan(SCAN_TYPE scanType, Set<String> paths) {
         prepareScan();
         try {
             Thread.sleep(500);
@@ -250,7 +250,7 @@ public class FileSystemService extends JobService {
             e.printStackTrace();
         }
 
-        if (path == null) {
+        if (paths == null) {
             List<StorageUtils.StorageInfo> storageInfos = StorageUtils.getStorageList();
             if (storageInfos != null && !storageInfos.isEmpty()) {
                 startScanAll();
@@ -261,8 +261,18 @@ public class FileSystemService extends JobService {
             }
         } else {
             startScanFound();
-            NotificationHelper.getInstance(getApplicationContext()).createMediaFoundNotification(path);
-            fileWalk(path, scanType);
+
+            int notificationId = 1;
+            for (String path : paths) {
+                AppLog.ERROR("found folder: " + path);
+
+                notificationId += 1;
+                NotificationHelper.getInstance(getApplicationContext()).createMediaFoundNotification(path, notificationId);
+
+                fileWalk(path, scanType);
+            }
+
+            paths.clear();
         }
 
         finishScan();
@@ -470,14 +480,14 @@ public class FileSystemService extends JobService {
                                     if (audioPaths != null && audioPaths.length > 0) {
                                         foldersPath.add(parentPath);
 
-                                        sendAudioFolderFound(parentPath);
+                                        sendAudioFolderFound(foldersPath);
                                     }
 
                                     File[] videoPaths = parent.listFiles(videoFilter());
                                     if (videoPaths != null && videoPaths.length > 0) {
                                         foldersPath.add(parentPath);
 
-                                        sendVideoFolderFound(parentPath);
+                                        sendVideoFolderFound(foldersPath);
                                     }
 
                                 }
@@ -495,18 +505,20 @@ public class FileSystemService extends JobService {
         }
     }
 
-    private void sendVideoFolderFound(String parentPath) {
+    private void sendVideoFolderFound(Set<String> parentPath) {
+        handler.removeMessages(1);
         Message msg = handler.obtainMessage();
         msg.obj = parentPath;
         msg.what = 1;
-        handler.sendMessageDelayed(msg, VIDEO_FOLDER_FOUND_DELAY);
+        handler.sendMessageDelayed(msg, MEDIA_FOLDER_FOUND_DELAY);
     }
 
-    private void sendAudioFolderFound(String parentPath) {
+    private void sendAudioFolderFound(Set<String> parentPath) {
+        handler.removeMessages(2);
         Message msg = handler.obtainMessage();
         msg.obj = parentPath;
         msg.what = 2;
-        handler.sendMessageDelayed(msg, AUDIO_FOLDER_FOUND_DELAY);
+        handler.sendMessageDelayed(msg, MEDIA_FOLDER_FOUND_DELAY);
     }
 
     private class FetchContentThread extends HandlerThread {
@@ -526,10 +538,10 @@ public class FileSystemService extends JobService {
                             getMediaContent(msg);
                             break;
                         case 1:
-                            getVideoContent((String) msg.obj);
+                            getVideoContent((Set<String>) msg.obj);
                             break;
                         case 2:
-                            getAudioContent((String) msg.obj);
+                            getAudioContent((Set<String>) msg.obj);
                             break;
                         case 3:
                             checkDownloadFolder();
@@ -634,12 +646,12 @@ public class FileSystemService extends JobService {
         }
     }
 
-    private void getAudioContent(String path) {
+    private void getAudioContent(Set<String> path) {
         scanType = SCAN_TYPE.AUDIO;
         startScan(scanType, path);
     }
 
-    private void getVideoContent(String path) {
+    private void getVideoContent(Set<String> path) {
         scanType = SCAN_TYPE.VIDEO;
         startScan(scanType, path);
     }

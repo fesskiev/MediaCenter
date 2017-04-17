@@ -35,7 +35,6 @@ public class NotificationHelper {
 
     public static final int NOTIFICATION_ID = 412;
     public static final int NOTIFICATION_FETCH_ID = 411;
-    public static final int NOTIFICATION_FOUND_MEDIA = 410;
 
     private static final int REQUEST_CODE = 100;
 
@@ -157,7 +156,7 @@ public class NotificationHelper {
 
     }
 
-    public void createMediaFoundNotification(String path) {
+    public void createMediaFoundNotification(String path, int id) {
 
         Intent intent = new Intent(context, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -177,7 +176,7 @@ public class NotificationHelper {
 
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(NOTIFICATION_FOUND_MEDIA, notificationBuilder.build());
+        notificationManager.notify(id, notificationBuilder.build());
 
     }
 }
