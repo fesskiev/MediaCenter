@@ -11,7 +11,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.load.resource.bitmap.GlideBitmapDrawable;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
@@ -22,7 +21,6 @@ import com.fesskiev.mediacenter.ui.audio.tracklist.PlayerTrackListActivity;
 import com.fesskiev.mediacenter.ui.effects.EffectsActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
-import com.fesskiev.mediacenter.utils.NotificationHelper;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.converter.AudioConverterHelper;
 import com.fesskiev.mediacenter.widgets.buttons.MuteSoloButton;
@@ -68,7 +66,6 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     private int lastPositionSeconds = -1;
     private int lastDurationSeconds = -1;
     private float lastVolume = -1f;
-    private boolean seeking;
 
     public static void startPlayerActivity(Activity activity) {
         activity.startActivity(new Intent(activity, AudioPlayerActivity.class));
@@ -178,7 +175,6 @@ public class AudioPlayerActivity extends AnalyticsActivity {
             public void onSeekStateChanged(int seek, boolean change) {
                 if (change) {
                     PlaybackService.seekPlayback(getApplicationContext(), seek);
-                    seeking = true;
                 }
                 scrollView.setEnableScrolling(!change);
             }
@@ -293,13 +289,6 @@ public class AudioPlayerActivity extends AnalyticsActivity {
             lastPositionSeconds = positionSeconds;
             controlView.setSeekValue((int) playbackState.getPositionPercent());
             trackTimeCount.setText(Utils.getPositionSecondsString(lastPositionSeconds));
-
-            if (seeking) {
-                seeking = false;
-                NotificationHelper.getInstance(getApplicationContext())
-                        .updateNotification(audioPlayer.getCurrentTrack(),
-                                ((GlideBitmapDrawable) backdrop.getDrawable()).getBitmap(), lastPositionSeconds, lastPlaying);
-            }
         }
 
         int durationSeconds = playbackState.getDuration();

@@ -193,7 +193,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         lastPlaying = !lastPlaying;
         playPauseButton.setPlay(lastPlaying);
 
-        notificationHelper.updateNotification(currentTrack, lastCover, lastPositionSeconds, lastPlaying);
+        notificationHelper.updateNotification(currentTrack, lastCover, lastPlaying);
 
         adapter.notifyDataSetChanged();
     }
@@ -276,7 +276,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
             lastPlaying = playing;
             playPauseButton.setPlay(playing);
 
-            notificationHelper.updateNotification(currentTrack, lastCover, lastPositionSeconds, lastPlaying);
+            notificationHelper.updateNotification(currentTrack, lastCover, lastPlaying);
             adapter.notifyDataSetChanged();
 
         }
@@ -371,13 +371,13 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
                                 lastCover = bitmap;
 
-                                notificationHelper.updateNotification(audioFile, lastCover, 0, lastPlaying);
+                                notificationHelper.updateNotification(audioFile, lastCover, lastPlaying);
                                 startForegroundService();
                             }
 
                             @Override
                             public void onFailed() {
-                                notificationHelper.updateNotification(audioFile, lastCover, 0, lastPlaying);
+                                notificationHelper.updateNotification(audioFile, lastCover, lastPlaying);
                                 startForegroundService();
                             }
                         }));
@@ -498,7 +498,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         lastPlaying = false;
         playPauseButton.setPlay(false);
 
-        notificationHelper.updateNotification(currentTrack, lastCover, lastPositionSeconds, lastPlaying);
+        notificationHelper.updateNotification(currentTrack, lastCover, lastPlaying);
 
         adapter.notifyDataSetChanged();
     }

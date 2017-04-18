@@ -43,13 +43,13 @@ public class NotificationHelper {
     public static final String ACTION_MEDIA_CONTROL_NEXT = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_NEXT";
     public static final String ACTION_MEDIA_CONTROL_PREVIOUS = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_PREVIOUS";
 
-    public void updateNotification(AudioFile audioFile, Bitmap bitmap, int position, boolean isPlaying) {
+    public void updateNotification(AudioFile audioFile, Bitmap bitmap, boolean isPlaying) {
         if (isPlaying) {
             notification = buildNotification(generateAction(R.drawable.icon_pause_media_control,
-                    "Pause", ACTION_MEDIA_CONTROL_PAUSE), audioFile, bitmap, position * 1000, true);
+                    "Pause", ACTION_MEDIA_CONTROL_PAUSE), audioFile, bitmap);
         } else {
             notification = buildNotification(generateAction(R.drawable.icon_play_media_control,
-                    "Play", ACTION_MEDIA_CONTROL_PLAY), audioFile, bitmap, position * 1000, false);
+                    "Play", ACTION_MEDIA_CONTROL_PLAY), audioFile, bitmap);
         }
         updateNotification(notification);
     }
@@ -61,11 +61,8 @@ public class NotificationHelper {
     }
 
 
-    private Notification buildNotification(NotificationCompat.Action action,
-                                           AudioFile audioFile,
-                                           Bitmap bitmap,
-                                           int position,
-                                           boolean isPlaying) {
+    private Notification buildNotification(NotificationCompat.Action action, AudioFile audioFile,
+                                           Bitmap bitmap) {
         String artist, title;
         if (audioFile != null) {
             artist = audioFile.artist;
@@ -86,19 +83,6 @@ public class NotificationHelper {
                 .setContentIntent(createContentIntent())
                 .setContentTitle(artist)
                 .setContentText(title);
-
-
-        if (isPlaying) {
-            notificationBuilder
-                    .setWhen(System.currentTimeMillis() - position)
-                    .setShowWhen(true)
-                    .setUsesChronometer(true);
-        } else {
-            notificationBuilder
-                    .setWhen(0)
-                    .setShowWhen(false)
-                    .setUsesChronometer(false);
-        }
 
         notificationBuilder.addAction(generateAction(R.drawable.icon_previous_media_control,
                 "Previous", ACTION_MEDIA_CONTROL_PREVIOUS));
