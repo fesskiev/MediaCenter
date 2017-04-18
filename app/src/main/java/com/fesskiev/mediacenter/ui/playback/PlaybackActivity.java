@@ -49,8 +49,9 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
     public abstract MediaNavigationView getMediaNavigationView();
 
-    private NotificationHelper notificationHelper;
+    protected NotificationHelper notificationHelper;
     protected AudioPlayer audioPlayer;
+    private List<AudioFile> currentTrackList;
     private AudioFile currentTrack;
 
     protected View bottomSheet;
@@ -67,7 +68,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     private Bitmap lastCover;
     private int height;
 
-    private boolean startForeground;
+    protected boolean startForeground;
     private boolean isShow = true;
 
     private boolean lastLoadSuccess;
@@ -83,12 +84,11 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     public void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
+        currentTrackList = new ArrayList<>();
+
         EventBus.getDefault().register(this);
 
         notificationHelper = NotificationHelper.getInstance(getApplicationContext());
-
-        audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-        audioPlayer.getCurrentTrackAndTrackList();
 
         track = (TextView) findViewById(R.id.track);
         artist = (TextView) findViewById(R.id.artist);
@@ -154,6 +154,31 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
         registerNotificationReceiver();
 
+        audioPlayer = MediaApplication.getInstance().getAudioPlayer();
+        if (savedInstanceState == null) {
+            audioPlayer.getCurrentTrackAndTrackList();
+        } else {
+            restorePlaybackState(savedInstanceState);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("startForeground", startForeground);
+    }
+
+    private void restorePlaybackState(Bundle savedInstanceState) {
+        startForeground = savedInstanceState.getBoolean("startForeground");
+
+        currentTrack = audioPlayer.getCurrentTrack();
+        hideEmptyTrackCard();
+        setMusicFileInfo(currentTrack);
+
+        currentTrackList = audioPlayer.getCurrentTrackList();
+        hideEmptyFolderCard();
+        adapter.refreshAdapter();
+
     }
 
     private boolean checkTrackSelected() {
@@ -216,14 +241,6 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
         unregisterNotificationReceiver();
-
-        notificationHelper.stopNotification();
-
-        if (startForeground) {
-            PlaybackService.stopPlaybackForegroundService(getApplicationContext());
-            PlaybackService.destroyPlayer(getApplicationContext());
-            startForeground = false;
-        }
     }
 
     @Override
@@ -312,8 +329,8 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onCurrentTrackListEvent(List<AudioFile> currentTrackList) {
-
-        adapter.refreshAdapter(currentTrackList);
+        this.currentTrackList = currentTrackList;
+        adapter.refreshAdapter();
         hideEmptyFolderCard();
     }
 
@@ -390,11 +407,6 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
     private class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.ViewHolder> {
 
-        private List<AudioFile> audioFiles;
-
-        public TrackListAdapter() {
-            audioFiles = new ArrayList<>();
-        }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -406,8 +418,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
             public ViewHolder(View v) {
                 super(v);
                 v.setOnClickListener(view -> {
-                    List<AudioFile> audioFiles = adapter.getAudioFiles();
-                    AudioFile audioFile = audioFiles.get(getAdapterPosition());
+                    AudioFile audioFile = currentTrackList.get(getAdapterPosition());
                     if (audioFile != null) {
                         audioPlayer.setCurrentAudioFileAndPlay(audioFile);
                     }
@@ -432,7 +443,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            AudioFile audioFile = audioFiles.get(position);
+            AudioFile audioFile = currentTrackList.get(position);
             if (audioFile != null) {
                 holder.title.setText(audioFile.title);
                 holder.filePath.setText(audioFile.getFilePath());
@@ -461,22 +472,15 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
         @Override
         public int getItemCount() {
-            return audioFiles.size();
+            return currentTrackList.size();
         }
 
-
-        public List<AudioFile> getAudioFiles() {
-            return audioFiles;
-        }
-
-        public void refreshAdapter(List<AudioFile> receiverAudioFiles) {
-            audioFiles.clear();
-            audioFiles.addAll(receiverAudioFiles);
+        public void refreshAdapter() {
             notifyDataSetChanged();
         }
 
         public void clearAdapter() {
-            audioFiles.clear();
+            currentTrackList.clear();
             notifyDataSetChanged();
         }
     }

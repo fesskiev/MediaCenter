@@ -34,8 +34,6 @@ public class PlaybackService extends Service {
 
     public static final String ACTION_START_FOREGROUND =
             "com.fesskiev.player.action.ACTION_START_FOREGROUND";
-    public static final String ACTION_STOP_FOREGROUND =
-            "com.fesskiev.player.action.ACTION_STOP_FOREGROUND";
     public static final String ACTION_START_PLAYBACK =
             "com.fesskiev.player.action.ACTION_START_PLAYBACK";
     public static final String ACTION_OPEN_FILE =
@@ -142,9 +140,7 @@ public class PlaybackService extends Service {
     }
 
     public static void stopPlaybackForegroundService(Context context) {
-        Intent intent = new Intent(context, PlaybackService.class);
-        intent.setAction(ACTION_STOP_FOREGROUND);
-        context.startService(intent);
+        context.stopService(new Intent(context, PlaybackService.class));
     }
 
     public static void setTempo(Context context, double tempo) {
@@ -279,10 +275,6 @@ public class PlaybackService extends Service {
         context.startService(intent);
     }
 
-    public static void destroyPlayer(Context context) {
-        context.stopService(new Intent(context, PlaybackService.class));
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -350,9 +342,6 @@ public class PlaybackService extends Service {
                 switch (action) {
                     case ACTION_START_FOREGROUND:
                         tryStartForeground();
-                        break;
-                    case ACTION_STOP_FOREGROUND:
-                        tryStopForeground();
                         break;
                     case ACTION_OPEN_FILE:
                         String openPath = intent.getStringExtra(PLAYBACK_EXTRA_MUSIC_FILE_PATH);
@@ -442,10 +431,6 @@ public class PlaybackService extends Service {
         return START_STICKY;
     }
 
-
-    private void tryStopForeground() {
-        stopForeground(true);
-    }
 
     private void tryStartForeground() {
         startForeground(NotificationHelper.NOTIFICATION_ID,

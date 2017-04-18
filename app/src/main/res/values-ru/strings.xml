@@ -19,7 +19,7 @@
 
     <string name="product_price">Стоимость:</string>
 
-    <string name="snack_exit_text">Вы уверены, что хотите выйти?</string>
+    <string name="snack_exit_text">Вы уверены, что хотите выйти из приложения?</string>
     <string name="snack_exit_action">Выход</string>
 
     <string name="title_music_vk_activity">Вконтакте</string>
@@ -93,7 +93,7 @@
 
     <string name="shackbar_connection_repeat">Повторить</string>
 
-    <string name="dialog_fetch_audio_folder_name">Поскт папок....</string>
+    <string name="dialog_fetch_audio_folder_name">Поиск папок....</string>
     <string name="dialog_fetch_audio_track_name">Поиск треков....</string>
     <string name="dialog_fetch_audio_title">Поиск файлов</string>
 
@@ -209,7 +209,7 @@
 
     <string name="splash_screen_title">Power media player</string>
 
-    <string name="splash_snackbar_stop_fetch">Выполняется поиск файлов.Прервать?</string>
+    <string name="splash_snackbar_stop_fetch">Выполняется поиск файлов. Прервать и выйти?</string>
 
     <string name="update_no_period">Не выполнять поиск</string>
     <string name="update_period_30_minutes">30 минут</string>

@@ -88,15 +88,12 @@ public class AudioPlayerActivity extends AnalyticsActivity {
                     | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         }
 
-        if (savedInstanceState == null) {
-            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-            if (toolbar != null) {
-                setSupportActionBar(toolbar);
-                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                getSupportActionBar().setDisplayShowTitleEnabled(false);
-            }
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
-
 
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
 

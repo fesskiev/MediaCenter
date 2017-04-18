@@ -91,71 +91,68 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
 
         EventBus.getDefault().register(this);
 
-        if (savedInstanceState == null) {
-            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-            if (toolbar != null) {
-                String title = null;
-                contentType =
-                        (CONTENT_TYPE) getIntent().getSerializableExtra(Constants.EXTRA_CONTENT_TYPE);
-                switch (contentType) {
-                    case GENRE:
-                    case ARTIST:
-                        title = getIntent().getExtras().getString(Constants.EXTRA_CONTENT_TYPE_VALUE);
-                        contentValue = title;
-                        break;
-                    case FOLDERS:
-                        audioFolder = getIntent().getExtras().getParcelable(Constants.EXTRA_AUDIO_FOLDER);
-                        if (audioFolder != null) {
-                            title = audioFolder.folderName;
-                        }
-                        break;
-                    case PLAYLIST:
-                        break;
-                }
-
-                toolbar.setTitle(title);
-                setSupportActionBar(toolbar);
-                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-                actionMenu = (FloatingActionMenu) findViewById(R.id.menuSorting);
-                actionMenu.setIconAnimated(true);
-
-                FloatingActionButton[] sortButtons = new FloatingActionButton[]{
-                        (FloatingActionButton) findViewById(R.id.menuSortDuration),
-                        (FloatingActionButton) findViewById(R.id.menuSortFileSize),
-                        (FloatingActionButton) findViewById(R.id.menuSortTrackNumber),
-                        (FloatingActionButton) findViewById(R.id.menuSortTimestamp)
-                };
-
-                for (FloatingActionButton sortButton : sortButtons) {
-                    sortButton.setOnClickListener(this);
-                }
-
-                RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycleView);
-                recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(this,
-                        LinearLayoutManager.VERTICAL, false, 1000));
-                adapter = new TrackListAdapter();
-                recyclerView.setAdapter(adapter);
-                recyclerView.addOnScrollListener(new HidingScrollListener() {
-                    @Override
-                    public void onHide() {
-                        hideViews();
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            String title = null;
+            contentType =
+                    (CONTENT_TYPE) getIntent().getSerializableExtra(Constants.EXTRA_CONTENT_TYPE);
+            switch (contentType) {
+                case GENRE:
+                case ARTIST:
+                    title = getIntent().getExtras().getString(Constants.EXTRA_CONTENT_TYPE_VALUE);
+                    contentValue = title;
+                    break;
+                case FOLDERS:
+                    audioFolder = getIntent().getExtras().getParcelable(Constants.EXTRA_AUDIO_FOLDER);
+                    if (audioFolder != null) {
+                        title = audioFolder.folderName;
                     }
-
-                    @Override
-                    public void onShow() {
-                        showViews();
-                    }
-
-                    @Override
-                    public void onItemPosition(int position) {
-                        closeOpenCards();
-                    }
-                });
-
-                fetchContentByType();
-
+                    break;
+                case PLAYLIST:
+                    break;
             }
+
+            toolbar.setTitle(title);
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+            actionMenu = (FloatingActionMenu) findViewById(R.id.menuSorting);
+            actionMenu.setIconAnimated(true);
+
+            FloatingActionButton[] sortButtons = new FloatingActionButton[]{
+                    (FloatingActionButton) findViewById(R.id.menuSortDuration),
+                    (FloatingActionButton) findViewById(R.id.menuSortFileSize),
+                    (FloatingActionButton) findViewById(R.id.menuSortTrackNumber),
+                    (FloatingActionButton) findViewById(R.id.menuSortTimestamp)
+            };
+
+            for (FloatingActionButton sortButton : sortButtons) {
+                sortButton.setOnClickListener(this);
+            }
+
+            RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycleView);
+            recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(this,
+                    LinearLayoutManager.VERTICAL, false, 1000));
+            adapter = new TrackListAdapter();
+            recyclerView.setAdapter(adapter);
+            recyclerView.addOnScrollListener(new HidingScrollListener() {
+                @Override
+                public void onHide() {
+                    hideViews();
+                }
+
+                @Override
+                public void onShow() {
+                    showViews();
+                }
+
+                @Override
+                public void onItemPosition(int position) {
+                    closeOpenCards();
+                }
+            });
+
+            fetchContentByType();
         }
     }
 

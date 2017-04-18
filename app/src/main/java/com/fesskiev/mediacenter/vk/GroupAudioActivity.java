@@ -14,16 +14,17 @@ public class GroupAudioActivity extends AnalyticsActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_audio);
-        if (savedInstanceState == null) {
-            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-            if (toolbar != null) {
-                Group group = getIntent().getExtras().getParcelable(GroupsFragment.GROUP_EXTRA);
-                if (group != null) {
-                    toolbar.setTitle(group.getName());
 
-                    setSupportActionBar(toolbar);
-                    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            Group group = getIntent().getExtras().getParcelable(GroupsFragment.GROUP_EXTRA);
+            if (group != null) {
+                toolbar.setTitle(group.getName());
 
+                setSupportActionBar(toolbar);
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+                if (savedInstanceState == null) {
                     FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                     transaction.replace(R.id.content, GroupAudioFragment.newInstance(group),
                             GroupAudioFragment.class.getName());
@@ -31,7 +32,6 @@ public class GroupAudioActivity extends AnalyticsActivity {
                 }
             }
         }
-
     }
 
     @Override

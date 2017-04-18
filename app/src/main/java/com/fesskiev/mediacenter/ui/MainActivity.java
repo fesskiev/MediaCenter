@@ -43,7 +43,6 @@ import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.CountDownTimer;
 import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
-import com.fesskiev.mediacenter.utils.NotificationHelper;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.admob.AdMobHelper;
 import com.fesskiev.mediacenter.vk.VKActivity;
@@ -132,8 +131,11 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             setEmptyUserInfo();
         }
 
-        checkAudioContentItem();
-        addAudioFragment();
+        if (savedInstanceState == null) {
+            AppLog.ERROR("ADD AUDIO FRAGMENT");
+            addAudioFragment();
+            checkAudioContentItem();
+        }
     }
 
 
@@ -533,23 +535,31 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             exitDialog = ExitDialog.newInstance(getString(R.string.snack_exit_text));
         }
         exitDialog.show(transaction, ExitDialog.class.getName());
-        exitDialog.setOnExitListener(() -> {
-            if (fetchMediaFilesManager.isFetchStart()) {
-                stopFetchFiles();
-            }
-            finish();
-        });
+        exitDialog.setOnExitListener(this::processFinishPlayback);
+    }
+
+    private void processFinishPlayback() {
+
+        notificationHelper.stopNotification();
+
+        if (startForeground) {
+            PlaybackService.stopPlaybackForegroundService(getApplicationContext());
+            startForeground = false;
+        }
+        FileSystemService.stopFileSystemService(getApplicationContext());
+        CacheManager.clearTempDir();
+
+        settingsManager.setEQEnable(false);
+        settingsManager.setReverbEnable(false);
+        settingsManager.setWhooshEnable(false);
+        settingsManager.setEchoEnable(false);
+
+        finish();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        clearItems();
-        if (isAudioFragmentShow()) {
-            checkAudioContentItem();
-        } else if (isVideoFragmentShow()) {
-            checkVideoContentItem();
-        }
         if (!settingsManager.isUserPro()) {
             AdMobHelper.getInstance().resumeAdMob();
         } else {
@@ -569,18 +579,11 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        settingsManager.setEQEnable(false);
-        settingsManager.setReverbEnable(false);
-        settingsManager.setWhooshEnable(false);
-        settingsManager.setEchoEnable(false);
 
         if (fetchMediaFilesManager.isFetchStart()) {
             stopFetchFiles();
         }
         fetchMediaFilesManager.unregister();
-
-        FileSystemService.stopFileSystemService(getApplicationContext());
-        CacheManager.clearTempDir();
 
         if (!settingsManager.isUserPro()) {
             AdMobHelper.getInstance().destroyAdView();
@@ -612,18 +615,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             transaction.show(audioFragment);
         }
         transaction.commitAllowingStateLoss();
-    }
-
-    private boolean isAudioFragmentShow() {
-        AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
-                findFragmentByTag(AudioFragment.class.getName());
-        return audioFragment != null && audioFragment.isAdded() && audioFragment.isVisible();
-    }
-
-    private boolean isVideoFragmentShow() {
-        VideoFoldersFragment videoFragment = (VideoFoldersFragment) getSupportFragmentManager().
-                findFragmentByTag(VideoFoldersFragment.class.getName());
-        return videoFragment != null && videoFragment.isAdded() && videoFragment.isVisible();
     }
 
     private void addVideoFragment() {
