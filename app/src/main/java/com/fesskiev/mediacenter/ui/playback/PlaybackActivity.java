@@ -6,7 +6,6 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +23,6 @@ import com.fesskiev.mediacenter.utils.AnimationUtils;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
-import com.fesskiev.mediacenter.utils.converter.AudioConverterHelper;
 import com.fesskiev.mediacenter.widgets.buttons.PlayPauseFloatingButton;
 import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
 
@@ -65,7 +63,6 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     private boolean isShow = true;
 
     private boolean lastLoadSuccess;
-    private boolean lastLoadError;
     private boolean lastPlaying;
     private int lastPositionSeconds;
     private boolean lastEnableEQ;
@@ -210,16 +207,6 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
             }
         }
 
-        boolean isLoadError = playbackState.isLoadError();
-        if (lastLoadError != isLoadError) {
-            lastLoadError = isLoadError;
-            if (lastLoadError) {
-                if (AudioConverterHelper.isAudioFileFLAC(audioPlayer.getCurrentTrack())) {
-                    tryConvertAudioFile();
-                }
-            }
-        }
-
         boolean playing = playbackState.isPlaying();
         if (lastPlaying != playing) {
             lastPlaying = playing;
@@ -283,27 +270,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         hideEmptyFolderCard();
     }
 
-    private void tryConvertAudioFile() {
-        AudioConverterHelper.getInstance().convertAudioIfNeed(audioPlayer.getCurrentTrack(),
-                new AudioConverterHelper.OnConvertProcessListener() {
 
-                    @Override
-                    public void onStart() {
-                        Log.e("error", "onStart() convert");
-                    }
-
-                    @Override
-                    public void onSuccess(AudioFile audioFile) {
-                        Log.e("error", "onSuccess convert");
-                        audioPlayer.setCurrentAudioFileAndPlay(audioFile);
-                    }
-
-                    @Override
-                    public void onFailure(Exception error) {
-                        Log.e("error", "onFailure: " + error.getMessage());
-                    }
-                });
-    }
 
     private void setMusicFileInfo(AudioFile audioFile) {
         track.setText(audioFile.title);

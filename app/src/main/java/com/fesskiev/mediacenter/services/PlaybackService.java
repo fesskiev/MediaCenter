@@ -25,6 +25,7 @@ import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.CountDownTimer;
 import com.fesskiev.mediacenter.utils.NotificationHelper;
+import com.fesskiev.mediacenter.utils.converter.AudioConverterHelper;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -779,8 +780,33 @@ public class PlaybackService extends Service {
             case LOAD_ERROR:
                 loadSuccess = false;
                 loadError = true;
+                if (AudioConverterHelper.isAudioFileFLAC(audioPlayer.getCurrentTrack())) {
+                    tryConvertAudioFile();
+                }
                 break;
         }
+    }
+
+    private void tryConvertAudioFile() {
+        AudioConverterHelper.getInstance().convertAudioIfNeed(audioPlayer.getCurrentTrack(),
+                new AudioConverterHelper.OnConvertProcessListener() {
+
+                    @Override
+                    public void onStart() {
+                        Log.e(TAG, "onStart() convert");
+                    }
+
+                    @Override
+                    public void onSuccess(AudioFile audioFile) {
+                        Log.e(TAG, "onSuccess convert");
+                        audioPlayer.setCurrentAudioFileAndPlay(audioFile);
+                    }
+
+                    @Override
+                    public void onFailure(Exception error) {
+                        Log.e(TAG, "onFailure: " + error.getMessage());
+                    }
+                });
     }
 
 
