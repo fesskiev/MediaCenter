@@ -38,8 +38,28 @@ public class WalkthroughFragment extends Fragment {
     private boolean proUserGranted;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_walkthrough, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        startAnimation(view);
+
+        viewPager = (DisableSwipingViewPager) view.findViewById(R.id.viewpager);
+        viewPager.setOffscreenPageLimit(3);
+
+        enterAppButton = (Button) view.findViewById(R.id.enterAppButton);
+        enterAppButton.setOnClickListener(v -> {
+
+            AppSettingsManager.getInstance().setFirstStartApp();
+            startMainActivity();
+        });
+
+        disableEnterButton();
 
         if (Utils.isMarshmallow()) {
             fragments = new Fragment[]{
@@ -55,36 +75,26 @@ public class WalkthroughFragment extends Fragment {
             BitmapHelper.getInstance().saveDownloadFolderIcon();
             permissionGranted = true;
         }
-    }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_walkthrough, container, false);
-    }
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        viewPager = (DisableSwipingViewPager) view.findViewById(R.id.viewpager);
         viewPager.setAdapter(new WalkthroughPagerAdapter(getFragmentManager()));
 
         InkPageIndicator pageIndicator = (InkPageIndicator) view.findViewById(R.id.indicator);
         pageIndicator.setViewPager(viewPager);
 
-        enterAppButton = (Button) view.findViewById(R.id.enterAppButton);
-        enterAppButton.setOnClickListener(v -> {
+        if (savedInstanceState != null) {
+            restoreState(savedInstanceState);
+        }
+    }
 
-            AppSettingsManager.getInstance().setFirstStartApp();
-            startMainActivity();
-        });
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("fetchMediaGranted", fetchMediaGranted);
+    }
 
-        disableEnterButton();
-
-        viewPager.setSwipingEnabled(permissionGranted);
-
-        startAnimation(view);
+    private void restoreState(Bundle savedInstanceState) {
+        fetchMediaGranted = savedInstanceState.getBoolean("fetchMediaGranted");
+        checkEnableEnterButton();
     }
 
     private void startAnimation(View view) {
@@ -151,5 +161,9 @@ public class WalkthroughFragment extends Fragment {
             return fragments[position];
         }
 
+    }
+
+    public FetchMediaFragment getFetchMediaFragment() {
+        return (FetchMediaFragment) fragments[1];
     }
 }

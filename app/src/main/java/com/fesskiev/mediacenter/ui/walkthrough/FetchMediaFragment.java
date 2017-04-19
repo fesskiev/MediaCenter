@@ -25,6 +25,8 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
 
     private FetchMediaFilesManager fetchMediaFilesManager;
 
+    private boolean fetchMediaGranted;
+
     private TextView fetchText;
     private Button[] buttons;
 
@@ -93,6 +95,30 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
 
             }
         });
+
+        if (savedInstanceState != null) {
+            restoreState(savedInstanceState);
+        }
+    }
+
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("fetchState", fetchMediaFilesManager.isFetchStart());
+        outState.putBoolean("fetchMediaGranted", fetchMediaGranted);
+    }
+
+    private void restoreState(Bundle savedInstanceState) {
+        fetchMediaGranted = savedInstanceState.getBoolean("fetchMediaGranted");
+        if (fetchMediaGranted) {
+            hideButtons();
+            fetchMediaFilesSuccess();
+            return;
+        }
+
+        boolean fetchState = savedInstanceState.getBoolean("fetchState");
+        fetchMediaFilesManager.setFetchStart(fetchState);
     }
 
 
@@ -113,12 +139,15 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
     }
 
     private void skipFetchMediaFiles() {
+        fetchMediaGranted = true;
         hideButtons();
         fetchMediaFilesSuccess();
     }
 
 
     private void fetchMediaFilesSuccess() {
+        fetchMediaGranted = true;
+
         fetchText.setVisibility(View.VISIBLE);
         fetchText.setText(getString(R.string.search_media_files_success));
         fetchText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.icon_walk_through_ok, 0, 0);
@@ -141,16 +170,18 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
         }
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (fetchMediaFilesManager.isFetchStart()) {
-            stopFetchFiles();
-        }
-        fetchMediaFilesManager.unregister();
+    public FetchMediaFilesManager getFetchMediaFilesManager() {
+        return fetchMediaFilesManager;
     }
 
     private void stopFetchFiles() {
         FileSystemService.shouldContinue = false;
+    }
+
+    public void stopFetchMedia() {
+        if (fetchMediaFilesManager.isFetchStart()) {
+            stopFetchFiles();
+        }
+        fetchMediaFilesManager.unregister();
     }
 }
