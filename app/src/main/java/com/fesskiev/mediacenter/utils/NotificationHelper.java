@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.NotificationCompat;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.ui.MainActivity;
@@ -18,19 +19,19 @@ import com.fesskiev.mediacenter.ui.MainActivity;
 
 public class NotificationHelper {
 
-    private static NotificationHelper notificationHelper;
+    private static NotificationHelper INSTANCE;
     private Notification notification;
     private Context context;
 
-    private NotificationHelper(Context context) {
-        this.context = context;
+    private NotificationHelper() {
+        this.context = MediaApplication.getInstance().getApplicationContext();
     }
 
-    public static NotificationHelper getInstance(Context context) {
-        if (notificationHelper == null) {
-            notificationHelper = new NotificationHelper(context);
+    public static NotificationHelper getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new NotificationHelper();
         }
-        return notificationHelper;
+        return INSTANCE;
     }
 
     public static final int NOTIFICATION_ID = 412;

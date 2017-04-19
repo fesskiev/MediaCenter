@@ -309,9 +309,11 @@ public class PlaybackService extends Service {
                 volume *= 100f;
             }
 
-            boolean notificationPlaying = notificationHelper.isPlaying();
-            if (playing != notificationPlaying) {
-                notificationHelper.updatePlayingState(currentTrack, playing);
+            if (notificationHelper != null) {
+                boolean notificationPlaying = notificationHelper.isPlaying();
+                if (playing != notificationPlaying) {
+                    notificationHelper.updatePlayingState(currentTrack, playing);
+                }
             }
 
 //            Log.d("event", PlaybackService.this.toString());
@@ -519,7 +521,7 @@ public class PlaybackService extends Service {
 
 
     private void tryStartForeground() {
-        notificationHelper = NotificationHelper.getInstance(getApplicationContext());
+        notificationHelper = NotificationHelper.getInstance();
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
         currentTrack = audioPlayer.getCurrentTrack();
 

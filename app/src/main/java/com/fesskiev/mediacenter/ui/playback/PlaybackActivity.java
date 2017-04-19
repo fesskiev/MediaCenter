@@ -74,8 +74,6 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     public void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        currentTrackList = new ArrayList<>();
-
         EventBus.getDefault().register(this);
 
         track = (TextView) findViewById(R.id.track);
@@ -137,11 +135,12 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
             });
         }
 
-        showEmptyFolderCard();
-        showEmptyTrackCard();
-
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
+
         if (savedInstanceState == null) {
+            currentTrackList = new ArrayList<>();
+            showEmptyFolderCard();
+            showEmptyTrackCard();
             audioPlayer.getCurrentTrackAndTrackList();
         } else {
             restorePlaybackState(savedInstanceState);
@@ -158,13 +157,22 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         startForeground = savedInstanceState.getBoolean("startForeground");
 
         currentTrack = audioPlayer.getCurrentTrack();
-        hideEmptyTrackCard();
-        setMusicFileInfo(currentTrack);
+        if (currentTrack != null) {
+            hideEmptyTrackCard();
+            setMusicFileInfo(currentTrack);
+            startForegroundService();
+        } else {
+            showEmptyTrackCard();
+        }
 
         currentTrackList = audioPlayer.getCurrentTrackList();
-        hideEmptyFolderCard();
-        adapter.refreshAdapter();
-
+        if (currentTrackList == null) {
+            currentTrackList = new ArrayList<>();
+            showEmptyFolderCard();
+        } else {
+            hideEmptyFolderCard();
+            adapter.refreshAdapter();
+        }
     }
 
     private boolean checkTrackSelected() {
@@ -255,21 +263,23 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onCurrentTrackEvent(AudioFile currentTrack) {
         this.currentTrack = currentTrack;
+        if (currentTrack != null) {
+            setMusicFileInfo(currentTrack);
+            hideEmptyTrackCard();
+
+            adapter.notifyDataSetChanged();
+        }
         startForegroundService();
-
-        setMusicFileInfo(currentTrack);
-        hideEmptyTrackCard();
-
-        adapter.notifyDataSetChanged();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onCurrentTrackListEvent(List<AudioFile> currentTrackList) {
         this.currentTrackList = currentTrackList;
-        adapter.refreshAdapter();
-        hideEmptyFolderCard();
+        if (currentTrackList != null) {
+            adapter.refreshAdapter();
+            hideEmptyFolderCard();
+        }
     }
-
 
 
     private void setMusicFileInfo(AudioFile audioFile) {
@@ -386,13 +396,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     }
 
     public void clearPlayback() {
-        currentTrack = null;
         adapter.clearAdapter();
-        track.setText("");
-        artist.setText("");
-        durationText.setText("");
-        cover.setImageResource(0);
-        showEmptyTrackCard();
         showEmptyFolderCard();
 
         lastPlaying = false;

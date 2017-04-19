@@ -176,6 +176,10 @@ public class FetchMediaFilesManager {
         return fetchStart;
     }
 
+    public void setFetchStart(boolean fetchStart) {
+        this.fetchStart = fetchStart;
+    }
+
     public void setTextWhite() {
         fetchContentView.setTextColor(ContextCompat.getColor(MediaApplication.getInstance().getApplicationContext(),
                 R.color.white));

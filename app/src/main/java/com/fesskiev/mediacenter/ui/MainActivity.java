@@ -131,6 +131,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
         setEffectsNavView();
         setMainNavView();
+        setFetchManager();
 
         if (!settingsManager.isAuthTokenEmpty()) {
             setUserInfo();
@@ -139,7 +140,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         }
 
         if (savedInstanceState == null) {
-            AppLog.ERROR("ADD AUDIO FRAGMENT");
             addAudioFragment();
             checkAudioContentItem();
         } else {
@@ -151,9 +151,16 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("selectedState", selectedState);
+        outState.putBoolean("fetchState", fetchMediaFilesManager.isFetchStart());
     }
 
     private void restoreState(Bundle savedInstanceState) {
+        boolean fetchState = savedInstanceState.getBoolean("fetchState");
+        fetchMediaFilesManager.setFetchStart(fetchState);
+        if (fetchState) {
+            showToolbarTimer();
+        }
+
         selectedState = savedInstanceState.getInt("selectedState");
         checkSelectedFragment();
     }
@@ -181,67 +188,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 refreshAudioFragment();
             }
         }
-    }
-
-    @Override
-    public void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-
-        fetchMediaFilesManager = new FetchMediaFilesManager(null);
-        fetchMediaFilesManager.isNeedTimer(false);
-        fetchMediaFilesManager.setOnFetchMediaFilesListener(new FetchMediaFilesManager.OnFetchMediaFilesListener() {
-
-            @Override
-            public void onFetchMediaPrepare() {
-                AppLog.INFO("PREPARE!");
-
-                fetchMediaFilesManager.setFetchContentView(mediaNavigationView.getFetchContentView());
-                fetchMediaFilesManager.setTextPrimary();
-                showToolbarTimer();
-                disableSwipeRefresh();
-            }
-
-            @Override
-            public void onFetchAudioContentStart(boolean clear) {
-                AppLog.INFO("onFetchAudioContentStart");
-                if (clear) {
-                    clearPlayback();
-                    AnimationUtils.getInstance().animateBottomSheet(bottomSheet, false);
-                    clearAudioFragment();
-                }
-            }
-
-            @Override
-            public void onFetchVideoContentStart(boolean clear) {
-                AppLog.INFO("onFetchVideoContentStart");
-                if (clear) {
-                    clearVideoFragment();
-                }
-            }
-
-            @Override
-            public void onFetchMediaContentFinish() {
-                AppLog.INFO("onFetchMediaContentFinish");
-
-                AnimationUtils.getInstance().animateBottomSheet(bottomSheet, true);
-                hideToolbarTimer();
-                enableSwipeRefresh();
-            }
-
-            @Override
-            public void onAudioFolderCreated() {
-                AppLog.INFO("onAudioFolderCreated");
-                refreshAudioFragment();
-            }
-
-            @Override
-            public void onVideoFolderCreated() {
-                AppLog.INFO("onVideoFolderCreated");
-                refreshVideoFragment();
-
-            }
-        });
-
     }
 
     private void refreshAudioFragment() {
@@ -325,6 +271,65 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     @Override
     public MediaNavigationView getMediaNavigationView() {
         return mediaNavigationView;
+    }
+
+
+    private void setFetchManager() {
+        fetchMediaFilesManager = new FetchMediaFilesManager(null);
+        fetchMediaFilesManager.isNeedTimer(false);
+        fetchMediaFilesManager.setOnFetchMediaFilesListener(new FetchMediaFilesManager.OnFetchMediaFilesListener() {
+
+            @Override
+            public void onFetchMediaPrepare() {
+                AppLog.INFO("PREPARE!");
+
+                fetchMediaFilesManager.setFetchContentView(mediaNavigationView.getFetchContentView());
+                fetchMediaFilesManager.setTextPrimary();
+                showToolbarTimer();
+                disableSwipeRefresh();
+            }
+
+            @Override
+            public void onFetchAudioContentStart(boolean clear) {
+                AppLog.INFO("onFetchAudioContentStart");
+                if (clear) {
+                    clearPlayback();
+                    AnimationUtils.getInstance().animateBottomSheet(bottomSheet, false);
+                    clearAudioFragment();
+                }
+            }
+
+            @Override
+            public void onFetchVideoContentStart(boolean clear) {
+                AppLog.INFO("onFetchVideoContentStart");
+                if (clear) {
+                    clearVideoFragment();
+                }
+            }
+
+            @Override
+            public void onFetchMediaContentFinish() {
+                AppLog.INFO("onFetchMediaContentFinish");
+
+                AnimationUtils.getInstance().animateBottomSheet(bottomSheet, true);
+                hideToolbarTimer();
+                enableSwipeRefresh();
+            }
+
+            @Override
+            public void onAudioFolderCreated() {
+                AppLog.INFO("onAudioFolderCreated");
+                refreshAudioFragment();
+            }
+
+            @Override
+            public void onVideoFolderCreated() {
+                AppLog.INFO("onVideoFolderCreated");
+                refreshVideoFragment();
+
+            }
+        });
+
     }
 
     private void setMainNavView() {
@@ -572,6 +577,10 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
     private void processFinishPlayback() {
 
+        if (fetchMediaFilesManager.isFetchStart()) {
+            stopFetchFiles();
+        }
+
         if (startForeground) {
             PlaybackService.stopPlaybackForegroundService(getApplicationContext());
             startForeground = false;
@@ -610,12 +619,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        if (fetchMediaFilesManager.isFetchStart()) {
-            stopFetchFiles();
-        }
         fetchMediaFilesManager.unregister();
-
         if (!settingsManager.isUserPro()) {
             AdMobHelper.getInstance().destroyAdView();
         }

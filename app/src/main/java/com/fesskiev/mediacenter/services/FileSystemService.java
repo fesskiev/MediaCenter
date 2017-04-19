@@ -267,7 +267,7 @@ public class FileSystemService extends JobService {
                 AppLog.ERROR("found folder: " + path);
 
                 notificationId += 1;
-                NotificationHelper.getInstance(getApplicationContext()).createMediaFoundNotification(path, notificationId);
+                NotificationHelper.getInstance().createMediaFoundNotification(path, notificationId);
 
                 fileWalk(path, scanType);
             }
@@ -564,7 +564,7 @@ public class FileSystemService extends JobService {
                     JobParameters jobParameters = (JobParameters) msg.obj;
 
                     if (jobParameters != null) {
-                        NotificationHelper.getInstance(getApplicationContext()).createFetchNotification();
+                        NotificationHelper.getInstance().createFetchNotification();
                     }
 
                     getMediaContent();
