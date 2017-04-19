@@ -4,7 +4,6 @@ package com.fesskiev.mediacenter.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.util.Log;
@@ -13,7 +12,9 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
@@ -53,6 +54,46 @@ public class BitmapHelper {
 
     private BitmapHelper() {
         context = MediaApplication.getInstance().getApplicationContext();
+    }
+
+
+    public void loadBitmap(MediaFile mediaFile, AudioFolder audioFolder, final OnBitmapLoadListener listener){
+        String path = findPath(mediaFile, audioFolder);
+        if (path != null) {
+            Glide.with(context)
+                    .load(path)
+                    .asBitmap()
+                    .override(WIDTH, HEIGHT)
+                    .centerCrop()
+                    .listener(loggingListener)
+                    .error(R.drawable.icon_error_load_cover)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .into(new SimpleTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                            if (listener != null) {
+                                listener.onLoaded(resource);
+                            }
+                        }
+                    });
+        } else {
+            Glide.with(context)
+                    .load(R.drawable.no_cover_track_icon)
+                    .asBitmap()
+                    .override(WIDTH, HEIGHT)
+                    .centerCrop()
+                    .listener(loggingListener)
+                    .error(R.drawable.icon_error_load_cover)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .into(new SimpleTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                            if (listener != null) {
+                                listener.onLoaded(resource);
+                            }
+                        }
+                    });
+        }
     }
 
 
@@ -174,52 +215,6 @@ public class BitmapHelper {
         }
         return null;
     }
-
-    public void loadArtwork(MediaFile mediaFile, AudioFolder audioFolder, ImageView imageView,
-                            final OnBitmapLoadListener listener) {
-        String path = findPath(mediaFile, audioFolder);
-        if (path != null) {
-            Glide.with(context)
-                    .load(path)
-                    .asBitmap()
-                    .override(WIDTH, HEIGHT)
-                    .centerCrop()
-                    .listener(loggingListener)
-                    .error(R.drawable.icon_error_load_cover)
-                    .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .into(new BitmapImageViewTarget(imageView) {
-                        @Override
-                        protected void setResource(Bitmap resource) {
-                            RoundedBitmapDrawable circularBitmapDrawable =
-                                    RoundedBitmapDrawableFactory.create(context.getResources(), resource);
-                            circularBitmapDrawable.setCircular(true);
-
-                            imageView.setImageDrawable(circularBitmapDrawable);
-
-                            if (listener != null) {
-                                listener.onLoaded(resource);
-                            }
-                        }
-
-                        @Override
-                        public void onLoadFailed(Exception e, Drawable errorDrawable) {
-                            super.onLoadFailed(e, errorDrawable);
-                            if (listener != null) {
-                                listener.onFailed();
-                            }
-                        }
-                    });
-        } else {
-            Glide.with(context)
-                    .load(R.drawable.no_cover_track_icon)
-                    .override(WIDTH, HEIGHT)
-                    .crossFade()
-                    .centerCrop()
-                    .transform(new CircleTransform(context))
-                    .into(imageView);
-        }
-    }
-
 
     public void loadTrackListArtwork(MediaFile mediaFile, AudioFolder audioFolder, ImageView imageView) {
 

@@ -572,8 +572,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
     private void processFinishPlayback() {
 
-        notificationHelper.stopNotification();
-
         if (startForeground) {
             PlaybackService.stopPlaybackForegroundService(getApplicationContext());
             startForeground = false;

@@ -43,7 +43,24 @@ public class NotificationHelper {
     public static final String ACTION_MEDIA_CONTROL_NEXT = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_NEXT";
     public static final String ACTION_MEDIA_CONTROL_PREVIOUS = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_PREVIOUS";
 
+    private Bitmap bitmap;
+    private boolean playing;
+
     public void updateNotification(AudioFile audioFile, Bitmap bitmap, boolean isPlaying) {
+        this.playing = isPlaying;
+        this.bitmap = bitmap;
+        if (isPlaying) {
+            notification = buildNotification(generateAction(R.drawable.icon_pause_media_control,
+                    "Pause", ACTION_MEDIA_CONTROL_PAUSE), audioFile, bitmap);
+        } else {
+            notification = buildNotification(generateAction(R.drawable.icon_play_media_control,
+                    "Play", ACTION_MEDIA_CONTROL_PLAY), audioFile, bitmap);
+        }
+        updateNotification(notification);
+    }
+
+    public void updatePlayingState(AudioFile audioFile, boolean isPlaying) {
+        this.playing = isPlaying;
         if (isPlaying) {
             notification = buildNotification(generateAction(R.drawable.icon_pause_media_control,
                     "Pause", ACTION_MEDIA_CONTROL_PAUSE), audioFile, bitmap);
@@ -116,6 +133,8 @@ public class NotificationHelper {
         notificationManager.cancel(NOTIFICATION_ID);
     }
 
+
+
     public Notification getNotification() {
         return notification;
     }
@@ -162,5 +181,9 @@ public class NotificationHelper {
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(id, notificationBuilder.build());
 
+    }
+
+    public boolean isPlaying() {
+        return playing;
     }
 }

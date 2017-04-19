@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.os.IBinder;
 import android.support.annotation.Keep;
@@ -12,17 +13,25 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.fesskiev.mediacenter.MediaApplication;
+import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.effects.EQState;
 import com.fesskiev.mediacenter.data.model.effects.EchoState;
 import com.fesskiev.mediacenter.data.model.effects.ReverbState;
 import com.fesskiev.mediacenter.data.model.effects.WhooshState;
+import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.AudioFocusManager;
-import com.fesskiev.mediacenter.utils.NotificationHelper;
+import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.CountDownTimer;
+import com.fesskiev.mediacenter.utils.NotificationHelper;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class PlaybackService extends Service {
 
@@ -111,9 +120,13 @@ public class PlaybackService extends Service {
     public static final String PLAYBACK_EXTRA_TEMPO_LEVEL
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_TEMPO_LEVEL";
 
+    private NotificationHelper notificationHelper;
 
     private AudioFocusManager audioFocusManager;
     private CountDownTimer timer;
+
+    private AudioFile currentTrack;
+    private AudioPlayer audioPlayer;
 
     private int duration;
     private int position;
@@ -282,6 +295,8 @@ public class PlaybackService extends Service {
 
         volume = 100;
 
+        EventBus.getDefault().register(this);
+
         timer = new CountDownTimer(500);
         timer.pause();
         timer.setOnCountDownListener(() -> {
@@ -291,6 +306,11 @@ public class PlaybackService extends Service {
                 durationScale = duration / 100;
                 positionPercent = positionPercent * 100;
                 volume *= 100f;
+            }
+
+            boolean notificationPlaying = notificationHelper.isPlaying();
+            if (playing != notificationPlaying) {
+                notificationHelper.updatePlayingState(currentTrack, playing);
             }
 
 //            Log.d("event", PlaybackService.this.toString());
@@ -322,6 +342,7 @@ public class PlaybackService extends Service {
                     }
                 });
 
+        registerNotificationReceiver();
         registerHeadsetReceiver();
         registerCallback();
 
@@ -330,7 +351,7 @@ public class PlaybackService extends Service {
 
     private void next() {
         Log.w(TAG, "NEXT FROM SERVICE");
-        MediaApplication.getInstance().getAudioPlayer().nextAfterEnd();
+        audioPlayer.nextAfterEnd();
     }
 
     @Override
@@ -431,10 +452,77 @@ public class PlaybackService extends Service {
         return START_STICKY;
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onCurrentTrackEvent(AudioFile currentTrack) {
+        this.currentTrack = currentTrack;
+        updateNotification(currentTrack);
+    }
+
+    private void updateNotification(AudioFile audioFile) {
+        audioPlayer.getCurrentAudioFolder()
+                .first()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(audioFolder -> BitmapHelper.getInstance().loadBitmap(audioFile, audioFolder,
+                        new BitmapHelper.OnBitmapLoadListener() {
+                            @Override
+                            public void onLoaded(Bitmap bitmap) {
+                                notificationHelper.updateNotification(audioFile, bitmap, playing);
+                                startForeground(NotificationHelper.NOTIFICATION_ID,
+                                        notificationHelper.getNotification());
+                            }
+
+                            @Override
+                            public void onFailed() {
+
+                            }
+                        }));
+    }
+
+    private void registerNotificationReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(NotificationHelper.ACTION_MEDIA_CONTROL_PLAY);
+        filter.addAction(NotificationHelper.ACTION_MEDIA_CONTROL_PAUSE);
+        filter.addAction(NotificationHelper.ACTION_MEDIA_CONTROL_NEXT);
+        filter.addAction(NotificationHelper.ACTION_MEDIA_CONTROL_PREVIOUS);
+        registerReceiver(notificationReceiver, filter);
+
+    }
+
+    private void unregisterNotificationReceiver() {
+        unregisterReceiver(notificationReceiver);
+    }
+
+    private BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (currentTrack != null) {
+                final String action = intent.getAction();
+                switch (action) {
+                    case NotificationHelper.ACTION_MEDIA_CONTROL_PLAY:
+                        audioPlayer.play();
+                        break;
+                    case NotificationHelper.ACTION_MEDIA_CONTROL_PAUSE:
+                        audioPlayer.pause();
+                        break;
+                    case NotificationHelper.ACTION_MEDIA_CONTROL_PREVIOUS:
+                        audioPlayer.previous();
+                        break;
+                    case NotificationHelper.ACTION_MEDIA_CONTROL_NEXT:
+                        audioPlayer.next();
+                        break;
+                }
+            }
+        }
+    };
+
 
     private void tryStartForeground() {
-        startForeground(NotificationHelper.NOTIFICATION_ID,
-                NotificationHelper.getInstance(getApplicationContext()).getNotification());
+        notificationHelper = NotificationHelper.getInstance(getApplicationContext());
+        audioPlayer = MediaApplication.getInstance().getAudioPlayer();
+        currentTrack = audioPlayer.getCurrentTrack();
+
+        updateNotification(currentTrack);
     }
 
     private void sendPlaybackStateIfNeed() {
@@ -594,9 +682,14 @@ public class PlaybackService extends Service {
         }
         timer.stop();
 
+        notificationHelper.stopNotification();
+
+        unregisterNotificationReceiver();
         unregisterHeadsetReceiver();
         unregisterCallback();
         onDestroyAudioPlayer();
+
+        EventBus.getDefault().unregister(this);
     }
 
     @Nullable
