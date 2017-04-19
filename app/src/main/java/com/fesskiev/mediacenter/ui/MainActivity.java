@@ -54,6 +54,9 @@ import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
 
 public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener {
 
+    private static final int SELECTED_AUDIO = 0;
+    private static final int SELECTED_VIDEO = 1;
+
     private Class<? extends Activity> selectedActivity;
     private CountDownTimer countDownTimer;
 
@@ -70,11 +73,15 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private TextView firstName;
     private TextView lastName;
 
+    private int selectedState;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        selectedState = SELECTED_AUDIO;
 
         settingsManager = AppSettingsManager.getInstance();
         FileSystemService.startFileSystemService(getApplicationContext());
@@ -135,6 +142,31 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             AppLog.ERROR("ADD AUDIO FRAGMENT");
             addAudioFragment();
             checkAudioContentItem();
+        } else {
+            restoreState(savedInstanceState);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("selectedState", selectedState);
+    }
+
+    private void restoreState(Bundle savedInstanceState) {
+        selectedState = savedInstanceState.getInt("selectedState");
+        checkSelectedFragment();
+    }
+
+    private void checkSelectedFragment() {
+        clearItems();
+        switch (selectedState) {
+            case SELECTED_AUDIO:
+                checkAudioContentItem();
+                break;
+            case SELECTED_VIDEO:
+                checkVideoContentItem();
+                break;
         }
     }
 
@@ -560,6 +592,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     @Override
     protected void onResume() {
         super.onResume();
+        checkSelectedFragment();
         if (!settingsManager.isUserPro()) {
             AdMobHelper.getInstance().resumeAdMob();
         } else {
@@ -601,6 +634,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     private void addAudioFragment() {
+        selectedState = SELECTED_AUDIO;
+
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
         hideVisibleFragment(transaction);
@@ -618,6 +653,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     private void addVideoFragment() {
+        selectedState = SELECTED_VIDEO;
+
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
         hideVisibleFragment(transaction);
