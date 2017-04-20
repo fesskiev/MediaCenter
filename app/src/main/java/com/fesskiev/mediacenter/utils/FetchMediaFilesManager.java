@@ -82,19 +82,21 @@ public class FetchMediaFilesManager {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPlaybackStateEvent(FileSystemService fileSystemService) {
         FileSystemService.SCAN_STATE scanState = fileSystemService.getScanState();
-        switch (scanState) {
-            case PREPARE:
-                prepare();
-                break;
-            case SCANNING_ALL:
-                scanning(fileSystemService.getScanType(), true);
-                break;
-            case SCANNING_FOUND:
-                scanning(fileSystemService.getScanType(), false);
-                break;
-            case FINISHED:
-                finish();
-                break;
+        if (scanState != null) {
+            switch (scanState) {
+                case PREPARE:
+                    prepare();
+                    break;
+                case SCANNING_ALL:
+                    scanning(fileSystemService.getScanType(), true);
+                    break;
+                case SCANNING_FOUND:
+                    scanning(fileSystemService.getScanType(), false);
+                    break;
+                case FINISHED:
+                    finish();
+                    break;
+            }
         }
     }
 
