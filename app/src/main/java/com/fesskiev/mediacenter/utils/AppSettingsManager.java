@@ -56,7 +56,7 @@ public class AppSettingsManager {
 
 
     private SharedPreferences sharedPreferences;
-    private static AppSettingsManager appSettingsManager;
+    private static AppSettingsManager INSTANCE;
 
 
     private AppSettingsManager(Context context) {
@@ -65,10 +65,10 @@ public class AppSettingsManager {
     }
 
     public static AppSettingsManager getInstance() {
-        if (appSettingsManager == null) {
-            appSettingsManager = new AppSettingsManager(MediaApplication.getInstance().getApplicationContext());
+        if (INSTANCE == null) {
+            INSTANCE = new AppSettingsManager(MediaApplication.getInstance().getApplicationContext());
         }
-        return appSettingsManager;
+        return INSTANCE;
     }
 
 

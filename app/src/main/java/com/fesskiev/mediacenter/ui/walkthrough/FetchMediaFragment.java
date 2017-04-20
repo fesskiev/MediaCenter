@@ -25,8 +25,6 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
 
     private FetchMediaFilesManager fetchMediaFilesManager;
 
-    private boolean fetchMediaGranted;
-
     private TextView fetchText;
     private Button[] buttons;
 
@@ -57,9 +55,10 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
             button.setOnClickListener(this);
         }
 
-
         FetchContentView fetchContentView = (FetchContentView) view.findViewById(R.id.fetchContentView);
-        fetchMediaFilesManager = new FetchMediaFilesManager(fetchContentView);
+
+        fetchMediaFilesManager = FetchMediaFilesManager.getInstance();
+        fetchMediaFilesManager.setFetchContentView(fetchContentView);
         fetchMediaFilesManager.isNeedTimer(true);
         fetchMediaFilesManager.setTextWhite();
         fetchMediaFilesManager.setOnFetchMediaFilesListener(new FetchMediaFilesManager.OnFetchMediaFilesListener() {
@@ -95,32 +94,27 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
 
             }
         });
-
-        if (savedInstanceState != null) {
-            restoreState(savedInstanceState);
-        }
     }
-
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean("fetchState", fetchMediaFilesManager.isFetchStart());
-        outState.putBoolean("fetchMediaGranted", fetchMediaGranted);
-    }
-
-    private void restoreState(Bundle savedInstanceState) {
-        fetchMediaGranted = savedInstanceState.getBoolean("fetchMediaGranted");
-        if (fetchMediaGranted) {
+    public void onResume() {
+        super.onResume();
+        fetchMediaFilesManager.register();
+        if (fetchMediaFilesManager.isFetchStart()) {
+            fetchText.setVisibility(View.GONE);
+            fetchMediaFilesManager.visibleContent();
+            hideButtons();
+        } else if (fetchMediaFilesManager.isFetchComplete()) {
             hideButtons();
             fetchMediaFilesSuccess();
-            return;
         }
-
-        boolean fetchState = savedInstanceState.getBoolean("fetchState");
-        fetchMediaFilesManager.setFetchStart(fetchState);
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        fetchMediaFilesManager.unregister();
+    }
 
     @Override
     public void onClick(View v) {
@@ -139,14 +133,12 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
     }
 
     private void skipFetchMediaFiles() {
-        fetchMediaGranted = true;
         hideButtons();
         fetchMediaFilesSuccess();
     }
 
 
     private void fetchMediaFilesSuccess() {
-        fetchMediaGranted = true;
 
         fetchText.setVisibility(View.VISIBLE);
         fetchText.setText(getString(R.string.search_media_files_success));
@@ -170,12 +162,13 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
         }
     }
 
-    public FetchMediaFilesManager getFetchMediaFilesManager() {
-        return fetchMediaFilesManager;
+    public boolean isFetchMediaStart() {
+        return fetchMediaFilesManager.isFetchStart();
     }
 
     private void stopFetchFiles() {
         FileSystemService.shouldContinue = false;
+        FileSystemService.stopFileSystemService(getContext().getApplicationContext());
     }
 
     public void stopFetchMedia() {

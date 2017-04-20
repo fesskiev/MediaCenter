@@ -164,14 +164,12 @@ public class PlaybackService extends Service {
         context.startService(intent);
     }
 
-
     public static void setPitchShift(Context context, int pitchShift) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_PITCH_SHIFT);
         intent.putExtra(PLAYBACK_EXTRA_PITCH_SHIFT_LEVEL, pitchShift);
         context.startService(intent);
     }
-
 
     public static void startRecording(Context context) {
         Intent intent = new Intent(context, PlaybackService.class);
@@ -184,7 +182,6 @@ public class PlaybackService extends Service {
         intent.setAction(ACTION_STOP_RECORDING);
         context.startService(intent);
     }
-
 
     public static void requestPlaybackStateIfNeed(Context context) {
         Intent intent = new Intent(context, PlaybackService.class);

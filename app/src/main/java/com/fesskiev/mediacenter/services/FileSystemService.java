@@ -73,6 +73,7 @@ public class FileSystemService extends JobService {
     private static final String ACTION_START_FETCH_MEDIA = "com.fesskiev.player.action.FETCH_MEDIA";
     private static final String ACTION_START_FETCH_AUDIO = "com.fesskiev.player.action.START_FETCH_AUDIO";
     private static final String ACTION_START_FETCH_VIDEO = "com.fesskiev.player.action.START_FETCH_VIDEO";
+    private static final String ACTION_FETCH_STATE = "com.fesskiev.player.action.ACTION_FETCH_STATE";
 
     private static final String ACTION_CHECK_DOWNLOAD_FOLDER = "com.fesskiev.player.action.CHECK_DOWNLOAD_FOLDER";
 
@@ -116,6 +117,12 @@ public class FileSystemService extends JobService {
     public static void startCheckDownloadFolderService(Context context) {
         Intent intent = new Intent(context, FileSystemService.class);
         intent.setAction(ACTION_CHECK_DOWNLOAD_FOLDER);
+        context.startService(intent);
+    }
+
+    public static void requestFetchState(Context context) {
+        Intent intent = new Intent(context, FileSystemService.class);
+        intent.setAction(ACTION_FETCH_STATE);
         context.startService(intent);
     }
 
@@ -212,10 +219,17 @@ public class FileSystemService extends JobService {
                     case ACTION_CHECK_DOWNLOAD_FOLDER:
                         handler.sendEmptyMessage(3);
                         break;
+                    case ACTION_FETCH_STATE:
+                        sendFetchState();
+                        break;
                 }
             }
         }
         return START_NOT_STICKY;
+    }
+
+    private void sendFetchState() {
+        EventBus.getDefault().post(FileSystemService.this);
     }
 
     private void prepareScan() {
@@ -233,12 +247,14 @@ public class FileSystemService extends JobService {
         shouldContinue = true;
         scanState = SCAN_STATE.SCANNING_FOUND;
         EventBus.getDefault().post(FileSystemService.this);
+        AppLog.WTF("finishScan()");
     }
 
     private void finishScan() {
         scanState = SCAN_STATE.FINISHED;
         shouldContinue = false;
         EventBus.getDefault().post(FileSystemService.this);
+        AppLog.WTF("finishScan()");
 
     }
 

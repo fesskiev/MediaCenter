@@ -22,6 +22,9 @@ import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.InkPageIndicator;
 import com.fesskiev.mediacenter.widgets.pager.DisableSwipingViewPager;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class WalkthroughFragment extends Fragment {
 
@@ -30,6 +33,7 @@ public class WalkthroughFragment extends Fragment {
     }
 
     private DisableSwipingViewPager viewPager;
+    private WalkthroughPagerAdapter adapter;
     private Fragment[] fragments;
     private Button enterAppButton;
 
@@ -76,25 +80,12 @@ public class WalkthroughFragment extends Fragment {
             permissionGranted = true;
         }
 
-        viewPager.setAdapter(new WalkthroughPagerAdapter(getFragmentManager()));
+        adapter = new WalkthroughPagerAdapter(getFragmentManager());
+        viewPager.setAdapter(adapter);
 
         InkPageIndicator pageIndicator = (InkPageIndicator) view.findViewById(R.id.indicator);
         pageIndicator.setViewPager(viewPager);
 
-        if (savedInstanceState != null) {
-            restoreState(savedInstanceState);
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean("fetchMediaGranted", fetchMediaGranted);
-    }
-
-    private void restoreState(Bundle savedInstanceState) {
-        fetchMediaGranted = savedInstanceState.getBoolean("fetchMediaGranted");
-        checkEnableEnterButton();
     }
 
     private void startAnimation(View view) {
@@ -147,8 +138,24 @@ public class WalkthroughFragment extends Fragment {
 
     private class WalkthroughPagerAdapter extends FragmentStatePagerAdapter {
 
+        private List<Fragment> registeredFragments = new ArrayList<>();
+
         public WalkthroughPagerAdapter(FragmentManager fm) {
             super(fm);
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            Fragment fragment = (Fragment) super.instantiateItem(container, position);
+            registeredFragments.add(fragment);
+
+            return fragment;
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            registeredFragments.remove(position);
+            super.destroyItem(container, position, object);
         }
 
         @Override
@@ -161,9 +168,18 @@ public class WalkthroughFragment extends Fragment {
             return fragments[position];
         }
 
+        public List<Fragment> getRegisteredFragments() {
+            return registeredFragments;
+        }
     }
 
     public FetchMediaFragment getFetchMediaFragment() {
-        return (FetchMediaFragment) fragments[1];
+        List<Fragment> fragments = adapter.getRegisteredFragments();
+        for (Fragment f : fragments) {
+            if (f instanceof FetchMediaFragment) {
+                return (FetchMediaFragment) f;
+            }
+        }
+        return null;
     }
 }

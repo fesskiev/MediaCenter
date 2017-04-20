@@ -12,6 +12,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.lang.ref.WeakReference;
+
 import static com.fesskiev.mediacenter.services.FileSystemService.FetchFolderCreate.AUDIO;
 import static com.fesskiev.mediacenter.services.FileSystemService.FetchFolderCreate.VIDEO;
 
@@ -35,16 +37,32 @@ public class FetchMediaFilesManager {
         void onVideoFolderCreated();
     }
 
+
+    private static FetchMediaFilesManager INSTANCE;
+
+    public static FetchMediaFilesManager getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new FetchMediaFilesManager();
+        }
+        return INSTANCE;
+    }
+
     private OnFetchMediaFilesListener listener;
-    private FetchContentView fetchContentView;
+
+    private WeakReference<FetchContentView> fetchContentRef;
+
     private boolean fetchStart;
+    private boolean fetchComplete;
     private boolean needTimer;
     private int folderAudioCount;
     private int folderVideoCount;
 
-    public FetchMediaFilesManager(FetchContentView fetchContentView) {
-        this.fetchContentView = fetchContentView;
-        EventBus.getDefault().register(this);
+    private FetchMediaFilesManager() {
+
+    }
+
+    public void setFetchContentView(FetchContentView fetchContentView) {
+        this.fetchContentRef = new WeakReference<>(fetchContentView);
     }
 
     public void setOnFetchMediaFilesListener(OnFetchMediaFilesListener l) {
@@ -53,6 +71,12 @@ public class FetchMediaFilesManager {
 
     public void unregister() {
         EventBus.getDefault().unregister(this);
+    }
+
+    public void register() {
+        EventBus.getDefault().register(this);
+        FileSystemService.requestFetchState(MediaApplication.getInstance().getApplicationContext());
+
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -75,11 +99,10 @@ public class FetchMediaFilesManager {
     }
 
 
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onFetchObjectEvent(FileSystemService.FetchDescription fetchDescription) {
+        FetchContentView fetchContentView = fetchContentRef.get();
         if (fetchContentView != null) {
-
             String folderName = fetchDescription.getFolderName();
             if (folderName != null) {
                 fetchContentView.setFolderName(folderName);
@@ -114,14 +137,20 @@ public class FetchMediaFilesManager {
 
     }
 
-    private void scanning(FileSystemService.SCAN_TYPE scanType, boolean clear) {
+    public void visibleContent() {
+        FetchContentView fetchContentView = fetchContentRef.get();
         if (fetchContentView != null) {
             fetchContentView.setVisibleContent();
             if (needTimer) {
                 fetchContentView.showTimer();
             }
         }
+    }
+
+    private void scanning(FileSystemService.SCAN_TYPE scanType, boolean clear) {
+        visibleContent();
         fetchStart = true;
+        fetchComplete = false;
 
         switch (scanType) {
             case AUDIO:
@@ -150,6 +179,7 @@ public class FetchMediaFilesManager {
             listener.onVideoFolderCreated();
         }
 
+        FetchContentView fetchContentView = fetchContentRef.get();
         if (fetchContentView != null) {
             fetchContentView.setInvisibleContent();
             if (needTimer) {
@@ -158,6 +188,7 @@ public class FetchMediaFilesManager {
             }
         }
         fetchStart = false;
+        fetchComplete = true;
         folderVideoCount = 0;
         folderAudioCount = 0;
     }
@@ -168,26 +199,28 @@ public class FetchMediaFilesManager {
         }
     }
 
-    public void setFetchContentView(FetchContentView fetchContentView) {
-        this.fetchContentView = fetchContentView;
-    }
-
     public boolean isFetchStart() {
         return fetchStart;
     }
 
-    public void setFetchStart(boolean fetchStart) {
-        this.fetchStart = fetchStart;
+    public boolean isFetchComplete() {
+        return fetchComplete;
     }
 
     public void setTextWhite() {
-        fetchContentView.setTextColor(ContextCompat.getColor(MediaApplication.getInstance().getApplicationContext(),
-                R.color.white));
+        FetchContentView fetchContentView = fetchContentRef.get();
+        if (fetchContentView != null) {
+            fetchContentView.setTextColor(ContextCompat.getColor(MediaApplication.getInstance().getApplicationContext(),
+                    R.color.white));
+        }
     }
 
     public void setTextPrimary() {
-        fetchContentView.setTextColor(ContextCompat.getColor(MediaApplication.getInstance().getApplicationContext(),
-                R.color.primary));
+        FetchContentView fetchContentView = fetchContentRef.get();
+        if (fetchContentView != null) {
+            fetchContentView.setTextColor(ContextCompat.getColor(MediaApplication.getInstance().getApplicationContext(),
+                    R.color.primary));
+        }
     }
 
     public void isNeedTimer(boolean needTimer) {

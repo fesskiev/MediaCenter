@@ -151,13 +151,10 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("selectedState", selectedState);
-        outState.putBoolean("fetchState", fetchMediaFilesManager.isFetchStart());
     }
 
     private void restoreState(Bundle savedInstanceState) {
-        boolean fetchState = savedInstanceState.getBoolean("fetchState");
-        fetchMediaFilesManager.setFetchStart(fetchState);
-        if (fetchState) {
+        if (fetchMediaFilesManager.isFetchStart()) {
             showToolbarTimer();
         }
 
@@ -275,7 +272,9 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
 
     private void setFetchManager() {
-        fetchMediaFilesManager = new FetchMediaFilesManager(null);
+        fetchMediaFilesManager = FetchMediaFilesManager.getInstance();
+        fetchMediaFilesManager.setFetchContentView(mediaNavigationView.getFetchContentView());
+        fetchMediaFilesManager.register();
         fetchMediaFilesManager.isNeedTimer(false);
         fetchMediaFilesManager.setOnFetchMediaFilesListener(new FetchMediaFilesManager.OnFetchMediaFilesListener() {
 
@@ -283,7 +282,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             public void onFetchMediaPrepare() {
                 AppLog.INFO("PREPARE!");
 
-                fetchMediaFilesManager.setFetchContentView(mediaNavigationView.getFetchContentView());
                 fetchMediaFilesManager.setTextPrimary();
                 showToolbarTimer();
                 disableSwipeRefresh();
@@ -620,6 +618,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     protected void onDestroy() {
         super.onDestroy();
         fetchMediaFilesManager.unregister();
+
         if (!settingsManager.isUserPro()) {
             AdMobHelper.getInstance().destroyAdView();
         }

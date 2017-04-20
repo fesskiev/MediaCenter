@@ -33,10 +33,10 @@ public class WalkthroughActivity extends AnalyticsActivity {
     public void onBackPressed() {
         WalkthroughFragment walkthroughFragment =
                 (WalkthroughFragment) getSupportFragmentManager().findFragmentByTag(WalkthroughFragment.class.getName());
-        if(walkthroughFragment != null){
+        if (walkthroughFragment != null) {
             FetchMediaFragment fetchMediaFragment = walkthroughFragment.getFetchMediaFragment();
-            if(fetchMediaFragment != null) {
-                if (fetchMediaFragment.getFetchMediaFilesManager().isFetchStart()) {
+            if (fetchMediaFragment != null) {
+                if (fetchMediaFragment.isFetchMediaStart()) {
                     View view = findViewById(R.id.content);
                     if (view != null) {
                         Utils.showCustomSnackbar(view, getApplicationContext(),
@@ -45,15 +45,12 @@ public class WalkthroughActivity extends AnalyticsActivity {
                                 .setAction(getString(R.string.snack_exit_action), v ->
                                         stopFetchMediaAndExit(fetchMediaFragment))
                                 .show();
+                        return;
                     }
                 }
-            } else {
-                super.onBackPressed();
             }
-        } else {
-            super.onBackPressed();
         }
-
+        super.onBackPressed();
     }
 
     private void stopFetchMediaAndExit(FetchMediaFragment fetchMediaFragment) {

@@ -3,19 +3,6 @@
     android:layout_height="match_parent"
     android:background="@android:color/transparent">
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_centerInParent="true">
-
-        <com.fesskiev.mediacenter.widgets.fetch.FetchContentView
-            android:id="@+id/fetchContentView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center" />
-
-    </FrameLayout>
-
     <TextView
         android:id="@+id/fetchText"
         style="@style/WalkThroughTextAppearance"
@@ -62,6 +49,19 @@
             android:text="@string/dialog_permission_cancel" />
 
     </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true">
+
+        <com.fesskiev.mediacenter.widgets.fetch.FetchContentView
+            android:id="@+id/fetchContentView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+
+    </FrameLayout>
 
 
 </RelativeLayout>
