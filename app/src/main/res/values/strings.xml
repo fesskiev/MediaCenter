@@ -19,7 +19,7 @@
 
     <string name="product_price">Price:</string>
 
-    <string name="snack_exit_text">Do you want exit from app?</string>
+    <string name="snack_exit_text">Are you sure you want to exit from app?</string>
     <string name="snack_exit_action">EXIT</string>
 
     <string name="title_music_vk_activity">VK</string>
@@ -33,10 +33,10 @@
     <string name="title_activity_equalizer">EqualizerActivity</string>
     <string name="title_activity_music_vk">MusicVKActivity</string>
 
-    <string name="empty_music_file_artist">artist</string>
-    <string name="empty_music_file_title">title</string>
-    <string name="empty_music_file_album">album</string>
-    <string name="empty_music_file_genre">genre</string>
+    <string name="empty_music_file_artist">no artist</string>
+    <string name="empty_music_file_title">no title</string>
+    <string name="empty_music_file_album">no album</string>
+    <string name="empty_music_file_genre">no genre</string>
 
     <string name="drawer_item_about">About</string>
     <string name="drawer_item_settings">Settings</string>
@@ -234,7 +234,7 @@
 
     <string name="splash_screen_title">Power media player</string>
 
-    <string name="splash_snackbar_stop_fetch">Do you want stop searching files?</string>
+    <string name="splash_snackbar_stop_fetch">Are you sure yo want stop searching and exit from app ?</string>
 
     <string name="update_no_period">Do not update on period</string>
     <string name="update_period_30_minutes">30 minutes</string>
@@ -247,6 +247,7 @@
     <string name="sort_by_file_size">File size</string>
     <string name="sort_by_track_number">Track number</string>
     <string name="sort_by_timestamp">Recent</string>
+    <string name="sort_title">Sorting</string>
 
     <string name="playlist_menu_clear">Clear</string>
 

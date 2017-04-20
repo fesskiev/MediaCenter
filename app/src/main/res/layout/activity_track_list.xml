@@ -43,7 +43,7 @@
             fab:menu_backgroundColor="@color/colorFabBackground"
             fab:menu_labels_textColor="@color/secondary_text"
             fab:menu_labels_colorNormal="@color/white"
-            fab:menu_fab_label="Сортировка"
+            fab:menu_fab_label="@string/sort_title"
             fab:menu_icon="@drawable/icon_sorting"
             fab:menu_colorNormal="@color/accent"
             fab:menu_colorPressed="@color/accent"
