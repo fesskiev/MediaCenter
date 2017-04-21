@@ -513,6 +513,7 @@ public class PlaybackService extends Service {
                         break;
                     case NotificationHelper.ACTION_MEDIA_CONTROL_NEXT:
                         audioPlayer.next();
+                        break;
                     case NotificationHelper.ACTION_CLOSE_APP:
                         closeApp();
                         break;
