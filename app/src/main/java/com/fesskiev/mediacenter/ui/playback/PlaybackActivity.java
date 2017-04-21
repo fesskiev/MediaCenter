@@ -41,6 +41,8 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
     public abstract MediaNavigationView getMediaNavigationView();
 
+    public abstract void processFinishPlayback();
+
     protected AudioPlayer audioPlayer;
 
     private List<AudioFile> currentTrackList;
@@ -204,6 +206,10 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPlaybackStateEvent(PlaybackService playbackState) {
+        if (playbackState.isFinish()) {
+            processFinishPlayback();
+            return;
+        }
 
         boolean isLoadSuccess = playbackState.isLoadSuccess();
         if (lastLoadSuccess != isLoadSuccess) {

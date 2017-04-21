@@ -573,7 +573,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         exitDialog.setOnExitListener(this::processFinishPlayback);
     }
 
-    private void processFinishPlayback() {
+    @Override
+    public void processFinishPlayback() {
 
         if (fetchMediaFilesManager.isFetchStart()) {
             stopFetchFiles();

@@ -43,6 +43,7 @@ public class NotificationHelper {
     public static final String ACTION_MEDIA_CONTROL_PAUSE = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_PAUSE";
     public static final String ACTION_MEDIA_CONTROL_NEXT = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_NEXT";
     public static final String ACTION_MEDIA_CONTROL_PREVIOUS = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_PREVIOUS";
+    public static final String ACTION_CLOSE_APP = "com.fesskiev.player.action.ACTION_CLOSE_APP";
 
     private Bitmap bitmap;
     private boolean playing;
@@ -112,6 +113,9 @@ public class NotificationHelper {
         }
         notificationBuilder.addAction(generateAction(R.drawable.icon_next_media_control,
                 "Next", ACTION_MEDIA_CONTROL_NEXT));
+
+        notificationBuilder.addAction(generateAction(R.drawable.icon_notification_close,
+                "Close", ACTION_CLOSE_APP));
 
         return notificationBuilder.build();
     }

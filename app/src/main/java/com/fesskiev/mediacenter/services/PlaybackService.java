@@ -146,6 +146,8 @@ public class PlaybackService extends Service {
     private boolean loadSuccess;
     private boolean loadError;
 
+    private boolean finish;
+
 
     public static void startPlaybackForegroundService(Context context) {
         Intent intent = new Intent(context, PlaybackService.class);
@@ -485,6 +487,7 @@ public class PlaybackService extends Service {
         filter.addAction(NotificationHelper.ACTION_MEDIA_CONTROL_PAUSE);
         filter.addAction(NotificationHelper.ACTION_MEDIA_CONTROL_NEXT);
         filter.addAction(NotificationHelper.ACTION_MEDIA_CONTROL_PREVIOUS);
+        filter.addAction(NotificationHelper.ACTION_CLOSE_APP);
         registerReceiver(notificationReceiver, filter);
 
     }
@@ -510,11 +513,24 @@ public class PlaybackService extends Service {
                         break;
                     case NotificationHelper.ACTION_MEDIA_CONTROL_NEXT:
                         audioPlayer.next();
+                    case NotificationHelper.ACTION_CLOSE_APP:
+                        closeApp();
                         break;
                 }
             }
         }
     };
+
+    private void closeApp() {
+        finish = true;
+        EventBus.getDefault().post(PlaybackService.this);
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        stopSelf();
+    }
 
 
     private void tryStartForeground() {
@@ -855,6 +871,10 @@ public class PlaybackService extends Service {
 
     public boolean isLoadError() {
         return loadError;
+    }
+
+    public boolean isFinish() {
+        return finish;
     }
 
     @Override
