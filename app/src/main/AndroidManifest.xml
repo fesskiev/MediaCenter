@@ -247,6 +247,17 @@
         </activity>
 
         <activity
+            android:name=".ui.chooser.FileSystemChooserActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:parentActivityName=".ui.MainActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/ActivityDialog.Theme.MediaCenter">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.fesskiev.mediacenter.ui.MainActivity" />
+        </activity>
+
+        <activity
             android:name=".ui.billing.InAppBillingActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="portrait"

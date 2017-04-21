@@ -245,4 +245,9 @@
     <string name="hide_folder_text">Скрыть папку</string>
     <string name="hide_video_file_text">Скрыть файл</string>
 
+    <string name="confirm_label">Подтвердить</string>
+    <string name="selected_folder_label">Выбранная папка:</string>
+    <string name="up_label">Вверх</string>
+    <string name="cancel_label">Отмена</string>
+
 </resources>
