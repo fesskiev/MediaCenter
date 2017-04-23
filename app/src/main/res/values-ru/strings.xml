@@ -27,6 +27,7 @@
     <string name="title_about_activity">О проекте</string>
     <string name="title_playlist_activity">Плейлист</string>
     <string name="title_effects">Эффекты</string>
+    <string name="title_cue_activity">Cue-файл парсер</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -161,6 +162,8 @@
 
     <string name="snackbar_chooser_extension_error">Выбрано неверное расширение</string>
     <string name="snackbar_chooser_file_error">Выбран неверный тип файла</string>
+
+    <string name="snackbar_cue_parse_error">Ошибка обработки cue-файла</string>
 
     <string name="snackbar_unexpected_error">Непредвиденная ошибка</string>
     <string name="snackbar_internet_disable_error">Отсутствует интернет соединение</string>

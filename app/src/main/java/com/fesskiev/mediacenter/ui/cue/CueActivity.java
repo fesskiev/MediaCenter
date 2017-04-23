@@ -2,21 +2,24 @@ package com.fesskiev.mediacenter.ui.cue;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
+import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.chooser.FileSystemChooserActivity;
-import com.fesskiev.mediacenter.utils.AppLog;
+import com.fesskiev.mediacenter.utils.AppSettingsManager;
+import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.cue.CueParser;
 import com.fesskiev.mediacenter.utils.cue.CueSheet;
 import com.fesskiev.mediacenter.utils.cue.Index;
-import com.fesskiev.mediacenter.utils.cue.Position;
 import com.fesskiev.mediacenter.utils.cue.TrackData;
 import com.fesskiev.mediacenter.widgets.recycleview.ScrollingLinearLayoutManager;
 
@@ -29,11 +32,19 @@ import java.util.List;
 public class CueActivity extends AnalyticsActivity {
 
     private CueAdapter adapter;
+    private AppSettingsManager settingsManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cue);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            toolbar.setTitle(getString(R.string.title_cue_activity));
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(this,
@@ -41,7 +52,29 @@ public class CueActivity extends AnalyticsActivity {
         adapter = new CueAdapter();
         recyclerView.setAdapter(adapter);
 
-        startChooserActivity();
+        findViewById(R.id.addCueFileFab).setOnClickListener(v -> startChooserActivity());
+
+        settingsManager = AppSettingsManager.getInstance();
+        tryLoadCue();
+    }
+
+    private void tryLoadCue() {
+        String cuePath = settingsManager.getCuePath();
+        if (!cuePath.isEmpty()) {
+            parseCueFile(cuePath);
+        }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+
+    @Override
+    public String getActivityName() {
+        return this.getLocalClassName();
     }
 
     @Override
@@ -49,6 +82,7 @@ public class CueActivity extends AnalyticsActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == FileSystemChooserActivity.RESULT_CODE_PATH_SELECTED) {
             String cuePath = data.getStringExtra(FileSystemChooserActivity.RESULT_SELECTED_PATH);
+            settingsManager.setCuePath(cuePath);
             parseCueFile(cuePath);
         } else if (requestCode == RESULT_CANCELED) {
             finish();
@@ -71,33 +105,18 @@ public class CueActivity extends AnalyticsActivity {
                 adapter.refresh(trackDatas);
             }
 
-            for (TrackData trackData : trackDatas) {
-                AppLog.ERROR("***********");
-                AppLog.ERROR("TrackData");
-                AppLog.ERROR("Title: " + trackData.getTitle());
-                AppLog.ERROR("Performer: " + trackData.getPerformer());
-
-//                Position pre = trackData.getPostgap();
-//                Position post = trackData.getPregap();
-//                AppLog.ERROR("Pregap: " + (pre == null ? "null" : pre.toString()));
-//                AppLog.ERROR("Postgap: " + (post== null ? "null" : post.toString()));
-
-                List<Index> indexes = trackData.getIndices();
-                for (Index index : indexes) {
-                    Position position = index.getPosition();
-                    AppLog.ERROR("pos: " + position.toString());
-                }
-            }
         } catch (IOException e) {
             e.printStackTrace();
+            errorParseCue();
         }
     }
 
-    @Override
-    public String getActivityName() {
-        return this.getLocalClassName();
+    private void errorParseCue() {
+        settingsManager.setCuePath("");
+        Utils.showCustomSnackbar(findViewById(R.id.cueRoot), getApplicationContext(),
+                getString(R.string.snackbar_cue_parse_error),
+                Snackbar.LENGTH_LONG).show();
     }
-
 
     private class CueAdapter extends RecyclerView.Adapter<CueAdapter.ViewHolder> {
 
@@ -109,8 +128,37 @@ public class CueActivity extends AnalyticsActivity {
 
         class ViewHolder extends RecyclerView.ViewHolder {
 
+            TextView index;
+            TextView performer;
+            TextView title;
+
             public ViewHolder(View v) {
                 super(v);
+                v.setOnClickListener(v1 -> seekToPosition(getAdapterPosition()));
+
+                performer = (TextView) v.findViewById(R.id.itemPerformer);
+                index = (TextView) v.findViewById(R.id.itemIndex);
+                title = (TextView) v.findViewById(R.id.itemTitle);
+            }
+        }
+
+        private void seekToPosition(int position) {
+            TrackData trackData = trackDatas.get(position);
+            if (trackData != null) {
+                List<Index> indices = trackData.getIndices();
+                if (indices != null && !indices.isEmpty()) {
+                    PlaybackService.setPositionPlayback(getApplicationContext(), getTrackDataSecondsPosition(indices));
+                }
+            }
+        }
+
+        private int getTrackDataSecondsPosition(List<Index> indices) {
+            if (indices.size() > 1) {
+                Index index = indices.get(1);
+                return index.getPosition().getTotalFrames() / 75;
+            } else {
+                Index index = indices.get(0);
+                return index.getPosition().getTotalFrames() / 75;
             }
         }
 
@@ -125,7 +173,25 @@ public class CueActivity extends AnalyticsActivity {
         public void onBindViewHolder(ViewHolder holder, int position) {
             TrackData trackData = trackDatas.get(position);
             if (trackData != null) {
+                String performer = trackData.getPerformer();
+                if (performer != null) {
+                    holder.performer.setText(performer);
+                } else {
+                    holder.performer.setText("");
+                }
+                String title = trackData.getTitle();
+                if (title != null) {
+                    holder.title.setText(title);
+                } else {
+                    holder.title.setText("");
+                }
 
+                List<Index> indices = trackData.getIndices();
+                if (indices != null && !indices.isEmpty()) {
+                    holder.index.setText(Utils.getTimeFromSecondsString(getTrackDataSecondsPosition(indices)));
+                } else {
+                    holder.index.setText("");
+                }
             }
         }
 

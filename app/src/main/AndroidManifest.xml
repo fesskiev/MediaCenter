@@ -92,8 +92,7 @@
             android:name=".ui.cue.CueActivity"
             android:parentActivityName="com.fesskiev.mediacenter.ui.MainActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize"
-            android:theme="@style/ActivityDialog.Theme.MediaCenter">
+            android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fesskiev.mediacenter.ui.MainActivity" />

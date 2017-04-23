@@ -27,6 +27,7 @@
     <string name="title_about_activity">About</string>
     <string name="title_playlist_activity">Playlist</string>
     <string name="title_effects">Effects</string>
+    <string name="title_cue_activity">Cue file parser</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -167,6 +168,8 @@
 
     <string name="snackbar_chooser_extension_error">Selected wrong extension!</string>
     <string name="snackbar_chooser_file_error">Selected wrong file type!</string>
+
+    <string name="snackbar_cue_parse_error">Error parse cue file</string>
 
     <string name="snackbar_unexpected_error">Unexpected error</string>
     <string name="snackbar_internet_disable_error">No internet connection</string>

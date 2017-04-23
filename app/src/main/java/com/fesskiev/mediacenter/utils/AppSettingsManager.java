@@ -54,6 +54,7 @@ public class AppSettingsManager {
     private static final String KEY_ENCRYPT = "com.fesskiev.player.KEY_ENCRYPT";
     private static final String KEY_SHOW_HIDDEN_FILES = "com.fesskiev.player.KEY_SHOW_HIDDEN_FILES";
     private static final String KEY_RECORD_PATH = "com.fesskiev.player.KEY_RECORD_PATH";
+    private static final String KEY_CUE_PATH = "com.fesskiev.player.KEY_CUE_PATH";
 
 
     private SharedPreferences sharedPreferences;
@@ -337,6 +338,16 @@ public class AppSettingsManager {
     public void setRecordPath(String path) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(KEY_RECORD_PATH, path);
+        editor.apply();
+    }
+
+    public String getCuePath() {
+        return sharedPreferences.getString(KEY_CUE_PATH,  "");
+    }
+
+    public void setCuePath(String path) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(KEY_CUE_PATH, path);
         editor.apply();
     }
 

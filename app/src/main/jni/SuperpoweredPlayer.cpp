@@ -350,6 +350,10 @@ void SuperpoweredPlayer::setPitchShift(int value) {
     player->setPitchShift((int) pitchShift);
 }
 
+void SuperpoweredPlayer::setPosition(int value) {
+    player->setPosition(value * 1000, false, false);
+}
+
 
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     gJavaVM = vm;
@@ -553,5 +557,12 @@ extern "C" JNIEXPORT void
 Java_com_fesskiev_mediacenter_services_PlaybackService_setTempo(JNIEnv *env, jobject instance,
                                                                 jdouble tempo) {
     player->setTempo(tempo);
+}
+
+extern "C" JNIEXPORT void
+Java_com_fesskiev_mediacenter_services_PlaybackService_setPosition(JNIEnv *env, jobject instance,
+                                                                   jint value) {
+
+    player->setPosition(value);
 }
 

@@ -26,7 +26,7 @@
             android:layout_centerVertical="true"
             android:contentDescription="@string/app_name"
             android:scaleType="fitCenter"
-            tools:src="@drawable/icon_chooser_folder" />
+            tools:src="@drawable/icon_choose_folder" />
 
         <RelativeLayout
             android:id="@+id/content"

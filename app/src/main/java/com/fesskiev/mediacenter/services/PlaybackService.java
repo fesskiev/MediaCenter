@@ -52,6 +52,8 @@ public class PlaybackService extends Service {
             "com.fesskiev.player.action.ACTION_STOP_PLAYBACK";
     public static final String ACTION_PLAYBACK_SEEK =
             "com.fesskiev.player.action.ACTION_PLAYBACK_SEEK";
+    public static final String ACTION_PLAYBACK_POSITION =
+            "com.fesskiev.player.action.ACTION_PLAYBACK_POSITION";
     public static final String ACTION_PLAYBACK_VOLUME =
             "com.fesskiev.player.action.ACTION_PLAYBACK_VOLUME";
     public static final String ACTION_PLAYBACK_EQ_STATE =
@@ -90,6 +92,8 @@ public class PlaybackService extends Service {
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_MUSIC_FILE_PATH";
     public static final String PLAYBACK_EXTRA_SEEK
             = "com.fesskiev.player.extra.SEEK";
+    public static final String PLAYBACK_EXTRA_POSITION
+            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_POSITION";
     public static final String PLAYBACK_EXTRA_VOLUME
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_VOLUME";
     public static final String PLAYBACK_EXTRA_EQ_ENABLE
@@ -281,6 +285,13 @@ public class PlaybackService extends Service {
         context.startService(intent);
     }
 
+    public static void setPositionPlayback(Context context, int position) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_PLAYBACK_POSITION);
+        intent.putExtra(PLAYBACK_EXTRA_POSITION, position);
+        context.startService(intent);
+    }
+
     public static void volumePlayback(Context context, int volume) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_VOLUME);
@@ -379,6 +390,10 @@ public class PlaybackService extends Service {
                     case ACTION_PLAYBACK_SEEK:
                         int seekValue = intent.getIntExtra(PLAYBACK_EXTRA_SEEK, -1);
                         setSeekAudioPlayer(seekValue);
+                        break;
+                    case ACTION_PLAYBACK_POSITION:
+                        int positionValue = intent.getIntExtra(PLAYBACK_EXTRA_POSITION, -1);
+                        setPosition(positionValue);
                         break;
                     case ACTION_PLAYBACK_VOLUME:
                         int volumeValue = intent.getIntExtra(PLAYBACK_EXTRA_VOLUME, -1);
@@ -740,6 +755,8 @@ public class PlaybackService extends Service {
     public native void setVolumeAudioPlayer(float value);
 
     public native void setSeekAudioPlayer(int value);
+
+    public native void setPosition(int value);
 
     public native void setLoopingAudioPlayer(boolean isLooping);
 

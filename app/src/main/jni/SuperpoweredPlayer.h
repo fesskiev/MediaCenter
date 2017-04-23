@@ -30,6 +30,7 @@ public:
     void togglePlayback();
     void setVolume(float value);
     void setSeek(int value);
+    void setPosition(int value);
     unsigned int getDuration();
     unsigned int getPosition();
     float getVolume();
