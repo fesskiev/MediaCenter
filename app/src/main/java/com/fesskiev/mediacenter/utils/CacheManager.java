@@ -14,7 +14,7 @@ public class CacheManager {
     private final static String DOWNLOADS_FOLDER_PATH = EXTERNAL_STORAGE + "/MediaCenter/Downloads/";
     private final static String USER_PHOTO_PATH = EXTERNAL_STORAGE + "/MediaCenter/UserPhoto/";
     private final static String TEMP_PATH = EXTERNAL_STORAGE + "/MediaCenter/Temp/";
-    private final static String RECORDER_DEST_PATH = EXTERNAL_STORAGE + "/MediaCenter/Records/";
+    public final static String RECORDER_DEST_PATH = EXTERNAL_STORAGE + "/MediaCenter/Records/";
     public final static String IMAGES_AUDIO_CACHE_PATH = EXTERNAL_STORAGE + "/MediaCenter/Images/Audio/";
     public final static String IMAGES_VIDEO_CACHE_PATH = EXTERNAL_STORAGE + "/MediaCenter/Images/Video/";
     public final static String CHECK_DOWNLOADS_FOLDER_PATH = EXTERNAL_STORAGE + "/MediaCenter/Downloads";
@@ -60,7 +60,7 @@ public class CacheManager {
     }
 
     public static File getRecordDestPath() {
-        File dest = new File(RECORDER_DEST_PATH);
+        File dest = new File(AppSettingsManager.getInstance().getRecordPath());
         if (!dest.exists()) {
             dest.mkdirs();
         }

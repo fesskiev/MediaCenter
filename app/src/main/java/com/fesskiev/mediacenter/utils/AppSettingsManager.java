@@ -53,6 +53,7 @@ public class AppSettingsManager {
     private static final String KEY_MEDIA_CONTENT_UPDATE_TIME = "com.fesskiev.player.KEY_MEDIA_CONTENT_UPDATE_TIME";
     private static final String KEY_ENCRYPT = "com.fesskiev.player.KEY_ENCRYPT";
     private static final String KEY_SHOW_HIDDEN_FILES = "com.fesskiev.player.KEY_SHOW_HIDDEN_FILES";
+    private static final String KEY_RECORD_PATH = "com.fesskiev.player.KEY_RECORD_PATH";
 
 
     private SharedPreferences sharedPreferences;
@@ -326,6 +327,16 @@ public class AppSettingsManager {
     public void setUserPro(boolean pro) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(KEY_USER_PRO, pro);
+        editor.apply();
+    }
+
+    public String getRecordPath() {
+        return sharedPreferences.getString(KEY_RECORD_PATH, CacheManager.RECORDER_DEST_PATH);
+    }
+
+    public void setRecordPath(String path) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(KEY_RECORD_PATH, path);
         editor.apply();
     }
 

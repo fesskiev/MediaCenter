@@ -1,6 +1,7 @@
 package com.fesskiev.mediacenter.ui.settings;
 
 
+import android.content.Intent;
 import android.graphics.drawable.Animatable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,11 +12,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.services.FileSystemService;
+import com.fesskiev.mediacenter.ui.chooser.FileSystemChooserActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.widgets.settings.MediaContentUpdateTimeView;
 
@@ -28,6 +31,7 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
     }
 
     private AppSettingsManager appSettingsManager;
+    private TextView recordSavePath;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,6 +59,11 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
                 (SwitchCompat) view.findViewById(R.id.fullScreenSwitch)
         };
 
+        recordSavePath = (TextView) view.findViewById(R.id.recordPathToSave);
+        recordSavePath.setText(appSettingsManager.getRecordPath());
+
+        view.findViewById(R.id.recordContainer).setOnClickListener(v -> startChooserActivity());
+
         for (SwitchCompat switchCompat : switches) {
             switchCompat.setOnCheckedChangeListener(this);
         }
@@ -81,6 +90,26 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
         });
 
         setSettingsState(switches);
+    }
+
+    private void startChooserActivity() {
+        Intent intent = new Intent(getActivity(), FileSystemChooserActivity.class);
+        intent.putExtra(FileSystemChooserActivity.EXTRA_SELECT_TYPE, FileSystemChooserActivity.TYPE_FOLDER);
+        startActivityForResult(intent, 0);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == FileSystemChooserActivity.RESULT_CODE_PATH_SELECTED) {
+            String recordPath = data.getStringExtra(FileSystemChooserActivity.RESULT_SELECTED_PATH);
+            setRecordPath(recordPath);
+        }
+    }
+
+    private void setRecordPath(String recordPath) {
+        appSettingsManager.setRecordPath(recordPath);
+        recordSavePath.setText(recordPath);
     }
 
     private void setSettingsState(SwitchCompat[] switches) {

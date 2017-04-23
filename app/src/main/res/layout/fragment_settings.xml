@@ -44,10 +44,10 @@
                     android:id="@+id/fullScreenSwitch"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="@string/settings_view_full_scree_enable"
+                    android:layout_alignParentStart="true"
                     android:layout_alignParentTop="true"
-                    android:layout_alignParentStart="true" />
+                    android:gravity="center"
+                    android:text="@string/settings_view_full_scree_enable" />
 
             </RelativeLayout>
 
@@ -218,7 +218,7 @@
         <RelativeLayout
             android:id="@+id/securitySettingsContainer"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/downloadSettingContainer"
             android:layout_marginTop="20dp">
 
@@ -288,6 +288,73 @@
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
                 android:text="@string/settings_security_title" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/recordSettingsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/securitySettingsContainer"
+            android:layout_marginTop="20dp">
+
+            <View
+                android:id="@+id/divider12"
+                style="@style/DividerStyle"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@+id/recordSettingsTitle"
+                android:layout_marginTop="10dp" />
+
+            <RelativeLayout
+                android:id="@+id/recordContainer"
+                android:layout_width="match_parent"
+                android:layout_height="42dp"
+                android:layout_below="@id/divider12">
+
+                <TextView
+                    android:id="@+id/recordPathToSave"
+                    style="@style/SettingsText3Appearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true" />
+
+                <ImageView
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/app_name"
+                    android:gravity="center"
+                    android:src="@drawable/icon_forward" />
+
+            </RelativeLayout>
+
+            <View
+                android:id="@+id/divider13"
+                style="@style/DividerStyle"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@+id/recordContainer"/>
+
+            <TextView
+                style="@style/SettingsText2Appearance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/divider13"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="2dp"
+                android:text="Путь к сохраненным записям" />
+
+            <TextView
+                android:id="@+id/recordSettingsTitle"
+                style="@style/SettingsTitleAppearance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:text="@string/settings_record_title" />
 
         </RelativeLayout>
 
