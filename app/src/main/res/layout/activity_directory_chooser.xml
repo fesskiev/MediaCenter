@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/chooserRoot"
     android:orientation="vertical">
 
     <RelativeLayout
@@ -13,14 +14,14 @@
         android:layout_weight="0.18">
 
         <ImageButton
-            android:id="@+id/btnNavUp"
+            android:id="@+id/buttonNavUp"
             style="@style/ButtonStyle"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:background="@drawable/raised_button_background"
-            android:contentDescription="@string/up_label"
+            android:contentDescription="@string/app_name"
             android:src="@drawable/icon_chooser_up" />
 
         <TextView
@@ -30,19 +31,19 @@
             android:layout_alignParentTop="true"
             android:layout_marginStart="6dp"
             android:layout_marginTop="6dp"
-            android:layout_toEndOf="@id/btnNavUp"
+            android:layout_toEndOf="@id/buttonNavUp"
             android:text="@string/selected_folder_label"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/txtvSelectedFolder"
+            android:id="@+id/textSelectedPath"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/txtvSelectedFolderLabel"
             android:layout_marginBottom="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:layout_toEndOf="@id/btnNavUp"
+            android:layout_toEndOf="@id/buttonNavUp"
             android:ellipsize="start"
             android:maxLines="2"
             android:scrollHorizontally="true" />
@@ -72,7 +73,7 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/btnConfirm"
+            android:id="@+id/buttonConfirm"
             style="@style/ButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -82,7 +83,7 @@
             android:text="@string/confirm_label" />
 
         <Button
-            android:id="@+id/btnCancel"
+            android:id="@+id/buttonCancel"
             style="@style/ButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

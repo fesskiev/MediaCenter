@@ -4,6 +4,7 @@ package com.fesskiev.mediacenter.ui.chooser;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.FileObserver;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.utils.CacheManager;
+import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.recycleview.ScrollingLinearLayoutManager;
 
 import java.io.File;
@@ -27,39 +29,37 @@ import java.util.List;
 public class FileSystemChooserActivity extends AppCompatActivity {
 
     public static final String EXTRA_SELECT_TYPE = "com.fesskiev.mediacenter.EXTRA_SELECT_TYPE";
+    public static final String EXTRA_EXTENSION = "com.fesskiev.mediacenter.EXTRA_EXTENSION";
 
     public static final String TYPE_FOLDER = "FOLDER";
     public static final String TYPE_FILE = "FILE";
-    public static final String EXTENSION = "EXTENSION";
+
+    public static final String EXTENSION_CUE = "CUE";
 
     public static final String RESULT_SELECTED_PATH = "RESULT_SELECTED_PATH";
     public static final String KEY_CURRENT_PATH = "CURRENT_PATH";
     public static final int RESULT_CODE_PATH_SELECTED = 11;
 
 
-    private Button buttonConfirm;
-    private TextView selectedFolderTextView;
+    private TextView selectedPathText;
     private ChooserAdapter adapter;
     private File selectedPath;
     private FileObserver fileObserver;
     private String selectType;
+    private String extension;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_directory_chooser);
 
-        buttonConfirm = (Button) findViewById(R.id.btnConfirm);
-        Button buttonCancel = (Button) findViewById(R.id.btnCancel);
-        ImageButton buttonNavUp = (ImageButton) findViewById(R.id.btnNavUp);
+        Button buttonConfirm = (Button) findViewById(R.id.buttonConfirm);
+        Button buttonCancel = (Button) findViewById(R.id.buttonCancel);
+        ImageButton buttonNavUp = (ImageButton) findViewById(R.id.buttonNavUp);
 
-        selectedFolderTextView = (TextView) findViewById(R.id.txtvSelectedFolder);
+        selectedPathText = (TextView) findViewById(R.id.textSelectedPath);
 
-        buttonConfirm.setOnClickListener(v -> {
-            if (isValidFile(selectedPath)) {
-                selectChooserFolder();
-            }
-        });
+        buttonConfirm.setOnClickListener(v -> checkConfirm());
 
         buttonCancel.setOnClickListener(v -> cancelChooser());
 
@@ -70,7 +70,7 @@ public class FileSystemChooserActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         buttonNavUp.setOnClickListener(v -> {
-            final File parent;
+            File parent;
             if (selectedPath != null
                     && (parent = selectedPath.getParentFile()) != null) {
                 changeDirectory(parent);
@@ -83,9 +83,30 @@ public class FileSystemChooserActivity extends AppCompatActivity {
         } else {
             Bundle extras = getIntent().getExtras();
             selectType = extras.getString(EXTRA_SELECT_TYPE);
+            extension = extras.getString(EXTRA_EXTENSION);
         }
 
         changeDirectory(new File(initialDirectory));
+    }
+
+    private void checkConfirm() {
+        if (extension != null) {
+            if (!selectedPath.isDirectory() && isValidExtension(selectedPath)) {
+                selectChooserFolder();
+            } else {
+                Utils.showCustomSnackbar(findViewById(R.id.chooserRoot), getApplicationContext(),
+                        getString(R.string.snackbar_chooser_extension_error),
+                        Snackbar.LENGTH_LONG).show();
+            }
+        } else {
+            if (isValidFile(selectedPath)) {
+                selectChooserFolder();
+            } else {
+                Utils.showCustomSnackbar(findViewById(R.id.chooserRoot), getApplicationContext(),
+                        getString(R.string.snackbar_chooser_file_error),
+                        Snackbar.LENGTH_LONG).show();
+            }
+        }
     }
 
     @Override
@@ -117,21 +138,13 @@ public class FileSystemChooserActivity extends AppCompatActivity {
         final File[] contents = dir.listFiles();
         if (contents != null) {
             selectedPath = dir;
-            selectedFolderTextView.setText(dir.getAbsolutePath());
+            selectedPathText.setText(dir.getAbsolutePath());
 
             adapter.refresh(Arrays.asList(contents));
 
             fileObserver = createFileObserver(dir.getAbsolutePath());
             fileObserver.startWatching();
 
-        }
-        refreshButtonState();
-    }
-
-
-    private void refreshButtonState() {
-        if (selectedPath != null) {
-            buttonConfirm.setEnabled(isValidFile(selectedPath));
         }
     }
 
@@ -178,11 +191,25 @@ public class FileSystemChooserActivity extends AppCompatActivity {
         return false;
     }
 
+    private boolean isValidExtension(File file) {
+        switch (extension) {
+            case EXTENSION_CUE:
+                return isFileCue(file);
+        }
+        return false;
+    }
+
+    private boolean isFileCue(File file) {
+        String path = file.getAbsolutePath();
+        String extension = path.substring(path.lastIndexOf("."));
+        return extension.equalsIgnoreCase(".cue");
+    }
+
     private class ChooserAdapter extends RecyclerView.Adapter<ChooserAdapter.ViewHolder> {
 
         private List<File> files;
 
-       ChooserAdapter() {
+        ChooserAdapter() {
             files = new ArrayList<>();
         }
 
@@ -202,7 +229,13 @@ public class FileSystemChooserActivity extends AppCompatActivity {
         }
 
         private void processFileSystem(int position) {
-            changeDirectory(files.get(position));
+            File file = files.get(position);
+            if (file.isDirectory()) {
+                changeDirectory(file);
+            } else {
+                selectedPath = file;
+                selectedPathText.setText(file.getAbsolutePath());
+            }
         }
 
         @Override
@@ -220,7 +253,15 @@ public class FileSystemChooserActivity extends AppCompatActivity {
                 if (file.isDirectory()) {
                     holder.itemIcon.setImageResource(R.drawable.icon_choose_folder);
                 } else if (file.isFile()) {
-                    holder.itemIcon.setImageResource(R.drawable.icon_choose_file);
+                    if (extension != null) {
+                        if (isFileCue(file)) {
+                            holder.itemIcon.setImageResource(R.drawable.icon_cue);
+                        } else {
+                            holder.itemIcon.setImageResource(R.drawable.icon_choose_file);
+                        }
+                    } else {
+                        holder.itemIcon.setImageResource(R.drawable.icon_choose_file);
+                    }
                 } else {
                     holder.itemIcon.setImageResource(0);
                 }

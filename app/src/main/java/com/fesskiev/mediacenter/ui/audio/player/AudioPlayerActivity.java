@@ -18,6 +18,7 @@ import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.audio.tracklist.PlayerTrackListActivity;
+import com.fesskiev.mediacenter.ui.cue.CueActivity;
 import com.fesskiev.mediacenter.ui.effects.EffectsActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
@@ -119,6 +120,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
         findViewById(R.id.equalizer).setOnClickListener(v -> startEqualizerActivity());
         findViewById(R.id.trackList).setOnClickListener(v -> openTrackList());
+        findViewById(R.id.cue).setOnClickListener(v -> startCueActivity());
 
         cardDescription = (DescriptionCardView) findViewById(R.id.cardDescription);
         cardDescription.setOnCardAnimationListener(new DescriptionCardView.OnCardAnimationListener() {
@@ -199,6 +201,10 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
     private void startEqualizerActivity() {
         startActivity(new Intent(AudioPlayerActivity.this, EffectsActivity.class));
+    }
+
+    private void startCueActivity(){
+        startActivity(new Intent(AudioPlayerActivity.this, CueActivity.class));
     }
 
     @Override

@@ -159,6 +159,9 @@
 
     <string name="snackbar_loading_error">Ошибка при загрузке аудио файла</string>
 
+    <string name="snackbar_chooser_extension_error">Выбрано неверное расширение</string>
+    <string name="snackbar_chooser_file_error">Выбран неверный тип файла</string>
+
     <string name="snackbar_unexpected_error">Непредвиденная ошибка</string>
     <string name="snackbar_internet_disable_error">Отсутствует интернет соединение</string>
     <string name="snackbar_internet_connection_error">Ошибка соединения</string>
@@ -247,8 +250,7 @@
     <string name="hide_video_file_text">Скрыть файл</string>
 
     <string name="confirm_label">Подтвердить</string>
-    <string name="selected_folder_label">Выбранная папка:</string>
-    <string name="up_label">Вверх</string>
+    <string name="selected_folder_label">Выбраннаый путь:</string>
     <string name="cancel_label">Отмена</string>
 
 </resources>

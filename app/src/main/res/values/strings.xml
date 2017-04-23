@@ -165,6 +165,9 @@
 
     <string name="snackbar_loading_error">Unexpected loading audio error</string>
 
+    <string name="snackbar_chooser_extension_error">Selected wrong extension!</string>
+    <string name="snackbar_chooser_file_error">Selected wrong file type!</string>
+
     <string name="snackbar_unexpected_error">Unexpected error</string>
     <string name="snackbar_internet_disable_error">No internet connection</string>
     <string name="snackbar_internet_connection_error">Connection error</string>
@@ -273,8 +276,7 @@
 
     <string name="cancel_label">Cancel</string>
     <string name="confirm_label">Confirm</string>
-    <string name="selected_folder_label">Selected folder:</string>
-    <string name="up_label">Up</string>
+    <string name="selected_folder_label">Selected path:</string>
 
 
     <string name="banner_ad_unit_id">ca-app-pub-9301351302187198/2368614266</string>

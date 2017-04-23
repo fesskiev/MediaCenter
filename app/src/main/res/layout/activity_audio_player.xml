@@ -291,6 +291,17 @@
                             android:foreground="?android:attr/selectableItemBackground"
                             android:src="@drawable/icon_track_list" />
 
+                        <ImageView
+                            android:id="@+id/cue"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_weight="0.5"
+                            android:clickable="true"
+                            android:contentDescription="@string/app_name"
+                            android:foreground="?android:attr/selectableItemBackground"
+                            android:src="@drawable/icon_cue" />
+
 
                         <com.fesskiev.mediacenter.widgets.buttons.RepeatButton
                             android:id="@+id/repeatButton"
