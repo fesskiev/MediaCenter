@@ -5,6 +5,7 @@ import android.content.ComponentCallbacks2;
 import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
+import com.fesskiev.cue.CueParser;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.data.source.local.db.LocalDataSource;
 import com.fesskiev.mediacenter.data.source.memory.MemoryDataSource;
@@ -29,6 +30,7 @@ public class MediaApplication extends MultiDexApplication {
     static {
         try {
             System.loadLibrary("ffmpeg");
+            System.loadLibrary("LibCueParser");
         }
         catch (UnsatisfiedLinkError e) {
             e.printStackTrace();
@@ -75,6 +77,8 @@ public class MediaApplication extends MultiDexApplication {
         });
 
         userAgent = Util.getUserAgent(this, "ExoPlayer");
+
+        new CueParser().parseCue("/storage/emulated/0/Faithless - Live in Berlin.cue".toCharArray());
 
     }
 
