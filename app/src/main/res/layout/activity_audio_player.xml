@@ -21,13 +21,6 @@
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:titleEnabled="false">
 
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
-
             <ImageView
                 android:id="@+id/backdrop"
                 android:layout_width="match_parent"
@@ -37,6 +30,13 @@
                 android:scaleType="centerCrop"
                 app:layout_scrollFlags="scroll|enterAlwaysCollapsed"
                 tools:src="@drawable/cover" />
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_collapseMode="pin"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
         </android.support.design.widget.CollapsingToolbarLayout>
 
@@ -134,10 +134,10 @@
                         style="@style/AudioPlayerTextAppearance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:maxLines="1"
-                        tools:text="Changes"
+                        android:layout_alignParentStart="true"
                         android:layout_alignParentTop="true"
-                        android:layout_alignParentStart="true" />
+                        android:maxLines="1"
+                        tools:text="Changes" />
 
                 </RelativeLayout>
 
@@ -290,18 +290,6 @@
                             android:contentDescription="@string/app_name"
                             android:foreground="?android:attr/selectableItemBackground"
                             android:src="@drawable/icon_track_list" />
-
-                        <ImageView
-                            android:id="@+id/cue"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_vertical"
-                            android:layout_weight="0.5"
-                            android:clickable="true"
-                            android:contentDescription="@string/app_name"
-                            android:foreground="?android:attr/selectableItemBackground"
-                            android:src="@drawable/icon_cue" />
-
 
                         <com.fesskiev.mediacenter.widgets.buttons.RepeatButton
                             android:id="@+id/repeatButton"

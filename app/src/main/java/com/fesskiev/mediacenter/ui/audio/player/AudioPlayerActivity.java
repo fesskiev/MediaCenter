@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -120,7 +123,6 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
         findViewById(R.id.equalizer).setOnClickListener(v -> startEqualizerActivity());
         findViewById(R.id.trackList).setOnClickListener(v -> openTrackList());
-        findViewById(R.id.cue).setOnClickListener(v -> startCueActivity());
 
         cardDescription = (DescriptionCardView) findViewById(R.id.cardDescription);
         cardDescription.setOnCardAnimationListener(new DescriptionCardView.OnCardAnimationListener() {
@@ -192,6 +194,25 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         checkFirstOrLastTrack();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_player, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_cue:
+                startCueActivity();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+
     private void openTrackList() {
         List<AudioFile> audioFiles = audioPlayer.getCurrentTrackList();
         if (audioFiles != null) {
@@ -203,7 +224,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         startActivity(new Intent(AudioPlayerActivity.this, EffectsActivity.class));
     }
 
-    private void startCueActivity(){
+    private void startCueActivity() {
         startActivity(new Intent(AudioPlayerActivity.this, CueActivity.class));
     }
 

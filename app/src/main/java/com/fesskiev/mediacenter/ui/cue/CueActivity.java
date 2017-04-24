@@ -84,8 +84,6 @@ public class CueActivity extends AnalyticsActivity {
             String cuePath = data.getStringExtra(FileSystemChooserActivity.RESULT_SELECTED_PATH);
             settingsManager.setCuePath(cuePath);
             parseCueFile(cuePath);
-        } else if (requestCode == RESULT_CANCELED) {
-            finish();
         }
     }
 
