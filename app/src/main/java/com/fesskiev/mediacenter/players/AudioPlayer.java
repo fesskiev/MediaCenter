@@ -11,10 +11,17 @@ import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.playback.Playable;
+import com.fesskiev.mediacenter.utils.AppLog;
+import com.fesskiev.mediacenter.utils.AppSettingsManager;
+import com.fesskiev.mediacenter.utils.comparators.SortByDuration;
+import com.fesskiev.mediacenter.utils.comparators.SortByFileSize;
+import com.fesskiev.mediacenter.utils.comparators.SortByTimestamp;
 import com.fesskiev.mediacenter.utils.converter.AudioConverterHelper;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
@@ -26,6 +33,10 @@ public class AudioPlayer implements Playable {
 
     private static final String TAG = AudioPlayer.class.getSimpleName();
 
+    public static final int SORT_DURATION = 0;
+    public static final int SORT_FILE_SIZE = 1;
+    public static final int SORT_TRACK_NUMBER = 2;
+    public static final int SORT_TIMESTAMP = 3;
 
     private Context context;
     private DataRepository repository;
@@ -45,25 +56,19 @@ public class AudioPlayer implements Playable {
 
 
     public void getCurrentTrackAndTrackList() {
-
-        Observable.zip(repository.getSelectedFolderAudioFiles(),
-                repository.getSelectedAudioFile(), (audioFiles, audioFile) -> {
-
-                    if (audioFiles != null) {
-                        currentTrackList = audioFiles;
-                        EventBus.getDefault().post(currentTrackList);
-                    }
-
+        repository.getSelectedFolderAudioFiles()
+                .flatMap(audioFiles -> Observable.just(sortAudioFiles(AppSettingsManager.getInstance().getSortType(), audioFiles)))
+                .doOnNext(audioFiles -> {
+                    currentTrackList = audioFiles;
+                    EventBus.getDefault().post(currentTrackList);
+                })
+                .flatMap(audioFiles -> repository.getSelectedAudioFile())
+                .doOnNext(audioFile -> {
+                    currentTrack = audioFile;
+                    openAudioFile(false);
                     if (audioFile != null) {
-                        currentTrack = audioFile;
-                        openAudioFile(false);
-                    }
-
-                    if (audioFiles != null && audioFile != null) {
                         trackListIterator.findPosition();
                     }
-
-                    return Observable.empty();
                 })
                 .first()
                 .subscribeOn(Schedulers.io())
@@ -176,6 +181,9 @@ public class AudioPlayer implements Playable {
 
 
     public void setCurrentTrackList(AudioFolder audioFolder, List<AudioFile> audioFiles) {
+        if (audioFiles == null || audioFiles.isEmpty()) {
+            return;
+        }
         currentTrackList = audioFiles;
 
         audioFolder.isSelected = true;
@@ -195,6 +203,9 @@ public class AudioPlayer implements Playable {
     }
 
     public void setSortingTrackList(List<AudioFile> audioFiles) {
+        if (audioFiles == null || audioFiles.isEmpty()) {
+            return;
+        }
         if (isSortingCurrentTrackList(audioFiles)) {
             currentTrackList = audioFiles;
             trackListIterator.findPosition();
@@ -210,10 +221,6 @@ public class AudioPlayer implements Playable {
             return false;
         }
         return currentTrackList.containsAll(audioFiles);
-    }
-
-    public Observable<AudioFile> getCurrentAudioFile() {
-        return repository.getSelectedAudioFile();
     }
 
     public Observable<AudioFolder> getCurrentAudioFolder() {
@@ -248,6 +255,30 @@ public class AudioPlayer implements Playable {
             next();
         }
     }
+
+    public List<AudioFile> sortAudioFiles(int type, List<AudioFile> unsortedList) {
+        List<AudioFile> sortedList = new ArrayList<>(unsortedList);
+        switch (type) {
+            case SORT_DURATION:
+                AppLog.WTF("SORT_DURATION");
+                Collections.sort(sortedList, new SortByDuration());
+                break;
+            case SORT_FILE_SIZE:
+                AppLog.WTF("SORT_FILE_SIZE");
+                Collections.sort(sortedList, new SortByFileSize());
+                break;
+            case SORT_TIMESTAMP:
+                AppLog.WTF("SORT_TIMESTAMP");
+                Collections.sort(sortedList, new SortByTimestamp());
+                break;
+            case SORT_TRACK_NUMBER:
+                AppLog.WTF("SORT_TRACK_NUMBER");
+                Collections.sort(sortedList);
+                break;
+        }
+        return sortedList;
+    }
+
 
     private class TrackListIterator implements ListIterator<AudioFile> {
 
@@ -355,4 +386,5 @@ public class AudioPlayer implements Playable {
         }
         return null;
     }
+
 }

@@ -31,9 +31,6 @@ import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
-import com.fesskiev.mediacenter.utils.comparators.SortByDuration;
-import com.fesskiev.mediacenter.utils.comparators.SortByFileSize;
-import com.fesskiev.mediacenter.utils.comparators.SortByTimestamp;
 import com.fesskiev.mediacenter.widgets.cards.SlidingCardView;
 import com.fesskiev.mediacenter.widgets.dialogs.EditTrackDialog;
 import com.fesskiev.mediacenter.widgets.recycleview.HidingScrollListener;
@@ -46,7 +43,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import rx.Observable;
@@ -56,10 +52,6 @@ import rx.schedulers.Schedulers;
 
 public class TrackListActivity extends AnalyticsActivity implements View.OnClickListener {
 
-    private static final int SORT_DURATION = 0;
-    private static final int SORT_FILE_SIZE = 1;
-    private static final int SORT_TRACK_NUMBER = 2;
-    private static final int SORT_TIMESTAMP = 3;
 
     private FloatingActionMenu actionMenu;
 
@@ -175,16 +167,16 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.menuSortDuration:
-                adapter.sortTracks(SORT_DURATION);
+                adapter.sortTracks(AudioPlayer.SORT_DURATION);
                 break;
             case R.id.menuSortFileSize:
-                adapter.sortTracks(SORT_FILE_SIZE);
+                adapter.sortTracks(AudioPlayer.SORT_FILE_SIZE);
                 break;
             case R.id.menuSortTrackNumber:
-                adapter.sortTracks(SORT_TRACK_NUMBER);
+                adapter.sortTracks(AudioPlayer.SORT_TRACK_NUMBER);
                 break;
             case R.id.menuSortTimestamp:
-                adapter.sortTracks(SORT_TIMESTAMP);
+                adapter.sortTracks(AudioPlayer.SORT_TIMESTAMP);
                 break;
         }
     }
@@ -217,7 +209,7 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                         return !audioFile.isHidden;
                     })
                     .toList()
-                    .map(unsortedList -> adapter.sortAudioFiles(settingsManager.getSortType(), unsortedList))
+                    .map(unsortedList -> audioPlayer.sortAudioFiles(settingsManager.getSortType(), unsortedList))
                     .doOnNext(sortedList -> audioPlayer.setSortingTrackList(sortedList))
                     .subscribe(audioFiles -> adapter.refreshAdapter(audioFiles));
         }
@@ -373,23 +365,17 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                 AudioFile audioFile = audioFiles.get(position);
                 if (audioFile != null) {
                     if (audioFile.exists()) {
-                        subscription = audioPlayer.getCurrentAudioFile()
-                                .first()
-                                .doOnNext(selectedTrack -> {
-                                    if (contentType == CONTENT_TYPE.FOLDERS) {
-                                        MediaApplication.getInstance().getAudioPlayer().setCurrentTrackList(audioFolder, audioFiles);
-                                    } else {
-                                        MediaApplication.getInstance().getAudioPlayer().setCurrentTrackList(audioFiles);
-                                    }
-                                })
-                                .doOnNext(selectedTrack -> {
-                                    if (selectedTrack == null || !selectedTrack.equals(audioFile)) {
-                                        audioPlayer.setCurrentAudioFileAndPlay(audioFile);
-                                    }
-                                })
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(selectedTrack -> AudioPlayerActivity.startPlayerActivity(TrackListActivity.this));
+                        AudioFile selectedTrack = audioPlayer.getCurrentTrack();
+                        if (contentType == CONTENT_TYPE.FOLDERS) {
+                            MediaApplication.getInstance().getAudioPlayer().setCurrentTrackList(audioFolder, audioFiles);
+                        } else {
+                            MediaApplication.getInstance().getAudioPlayer().setCurrentTrackList(audioFiles);
+                        }
+                        if (selectedTrack == null || !selectedTrack.equals(audioFile)) {
+                            audioPlayer.setCurrentAudioFileAndPlay(audioFile);
+                        }
+                        AudioPlayerActivity.startPlayerActivity(TrackListActivity.this);
+
                     } else {
                         Utils.showCustomSnackbar(getCurrentFocus(),
                                 getApplicationContext(), getString(R.string.snackbar_file_not_exist),
@@ -492,28 +478,23 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
 
                 BitmapHelper.getInstance().loadTrackListArtwork(audioFile, audioFolder, holder.cover);
 
-                audioPlayer.getCurrentAudioFile()
-                        .first()
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(selectedTrack -> {
-                            if (selectedTrack != null && selectedTrack.equals(audioFile) && lastPlaying) {
-                                holder.playEq.setVisibility(View.VISIBLE);
+                AudioFile selectedTrack = audioPlayer.getCurrentTrack();
+                if (selectedTrack != null && selectedTrack.equals(audioFile) && lastPlaying) {
+                    holder.playEq.setVisibility(View.VISIBLE);
 
-                                AnimationDrawable animation = (AnimationDrawable) ContextCompat.
-                                        getDrawable(getApplicationContext(), R.drawable.ic_equalizer);
-                                holder.playEq.setImageDrawable(animation);
-                                if (animation != null) {
-                                    if (lastPlaying) {
-                                        animation.start();
-                                    } else {
-                                        animation.stop();
-                                    }
-                                }
-                            } else {
-                                holder.playEq.setVisibility(View.INVISIBLE);
-                            }
-
-                        });
+                    AnimationDrawable animation = (AnimationDrawable) ContextCompat.
+                            getDrawable(getApplicationContext(), R.drawable.ic_equalizer);
+                    holder.playEq.setImageDrawable(animation);
+                    if (animation != null) {
+                        if (lastPlaying) {
+                            animation.start();
+                        } else {
+                            animation.stop();
+                        }
+                    }
+                } else {
+                    holder.playEq.setVisibility(View.INVISIBLE);
+                }
             }
         }
 
@@ -542,30 +523,12 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
             subscription = Observable.just(audioFiles)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .map(unsortedList -> sortAudioFiles(type, unsortedList))
+                    .map(unsortedList -> audioPlayer.sortAudioFiles(type, unsortedList))
                     .doOnNext(sortedList -> audioPlayer.setSortingTrackList(sortedList))
                     .doOnNext(sortedList -> settingsManager.setSortType(type))
                     .doOnNext(sortedList -> actionMenu.close(true))
                     .subscribe(this::refreshAdapter);
         }
 
-        private List<AudioFile> sortAudioFiles(int type, List<AudioFile> unsortedList) {
-            List<AudioFile> sortedList = new ArrayList<>(unsortedList);
-            switch (type) {
-                case SORT_DURATION:
-                    Collections.sort(sortedList, new SortByDuration());
-                    break;
-                case SORT_FILE_SIZE:
-                    Collections.sort(sortedList, new SortByFileSize());
-                    break;
-                case SORT_TIMESTAMP:
-                    Collections.sort(sortedList, new SortByTimestamp());
-                    break;
-                case SORT_TRACK_NUMBER:
-                    Collections.sort(sortedList);
-                    break;
-            }
-            return sortedList;
-        }
     }
 }
