@@ -11,6 +11,7 @@ import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.playback.Playable;
+import com.fesskiev.mediacenter.utils.converter.AudioConverterHelper;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -42,6 +43,7 @@ public class AudioPlayer implements Playable {
         trackListIterator = new TrackListIterator();
     }
 
+
     public void getCurrentTrackAndTrackList() {
 
         Observable.zip(repository.getSelectedFolderAudioFiles(),
@@ -54,8 +56,7 @@ public class AudioPlayer implements Playable {
 
                     if (audioFile != null) {
                         currentTrack = audioFile;
-                        PlaybackService.openFile(context, currentTrack.getFilePath());
-                        EventBus.getDefault().post(currentTrack);
+                        openAudioFile(false);
                     }
 
                     if (audioFiles != null && audioFile != null) {
@@ -71,23 +72,7 @@ public class AudioPlayer implements Playable {
 
     @Override
     public void open(MediaFile audioFile) {
-        if (audioFile == null) {
-            getCurrentAudioFile()
-                    .first()
-                    .subscribeOn(Schedulers.io())
-                    .subscribe(currentAudioFile -> {
-                        if (currentAudioFile != null) {
-                            PlaybackService.openFile(context, currentAudioFile.getFilePath());
-
-                            currentTrack = currentAudioFile;
-                            EventBus.getDefault().post(currentTrack);
-                        }
-                    });
-        } else {
-            PlaybackService.openFile(context, audioFile.getFilePath());
-        }
-
-        Log.e(TAG, AudioPlayer.this.toString());
+        PlaybackService.openFile(context, audioFile.getFilePath());
     }
 
 
@@ -111,12 +96,7 @@ public class AudioPlayer implements Playable {
                 audioFile.isSelected = true;
                 repository.updateSelectedAudioFile(audioFile);
 
-                EventBus.getDefault().post(currentTrack);
-
-                PlaybackService.openFile(context, audioFile.getFilePath());
-                PlaybackService.startPlayback(context);
-
-                Log.e(TAG, AudioPlayer.this.toString());
+                openAudioFile(true);
             }
         }
     }
@@ -131,12 +111,7 @@ public class AudioPlayer implements Playable {
                 audioFile.isSelected = true;
                 repository.updateSelectedAudioFile(audioFile);
 
-                EventBus.getDefault().post(currentTrack);
-
-                PlaybackService.openFile(context, audioFile.getFilePath());
-                PlaybackService.startPlayback(context);
-
-                Log.e(TAG, AudioPlayer.this.toString());
+                openAudioFile(true);
             }
         }
     }
@@ -151,6 +126,43 @@ public class AudioPlayer implements Playable {
         return trackListIterator.lastTrack();
     }
 
+
+    private void openAudioFile(boolean startPlayback) {
+        EventBus.getDefault().post(currentTrack);
+        Log.e(TAG, AudioPlayer.this.toString());
+
+        if (AudioConverterHelper.isAudioFileFLAC(currentTrack)) {
+            AudioConverterHelper.getInstance().convertAudioIfNeed(currentTrack,
+                    new AudioConverterHelper.OnConvertProcessListener() {
+
+                        @Override
+                        public void onStart() {
+                            Log.e(TAG, "onStart() convert");
+                            PlaybackService.startConvert(context);
+                        }
+
+                        @Override
+                        public void onSuccess(AudioFile audioFile) {
+                            Log.e(TAG, "onSuccess convert");
+                            open(currentTrack);
+                            if (startPlayback) {
+                                play();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Exception error) {
+                            Log.e(TAG, "onFailure: " + error.getMessage());
+                        }
+                    });
+        } else {
+            open(currentTrack);
+            if (startPlayback) {
+                play();
+            }
+        }
+    }
+
     public void setCurrentAudioFileAndPlay(AudioFile audioFile) {
         currentTrack = audioFile;
 
@@ -159,12 +171,7 @@ public class AudioPlayer implements Playable {
         audioFile.isSelected = true;
         repository.updateSelectedAudioFile(audioFile);
 
-        open(audioFile);
-        play();
-
-        EventBus.getDefault().post(currentTrack);
-
-        Log.e(TAG, AudioPlayer.this.toString());
+        openAudioFile(true);
     }
 
 

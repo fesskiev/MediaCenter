@@ -25,7 +25,6 @@ import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.CountDownTimer;
 import com.fesskiev.mediacenter.utils.NotificationHelper;
-import com.fesskiev.mediacenter.utils.converter.AudioConverterHelper;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -86,6 +85,9 @@ public class PlaybackService extends Service {
             "com.fesskiev.player.action.ACTION_START_RECORDING";
     public static final String ACTION_STOP_RECORDING =
             "com.fesskiev.player.action.ACTION_STOP_RECORDING";
+
+    public static final String ACTION_START_CONVERT =
+            "com.fesskiev.player.action.ACTION_START_CONVERT";
 
 
     public static final String PLAYBACK_EXTRA_MUSIC_FILE_PATH
@@ -299,6 +301,13 @@ public class PlaybackService extends Service {
         context.startService(intent);
     }
 
+    public static void startConvert(Context context) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_START_CONVERT);
+        context.startService(intent);
+    }
+
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -463,11 +472,15 @@ public class PlaybackService extends Service {
                     case ACTION_STOP_RECORDING:
                         stopRecording();
                         break;
+                    case ACTION_START_CONVERT:
+                        setStartConvertState();
+                        break;
                 }
             }
         }
         return START_STICKY;
     }
+
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onCurrentTrackEvent(AudioFile currentTrack) {
@@ -679,6 +692,12 @@ public class PlaybackService extends Service {
         }
     }
 
+    private void setStartConvertState() {
+        stop();
+        loadSuccess = false;
+        loadError = true;
+    }
+
     private void openFile(String path) {
         Log.d(TAG, "open audio file!");
         loadSuccess = false;
@@ -813,33 +832,8 @@ public class PlaybackService extends Service {
             case LOAD_ERROR:
                 loadSuccess = false;
                 loadError = true;
-                if (AudioConverterHelper.isAudioFileFLAC(audioPlayer.getCurrentTrack())) {
-                    tryConvertAudioFile();
-                }
                 break;
         }
-    }
-
-    private void tryConvertAudioFile() {
-        AudioConverterHelper.getInstance().convertAudioIfNeed(audioPlayer.getCurrentTrack(),
-                new AudioConverterHelper.OnConvertProcessListener() {
-
-                    @Override
-                    public void onStart() {
-                        Log.e(TAG, "onStart() convert");
-                    }
-
-                    @Override
-                    public void onSuccess(AudioFile audioFile) {
-                        Log.e(TAG, "onSuccess convert");
-                        audioPlayer.setCurrentAudioFileAndPlay(audioFile);
-                    }
-
-                    @Override
-                    public void onFailure(Exception error) {
-                        Log.e(TAG, "onFailure: " + error.getMessage());
-                    }
-                });
     }
 
 

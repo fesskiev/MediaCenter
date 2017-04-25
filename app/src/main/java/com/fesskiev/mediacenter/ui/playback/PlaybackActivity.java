@@ -291,6 +291,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     private void setMusicFileInfo(AudioFile audioFile) {
         track.setText(audioFile.title);
         artist.setText(audioFile.artist);
+        clearDuration();
 
         audioPlayer.getCurrentAudioFolder()
                 .first()
@@ -425,6 +426,10 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
     private void hideEmptyTrackCard() {
         emptyTrack.setVisibility(View.GONE);
+    }
+
+    private void clearDuration() {
+        durationText.setText("");
     }
 
 }
