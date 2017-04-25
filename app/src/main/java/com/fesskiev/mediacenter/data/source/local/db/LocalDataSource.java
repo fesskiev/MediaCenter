@@ -395,6 +395,26 @@ public class LocalDataSource implements LocalSource {
     }
 
     @Override
+    public Callable<Integer> updateVideoFoldersIndex(List<VideoFolder> videoFolders) {
+        return () -> {
+            for (int index = 0; index < videoFolders.size(); index++) {
+                VideoFolder videoFolder = videoFolders.get(index);
+                if (videoFolder != null) {
+                    ContentValues values = new ContentValues();
+                    values.put(DatabaseHelper.FOLDER_INDEX, index);
+
+                    String sql = DatabaseHelper.FOLDER_PATH + "=" + "'"
+                            + videoFolder.folderPath.getAbsolutePath().replaceAll("'", "''") + "'";
+
+                    briteDatabase.update(DatabaseHelper.VIDEO_FOLDERS_TABLE_NAME, values, sql);
+                }
+            }
+            return 1;
+        };
+    }
+
+
+    @Override
     public Callable<Integer> deleteVideoFile(String path) {
         return () -> briteDatabase.delete(
                 DatabaseHelper.VIDEO_FILES_TABLE_NAME,

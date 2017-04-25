@@ -78,6 +78,8 @@ public interface LocalSource {
 
     Callable<Integer> updateAudioFoldersIndex(List<AudioFolder> audioFolders);
 
+    Callable<Integer> updateVideoFoldersIndex(List<VideoFolder> videoFolders);
+
     void updateSelectedAudioFile(AudioFile audioFile);
 
     void deleteAudioFile(String path);

@@ -15,6 +15,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,12 +36,16 @@ import com.fesskiev.mediacenter.utils.admob.AdMobHelper;
 import com.fesskiev.mediacenter.widgets.dialogs.MediaFolderDetailsDialog;
 import com.fesskiev.mediacenter.widgets.dialogs.VideoFolderDetailsDialog;
 import com.fesskiev.mediacenter.widgets.item.VideoFolderCardView;
-import com.fesskiev.mediacenter.widgets.menu.FolderContextMenu;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
+import com.fesskiev.mediacenter.widgets.menu.FolderContextMenu;
 import com.fesskiev.mediacenter.widgets.recycleview.GridDividerDecoration;
+import com.fesskiev.mediacenter.widgets.recycleview.helper.ItemTouchHelperAdapter;
+import com.fesskiev.mediacenter.widgets.recycleview.helper.ItemTouchHelperViewHolder;
+import com.fesskiev.mediacenter.widgets.recycleview.helper.SimpleItemTouchHelperCallback;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import rx.Observable;
@@ -90,6 +95,10 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
         adapter = new VideoFoldersAdapter(getActivity());
         recyclerView.setAdapter(adapter);
 
+        ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(adapter);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+
         emptyVideoContent = (CardView) view.findViewById(R.id.emptyVideoContentCard);
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         swipeRefreshLayout.setOnRefreshListener(this);
@@ -127,6 +136,7 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
                 .subscribe(videoFolders -> {
                     if (videoFolders != null) {
                         if (!videoFolders.isEmpty()) {
+                            Collections.sort(videoFolders);
                             hideEmptyContentCard();
                         } else {
                             showEmptyContentCard();
@@ -146,6 +156,7 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
     public void onDestroy() {
         super.onDestroy();
         RxUtils.unsubscribe(subscription);
+        repository.getMemorySource().setCacheVideoFoldersDirty(true);
     }
 
     @Override
@@ -189,7 +200,8 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
         return swipeRefreshLayout;
     }
 
-    private static class VideoFoldersAdapter extends RecyclerView.Adapter<VideoFoldersAdapter.ViewHolder> {
+
+    private static class VideoFoldersAdapter extends RecyclerView.Adapter<VideoFoldersAdapter.ViewHolder> implements ItemTouchHelperAdapter {
 
         private WeakReference<Activity> activity;
         private List<VideoFolder> videoFolders;
@@ -201,7 +213,7 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
         }
 
 
-        public class ViewHolder extends RecyclerView.ViewHolder {
+        public class ViewHolder extends RecyclerView.ViewHolder implements ItemTouchHelperViewHolder {
 
             VideoFolderCardView folderCard;
 
@@ -221,6 +233,43 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
                     }
                 });
             }
+
+            @Override
+            public void onItemSelected() {
+                itemView.setAlpha(0.5f);
+                changeSwipeRefreshState(false);
+            }
+
+            @Override
+            public void onItemClear(int position) {
+                itemView.setAlpha(1.0f);
+                changeSwipeRefreshState(true);
+                updateVideoFoldersIndexes();
+            }
+
+            private void changeSwipeRefreshState(boolean enable) {
+                Activity act = activity.get();
+                if (act != null) {
+                    VideoFoldersFragment videoFoldersFragment
+                            = (VideoFoldersFragment) ((FragmentActivity) act).getSupportFragmentManager().
+                            findFragmentByTag(VideoFoldersFragment.class.getName());
+                    if (videoFoldersFragment != null) {
+                        videoFoldersFragment.getSwipeRefreshLayout().setEnabled(enable);
+                    }
+                }
+            }
+        }
+
+        @Override
+        public boolean onItemMove(int fromPosition, int toPosition) {
+            Collections.swap(videoFolders, fromPosition, toPosition);
+            notifyItemMoved(fromPosition, toPosition);
+            return true;
+        }
+
+        @Override
+        public void onItemDismiss(int position) {
+
         }
 
         private void showAudioContextMenu(View view, int position) {
@@ -357,15 +406,25 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
             notifyDataSetChanged();
         }
 
+        public void clearAdapter() {
+            videoFolders.clear();
+            notifyDataSetChanged();
+        }
+
         public void removeFolder(int position) {
             videoFolders.remove(position);
             notifyItemRemoved(position);
             notifyItemRangeChanged(position, getItemCount());
         }
 
-        public void clearAdapter() {
-            videoFolders.clear();
-            notifyDataSetChanged();
+        private void updateVideoFoldersIndexes() {
+            RxUtils.fromCallable(MediaApplication.getInstance().getRepository()
+                    .updateVideoFoldersIndex(videoFolders))
+                    .first()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(integer -> notifyDataSetChanged());
+
         }
     }
 

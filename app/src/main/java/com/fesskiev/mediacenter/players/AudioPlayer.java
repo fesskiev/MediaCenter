@@ -11,7 +11,6 @@ import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.playback.Playable;
-import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.comparators.SortByDuration;
 import com.fesskiev.mediacenter.utils.comparators.SortByFileSize;
@@ -260,19 +259,15 @@ public class AudioPlayer implements Playable {
         List<AudioFile> sortedList = new ArrayList<>(unsortedList);
         switch (type) {
             case SORT_DURATION:
-                AppLog.WTF("SORT_DURATION");
                 Collections.sort(sortedList, new SortByDuration());
                 break;
             case SORT_FILE_SIZE:
-                AppLog.WTF("SORT_FILE_SIZE");
                 Collections.sort(sortedList, new SortByFileSize());
                 break;
             case SORT_TIMESTAMP:
-                AppLog.WTF("SORT_TIMESTAMP");
                 Collections.sort(sortedList, new SortByTimestamp());
                 break;
             case SORT_TRACK_NUMBER:
-                AppLog.WTF("SORT_TRACK_NUMBER");
                 Collections.sort(sortedList);
                 break;
         }
