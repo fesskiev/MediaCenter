@@ -151,6 +151,7 @@ public class PlaybackService extends Service {
 
     private boolean loadSuccess;
     private boolean loadError;
+    private boolean convertStart;
 
     private boolean finish;
 
@@ -695,13 +696,18 @@ public class PlaybackService extends Service {
     private void setStartConvertState() {
         stop();
         loadSuccess = false;
-        loadError = true;
+        loadError = false;
+        convertStart = true;
+
+        EventBus.getDefault().post(PlaybackService.this);
     }
 
     private void openFile(String path) {
         Log.d(TAG, "open audio file!");
         loadSuccess = false;
         loadError = false;
+        convertStart = false;
+
         openAudioFile(path);
     }
 
@@ -823,17 +829,30 @@ public class PlaybackService extends Service {
     public void playStatusCallback(int status) {
         switch (status) {
             case END_TRACK:
+                stop();
                 next();
                 break;
             case LOAD_SUCCESS:
-                loadSuccess = true;
-                loadError = false;
+                loadSuccess();
                 break;
             case LOAD_ERROR:
-                loadSuccess = false;
-                loadError = true;
+                loadError();
                 break;
         }
+    }
+
+    private void loadSuccess() {
+        loadSuccess = true;
+        loadError = false;
+        convertStart = false;
+        EventBus.getDefault().post(PlaybackService.this);
+    }
+
+    private void loadError() {
+        loadSuccess = false;
+        loadError = true;
+        convertStart = false;
+        EventBus.getDefault().post(PlaybackService.this);
     }
 
 
@@ -889,6 +908,10 @@ public class PlaybackService extends Service {
         return finish;
     }
 
+    public boolean isConvertStart() {
+        return convertStart;
+    }
+
     @Override
     public String toString() {
         return "PlaybackService{" +
@@ -906,6 +929,7 @@ public class PlaybackService extends Service {
                 ", headsetConnected=" + headsetConnected +
                 ", loadSuccess=" + loadSuccess +
                 ", loadError=" + loadError +
+                ", convertStart=" + convertStart +
                 '}';
     }
 }

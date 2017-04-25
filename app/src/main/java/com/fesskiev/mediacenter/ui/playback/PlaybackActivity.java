@@ -65,6 +65,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     private boolean isShow = true;
 
     private boolean lastLoadSuccess;
+    private boolean lastConvertStart;
     private boolean lastPlaying;
     private int lastPositionSeconds;
     private boolean lastEnableEQ;
@@ -126,7 +127,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
             peakView = findViewById(R.id.basicNavPlayerContainer);
             peakView.setOnClickListener(v -> {
-                if (checkTrackSelected()) {
+                if (checkTrackSelected() && !lastConvertStart) {
                     AudioPlayerActivity.startPlayerActivity(PlaybackActivity.this);
                 }
             });
@@ -209,6 +210,12 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         if (playbackState.isFinish()) {
             processFinishPlayback();
             return;
+        }
+
+        boolean isConvertStart = playbackState.isConvertStart();
+        if (lastConvertStart!= isConvertStart) {
+            lastConvertStart = isConvertStart;
+            playPauseButton.startLoading();
         }
 
         boolean isLoadSuccess = playbackState.isLoadSuccess();
@@ -336,7 +343,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
                 super(v);
                 v.setOnClickListener(view -> {
                     AudioFile audioFile = currentTrackList.get(getAdapterPosition());
-                    if (audioFile != null) {
+                    if (audioFile != null && !lastConvertStart) {
                         audioPlayer.setCurrentAudioFileAndPlay(audioFile);
                     }
                 });

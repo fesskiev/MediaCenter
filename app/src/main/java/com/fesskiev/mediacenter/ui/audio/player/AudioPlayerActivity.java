@@ -63,6 +63,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     private ImageView prevTrack;
     private ImageView nextTrack;
 
+    private boolean lastConvertStart;
     private boolean lastLoadSuccess;
     private boolean lastLoadError;
     private boolean lastPlaying;
@@ -158,13 +159,15 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         controlView.setOnAudioControlListener(new AudioControlView.OnAudioControlListener() {
             @Override
             public void onPlayStateChanged() {
-                if (lastPlaying) {
-                    pause();
-                } else {
-                    play();
+                if(!lastConvertStart) {
+                    if (lastPlaying) {
+                        pause();
+                    } else {
+                        play();
+                    }
+                    lastPlaying = !lastPlaying;
+                    controlView.setPlay(lastPlaying);
                 }
-                lastPlaying = !lastPlaying;
-                controlView.setPlay(lastPlaying);
             }
 
             @Override
@@ -292,6 +295,12 @@ public class AudioPlayerActivity extends AnalyticsActivity {
             controlView.setPlay(playing);
         }
 
+        boolean isConvertStart = playbackState.isConvertStart();
+        if (lastConvertStart!= isConvertStart) {
+            lastConvertStart = isConvertStart;
+            controlView.startLoading();
+        }
+
         boolean isLoadSuccess = playbackState.isLoadSuccess();
         if (lastLoadSuccess != isLoadSuccess) {
             lastLoadSuccess = isLoadSuccess;
@@ -383,7 +392,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
 
     public void next() {
-        if (!lastLooping) {
+        if (!lastLooping && !lastConvertStart) {
             audioPlayer.next();
             cardDescription.next();
             resetIndicators();
@@ -392,7 +401,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     }
 
     public void previous() {
-        if (!lastLooping) {
+        if (!lastLooping && !lastConvertStart) {
             audioPlayer.previous();
             cardDescription.previous();
             resetIndicators();

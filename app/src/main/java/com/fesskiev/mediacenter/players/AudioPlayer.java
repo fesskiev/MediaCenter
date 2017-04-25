@@ -71,7 +71,7 @@ public class AudioPlayer implements Playable {
                 })
                 .first()
                 .subscribeOn(Schedulers.io())
-                .subscribe(object -> Log.e(TAG, AudioPlayer.this.toString()));
+                .subscribe(object -> Log.e(TAG, AudioPlayer.this.toString()), Throwable::printStackTrace);
     }
 
     @Override
