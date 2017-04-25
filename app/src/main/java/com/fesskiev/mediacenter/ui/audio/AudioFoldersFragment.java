@@ -244,7 +244,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                     builder.setTitle(act.getString(R.string.dialog_delete_file_title));
                     builder.setMessage(R.string.dialog_delete_folder_message);
                     builder.setPositiveButton(R.string.dialog_delete_file_ok,
-                            (dialog, which) -> Observable.just(CacheManager.deleteDirectory(audioFolder.folderPath))
+                            (dialog, which) -> Observable.just(CacheManager.deleteDirectoryWithFiles(audioFolder.folderPath))
                                     .first()
                                     .subscribeOn(Schedulers.io())
                                     .flatMap(result -> {

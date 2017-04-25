@@ -84,20 +84,22 @@ public class CacheManager {
         return new File(folder.getAbsolutePath(), "download_folder_icon.png");
     }
 
-    public static boolean deleteDirectory(File directory) {
+    public static boolean deleteDirectoryWithFiles(File directory) {
         if (directory.exists()) {
             File[] files = directory.listFiles();
-            if (null != files) {
-                for (int i = 0; i < files.length; i++) {
-                    if (files[i].isDirectory()) {
-                        deleteDirectory(files[i]);
+            boolean containDirs = false;
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile()) {
+                        file.delete();
                     } else {
-                        files[i].delete();
+                        containDirs = true;
                     }
                 }
             }
+            return containDirs || directory.delete();
         }
-        return (directory.delete());
+        return false;
     }
 
 
