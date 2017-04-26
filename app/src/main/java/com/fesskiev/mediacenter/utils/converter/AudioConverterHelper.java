@@ -84,11 +84,11 @@ public class AudioConverterHelper {
         }
     }
 
-    public boolean isCommandRunning(){
+    public boolean isCommandRunning() {
         return FFmpeg.getInstance(context).isFFmpegCommandRunning();
     }
 
-    public boolean killRunningProcesses(){
+    public boolean killRunningProcesses() {
         return FFmpeg.getInstance(context).killRunningProcesses();
     }
 
@@ -125,6 +125,54 @@ public class AudioConverterHelper {
                 public void onSuccess(String message) {
                     audioFile.convertedPath = convertedFile;
                     listener.onSuccess(audioFile);
+                }
+
+                @Override
+                public void onFailure(String message) {
+                    listener.onFailure(new IOException(message));
+                }
+
+                @Override
+                public void onFinish() {
+
+                }
+            });
+        } catch (Exception e) {
+            listener.onFailure(e);
+        }
+    }
+
+    public void convertAudio(String audioFilePath, String saveFolder, AudioFormat format, OnConvertProcessListener listener) {
+        File file = new File(audioFilePath);
+        if (!libraryLoaded) {
+            listener.onFailure(new Exception("FFmpeg not loaded"));
+            return;
+        }
+        if (!file.exists()) {
+            listener.onFailure(new IOException("File not exists"));
+            return;
+        }
+        if (!file.canRead()) {
+            listener.onFailure(new IOException("Can't read the file. Missing permission?"));
+            return;
+        }
+        final File convertedFile = getConvertedFile(file, format, saveFolder);
+
+        final String[] cmd = new String[]{"-y", "-i", file.getPath(), convertedFile.getPath()};
+        try {
+            FFmpeg.getInstance(context).execute(cmd, new FFmpegExecuteResponseHandler() {
+                @Override
+                public void onStart() {
+                    listener.onStart();
+                }
+
+                @Override
+                public void onProgress(String message) {
+
+                }
+                @Override
+                public void onSuccess(String message) {
+                    listener.onSuccess(null);
                 }
 
                 @Override
@@ -186,6 +234,17 @@ public class AudioConverterHelper {
 
     private File getConvertedFile(File originalFile, AudioFormat format) {
         File temp = new File(Environment.getExternalStorageDirectory().toString() + "/MediaCenter/Temp/");
+        if (!temp.exists()) {
+            temp.mkdirs();
+        }
+        String[] f = originalFile.getName().split("\\.");
+        String fileName = originalFile.getName().replace(f[f.length - 1], format.getFormat());
+
+        return new File(temp.getAbsolutePath(), fileName);
+    }
+
+    private File getConvertedFile(File originalFile, AudioFormat format, String saveFolder) {
+        File temp = new File(saveFolder);
         if (!temp.exists()) {
             temp.mkdirs();
         }

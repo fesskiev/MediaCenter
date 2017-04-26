@@ -15,6 +15,7 @@ public class CacheManager {
     private final static String USER_PHOTO_PATH = EXTERNAL_STORAGE + "/MediaCenter/UserPhoto/";
     private final static String TEMP_PATH = EXTERNAL_STORAGE + "/MediaCenter/Temp/";
     public final static String RECORDER_DEST_PATH = EXTERNAL_STORAGE + "/MediaCenter/Records/";
+    public final static String CONVERT_DEST_PATH = EXTERNAL_STORAGE + "/MediaCenter/Convert/";
     public final static String IMAGES_AUDIO_CACHE_PATH = EXTERNAL_STORAGE + "/MediaCenter/Images/Audio/";
     public final static String IMAGES_VIDEO_CACHE_PATH = EXTERNAL_STORAGE + "/MediaCenter/Images/Video/";
     public final static String CHECK_DOWNLOADS_FOLDER_PATH = EXTERNAL_STORAGE + "/MediaCenter/Downloads";
