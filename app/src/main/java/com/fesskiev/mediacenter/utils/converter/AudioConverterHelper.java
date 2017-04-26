@@ -84,7 +84,15 @@ public class AudioConverterHelper {
         }
     }
 
-    private void convertAudio(AudioFile audioFile, AudioFormat format, OnConvertProcessListener listener) {
+    public boolean isCommandRunning(){
+        return FFmpeg.getInstance(context).isFFmpegCommandRunning();
+    }
+
+    public boolean killRunningProcesses(){
+        return FFmpeg.getInstance(context).killRunningProcesses();
+    }
+
+    public void convertAudio(AudioFile audioFile, AudioFormat format, OnConvertProcessListener listener) {
         File file = audioFile.filePath;
         if (!libraryLoaded) {
             listener.onFailure(new Exception("FFmpeg not loaded"));

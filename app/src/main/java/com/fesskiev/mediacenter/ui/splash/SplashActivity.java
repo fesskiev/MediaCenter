@@ -19,6 +19,7 @@ import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.source.DataRepository;
+import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.ui.MainActivity;
 import com.fesskiev.mediacenter.ui.walkthrough.WalkthroughActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
@@ -26,7 +27,6 @@ import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
 
 import java.io.File;
-import java.util.List;
 import java.util.UUID;
 
 import rx.Observable;
@@ -143,19 +143,13 @@ public class SplashActivity extends AppCompatActivity {
         audioFolder.id = UUID.randomUUID().toString();
         audioFolder.timestamp = System.currentTimeMillis();
 
-        File[] filterImages = dir.listFiles((d, name) -> {
-            String lowercaseName = name.toLowerCase();
-            return (lowercaseName.endsWith(".png") || lowercaseName.endsWith(".jpg"));
-        });
+        File[] filterImages = dir.listFiles(FileSystemService.folderImageFilter());
         if (filterImages != null && filterImages.length > 0) {
             audioFolder.folderImage = filterImages[0];
         }
 
 
-        File[] audioPaths = dir.listFiles((d, name) -> {
-            String lowercaseName = name.toLowerCase();
-            return lowercaseName.endsWith(".mp3") || lowercaseName.endsWith(".flac") || lowercaseName.endsWith(".wav");
-        });
+        File[] audioPaths = dir.listFiles(FileSystemService.audioFilter());
 
         if (audioPaths != null && audioPaths.length > 0) {
             for (File p : audioPaths) {

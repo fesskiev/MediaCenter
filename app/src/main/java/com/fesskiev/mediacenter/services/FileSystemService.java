@@ -681,21 +681,22 @@ public class FileSystemService extends JobService {
         return file.getAbsolutePath().equals(CacheManager.CHECK_DOWNLOADS_FOLDER_PATH);
     }
 
-    private FilenameFilter audioFilter() {
+    public static FilenameFilter audioFilter() {
         return (dir, name) -> {
             String lowercaseName = name.toLowerCase();
-            return lowercaseName.endsWith(".mp3") || lowercaseName.endsWith(".flac") || lowercaseName.endsWith(".wav");
+            return lowercaseName.endsWith(".mp3") || lowercaseName.endsWith(".flac") || lowercaseName.endsWith(".wav")
+                    || lowercaseName.endsWith(".m4a") || lowercaseName.endsWith(".aac")|| lowercaseName.endsWith(".aiff");
         };
     }
 
-    private FilenameFilter folderImageFilter() {
+    public static FilenameFilter folderImageFilter() {
         return (dir, name) -> {
             String lowercaseName = name.toLowerCase();
             return (lowercaseName.endsWith(".png") || lowercaseName.endsWith(".jpg"));
         };
     }
 
-    private FilenameFilter videoFilter() {
+    public static FilenameFilter videoFilter() {
         return (dir, name) -> {
             String lowercaseName = name.toLowerCase();
             return (lowercaseName.endsWith(".mp4") || lowercaseName.endsWith(".ts") || lowercaseName.endsWith(".mkv"));

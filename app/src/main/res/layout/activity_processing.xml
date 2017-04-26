@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/processingRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/search_background"
+    android:fitsSystemWindows="true">
+
+    <RadioGroup
+        android:id="@+id/radioGroupConvertFormat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/activity_horizontal_margin">
+
+        <android.support.v7.widget.AppCompatRadioButton
+            android:id="@+id/radioFLAC"
+            style="@style/RadioButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:button="@null"
+            android:drawableBottom="?android:attr/listChoiceIndicatorSingle"
+            android:gravity="center_horizontal|bottom"
+            android:text="FLAC" />
+
+        <android.support.v7.widget.AppCompatRadioButton
+            android:id="@+id/radioMP3"
+            style="@style/RadioButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:button="@null"
+            android:drawableBottom="?android:attr/listChoiceIndicatorSingle"
+            android:gravity="center_horizontal|bottom"
+            android:text="MP3" />
+
+        <android.support.v7.widget.AppCompatRadioButton
+            android:id="@+id/radioM4A"
+            style="@style/RadioButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:button="@null"
+            android:drawableBottom="?android:attr/listChoiceIndicatorSingle"
+            android:gravity="center_horizontal|bottom"
+            android:text="M4A" />
+
+
+        <android.support.v7.widget.AppCompatRadioButton
+            android:id="@+id/radioWAV"
+            style="@style/RadioButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:button="@null"
+            android:drawableBottom="?android:attr/listChoiceIndicatorSingle"
+            android:gravity="center_horizontal|bottom"
+            android:text="WAV" />
+
+        <android.support.v7.widget.AppCompatRadioButton
+            android:id="@+id/radioAAC"
+            style="@style/RadioButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:button="@null"
+            android:drawableBottom="?android:attr/listChoiceIndicatorSingle"
+            android:gravity="center_horizontal|bottom"
+            android:text="AAC" />
+
+    </RadioGroup>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/convertFileFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:clickable="true"
+        android:src="@drawable/icon_menu_add_playlist" />
+
+    <com.fesskiev.mediacenter.widgets.MaterialProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/progress_bar_height"
+        android:indeterminate="true"
+        android:layout_gravity="bottom"
+        android:visibility="invisible"
+        app:backgroundColour="@color/primary"
+        app:duration="2000"
+        app:progressColour="@color/accent" />
+
+</android.support.design.widget.CoordinatorLayout>

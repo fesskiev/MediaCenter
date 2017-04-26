@@ -57,4 +57,13 @@
             android:icon="@drawable/icon_remove_banners"/>
     </group>
 
+    <group
+        android:id="@+id/menu_processing"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/processing"
+            android:title="Processing"/>
+    </group>
+
 </menu>
