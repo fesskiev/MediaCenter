@@ -28,6 +28,7 @@
     <string name="title_playlist_activity">Playlist</string>
     <string name="title_effects">Effects</string>
     <string name="title_cue_activity">Cue file parser</string>
+    <string name="title_processing_activity">Audio Processing</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -281,6 +282,15 @@
     <string name="confirm_label">Confirm</string>
     <string name="selected_folder_label">Selected path:</string>
 
+    <string name="convert_type">Convert type</string>
+    <string name="convert_file">Convert file</string>
+    <string name="convert_save_folder">Folder for saving</string>
+
+    <string name="radio_mp3">MP3</string>
+    <string name="radio_flac">FLAC</string>
+    <string name="radio_m4a">M4A</string>
+    <string name="radio_wav">WAV</string>
+    <string name="radio_aac">AAC</string>
 
     <string name="banner_ad_unit_id">ca-app-pub-9301351302187198/2368614266</string>
     <string name="banner_ad_unit_id_1">ca-app-pub-9301351302187198/9833005460</string>

@@ -28,6 +28,7 @@
     <string name="title_playlist_activity">Плейлист</string>
     <string name="title_effects">Эффекты</string>
     <string name="title_cue_activity">Cue-файл парсер</string>
+    <string name="title_processing_activity">Аудио процессинг</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -255,5 +256,9 @@
     <string name="confirm_label">Подтвердить</string>
     <string name="selected_folder_label">Выбраннаый путь:</string>
     <string name="cancel_label">Отмена</string>
+
+    <string name="convert_type">Тип конвертации</string>
+    <string name="convert_file">Файл для конвертации</string>
+    <string name="convert_save_folder">Папка для хранения</string>
 
 </resources>

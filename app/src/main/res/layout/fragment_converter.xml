@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/processingRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="@dimen/activity_horizontal_margin">
+
+        <TextView
+            style="@style/ConvertTitleAppearance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/convert_type" />
+
+        <View
+            android:id="@+id/divider"
+            style="@style/DividerStyle"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupConvertFormat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <android.support.v7.widget.AppCompatRadioButton
+                android:id="@+id/radioFLAC"
+                style="@style/RadioButtonWhiteStyle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:button="@null"
+                android:drawableBottom="?android:attr/listChoiceIndicatorSingle"
+                android:gravity="center_horizontal|bottom"
+                android:text="@string/radio_flac" />
+
+            <android.support.v7.widget.AppCompatRadioButton
+                android:id="@+id/radioMP3"
+                style="@style/RadioButtonWhiteStyle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:button="@null"
+                android:drawableBottom="?android:attr/listChoiceIndicatorSingle"
+                android:gravity="center_horizontal|bottom"
+                android:text="@string/radio_mp3" />
+
+            <android.support.v7.widget.AppCompatRadioButton
+                android:id="@+id/radioM4A"
+                style="@style/RadioButtonWhiteStyle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:button="@null"
+                android:drawableBottom="?android:attr/listChoiceIndicatorSingle"
+                android:gravity="center_horizontal|bottom"
+                android:text="@string/radio_m4a" />
+
+            <android.support.v7.widget.AppCompatRadioButton
+                android:id="@+id/radioWAV"
+                style="@style/RadioButtonWhiteStyle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:button="@null"
+                android:drawableBottom="?android:attr/listChoiceIndicatorSingle"
+                android:gravity="center_horizontal|bottom"
+                android:text="@string/radio_wav" />
+
+            <android.support.v7.widget.AppCompatRadioButton
+                android:id="@+id/radioAAC"
+                style="@style/RadioButtonWhiteStyle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:button="@null"
+                android:drawableBottom="?android:attr/listChoiceIndicatorSingle"
+                android:gravity="center_horizontal|bottom"
+                android:text="@string/radio_aac" />
+
+        </RadioGroup>
+
+        <View
+            android:id="@+id/divider1"
+            style="@style/DividerStyle"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="10dp" />
+
+        <TextView
+            style="@style/ConvertTitleAppearance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/convert_file" />
+
+        <View
+            android:id="@+id/divider4"
+            style="@style/DividerStyle"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/convertFilePath"
+                style="@style/ConvertTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toStartOf="@+id/chooseConvertFile"
+                android:minLines="2"
+                tools:text="/storage/emulated/0/Audio/file.mp3" />
+
+            <ImageView
+                android:id="@+id/chooseConvertFile"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:clickable="true"
+                android:contentDescription="@string/app_name"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:src="@drawable/icon_file_chooser" />
+
+        </RelativeLayout>
+
+        <View
+            android:id="@+id/divider5"
+            style="@style/DividerStyle"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="10dp" />
+
+
+        <TextView
+            style="@style/ConvertTitleAppearance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/convert_save_folder" />
+
+        <View
+            android:id="@+id/divider3"
+            style="@style/DividerStyle"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/saveFolderPath"
+                style="@style/ConvertTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toStartOf="@+id/chooseConvertSaveFolder"
+                android:minLines="2"
+                tools:text="/storage/emulated/0/Mediacenter/Convert" />
+
+            <ImageView
+                android:id="@+id/chooseConvertSaveFolder"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:clickable="true"
+                android:contentDescription="@string/app_name"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:src="@drawable/icon_file_chooser" />
+
+        </RelativeLayout>
+
+        <View
+            android:id="@+id/divider2"
+            style="@style/DividerStyle"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp" />
+
+    </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/convertFileFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:clickable="true"
+        android:src="@drawable/icon_menu_add_playlist" />
+
+    <com.fesskiev.mediacenter.widgets.MaterialProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/progress_bar_height"
+        android:layout_gravity="bottom"
+        android:indeterminate="true"
+        android:visibility="invisible"
+        app:backgroundColour="@color/primary"
+        app:duration="2000"
+        app:progressColour="@color/accent" />
+
+</android.support.design.widget.CoordinatorLayout>
