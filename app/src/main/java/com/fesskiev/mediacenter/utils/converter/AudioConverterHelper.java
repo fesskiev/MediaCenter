@@ -7,6 +7,7 @@ import android.text.TextUtils;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.AudioFile;
+import com.fesskiev.mediacenter.utils.AppLog;
 import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
 import com.github.hiteshsondhi88.libffmpeg.FFmpegExecuteResponseHandler;
 import com.github.hiteshsondhi88.libffmpeg.FFmpegLoadBinaryResponseHandler;
@@ -159,6 +160,9 @@ public class AudioConverterHelper {
         final File convertedFile = getConvertedFile(file, format, saveFolder);
 
         final String[] cmd = new String[]{"-y", "-i", file.getPath(), convertedFile.getPath()};
+
+//        final String[] splitCmd = new String[]{"-y", "-i", file.getPath(), "-ss", "00:00:02", "-codec", "copy", "-t", "00:00:06",  convertedFile.getPath()};
+
         try {
             FFmpeg.getInstance(context).execute(cmd, new FFmpegExecuteResponseHandler() {
                 @Override
@@ -168,6 +172,7 @@ public class AudioConverterHelper {
 
                 @Override
                 public void onProgress(String message) {
+                    AppLog.ERROR(message);
 
                 }
                 @Override
