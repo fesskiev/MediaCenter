@@ -50,6 +50,7 @@
     <string name="drawer_item_audio">Audio</string>
     <string name="drawer_item_video">Video</string>
     <string name="drawer_item_playlist">Playlist</string>
+    <string name="drawer_item_converter">Converter</string>
     <string name="drawer_remove_banners">Remove banners</string>
 
     <string name="title_activity_vkplayer">VKPlayerActivity</string>

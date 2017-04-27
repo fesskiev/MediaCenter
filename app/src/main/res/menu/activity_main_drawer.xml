@@ -20,6 +20,15 @@
         </item>
     </group>
 
+    <group
+        android:id="@+id/menu_converter"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/converter"
+            android:icon="@drawable/icon_converter"
+            android:title="@string/drawer_item_converter"/>
+    </group>
+
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/playlist"
@@ -55,15 +64,6 @@
             android:id="@+id/billing"
             android:title="@string/drawer_remove_banners"
             android:icon="@drawable/icon_remove_banners"/>
-    </group>
-
-    <group
-        android:id="@+id/menu_processing"
-        android:checkableBehavior="single">
-
-        <item
-            android:id="@+id/processing"
-            android:title="Processing"/>
     </group>
 
 </menu>

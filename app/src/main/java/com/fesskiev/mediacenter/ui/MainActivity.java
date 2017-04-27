@@ -501,7 +501,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             case R.id.billing:
                 selectedActivity = InAppBillingActivity.class;
                 break;
-            case R.id.processing:
+            case R.id.converter:
                 selectedActivity = ConverterActivity.class;
                 break;
             case R.id.settings:
@@ -550,7 +550,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     private void hideDrawerPurchaseItem() {
-        navigationViewMain.getMenu().getItem(4).setVisible(false);
+        navigationViewMain.getMenu().getItem(5).setVisible(false);
     }
 
 
