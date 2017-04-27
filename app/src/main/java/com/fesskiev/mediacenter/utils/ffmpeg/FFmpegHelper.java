@@ -1,4 +1,4 @@
-package com.fesskiev.mediacenter.utils.converter;
+package com.fesskiev.mediacenter.utils.ffmpeg;
 
 
 import android.content.Context;
@@ -18,7 +18,7 @@ import java.util.List;
 
 import rx.android.schedulers.AndroidSchedulers;
 
-public class AudioConverterHelper {
+public class FFmpegHelper {
 
     public interface OnConverterLibraryLoadListener {
 
@@ -37,19 +37,19 @@ public class AudioConverterHelper {
     }
 
 
-    private static AudioConverterHelper INSTANCE;
+    private static FFmpegHelper INSTANCE;
 
     private Context context;
     private boolean libraryLoaded;
 
-    public static AudioConverterHelper getInstance() {
+    public static FFmpegHelper getInstance() {
         if (INSTANCE == null) {
-            INSTANCE = new AudioConverterHelper();
+            INSTANCE = new FFmpegHelper();
         }
         return INSTANCE;
     }
 
-    private AudioConverterHelper() {
+    private FFmpegHelper() {
         context = MediaApplication.getInstance().getApplicationContext();
     }
 

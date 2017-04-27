@@ -12,7 +12,7 @@ import com.fesskiev.mediacenter.data.source.remote.RemoteDataSource;
 import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.players.VideoPlayer;
 import com.fesskiev.mediacenter.utils.AppLog;
-import com.fesskiev.mediacenter.utils.converter.AudioConverterHelper;
+import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -51,8 +51,8 @@ public class MediaApplication extends MultiDexApplication {
         audioPlayer = new AudioPlayer(repository);
         videoPlayer = new VideoPlayer();
 
-        AudioConverterHelper.getInstance()
-                .loadFFmpegLibrary(new AudioConverterHelper.OnConverterLibraryLoadListener() {
+        FFmpegHelper.getInstance()
+                .loadFFmpegLibrary(new FFmpegHelper.OnConverterLibraryLoadListener() {
                     @Override
                     public void onSuccess() {
                         Log.e("ffmpef", "FFMPEG LOAD");

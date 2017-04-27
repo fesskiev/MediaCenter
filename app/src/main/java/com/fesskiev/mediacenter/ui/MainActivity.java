@@ -32,7 +32,7 @@ import com.fesskiev.mediacenter.ui.billing.InAppBillingActivity;
 import com.fesskiev.mediacenter.ui.effects.EffectsActivity;
 import com.fesskiev.mediacenter.ui.playback.PlaybackActivity;
 import com.fesskiev.mediacenter.ui.playlist.PlayListActivity;
-import com.fesskiev.mediacenter.ui.processing.ProcessingActivity;
+import com.fesskiev.mediacenter.ui.converter.ConverterActivity;
 import com.fesskiev.mediacenter.ui.search.SearchActivity;
 import com.fesskiev.mediacenter.ui.settings.SettingsActivity;
 import com.fesskiev.mediacenter.ui.splash.SplashActivity;
@@ -502,7 +502,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 selectedActivity = InAppBillingActivity.class;
                 break;
             case R.id.processing:
-                selectedActivity = ProcessingActivity.class;
+                selectedActivity = ConverterActivity.class;
                 break;
             case R.id.settings:
                 selectedActivity = SettingsActivity.class;

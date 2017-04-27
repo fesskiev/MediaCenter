@@ -28,7 +28,7 @@
     <string name="title_playlist_activity">Плейлист</string>
     <string name="title_effects">Эффекты</string>
     <string name="title_cue_activity">Cue-файл парсер</string>
-    <string name="title_processing_activity">Аудио процессинг</string>
+    <string name="title_converter_activity">Медиа конвертор</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

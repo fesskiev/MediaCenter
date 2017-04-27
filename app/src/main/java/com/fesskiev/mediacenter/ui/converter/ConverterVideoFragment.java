@@ -1,4 +1,4 @@
-package com.fesskiev.mediacenter.ui.processing;
+package com.fesskiev.mediacenter.ui.converter;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -10,10 +10,10 @@ import android.view.ViewGroup;
 import com.fesskiev.mediacenter.R;
 
 
-public class CutAudioFragment extends Fragment {
+public class ConverterVideoFragment extends Fragment {
 
-    public static CutAudioFragment newInstance() {
-        return new CutAudioFragment();
+    public static ConverterVideoFragment newInstance() {
+        return new ConverterVideoFragment();
     }
 
     @Override
@@ -23,7 +23,7 @@ public class CutAudioFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_cut_audio, container, false);
+        return inflater.inflate(R.layout.fragment_converter_video, container, false);
     }
 
     @Override

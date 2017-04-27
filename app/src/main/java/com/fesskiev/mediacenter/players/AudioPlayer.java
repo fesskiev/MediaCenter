@@ -15,7 +15,7 @@ import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.comparators.SortByDuration;
 import com.fesskiev.mediacenter.utils.comparators.SortByFileSize;
 import com.fesskiev.mediacenter.utils.comparators.SortByTimestamp;
-import com.fesskiev.mediacenter.utils.converter.AudioConverterHelper;
+import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -135,9 +135,9 @@ public class AudioPlayer implements Playable {
         EventBus.getDefault().post(currentTrack);
         Log.e(TAG, AudioPlayer.this.toString());
 
-        if (AudioConverterHelper.isAudioFileFLAC(currentTrack)) {
-            AudioConverterHelper.getInstance().convertAudioIfNeed(currentTrack,
-                    new AudioConverterHelper.OnConvertProcessListener() {
+        if (FFmpegHelper.isAudioFileFLAC(currentTrack)) {
+            FFmpegHelper.getInstance().convertAudioIfNeed(currentTrack,
+                    new FFmpegHelper.OnConvertProcessListener() {
 
                         @Override
                         public void onStart() {

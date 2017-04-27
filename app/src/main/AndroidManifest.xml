@@ -223,7 +223,7 @@
         </activity>
 
         <activity
-            android:name=".ui.processing.ProcessingActivity"
+            android:name=".ui.converter.ConverterActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait">

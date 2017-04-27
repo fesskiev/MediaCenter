@@ -26,7 +26,7 @@ import com.fesskiev.mediacenter.ui.effects.EffectsActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
-import com.fesskiev.mediacenter.utils.converter.AudioConverterHelper;
+import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
 import com.fesskiev.mediacenter.widgets.buttons.MuteSoloButton;
 import com.fesskiev.mediacenter.widgets.buttons.RepeatButton;
 import com.fesskiev.mediacenter.widgets.cards.DescriptionCardView;
@@ -314,7 +314,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         boolean isLoadError = playbackState.isLoadError();
         if (lastLoadError != isLoadError) {
             lastLoadError = isLoadError;
-            if (lastLoadError && !AudioConverterHelper.isAudioFileFLAC(audioPlayer.getCurrentTrack())) {
+            if (lastLoadError && !FFmpegHelper.isAudioFileFLAC(audioPlayer.getCurrentTrack())) {
                 showErrorAndClose();
             }
         }

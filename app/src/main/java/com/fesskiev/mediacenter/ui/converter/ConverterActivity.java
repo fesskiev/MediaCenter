@@ -1,4 +1,4 @@
-package com.fesskiev.mediacenter.ui.processing;
+package com.fesskiev.mediacenter.ui.converter;
 
 
 import android.os.Bundle;
@@ -12,27 +12,27 @@ import android.support.v7.widget.Toolbar;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
 import com.fesskiev.mediacenter.utils.Utils;
-import com.fesskiev.mediacenter.utils.converter.AudioConverterHelper;
+import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
 import com.fesskiev.mediacenter.widgets.InkPageIndicator;
 
-public class ProcessingActivity extends AnalyticsActivity {
+public class ConverterActivity extends AnalyticsActivity {
 
     private Fragment[] fragments;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_processing);
+        setContentView(R.layout.activity_converter);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
-            toolbar.setTitle(getString(R.string.title_processing_activity));
+            toolbar.setTitle(getString(R.string.title_converter_activity));
             setSupportActionBar(toolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
         fragments = new Fragment[]{
-                ConverterFragment.newInstance(),
-                CutAudioFragment.newInstance(),
+                ConverterAudioFragment.newInstance(),
+                ConverterVideoFragment.newInstance(),
         };
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -57,9 +57,9 @@ public class ProcessingActivity extends AnalyticsActivity {
     }
 
     private void exitProcessing() {
-        AudioConverterHelper audioConverter = AudioConverterHelper.getInstance();
+        FFmpegHelper audioConverter = FFmpegHelper.getInstance();
         if (audioConverter.isCommandRunning()) {
-            Utils.showCustomSnackbar(findViewById(R.id.processingRoot), getApplicationContext(),
+            Utils.showCustomSnackbar(findViewById(R.id.converterRoot), getApplicationContext(),
                     "Command is running! Kill process", Snackbar.LENGTH_SHORT)
                     .addCallback(new Snackbar.Callback() {
                         @Override

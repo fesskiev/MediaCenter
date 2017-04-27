@@ -1,4 +1,4 @@
-package com.fesskiev.mediacenter.ui.processing;
+package com.fesskiev.mediacenter.ui.converter;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,15 +19,15 @@ import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.ui.chooser.FileSystemChooserActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.Utils;
-import com.fesskiev.mediacenter.utils.converter.AudioConverterHelper;
-import com.fesskiev.mediacenter.utils.converter.AudioFormat;
+import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
+import com.fesskiev.mediacenter.utils.ffmpeg.AudioFormat;
 import com.fesskiev.mediacenter.widgets.MaterialProgressBar;
 
 
-public class ConverterFragment extends Fragment implements RadioGroup.OnCheckedChangeListener {
+public class ConverterAudioFragment extends Fragment implements RadioGroup.OnCheckedChangeListener {
 
-    public static ConverterFragment newInstance() {
-        return new ConverterFragment();
+    public static ConverterAudioFragment newInstance() {
+        return new ConverterAudioFragment();
     }
 
     private final static int REQUEST_FOLDER = 0;
@@ -54,7 +54,7 @@ public class ConverterFragment extends Fragment implements RadioGroup.OnCheckedC
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_converter, container, false);
+        return inflater.inflate(R.layout.fragment_converter_audio, container, false);
     }
 
     @Override
@@ -127,9 +127,9 @@ public class ConverterFragment extends Fragment implements RadioGroup.OnCheckedC
 
         String saveFolder = saveFolderPath.getText().toString();
 
-        AudioConverterHelper.getInstance().convertAudio(convertFile, saveFolder,
+        FFmpegHelper.getInstance().convertAudio(convertFile, saveFolder,
                 audioFormat,
-                new AudioConverterHelper.OnConvertProcessListener() {
+                new FFmpegHelper.OnConvertProcessListener() {
                     @Override
                     public void onStart() {
                         showProgressBar();
