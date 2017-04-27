@@ -66,7 +66,6 @@ public class BitmapHelper {
                     .override(WIDTH, HEIGHT)
                     .centerCrop()
                     .listener(loggingListener)
-                    .error(R.drawable.icon_error_load_cover)
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into(new SimpleTarget<Bitmap>() {
                         @Override
@@ -83,7 +82,6 @@ public class BitmapHelper {
                     .override(WIDTH, HEIGHT)
                     .centerCrop()
                     .listener(loggingListener)
-                    .error(R.drawable.icon_error_load_cover)
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into(new SimpleTarget<Bitmap>() {
                         @Override
@@ -226,7 +224,7 @@ public class BitmapHelper {
                     .crossFade()
                     .centerCrop()
                     .listener(loggingListener)
-                    .error(R.drawable.icon_error_load_cover)
+                    .error(R.drawable.no_cover_track_icon)
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .transform(new CircleTransform(context))
                     .into(imageView);
@@ -242,7 +240,7 @@ public class BitmapHelper {
                         .crossFade()
                         .centerCrop()
                         .listener(loggingListener)
-                        .error(R.drawable.icon_error_load_cover)
+                        .error(R.drawable.no_cover_track_icon)
                         .diskCacheStrategy(DiskCacheStrategy.NONE)
                         .transform(new CircleTransform(context))
                         .into(imageView);
@@ -257,7 +255,7 @@ public class BitmapHelper {
                     .crossFade()
                     .fitCenter()
                     .listener(loggingListener)
-                    .error(R.drawable.icon_error_load_cover)
+                    .error(R.drawable.no_cover_track_icon)
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .transform(new CircleTransform(context))
                     .into(imageView);
@@ -293,7 +291,7 @@ public class BitmapHelper {
                     .crossFade()
                     .centerCrop()
                     .listener(loggingListener)
-                    .error(R.drawable.icon_error_load_cover)
+                    .error(R.drawable.no_cover_folder_icon)
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into(placeholder);
         } else {
@@ -318,7 +316,7 @@ public class BitmapHelper {
                     .crossFade()
                     .centerCrop()
                     .listener(loggingListener)
-                    .error(R.drawable.icon_error_load_cover)
+                    .error(R.drawable.no_cover_folder_icon)
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into(placeholder);
         } else {
@@ -342,7 +340,7 @@ public class BitmapHelper {
                     .crossFade()
                     .centerCrop()
                     .listener(loggingListener)
-                    .error(R.drawable.icon_error_load_cover)
+                    .error(R.drawable.no_cover_folder_icon)
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into(placeholder);
         } else {
@@ -363,7 +361,7 @@ public class BitmapHelper {
                 .crossFade()
                 .centerCrop()
                 .listener(loggingListener)
-                .error(R.drawable.icon_error_load_cover)
+                .error(R.drawable.no_cover_track_icon)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(placeholder);
     }
@@ -375,7 +373,7 @@ public class BitmapHelper {
                 .crossFade()
                 .centerCrop()
                 .listener(loggingListener)
-                .error(R.drawable.icon_error_load_cover)
+                .error(R.drawable.no_cover_folder_icon)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(placeholder);
     }
