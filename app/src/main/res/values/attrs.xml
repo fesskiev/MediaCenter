@@ -68,4 +68,10 @@
         <attr name="currentPageIndicatorColor" format="color" />
     </declare-styleable>
 
+    <declare-styleable name="RangeSeekBar">
+        <attr name="absoluteMinValue" format="integer|float"/>
+        <attr name="absoluteMaxValue" format="integer|float"/>
+        <attr name="singleThumb" format="boolean"/>
+    </declare-styleable>
+
 </resources>

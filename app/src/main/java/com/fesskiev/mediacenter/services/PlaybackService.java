@@ -829,7 +829,6 @@ public class PlaybackService extends Service {
     public void playStatusCallback(int status) {
         switch (status) {
             case END_TRACK:
-                stop();
                 next();
                 break;
             case LOAD_SUCCESS:
