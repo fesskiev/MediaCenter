@@ -15,6 +15,7 @@ import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.utils.Utils;
+import com.fesskiev.mediacenter.widgets.recycleview.DividerItemDecoration;
 import com.fesskiev.mediacenter.widgets.recycleview.ScrollingLinearLayoutManager;
 
 import java.util.List;
@@ -43,6 +44,8 @@ public class PlayerTrackListActivity extends AnalyticsActivity {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false, 1000));
+        recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
+                R.drawable.divider));
         recyclerView.setAdapter(new TrackListActivityAdapter());
 
     }

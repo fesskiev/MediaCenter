@@ -22,6 +22,7 @@ import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.audio.tracklist.PlayerTrackListActivity;
 import com.fesskiev.mediacenter.ui.cue.CueActivity;
+import com.fesskiev.mediacenter.ui.cut.CutMediaActivity;
 import com.fesskiev.mediacenter.ui.effects.EffectsActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
@@ -210,11 +211,13 @@ public class AudioPlayerActivity extends AnalyticsActivity {
             case R.id.menu_cue:
                 startCueActivity();
                 return true;
+            case R.id.menu_cut:
+                startCutActivity();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-
 
     private void openTrackList() {
         List<AudioFile> audioFiles = audioPlayer.getCurrentTrackList();
@@ -229,6 +232,10 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
     private void startCueActivity() {
         startActivity(new Intent(AudioPlayerActivity.this, CueActivity.class));
+    }
+
+    private void startCutActivity() {
+        startActivity(new Intent(AudioPlayerActivity.this, CutMediaActivity.class));
     }
 
     @Override

@@ -266,6 +266,18 @@
         </activity>
 
         <activity
+            android:name=".ui.cut.CutMediaActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:parentActivityName=".ui.audio.player.AudioPlayerActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/ActivityDialog.Theme.MediaCenter">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity" />
+        </activity>
+
+
+        <activity
             android:name=".ui.chooser.FileSystemChooserActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:parentActivityName=".ui.MainActivity"

@@ -28,6 +28,7 @@
     <string name="title_playlist_activity">Playlist</string>
     <string name="title_effects">Effects</string>
     <string name="title_cue_activity">Cue file parser</string>
+    <string name="title_cut_activity">Cut file</string>
     <string name="title_converter_activity">Media Converter</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
