@@ -20,6 +20,7 @@ import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.utils.Utils;
 
 import java.math.BigDecimal;
 
@@ -72,7 +73,7 @@ public class RangeSeekBar<T extends Number> extends AppCompatImageView {
     private static final int DEFAULT_TEXT_SIZE_IN_DP = 14;
     private static final int DEFAULT_TEXT_DISTANCE_TO_BUTTON_IN_DP = 8;
     private static final int DEFAULT_TEXT_DISTANCE_TO_TOP_IN_DP = 8;
-    private boolean singleThumb;
+
 
     public RangeSeekBar(Context context) {
         super(context);
@@ -112,7 +113,6 @@ public class RangeSeekBar<T extends Number> extends AppCompatImageView {
             setRangeValues(
                     extractNumericValueFromAttributes(a, R.styleable.RangeSeekBar_absoluteMinValue, DEFAULT_MINIMUM),
                     extractNumericValueFromAttributes(a, R.styleable.RangeSeekBar_absoluteMaxValue, DEFAULT_MAXIMUM));
-            singleThumb = a.getBoolean(R.styleable.RangeSeekBar_singleThumb, false);
             a.recycle();
         }
 
@@ -365,7 +365,7 @@ public class RangeSeekBar<T extends Number> extends AppCompatImageView {
         final int pointerIndex = event.findPointerIndex(activePointerId);
         final float x = event.getX(pointerIndex);
 
-        if (Thumb.MIN.equals(pressedThumb) && !singleThumb) {
+        if (Thumb.MIN.equals(pressedThumb)) {
             setNormalizedMinValue(screenToNormalized(x));
         } else if (Thumb.MAX.equals(pressedThumb)) {
             setNormalizedMaxValue(screenToNormalized(x));
@@ -421,15 +421,8 @@ public class RangeSeekBar<T extends Number> extends AppCompatImageView {
         paint.setColor(ContextCompat.getColor(getContext(), R.color.primary_light));
         paint.setAntiAlias(true);
 
-        String minLabel = "Min";
-        String maxLabel = "Max";
 
-        float minMaxLabelSize = Math.max(paint.measureText(minLabel), paint.measureText(maxLabel));
-        float minMaxHeight = textOffset + thumbHalfHeight + textSize / 3;
-        canvas.drawText(minLabel, 0, minMaxHeight, paint);
-        canvas.drawText(maxLabel, getWidth() - minMaxLabelSize, minMaxHeight, paint);
-        padding = INITIAL_PADDING + minMaxLabelSize + thumbHalfWidth;
-
+        padding = INITIAL_PADDING + thumbHalfWidth;
         // draw seek bar background line
         rect.left = padding;
         rect.right = getWidth() - padding;
@@ -450,10 +443,8 @@ public class RangeSeekBar<T extends Number> extends AppCompatImageView {
         canvas.drawRect(rect, paint);
 
         // draw minimum thumb if not a single thumb control
-        if (!singleThumb) {
-            drawThumb(normalizedToScreen(normalizedMinValue), Thumb.MIN.equals(pressedThumb), canvas,
-                    selectedValuesAreDefault);
-        }
+        drawThumb(normalizedToScreen(normalizedMinValue), Thumb.MIN.equals(pressedThumb), canvas,
+                selectedValuesAreDefault);
 
         // draw maximum thumb
         drawThumb(normalizedToScreen(normalizedMaxValue), Thumb.MAX.equals(pressedThumb), canvas,
@@ -466,18 +457,16 @@ public class RangeSeekBar<T extends Number> extends AppCompatImageView {
             // give text a bit more space here so it doesn't get cut off
             int offset = dpToPx(getContext(), TEXT_LATERAL_PADDING_IN_DP);
 
-            String minText = String.valueOf(getSelectedMinValue());
-            String maxText = String.valueOf(getSelectedMaxValue());
+            String minText = Utils.getDurationString((Integer) getSelectedMinValue());
+            String maxText = Utils.getDurationString((Integer) getSelectedMaxValue());
             float minTextWidth = paint.measureText(minText) + offset;
             float maxTextWidth = paint.measureText(maxText) + offset;
 
-            if (!singleThumb) {
-                canvas.drawText(minText,
-                        normalizedToScreen(normalizedMinValue) - minTextWidth * 0.5f,
-                        distanceToTop + textSize,
-                        paint);
 
-            }
+            canvas.drawText(minText,
+                    normalizedToScreen(normalizedMinValue) - minTextWidth * 0.5f,
+                    distanceToTop + textSize,
+                    paint);
 
             canvas.drawText(maxText,
                     normalizedToScreen(normalizedMaxValue) - maxTextWidth * 0.5f,
