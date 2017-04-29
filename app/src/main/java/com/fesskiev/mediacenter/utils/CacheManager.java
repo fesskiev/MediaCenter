@@ -11,8 +11,6 @@ import java.io.IOException;
 public class CacheManager {
 
     public final static String EXTERNAL_STORAGE = Environment.getExternalStorageDirectory().toString();
-    private final static String DOWNLOADS_FOLDER_PATH = EXTERNAL_STORAGE + "/MediaCenter/Downloads/";
-    private final static String USER_PHOTO_PATH = EXTERNAL_STORAGE + "/MediaCenter/UserPhoto/";
     private final static String TEMP_PATH = EXTERNAL_STORAGE + "/MediaCenter/Temp/";
     public final static String RECORDER_DEST_PATH = EXTERNAL_STORAGE + "/MediaCenter/Records/";
     public final static String CONVERT_DEST_PATH = EXTERNAL_STORAGE + "/MediaCenter/Convert/";
@@ -43,15 +41,6 @@ public class CacheManager {
             e.printStackTrace();
         }
     }
-
-    public static File getUserPhotoPath() {
-        File folder = new File(USER_PHOTO_PATH);
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
-        return new File(folder.getAbsolutePath(), "user_photo.png");
-    }
-
     public static File getRecordTempPath() {
         File temp = new File(TEMP_PATH);
         if (!temp.exists()) {
@@ -66,14 +55,6 @@ public class CacheManager {
             dest.mkdirs();
         }
         return new File(dest.getAbsolutePath(), String.valueOf(System.currentTimeMillis()));
-    }
-
-    public static File getDownloadFolderIconPath() {
-        File folder = new File(IMAGES_AUDIO_CACHE_PATH);
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
-        return new File(folder.getAbsolutePath(), "download_folder_icon.png");
     }
 
     public static boolean deleteDirectoryWithFiles(File directory) {

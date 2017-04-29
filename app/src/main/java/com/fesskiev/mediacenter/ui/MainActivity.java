@@ -6,11 +6,14 @@ import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.drawable.Animatable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
@@ -18,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
@@ -64,6 +68,11 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private NavigationView navigationViewMain;
     private DrawerLayout drawer;
     private ImageView timerView;
+
+    private ImageView appIcon;
+    private TextView appName;
+    private TextView appPromo;
+
     private int selectedState;
 
 
@@ -91,16 +100,19 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             drawer.addDrawerListener(new DrawerLayout.DrawerListener() {
                 @Override
                 public void onDrawerSlide(View drawerView, float slideOffset) {
-
+                    animateHeaderViews(slideOffset);
                 }
 
                 @Override
                 public void onDrawerOpened(View drawerView) {
-
+                    startAnimate = false;
+                    animateHeaderViews(1f);
                 }
 
                 @Override
                 public void onDrawerClosed(View drawerView) {
+                    startAnimate = false;
+                    animateHeaderViews(0f);
 
                     if (selectedActivity != null) {
                         startSelectedActivity();
@@ -129,6 +141,50 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             checkAudioContentItem();
         } else {
             restoreState(savedInstanceState);
+        }
+    }
+
+    private boolean startAnimate;
+
+    private void animateHeaderViews(float slideOffset) {
+        if (!startAnimate) {
+            ViewCompat.animate(appIcon)
+                    .alpha(slideOffset)
+                    .setDuration(300)
+                    .setInterpolator(AnimationUtils.getInstance().getFastOutSlowInInterpolator())
+                    .start();
+
+            ViewCompat.animate(appName)
+                    .scaleX(slideOffset)
+                    .scaleY(slideOffset)
+                    .alpha(slideOffset)
+                    .setDuration(400)
+                    .setInterpolator(AnimationUtils.getInstance().getFastOutSlowInInterpolator())
+                    .start();
+
+            ViewCompat.animate(appPromo)
+                    .scaleX(slideOffset)
+                    .scaleY(slideOffset)
+                    .alpha(slideOffset)
+                    .setDuration(600)
+                    .setInterpolator(AnimationUtils.getInstance().getFastOutSlowInInterpolator())
+                    .setListener(new ViewPropertyAnimatorListener() {
+                        @Override
+                        public void onAnimationStart(View view) {
+                            startAnimate = true;
+                        }
+
+                        @Override
+                        public void onAnimationEnd(View view) {
+                            startAnimate = false;
+                        }
+
+                        @Override
+                        public void onAnimationCancel(View view) {
+                            startAnimate = false;
+                        }
+                    })
+                    .start();
         }
     }
 
@@ -321,6 +377,12 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         navigationViewMain.setItemIconTintList(null);
         View headerLayout =
                 navigationViewMain.inflateHeaderView(R.layout.nav_header_main);
+
+        appIcon = (ImageView) headerLayout.findViewById(R.id.appIcon);
+        appName = (TextView) headerLayout.findViewById(R.id.headerTitle);
+        appPromo = (TextView) headerLayout.findViewById(R.id.headerText);
+
+
     }
 
     private void setEffectsNavView() {
