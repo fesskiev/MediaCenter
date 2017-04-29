@@ -34,9 +34,9 @@ public class RangeSeekBar<T extends Number> extends AppCompatImageView {
 
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
-    private final Bitmap thumbImage = drawableToBitmap(ContextCompat.getDrawable(getContext(), R.drawable.seek_bar_thumb));
-    private final Bitmap thumbPressedImage = drawableToBitmap(ContextCompat.getDrawable(getContext(), R.drawable.seek_bar_thumb));
-    private final Bitmap thumbDisabledImage = drawableToBitmap(ContextCompat.getDrawable(getContext(), R.drawable.seek_bar_thumb));
+    private final Bitmap thumbImage = drawableToBitmap(ContextCompat.getDrawable(getContext(), R.drawable.seek_bar_thumb_accent));
+    private final Bitmap thumbPressedImage = drawableToBitmap(ContextCompat.getDrawable(getContext(), R.drawable.seek_bar_thumb_accent));
+    private final Bitmap thumbDisabledImage = drawableToBitmap(ContextCompat.getDrawable(getContext(), R.drawable.seek_bar_thumb_accent));
 
     private final float thumbWidth = thumbImage.getWidth();
     private final float thumbHalfWidth = 0.5f * thumbWidth;
@@ -418,7 +418,7 @@ public class RangeSeekBar<T extends Number> extends AppCompatImageView {
 
         paint.setTextSize(textSize);
         paint.setStyle(Style.FILL);
-        paint.setColor(ContextCompat.getColor(getContext(), R.color.primary_light));
+        paint.setColor(ContextCompat.getColor(getContext(), R.color.white));
         paint.setAntiAlias(true);
 
 
@@ -432,8 +432,8 @@ public class RangeSeekBar<T extends Number> extends AppCompatImageView {
                 getSelectedMaxValue().equals(getAbsoluteMaxValue()));
 
         int colorToUseForButtonsAndHighlightedLine = selectedValuesAreDefault ?
-                ContextCompat.getColor(getContext(), R.color.primary_light) :
-                ContextCompat.getColor(getContext(), R.color.primary);
+                ContextCompat.getColor(getContext(), R.color.white) :
+                ContextCompat.getColor(getContext(), R.color.accent);
 
         // draw seek bar active range line
         rect.left = normalizedToScreen(normalizedMinValue);
@@ -453,7 +453,7 @@ public class RangeSeekBar<T extends Number> extends AppCompatImageView {
         // draw the text if sliders have moved from default edges
         if (!selectedValuesAreDefault) {
             paint.setTextSize(textSize);
-            paint.setColor(ContextCompat.getColor(getContext(), R.color.primary));
+            paint.setColor(ContextCompat.getColor(getContext(), R.color.white));
             // give text a bit more space here so it doesn't get cut off
             int offset = dpToPx(getContext(), TEXT_LATERAL_PADDING_IN_DP);
 

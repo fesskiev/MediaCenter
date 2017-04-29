@@ -181,6 +181,17 @@
     <string name="snackbar_auth_error">Auth error</string>
     <string name="snackbar_error_try_again">Repeat</string>
 
+    <string name="snackbar_converter_error_path">You must select audio file for converting</string>
+    <string name="snackbar_converter_error_format">You must select audio format for converting</string>
+    <string name="snackbar_converter_error_convert">Error convert!</string>
+    <string name="snackbar_converter_success_convert">Convert Success!</string>
+
+    <string name="snackbar_cut_error_file_name">You must enter correct file name</string>
+    <string name="snackbar_cut_error_range">You must select cut range</string>
+    <string name="snackbar_cut_error">Error cut</string>
+    <string name="snackbar_cut_success">Cut file Success</string>
+
+
     <string name="auth_text_login">Phone or e-mail</string>
     <string name="auth_text_password">Password</string>
     <string name="auth_text_title">Please auth in social network</string>

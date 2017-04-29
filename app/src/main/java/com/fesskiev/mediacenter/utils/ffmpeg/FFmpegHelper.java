@@ -93,23 +93,9 @@ public class FFmpegHelper {
         return FFmpeg.getInstance(context).killRunningProcesses();
     }
 
-    public void convertAudio(AudioFile audioFile, AudioFormat format, OnConvertProcessListener listener) {
-        File file = audioFile.filePath;
-        if (!libraryLoaded) {
-            listener.onFailure(new Exception("FFmpeg not loaded"));
-            return;
-        }
-        if (!audioFile.exists()) {
-            listener.onFailure(new IOException("File not exists"));
-            return;
-        }
-        if (!file.canRead()) {
-            listener.onFailure(new IOException("Can't read the file. Missing permission?"));
-            return;
-        }
-        final File convertedFile = getConvertedFile(file, format);
 
-        final String[] cmd = new String[]{"-y", "-i", file.getPath(), convertedFile.getPath()};
+    private void executeCommand(String[] cmd, OnConvertProcessListener listener) {
+
         try {
             FFmpeg.getInstance(context).execute(cmd, new FFmpegExecuteResponseHandler() {
                 @Override
@@ -119,6 +105,89 @@ public class FFmpegHelper {
 
                 @Override
                 public void onProgress(String message) {
+                    AppLog.ERROR(message);
+
+                }
+
+                @Override
+                public void onSuccess(String message) {
+                    listener.onSuccess(null);
+                }
+
+                @Override
+                public void onFailure(String message) {
+                    listener.onFailure(new IOException(message));
+                }
+
+                @Override
+                public void onFinish() {
+
+                }
+            });
+        } catch (Exception e) {
+            listener.onFailure(e);
+        }
+    }
+
+    public void cutAudio(String audioFilePath, String savePath, String start, String end, OnConvertProcessListener listener) {
+        if (!libraryLoaded) {
+            listener.onFailure(new Exception("FFmpeg not loaded"));
+            return;
+        }
+
+        File file = new File(audioFilePath);
+        if (!correctFile(file, listener)) {
+            return;
+        }
+        final String[] cmd = new String[]{"-y", "-i", file.getPath(), "-ss", start, "-codec", "copy", "-t", end, savePath};
+
+        executeCommand(cmd, listener);
+
+    }
+
+    public void convertAudioPlayerFLAC(String audioFilePath, String saveFolder, AudioFormat format, OnConvertProcessListener listener) {
+        if (!libraryLoaded) {
+            listener.onFailure(new Exception("FFmpeg not loaded"));
+            return;
+        }
+
+        File file = new File(audioFilePath);
+        if (!correctFile(file, listener)) {
+            return;
+        }
+
+        final File convertedFile = getConvertedFile(file, format, saveFolder);
+
+        final String[] cmd = new String[]{"-y", "-i", file.getPath(), convertedFile.getPath()};
+
+        executeCommand(cmd, listener);
+    }
+
+    private void convertAudioPlayerFLAC(AudioFile audioFile, AudioFormat format, OnConvertProcessListener listener) {
+        if (!libraryLoaded) {
+            listener.onFailure(new Exception("FFmpeg not loaded"));
+            return;
+        }
+
+        File file = audioFile.filePath;
+        if (!correctFile(file, listener)) {
+            return;
+        }
+
+        final File convertedFile = getConvertedFile(file, format);
+
+        final String[] cmd = new String[]{"-y", "-i", file.getPath(), convertedFile.getPath()};
+
+        try {
+            FFmpeg.getInstance(context).execute(cmd, new FFmpegExecuteResponseHandler() {
+                @Override
+                public void onStart() {
+                    listener.onStart();
+                }
+
+                @Override
+                public void onProgress(String message) {
+                    AppLog.ERROR(message);
 
                 }
 
@@ -143,57 +212,6 @@ public class FFmpegHelper {
         }
     }
 
-    public void convertAudio(String audioFilePath, String saveFolder, AudioFormat format, OnConvertProcessListener listener) {
-        File file = new File(audioFilePath);
-        if (!libraryLoaded) {
-            listener.onFailure(new Exception("FFmpeg not loaded"));
-            return;
-        }
-        if (!file.exists()) {
-            listener.onFailure(new IOException("File not exists"));
-            return;
-        }
-        if (!file.canRead()) {
-            listener.onFailure(new IOException("Can't read the file. Missing permission?"));
-            return;
-        }
-        final File convertedFile = getConvertedFile(file, format, saveFolder);
-
-        final String[] cmd = new String[]{"-y", "-i", file.getPath(), convertedFile.getPath()};
-
-//        final String[] splitCmd = new String[]{"-y", "-i", file.getPath(), "-ss", "00:00:02", "-codec", "copy", "-t", "00:00:06",  convertedFile.getPath()};
-
-        try {
-            FFmpeg.getInstance(context).execute(cmd, new FFmpegExecuteResponseHandler() {
-                @Override
-                public void onStart() {
-                    listener.onStart();
-                }
-
-                @Override
-                public void onProgress(String message) {
-                    AppLog.ERROR(message);
-
-                }
-                @Override
-                public void onSuccess(String message) {
-                    listener.onSuccess(null);
-                }
-
-                @Override
-                public void onFailure(String message) {
-                    listener.onFailure(new IOException(message));
-                }
-
-                @Override
-                public void onFinish() {
-
-                }
-            });
-        } catch (Exception e) {
-            listener.onFailure(e);
-        }
-    }
 
     public void convertAudioIfNeed(AudioFile audioFile, OnConvertProcessListener listener) {
         MediaApplication.getInstance().getRepository().getFolderFilePaths("Temp")
@@ -202,11 +220,24 @@ public class FFmpegHelper {
                 .subscribe(paths -> {
                     String path = needConvert(paths, audioFile);
                     if (TextUtils.isEmpty(path)) {
-                        convertAudio(audioFile, AudioFormat.WAV, listener);
+                        convertAudioPlayerFLAC(audioFile, AudioFormat.WAV, listener);
                     } else {
                         listener.onSuccess(audioFile);
                     }
                 });
+    }
+
+
+    private boolean correctFile(File file, OnConvertProcessListener listener) {
+        if (!file.exists()) {
+            listener.onFailure(new IOException("File not exists"));
+            return false;
+        }
+        if (!file.canRead()) {
+            listener.onFailure(new IOException("Can't read the file. Missing permission?"));
+            return false;
+        }
+        return true;
     }
 
 

@@ -271,6 +271,7 @@
         <item name="android:fontFamily">sans-serif</item>
     </style>
 
+
     <style name="ButtonStyle" parent="android:style/Widget.Material.Button">
         <item name="android:background">@drawable/raised_button_background</item>
         <item name="android:textColor">@color/primary</item>
@@ -368,6 +369,13 @@
     </style>
 
 
+
+    <style name="FileNameTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
 
     <style name="CueTitleTextAppearance" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/primary_text</item>

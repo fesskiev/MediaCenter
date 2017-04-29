@@ -56,7 +56,7 @@ public class AppSettingsManager {
     private static final String KEY_RECORD_PATH = "com.fesskiev.player.KEY_RECORD_PATH";
     private static final String KEY_CUE_PATH = "com.fesskiev.player.KEY_CUE_PATH";
     private static final String KEY_CONVERT_PATH = "com.fesskiev.player.KEY_CONVERT_PATH";
-
+    private static final String KEY_CUT_PATH = "com.fesskiev.player.KEY_CUT_PATH";
 
     private SharedPreferences sharedPreferences;
     private static AppSettingsManager INSTANCE;
@@ -349,6 +349,16 @@ public class AppSettingsManager {
     public void setConvertFolderPath(String path) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(KEY_CONVERT_PATH, path);
+        editor.apply();
+    }
+
+    public String geCutFolderPath() {
+        return sharedPreferences.getString(KEY_CUT_PATH, CacheManager.CUT_DEST_PATH);
+    }
+
+    public void setCutFolderPath(String path) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(KEY_CUT_PATH, path);
         editor.apply();
     }
 

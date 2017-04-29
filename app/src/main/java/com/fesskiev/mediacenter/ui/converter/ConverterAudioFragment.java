@@ -42,8 +42,6 @@ public class ConverterAudioFragment extends Fragment implements RadioGroup.OnChe
     private TextView saveFolderPath;
     private TextView convertFilePath;
 
-
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,14 +118,14 @@ public class ConverterAudioFragment extends Fragment implements RadioGroup.OnChe
         }
 
         String convertFile = convertFilePath.getText().toString();
-        if(TextUtils.isEmpty(convertFile)){
+        if (TextUtils.isEmpty(convertFile)) {
             showEmptyFilePathSnackbar();
             return;
         }
 
         String saveFolder = saveFolderPath.getText().toString();
 
-        FFmpegHelper.getInstance().convertAudio(convertFile, saveFolder,
+        FFmpegHelper.getInstance().convertAudioPlayerFLAC(convertFile, saveFolder,
                 audioFormat,
                 new FFmpegHelper.OnConvertProcessListener() {
                     @Override
@@ -145,7 +143,7 @@ public class ConverterAudioFragment extends Fragment implements RadioGroup.OnChe
                     public void onFailure(Exception error) {
                         error.printStackTrace();
                         hideProgressBar();
-                        showErrorSnackbar(error);
+                        showErrorSnackbar();
                     }
                 });
     }
@@ -183,22 +181,22 @@ public class ConverterAudioFragment extends Fragment implements RadioGroup.OnChe
 
     private void showEmptyFilePathSnackbar() {
         Utils.showCustomSnackbar(getView(), getContext(),
-                "You must select audio file for converting", Snackbar.LENGTH_SHORT).show();
+                getString(R.string.snackbar_converter_error_path), Snackbar.LENGTH_SHORT).show();
     }
 
     private void showSelectAudioFormatSnackbar() {
         Utils.showCustomSnackbar(getView(), getContext(),
-                "You must select audio format for converting", Snackbar.LENGTH_SHORT).show();
+                getString(R.string.snackbar_converter_error_format), Snackbar.LENGTH_SHORT).show();
     }
 
-    private void showErrorSnackbar(Exception error) {
+    private void showErrorSnackbar() {
         Utils.showCustomSnackbar(getView(), getContext(),
-                "Error convert: " + error.getMessage(), Snackbar.LENGTH_INDEFINITE).show();
+                getString(R.string.snackbar_converter_error_convert), Snackbar.LENGTH_INDEFINITE).show();
     }
 
     private void showSuccessSnackbar() {
         Utils.showCustomSnackbar(getView(), getContext(),
-                "Convert Success!", Snackbar.LENGTH_INDEFINITE).show();
+                getString(R.string.snackbar_converter_success_convert), Snackbar.LENGTH_INDEFINITE).show();
     }
 
 
