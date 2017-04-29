@@ -278,24 +278,6 @@ public class LocalDataSource implements LocalSource {
         return contain;
     }
 
-    @Override
-    public String getDownloadFolderID() {
-
-        String id = null;
-
-        String sql = String.format("SELECT %s FROM %s WHERE %s",
-                DatabaseHelper.ID,
-                DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME,
-                DatabaseHelper.FOLDER_PATH + "=" + "'" + CacheManager.CHECK_DOWNLOADS_FOLDER_PATH + "'");
-
-        Cursor cursor = briteDatabase.query(sql);
-
-        if (cursor.moveToFirst()) {
-            id = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ID));
-        }
-        cursor.close();
-        return id;
-    }
 
     @Override
     public void updateSelectedAudioFile(AudioFile audioFile) {

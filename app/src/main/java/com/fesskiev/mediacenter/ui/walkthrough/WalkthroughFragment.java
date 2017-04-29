@@ -17,7 +17,6 @@ import android.widget.RelativeLayout;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.ui.MainActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
-import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.InkPageIndicator;
 import com.fesskiev.mediacenter.widgets.pager.DisableSwipingViewPager;
@@ -76,7 +75,6 @@ public class WalkthroughFragment extends Fragment {
                     FetchMediaFragment.newInstance(),
                     ProUserFragment.newInstance()
             };
-            BitmapHelper.getInstance().saveDownloadFolderIcon();
             permissionGranted = true;
         }
 

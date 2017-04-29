@@ -271,11 +271,6 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
     }
 
     @Override
-    public boolean isDownloaded() {
-        return filePath.getAbsolutePath().startsWith(CacheManager.CHECK_DOWNLOADS_FOLDER_PATH);
-    }
-
-    @Override
     public int compareTo(AudioFile another) {
         if (this.trackNumber > another.trackNumber) {
             return 1;

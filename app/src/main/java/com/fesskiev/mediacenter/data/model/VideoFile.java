@@ -167,11 +167,6 @@ public class VideoFile implements MediaFile, Parcelable {
     }
 
     @Override
-    public boolean isDownloaded() {
-        return false;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

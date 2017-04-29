@@ -246,10 +246,6 @@ public class DataRepository {
         return localSource.containAudioTrack(path);
     }
 
-    public String getDownloadFolderID() {
-        return localSource.getDownloadFolderID();
-    }
-
     public MemoryDataSource getMemorySource() {
         return memorySource;
     }

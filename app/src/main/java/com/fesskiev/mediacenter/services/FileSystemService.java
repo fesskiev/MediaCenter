@@ -27,7 +27,6 @@ import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.data.source.memory.MemoryDataSource;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
-import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.NotificationHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
@@ -75,8 +74,6 @@ public class FileSystemService extends JobService {
     private static final String ACTION_START_FETCH_VIDEO = "com.fesskiev.player.action.START_FETCH_VIDEO";
     private static final String ACTION_FETCH_STATE = "com.fesskiev.player.action.ACTION_FETCH_STATE";
 
-    private static final String ACTION_CHECK_DOWNLOAD_FOLDER = "com.fesskiev.player.action.CHECK_DOWNLOAD_FOLDER";
-
     private Handler handler;
     private FetchContentThread fetchContentThread;
     private MediaObserver observer;
@@ -111,12 +108,6 @@ public class FileSystemService extends JobService {
     public static void startFetchVideo(Context context) {
         Intent intent = new Intent(context, FileSystemService.class);
         intent.setAction(ACTION_START_FETCH_VIDEO);
-        context.startService(intent);
-    }
-
-    public static void startCheckDownloadFolderService(Context context) {
-        Intent intent = new Intent(context, FileSystemService.class);
-        intent.setAction(ACTION_CHECK_DOWNLOAD_FOLDER);
         context.startService(intent);
     }
 
@@ -215,9 +206,6 @@ public class FileSystemService extends JobService {
                         break;
                     case ACTION_START_FETCH_AUDIO:
                         handler.sendEmptyMessage(2);
-                        break;
-                    case ACTION_CHECK_DOWNLOAD_FOLDER:
-                        handler.sendEmptyMessage(3);
                         break;
                     case ACTION_FETCH_STATE:
                         sendFetchState();
@@ -426,13 +414,9 @@ public class FileSystemService extends JobService {
 
             AudioFolder audioFolder = new AudioFolder();
 
-            if (checkDownloadFolder(directoryFile)) {
-                audioFolder.folderImage = CacheManager.getDownloadFolderIconPath();
-            } else {
-                File[] filterImages = directoryFile.listFiles(folderImageFilter());
-                if (filterImages != null && filterImages.length > 0) {
-                    audioFolder.folderImage = filterImages[0];
-                }
+            File[] filterImages = directoryFile.listFiles(folderImageFilter());
+            if (filterImages != null && filterImages.length > 0) {
+                audioFolder.folderImage = filterImages[0];
             }
 
             audioFolder.folderPath = directoryFile;
@@ -559,9 +543,6 @@ public class FileSystemService extends JobService {
                         case 2:
                             getAudioContent((Set<String>) msg.obj);
                             break;
-                        case 3:
-                            checkDownloadFolder();
-                            break;
                     }
                 }
             };
@@ -600,7 +581,6 @@ public class FileSystemService extends JobService {
     private void clearImagesCache() {
         CacheManager.clearVideoImagesCache();
         CacheManager.clearAudioImagesCache();
-        BitmapHelper.getInstance().saveDownloadFolderIcon();
     }
 
     private void refreshRepository(DataRepository repository) {
@@ -632,36 +612,6 @@ public class FileSystemService extends JobService {
     }
 
 
-    private void checkDownloadFolder() {
-        DataRepository repository = MediaApplication.getInstance().getRepository();
-        File root = new File(CacheManager.CHECK_DOWNLOADS_FOLDER_PATH);
-        File[] list = root.listFiles();
-        for (File child : list) {
-            if (!repository.containAudioTrack(child.getAbsolutePath())) {
-                String folderId = repository.getDownloadFolderID();
-                if (folderId == null) {
-                    AudioFolder audioFolder = new AudioFolder();
-                    audioFolder.folderImage = CacheManager.getDownloadFolderIconPath();
-                    audioFolder.folderPath = new File(CacheManager.CHECK_DOWNLOADS_FOLDER_PATH);
-                    audioFolder.folderName = "Downloads";
-                    audioFolder.id = UUID.randomUUID().toString();
-
-                    repository.insertAudioFolder(audioFolder);
-
-                    repository.getMemorySource().setCacheArtistsDirty(true);
-                    repository.getMemorySource().setCacheGenresDirty(true);
-                    repository.getMemorySource().setCacheFoldersDirty(true);
-
-                    folderId = audioFolder.id;
-
-                }
-
-                new AudioFile(getApplicationContext(), child, folderId,
-                        audioFile -> MediaApplication.getInstance().getRepository().insertAudioFile(audioFile));
-            }
-        }
-    }
-
     private void getAudioContent(Set<String> path) {
         scanType = SCAN_TYPE.AUDIO;
         startScan(scanType, path);
@@ -677,15 +627,12 @@ public class FileSystemService extends JobService {
         startScan(scanType, null);
     }
 
-    public boolean checkDownloadFolder(File file) {
-        return file.getAbsolutePath().equals(CacheManager.CHECK_DOWNLOADS_FOLDER_PATH);
-    }
 
     public static FilenameFilter audioFilter() {
         return (dir, name) -> {
             String lowercaseName = name.toLowerCase();
             return lowercaseName.endsWith(".mp3") || lowercaseName.endsWith(".flac") || lowercaseName.endsWith(".wav")
-                    || lowercaseName.endsWith(".m4a") || lowercaseName.endsWith(".aac")|| lowercaseName.endsWith(".aiff");
+                    || lowercaseName.endsWith(".m4a") || lowercaseName.endsWith(".aac") || lowercaseName.endsWith(".aiff");
         };
     }
 

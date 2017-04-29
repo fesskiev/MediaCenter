@@ -21,5 +21,4 @@ public interface MediaFile {
 
     boolean exists();
 
-    boolean isDownloaded();
 }

@@ -19,7 +19,6 @@ public class CacheManager {
     public final static String CUT_DEST_PATH = EXTERNAL_STORAGE + "/MediaCenter/Cut/";
     public final static String IMAGES_AUDIO_CACHE_PATH = EXTERNAL_STORAGE + "/MediaCenter/Images/Audio/";
     public final static String IMAGES_VIDEO_CACHE_PATH = EXTERNAL_STORAGE + "/MediaCenter/Images/Video/";
-    public final static String CHECK_DOWNLOADS_FOLDER_PATH = EXTERNAL_STORAGE + "/MediaCenter/Downloads";
 
     public static void clearAudioImagesCache() {
         File folder = new File(IMAGES_AUDIO_CACHE_PATH);
@@ -67,15 +66,6 @@ public class CacheManager {
             dest.mkdirs();
         }
         return new File(dest.getAbsolutePath(), String.valueOf(System.currentTimeMillis()));
-    }
-
-
-    public static File getDownloadsFilePath(String fileName) {
-        File folder = new File(DOWNLOADS_FOLDER_PATH);
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
-        return new File(folder.getAbsolutePath(), fileName + ".mp3");
     }
 
     public static File getDownloadFolderIconPath() {

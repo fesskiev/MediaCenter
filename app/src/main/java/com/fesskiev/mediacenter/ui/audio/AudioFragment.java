@@ -101,7 +101,6 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
                             .subscribeOn(Schedulers.io())
                             .doOnNext(integer -> {
                                 CacheManager.clearAudioImagesCache();
-                                BitmapHelper.getInstance().saveDownloadFolderIcon();
                             })
                             .subscribe(integer -> FileSystemService.startFetchAudio(getActivity()));
                 });

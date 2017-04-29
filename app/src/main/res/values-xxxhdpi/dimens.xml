@@ -39,10 +39,6 @@
     <dimen name="text_audio_track_description">14sp</dimen>
     <dimen name="text_audio_track_title">18sp</dimen>
 
-    <dimen name="text_vk_group_description">14sp</dimen>
-    <dimen name="text_vk_group_title">18sp</dimen>
-    <dimen name="text_vk_group_post">14sp</dimen>
-
     <dimen name="text_folder_name">12sp</dimen>
 
     <dimen name="text_playback_description">12sp</dimen>

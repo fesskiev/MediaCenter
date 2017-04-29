@@ -94,9 +94,4 @@ public interface LocalSource {
 
     boolean containAudioTrack(String path);
 
-    String getDownloadFolderID();
-
-
-
-
 }

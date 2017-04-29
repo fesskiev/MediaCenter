@@ -379,16 +379,4 @@ public class BitmapHelper {
         return BitmapFactory.decodeResource(context.getResources(), resource);
     }
 
-    public void saveUserPhoto(Bitmap bitmap) {
-        saveBitmap(bitmap, CacheManager.getUserPhotoPath());
-    }
-
-    public Bitmap getUserPhoto() {
-        return getBitmapFromPath(CacheManager.getUserPhotoPath().getAbsolutePath());
-    }
-
-    public void saveDownloadFolderIcon() {
-        saveBitmapPng(getBitmapFromResource(R.drawable.icon_folder_download),
-                CacheManager.getDownloadFolderIconPath());
-    }
 }

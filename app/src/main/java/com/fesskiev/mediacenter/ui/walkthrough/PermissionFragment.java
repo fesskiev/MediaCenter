@@ -17,7 +17,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
 
 
@@ -96,7 +95,6 @@ public class PermissionFragment extends Fragment implements View.OnClickListener
             case PERMISSION_REQ: {
                 if (grantResults != null && grantResults.length > 0) {
                     if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        BitmapHelper.getInstance().saveDownloadFolderIcon();
                         showSuccessPermissions();
                     } else if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
                         boolean showRationale =
