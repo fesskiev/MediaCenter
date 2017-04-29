@@ -4,8 +4,6 @@ package com.fesskiev.mediacenter.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -13,7 +11,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.fesskiev.mediacenter.MediaApplication;
@@ -57,7 +54,7 @@ public class BitmapHelper {
     }
 
 
-    public void loadBitmap(MediaFile mediaFile, AudioFolder audioFolder, final OnBitmapLoadListener listener){
+    public void loadBitmap(MediaFile mediaFile, AudioFolder audioFolder, final OnBitmapLoadListener listener) {
         String path = findPath(mediaFile, audioFolder);
         if (path != null) {
             Glide.with(context)
@@ -93,73 +90,6 @@ public class BitmapHelper {
                     });
         }
     }
-
-
-    public void loadURLAvatar(String url, final ImageView into, final OnBitmapLoadListener listener) {
-        Glide.with(context)
-                .load(url)
-                .asBitmap()
-                .centerCrop()
-                .into(new BitmapImageViewTarget(into) {
-                    @Override
-                    protected void setResource(Bitmap resource) {
-                        RoundedBitmapDrawable circularBitmapDrawable =
-                                RoundedBitmapDrawableFactory.create(context.getResources(), resource);
-                        circularBitmapDrawable.setCircular(true);
-
-                        into.setImageDrawable(circularBitmapDrawable);
-                        if (listener != null) {
-                            listener.onLoaded(resource);
-                        }
-                    }
-                });
-    }
-
-    public void loadBitmapAvatar(Bitmap bitmap, final ImageView into) {
-        RoundedBitmapDrawable circularBitmapDrawable =
-                RoundedBitmapDrawableFactory.create(context.getResources(), bitmap);
-        circularBitmapDrawable.setCircular(true);
-        into.setImageDrawable(circularBitmapDrawable);
-    }
-
-    public void loadEmptyAvatar(final ImageView into) {
-        Glide.with(context)
-                .load(R.drawable.icon_no_avatar)
-                .asBitmap()
-                .centerCrop()
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .into(new BitmapImageViewTarget(into) {
-                    @Override
-                    protected void setResource(Bitmap resource) {
-                        RoundedBitmapDrawable circularBitmapDrawable =
-                                RoundedBitmapDrawableFactory.create(context.getResources(), resource);
-                        circularBitmapDrawable.setCircular(true);
-
-                        into.setImageDrawable(circularBitmapDrawable);
-
-                    }
-                });
-    }
-
-    public void loadURIBitmap(String uri, ImageView into) {
-        Glide.with(context)
-                .load(uri)
-                .fitCenter()
-                .crossFade()
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .into(into);
-    }
-
-    public void loadCircleURIBitmap(String uri, ImageView into) {
-        Glide.with(context)
-                .load(uri)
-                .fitCenter()
-                .transform(new CircleTransform(context))
-                .crossFade()
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .into(into);
-    }
-
 
     public boolean loadAudioPlayerArtwork(AudioFolder audioFolder, AudioFile audioFile, ImageView imageView) {
         if (audioFile != null) {

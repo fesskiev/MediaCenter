@@ -27,11 +27,6 @@ public class AppSettingsManager {
 
     private static final String KEY_USER_PRO = "com.fesskiev.player.KEY_USER_PRO";
 
-    private static final String KEY_OAUTH_TOKEN = "com.fesskiev.player.KEY_OAUTH_TOKEN";
-    private static final String KEY_USER_ID = "com.fesskiev.player.KEY_USER_ID";
-    private static final String KEY_USER_FIRST_NAME = "com.fesskiev.player.KEY_USER_FIRST_NAME";
-    private static final String KEY_USER_LAST_NAME = "com.fesskiev.player.KEY_USER_LAST_NAME";
-    private static final String KEY_PHOTO_URL = "com.fesskiev.player.KEY_KEY_PHOTO_URL";
     private static final String KEY_FIRST_START_APP = "com.fesskiev.player.KEY_FIRST_START_APP";
 
     private static final String KEY_SORT_TYPE = "com.fesskiev.player.KEY_SORT_TYPE";
@@ -84,65 +79,6 @@ public class AppSettingsManager {
         editor.putBoolean(KEY_FIRST_START_APP, false);
         editor.apply();
     }
-
-
-    public String getAuthToken() {
-        return sharedPreferences.getString(KEY_OAUTH_TOKEN, "");
-    }
-
-    public void setAuthToken(String authToken) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(KEY_OAUTH_TOKEN, authToken);
-        editor.apply();
-    }
-
-
-    public String getUserId() {
-        return sharedPreferences.getString(KEY_USER_ID, "");
-    }
-
-    public void setUserId(String userId) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(KEY_USER_ID, userId);
-        editor.apply();
-    }
-
-    public String getUserFirstName() {
-        return sharedPreferences.getString(KEY_USER_FIRST_NAME, "");
-    }
-
-    public void setUserFirstName(String userId) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(KEY_USER_FIRST_NAME, userId);
-        editor.apply();
-    }
-
-    public String getPhotoURL() {
-        return sharedPreferences.getString(KEY_PHOTO_URL, "");
-    }
-
-    public void setPhotoURL(String url) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(KEY_PHOTO_URL, url);
-        editor.apply();
-    }
-
-    public String getUserLastName() {
-        return sharedPreferences.getString(KEY_USER_LAST_NAME, "");
-    }
-
-    public void setUserLastName(String userId) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(KEY_USER_LAST_NAME, userId);
-        editor.apply();
-    }
-
-
-    public boolean isAuthTokenEmpty() {
-        return TextUtils.isEmpty(getAuthToken());
-    }
-
-
     public boolean isReverbEnable() {
         return sharedPreferences.getBoolean(KEY_REVERB_ENABLE, false);
     }

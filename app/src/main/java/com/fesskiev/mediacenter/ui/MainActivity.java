@@ -4,7 +4,6 @@ package com.fesskiev.mediacenter.ui;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Animatable;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -19,7 +18,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
@@ -40,14 +38,11 @@ import com.fesskiev.mediacenter.ui.video.VideoFoldersFragment;
 import com.fesskiev.mediacenter.utils.AnimationUtils;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
-import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.CountDownTimer;
 import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.admob.AdMobHelper;
-import com.fesskiev.mediacenter.vk.VKActivity;
-import com.fesskiev.mediacenter.vk.VKAuthActivity;
 import com.fesskiev.mediacenter.widgets.dialogs.ExitDialog;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
@@ -69,11 +64,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private NavigationView navigationViewMain;
     private DrawerLayout drawer;
     private ImageView timerView;
-    private ImageView userPhoto;
-    private ImageView logoutButton;
-    private TextView firstName;
-    private TextView lastName;
-
     private int selectedState;
 
 
@@ -133,12 +123,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         setEffectsNavView();
         setMainNavView();
         setFetchManager();
-
-        if (!settingsManager.isAuthTokenEmpty()) {
-            setUserInfo();
-        } else {
-            setEmptyUserInfo();
-        }
 
         if (savedInstanceState == null) {
             addAudioFragment();
@@ -337,26 +321,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         navigationViewMain.setItemIconTintList(null);
         View headerLayout =
                 navigationViewMain.inflateHeaderView(R.layout.nav_header_main);
-
-        logoutButton = (ImageView) headerLayout.findViewById(R.id.logout);
-        logoutButton.setOnClickListener(v -> {
-            setEmptyUserInfo();
-            clearUserInfo();
-            logoutHide();
-        });
-
-
-        userPhoto = (ImageView) headerLayout.findViewById(R.id.photo);
-        userPhoto.setOnClickListener(v -> {
-
-            if (settingsManager.isAuthTokenEmpty()) {
-                startActivityForResult(new Intent(this, VKAuthActivity.class), VKAuthActivity.VK_AUTH_RESULT);
-            } else {
-                startActivity(new Intent(this, VKActivity.class));
-            }
-        });
-        firstName = (TextView) headerLayout.findViewById(R.id.firstName);
-        lastName = (TextView) headerLayout.findViewById(R.id.lastName);
     }
 
     private void setEffectsNavView() {
@@ -408,62 +372,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
         mediaNavigationView.setNavigationItemSelectedListener(this);
 
-    }
-
-    private void setUserInfo() {
-        Bitmap bitmap = BitmapHelper.getInstance().getUserPhoto();
-        if (bitmap != null) {
-            BitmapHelper.getInstance().loadBitmapAvatar(bitmap, userPhoto);
-        } else {
-            BitmapHelper.getInstance().loadURLAvatar(settingsManager.getPhotoURL(),
-                    userPhoto, new BitmapHelper.OnBitmapLoadListener() {
-                        @Override
-                        public void onLoaded(Bitmap bitmap) {
-                            BitmapHelper.getInstance().saveUserPhoto(bitmap);
-                        }
-
-                        @Override
-                        public void onFailed() {
-
-                        }
-                    });
-        }
-        firstName.setText(settingsManager.getUserFirstName());
-        lastName.setText(settingsManager.getUserLastName());
-
-        logoutShow();
-    }
-
-    private void logoutShow() {
-        logoutButton.setVisibility(View.VISIBLE);
-    }
-
-    private void logoutHide() {
-        logoutButton.setVisibility(View.GONE);
-    }
-
-    private void setEmptyUserInfo() {
-        BitmapHelper.getInstance().loadEmptyAvatar(userPhoto);
-
-        firstName.setText(getString(R.string.empty_first_name));
-        lastName.setText(getString(R.string.empty_last_name));
-    }
-
-    private void clearUserInfo() {
-        settingsManager.setUserFirstName("");
-        settingsManager.setUserLastName("");
-        settingsManager.setAuthToken("");
-        settingsManager.setUserId("");
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == VKAuthActivity.VK_AUTH_RESULT) {
-            if (resultCode == Activity.RESULT_OK) {
-                setUserInfo();
-            }
-        }
     }
 
     @Override

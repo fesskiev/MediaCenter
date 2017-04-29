@@ -10,11 +10,6 @@ import com.fesskiev.mediacenter.data.model.Genre;
 import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
-import com.fesskiev.mediacenter.data.model.vk.OAuth;
-import com.fesskiev.mediacenter.data.model.vk.response.AudioFilesResponse;
-import com.fesskiev.mediacenter.data.model.vk.response.GroupPostsResponse;
-import com.fesskiev.mediacenter.data.model.vk.response.GroupsResponse;
-import com.fesskiev.mediacenter.data.model.vk.response.UserResponse;
 import com.fesskiev.mediacenter.data.source.local.db.LocalDataSource;
 import com.fesskiev.mediacenter.data.source.memory.MemoryDataSource;
 import com.fesskiev.mediacenter.data.source.remote.RemoteDataSource;
@@ -105,30 +100,6 @@ public class DataRepository {
             memorySource.setCacheVideoFoldersDirty(false);
             return Observable.just(videoFolders);
         });
-    }
-
-    public Observable<OAuth> auth(String login, String password) {
-        return remoteSource.auth(login, password);
-    }
-
-    public Observable<UserResponse> getUser() {
-        return remoteSource.getUser();
-    }
-
-    public Observable<AudioFilesResponse> getUserMusicFiles(int offset) {
-        return remoteSource.getUserMusicFiles(offset);
-    }
-
-    public Observable<GroupsResponse> getGroups() {
-        return remoteSource.getGroups();
-    }
-
-    public Observable<AudioFilesResponse> getSearchMusicFiles(String request, int offset) {
-        return remoteSource.getSearchMusicFiles(request, offset);
-    }
-
-    public Observable<GroupPostsResponse> getGroupPots(int id, int offset) {
-        return remoteSource.getGroupPots(id, offset);
     }
 
     public Observable<List<String>> getFolderFilePaths(String name) {

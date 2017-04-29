@@ -24,7 +24,7 @@
             android:layout_gravity="center_vertical"
             android:contentDescription="@string/app_name"
             android:scaleType="centerCrop"
-            tools:src="@drawable/icon_no_avatar" />
+            tools:src="@mipmap/ic_launcher" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -50,15 +50,5 @@
         </LinearLayout>
 
     </LinearLayout>
-
-    <ImageView
-        android:id="@+id/logout"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:contentDescription="@string/app_name"
-        android:src="@drawable/icon_logout"
-        android:visibility="gone" />
 
 </RelativeLayout>

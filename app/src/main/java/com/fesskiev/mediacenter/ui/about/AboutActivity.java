@@ -6,7 +6,6 @@ import android.support.v7.widget.Toolbar;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
-import com.fesskiev.mediacenter.vk.SearchAudioFragment;
 
 public class AboutActivity extends AnalyticsActivity {
 
@@ -24,7 +23,7 @@ public class AboutActivity extends AnalyticsActivity {
         if (savedInstanceState == null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.content, AboutFragment.newInstance(),
-                    SearchAudioFragment.class.getName());
+                    AboutFragment.class.getName());
             transaction.commit();
         }
     }

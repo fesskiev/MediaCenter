@@ -163,37 +163,6 @@
         </activity>
 
         <activity
-            android:name=".vk.VKAuthActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:parentActivityName=".ui.MainActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/ActivityDialog.Theme.MediaCenter">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.fesskiev.mediacenter.ui.MainActivity" />
-        </activity>
-
-        <activity
-            android:name=".vk.VKActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:parentActivityName=".ui.MainActivity"
-            android:screenOrientation="portrait">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.fesskiev.mediacenter.ui.MainActivity" />
-        </activity>
-
-        <activity
-            android:name=".vk.GroupAudioActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:parentActivityName=".vk.VKActivity"
-            android:screenOrientation="portrait">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".vk.VKActivity" />
-        </activity>
-
-        <activity
             android:name=".ui.about.AboutActivity"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait">

@@ -22,7 +22,6 @@
     <string name="snack_exit_text">Вы уверены, что хотите выйти из приложения?</string>
     <string name="snack_exit_action">Выход</string>
 
-    <string name="title_music_vk_activity">Вконтакте</string>
     <string name="title_settings_activity">Настройки</string>
     <string name="title_about_activity">О проекте</string>
     <string name="title_playlist_activity">Плейлист</string>
@@ -52,24 +51,9 @@
     <string name="drawer_item_converter">Конвертер</string>
     <string name="drawer_remove_banners">Удалить рекламу</string>
 
-    <string name="title_activity_vkplayer">VKPlayerActivity</string>
-    <string name="title_activity_settings">SettingsActivity</string>
-
-    <string name="empty_first_name">Авторизируйтесь</string>
-    <string name="empty_last_name">Вконтакте</string>
-
-    <string name="vk_tab_title_user_music">Стена</string>
-    <string name="vk_tab_title_groups">Группы</string>
-    <string name="vk_tab_title_search">Поиск</string>
-
     <string name="audio_tab_title_folders">Папки</string>
     <string name="audio_tab_title_artist">Артист</string>
     <string name="audio_tab_title_genres">Жанры</string>
-
-    <string name="dialog_download_title">Загрузка</string>
-    <string name="dialog_download_message">Скачать файл?</string>
-    <string name="dialog_download_ok">Да</string>
-    <string name="dialog_download_cancel">Нет</string>
 
     <string name="hint_request">Запрос</string>
     <string name="request_error">Пустой запрос</string>
@@ -128,13 +112,6 @@
 
     <string name="playlist_empty">Плейлист пуст</string>
     <string name="content_empty">Файлы не найдены</string>
-    <string name="user_audio_empty">Мои аудиозаписи пусты</string>
-    <string name="user_groups_empty">Мои группы пусты</string>
-    <string name="user_search_empty">Ничего не найдено</string>
-    <string name="user_group_audio_empty">Пока ничего не найдено. Продолжить поиск?</string>
-    <string name="search_button">Поиск</string>
-
-    <string name="action_settings">Настройки</string>
 
     <string name="add_to_playlist_text">Трек добавлен в плейлист</string>
     <string name="add_to_playlist_video_text">Видео добавлено в плейлист</string>
