@@ -150,7 +150,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         if (!startAnimate) {
             ViewCompat.animate(appIcon)
                     .alpha(slideOffset)
-                    .setDuration(300)
+                    .setDuration(600)
                     .setInterpolator(AnimationUtils.getInstance().getFastOutSlowInInterpolator())
                     .start();
 
@@ -158,7 +158,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                     .scaleX(slideOffset)
                     .scaleY(slideOffset)
                     .alpha(slideOffset)
-                    .setDuration(400)
+                    .setDuration(800)
                     .setInterpolator(AnimationUtils.getInstance().getFastOutSlowInInterpolator())
                     .start();
 
@@ -166,7 +166,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                     .scaleX(slideOffset)
                     .scaleY(slideOffset)
                     .alpha(slideOffset)
-                    .setDuration(600)
+                    .setDuration(1000)
                     .setInterpolator(AnimationUtils.getInstance().getFastOutSlowInInterpolator())
                     .setListener(new ViewPropertyAnimatorListener() {
                         @Override

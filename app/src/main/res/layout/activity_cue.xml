@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
         android:clickable="true"
-        android:src="@drawable/icon_menu_add_playlist"
+        android:src="@drawable/icon_cue_add"
         android:layout_gravity="bottom|end" />
 
 </android.support.design.widget.CoordinatorLayout>

@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
@@ -100,13 +101,21 @@ public class CueActivity extends AnalyticsActivity {
             CueSheet cueSheet = CueParser.parse(new File(path));
             List<TrackData> trackDatas = cueSheet.getAllTrackData();
             if (trackDatas != null && !trackDatas.isEmpty()) {
-                adapter.refresh(trackDatas);
+                createSelectableTrackData(trackDatas);
             }
 
         } catch (IOException e) {
             e.printStackTrace();
             errorParseCue();
         }
+    }
+
+    private void createSelectableTrackData(List<TrackData> trackDatas) {
+        List<SelectableTrackData> selectableTrackDatas = new ArrayList<>();
+        for (TrackData trackData : trackDatas) {
+            selectableTrackDatas.add(new SelectableTrackData(trackData, false));
+        }
+        adapter.refresh(selectableTrackDatas);
     }
 
     private void errorParseCue() {
@@ -118,7 +127,7 @@ public class CueActivity extends AnalyticsActivity {
 
     private class CueAdapter extends RecyclerView.Adapter<CueAdapter.ViewHolder> {
 
-        private List<TrackData> trackDatas;
+        private List<SelectableTrackData> trackDatas;
 
         CueAdapter() {
             trackDatas = new ArrayList<>();
@@ -129,6 +138,7 @@ public class CueActivity extends AnalyticsActivity {
             TextView index;
             TextView performer;
             TextView title;
+            ImageView selected;
 
             public ViewHolder(View v) {
                 super(v);
@@ -137,16 +147,26 @@ public class CueActivity extends AnalyticsActivity {
                 performer = (TextView) v.findViewById(R.id.itemPerformer);
                 index = (TextView) v.findViewById(R.id.itemIndex);
                 title = (TextView) v.findViewById(R.id.itemTitle);
+                selected = (ImageView) v.findViewById(R.id.itemSelected);
             }
         }
 
         private void seekToPosition(int position) {
-            TrackData trackData = trackDatas.get(position);
+            unselectedAllTrackData();
+            SelectableTrackData trackData = trackDatas.get(position);
             if (trackData != null) {
-                List<Index> indices = trackData.getIndices();
+                List<Index> indices = trackData.getTrackData().getIndices();
                 if (indices != null && !indices.isEmpty()) {
                     PlaybackService.setPositionPlayback(getApplicationContext(), getTrackDataSecondsPosition(indices));
                 }
+                trackData.setSelected(true);
+                notifyDataSetChanged();
+            }
+        }
+
+        private void unselectedAllTrackData() {
+            for (SelectableTrackData trackData : trackDatas) {
+                trackData.setSelected(false);
             }
         }
 
@@ -169,26 +189,34 @@ public class CueActivity extends AnalyticsActivity {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            TrackData trackData = trackDatas.get(position);
-            if (trackData != null) {
-                String performer = trackData.getPerformer();
-                if (performer != null) {
-                    holder.performer.setText(performer);
-                } else {
-                    holder.performer.setText("");
-                }
-                String title = trackData.getTitle();
-                if (title != null) {
-                    holder.title.setText(title);
-                } else {
-                    holder.title.setText("");
-                }
+            SelectableTrackData selectableTrackData = trackDatas.get(position);
+            if (selectableTrackData != null) {
+                TrackData trackData = selectableTrackData.getTrackData();
+                if (trackData != null) {
+                    String performer = trackData.getPerformer();
+                    if (performer != null) {
+                        holder.performer.setText(performer);
+                    } else {
+                        holder.performer.setText("");
+                    }
+                    String title = trackData.getTitle();
+                    if (title != null) {
+                        holder.title.setText(title);
+                    } else {
+                        holder.title.setText("");
+                    }
 
-                List<Index> indices = trackData.getIndices();
-                if (indices != null && !indices.isEmpty()) {
-                    holder.index.setText(Utils.getTimeFromSecondsString(getTrackDataSecondsPosition(indices)));
+                    List<Index> indices = trackData.getIndices();
+                    if (indices != null && !indices.isEmpty()) {
+                        holder.index.setText(Utils.getTimeFromSecondsString(getTrackDataSecondsPosition(indices)));
+                    } else {
+                        holder.index.setText("");
+                    }
+                }
+                if (selectableTrackData.isSelected()) {
+                    holder.selected.setVisibility(View.VISIBLE);
                 } else {
-                    holder.index.setText("");
+                    holder.selected.setVisibility(View.INVISIBLE);
                 }
             }
         }
@@ -198,10 +226,33 @@ public class CueActivity extends AnalyticsActivity {
             return trackDatas.size();
         }
 
-        public void refresh(List<TrackData> trackDatas) {
+        public void refresh(List<SelectableTrackData> trackDatas) {
             this.trackDatas.clear();
             this.trackDatas.addAll(trackDatas);
             notifyDataSetChanged();
+        }
+    }
+
+    private class SelectableTrackData {
+
+        private TrackData trackData;
+        private boolean isSelected;
+
+        public SelectableTrackData(TrackData trackData, boolean isSelected) {
+            this.trackData = trackData;
+            this.isSelected = isSelected;
+        }
+
+        public void setSelected(boolean selected) {
+            isSelected = selected;
+        }
+
+        public TrackData getTrackData() {
+            return trackData;
+        }
+
+        public boolean isSelected() {
+            return isSelected;
         }
     }
 }
