@@ -9,12 +9,12 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.NotificationCompat;
+import android.widget.RemoteViews;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.ui.MainActivity;
-
 
 
 public class NotificationHelper {
@@ -51,25 +51,15 @@ public class NotificationHelper {
     public void updateNotification(AudioFile audioFile, Bitmap bitmap, boolean isPlaying) {
         this.playing = isPlaying;
         this.bitmap = bitmap;
-        if (isPlaying) {
-            notification = buildNotification(generateAction(R.drawable.icon_pause_media_control,
-                    "Pause", ACTION_MEDIA_CONTROL_PAUSE), audioFile, bitmap);
-        } else {
-            notification = buildNotification(generateAction(R.drawable.icon_play_media_control,
-                    "Play", ACTION_MEDIA_CONTROL_PLAY), audioFile, bitmap);
-        }
+
+        notification = buildNotification(audioFile);
         updateNotification(notification);
     }
 
+
     public void updatePlayingState(AudioFile audioFile, boolean isPlaying) {
         this.playing = isPlaying;
-        if (isPlaying) {
-            notification = buildNotification(generateAction(R.drawable.icon_pause_media_control,
-                    "Pause", ACTION_MEDIA_CONTROL_PAUSE), audioFile, bitmap);
-        } else {
-            notification = buildNotification(generateAction(R.drawable.icon_play_media_control,
-                    "Play", ACTION_MEDIA_CONTROL_PLAY), audioFile, bitmap);
-        }
+        notification = buildNotification(audioFile);
         updateNotification(notification);
     }
 
@@ -80,8 +70,7 @@ public class NotificationHelper {
     }
 
 
-    private Notification buildNotification(NotificationCompat.Action action, AudioFile audioFile,
-                                           Bitmap bitmap) {
+    private Notification buildNotification(AudioFile audioFile) {
         String artist, title;
         if (audioFile != null) {
             artist = audioFile.artist;
@@ -90,40 +79,32 @@ public class NotificationHelper {
             artist = context.getString(R.string.playback_control_track_not_selected);
             title = context.getString(R.string.playback_control_track_not_selected);
         }
-        NotificationCompat.Builder notificationBuilder
-                = new NotificationCompat.Builder(context);
+        RemoteViews notificationView = new RemoteViews(context.getPackageName(), R.layout.notification_layout);
+
+        notificationView.setTextViewText(R.id.notificationArtist, artist);
+        notificationView.setTextViewText(R.id.notificationTitle, title);
+        notificationView.setImageViewBitmap(R.id.notificationCover, bitmap);
+
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context);
         notificationBuilder
-                .setStyle(new NotificationCompat.MediaStyle()
-                        .setShowActionsInCompactView(0, 1, 2))
-                .setLargeIcon(bitmap)
-                .setColor(ContextCompat.getColor(context, R.color.primary))
+                .setCustomBigContentView(notificationView)
                 .setSmallIcon(R.drawable.icon_notification_player)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setContentIntent(createContentIntent())
-                .setContentTitle(artist)
-                .setContentText(title);
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setContentIntent(createContentIntent());
 
-        notificationBuilder.addAction(generateAction(R.drawable.icon_previous_media_control,
-                "Previous", ACTION_MEDIA_CONTROL_PREVIOUS));
-        if (action != null) {
-            notificationBuilder.addAction(action);
+        notificationView.setOnClickPendingIntent(R.id.notificationNext, getPendingIntentAction(ACTION_MEDIA_CONTROL_NEXT));
+        notificationView.setOnClickPendingIntent(R.id.notificationPrevious, getPendingIntentAction(ACTION_MEDIA_CONTROL_PREVIOUS));
+        if (!isPlaying()) {
+            notificationView.setImageViewResource(R.id.notificationPlayPause, R.drawable.icon_play_media_control);
+            notificationView.setOnClickPendingIntent(R.id.notificationPlayPause, getPendingIntentAction(ACTION_MEDIA_CONTROL_PLAY));
         } else {
-            notificationBuilder.addAction(generateAction(R.drawable.icon_play_media_control,
-                    "Play", ACTION_MEDIA_CONTROL_PLAY));
+            notificationView.setImageViewResource(R.id.notificationPlayPause, R.drawable.icon_pause_media_control);
+            notificationView.setOnClickPendingIntent(R.id.notificationPlayPause, getPendingIntentAction(ACTION_MEDIA_CONTROL_PAUSE));
         }
-        notificationBuilder.addAction(generateAction(R.drawable.icon_next_media_control,
-                "Next", ACTION_MEDIA_CONTROL_NEXT));
 
-        notificationBuilder.addAction(generateAction(R.drawable.icon_notification_close,
-                "Close", ACTION_CLOSE_APP));
-
+        notificationView.setOnClickPendingIntent(R.id.notificationClose, getPendingIntentAction(ACTION_CLOSE_APP));
         return notificationBuilder.build();
-    }
-
-    private NotificationCompat.Action generateAction(int icon, String title, String intentAction) {
-        Intent intent = new Intent(intentAction);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, REQUEST_CODE, intent, 0);
-        return new NotificationCompat.Action(icon, title, pendingIntent);
     }
 
     private PendingIntent createContentIntent() {
@@ -132,12 +113,16 @@ public class NotificationHelper {
         return PendingIntent.getActivity(context, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
+    private PendingIntent getPendingIntentAction(String action) {
+        Intent intent = new Intent(action);
+        return PendingIntent.getBroadcast(context, REQUEST_CODE, intent, 0);
+    }
+
     public void stopNotification() {
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(NOTIFICATION_ID);
     }
-
 
 
     public Notification getNotification() {

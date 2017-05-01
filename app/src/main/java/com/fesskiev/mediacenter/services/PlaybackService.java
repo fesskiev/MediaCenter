@@ -370,6 +370,8 @@ public class PlaybackService extends Service {
         registerCallback();
 
         createPlayer();
+        audioFocusManager.tryToGetAudioFocus();
+
     }
 
     private void next() {
