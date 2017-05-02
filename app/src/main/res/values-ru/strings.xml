@@ -156,11 +156,13 @@
     <string name="snackbar_converter_error_format">Выберите формат аудио для конвертации</string>
     <string name="snackbar_converter_error_convert">Ошибка конвертации</string>
     <string name="snackbar_converter_success_convert">Конвертация прошла успешно</string>
+    <string name="snackbar_converter_kill_process">Процесс запущен. Остановка конвертации!</string>
 
     <string name="snackbar_cut_error_file_name">Введите корректное имя файла</string>
     <string name="snackbar_cut_error_range">Выберите диапазон</string>
     <string name="snackbar_cut_error">Ошибка выполнения операции</string>
     <string name="snackbar_cut_success">Операция успешно выполнена</string>
+
 
 
     <string name="auth_text_login">Телефон или e-mail</string>

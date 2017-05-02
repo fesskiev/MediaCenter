@@ -159,8 +159,9 @@
 
     <string name="snackbar_converter_error_path">You must select audio file for converting</string>
     <string name="snackbar_converter_error_format">You must select audio format for converting</string>
-    <string name="snackbar_converter_error_convert">Error convert!</string>
+    <string name="snackbar_converter_error_convert">Error convert</string>
     <string name="snackbar_converter_success_convert">Convert Success!</string>
+    <string name="snackbar_converter_kill_process">Command is running. Kill process!</string>
 
     <string name="snackbar_cut_error_file_name">You must enter correct file name</string>
     <string name="snackbar_cut_error_range">You must select cut range</string>

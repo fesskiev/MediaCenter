@@ -60,7 +60,7 @@ public class ConverterActivity extends AnalyticsActivity {
         FFmpegHelper audioConverter = FFmpegHelper.getInstance();
         if (audioConverter.isCommandRunning()) {
             Utils.showCustomSnackbar(findViewById(R.id.converterRoot), getApplicationContext(),
-                    "Command is running! Kill process", Snackbar.LENGTH_SHORT)
+                    getString(R.string.snackbar_converter_kill_process), Snackbar.LENGTH_SHORT)
                     .addCallback(new Snackbar.Callback() {
                         @Override
                         public void onShown(Snackbar transientBottomBar) {
