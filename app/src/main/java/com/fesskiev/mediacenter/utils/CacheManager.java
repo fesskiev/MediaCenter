@@ -57,6 +57,14 @@ public class CacheManager {
         return new File(dest.getAbsolutePath(), String.valueOf(System.currentTimeMillis()));
     }
 
+    public static File getCutFolderPath() {
+        File dest = new File(AppSettingsManager.getInstance().getCutFolderPath());
+        if (!dest.exists()) {
+            dest.mkdirs();
+        }
+        return dest;
+    }
+
     public static boolean deleteDirectoryWithFiles(File directory) {
         if (directory.exists()) {
             File[] files = directory.listFiles();

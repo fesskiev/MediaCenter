@@ -47,6 +47,7 @@ import com.fesskiev.mediacenter.utils.CountDownTimer;
 import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.admob.AdMobHelper;
+import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
 import com.fesskiev.mediacenter.widgets.dialogs.ExitDialog;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
@@ -558,6 +559,12 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             PlaybackService.stopPlaybackForegroundService(getApplicationContext());
             startForeground = false;
         }
+
+        FFmpegHelper FFmpeg = FFmpegHelper.getInstance();
+        if (FFmpeg.isCommandRunning()) {
+            FFmpeg.killRunningProcesses();
+        }
+
         FileSystemService.stopFileSystemService(getApplicationContext());
         CacheManager.clearTempDir();
 

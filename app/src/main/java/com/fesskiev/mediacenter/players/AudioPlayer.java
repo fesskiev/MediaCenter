@@ -135,8 +135,13 @@ public class AudioPlayer implements Playable {
         EventBus.getDefault().post(currentTrack);
         Log.e(TAG, AudioPlayer.this.toString());
 
+        FFmpegHelper FFmpeg = FFmpegHelper.getInstance();
+        if (FFmpeg.isCommandRunning()) {
+            FFmpeg.killRunningProcesses();
+        }
+
         if (FFmpegHelper.isAudioFileFLAC(currentTrack)) {
-            FFmpegHelper.getInstance().convertAudioIfNeed(currentTrack,
+            FFmpeg.convertAudioIfNeed(currentTrack,
                     new FFmpegHelper.OnConvertProcessListener() {
 
                         @Override

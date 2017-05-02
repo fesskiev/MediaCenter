@@ -288,7 +288,7 @@ public class AppSettingsManager {
         editor.apply();
     }
 
-    public String geCutFolderPath() {
+    public String getCutFolderPath() {
         return sharedPreferences.getString(KEY_CUT_PATH, CacheManager.CUT_DEST_PATH);
     }
 

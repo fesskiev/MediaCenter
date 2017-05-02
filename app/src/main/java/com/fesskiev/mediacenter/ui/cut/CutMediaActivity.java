@@ -15,11 +15,15 @@ import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.ui.chooser.FileSystemChooserActivity;
+import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
+import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
 import com.fesskiev.mediacenter.widgets.MaterialProgressBar;
 import com.fesskiev.mediacenter.widgets.seekbar.RangeSeekBar;
+
+import java.io.File;
 
 
 public class CutMediaActivity extends AnalyticsActivity {
@@ -69,7 +73,7 @@ public class CutMediaActivity extends AnalyticsActivity {
             fileName.setText(currentTrack.getFileName());
         }
 
-        setSaveFolderPath(settingsManager.geCutFolderPath());
+        setSaveFolderPath(CacheManager.getCutFolderPath().getAbsolutePath());
     }
 
     private void selectSaveFolder() {
@@ -79,7 +83,6 @@ public class CutMediaActivity extends AnalyticsActivity {
     }
 
     private void processCutFile() {
-        String saveFdPath = saveFolderPath.getText().toString();
         String fileNm = fileName.getText().toString();
 
         if (TextUtils.isEmpty(fileNm)) {
@@ -94,9 +97,9 @@ public class CutMediaActivity extends AnalyticsActivity {
         String start = Utils.getDurationString(startCut);
         String end = Utils.getDurationString(endCut);
         String trackPath = currentTrack.getFilePath();
-        String savePath = saveFdPath + "/" + fileNm;
+        File savePath = new File(CacheManager.getCutFolderPath(), fileNm);
 
-        FFmpegHelper.getInstance().cutAudio(trackPath, savePath, start, end, new FFmpegHelper.OnConvertProcessListener() {
+        FFmpegHelper.getInstance().cutAudio(trackPath, savePath.getAbsolutePath(), start, end, new FFmpegHelper.OnConvertProcessListener() {
             @Override
             public void onStart() {
                 showProgressBar();
