@@ -2,6 +2,8 @@ package com.fesskiev.mediacenter.ui.cue;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,12 +18,14 @@ import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.chooser.FileSystemChooserActivity;
+import com.fesskiev.mediacenter.utils.AnimationUtils;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.cue.CueParser;
 import com.fesskiev.mediacenter.utils.cue.CueSheet;
 import com.fesskiev.mediacenter.utils.cue.Index;
 import com.fesskiev.mediacenter.utils.cue.TrackData;
+import com.fesskiev.mediacenter.widgets.recycleview.HidingScrollListener;
 import com.fesskiev.mediacenter.widgets.recycleview.ScrollingLinearLayoutManager;
 
 import java.io.File;
@@ -34,6 +38,8 @@ public class CueActivity extends AnalyticsActivity {
 
     private CueAdapter adapter;
     private AppSettingsManager settingsManager;
+
+    private FloatingActionButton addCueFab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +58,26 @@ public class CueActivity extends AnalyticsActivity {
                 LinearLayoutManager.VERTICAL, false, 1000));
         adapter = new CueAdapter();
         recyclerView.setAdapter(adapter);
+        recyclerView.addOnScrollListener(new HidingScrollListener() {
+            @Override
+            public void onHide() {
+                hideViews();
+            }
 
-        findViewById(R.id.addCueFileFab).setOnClickListener(v -> startChooserActivity());
+            @Override
+            public void onShow() {
+                showViews();
+            }
+
+            @Override
+            public void onItemPosition(int position) {
+
+            }
+        });
+
+
+        addCueFab = (FloatingActionButton) findViewById(R.id.addCueFileFab);
+        addCueFab.setOnClickListener(v -> startChooserActivity());
 
         settingsManager = AppSettingsManager.getInstance();
         tryLoadCue();
@@ -233,7 +257,19 @@ public class CueActivity extends AnalyticsActivity {
         }
     }
 
-    private class SelectableTrackData {
+    private void hideViews() {
+        CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) addCueFab.getLayoutParams();
+        int fabBottomMargin = lp.bottomMargin;
+        AnimationUtils.getInstance().translate(addCueFab, addCueFab.getHeight()
+                + fabBottomMargin);
+
+    }
+
+    private void showViews() {
+        AnimationUtils.getInstance().translate(addCueFab, 0);
+    }
+
+    private static class SelectableTrackData {
 
         private TrackData trackData;
         private boolean isSelected;
