@@ -160,7 +160,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         controlView.setOnAudioControlListener(new AudioControlView.OnAudioControlListener() {
             @Override
             public void onPlayStateChanged() {
-                if(!lastConvertStart) {
+                if (!lastConvertStart) {
                     if (lastPlaying) {
                         pause();
                     } else {
@@ -200,9 +200,13 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_player, menu);
-        return true;
+        boolean isProUser = AppSettingsManager.getInstance().isUserPro();
+        if (isProUser) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.menu_player, menu);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -303,7 +307,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         }
 
         boolean isConvertStart = playbackState.isConvertStart();
-        if (lastConvertStart!= isConvertStart) {
+        if (lastConvertStart != isConvertStart) {
             lastConvertStart = isConvertStart;
             controlView.startLoading();
         }

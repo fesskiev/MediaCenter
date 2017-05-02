@@ -524,6 +524,10 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         navigationViewMain.getMenu().getItem(5).setVisible(false);
     }
 
+    private void hideDrawerConverterItem() {
+        navigationViewMain.getMenu().getItem(1).setVisible(false);
+    }
+
 
     @Override
     public void onBackPressed() {
@@ -582,6 +586,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         checkSelectedFragment();
         if (!settingsManager.isUserPro()) {
             AdMobHelper.getInstance().resumeAdMob();
+            hideDrawerConverterItem();
         } else {
             AdMobHelper.getInstance().destroyAdView();
             hideDrawerPurchaseItem();

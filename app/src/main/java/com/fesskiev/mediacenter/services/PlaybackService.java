@@ -696,7 +696,6 @@ public class PlaybackService extends Service {
     }
 
     private void setStartConvertState() {
-        stop();
         loadSuccess = false;
         loadError = false;
         convertStart = true;

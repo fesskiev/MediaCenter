@@ -62,8 +62,8 @@
 
         <item
             android:id="@+id/billing"
-            android:title="@string/drawer_remove_banners"
-            android:icon="@drawable/icon_remove_banners"/>
+            android:title="@string/drawer_buy_pro"
+            android:icon="@drawable/icon_buy_pro"/>
     </group>
 
 </menu>

@@ -9,9 +9,9 @@
     <string name="search_media_files_title">You can search media files now or skip this step. Search now?</string>
     <string name="search_media_files_success">Searching files has been completed. Thank you</string>
 
-    <string name="ad_mob_text">You can remove AdMob and support project. Remove AdMob?</string>
+    <string name="ad_mob_text">You can remove AdMob, open Cue file parser and Media Converter. Buy pro user futures?</string>
     <string name="ad_mob_remove_success">You are pro user. Thank you for support!</string>
-    <string name="ad_mob_remove_skip">In the future, you can disable AdMob in the application</string>
+    <string name="ad_mob_remove_skip">In the future, you can buy pro user futures and disable AdMob in the application</string>
 
     <string name="billing_error_purchase">Purchase error!</string>
     <string name="billing_error_not_support">Billing not support</string>
@@ -51,7 +51,7 @@
     <string name="drawer_item_video">Video</string>
     <string name="drawer_item_playlist">Playlist</string>
     <string name="drawer_item_converter">Converter</string>
-    <string name="drawer_remove_banners">Remove banners</string>
+    <string name="drawer_buy_pro">Buy Pro User</string>
 
     <string name="audio_tab_title_folders">FOLDERS</string>
     <string name="audio_tab_title_artist">ARTIST</string>

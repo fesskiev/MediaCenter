@@ -141,29 +141,29 @@ public class AudioPlayer implements Playable {
         }
 
         if (FFmpegHelper.isAudioFileFLAC(currentTrack)) {
-            FFmpeg.convertAudioIfNeed(currentTrack,
-                    new FFmpegHelper.OnConvertProcessListener() {
+            FFmpeg.convertAudioIfNeed(currentTrack, new FFmpegHelper.OnConvertProcessListener() {
 
-                        @Override
-                        public void onStart() {
-                            Log.e(TAG, "onStart() convert");
-                            PlaybackService.startConvert(context);
-                        }
+                @Override
+                public void onStart() {
+                    Log.e(TAG, "onStart() convert");
+                    pause();
+                    PlaybackService.startConvert(context);
+                }
 
-                        @Override
-                        public void onSuccess(AudioFile audioFile) {
-                            Log.e(TAG, "onSuccess convert");
-                            open(currentTrack);
-                            if (startPlayback) {
-                                play();
-                            }
-                        }
+                @Override
+                public void onSuccess(AudioFile audioFile) {
+                    Log.e(TAG, "onSuccess convert");
+                    open(currentTrack);
+                    if (startPlayback) {
+                        play();
+                    }
+                }
 
-                        @Override
-                        public void onFailure(Exception error) {
-                            Log.e(TAG, "onFailure: " + error.getMessage());
-                        }
-                    });
+                @Override
+                public void onFailure(Exception error) {
+                    Log.e(TAG, "onFailure: " + error.getMessage());
+                }
+            });
         } else {
             open(currentTrack);
             if (startPlayback) {

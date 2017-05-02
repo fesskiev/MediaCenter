@@ -9,9 +9,9 @@
     <string name="search_media_files_title">Вы можете выполнить поиск медиафайов сейчас или пропустить этот шаг. Выполнить поиск ?</string>
     <string name="search_media_files_success">Спасибо, поиск медиа файлов завершен!</string>
 
-    <string name="ad_mob_text">Вы можете убрать рекламу из приложения и поддержать проект. Убрать рекламу?</string>
-    <string name="ad_mob_remove_success">Все показы рекламы в приложении отключены. Спасибо за поддержку!</string>
-    <string name="ad_mob_remove_skip">В дальнейшем Вы можете отключить рекламу в приложении</string>
+    <string name="ad_mob_text">Вы можете убрать рекламу из приложения, открыть поддержку Cue фалойв и Медиа конвертер. Купить Pro возможности?</string>
+    <string name="ad_mob_remove_success">Вы Pro-пользователь. Спасибо за поддержку!</string>
+    <string name="ad_mob_remove_skip">В дальнейшем Вы можете отключить рекламу и открыть допольнительные возможности в приложении</string>
 
     <string name="billing_error_purchase">Ошибка покупки!</string>
     <string name="billing_error_not_support">Покупки в приложении не поддерживаются</string>
@@ -49,7 +49,7 @@
     <string name="drawer_item_video">Видео</string>
     <string name="drawer_item_playlist">Плейлист</string>
     <string name="drawer_item_converter">Конвертер</string>
-    <string name="drawer_remove_banners">Удалить рекламу</string>
+    <string name="drawer_buy_pro">Купить Pro-пользователя</string>
 
     <string name="audio_tab_title_folders">Папки</string>
     <string name="audio_tab_title_artist">Артист</string>

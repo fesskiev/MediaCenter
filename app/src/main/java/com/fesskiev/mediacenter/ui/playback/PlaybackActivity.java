@@ -94,7 +94,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
         playPauseButton = (PlayPauseFloatingButton) findViewById(R.id.playPauseFAB);
         playPauseButton.setOnClickListener(v -> {
-            if (checkTrackSelected()) {
+            if (checkTrackSelected() && !lastConvertStart) {
                 if (lastPlaying) {
                     audioPlayer.pause();
                 } else {
