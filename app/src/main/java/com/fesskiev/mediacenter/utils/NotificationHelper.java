@@ -79,19 +79,38 @@ public class NotificationHelper {
             artist = context.getString(R.string.playback_control_track_not_selected);
             title = context.getString(R.string.playback_control_track_not_selected);
         }
+        RemoteViews notificationBigView = new RemoteViews(context.getPackageName(), R.layout.notification_big_layout);
         RemoteViews notificationView = new RemoteViews(context.getPackageName(), R.layout.notification_layout);
+
+        notificationBigView.setTextViewText(R.id.notificationArtist, artist);
+        notificationBigView.setTextViewText(R.id.notificationTitle, title);
+        notificationBigView.setImageViewBitmap(R.id.notificationCover, bitmap);
 
         notificationView.setTextViewText(R.id.notificationArtist, artist);
         notificationView.setTextViewText(R.id.notificationTitle, title);
         notificationView.setImageViewBitmap(R.id.notificationCover, bitmap);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context);
+
         notificationBuilder
-                .setCustomBigContentView(notificationView)
+                .setCustomBigContentView(notificationBigView)
+                .setCustomContentView(notificationView)
                 .setSmallIcon(R.drawable.icon_notification_player)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(createContentIntent());
+
+        notificationBigView.setOnClickPendingIntent(R.id.notificationNext, getPendingIntentAction(ACTION_MEDIA_CONTROL_NEXT));
+        notificationBigView.setOnClickPendingIntent(R.id.notificationPrevious, getPendingIntentAction(ACTION_MEDIA_CONTROL_PREVIOUS));
+        if (!isPlaying()) {
+            notificationBigView.setImageViewResource(R.id.notificationPlayPause, R.drawable.icon_play_media_control);
+            notificationBigView.setOnClickPendingIntent(R.id.notificationPlayPause, getPendingIntentAction(ACTION_MEDIA_CONTROL_PLAY));
+        } else {
+            notificationBigView.setImageViewResource(R.id.notificationPlayPause, R.drawable.icon_pause_media_control);
+            notificationBigView.setOnClickPendingIntent(R.id.notificationPlayPause, getPendingIntentAction(ACTION_MEDIA_CONTROL_PAUSE));
+        }
+        notificationBigView.setOnClickPendingIntent(R.id.notificationClose, getPendingIntentAction(ACTION_CLOSE_APP));
+
 
         notificationView.setOnClickPendingIntent(R.id.notificationNext, getPendingIntentAction(ACTION_MEDIA_CONTROL_NEXT));
         notificationView.setOnClickPendingIntent(R.id.notificationPrevious, getPendingIntentAction(ACTION_MEDIA_CONTROL_PREVIOUS));
@@ -102,8 +121,9 @@ public class NotificationHelper {
             notificationView.setImageViewResource(R.id.notificationPlayPause, R.drawable.icon_pause_media_control);
             notificationView.setOnClickPendingIntent(R.id.notificationPlayPause, getPendingIntentAction(ACTION_MEDIA_CONTROL_PAUSE));
         }
-
         notificationView.setOnClickPendingIntent(R.id.notificationClose, getPendingIntentAction(ACTION_CLOSE_APP));
+
+
         return notificationBuilder.build();
     }
 
