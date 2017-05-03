@@ -121,7 +121,6 @@ public class NotificationHelper {
             notificationView.setImageViewResource(R.id.notificationPlayPause, R.drawable.icon_pause_media_control);
             notificationView.setOnClickPendingIntent(R.id.notificationPlayPause, getPendingIntentAction(ACTION_MEDIA_CONTROL_PAUSE));
         }
-        notificationView.setOnClickPendingIntent(R.id.notificationClose, getPendingIntentAction(ACTION_CLOSE_APP));
 
 
         return notificationBuilder.build();

@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/white"
-    android:orientation="vertical"
-    android:padding="4dp">
+    android:orientation="vertical">
 
     <ImageView
         android:id="@+id/notificationCover"
@@ -20,85 +19,79 @@
     <LinearLayout
         android:id="@+id/notificationInfoContainer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:orientation="vertical"
+        android:layout_height="80dp"
         android:layout_alignTop="@+id/notificationCover"
-        android:layout_toStartOf="@+id/notificationClose"
-        android:layout_toEndOf="@+id/notificationCover">
+        android:layout_marginEnd="4dp"
+        android:layout_marginStart="4dp"
+        android:layout_toEndOf="@+id/notificationCover"
+        android:baselineAligned="false"
+        android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/notificationArtist"
-            style="@style/NotificationArtistTextAppearance"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            tools:text="Nothing Heren" />
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/notificationTitle"
-            style="@style/NotificationTitleTextAppearance"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:layout_marginTop="4dp"
-            tools:text="Nothing Heren" />
+            <TextView
+                android:id="@+id/notificationArtist"
+                style="@style/NotificationArtistTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                tools:text="Nothing Heren" />
+
+            <TextView
+                android:id="@+id/notificationTitle"
+                style="@style/NotificationTitleTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                tools:text="Nothing Heren" />
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/notificationPrevious"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:contentDescription="@string/app_name"
+                android:scaleType="centerCrop"
+                android:src="@drawable/icon_previous_media_control" />
+
+            <ImageView
+                android:id="@+id/notificationPlayPause"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_centerInParent="true"
+                android:layout_centerVertical="true"
+                android:contentDescription="@string/app_name"
+                android:scaleType="centerCrop"
+                android:src="@drawable/icon_play_media_control" />
+
+            <ImageView
+                android:id="@+id/notificationNext"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:contentDescription="@string/app_name"
+                android:scaleType="centerCrop"
+                android:src="@drawable/icon_next_media_control" />
+
+        </RelativeLayout>
 
     </LinearLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="4dp"
-        android:layout_toStartOf="@+id/notificationClose"
-        android:layout_alignBottom="@+id/notificationCover"
-        android:layout_toEndOf="@+id/notificationCover">
-
-        <ImageView
-            android:id="@+id/notificationPrevious"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:contentDescription="@string/app_name"
-            android:scaleType="centerCrop"
-            android:src="@drawable/icon_previous_media_control" />
-
-        <ImageView
-            android:id="@+id/notificationPlayPause"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_centerInParent="true"
-            android:layout_centerVertical="true"
-            android:contentDescription="@string/app_name"
-            android:scaleType="centerCrop"
-            android:src="@drawable/icon_play_media_control" />
-
-        <ImageView
-            android:id="@+id/notificationNext"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:contentDescription="@string/app_name"
-            android:scaleType="centerCrop"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:src="@drawable/icon_next_media_control" />
-
-    </RelativeLayout>
-
-    <ImageView
-        android:id="@+id/notificationClose"
-        android:layout_width="26dp"
-        android:layout_height="26dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:contentDescription="@string/app_name"
-        android:scaleType="centerCrop"
-        android:src="@drawable/icon_notification_close" />
 
 </RelativeLayout>
