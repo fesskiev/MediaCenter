@@ -75,7 +75,7 @@
 
     <dimen name="text_effect_name">12sp</dimen>
 
-    <dimen name="text_video_player">12sp</dimen>
+    <dimen name="text_video_player">11sp</dimen>
 
     <dimen name="radio_button_text_size">12sp</dimen>
 

@@ -24,6 +24,7 @@ import com.fesskiev.mediacenter.ui.audio.tracklist.PlayerTrackListActivity;
 import com.fesskiev.mediacenter.ui.cue.CueActivity;
 import com.fesskiev.mediacenter.ui.cut.CutMediaActivity;
 import com.fesskiev.mediacenter.ui.effects.EffectsActivity;
+import com.fesskiev.mediacenter.ui.video.player.VideoExoPlayerActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
@@ -239,7 +240,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     }
 
     private void startCutActivity() {
-        startActivity(new Intent(AudioPlayerActivity.this, CutMediaActivity.class));
+        CutMediaActivity.startCutMediaActivity(AudioPlayerActivity.this, CutMediaActivity.CUT_AUDIO);
     }
 
     @Override

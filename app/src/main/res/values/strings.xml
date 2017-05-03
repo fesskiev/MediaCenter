@@ -276,6 +276,9 @@
     <string name="convert_file">Convert file</string>
     <string name="convert_save_folder">Folder for saving</string>
 
+    <string name="cut_range">Cut range</string>
+    <string name="cut_file_name">File name</string>
+
     <string name="radio_mp3">MP3</string>
     <string name="radio_flac">FLAC</string>
     <string name="radio_m4a">M4A</string>

@@ -15,6 +15,19 @@
         android:gravity="center"
         android:maxLines="2" />
 
+
+    <ImageView
+        android:id="@+id/cutVideoButton"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:layout_above="@+id/videoLockScreen"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="@string/app_name"
+        android:scaleType="fitCenter"
+        android:src="@drawable/icon_cut_1" />
+
     <ImageView
         android:id="@+id/videoLockScreen"
         android:layout_width="34dp"
@@ -26,6 +39,7 @@
         android:contentDescription="@string/app_name"
         android:scaleType="fitCenter"
         android:src="@drawable/icon_video_unlock_screen" />
+
 
     <TextView
         android:id="@+id/resizeModeState"

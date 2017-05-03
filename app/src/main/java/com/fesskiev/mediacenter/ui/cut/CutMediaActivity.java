@@ -1,5 +1,6 @@
 package com.fesskiev.mediacenter.ui.cut;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -14,6 +15,8 @@ import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
 import com.fesskiev.mediacenter.data.model.AudioFile;
+import com.fesskiev.mediacenter.data.model.MediaFile;
+import com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.mediacenter.ui.chooser.FileSystemChooserActivity;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
@@ -28,6 +31,17 @@ import java.io.File;
 
 public class CutMediaActivity extends AnalyticsActivity {
 
+    public static void startCutMediaActivity(Activity activity, int cutType) {
+        Intent intent = new Intent(activity, CutMediaActivity.class);
+        intent.putExtra(EXTRA_CUT_TYPE, cutType);
+        activity.startActivity(intent);
+    }
+
+    private final static String EXTRA_CUT_TYPE = "com.fesskiev.mediacenter.EXTRA_CUT_TYPE";
+
+    public final static int CUT_AUDIO = 0;
+    public final static int CUT_VIDEO = 1;
+
     private final static int REQUEST_FOLDER = 0;
 
     private AppSettingsManager settingsManager;
@@ -36,7 +50,10 @@ public class CutMediaActivity extends AnalyticsActivity {
     private TextInputEditText fileName;
     private MaterialProgressBar progressBar;
 
-    private AudioFile currentTrack;
+    private MediaFile mediaFile;
+
+    private int cutType;
+
     private int startCut;
     private int endCut;
 
@@ -48,19 +65,30 @@ public class CutMediaActivity extends AnalyticsActivity {
         TypedValue typedValue = new TypedValue();
         getResources().getValue(R.dimen.activity_window_height, typedValue, true);
         float scaleValue = typedValue.getFloat();
-
         int height = (int) (getResources().getDisplayMetrics().heightPixels * scaleValue);
         getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, height);
 
         settingsManager = AppSettingsManager.getInstance();
-        currentTrack = MediaApplication.getInstance().getAudioPlayer().getCurrentTrack();
+        cutType = getIntent().getIntExtra(EXTRA_CUT_TYPE, -1);
+        if (cutType != -1) {
+            switch (cutType) {
+                case CUT_AUDIO:
+                    mediaFile = MediaApplication.getInstance().getAudioPlayer().getCurrentTrack();
+                    break;
+                case CUT_VIDEO:
+                    mediaFile = MediaApplication.getInstance().getVideoPlayer().getCurrentVideoFile();
+                    break;
+            }
+        }
+
 
         findViewById(R.id.cutFileFab).setOnClickListener(v -> processCutFile());
 
         findViewById(R.id.chooseCutSaveFolder).setOnClickListener(v -> selectSaveFolder());
 
         RangeSeekBar<Integer> rangeSeekBar = (RangeSeekBar) findViewById(R.id.rangeSeekBar);
-        rangeSeekBar.setRangeValues(0, (int) currentTrack.length);
+        rangeSeekBar.setRangeValues(0, (int) mediaFile.getLength());
+        rangeSeekBar.setCutType(cutType);
         rangeSeekBar.setOnRangeSeekBarChangeListener((bar, minValue, maxValue) -> {
             startCut = minValue;
             endCut = maxValue;
@@ -69,11 +97,11 @@ public class CutMediaActivity extends AnalyticsActivity {
         progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
         saveFolderPath = (TextView) findViewById(R.id.saveFolderPath);
         fileName = (TextInputEditText) findViewById(R.id.fileName);
-        if (currentTrack != null) {
-            fileName.setText(currentTrack.getFileName());
+        if (mediaFile != null) {
+            fileName.setText(mediaFile.getFileName());
         }
-
         setSaveFolderPath(CacheManager.getCutFolderPath().getAbsolutePath());
+
     }
 
     private void selectSaveFolder() {
@@ -94,12 +122,24 @@ public class CutMediaActivity extends AnalyticsActivity {
             return;
         }
 
-        String start = Utils.getDurationString(startCut);
-        String end = Utils.getDurationString(endCut);
-        String trackPath = currentTrack.getFilePath();
+        String start = null;
+        String end = null;
+        switch (cutType) {
+            case CUT_AUDIO:
+                start = Utils.getDurationString(startCut);
+                end = Utils.getDurationString(endCut);
+                break;
+            case CUT_VIDEO:
+                start = Utils.getVideoFileTimeFormat(startCut);
+                end = Utils.getVideoFileTimeFormat(endCut);
+                break;
+        }
+
+
+        String trackPath = mediaFile.getFilePath();
         File savePath = new File(CacheManager.getCutFolderPath(), fileNm);
 
-        FFmpegHelper.getInstance().cutAudio(trackPath, savePath.getAbsolutePath(), start, end, new FFmpegHelper.OnConvertProcessListener() {
+        FFmpegHelper.getInstance().cutMedia(trackPath, savePath.getAbsolutePath(), start, end, new FFmpegHelper.OnConvertProcessListener() {
             @Override
             public void onStart() {
                 showProgressBar();

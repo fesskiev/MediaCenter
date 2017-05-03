@@ -152,4 +152,8 @@ public class VideoPlayer implements Playable {
             }
         }
     }
+
+    public VideoFile getCurrentVideoFile() {
+        return currentVideoFile;
+    }
 }

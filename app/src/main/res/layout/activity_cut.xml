@@ -18,7 +18,7 @@
             style="@style/ConvertTitleAppearance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cut range" />
+            android:text="@string/cut_range" />
 
         <View
             android:id="@+id/divider"
@@ -93,7 +93,7 @@
             style="@style/ConvertTitleAppearance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="File name" />
+            android:text="@string/cut_file_name" />
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"

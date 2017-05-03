@@ -129,7 +129,7 @@ public class FFmpegHelper {
         }
     }
 
-    public void cutAudio(String audioFilePath, String savePath, String start, String end, OnConvertProcessListener listener) {
+    public void cutMedia(String audioFilePath, String savePath, String start, String end, OnConvertProcessListener listener) {
         if (!libraryLoaded) {
             listener.onFailure(new Exception("FFmpeg not loaded"));
             return;

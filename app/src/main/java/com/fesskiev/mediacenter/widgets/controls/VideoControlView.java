@@ -2,6 +2,7 @@ package com.fesskiev.mediacenter.widgets.controls;
 
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Animatable;
@@ -23,8 +24,11 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.video.RendererState;
+import com.fesskiev.mediacenter.ui.cut.CutMediaActivity;
+import com.fesskiev.mediacenter.ui.video.player.VideoExoPlayerActivity;
 import com.fesskiev.mediacenter.utils.AnimationUtils;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.widgets.buttons.PlayPauseButton;
@@ -163,6 +167,7 @@ public class VideoControlView extends FrameLayout {
         resizeModeState = (TextView) view.findViewById(R.id.resizeModeState);
         resizeModeState.setOnClickListener(v -> changeResizeMode());
 
+
         view.findViewById(R.id.addSubButton).setOnClickListener(v -> {
             if (listener != null) {
                 listener.addSubButtonClick();
@@ -171,6 +176,13 @@ public class VideoControlView extends FrameLayout {
 
         videoLockScreen = (ImageView) view.findViewById(R.id.videoLockScreen);
         videoLockScreen.setOnClickListener(v -> toggleLockScreen());
+
+        ImageView cutVideoButton = (ImageView) view.findViewById(R.id.cutVideoButton);
+        cutVideoButton.setOnClickListener(v -> startCutActivity());
+        boolean isProUser = AppSettingsManager.getInstance().isUserPro();
+        if (!isProUser) {
+            cutVideoButton.setVisibility(GONE);
+        }
 
         ImageView settingsButton = (ImageView) view.findViewById(R.id.settingsButton);
         settingsButton.setOnClickListener(v -> togglePanel(settingsButton));
@@ -223,6 +235,10 @@ public class VideoControlView extends FrameLayout {
                 }
             }
         });
+    }
+
+    private void startCutActivity() {
+        CutMediaActivity.startCutMediaActivity((Activity) getContext(), CutMediaActivity.CUT_VIDEO);
     }
 
 
@@ -837,13 +853,13 @@ public class VideoControlView extends FrameLayout {
         previousVideo.setClickable(true);
     }
 
-    public void enableNextVideoButton(){
+    public void enableNextVideoButton() {
         nextVideo.setAlpha(1f);
         nextVideo.setEnabled(true);
         nextVideo.setClickable(true);
     }
 
-    public void disableNextVideoButton(){
+    public void disableNextVideoButton() {
         nextVideo.setAlpha(0.5f);
         nextVideo.setEnabled(false);
         nextVideo.setClickable(false);

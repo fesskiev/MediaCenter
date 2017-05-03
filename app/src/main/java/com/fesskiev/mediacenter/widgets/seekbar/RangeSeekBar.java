@@ -24,6 +24,9 @@ import com.fesskiev.mediacenter.utils.Utils;
 
 import java.math.BigDecimal;
 
+import static com.fesskiev.mediacenter.ui.cut.CutMediaActivity.CUT_AUDIO;
+import static com.fesskiev.mediacenter.ui.cut.CutMediaActivity.CUT_VIDEO;
+
 public class RangeSeekBar<T extends Number> extends AppCompatImageView {
 
     public static final Integer DEFAULT_MINIMUM = 0;
@@ -73,6 +76,8 @@ public class RangeSeekBar<T extends Number> extends AppCompatImageView {
     private static final int DEFAULT_TEXT_SIZE_IN_DP = 14;
     private static final int DEFAULT_TEXT_DISTANCE_TO_BUTTON_IN_DP = 8;
     private static final int DEFAULT_TEXT_DISTANCE_TO_TOP_IN_DP = 8;
+
+    private int cutType = -1;
 
 
     public RangeSeekBar(Context context) {
@@ -457,8 +462,20 @@ public class RangeSeekBar<T extends Number> extends AppCompatImageView {
             // give text a bit more space here so it doesn't get cut off
             int offset = dpToPx(getContext(), TEXT_LATERAL_PADDING_IN_DP);
 
-            String minText = Utils.getDurationString((Integer) getSelectedMinValue());
-            String maxText = Utils.getDurationString((Integer) getSelectedMaxValue());
+            String minText = null;
+            String maxText = null;
+
+            switch (cutType){
+                case CUT_AUDIO:
+                    minText = Utils.getDurationString((Integer) getSelectedMinValue());
+                    maxText = Utils.getDurationString((Integer) getSelectedMaxValue());
+                    break;
+                case CUT_VIDEO:
+                    minText = Utils.getVideoFileTimeFormat((Integer) getSelectedMinValue());
+                    maxText = Utils.getVideoFileTimeFormat((Integer) getSelectedMaxValue());
+                    break;
+            }
+
             float minTextWidth = paint.measureText(minText) + offset;
             float maxTextWidth = paint.measureText(maxText) + offset;
 
@@ -713,4 +730,7 @@ public class RangeSeekBar<T extends Number> extends AppCompatImageView {
         return bitmap;
     }
 
+    public void setCutType(int cutType) {
+        this.cutType = cutType;
+    }
 }
