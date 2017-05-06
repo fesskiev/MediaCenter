@@ -114,11 +114,13 @@ public class WalkthroughFragment extends Fragment {
 
     public void fetchMediaGranted() {
         fetchMediaGranted = true;
+        viewPager.setSwipingEnabled(true);
         checkEnableEnterButton();
     }
 
     public void proUserGranted() {
         proUserGranted = true;
+        viewPager.setSwipingEnabled(true);
         checkEnableEnterButton();
     }
 

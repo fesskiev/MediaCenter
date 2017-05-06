@@ -87,7 +87,9 @@ public class CutMediaActivity extends AnalyticsActivity {
         findViewById(R.id.chooseCutSaveFolder).setOnClickListener(v -> selectSaveFolder());
 
         RangeSeekBar<Integer> rangeSeekBar = (RangeSeekBar) findViewById(R.id.rangeSeekBar);
-        rangeSeekBar.setRangeValues(0, (int) mediaFile.getLength());
+        if (mediaFile != null) {
+            rangeSeekBar.setRangeValues(0, (int) mediaFile.getLength());
+        }
         rangeSeekBar.setCutType(cutType);
         rangeSeekBar.setOnRangeSeekBarChangeListener((bar, minValue, maxValue) -> {
             startCut = minValue;

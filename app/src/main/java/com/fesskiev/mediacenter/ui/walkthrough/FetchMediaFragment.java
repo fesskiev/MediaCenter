@@ -135,6 +135,7 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
     private void skipFetchMediaFiles() {
         hideButtons();
         fetchMediaFilesSuccess();
+        notifyFetchMediaGranted();
     }
 
 
