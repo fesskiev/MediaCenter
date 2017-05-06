@@ -68,6 +68,7 @@
             android:layout_alignParentStart="true"
             android:layout_below="@+id/audioSettingsContainer"
             android:layout_marginStart="6dp"
+            android:visibility="gone"
             android:paddingTop="20dp">
 
             <TextView
@@ -345,7 +346,7 @@
                 android:layout_below="@id/divider13"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="2dp"
-                android:text="Путь к сохраненным записям" />
+                android:text="@string/settings_path_to_records" />
 
             <TextView
                 android:id="@+id/recordSettingsTitle"

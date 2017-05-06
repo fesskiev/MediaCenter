@@ -241,6 +241,7 @@
     <string name="settings_security_switch_text">Зашифровать данные</string>
     <string name="settings_hidden_files_text">Показывать скрытые файлы</string>
     <string name="settings_record_title">Запись</string>
+    <string name="settings_path_to_records">Путь к сохраненным записям</string>
 
     <string name="hide_folder_text">Скрыть папку</string>
     <string name="hide_video_file_text">Скрыть файл</string>

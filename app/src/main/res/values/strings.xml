@@ -264,6 +264,7 @@
     <string name="settings_security_switch_text">Encrypt data</string>
     <string name="settings_hidden_files_text">Show hidden files</string>
     <string name="settings_record_title">Record</string>
+    <string name="settings_path_to_records">Path to saved records</string>
 
     <string name="hide_folder_text">Hide folder</string>
     <string name="hide_video_file_text">Hide file</string>

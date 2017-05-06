@@ -53,6 +53,7 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
 
         SwitchCompat[] switches = new SwitchCompat[]{
                 (SwitchCompat) view.findViewById(R.id.playHeadsetPlugInSwitch),
+                //TODO hide download switch temp
                 (SwitchCompat) view.findViewById(R.id.downloadWifiSwitch),
                 (SwitchCompat) view.findViewById(R.id.encryptDataSwitch),
                 (SwitchCompat) view.findViewById(R.id.showHiddenFilesSwitch),
