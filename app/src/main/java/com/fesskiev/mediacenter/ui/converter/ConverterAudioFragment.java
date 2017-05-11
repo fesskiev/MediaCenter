@@ -25,7 +25,6 @@ public class ConverterAudioFragment extends ConverterFragment implements RadioGr
 
     private AudioPlayer audioPlayer;
 
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
