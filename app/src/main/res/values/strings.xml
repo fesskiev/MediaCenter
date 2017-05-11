@@ -158,7 +158,7 @@
     <string name="snackbar_error_try_again">Repeat</string>
 
     <string name="snackbar_converter_error_path">You must select audio file for converting</string>
-    <string name="snackbar_converter_error_format">You must select audio format for converting</string>
+    <string name="snackbar_converter_error_format">You must select format for converting</string>
     <string name="snackbar_converter_error_convert">Error convert</string>
     <string name="snackbar_converter_success_convert">Convert Success!</string>
     <string name="snackbar_converter_kill_process">Command is running. Kill process!</string>

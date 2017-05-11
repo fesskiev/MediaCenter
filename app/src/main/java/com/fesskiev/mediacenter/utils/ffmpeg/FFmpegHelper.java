@@ -145,7 +145,28 @@ public class FFmpegHelper {
 
     }
 
-    public void convertAudioPlayerFLAC(String audioFilePath, String saveFolder, AudioFormat format, OnConvertProcessListener listener) {
+    public void convertVideoFile(String videoFilePath, String saveFolder, Format format,
+                                 OnConvertProcessListener listener) {
+        if (!libraryLoaded) {
+            listener.onFailure(new Exception("FFmpeg not loaded"));
+            return;
+        }
+
+        File file = new File(videoFilePath);
+        if (!correctFile(file, listener)) {
+            return;
+        }
+
+        final File convertedFile = getConvertedFile(file, format, saveFolder);
+
+        final String[] cmd = new String[]{"-y", "-i", file.getPath(), "-qscale", "0", convertedFile.getPath()};
+
+        executeCommand(cmd, listener);
+
+    }
+
+    public void convertAudioPlayerFLAC(String audioFilePath, String saveFolder, Format format,
+                                       OnConvertProcessListener listener) {
         if (!libraryLoaded) {
             listener.onFailure(new Exception("FFmpeg not loaded"));
             return;
@@ -163,7 +184,7 @@ public class FFmpegHelper {
         executeCommand(cmd, listener);
     }
 
-    private void convertAudioPlayerFLAC(AudioFile audioFile, AudioFormat format, OnConvertProcessListener listener) {
+    private void convertAudioPlayerFLAC(AudioFile audioFile, Format format, OnConvertProcessListener listener) {
         if (!libraryLoaded) {
             listener.onFailure(new Exception("FFmpeg not loaded"));
             return;
@@ -220,7 +241,7 @@ public class FFmpegHelper {
                 .subscribe(paths -> {
                     String path = needConvert(paths, audioFile);
                     if (TextUtils.isEmpty(path)) {
-                        convertAudioPlayerFLAC(audioFile, AudioFormat.WAV, listener);
+                        convertAudioPlayerFLAC(audioFile, Format.WAV, listener);
                     } else {
                         listener.onSuccess(audioFile);
                     }
@@ -268,7 +289,7 @@ public class FFmpegHelper {
         return "";
     }
 
-    private File getConvertedFile(File originalFile, AudioFormat format) {
+    private File getConvertedFile(File originalFile, Format format) {
         File temp = new File(Environment.getExternalStorageDirectory().toString() + "/MediaCenter/Temp/");
         if (!temp.exists()) {
             temp.mkdirs();
@@ -279,7 +300,7 @@ public class FFmpegHelper {
         return new File(temp.getAbsolutePath(), fileName);
     }
 
-    private File getConvertedFile(File originalFile, AudioFormat format, String saveFolder) {
+    private File getConvertedFile(File originalFile, Format format, String saveFolder) {
         File temp = new File(saveFolder);
         if (!temp.exists()) {
             temp.mkdirs();

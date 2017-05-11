@@ -153,7 +153,7 @@
     <string name="snackbar_error_try_again">Повтор</string>
 
     <string name="snackbar_converter_error_path">Выберите аудио файл</string>
-    <string name="snackbar_converter_error_format">Выберите формат аудио для конвертации</string>
+    <string name="snackbar_converter_error_format">Выберите формат для конвертации</string>
     <string name="snackbar_converter_error_convert">Ошибка конвертации</string>
     <string name="snackbar_converter_success_convert">Конвертация прошла успешно</string>
     <string name="snackbar_converter_kill_process">Процесс запущен. Остановка конвертации!</string>
