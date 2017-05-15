@@ -5,6 +5,10 @@ buildscript {
         jcenter {
             url "http://jcenter.bintray.com/"
         }
+        mavenCentral()
+        maven(){
+            url "https://oss.sonatype.org/content/repositories/snapshots"
+        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.2'
