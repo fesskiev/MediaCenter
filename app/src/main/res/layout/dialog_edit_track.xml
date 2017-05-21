@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/hint_artist"
             android:textColor="@color/white_text"
-            app:backgroundTint="@color/white_text"/>
+            app:backgroundTint="@color/white_text" />
 
     </android.support.design.widget.TextInputLayout>
 
@@ -38,7 +38,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/hint_title"
             android:textColor="@color/white_text"
-            app:backgroundTint="@color/white_text"/>
+            app:backgroundTint="@color/white_text" />
 
     </android.support.design.widget.TextInputLayout>
 
@@ -56,7 +56,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/hint_album"
             android:textColor="@color/white_text"
-            app:backgroundTint="@color/white_text"/>
+            app:backgroundTint="@color/white_text" />
 
     </android.support.design.widget.TextInputLayout>
 
@@ -79,9 +79,9 @@
     </android.support.design.widget.TextInputLayout>
 
     <Button
-        style="@style/ButtonStyle"
         android:id="@+id/saveTrackInfoButton"
-        android:layout_width="@dimen/button_width"
+        style="@style/ButtonStyle"
+        android:layout_width="@dimen/button_width_min"
         android:layout_height="@dimen/button_height"
         android:layout_gravity="end"
         android:layout_margin="8dp"

@@ -35,6 +35,7 @@
 
     <dimen name="button_height">54dp</dimen>
     <dimen name="button_width">164dp</dimen>
+    <dimen name="button_width_min">124dp</dimen>
 
     <dimen name="text_size_audio_player">14sp</dimen>
     <dimen name="text_size_audio_player_artist">22sp</dimen>
