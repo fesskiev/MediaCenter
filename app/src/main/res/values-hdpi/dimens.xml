@@ -39,7 +39,7 @@
     <dimen name="text_size_audio_player">12sp</dimen>
     <dimen name="text_size_audio_player_artist">20sp</dimen>
 
-    <dimen name="text_audio_track_description">12sp</dimen>
+    <dimen name="text_audio_track_description">11sp</dimen>
     <dimen name="text_audio_track_title">14sp</dimen>
 
     <dimen name="text_folder_name">10sp</dimen>
