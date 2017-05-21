@@ -84,4 +84,17 @@
 
     <dimen name="radio_button_text_size">12sp</dimen>
 
+    <dimen name="text_convert_title">16sp</dimen>
+    <dimen name="text_convert_text">12sp</dimen>
+
+    <dimen name="text_cue_title">16sp</dimen>
+    <dimen name="text_cue_text">12sp</dimen>
+
+    <dimen name="text_file_name">14sp</dimen>
+
+    <dimen name="notification_big_title">16sp</dimen>
+    <dimen name="notification_big_text">14sp</dimen>
+    <dimen name="notification_title">14sp</dimen>
+    <dimen name="notification_text">12sp</dimen>
+
 </resources>

@@ -277,6 +277,10 @@
     <string name="radio_wav">WAV</string>
     <string name="radio_aac">AAC</string>
 
+    <string name="radio_mp4">MP4</string>
+    <string name="radio_mov">MOV</string>
+    <string name="radio_avi">AVI</string>
+
     <string name="banner_ad_unit_id">ca-app-pub-9301351302187198/2368614266</string>
     <string name="banner_ad_unit_id_1">ca-app-pub-9301351302187198/9833005460</string>
 
