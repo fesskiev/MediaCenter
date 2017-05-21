@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'me.tatarka.retrolambda'
 
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
@@ -58,6 +57,8 @@ android {
         }
     }
 
+    flavorDimensions "versionName"
+
     productFlavors {
         free {
             versionName = "1.0.0"
@@ -65,7 +66,6 @@ android {
 
         pro {
             versionName = "1.0.0-pro"
-
         }
     }
 
@@ -99,7 +99,7 @@ android {
 
 ext {
     supportLibVersion = '25.3.1'
-    firebaseLibVersion = '10.2.0'
+    firebaseLibVersion = '10.2.6'
 }
 
 dependencies {
@@ -123,21 +123,17 @@ dependencies {
 
     compile group: 'commons-io', name: 'commons-io', version: '2.5'
     compile 'com.android.support:multidex:1.0.1'
-    compile 'com.github.clans:fab:1.6.3'
+    compile 'com.github.clans:fab:1.6.4'
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'com.google.android.exoplayer:exoplayer:r2.1.1'
-    compile 'io.reactivex:rxandroid:1.2.0'
-    compile 'io.reactivex:rxjava:1.1.5'
-    compile 'com.squareup.okhttp3:okhttp:3.4.1'
+    compile 'io.reactivex:rxandroid:1.2.1'
+    compile 'io.reactivex:rxjava:1.1.8'
+    compile 'com.squareup.okhttp3:okhttp:3.7.0'
     compile 'com.squareup.retrofit2:retrofit:2.0.2'
     compile 'com.squareup.retrofit2:converter-gson:2.0.2'
     compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
     compile 'com.squareup.sqlbrite:sqlbrite:0.7.0'
     compile 'org.greenrobot:eventbus:3.0.0'
-
-    compile ('com.github.worker8:tourguide:1.0.17-SNAPSHOT@aar'){
-        transitive=true
-    }
 }
 
 apply plugin: 'com.google.gms.google-services'

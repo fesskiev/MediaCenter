@@ -33,6 +33,9 @@
     <dimen name="tab_text_size">11sp</dimen>
     <dimen name="tab_margin">2dp</dimen>
 
+    <dimen name="button_height">54dp</dimen>
+    <dimen name="button_width">154dp</dimen>
+
     <dimen name="text_size_audio_player">12sp</dimen>
     <dimen name="text_size_audio_player_artist">20sp</dimen>
 

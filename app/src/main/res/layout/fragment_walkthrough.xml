@@ -40,8 +40,8 @@
     <Button
         android:id="@+id/enterAppButton"
         style="@style/ButtonStyle"
-        android:layout_width="164dp"
-        android:layout_height="54dp"
+        android:layout_width="@dimen/button_width"
+        android:layout_height="@dimen/button_height"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:gravity="center"

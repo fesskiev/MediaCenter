@@ -1,6 +1,6 @@
 #include "SuperpoweredPlayer.h"
 #include "SuperpoweredSimple.h"
-#include <SuperpoweredCPU.h>
+#include <stdlib.h>
 #include <jni.h>
 #include <android/log.h>
 #include <SLES/OpenSLES.h>
