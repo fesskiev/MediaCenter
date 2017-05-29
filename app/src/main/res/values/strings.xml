@@ -205,7 +205,7 @@
 
     <string name="shared_search_back" translatable="false">search_back</string>
 
-    <string name="mail_address">fesskiev@gmail.com</string>
+    <string name="mail_address">fesskiev2@gmail.com</string>
 
     <string name="infinity_symbol">∞</string>
 
@@ -281,6 +281,8 @@
     <string name="radio_mp4">MP4</string>
     <string name="radio_mov">MOV</string>
     <string name="radio_avi">AVI</string>
+
+    <string name="last_fm_api_key">adc1430e56411c85fadf04c03b54068f</string>
 
     <string name="banner_ad_unit_id">ca-app-pub-9301351302187198/2368614266</string>
     <string name="banner_ad_unit_id_1">ca-app-pub-9301351302187198/9833005460</string>

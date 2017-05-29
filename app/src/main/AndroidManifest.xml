@@ -224,7 +224,7 @@
         </activity>
 
         <activity
-            android:name=".ui.search.SearchDataActivity"
+            android:name=".ui.search.AlbumSearchActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait">

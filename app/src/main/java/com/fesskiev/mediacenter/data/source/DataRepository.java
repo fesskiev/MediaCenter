@@ -10,6 +10,8 @@ import com.fesskiev.mediacenter.data.model.Genre;
 import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
+import com.fesskiev.mediacenter.data.model.search.Album;
+import com.fesskiev.mediacenter.data.model.search.AlbumResponse;
 import com.fesskiev.mediacenter.data.source.local.db.LocalDataSource;
 import com.fesskiev.mediacenter.data.source.memory.MemoryDataSource;
 import com.fesskiev.mediacenter.data.source.remote.RemoteDataSource;
@@ -220,6 +222,10 @@ public class DataRepository {
 
     public Observable<List<VideoFile>> getVideoFiles(String id) {
         return localSource.getVideoFiles(id);
+    }
+
+    public Observable<AlbumResponse> getAlbum(String artist, String album) {
+        return remoteSource.getAlbum(artist, album);
     }
 
     public Observable<List<String>> getVideoFilesFrame(String id) {

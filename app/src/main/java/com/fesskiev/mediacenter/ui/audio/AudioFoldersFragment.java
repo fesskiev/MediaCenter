@@ -23,7 +23,7 @@ import com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity;
 import com.fesskiev.mediacenter.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.mediacenter.ui.audio.utils.Constants;
 import com.fesskiev.mediacenter.ui.playback.PlaybackActivity;
-import com.fesskiev.mediacenter.ui.search.SearchDataActivity;
+import com.fesskiev.mediacenter.ui.search.AlbumSearchActivity;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
@@ -221,7 +221,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
             if (act != null) {
                 AudioFolder audioFolder = audioFolders.get(position);
                 if (audioFolder != null) {
-                    SearchDataActivity.startSearchDataActivity(act, audioFolder);
+                    AlbumSearchActivity.startSearchDataActivity(act, audioFolder);
                 }
             }
         }

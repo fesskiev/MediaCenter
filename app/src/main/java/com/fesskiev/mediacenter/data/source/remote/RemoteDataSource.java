@@ -4,12 +4,15 @@ package com.fesskiev.mediacenter.data.source.remote;
 import android.content.Context;
 
 import com.fesskiev.mediacenter.MediaApplication;
+import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.data.model.search.AlbumResponse;
 import com.fesskiev.mediacenter.utils.AppLog;
-import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.data.source.remote.retrofit.APIService;
 import com.fesskiev.mediacenter.data.source.remote.retrofit.RxErrorHandlingCallAdapterFactory;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Interceptor;
@@ -18,13 +21,13 @@ import okhttp3.Request;
 import okhttp3.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import rx.Observable;
 
 public class RemoteDataSource implements RemoteSource {
 
     private static RemoteDataSource INSTANCE;
     private OkHttpClient client;
     private APIService service;
-    private AppSettingsManager settingsManager;
     private Context context;
 
     public static RemoteDataSource getInstance() {
@@ -36,8 +39,6 @@ public class RemoteDataSource implements RemoteSource {
 
     private RemoteDataSource() {
         context = MediaApplication.getInstance().getApplicationContext();
-        settingsManager =
-                AppSettingsManager.getInstance();
 
         client = new OkHttpClient.Builder()
                 .connectTimeout(20, TimeUnit.SECONDS)
@@ -46,13 +47,15 @@ public class RemoteDataSource implements RemoteSource {
                 .addInterceptor(new LoggingInterceptor())
                 .build();
 
+        service = buildRetrofit().create(APIService.class);
+
 
     }
 
-    private Retrofit buildRetrofit(String url) {
+    private Retrofit buildRetrofit() {
         return new Retrofit.Builder()
                 .client(client)
-                .baseUrl(url)
+                .baseUrl("http://ws.audioscrobbler.com/2.0/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxErrorHandlingCallAdapterFactory.create())
                 .build();
@@ -76,5 +79,20 @@ public class RemoteDataSource implements RemoteSource {
 
             return response;
         }
+    }
+
+    @Override
+    public Observable<AlbumResponse> getAlbum(String artist, String album) {
+        return service.getAlbum(albumQueryParams(artist, album));
+    }
+
+    private Map<String, String> albumQueryParams(String artist, String album) {
+        Map<String, String> data = new LinkedHashMap<>();
+        data.put("method", "album.getinfo");
+        data.put("api_key", context.getString(R.string.last_fm_api_key));
+        data.put("artist", artist);
+        data.put("album", album);
+        data.put("format", "json");
+        return data;
     }
 }
