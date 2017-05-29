@@ -426,7 +426,7 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
             builder.setMessage(R.string.dialog_delete_file_message);
             builder.setPositiveButton(R.string.dialog_delete_file_ok,
                     (dialog, which) -> {
-                        if (audioFile.filePath.delete()) {
+                        if (!audioFile.filePath.exists() || audioFile.filePath.delete()) {
                             Utils.showCustomSnackbar(getCurrentFocus(),
                                     getApplicationContext(),
                                     getString(R.string.shackbar_delete_audio_file),

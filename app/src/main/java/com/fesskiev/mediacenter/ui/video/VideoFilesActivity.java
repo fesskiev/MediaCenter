@@ -253,7 +253,7 @@ public class VideoFilesActivity extends AnalyticsActivity {
         }
 
         private void refreshVideoFiles(Activity act) {
-            ((VideoFilesActivity)act).refreshVideoContent();
+            ((VideoFilesActivity) act).refreshVideoContent();
         }
 
         private void deleteVideo(final int position) {
@@ -271,11 +271,8 @@ public class VideoFilesActivity extends AnalyticsActivity {
                                         .first()
                                         .subscribeOn(Schedulers.io())
                                         .flatMap(result -> {
-                                            if (result) {
-                                                DataRepository repository = MediaApplication.getInstance().getRepository();
-                                                return RxUtils.fromCallable(repository.deleteVideoFile(videoFile.getFilePath()));
-                                            }
-                                            return Observable.empty();
+                                            DataRepository repository = MediaApplication.getInstance().getRepository();
+                                            return RxUtils.fromCallable(repository.deleteVideoFile(videoFile.getFilePath()));
                                         })
                                         .observeOn(AndroidSchedulers.mainThread())
                                         .subscribe(integer -> {

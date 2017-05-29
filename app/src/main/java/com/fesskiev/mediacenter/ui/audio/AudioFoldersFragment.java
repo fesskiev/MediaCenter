@@ -248,12 +248,9 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                                     .first()
                                     .subscribeOn(Schedulers.io())
                                     .flatMap(result -> {
-                                        if (result) {
-                                            DataRepository repository = MediaApplication.getInstance().getRepository();
-                                            repository.getMemorySource().setCacheFoldersDirty(true);
-                                            return RxUtils.fromCallable(repository.deleteAudioFolder(audioFolder));
-                                        }
-                                        return Observable.empty();
+                                        DataRepository repository = MediaApplication.getInstance().getRepository();
+                                        repository.getMemorySource().setCacheFoldersDirty(true);
+                                        return RxUtils.fromCallable(repository.deleteAudioFolder(audioFolder));
                                     })
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(integer -> {
