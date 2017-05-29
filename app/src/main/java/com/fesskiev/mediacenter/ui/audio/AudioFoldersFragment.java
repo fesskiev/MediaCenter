@@ -221,7 +221,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
             if (act != null) {
                 AudioFolder audioFolder = audioFolders.get(position);
                 if (audioFolder != null) {
-                    SearchDataActivity.startPlayerActivity(act, audioFolder);
+                    SearchDataActivity.startSearchDataActivity(act, audioFolder);
                 }
             }
         }
