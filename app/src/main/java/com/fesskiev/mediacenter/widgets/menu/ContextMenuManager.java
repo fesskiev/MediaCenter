@@ -58,13 +58,13 @@ public class ContextMenuManager extends RecyclerView.OnScrollListener implements
         }
     }
 
-    public void toggleAudioContextMenu(View openingView,
-                                       FolderContextMenu.OnFolderContextMenuListener listener) {
+    public void toggleFolderContextMenu(View openingView,
+                                       FolderContextMenu.OnFolderContextMenuListener listener, boolean needSearch) {
         if (contextMenuView == null) {
             if (!isContextMenuShowing) {
                 isContextMenuShowing = true;
 
-                contextMenuView = new FolderContextMenu(openingView.getContext());
+                contextMenuView = new FolderContextMenu(openingView.getContext(), needSearch);
                 ((FolderContextMenu) contextMenuView).setOnFolderContextMenuListener(listener);
                 contextMenuView.addOnAttachStateChangeListener(this);
 

@@ -23,6 +23,7 @@ import com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity;
 import com.fesskiev.mediacenter.ui.audio.utils.CONTENT_TYPE;
 import com.fesskiev.mediacenter.ui.audio.utils.Constants;
 import com.fesskiev.mediacenter.ui.playback.PlaybackActivity;
+import com.fesskiev.mediacenter.ui.search.SearchDataActivity;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
@@ -167,7 +168,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
             }
 
             private void showAudioContextMenu(View view, int position) {
-                ContextMenuManager.getInstance().toggleAudioContextMenu(view,
+                ContextMenuManager.getInstance().toggleFolderContextMenu(view,
                         new FolderContextMenu.OnFolderContextMenuListener() {
                             @Override
                             public void onDeleteFolder() {
@@ -178,7 +179,13 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                             public void onDetailsFolder() {
                                 showDetailsAudioFolder(position);
                             }
-                        });
+
+                            @Override
+                            public void onSearchData() {
+                                startSearchDataActivity(position);
+                            }
+
+                        }, true);
             }
 
 
@@ -209,6 +216,15 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
             }
         }
 
+        private void startSearchDataActivity(int position) {
+            Activity act = activity.get();
+            if (act != null) {
+                AudioFolder audioFolder = audioFolders.get(position);
+                if (audioFolder != null) {
+                    SearchDataActivity.startPlayerActivity(act, audioFolder);
+                }
+            }
+        }
 
         private void showDetailsAudioFolder(int position) {
             Activity act = activity.get();

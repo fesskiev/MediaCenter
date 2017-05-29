@@ -3,6 +3,7 @@ package com.fesskiev.mediacenter.widgets.menu;
 
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.widget.Button;
 
 import com.fesskiev.mediacenter.R;
 
@@ -12,17 +13,19 @@ public class FolderContextMenu extends ContextMenu{
 
         void onDeleteFolder();
 
+        void onSearchData();
+
         void onDetailsFolder();
     }
 
     private OnFolderContextMenuListener listener;
 
-    public FolderContextMenu(Context context) {
+    public FolderContextMenu(Context context, boolean needSearch) {
         super(context);
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.audio_context_menu_layout, this, true);
+        inflater.inflate(R.layout.folder_context_menu_layout, this, true);
 
         findViewById(R.id.menuDetailsFolder).setOnClickListener(v -> {
             if (listener != null) {
@@ -37,6 +40,21 @@ public class FolderContextMenu extends ContextMenu{
             }
             ContextMenuManager.getInstance().hideContextMenu();
         });
+
+
+        Button searchDataButton = (Button) findViewById(R.id.menuSearchData);
+        if(needSearch) {
+            searchDataButton.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onSearchData();
+                }
+                ContextMenuManager.getInstance().hideContextMenu();
+            });
+        } else {
+            searchDataButton.setVisibility(GONE);
+        }
+
+
         findViewById(R.id.menuCancel).setOnClickListener(v -> ContextMenuManager.getInstance().hideContextMenu());
     }
 

@@ -18,6 +18,19 @@
         android:textSize="14sp" />
 
     <Button
+        android:id="@+id/menuSearchData"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_context_menu"
+        android:gravity="start|center_vertical"
+        android:maxLines="1"
+        android:paddingEnd="15dp"
+        android:paddingStart="15dp"
+        android:text="@string/context_menu_audio_search_data"
+        android:textColor="@color/white"
+        android:textSize="14sp" />
+
+    <Button
         android:id="@+id/menuDeleteFolder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -273,7 +273,7 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
         }
 
         private void showAudioContextMenu(View view, int position) {
-            ContextMenuManager.getInstance().toggleAudioContextMenu(view,
+            ContextMenuManager.getInstance().toggleFolderContextMenu(view,
                     new FolderContextMenu.OnFolderContextMenuListener() {
                         @Override
                         public void onDeleteFolder() {
@@ -285,7 +285,12 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
                         public void onDetailsFolder() {
                             showDetailsVideoFolder(position);
                         }
-                    });
+
+                        @Override
+                        public void onSearchData() {
+
+                        }
+                    }, false);
         }
 
         private void deleteVideoFolder(int position) {
