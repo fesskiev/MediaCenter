@@ -575,7 +575,7 @@ public class FileSystemService extends JobService {
                             jobFinished(jobParameters, true);
                         }
                     }
-                });
+                }, throwable -> finishScan());
     }
 
     private void clearImagesCache() {
