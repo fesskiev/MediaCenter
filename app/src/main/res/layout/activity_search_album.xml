@@ -1,5 +1,7 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/albumSearchRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
@@ -60,7 +62,7 @@
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
-            android:id="@+id/passwordTextInputLayout"
+            android:id="@+id/albumTextInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -68,7 +70,7 @@
             app:hintTextAppearance="@style/SearchAlbumTextAppearance">
 
             <android.support.design.widget.TextInputEditText
-                android:id="@+id/editPassword"
+                android:id="@+id/editAlbum"
                 style="@style/SearchAlbumTextAppearance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -78,13 +80,75 @@
 
         </android.support.design.widget.TextInputLayout>
 
+        <View
+            android:id="@+id/divider10"
+            style="@style/DividerStyle"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+
+            <ImageView
+                android:id="@+id/albumCover"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:contentDescription="@string/app_name"
+                android:scaleType="centerCrop" />
+
+            <LinearLayout
+                android:id="@+id/container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_toEndOf="@+id/albumCover"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/albumNameResult"
+                    style="@style/SearchAlbumText1Appearance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    tools:text="Splin" />
+
+                <TextView
+                    android:id="@+id/artistNameResult"
+                    style="@style/SearchAlbumText1Appearance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    tools:text="Moon sleep" />
+
+                <TextView
+                    android:id="@+id/artistUrl"
+                    style="@style/SearchAlbumText1Appearance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    tools:text="https://splin.com" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
     </LinearLayout>
 
     <com.fesskiev.mediacenter.widgets.MaterialProgressBar
         android:id="@+id/progressBar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/progress_bar_height"
-        android:layout_gravity="top"
+        android:layout_gravity="bottom"
         android:layout_marginTop="?android:attr/actionBarSize"
         android:indeterminate="true"
         android:visibility="invisible"

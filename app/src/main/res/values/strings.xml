@@ -167,6 +167,11 @@
     <string name="snackbar_cut_error">Error cut</string>
     <string name="snackbar_cut_success">Cut file Success</string>
 
+    <string name="search_artist_enter_error">Enter correct artist name</string>
+    <string name="search_album_enter_error">Enter correct album name</string>
+    <string name="search_load_album_success">Album loaded success</string>
+    <string name="search_load_album_error">Album loaded error</string>
+    <string name="search_save_bitmap_error">Cover save error</string>
 
     <string name="auth_text_login">Phone or e-mail</string>
     <string name="auth_text_password">Password</string>

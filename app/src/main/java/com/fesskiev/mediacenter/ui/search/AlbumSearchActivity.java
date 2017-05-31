@@ -2,10 +2,17 @@ package com.fesskiev.mediacenter.ui.search;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
@@ -15,8 +22,12 @@ import com.fesskiev.mediacenter.data.model.search.Album;
 import com.fesskiev.mediacenter.data.model.search.Image;
 import com.fesskiev.mediacenter.data.source.remote.ErrorHelper;
 import com.fesskiev.mediacenter.utils.AppLog;
+import com.fesskiev.mediacenter.utils.BitmapHelper;
+import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.MaterialProgressBar;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import rx.Subscription;
@@ -38,6 +49,15 @@ public class AlbumSearchActivity extends AnalyticsActivity {
     private Subscription subscription;
 
     private MaterialProgressBar progressBar;
+    private TextInputLayout artistInputLayout;
+    private TextInputLayout albumInputLayout;
+    private EditText artistEditText;
+    private EditText albumEditText;
+    private ImageView albumCover;
+    private TextView artistResult;
+    private TextView albumResult;
+    private TextView artistURL;
+
     private String artist;
     private String album;
 
@@ -53,62 +73,133 @@ public class AlbumSearchActivity extends AnalyticsActivity {
         progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
         findViewById(R.id.searchAlbumFab).setOnClickListener(v -> loadAlbum());
 
+        albumCover = (ImageView) findViewById(R.id.albumCover);
+
+        artistEditText = (EditText) findViewById(R.id.editArtist);
+        albumEditText = (EditText) findViewById(R.id.editAlbum);
+
+        artistResult = (TextView) findViewById(R.id.artistNameResult);
+        albumResult = (TextView) findViewById(R.id.albumNameResult);
+        artistURL = (TextView) findViewById(R.id.artistUrl);
+
+        artistInputLayout = (TextInputLayout) findViewById(R.id.artistTextInputLayout);
+        albumInputLayout = (TextInputLayout) findViewById(R.id.albumTextInputLayout);
+
         if (savedInstanceState != null) {
             audioFolder = savedInstanceState.getParcelable(EXTRA_AUDIO_FOLDER);
         } else {
             audioFolder = getIntent().getExtras().getParcelable(EXTRA_AUDIO_FOLDER);
         }
 
+        AlbumTextWatcher albumTextWatcher = new AlbumTextWatcher();
+
+        artistEditText.addTextChangedListener(albumTextWatcher);
+        albumEditText.addTextChangedListener(albumTextWatcher);
+
+        parseAudioFolderName();
     }
 
-    private void loadAlbum() {
+    private class AlbumTextWatcher implements TextWatcher {
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+            if (editable == artistEditText.getEditableText()) {
+                artist = editable.toString();
+            } else if (editable == albumEditText.getEditableText()) {
+                album = editable.toString();
+            }
+        }
+    }
+
+    private void parseAudioFolderName() {
         String[] parts = audioFolder.folderName.split("-");
         if (parts.length == 2) {
-            showProgressBar();
-            subscription = MediaApplication.getInstance()
-                    .getRepository().getAlbum(parts[0].trim().trim(), parts[1].trim().trim())
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(data -> parseAlbum(data.getAlbum()), this::handleError);
-        } else {
-            showEnterCorrectArtistAlbum();
+            artist = parts[0].trim();
+            album = parts[1].trim();
+            artistEditText.setText(artist);
+            albumEditText.setText(album);
         }
+    }
+
+
+    private void loadAlbum() {
+        if (artist == null || artist.isEmpty()) {
+            showEnterArtistError();
+            return;
+        }
+        if (album == null || album.isEmpty()) {
+            showEnterAlbumError();
+            return;
+        }
+        showProgressBar();
+        subscription = MediaApplication.getInstance()
+                .getRepository().getAlbum(artist.trim(), album.trim())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(data -> parseAlbum(data.getAlbum()), this::handleError);
     }
 
     private void parseAlbum(Album album) {
         hideProgressBar();
+        showLoadSuccess();
+
         String artist = album.getArtist();
-        String name = album.getName();
+        String albumName = album.getName();
+        String url = album.getUrl();
+        if (artist != null) {
+            artistResult.setText(artist);
+        }
+        if (albumName != null) {
+            albumResult.setText(albumName);
+        }
+        if (url != null) {
+            artistURL.setText(url);
+        }
 
         List<Image> images = album.getImage();
         for (Image image : images) {
             AppLog.DEBUG("image: " + image.toString());
+            if (image.getSize().equals("large")) {
+                BitmapHelper.getInstance().loadURLBitmap(image.getText(),
+                        new BitmapHelper.OnBitmapLoadListener() {
+                            @Override
+                            public void onLoaded(Bitmap bitmap) {
+                                albumCover.setImageBitmap(bitmap);
+                                saveArtworkAndUpdate(bitmap);
+                            }
+
+                            @Override
+                            public void onFailed() {
+                                showErrorLoadBitmap();
+                            }
+                        });
+            }
         }
     }
 
-    private void handleError(Throwable throwable) {
-        hideProgressBar();
-        ErrorHelper.getInstance().createErrorSnackBar(getCurrentFocus(), throwable,
-                new ErrorHelper.OnErrorHandlerListener() {
-                    @Override
-                    public void tryRequestAgain() {
-                        loadAlbum();
-                    }
+    private void saveArtworkAndUpdate(Bitmap bitmap) {
+        try {
+            File path = File.createTempFile(audioFolder.folderName, ".jpg", audioFolder.folderPath);
 
-                    @Override
-                    public void show(Snackbar snackbar) {
+            BitmapHelper.getInstance().saveBitmap(bitmap, path);
 
-                    }
+            audioFolder.folderImage = path;
 
-                    @Override
-                    public void hide(Snackbar snackbar) {
+            MediaApplication.getInstance().getRepository().updateAudioFolder(audioFolder);
+            MediaApplication.getInstance().getRepository().getMemorySource().setCacheFoldersDirty(true);
 
-                    }
-                });
-    }
-
-    private void showEnterCorrectArtistAlbum() {
-
+        } catch (IOException e) {
+            e.printStackTrace();
+            showErrorSaveBitmap();
+        }
     }
 
     @Override
@@ -141,12 +232,72 @@ public class AlbumSearchActivity extends AnalyticsActivity {
         return this.getLocalClassName();
     }
 
+
+    private void handleError(Throwable throwable) {
+        hideProgressBar();
+        hideEnterArtistError();
+        hideEnterAlbumError();
+        ErrorHelper.getInstance().createErrorSnackBar(getCurrentFocus(), throwable,
+                new ErrorHelper.OnErrorHandlerListener() {
+                    @Override
+                    public void tryRequestAgain() {
+                        loadAlbum();
+                    }
+
+                    @Override
+                    public void show(Snackbar snackbar) {
+
+                    }
+
+                    @Override
+                    public void hide(Snackbar snackbar) {
+
+                    }
+                });
+    }
+
     public void showProgressBar() {
         progressBar.setVisibility(View.VISIBLE);
     }
 
     public void hideProgressBar() {
         progressBar.setVisibility(View.GONE);
+    }
+
+    private void showEnterAlbumError() {
+        albumInputLayout.setErrorEnabled(true);
+        albumInputLayout.setError(getString(R.string.search_album_enter_error));
+    }
+
+    private void hideEnterAlbumError() {
+        albumInputLayout.setError(null);
+        albumInputLayout.setErrorEnabled(false);
+    }
+
+    private void showEnterArtistError() {
+        artistInputLayout.setErrorEnabled(true);
+        artistInputLayout.setError(getString(R.string.search_artist_enter_error));
+    }
+
+    private void hideEnterArtistError() {
+        artistInputLayout.setError(null);
+        artistInputLayout.setErrorEnabled(false);
+
+    }
+
+    private void showErrorLoadBitmap() {
+        Utils.showCustomSnackbar(findViewById(R.id.albumSearchRoot),
+                getApplicationContext(), getString(R.string.search_load_album_error), Snackbar.LENGTH_LONG).show();
+    }
+
+    private void showErrorSaveBitmap() {
+        Utils.showCustomSnackbar(findViewById(R.id.albumSearchRoot),
+                getApplicationContext(), getString(R.string.search_save_bitmap_error), Snackbar.LENGTH_LONG).show();
+    }
+
+    private void showLoadSuccess() {
+        Utils.showCustomSnackbar(findViewById(R.id.albumSearchRoot),
+                getApplicationContext(), getString(R.string.search_load_album_success), Snackbar.LENGTH_LONG).show();
     }
 
 }

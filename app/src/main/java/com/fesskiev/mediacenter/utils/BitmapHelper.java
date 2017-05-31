@@ -53,6 +53,24 @@ public class BitmapHelper {
         context = MediaApplication.getInstance().getApplicationContext();
     }
 
+    public void loadURLBitmap(String url, final OnBitmapLoadListener listener) {
+        Glide.with(context)
+                .load(url)
+                .asBitmap()
+                .override(WIDTH * 3, HEIGHT * 3)
+                .centerCrop()
+                .listener(loggingListener)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .into(new SimpleTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                        if (listener != null) {
+                            listener.onLoaded(resource);
+                        }
+                    }
+                });
+    }
+
 
     public void loadBitmap(MediaFile mediaFile, AudioFolder audioFolder, final OnBitmapLoadListener listener) {
         String path = findPath(mediaFile, audioFolder);

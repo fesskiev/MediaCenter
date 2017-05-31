@@ -54,6 +54,18 @@
         <item name="colorControlHighlight">@color/accent</item>
     </style>
 
+    <style name="ActivitySearchAlbum.Theme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/media_center_background</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="android:textColorHint">@color/white</item>
+        <item name="colorControlNormal">@color/white</item>
+        <item name="colorControlActivated">@color/white</item>
+        <item name="colorControlHighlight">@color/white</item>
+    </style>
+
     <style name="Custom.Widget.AlertDialog" parent="@android:style/Theme.Dialog">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@color/dialog_background</item>
@@ -539,6 +551,14 @@
         <item name="android:textStyle">normal</item>
         <item name="android:fontFamily">sans-serif</item>
     </style>
+
+    <style name="SearchAlbumText1Appearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/white_text</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
 
     <style name="SearchAlbumErrorTextAppearance" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/red</item>

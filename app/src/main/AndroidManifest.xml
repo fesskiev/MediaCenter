@@ -227,7 +227,8 @@
             android:name=".ui.search.AlbumSearchActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:parentActivityName=".ui.MainActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/ActivitySearchAlbum.Theme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fesskiev.mediacenter.ui.MainActivity" />
