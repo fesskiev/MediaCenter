@@ -20,6 +20,8 @@ import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.model.search.Album;
 import com.fesskiev.mediacenter.data.model.search.Image;
+import com.fesskiev.mediacenter.data.model.search.Tag;
+import com.fesskiev.mediacenter.data.model.search.Tags;
 import com.fesskiev.mediacenter.data.source.remote.ErrorHelper;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
@@ -57,6 +59,8 @@ public class AlbumSearchActivity extends AnalyticsActivity {
     private TextView artistResult;
     private TextView albumResult;
     private TextView artistURL;
+    private TextView tagsResult;
+    private View albumRoot;
 
     private String artist;
     private String album;
@@ -73,14 +77,19 @@ public class AlbumSearchActivity extends AnalyticsActivity {
         progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
         findViewById(R.id.searchAlbumFab).setOnClickListener(v -> loadAlbum());
 
+        albumRoot = findViewById(R.id.albumViewRoot);
+
         albumCover = (ImageView) findViewById(R.id.albumCover);
+        albumCover.setOnClickListener(v -> openChooseImageQualityDialog());
 
         artistEditText = (EditText) findViewById(R.id.editArtist);
         albumEditText = (EditText) findViewById(R.id.editAlbum);
 
         artistResult = (TextView) findViewById(R.id.artistNameResult);
         albumResult = (TextView) findViewById(R.id.albumNameResult);
+        tagsResult = (TextView) findViewById(R.id.tagsResult);
         artistURL = (TextView) findViewById(R.id.artistUrl);
+        artistURL.setOnClickListener(v -> openUrl(artistURL.getText().toString()));
 
         artistInputLayout = (TextInputLayout) findViewById(R.id.artistTextInputLayout);
         albumInputLayout = (TextInputLayout) findViewById(R.id.albumTextInputLayout);
@@ -97,6 +106,14 @@ public class AlbumSearchActivity extends AnalyticsActivity {
         albumEditText.addTextChangedListener(albumTextWatcher);
 
         parseAudioFolderName();
+    }
+
+    private void openChooseImageQualityDialog() {
+
+    }
+
+    private void openUrl(String url) {
+        Utils.openBrowserURL(this, url);
     }
 
     private class AlbumTextWatcher implements TextWatcher {
@@ -121,7 +138,7 @@ public class AlbumSearchActivity extends AnalyticsActivity {
 
     private void parseAudioFolderName() {
         String[] parts = audioFolder.folderName.split("-");
-        if (parts.length == 2) {
+        if (parts.length >= 2) {
             artist = parts[0].trim();
             album = parts[1].trim();
             artistEditText.setText(artist);
@@ -163,6 +180,18 @@ public class AlbumSearchActivity extends AnalyticsActivity {
         if (url != null) {
             artistURL.setText(url);
         }
+        Tags tags = album.getTags();
+        if (tags != null) {
+            List<Tag> tag = tags.getTag();
+            if (tag != null) {
+                StringBuilder sb = new StringBuilder();
+                for (Tag t : tag) {
+                    sb.append(t.getName());
+                    sb.append(" ");
+                }
+                tagsResult.setText(sb.toString());
+            }
+        }
 
         List<Image> images = album.getImage();
         for (Image image : images) {
@@ -173,7 +202,6 @@ public class AlbumSearchActivity extends AnalyticsActivity {
                             @Override
                             public void onLoaded(Bitmap bitmap) {
                                 albumCover.setImageBitmap(bitmap);
-                                saveArtworkAndUpdate(bitmap);
                             }
 
                             @Override
@@ -183,6 +211,8 @@ public class AlbumSearchActivity extends AnalyticsActivity {
                         });
             }
         }
+
+        albumRoot.setVisibility(View.VISIBLE);
     }
 
     private void saveArtworkAndUpdate(Bitmap bitmap) {

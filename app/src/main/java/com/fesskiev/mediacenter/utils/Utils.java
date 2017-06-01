@@ -191,4 +191,10 @@ public class Utils {
         return MediaApplication.getInstance().getResources().getBoolean(R.bool.isTablet);
     }
 
+    public static void openBrowserURL(Activity activity, String url) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(url));
+        activity.startActivity(intent);
+    }
+
 }
