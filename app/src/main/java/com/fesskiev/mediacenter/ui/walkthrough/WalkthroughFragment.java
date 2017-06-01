@@ -108,21 +108,32 @@ public class WalkthroughFragment extends Fragment {
 
     public void permissionGranted() {
         permissionGranted = true;
-        viewPager.setSwipingEnabled(true);
+
+        if (viewPager != null) {
+            viewPager.setSwipingEnabled(true);
+            viewPager.setCurrentItem(1);
+        }
+
         checkEnableEnterButton();
-        viewPager.setCurrentItem(1);
     }
 
     public void fetchMediaGranted() {
         fetchMediaGranted = true;
-        viewPager.setSwipingEnabled(true);
-        viewPager.setCurrentItem(2);
+
+        if (viewPager != null) {
+            viewPager.setSwipingEnabled(true);
+            viewPager.setCurrentItem(2);
+        }
+
         checkEnableEnterButton();
     }
 
     public void proUserGranted() {
         proUserGranted = true;
-        viewPager.setSwipingEnabled(true);
+
+        if (viewPager != null) {
+            viewPager.setSwipingEnabled(true);
+        }
         checkEnableEnterButton();
     }
 
