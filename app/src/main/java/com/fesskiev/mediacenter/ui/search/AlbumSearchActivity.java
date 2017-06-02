@@ -10,7 +10,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -211,18 +210,18 @@ public class AlbumSearchActivity extends AnalyticsActivity {
                 AppLog.DEBUG("image: " + image.toString());
                 if (image.getSize().equals("large")) {
                     BitmapHelper.getInstance().loadURLBitmap(image.getText(), new BitmapHelper.OnBitmapLoadListener() {
-                                @Override
-                                public void onLoaded(Bitmap bitmap) {
-                                    albumCover.setImageBitmap(bitmap);
-                                    hideProgressBar();
-                                }
+                        @Override
+                        public void onLoaded(Bitmap bitmap) {
+                            albumCover.setImageBitmap(bitmap);
+                            hideProgressBar();
+                        }
 
-                                @Override
-                                public void onFailed() {
-                                    hideProgressBar();
-                                    showErrorLoadBitmap();
-                                }
-                            });
+                        @Override
+                        public void onFailed() {
+                            hideProgressBar();
+                            showErrorLoadBitmap();
+                        }
+                    });
                 }
             }
         }
@@ -231,8 +230,6 @@ public class AlbumSearchActivity extends AnalyticsActivity {
 
 
     public void loadSelectedImage(Image image) {
-        Log.e("test", "selected image" + image);
-
         BitmapHelper.getInstance().loadURLBitmap(image.getText(),
                 new BitmapHelper.OnBitmapLoadListener() {
                     @Override
