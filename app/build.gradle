@@ -14,7 +14,7 @@ android {
         applicationId = "com.fesskiev.mediacenter"
         minSdkVersion 21
         targetSdkVersion 25
-        versionCode = 7
+        versionCode = 8
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
 
@@ -61,11 +61,11 @@ android {
 
     productFlavors {
         free {
-            versionName = "1.0.1"
+            versionName = "1.0.2"
         }
 
         pro {
-            versionName = "1.0.1-pro"
+            versionName = "1.0.2-pro"
         }
     }
 
