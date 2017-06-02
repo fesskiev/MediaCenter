@@ -6,9 +6,11 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -23,13 +25,16 @@ import com.fesskiev.mediacenter.data.model.search.Image;
 import com.fesskiev.mediacenter.data.model.search.Tag;
 import com.fesskiev.mediacenter.data.model.search.Tags;
 import com.fesskiev.mediacenter.data.source.remote.ErrorHelper;
+import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.MaterialProgressBar;
+import com.fesskiev.mediacenter.widgets.dialogs.SelectImageDialog;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import rx.Subscription;
@@ -64,6 +69,8 @@ public class AlbumSearchActivity extends AnalyticsActivity {
 
     private String artist;
     private String album;
+
+    private List<Image> images;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,7 +116,13 @@ public class AlbumSearchActivity extends AnalyticsActivity {
     }
 
     private void openChooseImageQualityDialog() {
-
+        if (images != null) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.addToBackStack(null);
+            SelectImageDialog dialog = SelectImageDialog.newInstance((ArrayList<Image>) images);
+            dialog.show(transaction, SelectImageDialog.class.getName());
+            dialog.setOnSelectedImageListener(this::loadSelectedImage);
+        }
     }
 
     private void openUrl(String url) {
@@ -165,7 +178,6 @@ public class AlbumSearchActivity extends AnalyticsActivity {
     }
 
     private void parseAlbum(Album album) {
-        hideProgressBar();
         showLoadSuccess();
 
         String artist = album.getArtist();
@@ -193,29 +205,60 @@ public class AlbumSearchActivity extends AnalyticsActivity {
             }
         }
 
-        List<Image> images = album.getImage();
-        for (Image image : images) {
-            AppLog.DEBUG("image: " + image.toString());
-            if (image.getSize().equals("large")) {
-                BitmapHelper.getInstance().loadURLBitmap(image.getText(),
-                        new BitmapHelper.OnBitmapLoadListener() {
-                            @Override
-                            public void onLoaded(Bitmap bitmap) {
-                                albumCover.setImageBitmap(bitmap);
-                            }
+        images = album.getImage();
+        if (images != null) {
+            for (Image image : images) {
+                AppLog.DEBUG("image: " + image.toString());
+                if (image.getSize().equals("large")) {
+                    BitmapHelper.getInstance().loadURLBitmap(image.getText(), new BitmapHelper.OnBitmapLoadListener() {
+                                @Override
+                                public void onLoaded(Bitmap bitmap) {
+                                    albumCover.setImageBitmap(bitmap);
+                                    hideProgressBar();
+                                }
 
-                            @Override
-                            public void onFailed() {
-                                showErrorLoadBitmap();
-                            }
-                        });
+                                @Override
+                                public void onFailed() {
+                                    hideProgressBar();
+                                    showErrorLoadBitmap();
+                                }
+                            });
+                }
             }
         }
-
         albumRoot.setVisibility(View.VISIBLE);
     }
 
+
+    public void loadSelectedImage(Image image) {
+        Log.e("test", "selected image" + image);
+
+        BitmapHelper.getInstance().loadURLBitmap(image.getText(),
+                new BitmapHelper.OnBitmapLoadListener() {
+                    @Override
+                    public void onLoaded(Bitmap bitmap) {
+                        removeFolderImages();
+                        saveArtworkAndUpdate(bitmap);
+                    }
+
+                    @Override
+                    public void onFailed() {
+                        showErrorLoadBitmap();
+                    }
+                });
+    }
+
+    private void removeFolderImages() {
+        File[] filterImages = audioFolder.folderPath.listFiles(FileSystemService.folderImageFilter());
+        if (filterImages != null && filterImages.length > 0) {
+            for (File image : filterImages) {
+                image.delete();
+            }
+        }
+    }
+
     private void saveArtworkAndUpdate(Bitmap bitmap) {
+
         try {
             File path = File.createTempFile(audioFolder.folderName, ".jpg", audioFolder.folderPath);
 
