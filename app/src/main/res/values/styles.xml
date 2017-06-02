@@ -55,7 +55,7 @@
     </style>
 
     <style name="ActivitySearchAlbum.Theme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:windowBackground">@color/track_background</item>
+        <item name="android:windowBackground">@color/white</item>
         <item name="windowNoTitle">true</item>
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>

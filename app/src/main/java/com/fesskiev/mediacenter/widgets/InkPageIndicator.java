@@ -14,20 +14,20 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.Interpolator;
 
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.utils.AnimationUtils;
 
 import java.util.Arrays;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 
 /**
  * An ink inspired widget for indicating pages in a {@link ViewPager}.
  */
 public class InkPageIndicator extends View implements ViewPager.OnPageChangeListener,
-                                                      View.OnAttachStateChangeListener {
+        View.OnAttachStateChangeListener {
 
     // defaults
     private static final int DEFAULT_DOT_SIZE = 8;                      // dp
@@ -124,9 +124,9 @@ public class InkPageIndicator extends View implements ViewPager.OnPageChangeList
         animDuration = (long) a.getInteger(R.styleable.InkPageIndicator_animationDuration,
                 DEFAULT_ANIM_DURATION);
         animHalfDuration = animDuration / 2;
-        unselectedColour = a.getColor( R.styleable.InkPageIndicator_pageIndicatorColor,
+        unselectedColour = a.getColor(R.styleable.InkPageIndicator_pageIndicatorColor,
                 DEFAULT_UNSELECTED_COLOUR);
-        selectedColour = a.getColor( R.styleable.InkPageIndicator_currentPageIndicatorColor,
+        selectedColour = a.getColor(R.styleable.InkPageIndicator_currentPageIndicatorColor,
                 DEFAULT_SELECTED_COLOUR);
 
         a.recycle();
@@ -135,7 +135,7 @@ public class InkPageIndicator extends View implements ViewPager.OnPageChangeList
         unselectedPaint.setColor(unselectedColour);
         selectedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         selectedPaint.setColor(selectedColour);
-        interpolator = AnimationUtils.getInstance().getFastOutSlowInInterpolator();
+        interpolator = new FastOutSlowInInterpolator();
 
         // create paths & rect now – reuse & rewind later
         combinedUnselectedPath = new Path();
@@ -230,7 +230,7 @@ public class InkPageIndicator extends View implements ViewPager.OnPageChangeList
         } else {
             currentPage = 0;
         }
-        if (dotCenterX != null) {
+        if (dotCenterX != null && dotCenterX.length > 0) {
             selectedDotX = dotCenterX[currentPage];
         }
     }
@@ -257,8 +257,7 @@ public class InkPageIndicator extends View implements ViewPager.OnPageChangeList
             case MeasureSpec.AT_MOST:
                 height = Math.min(desiredHeight, MeasureSpec.getSize(heightMeasureSpec));
                 break;
-            case MeasureSpec.UNSPECIFIED:
-            default:
+            default: // MeasureSpec.UNSPECIFIED
                 height = desiredHeight;
                 break;
         }
@@ -272,8 +271,7 @@ public class InkPageIndicator extends View implements ViewPager.OnPageChangeList
             case MeasureSpec.AT_MOST:
                 width = Math.min(desiredWidth, MeasureSpec.getSize(widthMeasureSpec));
                 break;
-            case MeasureSpec.UNSPECIFIED:
-            default:
+            default: // MeasureSpec.UNSPECIFIED
                 width = desiredWidth;
                 break;
         }
@@ -331,20 +329,19 @@ public class InkPageIndicator extends View implements ViewPager.OnPageChangeList
     }
 
     /**
-     *
      * Unselected dots can be in 6 states:
-     *
+     * <p>
      * #1 At rest
      * #2 Joining neighbour, still separate
      * #3 Joining neighbour, combined curved
      * #4 Joining neighbour, combined straight
      * #5 Join retreating
      * #6 Dot re-showing / revealing
-     *
+     * <p>
      * It can also be in a combination of these states e.g. joining one neighbour while
      * retreating from another.  We therefore create a Path so that we can examine each
      * dot pair separately and later take the union for these cases.
-     *
+     * <p>
      * This function returns a path for the given dot **and any action to it's right** e.g. joining
      * or retreating from it's neighbour
      *
@@ -463,8 +460,8 @@ public class InkPageIndicator extends View implements ViewPager.OnPageChangeList
             controlX2 = endX1 - ((1 - adjustedFraction) * dotRadius);
             controlY2 = endY1;
             unselectedDotPath.cubicTo(controlX1, controlY1,
-                                      controlX2, controlY2,
-                                      endX1, endY1);
+                    controlX2, controlY2,
+                    endX1, endY1);
 
             // bezier to the top right of the join
             endX2 = nextCenterX;
@@ -474,8 +471,8 @@ public class InkPageIndicator extends View implements ViewPager.OnPageChangeList
             controlX2 = endX1 + (adjustedFraction * dotRadius);
             controlY2 = dotTopY;
             unselectedDotPath.cubicTo(controlX1, controlY1,
-                                      controlX2, controlY2,
-                                      endX2, endY2);
+                    controlX2, controlY2,
+                    endX2, endY2);
 
             // semi-circle to the bottom right
             rectF.set(nextCenterX - dotRadius, dotTopY, nextCenterX + dotRadius, dotBottomY);
@@ -489,8 +486,8 @@ public class InkPageIndicator extends View implements ViewPager.OnPageChangeList
             controlX2 = endX1 + ((1 - adjustedFraction) * dotRadius);
             controlY2 = endY1;
             unselectedDotPath.cubicTo(controlX1, controlY1,
-                                      controlX2, controlY2,
-                                      endX1, endY1);
+                    controlX2, controlY2,
+                    endX1, endY1);
 
             // bezier back to the start point in the bottom left
             endX2 = centerX;
@@ -500,8 +497,8 @@ public class InkPageIndicator extends View implements ViewPager.OnPageChangeList
             controlX2 = endX1 - (adjustedFraction * dotRadius);
             controlY2 = endY2;
             unselectedDotPath.cubicTo(controlX1, controlY1,
-                                      controlX2, controlY2,
-                                      endX2, endY2);
+                    controlX2, controlY2,
+                    endX2, endY2);
         }
         if (joiningFraction == 1 && retreatingJoinX1 == INVALID_FRACTION) {
 
@@ -589,7 +586,7 @@ public class InkPageIndicator extends View implements ViewPager.OnPageChangeList
                 // todo avoid autoboxing
                 selectedDotX = (Float) valueAnimator.getAnimatedValue();
                 retreatAnimation.startIfNecessary(selectedDotX);
-                postInvalidateOnAnimation();
+                ViewCompat.postInvalidateOnAnimation(InkPageIndicator.this);
             }
         });
         moveSelected.addListener(new AnimatorListenerAdapter() {
@@ -617,24 +614,19 @@ public class InkPageIndicator extends View implements ViewPager.OnPageChangeList
 
     private void setJoiningFraction(int leftDot, float fraction) {
         if (leftDot < joiningFractions.length) {
-
-            if (leftDot == 1) {
-                Log.d("PageIndicator", "dot 1 fraction:\t" + fraction);
-            }
-
             joiningFractions[leftDot] = fraction;
-            postInvalidateOnAnimation();
+            ViewCompat.postInvalidateOnAnimation(this);
         }
     }
 
     private void clearJoiningFractions() {
         Arrays.fill(joiningFractions, 0f);
-        postInvalidateOnAnimation();
+        ViewCompat.postInvalidateOnAnimation(this);
     }
 
     private void setDotRevealFraction(int dot, float fraction) {
         dotRevealFractions[dot] = fraction;
-        postInvalidateOnAnimation();
+        ViewCompat.postInvalidateOnAnimation(this);
     }
 
     private void cancelJoiningAnimations() {
@@ -646,7 +638,7 @@ public class InkPageIndicator extends View implements ViewPager.OnPageChangeList
     /**
      * A {@link ValueAnimator} that starts once a given predicate returns true.
      */
-    public abstract class PendingStartAnimator extends ValueAnimator {
+    abstract class PendingStartAnimator extends ValueAnimator {
 
         protected boolean hasStarted;
         protected StartPredicate predicate;
@@ -670,7 +662,7 @@ public class InkPageIndicator extends View implements ViewPager.OnPageChangeList
      * selected pages.  This also sets up some pending dot reveals – to be started when the retreat
      * has passed the dot to be revealed.
      */
-    public class PendingRetreatAnimator extends PendingStartAnimator {
+    class PendingRetreatAnimator extends PendingStartAnimator {
 
         public PendingRetreatAnimator(int was, int now, int steps, StartPredicate predicate) {
             super(predicate);
@@ -707,7 +699,7 @@ public class InkPageIndicator extends View implements ViewPager.OnPageChangeList
                     public void onAnimationUpdate(ValueAnimator valueAnimator) {
                         // todo avoid autoboxing
                         retreatingJoinX1 = (Float) valueAnimator.getAnimatedValue();
-                        postInvalidateOnAnimation();
+                        ViewCompat.postInvalidateOnAnimation(InkPageIndicator.this);
                         // start any reveal animations if we've passed them
                         for (PendingRevealAnimator pendingReveal : revealAnimations) {
                             pendingReveal.startIfNecessary(retreatingJoinX1);
@@ -727,7 +719,7 @@ public class InkPageIndicator extends View implements ViewPager.OnPageChangeList
                     public void onAnimationUpdate(ValueAnimator valueAnimator) {
                         // todo avoid autoboxing
                         retreatingJoinX2 = (Float) valueAnimator.getAnimatedValue();
-                        postInvalidateOnAnimation();
+                        ViewCompat.postInvalidateOnAnimation(InkPageIndicator.this);
                         // start any reveal animations if we've passed them
                         for (PendingRevealAnimator pendingReveal : revealAnimations) {
                             pendingReveal.startIfNecessary(retreatingJoinX2);
@@ -747,13 +739,14 @@ public class InkPageIndicator extends View implements ViewPager.OnPageChangeList
                     }
                     retreatingJoinX1 = initialX1;
                     retreatingJoinX2 = initialX2;
-                    postInvalidateOnAnimation();
+                    ViewCompat.postInvalidateOnAnimation(InkPageIndicator.this);
                 }
+
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     retreatingJoinX1 = INVALID_FRACTION;
                     retreatingJoinX2 = INVALID_FRACTION;
-                    postInvalidateOnAnimation();
+                    ViewCompat.postInvalidateOnAnimation(InkPageIndicator.this);
                 }
             });
         }
@@ -762,7 +755,7 @@ public class InkPageIndicator extends View implements ViewPager.OnPageChangeList
     /**
      * An Animator that animates a given dot's revealFraction i.e. scales it up
      */
-    public class PendingRevealAnimator extends PendingStartAnimator {
+    class PendingRevealAnimator extends PendingStartAnimator {
 
         private int dot;
 
@@ -784,7 +777,7 @@ public class InkPageIndicator extends View implements ViewPager.OnPageChangeList
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     setDotRevealFraction(PendingRevealAnimator.this.dot, 0f);
-                    postInvalidateOnAnimation();
+                    ViewCompat.postInvalidateOnAnimation(InkPageIndicator.this);
                 }
             });
         }
@@ -793,7 +786,7 @@ public class InkPageIndicator extends View implements ViewPager.OnPageChangeList
     /**
      * A predicate used to start an animation when a test passes
      */
-    public abstract class StartPredicate {
+    abstract class StartPredicate {
 
         protected float thresholdValue;
 
@@ -808,7 +801,7 @@ public class InkPageIndicator extends View implements ViewPager.OnPageChangeList
     /**
      * A predicate used to start an animation when a given value is greater than a threshold
      */
-    public class RightwardStartPredicate extends StartPredicate {
+    class RightwardStartPredicate extends StartPredicate {
 
         public RightwardStartPredicate(float thresholdValue) {
             super(thresholdValue);
@@ -822,7 +815,7 @@ public class InkPageIndicator extends View implements ViewPager.OnPageChangeList
     /**
      * A predicate used to start an animation then a given value is less than a threshold
      */
-    public class LeftwardStartPredicate extends StartPredicate {
+    class LeftwardStartPredicate extends StartPredicate {
 
         public LeftwardStartPredicate(float thresholdValue) {
             super(thresholdValue);

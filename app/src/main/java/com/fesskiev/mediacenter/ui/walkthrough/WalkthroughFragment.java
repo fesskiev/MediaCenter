@@ -70,12 +70,14 @@ public class WalkthroughFragment extends Fragment {
                     FetchMediaFragment.newInstance(),
                     ProUserFragment.newInstance()
             };
+            viewPager.setSwipingEnabled(false);
         } else {
             fragments = new Fragment[]{
                     FetchMediaFragment.newInstance(),
                     ProUserFragment.newInstance()
             };
             permissionGranted = true;
+            viewPager.setSwipingEnabled(true);
         }
 
         adapter = new WalkthroughPagerAdapter(getFragmentManager());
@@ -130,10 +132,6 @@ public class WalkthroughFragment extends Fragment {
 
     public void proUserGranted() {
         proUserGranted = true;
-
-        if (viewPager != null) {
-            viewPager.setSwipingEnabled(true);
-        }
         checkEnableEnterButton();
     }
 
