@@ -97,7 +97,7 @@ public class VideoFilesActivity extends AnalyticsActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        onBackPressed();
+        finish();
         return true;
     }
 

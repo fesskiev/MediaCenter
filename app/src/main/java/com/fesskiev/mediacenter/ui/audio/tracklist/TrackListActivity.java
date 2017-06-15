@@ -233,7 +233,7 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
 
     @Override
     public boolean onSupportNavigateUp() {
-        onBackPressed();
+        finish();
         return true;
     }
 

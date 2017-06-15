@@ -469,7 +469,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        onBackPressed();
+        finish();
         return true;
     }
 }

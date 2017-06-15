@@ -92,7 +92,7 @@ public class CueActivity extends AnalyticsActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        onBackPressed();
+        finish();
         return true;
     }
 
