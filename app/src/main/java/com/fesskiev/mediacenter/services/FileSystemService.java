@@ -255,14 +255,15 @@ public class FileSystemService extends JobService {
         }
 
         if (paths == null) {
-            List<StorageUtils.StorageInfo> storageInfos = StorageUtils.getStorageList();
-            if (storageInfos != null && !storageInfos.isEmpty()) {
+            String[] storagePaths = StorageUtils.getStorageDirectories(getApplicationContext());
+            if (storagePaths.length > 0) {
                 startScanAll();
-                for (StorageUtils.StorageInfo storageInfo : storageInfos) {
-                    Log.e(TAG, "storage: " + storageInfo.getDisplayName() + " path: " + storageInfo.path);
-                    fileWalk(storageInfo.path, scanType);
+                for (String path : storagePaths) {
+                    Log.e(TAG, "path: " + path);
+                    fileWalk(path, scanType);
                 }
             }
+
         } else {
             startScanFound();
 
