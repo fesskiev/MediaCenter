@@ -177,8 +177,6 @@ public class AlbumSearchActivity extends AnalyticsActivity {
     }
 
     private void parseAlbum(Album album) {
-        showLoadSuccess();
-
         String artist = album.getArtist();
         String albumName = album.getName();
         String url = album.getUrl();
@@ -226,6 +224,7 @@ public class AlbumSearchActivity extends AnalyticsActivity {
             }
         }
         albumRoot.setVisibility(View.VISIBLE);
+        showLoadSuccess();
     }
 
 
