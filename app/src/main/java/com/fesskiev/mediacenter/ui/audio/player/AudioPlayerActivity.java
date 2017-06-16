@@ -205,9 +205,8 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         if (isProUser) {
             MenuInflater inflater = getMenuInflater();
             inflater.inflate(R.menu.menu_player, menu);
-            return true;
         }
-        return false;
+        return true;
     }
 
     @Override
