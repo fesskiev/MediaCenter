@@ -6,7 +6,6 @@ import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.drawable.Animatable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -46,7 +45,6 @@ import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.CountDownTimer;
 import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
 import com.fesskiev.mediacenter.utils.Utils;
-import com.fesskiev.mediacenter.utils.admob.AdMobHelper;
 import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
 import com.fesskiev.mediacenter.widgets.dialogs.ExitDialog;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
@@ -585,30 +583,17 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         super.onResume();
         checkSelectedFragment();
         if (!settingsManager.isUserPro()) {
-            AdMobHelper.getInstance().resumeAdMob();
             hideDrawerConverterItem();
         } else {
-            AdMobHelper.getInstance().destroyAdView();
             hideDrawerPurchaseItem();
         }
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (!settingsManager.isUserPro()) {
-            AdMobHelper.getInstance().pauseAdMob();
-        }
-    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         fetchMediaFilesManager.unregister();
-
-        if (!settingsManager.isUserPro()) {
-            AdMobHelper.getInstance().destroyAdView();
-        }
     }
 
     private void stopFetchFiles() {

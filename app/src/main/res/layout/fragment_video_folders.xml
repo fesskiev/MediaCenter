@@ -13,17 +13,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <RelativeLayout
-                android:id="@+id/adViewContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/foldersGridView"
                 style="@style/FolderGridView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@+id/adViewContainer" />
+                android:layout_height="match_parent"/>
 
             <android.support.v7.widget.CardView
                 android:id="@+id/emptyVideoContentCard"
