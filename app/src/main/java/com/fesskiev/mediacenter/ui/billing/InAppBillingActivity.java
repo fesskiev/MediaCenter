@@ -41,7 +41,7 @@ public class InAppBillingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_in_app_billing);
 
         TypedValue typedValue = new TypedValue();
-        getResources().getValue(R.dimen.activity_window_height, typedValue, true);
+        getResources().getValue(R.dimen.activity_window_height_middle, typedValue, true);
         float scaleValue = typedValue.getFloat();
 
         int height = (int) (getResources().getDisplayMetrics().heightPixels * scaleValue);
@@ -145,12 +145,9 @@ public class InAppBillingActivity extends AppCompatActivity {
 
 
     private void fillProductInfo(Product product) {
-        CardView view = (CardView) findViewById(R.id.purchaseCard);
-        view.setVisibility(View.VISIBLE);
-
-        TextView amount = (TextView) view.findViewById(R.id.productAmount);
-        TextView title = (TextView) view.findViewById(R.id.productTitle);
-        TextView description = (TextView) view.findViewById(R.id.productDesc);
+        TextView amount = (TextView) findViewById(R.id.productAmount);
+        TextView title = (TextView) findViewById(R.id.productTitle);
+        TextView description = (TextView) findViewById(R.id.productDesc);
 
         amount.setText(String.format("%s %s", getString(R.string.product_price), product.getPrice()));
         title.setText(product.getTitle());

@@ -25,7 +25,6 @@
     <string name="title_settings_activity">Настройки</string>
     <string name="title_about_activity">О проекте</string>
     <string name="title_playlist_activity">Плейлист</string>
-    <string name="title_effects">Эффекты</string>
     <string name="title_cue_activity">Cue-файл парсер</string>
     <string name="title_cut_activity">Вырезать файл</string>
     <string name="title_converter_activity">Медиа конвертер</string>

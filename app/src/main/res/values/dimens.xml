@@ -35,6 +35,7 @@
     <integer name="anim_duration_medium">300</integer>
 
     <item name="activity_window_height" format="float" type="dimen">0.7</item>
+    <item name="activity_window_height_middle" format="float" type="dimen">0.5</item>
 
     <bool name="isTablet">false</bool>
 

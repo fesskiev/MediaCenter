@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
-    android:fitsSystemWindows="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:openDrawer="start">
 
     <android.support.design.widget.CoordinatorLayout
@@ -30,8 +30,8 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="@color/white"
-        app:itemTextAppearance="@style/NavViewTextAppearance"
         app:itemBackground="@drawable/nav_item_background"
+        app:itemTextAppearance="@style/NavViewTextAppearance"
         app:itemTextColor="@drawable/nav_item_state_list"
         app:menu="@menu/activity_main_drawer" />
 
@@ -43,6 +43,6 @@
         android:layout_gravity="end"
         android:background="@color/white"
         app:headerLayout="@null"
-        app:menu="@null"/>
+        app:menu="@null" />
 
 </android.support.v4.widget.DrawerLayout>
