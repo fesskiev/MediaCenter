@@ -24,7 +24,7 @@
         android:layout_marginTop="@dimen/card_view_margin_top"
         app:cardCornerRadius="@dimen/card_view_corner_radius"
         app:cardElevation="@dimen/card_view_elevation"
-        app:contentPadding="@dimen/card_view_content_padding">
+        app:contentPadding="@dimen/activity_horizontal_margin">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -44,7 +44,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:gravity="center"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:layout_toEndOf="@id/contentNotFound"
                 android:text="@string/content_empty" />
 

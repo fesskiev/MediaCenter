@@ -113,8 +113,8 @@
     <string name="playback_control_folder_not_selected">Folder is not selected</string>
     <string name="playback_control_track_not_selected">File is not selected</string>
 
-    <string name="playlist_empty">Playlist empty</string>
-    <string name="content_empty">Empty content</string>
+    <string name="playlist_empty">Playlist is empty</string>
+    <string name="content_empty">Files were not found</string>
 
     <string name="add_to_playlist_text">Track has been add to playlist</string>
     <string name="add_to_playlist_video_text">Video has been add to playlist</string>

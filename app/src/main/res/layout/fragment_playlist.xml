@@ -24,7 +24,7 @@
         android:visibility="gone"
         app:cardCornerRadius="@dimen/card_view_corner_radius"
         app:cardElevation="@dimen/card_view_elevation"
-        app:contentPadding="@dimen/card_view_content_padding">
+        app:contentPadding="@dimen/activity_horizontal_margin">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -44,7 +44,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:gravity="center"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:layout_toEndOf="@id/contentNotFound"
                 android:text="@string/playlist_empty" />
 
@@ -59,15 +59,15 @@
         android:layout_gravity="bottom|end"
         android:padding="8dp"
         fab:menu_backgroundColor="@color/colorFabBackground"
-        fab:menu_labels_textColor="@color/secondary_text"
-        fab:menu_labels_colorNormal="@color/white"
-        fab:menu_icon="@drawable/icon_sorting"
         fab:menu_colorNormal="@color/accent"
         fab:menu_colorPressed="@color/accent"
         fab:menu_colorRipple="@color/accent"
+        fab:menu_icon="@drawable/icon_sorting"
+        fab:menu_labels_colorNormal="@color/white"
         fab:menu_labels_ellipsize="end"
         fab:menu_labels_position="left"
         fab:menu_labels_singleLine="true"
+        fab:menu_labels_textColor="@color/secondary_text"
         fab:menu_openDirection="up">
 
         <com.github.clans.fab.FloatingActionButton
