@@ -10,8 +10,8 @@
         android:layout_width="@dimen/audio_control_width"
         android:layout_height="@dimen/audio_control_height"
         android:layout_centerInParent="true"
-        app:circleColor="@color/primary_light"
-        app:progressColor="@color/primary"
+        app:circleColor="@color/player_secondary"
+        app:progressColor="@color/player_primary"
         app:text="100"
         app:textColor="@color/secondary_text" />
 

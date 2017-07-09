@@ -8,9 +8,11 @@
 
     <color name="primary_light_50">#804fb3bf</color>
 
-
     <color name="primary_text">#212121</color>
     <color name="secondary_text">#757575</color>
+
+    <color name="player_primary">#607d8b</color>
+    <color name="player_secondary">#a7c0cd</color>
 
     <color name="divider">#B6B6B6</color>
     <color name="dialog_background">#7F97A2</color>

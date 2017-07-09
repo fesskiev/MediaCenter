@@ -78,7 +78,7 @@ public class AudioControlView extends FrameLayout {
         });
 
         playPauseButton = (PlayPauseButton) view.findViewById(R.id.playPauseButton);
-        playPauseButton.setColor(ContextCompat.getColor(context, R.color.primary));
+        playPauseButton.setColor(ContextCompat.getColor(context, R.color.player_primary));
         playPauseButton.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onPlayStateChanged();

@@ -3,7 +3,7 @@
     android:name="back"
     android:width="200dp"
     android:height="200dp"
-    android:tint="@color/primary"
+    android:tint="@color/player_primary"
     android:viewportHeight="200"
     android:viewportWidth="200">
     <group

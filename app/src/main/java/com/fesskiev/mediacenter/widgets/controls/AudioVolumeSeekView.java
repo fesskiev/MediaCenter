@@ -79,10 +79,10 @@ public class AudioVolumeSeekView extends View {
 
         int circleColor = a.getColor(
                 R.styleable.AudioVolumeSeekView_circleColor,
-                ContextCompat.getColor(context, R.color.primary_light));
+                ContextCompat.getColor(context, R.color.player_secondary));
         int progressColor = a.getColor(
                 R.styleable.AudioVolumeSeekView_progressColor,
-                ContextCompat.getColor(context, R.color.primary_dark));
+                ContextCompat.getColor(context, R.color.player_primary));
 
         a.recycle();
 
