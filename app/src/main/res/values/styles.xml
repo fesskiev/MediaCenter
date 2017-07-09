@@ -273,9 +273,10 @@
 
     <style name="ButtonStyle" parent="android:style/Widget.Material.Button">
         <item name="android:background">@drawable/raised_button_background</item>
-        <item name="android:textColor">@color/primary</item>
+        <item name="android:textColor">@color/yellow</item>
         <item name="android:textSize">@dimen/text_button</item>
         <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">true</item>
     </style>
 

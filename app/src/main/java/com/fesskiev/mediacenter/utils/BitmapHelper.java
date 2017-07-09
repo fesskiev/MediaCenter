@@ -235,7 +235,7 @@ public class BitmapHelper {
         if (path != null) {
             Glide.with(context)
                     .load(path)
-                    .override(WIDTH * 2, HEIGHT * 2)
+                    .override(WIDTH * 3, HEIGHT * 3)
                     .crossFade()
                     .centerCrop()
                     .listener(loggingListener)
@@ -245,7 +245,7 @@ public class BitmapHelper {
         } else {
             Glide.with(context)
                     .load(R.drawable.no_cover_folder_icon)
-                    .override(WIDTH * 2, HEIGHT * 2)
+                    .override(WIDTH * 3, HEIGHT * 3)
                     .crossFade()
                     .centerCrop()
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
@@ -260,7 +260,7 @@ public class BitmapHelper {
         if (path != null) {
             Glide.with(context)
                     .load(path)
-                    .override(WIDTH * 2, HEIGHT * 2)
+                    .override(WIDTH * 3, HEIGHT * 3)
                     .crossFade()
                     .centerCrop()
                     .listener(loggingListener)
@@ -270,7 +270,7 @@ public class BitmapHelper {
         } else {
             Glide.with(context)
                     .load(R.drawable.no_cover_folder_icon)
-                    .override(WIDTH, HEIGHT)
+                    .override(WIDTH * 3, HEIGHT * 3)
                     .crossFade()
                     .centerCrop()
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
@@ -284,7 +284,7 @@ public class BitmapHelper {
         if (coverFile != null) {
             Glide.with(context)
                     .load(coverFile)
-                    .override(WIDTH * 2, HEIGHT * 2)
+                    .override(WIDTH * 3, HEIGHT * 3)
                     .crossFade()
                     .centerCrop()
                     .listener(loggingListener)
@@ -294,7 +294,7 @@ public class BitmapHelper {
         } else {
             Glide.with(context)
                     .load(R.drawable.no_cover_folder_icon)
-                    .override(WIDTH * 2, HEIGHT * 2)
+                    .override(WIDTH * 3, HEIGHT * 3)
                     .crossFade()
                     .centerCrop()
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
@@ -305,7 +305,7 @@ public class BitmapHelper {
     public void loadVideoFileCover(String path, ImageView placeholder) {
         Glide.with(context)
                 .load(path)
-                .override(WIDTH * 2, HEIGHT * 2)
+                .override(WIDTH * 3, HEIGHT * 3)
                 .crossFade()
                 .centerCrop()
                 .listener(loggingListener)
