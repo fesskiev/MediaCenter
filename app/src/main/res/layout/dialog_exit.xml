@@ -28,7 +28,7 @@
 
         <Button
             android:id="@+id/buttonExitConfirm"
-            style="@style/WalkThroughButtonTextAppearance"
+            style="@style/ExitButtonTextAppearance"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:background="?android:selectableItemBackground"
@@ -40,7 +40,7 @@
 
         <Button
             android:id="@+id/buttonExitDismiss"
-            style="@style/WalkThroughButtonTextAppearance"
+            style="@style/ExitButtonTextAppearance"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:background="?android:selectableItemBackground"

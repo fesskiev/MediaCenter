@@ -92,11 +92,11 @@
                 </RelativeLayout>
 
                 <View
+                    style="@style/DividerStyle"
                     android:id="@+id/divider1"
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_below="@+id/basicNavPlayerContainer"
-                    android:background="@color/primary_light" />
+                    android:layout_below="@+id/basicNavPlayerContainer"/>
 
                 <FrameLayout
                     android:layout_width="match_parent"
