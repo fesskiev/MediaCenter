@@ -1,7 +1,6 @@
 package com.fesskiev.mediacenter.ui;
 
 
-import android.animation.LayoutTransition;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -15,7 +14,6 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
@@ -78,9 +76,9 @@ public abstract class ViewPagerFragment extends Fragment {
                         AppCompatImageView imageView = titleImages.get(i);
                         if (currentPosition == i) {
                             textView.setTextColor(ContextCompat.
-                                    getColor(getActivity(), R.color.accent));
+                                    getColor(getActivity(), R.color.yellow));
                             imageView.setSupportBackgroundTintList(ColorStateList.valueOf(ContextCompat.
-                                    getColor(getActivity(), R.color.accent)));
+                                    getColor(getActivity(), R.color.yellow)));
                         } else {
                             textView.setTextColor(ContextCompat.
                                     getColor(getActivity(), R.color.white_text));
@@ -96,16 +94,8 @@ public abstract class ViewPagerFragment extends Fragment {
         tabLayout.setupWithViewPager(viewPager);
 
         createTabs();
-        addTransition(view);
+
     }
-
-    private void addTransition(View view) {
-        RelativeLayout transitionLayout = (RelativeLayout) view.findViewById(R.id.layoutTransition);
-
-        LayoutTransition layoutTransition = transitionLayout.getLayoutTransition();
-        layoutTransition.setDuration(250);
-    }
-
 
     private void createTabs() {
         for (int i = 0; i < tabLayout.getTabCount(); i++) {
@@ -113,7 +103,7 @@ public abstract class ViewPagerFragment extends Fragment {
             if (tab != null) {
                 if (i == 0) {
                     tab.setCustomView(adapter.getTabView(getImagesIds()[i], getTitles()[i],
-                            ContextCompat.getColor(getActivity(), R.color.accent)));
+                            ContextCompat.getColor(getActivity(), R.color.yellow)));
                 } else {
                     tab.setCustomView(adapter.getTabView(getImagesIds()[i], getTitles()[i],
                             ContextCompat.getColor(getActivity(), R.color.white_text)));
