@@ -184,6 +184,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         android:clickable="true"
+        app:backgroundTint="@color/yellow"
         android:src="@drawable/icon_convert" />
 
     <com.fesskiev.mediacenter.widgets.MaterialProgressBar

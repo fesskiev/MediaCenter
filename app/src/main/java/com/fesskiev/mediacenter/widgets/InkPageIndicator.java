@@ -20,12 +20,18 @@ import android.view.animation.Interpolator;
 import com.fesskiev.mediacenter.R;
 
 import java.util.Arrays;
+
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 
 /**
  * An ink inspired widget for indicating pages in a {@link ViewPager}.
  */
+
+/***
+ * contain bugs!
+ */
+@Deprecated
 public class InkPageIndicator extends View implements ViewPager.OnPageChangeListener,
         View.OnAttachStateChangeListener {
 

@@ -19,6 +19,7 @@
         <item name="switchStyle">@style/Custom.Widget.SwitchCompat</item>
         <item name="seekBarStyle">@style/Widget.SeekBarStyle</item>
         <item name="android:scrollbarThumbVertical">@android:color/transparent</item>
+        <item name="android:actionOverflowButtonStyle">@style/ActionButtonOverflow</item>
     </style>
 
     <style name="Base.Theme.Player.VideoExoPlayer">
@@ -73,6 +74,11 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowIsFloating">true</item>
         <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
+
+    <style name="ActionButtonOverflow" parent="android:style/Widget.Holo.ActionButton.Overflow">
+        <item name="android:src">@drawable/icon_menu</item>
     </style>
 
     <style name="Widget.SeekBarStyle" parent="Widget.AppCompat.SeekBar">

@@ -13,7 +13,7 @@ import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
-import com.fesskiev.mediacenter.widgets.InkPageIndicator;
+import com.fesskiev.mediacenter.widgets.indicator.CirclePageIndicator;
 
 public class ConverterActivity extends AnalyticsActivity {
 
@@ -41,8 +41,8 @@ public class ConverterActivity extends AnalyticsActivity {
         ProcessingPagerAdapter adapter = new ProcessingPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(adapter);
 
-        InkPageIndicator pageIndicator = (InkPageIndicator) findViewById(R.id.indicator);
-        pageIndicator.setViewPager(viewPager);
+        CirclePageIndicator indicator = (CirclePageIndicator) findViewById(R.id.indicator);
+        indicator.setViewPager(viewPager);
     }
 
     @Override

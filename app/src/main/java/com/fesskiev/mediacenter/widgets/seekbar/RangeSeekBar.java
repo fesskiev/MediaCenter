@@ -37,9 +37,9 @@ public class RangeSeekBar<T extends Number> extends AppCompatImageView {
 
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
-    private final Bitmap thumbImage = drawableToBitmap(ContextCompat.getDrawable(getContext(), R.drawable.seek_bar_thumb_accent));
-    private final Bitmap thumbPressedImage = drawableToBitmap(ContextCompat.getDrawable(getContext(), R.drawable.seek_bar_thumb_accent));
-    private final Bitmap thumbDisabledImage = drawableToBitmap(ContextCompat.getDrawable(getContext(), R.drawable.seek_bar_thumb_accent));
+    private final Bitmap thumbImage = drawableToBitmap(ContextCompat.getDrawable(getContext(), R.drawable.seek_bar_thumb_accent_white));
+    private final Bitmap thumbPressedImage = drawableToBitmap(ContextCompat.getDrawable(getContext(), R.drawable.seek_bar_thumb_accent_white));
+    private final Bitmap thumbDisabledImage = drawableToBitmap(ContextCompat.getDrawable(getContext(), R.drawable.seek_bar_thumb_accent_white));
 
     private final float thumbWidth = thumbImage.getWidth();
     private final float thumbHalfWidth = 0.5f * thumbWidth;
@@ -438,7 +438,7 @@ public class RangeSeekBar<T extends Number> extends AppCompatImageView {
 
         int colorToUseForButtonsAndHighlightedLine = selectedValuesAreDefault ?
                 ContextCompat.getColor(getContext(), R.color.white) :
-                ContextCompat.getColor(getContext(), R.color.accent);
+                ContextCompat.getColor(getContext(), R.color.yellow);
 
         // draw seek bar active range line
         rect.left = normalizedToScreen(normalizedMinValue);

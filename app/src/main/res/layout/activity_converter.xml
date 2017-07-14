@@ -30,15 +30,18 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <com.fesskiev.mediacenter.widgets.InkPageIndicator
+        <com.fesskiev.mediacenter.widgets.indicator.CirclePageIndicator
             android:id="@+id/indicator"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center_horizontal"
             android:layout_marginBottom="10dp"
-            app:currentPageIndicatorColor="@color/ink"
-            app:dotDiameter="8dp"
-            app:pageIndicatorColor="@color/white" />
+            android:padding="5dp"
+            app:fillColor="@color/yellow"
+            app:pageColor="@color/white"
+            app:radius="5dp"
+            app:strokeColor="@color/white"
+            app:strokeWidth="2dp" />
 
     </FrameLayout>
 
