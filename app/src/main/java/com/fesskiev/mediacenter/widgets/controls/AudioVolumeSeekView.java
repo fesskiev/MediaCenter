@@ -275,7 +275,7 @@ public class AudioVolumeSeekView extends View {
         /****************************************************************************/
 
         canvas.drawCircle(cx, cy, radiusVolume, circlePaint);
-        canvas.drawArc(volumeRect, 270f, volumeSlider.progress, false, progressPaint);
+        canvas.drawArc(volumeRect, 274f, volumeSlider.progress, false, progressPaint);
 
         volumeSlider.x = (float) (cx + radiusVolume * Math.sin(Math.toRadians(volumeSlider.progress)));
         volumeSlider.y = (float) (cy - radiusVolume * Math.cos(Math.toRadians(volumeSlider.progress)));
@@ -288,7 +288,7 @@ public class AudioVolumeSeekView extends View {
         /****************************************************************************/
 
         canvas.drawCircle(cx, cy, radiusSeek, circlePaint);
-        canvas.drawArc(seekRect, 270f, seekSlider.progress, false, progressPaint);
+        canvas.drawArc(seekRect, 273f, seekSlider.progress, false, progressPaint);
 
         seekSlider.x = (float) (cx + radiusSeek * Math.sin(Math.toRadians(seekSlider.progress)));
         seekSlider.y = (float) (cy - radiusSeek * Math.cos(Math.toRadians(seekSlider.progress)));
