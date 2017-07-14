@@ -19,6 +19,7 @@ import com.fesskiev.mediacenter.ui.MainActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.InkPageIndicator;
+import com.fesskiev.mediacenter.widgets.indicator.CirclePageIndicator;
 import com.fesskiev.mediacenter.widgets.pager.DisableSwipingViewPager;
 
 import java.util.ArrayList;
@@ -83,8 +84,8 @@ public class WalkthroughFragment extends Fragment {
         adapter = new WalkthroughPagerAdapter(getFragmentManager());
         viewPager.setAdapter(adapter);
 
-        InkPageIndicator pageIndicator = (InkPageIndicator) view.findViewById(R.id.indicator);
-        pageIndicator.setViewPager(viewPager);
+        CirclePageIndicator indicator = (CirclePageIndicator) view.findViewById(R.id.indicator);
+        indicator.setViewPager(viewPager);
 
     }
 
