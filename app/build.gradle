@@ -57,14 +57,16 @@ android {
         }
     }
 
-    flavorDimensions "versionName"
+    flavorDimensions "default"
 
     productFlavors {
         free {
+            dimension "default"
             versionName = "1.0.5"
         }
 
         pro {
+            dimension "default"
             versionName = "1.0.5-pro"
         }
     }

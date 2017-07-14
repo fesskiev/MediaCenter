@@ -5,11 +5,10 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
 import android.util.TypedValue;
-import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
@@ -34,6 +33,7 @@ public class InAppBillingActivity extends AppCompatActivity {
     private Product product;
 
     private FloatingActionButton purchaseButton;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,26 +47,49 @@ public class InAppBillingActivity extends AppCompatActivity {
         int height = (int) (getResources().getDisplayMetrics().heightPixels * scaleValue);
         getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, height);
 
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
         purchaseButton = (FloatingActionButton) findViewById(R.id.fabPurchaseProduct);
         purchaseButton.setOnClickListener(v -> purchaseProduct());
 
         billing = new Billing(this);
         billing.connect(this::fetchBillingState);
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        showProgressBar();
         billing.setOnPurchaseProductListener(new Billing.OnPurchaseProductListener() {
             @Override
             public void onProductPurchased(Purchase purchase) {
                 if (verifyDeveloperPayload(purchase)) {
+                    hideProgressBar();
                     showSuccessPurchaseView();
                 }
             }
 
             @Override
             public void onProductPurchaseError() {
+                hideProgressBar();
                 showErrorPurchaseView();
             }
         });
-
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        RxUtils.unsubscribe(subscription);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        billing.disconnect();
+    }
+
 
     private void purchaseProduct() {
         billing.purchaseProduct(product);
@@ -104,18 +127,10 @@ public class InAppBillingActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        RxUtils.unsubscribe(subscription);
-        billing.disconnect();
-    }
-
-    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         billing.onActivityResult(requestCode, resultCode, data);
         super.onActivityResult(requestCode, resultCode, data);
     }
-
 
     private void showSuccessPurchaseView() {
         AppSettingsManager.getInstance().setUserPro(true);
@@ -173,6 +188,14 @@ public class InAppBillingActivity extends AppCompatActivity {
     private void showThrowable(Throwable throwable) {
         Utils.showCustomSnackbar(findViewById(R.id.billingRoot), getApplicationContext(),
                 throwable.getMessage(), Snackbar.LENGTH_LONG).show();
+    }
+
+    private void hideProgressBar() {
+        progressBar.setVisibility(View.INVISIBLE);
+    }
+
+    private void showProgressBar() {
+        progressBar.setVisibility(View.VISIBLE);
     }
 
     private void showFab() {

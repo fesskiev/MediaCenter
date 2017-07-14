@@ -5,11 +5,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_gravity="center"
+            android:visibility="invisible"
+            android:indeterminateTint="@color/primary_dark"
+            android:indeterminate="true"/>
 
         <ImageView
             android:id="@+id/appIcon"
@@ -19,31 +26,39 @@
             android:contentDescription="@string/app_name"
             android:src="@mipmap/ic_launcher" />
 
-        <TextView
-            android:id="@+id/productTitle"
-            style="@style/BillingTitleTextAppearance"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:gravity="center" />
+            android:layout_gravity="center_vertical"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/productDesc"
-            style="@style/BillingDescTextAppearance"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:gravity="center" />
+            <TextView
+                android:id="@+id/productTitle"
+                style="@style/BillingTitleTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center" />
 
-        <TextView
-            android:id="@+id/productAmount"
-            style="@style/BillingAmountTextAppearance"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:gravity="center" />
+            <TextView
+                android:id="@+id/productDesc"
+                style="@style/BillingDescTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center" />
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/productAmount"
+                style="@style/BillingAmountTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+    </FrameLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fabPurchaseProduct"
