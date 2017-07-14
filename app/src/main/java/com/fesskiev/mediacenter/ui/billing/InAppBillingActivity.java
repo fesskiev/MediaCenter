@@ -101,6 +101,7 @@ public class InAppBillingActivity extends AppCompatActivity {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .flatMap(supported -> {
+                        hideProgressBar();
                         if (supported) {
                             return Observable.zip(billing.getProducts(), billing.getPurchases(), Inventory::new);
                         } else {
@@ -186,6 +187,7 @@ public class InAppBillingActivity extends AppCompatActivity {
     }
 
     private void showThrowable(Throwable throwable) {
+        hideProgressBar();
         Utils.showCustomSnackbar(findViewById(R.id.billingRoot), getApplicationContext(),
                 throwable.getMessage(), Snackbar.LENGTH_LONG).show();
     }

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.View;
@@ -62,11 +63,13 @@ public class CutMediaActivity extends AnalyticsActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cut);
 
-        TypedValue typedValue = new TypedValue();
-        getResources().getValue(R.dimen.activity_window_height, typedValue, true);
-        float scaleValue = typedValue.getFloat();
-        int height = (int) (getResources().getDisplayMetrics().heightPixels * scaleValue);
-        getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, height);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            toolbar.setTitle(getString(R.string.title_cut_activity));
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
 
         settingsManager = AppSettingsManager.getInstance();
         cutType = getIntent().getIntExtra(EXTRA_CUT_TYPE, -1);

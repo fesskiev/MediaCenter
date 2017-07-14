@@ -249,8 +249,7 @@
             android:name=".ui.cut.CutMediaActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:parentActivityName=".ui.audio.player.AudioPlayerActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/ActivityDialog.Theme.MediaCenter">
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity" />
