@@ -14,7 +14,7 @@ public class Track {
     private String url;
     @SerializedName("duration")
     @Expose
-    private String duration;
+    private int duration;
     @SerializedName("@attr")
     @Expose
     private Attr attr;
@@ -41,11 +41,12 @@ public class Track {
         this.url = url;
     }
 
-    public String getDuration() {
+
+    public int getDuration() {
         return duration;
     }
 
-    public void setDuration(String duration) {
+    public void setDuration(int duration) {
         this.duration = duration;
     }
 

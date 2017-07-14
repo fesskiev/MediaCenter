@@ -21,10 +21,10 @@
             app:titleEnabled="false">
 
             <LinearLayout
-                android:padding="@dimen/activity_horizontal_margin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="@dimen/activity_horizontal_margin">
 
                 <android.support.design.widget.TextInputLayout
                     android:id="@+id/artistTextInputLayout"
@@ -77,19 +77,18 @@
     </android.support.design.widget.AppBarLayout>
 
 
-    <android.support.v4.widget.NestedScrollView
-        android:id="@+id/scroll"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:id="@+id/albumViewRoot"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="invisible"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="invisible">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -110,10 +109,10 @@
                     <ImageView
                         android:layout_width="50dp"
                         android:layout_height="50dp"
+                        android:layout_gravity="center"
                         android:contentDescription="@string/app_name"
                         android:scaleType="centerCrop"
-                        android:layout_gravity="center"
-                        android:src="@drawable/icon_save"/>
+                        android:src="@drawable/icon_save" />
 
                 </FrameLayout>
 
@@ -164,7 +163,7 @@
                 android:id="@+id/divider0"
                 style="@style/DividerStyleDark"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"/>
+                android:layout_height="1dp" />
 
             <TextView
                 android:id="@+id/tagsResult"
@@ -173,19 +172,25 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:ellipsize="end"
-                android:maxLines="1"
                 android:gravity="center"
+                android:maxLines="1"
                 tools:text="Jazz, Dnb, Trip-Hop" />
 
             <View
                 android:id="@+id/divider1"
                 style="@style/DividerStyleDark"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"/>
+                android:layout_height="1dp" />
 
         </LinearLayout>
 
-    </android.support.v4.widget.NestedScrollView>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycleView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:listitem="@layout/item_search_album_track" />
+
+    </LinearLayout>
 
     <com.fesskiev.mediacenter.widgets.MaterialProgressBar
         android:id="@+id/progressBar"

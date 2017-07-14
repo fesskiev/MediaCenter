@@ -7,10 +7,14 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,6 +27,8 @@ import com.fesskiev.mediacenter.data.model.search.Album;
 import com.fesskiev.mediacenter.data.model.search.Image;
 import com.fesskiev.mediacenter.data.model.search.Tag;
 import com.fesskiev.mediacenter.data.model.search.Tags;
+import com.fesskiev.mediacenter.data.model.search.Track;
+import com.fesskiev.mediacenter.data.model.search.Tracks;
 import com.fesskiev.mediacenter.data.source.remote.ErrorHelper;
 import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.utils.AppLog;
@@ -30,6 +36,7 @@ import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.MaterialProgressBar;
 import com.fesskiev.mediacenter.widgets.dialogs.SelectImageDialog;
+import com.fesskiev.mediacenter.widgets.recycleview.ScrollingLinearLayoutManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,6 +57,8 @@ public class AlbumSearchActivity extends AnalyticsActivity {
     }
 
     private final static String EXTRA_AUDIO_FOLDER = "com.fesskiev.mediacenter.EXTRA_AUDIO_FOLDER";
+
+    private SearchAdapter adapter;
 
     private AudioFolder audioFolder;
     private Subscription subscription;
@@ -80,6 +89,13 @@ public class AlbumSearchActivity extends AnalyticsActivity {
             setSupportActionBar(toolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycleView);
+        recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(this,
+                LinearLayoutManager.VERTICAL, false, 1000));
+        adapter = new SearchAdapter();
+        recyclerView.setAdapter(adapter);
+
         progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
         findViewById(R.id.searchAlbumFab).setOnClickListener(v -> loadAlbum());
 
@@ -114,6 +130,36 @@ public class AlbumSearchActivity extends AnalyticsActivity {
         parseAudioFolderName();
     }
 
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unsubscribe();
+    }
+
+    public void unsubscribe() {
+        if (subscription != null) {
+            subscription.unsubscribe();
+        }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(EXTRA_AUDIO_FOLDER, audioFolder);
+    }
+
+    @Override
+    public String getActivityName() {
+        return this.getLocalClassName();
+    }
+
     private void openChooseImageQualityDialog() {
         if (images != null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -121,30 +167,6 @@ public class AlbumSearchActivity extends AnalyticsActivity {
             SelectImageDialog dialog = SelectImageDialog.newInstance((ArrayList<Image>) images);
             dialog.show(transaction, SelectImageDialog.class.getName());
             dialog.setOnSelectedImageListener(this::loadSelectedImage);
-        }
-    }
-
-    private void openUrl(String url) {
-        Utils.openBrowserURL(this, url);
-    }
-
-    private class AlbumTextWatcher implements TextWatcher {
-
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-        }
-
-        @Override
-        public void afterTextChanged(Editable editable) {
-            if (editable == artistEditText.getEditableText()) {
-                artist = editable.toString();
-            } else if (editable == albumEditText.getEditableText()) {
-                album = editable.toString();
-            }
         }
     }
 
@@ -177,9 +199,14 @@ public class AlbumSearchActivity extends AnalyticsActivity {
     }
 
     private void parseAlbum(Album album) {
+        if (album == null) {
+            showLoadAlbumError();
+            return;
+        }
         String artist = album.getArtist();
         String albumName = album.getName();
         String url = album.getUrl();
+
         if (artist != null) {
             artistResult.setText(artist);
         }
@@ -207,24 +234,117 @@ public class AlbumSearchActivity extends AnalyticsActivity {
             for (Image image : images) {
                 AppLog.DEBUG("image: " + image.toString());
                 if (image.getSize().equals("large")) {
-                    BitmapHelper.getInstance().loadURLBitmap(image.getText(), new BitmapHelper.OnBitmapLoadListener() {
-                        @Override
-                        public void onLoaded(Bitmap bitmap) {
-                            albumCover.setImageBitmap(bitmap);
-                            hideProgressBar();
-                        }
+                    BitmapHelper.getInstance().loadURLBitmap(image.getText(),
+                            new BitmapHelper.OnBitmapLoadListener() {
+                                @Override
+                                public void onLoaded(Bitmap bitmap) {
+                                    albumCover.setImageBitmap(bitmap);
+                                    hideProgressBar();
+                                }
 
-                        @Override
-                        public void onFailed() {
-                            hideProgressBar();
-                            showErrorLoadBitmap();
-                        }
-                    });
+                                @Override
+                                public void onFailed() {
+                                    hideProgressBar();
+                                    showLoadAlbumError();
+                                }
+                            });
                 }
             }
         }
         albumRoot.setVisibility(View.VISIBLE);
+
+        Tracks tracks = album.getTracks();
+        if (tracks != null) {
+            List<Track> listTracks = tracks.getTrack();
+            if (listTracks != null && !listTracks.isEmpty()) {
+                adapter.refreshAdapter(listTracks);
+            }
+        }
+
         showLoadSuccess();
+    }
+
+
+    private class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder> {
+
+        private List<Track> tracks;
+
+        public SearchAdapter() {
+            tracks = new ArrayList<>();
+        }
+
+        public class ViewHolder extends RecyclerView.ViewHolder {
+
+            TextView trackName;
+            TextView trackUrl;
+            TextView trackDuration;
+
+            public ViewHolder(View v) {
+                super(v);
+                v.setOnClickListener(v1 -> openTrackUrl(getAdapterPosition()));
+
+                trackName = (TextView) v.findViewById(R.id.itemTrackName);
+                trackUrl = (TextView) v.findViewById(R.id.itemUrl);
+                trackDuration = (TextView) v.findViewById(R.id.itemDuration);
+            }
+
+            private void openTrackUrl(int position) {
+                Track track = tracks.get(position);
+                if (track != null) {
+                    openUrl(track.getUrl());
+                }
+            }
+        }
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_search_album_track, parent, false);
+
+            return new ViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(ViewHolder holder, int position) {
+            Track track = tracks.get(position);
+            if (track != null) {
+                holder.trackName.setText(track.getName());
+                holder.trackUrl.setText(track.getUrl());
+                holder.trackDuration.setText(Utils.getTimeFromSecondsString(track.getDuration()));
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return tracks.size();
+        }
+
+        public void refreshAdapter(List<Track> tracks) {
+            this.tracks.clear();
+            this.tracks.addAll(tracks);
+            notifyDataSetChanged();
+        }
+
+    }
+
+    private class AlbumTextWatcher implements TextWatcher {
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+            if (editable == artistEditText.getEditableText()) {
+                artist = editable.toString();
+            } else if (editable == albumEditText.getEditableText()) {
+                album = editable.toString();
+            }
+        }
     }
 
 
@@ -239,7 +359,7 @@ public class AlbumSearchActivity extends AnalyticsActivity {
 
                     @Override
                     public void onFailed() {
-                        showErrorLoadBitmap();
+                        showLoadAlbumError();
                     }
                 });
     }
@@ -271,37 +391,6 @@ public class AlbumSearchActivity extends AnalyticsActivity {
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unsubscribe();
-    }
-
-    public void unsubscribe() {
-        if (subscription != null) {
-            subscription.unsubscribe();
-        }
-    }
-
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        finish();
-        return true;
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(EXTRA_AUDIO_FOLDER, audioFolder);
-    }
-
-    @Override
-    public String getActivityName() {
-        return this.getLocalClassName();
-    }
-
-
     private void handleError(Throwable throwable) {
         hideProgressBar();
         hideEnterArtistError();
@@ -323,6 +412,10 @@ public class AlbumSearchActivity extends AnalyticsActivity {
 
                     }
                 });
+    }
+
+    private void openUrl(String url) {
+        Utils.openBrowserURL(this, url);
     }
 
     public void showProgressBar() {
@@ -354,7 +447,7 @@ public class AlbumSearchActivity extends AnalyticsActivity {
 
     }
 
-    private void showErrorLoadBitmap() {
+    private void showLoadAlbumError() {
         Utils.showCustomSnackbar(findViewById(R.id.albumSearchRoot),
                 getApplicationContext(), getString(R.string.search_load_album_error), Snackbar.LENGTH_LONG).show();
     }
