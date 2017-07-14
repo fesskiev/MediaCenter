@@ -100,7 +100,7 @@
     <string name="dialog_permission_cancel">NO</string>
 
     <string name="context_menu_audio_details">Details</string>
-    <string name="context_menu_audio_search_data">Search cover</string>
+    <string name="context_menu_audio_search_data">Album info search</string>
     <string name="context_menu_audio_delete">Delete folder</string>
     <string name="context_menu_video_delete">Delete video</string>
     <string name="context_menu_video_add_playlist">To playlist</string>

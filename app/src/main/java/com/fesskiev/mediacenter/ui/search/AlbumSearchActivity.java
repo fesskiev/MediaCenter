@@ -201,6 +201,7 @@ public class AlbumSearchActivity extends AnalyticsActivity {
     private void parseAlbum(Album album) {
         if (album == null) {
             showLoadAlbumError();
+            hideProgressBar();
             return;
         }
         String artist = album.getArtist();
