@@ -58,6 +58,7 @@
                 android:text="@string/radio_mp3" />
 
             <android.support.v7.widget.AppCompatRadioButton
+                android:theme="@style/RadioButtonTheme"
                 android:id="@+id/radioM4A"
                 style="@style/RadioButtonWhiteStyle"
                 android:layout_width="0dp"
