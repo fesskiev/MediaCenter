@@ -608,4 +608,9 @@
         <item name="android:fontFamily">sans-serif</item>
     </style>
 
+    <style name="RadioButtonTheme" parent="Theme.AppCompat">
+        <item name="colorAccent">@color/yellow</item>
+        <item name="android:textColorSecondary">@color/white</item>
+    </style>
+
 </resources>

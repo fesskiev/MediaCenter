@@ -34,6 +34,7 @@
             android:orientation="horizontal">
 
             <android.support.v7.widget.AppCompatRadioButton
+                android:theme="@style/RadioButtonTheme"
                 android:id="@+id/radioAVI"
                 style="@style/RadioButtonWhiteStyle"
                 android:layout_width="0dp"
@@ -45,6 +46,7 @@
                 android:text="@string/radio_avi" />
 
             <android.support.v7.widget.AppCompatRadioButton
+                android:theme="@style/RadioButtonTheme"
                 android:id="@+id/radioMP4"
                 style="@style/RadioButtonWhiteStyle"
                 android:layout_width="0dp"
@@ -56,6 +58,7 @@
                 android:text="@string/radio_mp4" />
 
             <android.support.v7.widget.AppCompatRadioButton
+                android:theme="@style/RadioButtonTheme"
                 android:id="@+id/radioMOV"
                 style="@style/RadioButtonWhiteStyle"
                 android:layout_width="0dp"
