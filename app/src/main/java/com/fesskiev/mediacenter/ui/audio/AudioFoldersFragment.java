@@ -117,11 +117,15 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
         ((AudioFoldersAdapter) adapter).clearAdapter();
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        RxUtils.unsubscribe(subscription);
+    }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        RxUtils.unsubscribe(subscription);
         MediaApplication.getInstance().getRepository().getMemorySource().setCacheFoldersDirty(true);
     }
 

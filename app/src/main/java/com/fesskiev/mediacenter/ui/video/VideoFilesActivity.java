@@ -34,7 +34,6 @@ import com.fesskiev.mediacenter.widgets.dialogs.VideoFileDetailsDialog;
 import com.fesskiev.mediacenter.widgets.item.VideoCardView;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.menu.VideoContextMenu;
-import com.fesskiev.mediacenter.widgets.recycleview.GridDividerDecoration;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -85,7 +84,6 @@ public class VideoFilesActivity extends AnalyticsActivity {
                 GridLayoutManager.VERTICAL, false);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.foldersGridView);
         recyclerView.setLayoutManager(gridLayoutManager);
-        recyclerView.addItemDecoration(new GridDividerDecoration(this));
         adapter = new VideoFilesAdapter(this);
         recyclerView.setAdapter(adapter);
     }

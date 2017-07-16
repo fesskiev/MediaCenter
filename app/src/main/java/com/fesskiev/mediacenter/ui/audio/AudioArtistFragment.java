@@ -77,8 +77,8 @@ public class AudioArtistFragment extends GridFragment implements AudioContent {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onPause() {
+        super.onPause();
         RxUtils.unsubscribe(subscription);
     }
 

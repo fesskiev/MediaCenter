@@ -144,9 +144,14 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        RxUtils.unsubscribe(subscription);
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
-        RxUtils.unsubscribe(subscription);
         repository.getMemorySource().setCacheVideoFoldersDirty(true);
     }
 
