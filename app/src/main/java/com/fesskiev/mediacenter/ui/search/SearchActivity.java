@@ -114,15 +114,12 @@ public class SearchActivity extends AppCompatActivity {
                 .getSearchAudioFiles(query)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(audioFiles -> {
-                    adapter.refreshAdapter(audioFiles, search);
-                });
+                .subscribe(audioFiles -> adapter.refreshAdapter(audioFiles, search));
     }
 
 
     private void setupTransitions() {
-        getWindow()
-                .getEnterTransition()
+        getWindow().getEnterTransition()
                 .addListener(new Transition.TransitionListener() {
                     @Override
                     public void onTransitionStart(Transition transition) {

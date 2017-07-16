@@ -54,21 +54,21 @@ public class AudioArtistFragment extends GridFragment implements AudioContent {
 
     @Override
     public void fetch() {
-        subscription = MediaApplication.getInstance().getRepository().getArtists()
-                .first()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(artists -> {
-                    if (artists != null) {
-                        AppLog.INFO("onNext:artists: " + artists.size());
-                        if (!artists.isEmpty()) {
-                            hideEmptyContentCard();
-                        } else {
-                            showEmptyContentCard();
-                        }
-                        ((AudioArtistsAdapter) adapter).refresh(artists);
-                    }
-                });
+//        subscription = MediaApplication.getInstance().getRepository().getArtists()
+//                .first()
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(artists -> {
+//                    if (artists != null) {
+//                        AppLog.INFO("onNext:artists: " + artists.size());
+//                        if (!artists.isEmpty()) {
+//                            hideEmptyContentCard();
+//                        } else {
+//                            showEmptyContentCard();
+//                        }
+//                        ((AudioArtistsAdapter) adapter).refresh(artists);
+//                    }
+//                });
     }
 
     @Override

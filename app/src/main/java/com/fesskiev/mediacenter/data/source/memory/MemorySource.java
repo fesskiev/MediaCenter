@@ -12,9 +12,9 @@ import rx.Observable;
 
 public interface MemorySource {
 
-    Observable<List<Genre>> getGenres();
+    Observable<List<String>> getGenresList();
 
-    Observable<List<Artist>> getArtists();
+    Observable<List<String>> getArtistsLis();
 
     Observable<List<AudioFolder>> getAudioFolders();
 

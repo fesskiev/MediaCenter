@@ -50,9 +50,8 @@
     <string name="drawer_item_converter">Converter</string>
     <string name="drawer_buy_pro">Buy Pro User</string>
 
-    <string name="audio_tab_title_folders">FOLDERS</string>
-    <string name="audio_tab_title_artist">ARTIST</string>
-    <string name="audio_tab_title_genres">GENRES</string>
+    <string name="audio_tab_title_albums">AlBUMS</string>
+    <string name="audio_tab_title_groups">GROUPS</string>
 
     <string name="hint_request">Request</string>
     <string name="request_error">Empty request</string>

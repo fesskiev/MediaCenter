@@ -47,18 +47,31 @@ public class DataRepository {
         return INSTANCE;
     }
 
-
-    public Observable<List<Artist>> getArtists() {
+    public Observable<List<String>> getArtistsList() {
         if (!memorySource.isCacheArtistsDirty() && !memorySource.isArtistsEmpty()) {
             Log.w(TAG, "get memory cached artists");
-            return memorySource.getArtists();
+            return memorySource.getArtistsLis();
         }
 
         Log.w(TAG, "get local cached artists");
-        return localSource.getArtists().flatMap(artists -> {
+        return localSource.getArtistsList().flatMap(artists -> {
             memorySource.addArtists(artists);
             memorySource.setCacheArtistsDirty(false);
             return Observable.just(artists);
+        });
+    }
+
+    public Observable<List<String>> getGenresList() {
+        if (!memorySource.isCacheGenresDirty() && !memorySource.isGenresEmpty()) {
+            Log.w(TAG, "get memory cached genres");
+            return memorySource.getGenresList();
+        }
+
+        Log.w(TAG, "get local cached genres");
+        return localSource.getGenresList().flatMap(genres -> {
+            memorySource.addGenres(genres);
+            memorySource.setCacheGenresDirty(false);
+            return Observable.just(genres);
         });
     }
 
@@ -73,20 +86,6 @@ public class DataRepository {
             memorySource.addAudioFolders(audioFolders);
             memorySource.setCacheFoldersDirty(false);
             return Observable.just(audioFolders);
-        });
-    }
-
-    public Observable<List<Genre>> getGenres() {
-        if (!memorySource.isCacheGenresDirty() && !memorySource.isGenresEmpty()) {
-            Log.w(TAG, "get memory cached genres");
-            return memorySource.getGenres();
-        }
-
-        Log.w(TAG, "get local cached genres");
-        return localSource.getGenres().flatMap(genres -> {
-            memorySource.addGenres(genres);
-            memorySource.setCacheGenresDirty(false);
-            return Observable.just(genres);
         });
     }
 

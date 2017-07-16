@@ -20,6 +20,10 @@ public interface LocalSource {
 
     Observable<List<Artist>> getArtists();
 
+    Observable<List<String>> getArtistsList();
+
+    Observable<List<String>> getGenresList();
+
     Observable<List<AudioFolder>> getAudioFolders();
 
     Observable<List<VideoFolder>> getVideoFolders();

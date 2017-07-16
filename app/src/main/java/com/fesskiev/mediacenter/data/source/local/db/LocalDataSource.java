@@ -500,6 +500,29 @@ public class LocalDataSource implements LocalSource {
 
     }
 
+
+    @Override
+    public Observable<List<String>> getArtistsList() {
+        String sql = String.format("SELECT DISTINCT %s FROM %s",
+                DatabaseHelper.TRACK_ARTIST,
+                DatabaseHelper.AUDIO_TRACKS_TABLE_NAME);
+
+        return briteDatabase
+                .createQuery(DatabaseHelper.AUDIO_TRACKS_TABLE_NAME, sql)
+                .mapToList(cursor -> cursor.getString(cursor.getColumnIndex(DatabaseHelper.TRACK_ARTIST)));
+    }
+
+    @Override
+    public Observable<List<String>> getGenresList() {
+        String sql = String.format("SELECT DISTINCT %s FROM %s",
+                DatabaseHelper.TRACK_GENRE,
+                DatabaseHelper.AUDIO_TRACKS_TABLE_NAME);
+
+        return briteDatabase
+                .createQuery(DatabaseHelper.AUDIO_TRACKS_TABLE_NAME, sql)
+                .mapToList(cursor -> cursor.getString(cursor.getColumnIndex(DatabaseHelper.TRACK_GENRE)));
+    }
+
     @Override
     public Observable<List<Genre>> getGenres() {
 

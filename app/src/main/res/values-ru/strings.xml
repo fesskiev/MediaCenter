@@ -50,9 +50,8 @@
     <string name="drawer_item_converter">Конвертер</string>
     <string name="drawer_buy_pro">Купить Pro-пользователя</string>
 
-    <string name="audio_tab_title_folders">Папки</string>
-    <string name="audio_tab_title_artist">Артист</string>
-    <string name="audio_tab_title_genres">Жанры</string>
+    <string name="audio_tab_title_albums">Альбомы</string>
+    <string name="audio_tab_title_groups">Группы</string>
 
     <string name="hint_request">Запрос</string>
     <string name="request_error">Пустой запрос</string>

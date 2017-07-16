@@ -230,9 +230,10 @@ public class SplashActivity extends AppCompatActivity {
     private void loadMediaFiles(boolean fromAction) {
         subscription = Observable.zip(
                 repository.getAudioFolders(),
-                repository.getGenres(),
-                repository.getArtists(),
-                (audioFolders, genres, artists) -> Observable.just(null))
+                repository.getGenresList(),
+                repository.getArtistsList(),
+                repository.getVideoFolders(),
+                (audioFolders, genres, artists, videoFolders) -> Observable.just(null))
                 .subscribeOn(Schedulers.io())
                 .subscribe(o -> startMainActivity(fromAction));
     }

@@ -101,7 +101,7 @@ android {
 
 ext {
     supportLibVersion = '25.3.1'
-    firebaseLibVersion = '10.2.6'
+    firebaseLibVersion = '11.0.2'
 }
 
 dependencies {
@@ -136,6 +136,7 @@ dependencies {
     compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
     compile 'com.squareup.sqlbrite:sqlbrite:0.7.0'
     compile 'org.greenrobot:eventbus:3.0.0'
+    compile 'com.thoughtbot:expandablecheckrecyclerview:1.4'
     compile ('com.github.worker8:tourguide:1.0.17-SNAPSHOT@aar'){
         transitive=true
     }

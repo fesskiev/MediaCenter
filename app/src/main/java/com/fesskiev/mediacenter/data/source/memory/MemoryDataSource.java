@@ -3,9 +3,7 @@ package com.fesskiev.mediacenter.data.source.memory;
 
 import android.util.LruCache;
 
-import com.fesskiev.mediacenter.data.model.Artist;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
-import com.fesskiev.mediacenter.data.model.Genre;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
 
 import java.util.List;
@@ -40,11 +38,11 @@ public class MemoryDataSource implements MemorySource {
         cache = new LruCache<>(10);
     }
 
-    public void addArtists(List<Artist> artists) {
+    public void addArtists(List<String> artists) {
         cache.put(ARTISTS, artists);
     }
 
-    public void addGenres(List<Genre> genres) {
+    public void addGenres(List<String> genres) {
         cache.put(GENRES, genres);
     }
 
@@ -56,15 +54,17 @@ public class MemoryDataSource implements MemorySource {
         cache.put(VIDEO_FOLDERS, videoFolders);
     }
 
+
     @Override
-    public Observable<List<Genre>> getGenres() {
-        return Observable.just((List<Genre>) cache.get(GENRES));
+    public Observable<List<String>> getGenresList() {
+        return Observable.just((List<String>) cache.get(GENRES));
     }
 
     @Override
-    public Observable<List<Artist>> getArtists() {
-        return Observable.just((List<Artist>) cache.get(ARTISTS));
+    public Observable<List<String>> getArtistsLis() {
+        return Observable.just((List<String>) cache.get(ARTISTS));
     }
+
 
     @Override
     public Observable<List<AudioFolder>> getAudioFolders() {
@@ -110,7 +110,7 @@ public class MemoryDataSource implements MemorySource {
     }
 
     public boolean isArtistsEmpty() {
-        List<Artist> artists = (List<Artist>) cache.get(ARTISTS);
+        List<String> artists = (List<String>) cache.get(ARTISTS);
         return artists != null && artists.isEmpty();
     }
 
@@ -120,12 +120,12 @@ public class MemoryDataSource implements MemorySource {
     }
 
     public boolean isGenresEmpty() {
-        List<Genre> genres = (List<Genre>) cache.get(GENRES);
+        List<String> genres = (List<String>) cache.get(GENRES);
         return genres != null && genres.isEmpty();
     }
 
     public boolean isVideoFoldersEmpty() {
-        List<Genre> video = (List<Genre>) cache.get(VIDEO_FOLDERS);
+        List<VideoFolder> video = (List<VideoFolder>) cache.get(VIDEO_FOLDERS);
         return video != null && video.isEmpty();
     }
 }

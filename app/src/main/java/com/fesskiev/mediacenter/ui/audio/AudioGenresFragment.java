@@ -53,21 +53,21 @@ public class AudioGenresFragment extends GridFragment implements AudioContent {
 
     @Override
     public void fetch() {
-        subscription = MediaApplication.getInstance().getRepository().getGenres()
-                .first()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(genres -> {
-                    if (genres != null) {
-                        AppLog.INFO("onNext:genres: " + genres.size());
-                        if (!genres.isEmpty()) {
-                            hideEmptyContentCard();
-                        } else {
-                            showEmptyContentCard();
-                        }
-                        ((AudioGenresAdapter) adapter).refresh(genres);
-                    }
-                });
+//        subscription = MediaApplication.getInstance().getRepository().getGenres()
+//                .first()
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(genres -> {
+//                    if (genres != null) {
+//                        AppLog.INFO("onNext:genres: " + genres.size());
+//                        if (!genres.isEmpty()) {
+//                            hideEmptyContentCard();
+//                        } else {
+//                            showEmptyContentCard();
+//                        }
+//                        ((AudioGenresAdapter) adapter).refresh(genres);
+//                    }
+//                });
     }
 
     @Override
