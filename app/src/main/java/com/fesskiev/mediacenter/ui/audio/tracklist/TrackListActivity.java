@@ -156,11 +156,15 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        RxUtils.unsubscribe(subscription);
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
-        RxUtils.unsubscribe(subscription);
         EventBus.getDefault().unregister(this);
-
     }
 
     @Override
