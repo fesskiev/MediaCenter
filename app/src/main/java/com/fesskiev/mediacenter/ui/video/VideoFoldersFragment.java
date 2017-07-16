@@ -36,7 +36,6 @@ import com.fesskiev.mediacenter.widgets.dialogs.VideoFolderDetailsDialog;
 import com.fesskiev.mediacenter.widgets.item.VideoFolderCardView;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.menu.FolderContextMenu;
-import com.fesskiev.mediacenter.widgets.recycleview.GridDividerDecoration;
 import com.fesskiev.mediacenter.widgets.recycleview.helper.ItemTouchHelperAdapter;
 import com.fesskiev.mediacenter.widgets.recycleview.helper.ItemTouchHelperViewHolder;
 import com.fesskiev.mediacenter.widgets.recycleview.helper.SimpleItemTouchHelperCallback;
@@ -89,7 +88,6 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
 
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.foldersGridView);
         recyclerView.setLayoutManager(gridLayoutManager);
-        recyclerView.addItemDecoration(new GridDividerDecoration(getActivity()));
         adapter = new VideoFoldersAdapter(getActivity());
         recyclerView.setAdapter(adapter);
 

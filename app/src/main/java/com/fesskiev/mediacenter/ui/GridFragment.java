@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.ui.audio.AudioFragment;
 import com.fesskiev.mediacenter.ui.playback.HidingPlaybackFragment;
-import com.fesskiev.mediacenter.widgets.recycleview.GridDividerDecoration;
 import com.fesskiev.mediacenter.widgets.recycleview.HidingScrollListener;
 
 public abstract class GridFragment extends HidingPlaybackFragment {
@@ -35,7 +34,6 @@ public abstract class GridFragment extends HidingPlaybackFragment {
 
         recyclerView = (RecyclerView) view.findViewById(R.id.foldersGridView);
         recyclerView.setLayoutManager(gridLayoutManager);
-        recyclerView.addItemDecoration(new GridDividerDecoration(getContext().getApplicationContext()));
         adapter = createAdapter();
         recyclerView.setAdapter(adapter);
         recyclerView.addOnScrollListener(new HidingScrollListener() {

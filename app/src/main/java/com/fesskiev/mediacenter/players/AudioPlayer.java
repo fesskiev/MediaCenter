@@ -59,7 +59,7 @@ public class AudioPlayer implements Playable {
                 .flatMap(audioFiles -> Observable.just(sortAudioFiles(AppSettingsManager.getInstance().getSortType(), audioFiles)))
                 .doOnNext(audioFiles -> {
                     currentTrackList = audioFiles;
-                    EventBus.getDefault().post(currentTrackList);
+                    notifyCurrentTrackList();
                 })
                 .flatMap(audioFiles -> repository.getSelectedAudioFile())
                 .doOnNext(audioFile -> {
@@ -132,7 +132,7 @@ public class AudioPlayer implements Playable {
 
 
     private void openAudioFile(boolean startPlayback) {
-        EventBus.getDefault().post(currentTrack);
+        notifyCurrentTrack();
         Log.e(TAG, AudioPlayer.this.toString());
 
         FFmpegHelper FFmpeg = FFmpegHelper.getInstance();
@@ -193,7 +193,7 @@ public class AudioPlayer implements Playable {
         audioFolder.isSelected = true;
         repository.updateSelectedAudioFolder(audioFolder);
 
-        EventBus.getDefault().post(currentTrackList);
+        notifyCurrentTrackList();
 
         Log.e(TAG, AudioPlayer.this.toString());
     }
@@ -201,7 +201,7 @@ public class AudioPlayer implements Playable {
     public void setCurrentTrackList(List<AudioFile> audioFiles) {
         currentTrackList = audioFiles;
 
-        EventBus.getDefault().post(currentTrackList);
+        notifyCurrentTrackList();
 
         Log.e(TAG, AudioPlayer.this.toString());
     }
@@ -214,11 +214,25 @@ public class AudioPlayer implements Playable {
             currentTrackList = audioFiles;
             trackListIterator.findPosition();
 
-            EventBus.getDefault().post(currentTrackList);
+            notifyCurrentTrackList();
 
             Log.e(TAG, AudioPlayer.this.toString());
         }
     }
+
+
+    private void notifyCurrentTrackList() {
+        if (currentTrackList != null) {
+            EventBus.getDefault().post(currentTrackList);
+        }
+    }
+
+    private void notifyCurrentTrack() {
+        if (currentTrack != null) {
+            EventBus.getDefault().post(currentTrack);
+        }
+    }
+
 
     private boolean isSortingCurrentTrackList(List<AudioFile> audioFiles) {
         if (currentTrackList == null) {
