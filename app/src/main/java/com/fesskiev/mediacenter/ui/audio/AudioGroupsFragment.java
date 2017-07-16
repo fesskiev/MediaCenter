@@ -19,8 +19,10 @@ import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.Group;
 import com.fesskiev.mediacenter.data.model.GroupItem;
 import com.fesskiev.mediacenter.data.source.DataRepository;
+import com.fesskiev.mediacenter.ui.playback.HidingPlaybackFragment;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.RxUtils;
+import com.fesskiev.mediacenter.widgets.recycleview.HidingScrollListener;
 import com.thoughtbot.expandablecheckrecyclerview.CheckableChildRecyclerViewAdapter;
 import com.thoughtbot.expandablecheckrecyclerview.models.CheckedExpandableGroup;
 import com.thoughtbot.expandablecheckrecyclerview.viewholders.CheckableChildViewHolder;
@@ -36,7 +38,7 @@ import rx.schedulers.Schedulers;
 import static android.view.animation.Animation.RELATIVE_TO_SELF;
 
 
-public class AudioGroupsFragment extends Fragment implements AudioContent {
+public class AudioGroupsFragment extends HidingPlaybackFragment implements AudioContent {
 
     public static AudioGroupsFragment newInstance() {
         return new AudioGroupsFragment();
@@ -67,6 +69,22 @@ public class AudioGroupsFragment extends Fragment implements AudioContent {
 
         recyclerView = (RecyclerView) view.findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.addOnScrollListener(new HidingScrollListener() {
+            @Override
+            public void onHide() {
+                hidePlaybackControl();
+            }
+
+            @Override
+            public void onShow() {
+                showPlaybackControl();
+            }
+
+            @Override
+            public void onItemPosition(int position) {
+
+            }
+        });
 
     }
 

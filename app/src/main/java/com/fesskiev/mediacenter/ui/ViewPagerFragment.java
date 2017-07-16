@@ -112,15 +112,6 @@ public abstract class ViewPagerFragment extends Fragment {
         }
     }
 
-    public void hideTabs() {
-        tabLayout.setVisibility(View.GONE);
-    }
-
-    public void showTabs() {
-        tabLayout.setVisibility(View.VISIBLE);
-    }
-
-
     private void setupViewPager(ViewPager viewPager) {
         adapter = new ViewPagerAdapter(getFragmentManager());
         Fragment[] fragments = getPagerFragments();

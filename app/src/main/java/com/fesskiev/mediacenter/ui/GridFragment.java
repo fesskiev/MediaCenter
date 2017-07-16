@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.ui.audio.AudioFragment;
 import com.fesskiev.mediacenter.ui.playback.HidingPlaybackFragment;
 import com.fesskiev.mediacenter.widgets.recycleview.HidingScrollListener;
 
@@ -39,13 +38,11 @@ public abstract class GridFragment extends HidingPlaybackFragment {
         recyclerView.addOnScrollListener(new HidingScrollListener() {
             @Override
             public void onHide() {
-                hideTabLayout();
                 hidePlaybackControl();
             }
 
             @Override
             public void onShow() {
-                showTabLayout();
                 showPlaybackControl();
             }
 
@@ -56,22 +53,6 @@ public abstract class GridFragment extends HidingPlaybackFragment {
         });
 
         emptyAudioContent = (CardView) view.findViewById(R.id.emptyAudioContentCard);
-    }
-
-    private void hideTabLayout() {
-        AudioFragment audioFragment = (AudioFragment) getActivity().getSupportFragmentManager().
-                findFragmentByTag(AudioFragment.class.getName());
-        if (audioFragment != null) {
-            audioFragment.hideTabs();
-        }
-    }
-
-    private void showTabLayout() {
-        AudioFragment audioFragment = (AudioFragment) getActivity().getSupportFragmentManager().
-                findFragmentByTag(AudioFragment.class.getName());
-        if (audioFragment != null) {
-            audioFragment.showTabs();
-        }
     }
 
     protected void showEmptyContentCard() {
