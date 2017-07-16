@@ -4,18 +4,14 @@ package com.fesskiev.mediacenter.data.source.local.db;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.text.TextUtils;
 
 import com.fesskiev.mediacenter.MediaApplication;
-import com.fesskiev.mediacenter.data.model.Artist;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
-import com.fesskiev.mediacenter.data.model.Genre;
 import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
 import com.fesskiev.mediacenter.data.source.local.LocalSource;
-import com.fesskiev.mediacenter.utils.CacheManager;
 import com.squareup.sqlbrite.BriteDatabase;
 import com.squareup.sqlbrite.SqlBrite;
 
@@ -481,25 +477,6 @@ public class LocalDataSource implements LocalSource {
                 .mapToList(VideoFolder::new);
     }
 
-    @Override
-    public Observable<List<Artist>> getArtists() {
-
-        String[] projection = {
-                DatabaseHelper.TRACK_ARTIST,
-                DatabaseHelper.TRACK_COVER,
-        };
-
-        String sql = String.format("SELECT %s FROM %s GROUP BY %s",
-                TextUtils.join(",", projection),
-                DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
-                DatabaseHelper.TRACK_ARTIST);
-
-        return briteDatabase
-                .createQuery(DatabaseHelper.AUDIO_TRACKS_TABLE_NAME, sql)
-                .mapToList(Artist::new);
-
-    }
-
 
     @Override
     public Observable<List<String>> getArtistsList() {
@@ -521,24 +498,6 @@ public class LocalDataSource implements LocalSource {
         return briteDatabase
                 .createQuery(DatabaseHelper.AUDIO_TRACKS_TABLE_NAME, sql)
                 .mapToList(cursor -> cursor.getString(cursor.getColumnIndex(DatabaseHelper.TRACK_GENRE)));
-    }
-
-    @Override
-    public Observable<List<Genre>> getGenres() {
-
-        String[] projection = {
-                DatabaseHelper.TRACK_GENRE,
-                DatabaseHelper.TRACK_COVER,
-        };
-
-        String sql = String.format("SELECT %s FROM %s GROUP BY %s",
-                TextUtils.join(",", projection),
-                DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
-                DatabaseHelper.TRACK_GENRE);
-
-        return briteDatabase
-                .createQuery(DatabaseHelper.AUDIO_TRACKS_TABLE_NAME, sql)
-                .mapToList(Genre::new);
     }
 
     @Override

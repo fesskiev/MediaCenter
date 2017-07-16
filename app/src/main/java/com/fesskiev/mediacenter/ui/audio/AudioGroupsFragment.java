@@ -112,8 +112,10 @@ public class AudioGroupsFragment extends Fragment implements AudioContent {
             AppLog.ERROR("group item: " + groupItem.toString());
             switch (groupItem.getType()) {
                 case ARTIST:
+                    String artist = groupItem.getName();
                     break;
                 case GENRE:
+                    String genre = groupItem.getName();
                     break;
                 default:
                     break;

@@ -3,14 +3,11 @@ package com.fesskiev.mediacenter.data.source;
 
 import android.util.Log;
 
-import com.fesskiev.mediacenter.data.model.Artist;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
-import com.fesskiev.mediacenter.data.model.Genre;
 import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
-import com.fesskiev.mediacenter.data.model.search.Album;
 import com.fesskiev.mediacenter.data.model.search.AlbumResponse;
 import com.fesskiev.mediacenter.data.source.local.db.LocalDataSource;
 import com.fesskiev.mediacenter.data.source.memory.MemoryDataSource;

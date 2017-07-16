@@ -1,10 +1,8 @@
 package com.fesskiev.mediacenter.data.source.local;
 
 
-import com.fesskiev.mediacenter.data.model.Artist;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
-import com.fesskiev.mediacenter.data.model.Genre;
 import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
@@ -15,10 +13,6 @@ import java.util.concurrent.Callable;
 import rx.Observable;
 
 public interface LocalSource {
-
-    Observable<List<Genre>> getGenres();
-
-    Observable<List<Artist>> getArtists();
 
     Observable<List<String>> getArtistsList();
 

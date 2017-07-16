@@ -15,10 +15,8 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.data.model.Artist;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
-import com.fesskiev.mediacenter.data.model.Genre;
 import com.fesskiev.mediacenter.data.model.MediaFile;
 
 import java.io.File;
@@ -226,56 +224,6 @@ public class BitmapHelper {
             return artworkFile.getAbsolutePath();
         }
         return null;
-    }
-
-
-    public void loadAudioArtistsFolderArtwork(Artist artist, ImageView placeholder) {
-
-        String path = artist.artworkPath;
-        if (path != null) {
-            Glide.with(context)
-                    .load(path)
-                    .override(WIDTH * 3, HEIGHT * 3)
-                    .crossFade()
-                    .centerCrop()
-                    .listener(loggingListener)
-                    .error(R.drawable.no_cover_folder_icon)
-                    .diskCacheStrategy(DiskCacheStrategy.RESULT)
-                    .into(placeholder);
-        } else {
-            Glide.with(context)
-                    .load(R.drawable.no_cover_folder_icon)
-                    .override(WIDTH * 3, HEIGHT * 3)
-                    .crossFade()
-                    .centerCrop()
-                    .diskCacheStrategy(DiskCacheStrategy.RESULT)
-                    .into(placeholder);
-        }
-
-    }
-
-    public void loadAudioGenresFolderArtwork(Genre genre, ImageView placeholder) {
-
-        String path = genre.artworkPath;
-        if (path != null) {
-            Glide.with(context)
-                    .load(path)
-                    .override(WIDTH * 3, HEIGHT * 3)
-                    .crossFade()
-                    .centerCrop()
-                    .listener(loggingListener)
-                    .error(R.drawable.no_cover_folder_icon)
-                    .diskCacheStrategy(DiskCacheStrategy.RESULT)
-                    .into(placeholder);
-        } else {
-            Glide.with(context)
-                    .load(R.drawable.no_cover_folder_icon)
-                    .override(WIDTH * 3, HEIGHT * 3)
-                    .crossFade()
-                    .centerCrop()
-                    .diskCacheStrategy(DiskCacheStrategy.RESULT)
-                    .into(placeholder);
-        }
     }
 
     public void loadAudioFolderArtwork(AudioFolder audioFolder, ImageView placeholder) {
