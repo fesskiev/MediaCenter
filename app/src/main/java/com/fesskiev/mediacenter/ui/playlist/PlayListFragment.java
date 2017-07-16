@@ -168,7 +168,7 @@ public class PlayListFragment extends Fragment {
             MediaFile mediaFile = mediaFiles.get(position);
             if (mediaFile != null) {
 
-                BitmapHelper.getInstance().loadTrackListArtwork(mediaFile, null, holder.cover);
+                BitmapHelper.getInstance().loadTrackListArtwork(mediaFile, holder.cover);
 
                 switch (mediaFile.getMediaType()) {
                     case VIDEO:

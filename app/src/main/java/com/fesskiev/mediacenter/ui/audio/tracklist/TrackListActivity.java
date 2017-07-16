@@ -189,14 +189,14 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
         Observable<List<AudioFile>> audioFilesObservable = null;
 
         switch (contentType) {
-            case GENRE:
-                audioFilesObservable = repository.getGenreTracks(contentValue);
-                break;
             case FOLDERS:
                 audioFilesObservable = repository.getAudioTracks(audioFolder.id);
                 break;
             case ARTIST:
                 audioFilesObservable = repository.getArtistTracks(contentValue);
+                break;
+            case GENRE:
+                audioFilesObservable = repository.getGenreTracks(contentValue);
                 break;
         }
 
@@ -480,7 +480,7 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                 holder.title.setText(audioFile.title);
                 holder.filePath.setText(audioFile.filePath.getName());
 
-                BitmapHelper.getInstance().loadTrackListArtwork(audioFile, audioFolder, holder.cover);
+                BitmapHelper.getInstance().loadTrackListArtwork(audioFile, holder.cover);
 
                 AudioFile selectedTrack = audioPlayer.getCurrentTrack();
                 if (selectedTrack != null && selectedTrack.equals(audioFile) && lastPlaying) {

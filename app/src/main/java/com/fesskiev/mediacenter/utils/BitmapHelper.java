@@ -70,8 +70,8 @@ public class BitmapHelper {
     }
 
 
-    public void loadBitmap(MediaFile mediaFile, AudioFolder audioFolder, final OnBitmapLoadListener listener) {
-        String path = findPath(mediaFile, audioFolder);
+    public void loadBitmap(MediaFile mediaFile, final OnBitmapLoadListener listener) {
+        String path = findPath(mediaFile);
         if (path != null) {
             Glide.with(context)
                     .load(path)
@@ -107,25 +107,12 @@ public class BitmapHelper {
         }
     }
 
-    public boolean loadAudioPlayerArtwork(AudioFolder audioFolder, AudioFile audioFile, ImageView imageView) {
+    public boolean loadAudioPlayerArtwork(AudioFile audioFile, ImageView imageView) {
         if (audioFile != null) {
             String mediaArtworkPath = findMediaFileArtworkPath(audioFile);
             if (mediaArtworkPath != null) {
                 Glide.with(context)
                         .load(mediaArtworkPath)
-                        .override(WIDTH * 3, HEIGHT * 3)
-                        .centerCrop()
-                        .diskCacheStrategy(DiskCacheStrategy.RESULT)
-                        .into(imageView);
-                return true;
-            }
-        }
-
-        if (audioFolder != null) {
-            String folderPath = findAudioFolderArtworkPath(audioFolder);
-            if (folderPath != null) {
-                Glide.with(context)
-                        .load(folderPath)
                         .override(WIDTH * 3, HEIGHT * 3)
                         .centerCrop()
                         .diskCacheStrategy(DiskCacheStrategy.RESULT)
@@ -143,24 +130,17 @@ public class BitmapHelper {
         return false;
     }
 
-    private String findPath(MediaFile mediaFile, AudioFolder audioFolder) {
+    private String findPath(MediaFile mediaFile) {
         if (mediaFile != null) {
             String mediaArtworkPath = findMediaFileArtworkPath(mediaFile);
             if (mediaArtworkPath != null) {
                 return mediaArtworkPath;
             }
         }
-
-        if (audioFolder != null) {
-            String folderPath = findAudioFolderArtworkPath(audioFolder);
-            if (folderPath != null) {
-                return folderPath;
-            }
-        }
         return null;
     }
 
-    public void loadTrackListArtwork(MediaFile mediaFile, AudioFolder audioFolder, ImageView imageView) {
+    public void loadTrackListArtwork(MediaFile mediaFile, ImageView imageView) {
 
         String mediaArtworkPath = findMediaFileArtworkPath(mediaFile);
         if (mediaArtworkPath != null) {
@@ -175,23 +155,6 @@ public class BitmapHelper {
                     .transform(new CircleTransform(context))
                     .into(imageView);
             return;
-        }
-
-        if (audioFolder != null) {
-            String folderPath = findAudioFolderArtworkPath(audioFolder);
-            if (folderPath != null) {
-                Glide.with(context)
-                        .load(folderPath)
-                        .override(WIDTH, HEIGHT)
-                        .crossFade()
-                        .centerCrop()
-                        .listener(loggingListener)
-                        .error(R.drawable.no_cover_track_icon)
-                        .diskCacheStrategy(DiskCacheStrategy.RESULT)
-                        .transform(new CircleTransform(context))
-                        .into(imageView);
-                return;
-            }
         }
 
         if (mediaFile instanceof AudioFile) {

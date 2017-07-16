@@ -33,9 +33,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
-
 
 public abstract class PlaybackActivity extends AnalyticsActivity {
 
@@ -300,11 +297,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         artist.setText(audioFile.artist);
         clearDuration();
 
-        audioPlayer.getCurrentAudioFolder()
-                .first()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(audioFolder -> BitmapHelper.getInstance().loadTrackListArtwork(audioFile, audioFolder, cover));
+        BitmapHelper.getInstance().loadTrackListArtwork(audioFile, cover);
 
     }
 

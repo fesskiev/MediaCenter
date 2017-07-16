@@ -45,6 +45,7 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
     public String bitrate;
     public String sampleRate;
     public String artworkPath;
+    public String folderArtworkPath;
     public int trackNumber;
     public long length;
     public long size;
@@ -79,6 +80,7 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
         bitrate = cursor.getString(cursor.getColumnIndex(DatabaseHelper.TRACK_BITRATE));
         sampleRate = cursor.getString(cursor.getColumnIndex(DatabaseHelper.TRACK_SAMPLE_RATE));
         artworkPath = cursor.getString(cursor.getColumnIndex(DatabaseHelper.TRACK_COVER));
+        folderArtworkPath = cursor.getString(cursor.getColumnIndex(DatabaseHelper.TRACK_FOLDER_COVER));
         trackNumber = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_NUMBER));
         inPlayList = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_IN_PLAY_LIST)) == 1;
         isSelected = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_SELECTED)) == 1;
@@ -234,7 +236,10 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
 
     @Override
     public String getArtworkPath() {
-        return artworkPath;
+        if (artworkPath != null) {
+            return artworkPath;
+        }
+        return folderArtworkPath;
     }
 
     @Override
@@ -314,6 +319,7 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
                 ", bitrate='" + bitrate + "\n" +
                 ", sampleRate='" + sampleRate + "\n" +
                 ", artworkPath='" + artworkPath + "\n" +
+                ", folderArtworkPath='" + folderArtworkPath + "\n" +
                 ", trackNumber=" + trackNumber + "\n" +
                 ", length=" + length + "\n" +
                 ", size=" + size + "\n" +

@@ -242,7 +242,7 @@ public class SearchActivity extends AppCompatActivity {
             MediaFile mediaFile = mediaFiles.get(position);
             if (mediaFile != null) {
 
-                BitmapHelper.getInstance().loadTrackListArtwork(mediaFile, null, holder.cover);
+                BitmapHelper.getInstance().loadTrackListArtwork(mediaFile, holder.cover);
 
                 holder.duration.setText(Utils.getDurationString(mediaFile.getLength()));
                 holder.title.setText(mediaFile.getTitle());

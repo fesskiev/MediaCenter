@@ -54,6 +54,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TRACK_BITRATE = "TrackBitrate";
     public static final String TRACK_SAMPLE_RATE = "TrackSampleRate";
     public static final String TRACK_COVER = "TrackCover";
+    public static final String TRACK_FOLDER_COVER = "TrackFolderCover";
     public static final String TRACK_NUMBER = "TrackNumber";
     public static final String TRACK_LENGTH = "TrackLength";
     public static final String TRACK_SIZE = "TrackSize";
@@ -128,6 +129,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             TRACK_IN_PLAY_LIST + " " + INTEGER_TYPE + " ," +
             TRACK_SELECTED + " " + INTEGER_TYPE + " ," +
             TRACK_HIDDEN + " " + INTEGER_TYPE + " ," +
+            TRACK_FOLDER_COVER + " " + TEXT_TYPE + " ," +
             TRACK_COVER + " " + TEXT_TYPE +
             ")";
 

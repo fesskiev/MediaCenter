@@ -101,6 +101,7 @@ public class LocalDataSource implements LocalSource {
         values.put(DatabaseHelper.TRACK_SELECTED, audioFile.isSelected ? 1 : 0);
         values.put(DatabaseHelper.TRACK_HIDDEN, audioFile.isHidden ? 1 : 0);
         values.put(DatabaseHelper.TRACK_COVER, audioFile.artworkPath);
+        values.put(DatabaseHelper.TRACK_FOLDER_COVER, audioFile.folderArtworkPath);
 
         briteDatabase.insert(DatabaseHelper.AUDIO_TRACKS_TABLE_NAME, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
@@ -126,6 +127,7 @@ public class LocalDataSource implements LocalSource {
         values.put(DatabaseHelper.TRACK_SELECTED, audioFile.isSelected ? 1 : 0);
         values.put(DatabaseHelper.TRACK_HIDDEN, audioFile.isHidden ? 1 : 0);
         values.put(DatabaseHelper.TRACK_COVER, audioFile.artworkPath);
+        values.put(DatabaseHelper.TRACK_FOLDER_COVER, audioFile.folderArtworkPath);
 
         briteDatabase.update(
                 DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,

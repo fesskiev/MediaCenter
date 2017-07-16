@@ -431,6 +431,7 @@ public class FileSystemService extends JobService {
 
                 new AudioFile(getApplicationContext(), path, audioFolder.id, audioFile -> {
 
+                    audioFile.folderArtworkPath = audioFolder.folderImage.getAbsolutePath();
                     MediaApplication.getInstance().getRepository().insertAudioFile(audioFile);
 
                     sendFileDescription(audioFile.artist + "-" + audioFile.title);

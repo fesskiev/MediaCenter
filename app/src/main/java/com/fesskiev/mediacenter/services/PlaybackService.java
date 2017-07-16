@@ -490,24 +490,19 @@ public class PlaybackService extends Service {
     }
 
     private void updateNotification(AudioFile audioFile) {
-        audioPlayer.getCurrentAudioFolder()
-                .first()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(audioFolder -> BitmapHelper.getInstance().loadBitmap(audioFile, audioFolder,
-                        new BitmapHelper.OnBitmapLoadListener() {
-                            @Override
-                            public void onLoaded(Bitmap bitmap) {
-                                notificationHelper.updateNotification(audioFile, bitmap, playing);
-                                startForeground(NotificationHelper.NOTIFICATION_ID,
-                                        notificationHelper.getNotification());
-                            }
+        BitmapHelper.getInstance().loadBitmap(audioFile, new BitmapHelper.OnBitmapLoadListener() {
+                    @Override
+                    public void onLoaded(Bitmap bitmap) {
+                        notificationHelper.updateNotification(audioFile, bitmap, playing);
+                        startForeground(NotificationHelper.NOTIFICATION_ID,
+                                notificationHelper.getNotification());
+                    }
 
-                            @Override
-                            public void onFailed() {
+                    @Override
+                    public void onFailed() {
 
-                            }
-                        }));
+                    }
+                });
     }
 
     private void registerNotificationReceiver() {

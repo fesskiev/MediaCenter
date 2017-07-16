@@ -124,7 +124,7 @@ public class AudioGroupsFragment extends Fragment implements AudioContent {
     }
 
 
-    public class GroupsAdapter extends CheckableChildRecyclerViewAdapter<GroupsAdapter.GroupViewHolder, GroupsAdapter.GroupItemViewHolder> {
+    public static class GroupsAdapter extends CheckableChildRecyclerViewAdapter<GroupsAdapter.GroupViewHolder, GroupsAdapter.GroupItemViewHolder> {
 
 
         public class GroupItemViewHolder extends CheckableChildViewHolder {

@@ -24,7 +24,6 @@ import com.fesskiev.mediacenter.ui.audio.tracklist.PlayerTrackListActivity;
 import com.fesskiev.mediacenter.ui.cue.CueActivity;
 import com.fesskiev.mediacenter.ui.cut.CutMediaActivity;
 import com.fesskiev.mediacenter.ui.effects.EffectsActivity;
-import com.fesskiev.mediacenter.ui.video.player.VideoExoPlayerActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
@@ -40,10 +39,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
-
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
-
 
 public class AudioPlayerActivity extends AnalyticsActivity {
 
@@ -384,11 +379,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
 
     private void setBackdropImage(AudioFile audioFile) {
-        audioPlayer.getCurrentAudioFolder()
-                .first()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(audioFolder -> BitmapHelper.getInstance().loadAudioPlayerArtwork(audioFolder, audioFile, backdrop));
+        BitmapHelper.getInstance().loadAudioPlayerArtwork(audioFile, backdrop);
     }
 
 
