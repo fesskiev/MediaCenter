@@ -132,7 +132,8 @@ public class LocalDataSource implements LocalSource {
         briteDatabase.update(
                 DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
                 values,
-                DatabaseHelper.TRACK_PATH + "=" + "'" + audioFile.filePath + "'");
+                DatabaseHelper.TRACK_PATH + "=" + "'" +
+                        audioFile.getFilePath().replaceAll("'", "''")  + "'");
     }
 
     @Override

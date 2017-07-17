@@ -26,10 +26,8 @@ import com.fesskiev.mediacenter.widgets.recycleview.HidingScrollListener;
 import com.thoughtbot.expandablecheckrecyclerview.CheckableChildRecyclerViewAdapter;
 import com.thoughtbot.expandablecheckrecyclerview.models.CheckedExpandableGroup;
 import com.thoughtbot.expandablecheckrecyclerview.viewholders.CheckableChildViewHolder;
-import com.thoughtbot.expandablerecyclerview.listeners.GroupExpandCollapseListener;
 import com.thoughtbot.expandablerecyclerview.models.ExpandableGroup;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import rx.Observable;
@@ -50,18 +48,13 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
 
 
     private RecyclerView recyclerView;
-    private GroupsAdapter adapter;
 
     private Subscription subscription;
     private DataRepository repository;
 
-    private List<ExpandableGroup> expandableGroups;
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        expandableGroups = new ArrayList<>();
         repository = MediaApplication.getInstance().getRepository();
     }
 
@@ -95,20 +88,14 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
             }
         });
 
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
         fetch();
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onDestroy() {
+        super.onDestroy();
         RxUtils.unsubscribe(subscription);
     }
-
 
     @Override
     public void fetch() {
@@ -125,34 +112,10 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
     }
 
     private void makeExpandAdapter(List<Group> groups) {
-        adapter = new GroupsAdapter(groups);
+        GroupsAdapter adapter = new GroupsAdapter(groups);
         recyclerView.setAdapter(adapter);
         adapter.setChildClickListener((v, checked, group, childIndex) -> processClick(group, childIndex));
-        adapter.setOnGroupExpandCollapseListener(new GroupExpandCollapseListener() {
-            @Override
-            public void onGroupExpanded(ExpandableGroup group) {
-                if (!expandableGroups.contains(group)) {
-                    expandableGroups.add(group);
-                }
-            }
 
-            @Override
-            public void onGroupCollapsed(ExpandableGroup group) {
-                if (expandableGroups.contains(group)) {
-                    expandableGroups.remove(group);
-                }
-
-            }
-        });
-//        expandIfNeed();
-    }
-
-    private void expandIfNeed() {
-        if (expandableGroups != null && !expandableGroups.isEmpty()) {
-            for (ExpandableGroup group : expandableGroups) {
-                adapter.toggleGroup(group);
-            }
-        }
     }
 
     private void processClick(CheckedExpandableGroup group, int childIndex) {
@@ -233,7 +196,8 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
 
             private void animateExpand() {
                 RotateAnimation rotate =
-                        new RotateAnimation(360, 180, RELATIVE_TO_SELF, 0.5f, RELATIVE_TO_SELF, 0.5f);
+                        new RotateAnimation(360, 180, RELATIVE_TO_SELF,
+                                0.5f, RELATIVE_TO_SELF, 0.5f);
                 rotate.setDuration(300);
                 rotate.setFillAfter(true);
                 arrow.setAnimation(rotate);
@@ -241,7 +205,8 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
 
             private void animateCollapse() {
                 RotateAnimation rotate =
-                        new RotateAnimation(180, 360, RELATIVE_TO_SELF, 0.5f, RELATIVE_TO_SELF, 0.5f);
+                        new RotateAnimation(180, 360, RELATIVE_TO_SELF,
+                                0.5f, RELATIVE_TO_SELF, 0.5f);
                 rotate.setDuration(300);
                 rotate.setFillAfter(true);
                 arrow.setAnimation(rotate);
