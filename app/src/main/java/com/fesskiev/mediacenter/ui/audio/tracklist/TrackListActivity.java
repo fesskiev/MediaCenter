@@ -24,8 +24,7 @@ import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity;
-import com.fesskiev.mediacenter.ui.audio.utils.CONTENT_TYPE;
-import com.fesskiev.mediacenter.ui.audio.utils.Constants;
+import com.fesskiev.mediacenter.ui.audio.CONTENT_TYPE;
 import com.fesskiev.mediacenter.utils.AnimationUtils;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
@@ -52,6 +51,9 @@ import rx.schedulers.Schedulers;
 
 public class TrackListActivity extends AnalyticsActivity implements View.OnClickListener {
 
+    public static final String EXTRA_CONTENT_TYPE = "com.fesskiev.player.EXTRA_CONTENT_TYPE";
+    public static final String EXTRA_CONTENT_TYPE_VALUE = "com.fesskiev.player.EXTRA_CONTENT_TYPE_VALUE";
+    public static final String EXTRA_AUDIO_FOLDER = "com.fesskiev.player.EXTRA_AUDIO_FOLDER";
 
     private FloatingActionMenu actionMenu;
 
@@ -87,20 +89,18 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
         if (toolbar != null) {
             String title = null;
             contentType =
-                    (CONTENT_TYPE) getIntent().getSerializableExtra(Constants.EXTRA_CONTENT_TYPE);
+                    (CONTENT_TYPE) getIntent().getSerializableExtra(EXTRA_CONTENT_TYPE);
             switch (contentType) {
                 case GENRE:
                 case ARTIST:
-                    title = getIntent().getExtras().getString(Constants.EXTRA_CONTENT_TYPE_VALUE);
+                    title = getIntent().getExtras().getString(EXTRA_CONTENT_TYPE_VALUE);
                     contentValue = title;
                     break;
                 case FOLDERS:
-                    audioFolder = getIntent().getExtras().getParcelable(Constants.EXTRA_AUDIO_FOLDER);
+                    audioFolder = getIntent().getExtras().getParcelable(EXTRA_AUDIO_FOLDER);
                     if (audioFolder != null) {
                         title = audioFolder.folderName;
                     }
-                    break;
-                case PLAYLIST:
                     break;
             }
 

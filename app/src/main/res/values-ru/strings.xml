@@ -263,4 +263,7 @@
     <string name="cut_range">Диапазон</string>
     <string name="cut_file_name">Имя файла</string>
 
+    <string name="group_genres">Жанры</string>
+    <string name="group_artists">Артисты</string>
+
 </resources>

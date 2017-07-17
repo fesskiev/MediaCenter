@@ -4,16 +4,14 @@ package com.fesskiev.mediacenter.data.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.fesskiev.mediacenter.ui.audio.CONTENT_TYPE;
+
 public class GroupItem implements Parcelable {
 
-    public enum TYPE {
-        GENRE, ARTIST
-    }
-
-    private TYPE type;
+    private CONTENT_TYPE type;
     private String name;
 
-    public GroupItem(String name, TYPE type) {
+    public GroupItem(String name, CONTENT_TYPE type) {
         this.name = name;
         this.type = type;
     }
@@ -22,7 +20,7 @@ public class GroupItem implements Parcelable {
 
     }
 
-    public TYPE getType() {
+    public CONTENT_TYPE getType() {
         return type;
     }
 
@@ -33,7 +31,7 @@ public class GroupItem implements Parcelable {
     protected GroupItem(Parcel in) {
         this.name = in.readString();
         int tmpType = in.readInt();
-        this.type = tmpType == -1 ? null : TYPE.values()[tmpType];
+        this.type = tmpType == -1 ? null : CONTENT_TYPE.values()[tmpType];
     }
 
 

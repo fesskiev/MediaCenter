@@ -1,8 +1,8 @@
 package com.fesskiev.mediacenter.ui.audio;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -19,15 +19,17 @@ import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.Group;
 import com.fesskiev.mediacenter.data.model.GroupItem;
 import com.fesskiev.mediacenter.data.source.DataRepository;
+import com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity;
 import com.fesskiev.mediacenter.ui.playback.HidingPlaybackFragment;
-import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.widgets.recycleview.HidingScrollListener;
 import com.thoughtbot.expandablecheckrecyclerview.CheckableChildRecyclerViewAdapter;
 import com.thoughtbot.expandablecheckrecyclerview.models.CheckedExpandableGroup;
 import com.thoughtbot.expandablecheckrecyclerview.viewholders.CheckableChildViewHolder;
+import com.thoughtbot.expandablerecyclerview.listeners.GroupExpandCollapseListener;
 import com.thoughtbot.expandablerecyclerview.models.ExpandableGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import rx.Observable;
@@ -36,6 +38,8 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 import static android.view.animation.Animation.RELATIVE_TO_SELF;
+import static com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity.EXTRA_CONTENT_TYPE;
+import static com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity.EXTRA_CONTENT_TYPE_VALUE;
 
 
 public class AudioGroupsFragment extends HidingPlaybackFragment implements AudioContent {
@@ -46,13 +50,18 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
 
 
     private RecyclerView recyclerView;
+    private GroupsAdapter adapter;
 
     private Subscription subscription;
     private DataRepository repository;
 
+    private List<ExpandableGroup> expandableGroups;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        expandableGroups = new ArrayList<>();
         repository = MediaApplication.getInstance().getRepository();
     }
 
@@ -107,10 +116,7 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
                 (genres, artists) -> Group.makeGroups(getContext(), genres, artists))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::makeExpandAdapter,
-                        throwable -> {
-
-                        });
+                .subscribe(this::makeExpandAdapter);
     }
 
     @Override
@@ -119,21 +125,53 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
     }
 
     private void makeExpandAdapter(List<Group> groups) {
-        GroupsAdapter adapter = new GroupsAdapter(groups);
+        adapter = new GroupsAdapter(groups);
         recyclerView.setAdapter(adapter);
         adapter.setChildClickListener((v, checked, group, childIndex) -> processClick(group, childIndex));
+        adapter.setOnGroupExpandCollapseListener(new GroupExpandCollapseListener() {
+            @Override
+            public void onGroupExpanded(ExpandableGroup group) {
+                if (!expandableGroups.contains(group)) {
+                    expandableGroups.add(group);
+                }
+            }
+
+            @Override
+            public void onGroupCollapsed(ExpandableGroup group) {
+                if (expandableGroups.contains(group)) {
+                    expandableGroups.remove(group);
+                }
+
+            }
+        });
+//        expandIfNeed();
+    }
+
+    private void expandIfNeed() {
+        if (expandableGroups != null && !expandableGroups.isEmpty()) {
+            for (ExpandableGroup group : expandableGroups) {
+                adapter.toggleGroup(group);
+            }
+        }
     }
 
     private void processClick(CheckedExpandableGroup group, int childIndex) {
         final GroupItem groupItem = (GroupItem) group.getItems().get(childIndex);
         if (groupItem != null) {
-            AppLog.ERROR("group item: " + groupItem.toString());
             switch (groupItem.getType()) {
                 case ARTIST:
                     String artist = groupItem.getName();
+                    Intent i = new Intent(getContext(), TrackListActivity.class);
+                    i.putExtra(EXTRA_CONTENT_TYPE, CONTENT_TYPE.ARTIST);
+                    i.putExtra(EXTRA_CONTENT_TYPE_VALUE, artist);
+                    startActivity(i);
                     break;
                 case GENRE:
                     String genre = groupItem.getName();
+                    Intent intent = new Intent(getContext(), TrackListActivity.class);
+                    intent.putExtra(EXTRA_CONTENT_TYPE, CONTENT_TYPE.GENRE);
+                    intent.putExtra(EXTRA_CONTENT_TYPE_VALUE, genre);
+                    startActivity(intent);
                     break;
                 default:
                     break;

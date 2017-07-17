@@ -20,8 +20,6 @@ import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.ui.GridFragment;
 import com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity;
-import com.fesskiev.mediacenter.ui.audio.utils.CONTENT_TYPE;
-import com.fesskiev.mediacenter.ui.audio.utils.Constants;
 import com.fesskiev.mediacenter.ui.playback.PlaybackActivity;
 import com.fesskiev.mediacenter.ui.search.AlbumSearchActivity;
 import com.fesskiev.mediacenter.utils.AppLog;
@@ -48,6 +46,9 @@ import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+
+import static com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity.EXTRA_AUDIO_FOLDER;
+import static com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity.EXTRA_CONTENT_TYPE;
 
 
 public class AudioFoldersFragment extends GridFragment implements AudioContent {
@@ -162,8 +163,8 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                             Activity act = activity.get();
                             if (act != null) {
                                 Intent i = new Intent(act, TrackListActivity.class);
-                                i.putExtra(Constants.EXTRA_CONTENT_TYPE, CONTENT_TYPE.FOLDERS);
-                                i.putExtra(Constants.EXTRA_AUDIO_FOLDER, audioFolder);
+                                i.putExtra(EXTRA_CONTENT_TYPE, CONTENT_TYPE.FOLDERS);
+                                i.putExtra(EXTRA_AUDIO_FOLDER, audioFolder);
                                 act.startActivity(i);
                             }
                         }

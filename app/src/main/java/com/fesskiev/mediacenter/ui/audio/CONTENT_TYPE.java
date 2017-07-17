@@ -1,8 +1,6 @@
-package com.fesskiev.mediacenter.ui.audio.utils;
-
+package com.fesskiev.mediacenter.ui.audio;
 
 public enum CONTENT_TYPE {
-    PLAYLIST,
     FOLDERS,
     ARTIST,
     GENRE

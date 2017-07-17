@@ -2,6 +2,8 @@ package com.fesskiev.mediacenter.data.model;
 
 import android.content.Context;
 
+import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.ui.audio.CONTENT_TYPE;
 import com.thoughtbot.expandablecheckrecyclerview.models.MultiCheckExpandableGroup;
 
 import java.util.ArrayList;
@@ -23,19 +25,19 @@ public class Group extends MultiCheckExpandableGroup {
     private static Group makeExpandArtists(Context context, List<String> artists) {
         List<GroupItem> groupItems = new ArrayList<>();
         for (String artist : artists) {
-            groupItems.add(new GroupItem(artist, GroupItem.TYPE.ARTIST));
+            groupItems.add(new GroupItem(artist, CONTENT_TYPE.ARTIST));
         }
 
-        return new Group("Artists", groupItems, 0);
+        return new Group(context.getString(R.string.group_artists), groupItems, 0);
     }
 
     private static Group makeExpandGenres(Context context, List<String> genres) {
         List<GroupItem> groupItems = new ArrayList<>();
         for (String genre : genres) {
-            groupItems.add(new GroupItem(genre, GroupItem.TYPE.GENRE));
+            groupItems.add(new GroupItem(genre, CONTENT_TYPE.GENRE));
         }
 
-        return new Group("Genre", groupItems, 0);
+        return new Group(context.getString(R.string.group_genres), groupItems, 0);
     }
 
     public static List<Group> makeGroups(Context context, List<String> genres, List<String> artists){
