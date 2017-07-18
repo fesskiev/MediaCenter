@@ -354,6 +354,15 @@ void SuperpoweredPlayer::setPosition(int value) {
     player->setPosition(value * 1000, false, false);
 }
 
+void SuperpoweredPlayer::loopExit() {
+    player->exitLoop();
+
+}
+
+void SuperpoweredPlayer::loopBetween(double startMs, double endMs) {
+    player->loopBetween(startMs, endMs, true, 255, false);
+}
+
 
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     gJavaVM = vm;
@@ -562,7 +571,18 @@ Java_com_fesskiev_mediacenter_services_PlaybackService_setTempo(JNIEnv *env, job
 extern "C" JNIEXPORT void
 Java_com_fesskiev_mediacenter_services_PlaybackService_setPosition(JNIEnv *env, jobject instance,
                                                                    jint value) {
-
     player->setPosition(value);
+}
+
+extern "C" JNIEXPORT void
+Java_com_fesskiev_mediacenter_services_PlaybackService_loopBetween(JNIEnv *env, jobject instance,
+                                                                   jdouble startMs, jdouble endMs) {
+    player->loopBetween(startMs, endMs);
+}
+
+extern "C" JNIEXPORT void
+Java_com_fesskiev_mediacenter_services_PlaybackService_loopExit(JNIEnv *env, jobject instance) {
+
+    player->loopExit();
 }
 

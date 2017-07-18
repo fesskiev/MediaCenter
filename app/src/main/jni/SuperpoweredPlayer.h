@@ -50,7 +50,6 @@ public:
     void enableEQ(bool enable);
     bool isEnableEQ();
 
-
     void reverbValue(int mix, int width, int damp, int roomSize);
     void enableReverb(bool enable);
     bool isEnableReverb();
@@ -62,6 +61,9 @@ public:
     void whooshValue(int wet, int frequency);
     void enableWhoosh(bool enable);
     bool isEnableWhoosh();
+
+    void loopBetween(double startMs, double endMs);
+    void loopExit();
 
     void onForeground();
     void onBackground();

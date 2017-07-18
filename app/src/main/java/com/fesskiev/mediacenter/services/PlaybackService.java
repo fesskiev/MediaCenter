@@ -819,6 +819,14 @@ public class PlaybackService extends Service {
     public native void stopRecording();
 
 
+    /**
+     * looping
+     */
+    public native void loopBetween(double startMs, double endMs);
+
+    public native void loopExit();
+
+
     @Keep
     public void playStatusCallback(int status) {
         switch (status) {
