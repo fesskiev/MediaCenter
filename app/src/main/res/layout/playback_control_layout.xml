@@ -32,7 +32,7 @@
 
                     <TextView
                         android:id="@+id/emptyTrackCard"
-                        style="@style/PlaybackHeaderDescTextAppearance"
+                        style="@style/PlaybackEmptyDescTextAppearance"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_centerInParent="true"
@@ -106,7 +106,7 @@
 
                     <TextView
                         android:id="@+id/emptyFolderCard"
-                        style="@style/PlaybackHeaderDescTextAppearance"
+                        style="@style/PlaybackEmptyDescTextAppearance"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
@@ -122,7 +122,6 @@
                 </FrameLayout>
 
             </RelativeLayout>
-
 
         </android.support.v7.widget.CardView>
 

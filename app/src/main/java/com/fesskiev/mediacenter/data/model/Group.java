@@ -28,7 +28,7 @@ public class Group extends MultiCheckExpandableGroup {
             groupItems.add(new GroupItem(artist, CONTENT_TYPE.ARTIST));
         }
 
-        return new Group(context.getString(R.string.group_artists), groupItems, 0);
+        return new Group(context.getString(R.string.group_artists), groupItems, R.drawable.icon_artist);
     }
 
     private static Group makeExpandGenres(Context context, List<String> genres) {
@@ -37,7 +37,7 @@ public class Group extends MultiCheckExpandableGroup {
             groupItems.add(new GroupItem(genre, CONTENT_TYPE.GENRE));
         }
 
-        return new Group(context.getString(R.string.group_genres), groupItems, 0);
+        return new Group(context.getString(R.string.group_genres), groupItems, R.drawable.icon_genre);
     }
 
     public static List<Group> makeGroups(Context context, List<String> genres, List<String> artists){

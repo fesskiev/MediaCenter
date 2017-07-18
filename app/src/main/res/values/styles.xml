@@ -223,6 +223,13 @@
         <item name="android:fontFamily">sans-serif-thin</item>
     </style>
 
+    <style name="PlaybackEmptyDescTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/secondary_text</item>
+        <item name="android:textSize">@dimen/text_playback_header_description</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="NavViewTextAppearance" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/primary</item>
         <item name="android:textSize">@dimen/nav_view_item_text_size</item>
