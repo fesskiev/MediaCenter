@@ -101,6 +101,7 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
     public void fetch() {
         subscription = Observable.zip(repository.getGenresList(), repository.getArtistsList(),
                 (genres, artists) -> Group.makeGroups(getContext(), genres, artists))
+                .first()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::makeExpandAdapter);
