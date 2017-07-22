@@ -7,10 +7,13 @@ import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewAnimationUtils;
+import android.view.animation.RotateAnimation;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
+
+import static android.view.animation.Animation.RELATIVE_TO_SELF;
 
 //TODO replace all animations here
 public class AnimationUtils {
@@ -125,6 +128,24 @@ public class AnimationUtils {
                 .translationY(value)
                 .setDuration(DURATION_300)
                 .setInterpolator(fastOutSlowInInterpolator);
+    }
+
+    public void rotateExpand(View view){
+        RotateAnimation rotate =
+                new RotateAnimation(360, 180, RELATIVE_TO_SELF,
+                        0.5f, RELATIVE_TO_SELF, 0.5f);
+        rotate.setDuration(300);
+        rotate.setFillAfter(true);
+        view.setAnimation(rotate);
+    }
+
+    public void rotateCollapse(View view){
+        RotateAnimation rotate =
+                new RotateAnimation(180, 360, RELATIVE_TO_SELF,
+                        0.5f, RELATIVE_TO_SELF, 0.5f);
+        rotate.setDuration(300);
+        rotate.setFillAfter(true);
+        view.setAnimation(rotate);
     }
 
 

@@ -8,7 +8,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.RotateAnimation;
 import android.widget.Checkable;
 import android.widget.CheckedTextView;
 import android.widget.ImageView;
@@ -21,6 +20,7 @@ import com.fesskiev.mediacenter.data.model.GroupItem;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity;
 import com.fesskiev.mediacenter.ui.playback.HidingPlaybackFragment;
+import com.fesskiev.mediacenter.utils.AnimationUtils;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.widgets.recycleview.HidingScrollListener;
 import com.thoughtbot.expandablecheckrecyclerview.CheckableChildRecyclerViewAdapter;
@@ -35,7 +35,6 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-import static android.view.animation.Animation.RELATIVE_TO_SELF;
 import static com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity.EXTRA_CONTENT_TYPE;
 import static com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity.EXTRA_CONTENT_TYPE_VALUE;
 
@@ -48,6 +47,7 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
 
 
     private RecyclerView recyclerView;
+    private GroupsAdapter adapter;
 
     private Subscription subscription;
     private DataRepository repository;
@@ -107,13 +107,22 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
                 .subscribe(this::makeExpandAdapter);
     }
 
+
+    @SuppressWarnings("unchecked")
     @Override
     public void clear() {
-
+        List<CheckedExpandableGroup> groups = (List<CheckedExpandableGroup>) adapter.getGroups();
+        if (groups != null && !groups.isEmpty()) {
+            for (CheckedExpandableGroup group : groups){
+                group.getItems().clear();
+            }
+        }
+        adapter.clearChoices();
+        adapter.notifyDataSetChanged();
     }
 
     private void makeExpandAdapter(List<Group> groups) {
-        GroupsAdapter adapter = new GroupsAdapter(groups);
+        adapter = new GroupsAdapter(groups);
         recyclerView.setAdapter(adapter);
         adapter.setChildClickListener((v, checked, group, childIndex) -> processClick(group, childIndex));
 
@@ -196,21 +205,11 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
             }
 
             private void animateExpand() {
-                RotateAnimation rotate =
-                        new RotateAnimation(360, 180, RELATIVE_TO_SELF,
-                                0.5f, RELATIVE_TO_SELF, 0.5f);
-                rotate.setDuration(300);
-                rotate.setFillAfter(true);
-                arrow.setAnimation(rotate);
+                AnimationUtils.getInstance().rotateExpand(arrow);
             }
 
             private void animateCollapse() {
-                RotateAnimation rotate =
-                        new RotateAnimation(180, 360, RELATIVE_TO_SELF,
-                                0.5f, RELATIVE_TO_SELF, 0.5f);
-                rotate.setDuration(300);
-                rotate.setFillAfter(true);
-                arrow.setAnimation(rotate);
+                AnimationUtils.getInstance().rotateCollapse(arrow);
             }
         }
 
