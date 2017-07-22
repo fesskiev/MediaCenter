@@ -96,4 +96,7 @@
     <dimen name="notification_title">12sp</dimen>
     <dimen name="notification_text">11sp</dimen>
 
+    <dimen name="splash_icon_width">80sp</dimen>
+    <dimen name="splash_icon_height">80sp</dimen>
+
 </resources>

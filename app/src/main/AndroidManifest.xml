@@ -165,7 +165,8 @@
         <activity
             android:name=".ui.about.AboutActivity"
             android:parentActivityName=".ui.MainActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/ActivityDialog.Theme.MediaCenter">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fesskiev.mediacenter.ui.MainActivity" />
