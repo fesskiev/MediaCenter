@@ -49,6 +49,7 @@
     <string name="drawer_item_playlist">Плейлист</string>
     <string name="drawer_item_converter">Конвертер</string>
     <string name="drawer_buy_pro">Купить Pro-пользователя</string>
+    <string name="drawer_effects_settings">Настройки эффектов</string>
 
     <string name="audio_tab_title_albums">Альбомы</string>
     <string name="audio_tab_title_groups">Группы</string>

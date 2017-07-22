@@ -49,6 +49,7 @@
     <string name="drawer_item_playlist">Playlist</string>
     <string name="drawer_item_converter">Converter</string>
     <string name="drawer_buy_pro">Buy Pro User</string>
+    <string name="drawer_effects_settings">Effects Settings</string>
 
     <string name="audio_tab_title_albums">AlBUMS</string>
     <string name="audio_tab_title_groups">GROUPS</string>

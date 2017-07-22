@@ -137,9 +137,6 @@ dependencies {
     compile 'com.squareup.sqlbrite:sqlbrite:0.7.0'
     compile 'org.greenrobot:eventbus:3.0.0'
     compile 'com.thoughtbot:expandablecheckrecyclerview:1.4'
-    compile ('com.github.worker8:tourguide:1.0.17-SNAPSHOT@aar'){
-        transitive=true
-    }
 }
 
 apply plugin: 'com.google.gms.google-services'

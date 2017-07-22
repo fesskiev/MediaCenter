@@ -60,11 +60,8 @@ public class MediaNavigationView extends NavigationView implements View.OnClickL
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.nav_effects_layout, this, true);
 
-        view.findViewById(R.id.imageHeader).setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onEffectClick();
-            }
-        });
+        view.findViewById(R.id.effectsSettingsContainer).setOnClickListener(v -> effectClick());
+        view.findViewById(R.id.imageHeader).setOnClickListener(v -> effectClick());
 
         fetchContentView = (FetchContentView) view.findViewById(R.id.fetchContentView);
 
@@ -171,6 +168,12 @@ public class MediaNavigationView extends NavigationView implements View.OnClickL
                     listener.onRecordStateChanged(checked);
                     break;
             }
+        }
+    }
+
+    private void effectClick() {
+        if (listener != null) {
+            listener.onEffectClick();
         }
     }
 

@@ -8,7 +8,7 @@
 
     <android.support.percent.PercentRelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/nav_header_height">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/imageHeader"
@@ -19,6 +19,37 @@
             app:layout_widthPercent="100%" />
 
     </android.support.percent.PercentRelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/effectsSettingsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <TextView
+            android:id="@+id/effectsTitle"
+            style="@style/MediaDrawerTitleAppearance"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/drawer_effects_settings" />
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="@string/app_name"
+            android:gravity="center"
+            android:src="@drawable/icon_next_effects" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/divider"
+        style="@style/DividerStyle"
+        android:layout_width="match_parent"
+        android:layout_height="1dp" />
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
