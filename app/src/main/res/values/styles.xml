@@ -342,6 +342,7 @@
     <style name="SettingsTitleAppearance" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/white_text</item>
         <item name="android:textSize">@dimen/text_settings_title</item>
+        <item name="android:textStyle">bold</item>
         <item name="android:fontFamily">sans-serif</item>
     </style>
 
@@ -360,7 +361,6 @@
     <style name="SettingsText3Appearance" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/white_text</item>
         <item name="android:textSize">12sp</item>
-        <item name="android:textStyle">bold</item>
         <item name="android:fontFamily">sans-serif</item>
     </style>
 
@@ -472,7 +472,7 @@
         <item name="track">@drawable/switch_selector_track</item>
         <item name="showText">false</item>
         <item name="android:textColor">@color/white_text</item>
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">14sp</item>
     </style>
 
     <style name="DetailsFolderTextAppearance" parent="@android:style/TextAppearance">

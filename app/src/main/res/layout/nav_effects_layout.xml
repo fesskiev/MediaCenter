@@ -23,7 +23,7 @@
     <LinearLayout
         android:id="@+id/effectsSettingsContainer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="58dp"
         android:orientation="horizontal"
         android:padding="8dp">
 
@@ -40,7 +40,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:contentDescription="@string/app_name"
-            android:gravity="center"
+            android:layout_gravity="center"
             android:src="@drawable/icon_next_effects" />
 
     </LinearLayout>

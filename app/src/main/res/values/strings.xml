@@ -229,7 +229,7 @@
 
     <string name="splash_snackbar_stop_fetch">Are you sure yo want stop searching and exit from app ?</string>
 
-    <string name="update_no_period">Do not update on period</string>
+    <string name="update_no_period">Do not search files</string>
     <string name="update_period_30_minutes">30 minutes</string>
     <string name="update_period_1_hour">1 hours</string>
     <string name="update_period_3_hours">3 hours</string>

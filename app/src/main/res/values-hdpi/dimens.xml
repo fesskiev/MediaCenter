@@ -55,7 +55,7 @@
     <dimen name="text_splash_title">22sp</dimen>
     <dimen name="text_splash_desc">20sp</dimen>
 
-    <dimen name="text_settings_title">16sp</dimen>
+    <dimen name="text_settings_title">14sp</dimen>
     <dimen name="text_settings">12sp</dimen>
 
     <dimen name="text_about_title">16sp</dimen>

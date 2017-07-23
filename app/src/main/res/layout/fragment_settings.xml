@@ -7,7 +7,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <RelativeLayout
             android:id="@+id/viewSettingContainer"
@@ -67,8 +67,8 @@
             android:layout_alignParentStart="true"
             android:layout_below="@+id/audioSettingsContainer"
             android:layout_marginStart="6dp"
-            android:visibility="gone"
-            android:paddingTop="20dp">
+            android:paddingTop="20dp"
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/downloadSettingsTitle"
@@ -158,59 +158,46 @@
                 android:layout_below="@+id/playAudioContainer"
                 android:layout_marginTop="10dp" />
 
-            <RelativeLayout
-                android:id="@+id/searchContainer"
+            <LinearLayout
+                android:id="@+id/searchFilesTitleContainer"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="42dp"
                 android:layout_below="@id/divider3"
-                android:layout_marginTop="10dp">
+                android:orientation="horizontal">
 
-                <RelativeLayout
-                    android:id="@+id/searchFilesTitleContainer"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/searchFilesTitle"
+                    style="@style/SettingsTextAppearance"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/settings_searching_files" />
 
-                    <ImageView
-                        android:id="@+id/timerView"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:layout_alignParentEnd="true"
-                        android:layout_centerHorizontal="true"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="@string/app_name"
-                        android:gravity="center"
-                        android:src="@drawable/avd_clock_timer" />
+                <ImageView
+                    android:id="@+id/timerView"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/app_name"
+                    android:src="@drawable/avd_clock_timer" />
 
-                    <TextView
-                        android:id="@+id/searchFilesTitle"
-                        style="@style/SettingsTextAppearance"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_alignBottom="@+id/timerView"
-                        android:layout_alignParentStart="true"
-                        android:layout_centerHorizontal="true"
-                        android:gravity="center"
-                        android:text="@string/settings_searching_files" />
-
-                </RelativeLayout>
-
-                <com.fesskiev.mediacenter.widgets.settings.MediaContentUpdateTimeView
-                    android:id="@+id/mediaContentUpdateTime"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/searchFilesTitleContainer"
-                    android:layout_marginTop="10dp"
-                    android:visibility="gone" />
-
-            </RelativeLayout>
+            </LinearLayout>
 
             <View
                 android:id="@+id/divider4"
                 style="@style/DividerStyle"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_below="@+id/searchContainer"
-                android:layout_marginTop="10dp" />
+                android:layout_below="@+id/searchFilesTitleContainer" />
+
+            <com.fesskiev.mediacenter.widgets.settings.MediaContentUpdateTimeView
+                android:id="@+id/mediaContentUpdateTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/divider4"
+                android:visibility="gone" />
 
         </RelativeLayout>
 
@@ -336,7 +323,7 @@
                 style="@style/DividerStyle"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_below="@+id/recordContainer"/>
+                android:layout_below="@+id/recordContainer" />
 
             <TextView
                 style="@style/SettingsText2Appearance"

@@ -5,9 +5,11 @@ import android.view.View;
 import android.view.animation.Animation;
 
 /**
- * {@link Overlay} shows a tinted background to cover up the rest of the screen. A 'hole' will be made on this overlay to let users obtain focus on the targeted element.
+ * {@link Overlay} shows a tinted background to cover up the rest of the screen.
+ * A 'hole' will be made on this overlay to let users obtain focus on the targeted element.
  */
 public class Overlay {
+
     public int mBackgroundColor;
     public boolean mDisableClick;
     public boolean mDisableClickThroughHole;

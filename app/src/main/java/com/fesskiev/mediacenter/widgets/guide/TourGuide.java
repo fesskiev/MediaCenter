@@ -26,17 +26,19 @@ import com.fesskiev.mediacenter.R;
 public class TourGuide {
     /**
      * This describes the animation techniques
-     * */
+     */
     public enum Technique {
         CLICK, HORIZONTAL_LEFT, HORIZONTAL_RIGHT, VERTICAL_UPWARD, VERTICAL_DOWNWARD
     }
 
     /**
-     * This describes the allowable motion, for example if you want the users to learn about clicking, but want to stop them from swiping, then use CLICK_ONLY
+     * This describes the allowable motion, for example if you want the users to learn about clicking,
+     * but want to stop them from swiping, then use CLICK_ONLY
      */
     public enum MotionType {
         ALLOW_ALL, CLICK_ONLY, SWIPE_ONLY
     }
+
     protected Technique mTechnique;
     protected View mHighlightedView;
     private Activity mActivity;
@@ -48,17 +50,18 @@ public class TourGuide {
     public Overlay mOverlay;
 
 
-    public static TourGuide init(Activity activity){
+    public static TourGuide init(Activity activity) {
         return new TourGuide(activity);
     }
 
     /* Constructor */
-    public TourGuide(Activity activity){
+    public TourGuide(Activity activity) {
         mActivity = activity;
     }
 
     /**
      * Setter for the animation to be used
+     *
      * @param technique Animation to be used
      * @return return TourGuide instance for chaining purpose
      */
@@ -69,20 +72,22 @@ public class TourGuide {
 
     /**
      * Sets which motion type is motionType
+     *
      * @param motionType
      * @return return TourGuide instance for chaining purpose
      */
-    public TourGuide motionType(MotionType motionType){
+    public TourGuide motionType(MotionType motionType) {
         mMotionType = motionType;
         return this;
     }
 
     /**
      * Sets the targeted view for TourGuide to play on
+     *
      * @param targetView the view in which the tutorial button will be placed on top of
      * @return return TourGuide instance for chaining purpose
      */
-    public TourGuide playOn(View targetView){
+    public TourGuide playOn(View targetView) {
         mHighlightedView = targetView;
         setupView();
         return this;
@@ -90,93 +95,100 @@ public class TourGuide {
 
     /**
      * Sets the overlay
+     *
      * @param overlay this overlay object should contain the attributes of the overlay, such as background color, animation, Style, etc
      * @return return TourGuide instance for chaining purpose
      */
-    public TourGuide setOverlay(Overlay overlay){
+    public TourGuide setOverlay(Overlay overlay) {
         mOverlay = overlay;
         return this;
     }
+
     /**
      * Set the toolTip
+     *
      * @param toolTip this toolTip object should contain the attributes of the ToolTip, such as, the title text, and the description text, background color, etc
      * @return return TourGuide instance for chaining purpose
      */
-    public TourGuide setToolTip(ToolTip toolTip){
+    public TourGuide setToolTip(ToolTip toolTip) {
         mToolTip = toolTip;
         return this;
     }
+
     /**
      * Set the Pointer
+     *
      * @param pointer this pointer object should contain the attributes of the Pointer, such as the pointer color, pointer gravity, etc, refer to @Link{pointer}
      * @return return TourGuide instance for chaining purpose
      */
-    public TourGuide setPointer(Pointer pointer){
+    public TourGuide setPointer(Pointer pointer) {
         mPointer = pointer;
         return this;
     }
+
     /**
      * Clean up the tutorial that is added to the activity
      */
-     public void cleanUp(){
-         mFrameLayout.cleanUp();
-         if (mToolTipViewGroup!=null) {
-             ((ViewGroup) mActivity.getWindow().getDecorView()).removeView(mToolTipViewGroup);
-         }
+    public void cleanUp() {
+        mFrameLayout.cleanUp();
+        if (mToolTipViewGroup != null) {
+            ((ViewGroup) mActivity.getWindow().getDecorView()).removeView(mToolTipViewGroup);
+        }
     }
 
     /**
-     *
      * @return FrameLayoutWithHole that is used as overlay
      */
-    public FrameLayoutWithHole getOverlay(){
+    public FrameLayoutWithHole getOverlay() {
         return mFrameLayout;
     }
+
     /**
-     *
      * @return the ToolTip container View
      */
-    public View getToolTip(){
+    public View getToolTip() {
         return mToolTipViewGroup;
     }
+
     /******
      *
      * Private methods
      *
      *******/
     //TODO: move into Pointer
-    private int getXBasedOnGravity(int width){
-        int [] pos = new int[2];
+    private int getXBasedOnGravity(int width) {
+        int[] pos = new int[2];
         mHighlightedView.getLocationOnScreen(pos);
         int x = pos[0];
-        if((mPointer.mGravity & Gravity.RIGHT) == Gravity.RIGHT){
-            return x+mHighlightedView.getWidth()-width;
+        if ((mPointer.mGravity & Gravity.RIGHT) == Gravity.RIGHT) {
+            return x + mHighlightedView.getWidth() - width;
         } else if ((mPointer.mGravity & Gravity.LEFT) == Gravity.LEFT) {
             return x;
         } else { // this is center
-            return x+mHighlightedView.getWidth()/2-width/2;
-        }
-    }
-    //TODO: move into Pointer
-    private int getYBasedOnGravity(int height){
-        int [] pos = new int[2];
-        mHighlightedView.getLocationInWindow(pos);
-        int y = pos[1];
-        if((mPointer.mGravity & Gravity.BOTTOM) == Gravity.BOTTOM){
-            return y+mHighlightedView.getHeight()-height;
-        } else if ((mPointer.mGravity & Gravity.TOP) == Gravity.TOP) {
-            return y;
-        }else { // this is center
-            return y+mHighlightedView.getHeight()/2-height/2;
+            return x + mHighlightedView.getWidth() / 2 - width / 2;
         }
     }
 
-    protected void setupView(){
+    //TODO: move into Pointer
+    private int getYBasedOnGravity(int height) {
+        int[] pos = new int[2];
+        mHighlightedView.getLocationInWindow(pos);
+        int y = pos[1];
+        if ((mPointer.mGravity & Gravity.BOTTOM) == Gravity.BOTTOM) {
+            return y + mHighlightedView.getHeight() - height;
+        } else if ((mPointer.mGravity & Gravity.TOP) == Gravity.TOP) {
+            return y;
+        } else { // this is center
+            return y + mHighlightedView.getHeight() / 2 - height / 2;
+        }
+    }
+
+    protected void setupView() {
         // TourGuide can only be setup after all the views is ready and obtain it's position/measurement
         // so when this is the 1st time TourGuide is being added,
         // else block will be executed, and ViewTreeObserver will make TourGuide setup process to be delayed until everything is ready
         // when this is run the 2nd or more times, if block will be executed
-        if (ViewCompat.isAttachedToWindow(mHighlightedView)){
+        if (ViewCompat.isAttachedToWindow(mHighlightedView)) {
             startView();
         } else {
             final ViewTreeObserver viewTreeObserver = mHighlightedView.getViewTreeObserver();
@@ -195,7 +207,7 @@ public class TourGuide {
         }
     }
 
-    private void startView(){
+    private void startView() {
         /* Initialize a frame layout with a hole */
         mFrameLayout = new FrameLayoutWithHole(mActivity, mHighlightedView, mMotionType, mOverlay);
         /* handle click disable */
@@ -211,9 +223,9 @@ public class TourGuide {
         setupToolTip();
     }
 
-    private void handleDisableClicking(FrameLayoutWithHole frameLayoutWithHole){
+    private void handleDisableClicking(FrameLayoutWithHole frameLayoutWithHole) {
         // 1. if user provides an overlay listener, use that as 1st priority
-        if (mOverlay != null && mOverlay.mOnClickListener!=null) {
+        if (mOverlay != null && mOverlay.mOnClickListener != null) {
             frameLayoutWithHole.setClickable(true);
             frameLayoutWithHole.setOnClickListener(mOverlay.mOnClickListener);
         }
@@ -223,12 +235,14 @@ public class TourGuide {
             frameLayoutWithHole.setViewHole(mHighlightedView);
             frameLayoutWithHole.setSoundEffectsEnabled(false);
             frameLayoutWithHole.setOnClickListener(new View.OnClickListener() {
-                @Override public void onClick(View v) {} // do nothing, disabled.
+                @Override
+                public void onClick(View v) {
+                } // do nothing, disabled.
             });
         }
     }
 
-    private void setupToolTip(){
+    private void setupToolTip() {
         final FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
 
         if (mToolTip != null) {
@@ -261,7 +275,7 @@ public class TourGuide {
                     toolTipDescriptionTV.setText(mToolTip.mDescription);
                 }
 
-                if (mToolTip.mWidth != -1){
+                if (mToolTip.mWidth != -1) {
                     layoutParams.width = mToolTip.mWidth;
                 }
             } else {
@@ -276,7 +290,7 @@ public class TourGuide {
             }
 
             /* position and size calculation */
-            int [] pos = new int[2];
+            int[] pos = new int[2];
             mHighlightedView.getLocationOnScreen(pos);
             int targetViewX = pos[0];
             final int targetViewY = pos[1];
@@ -291,7 +305,7 @@ public class TourGuide {
             final float adjustment = 10 * density; //adjustment is that little overlapping area of tooltip and targeted button
 
             // calculate x position, based on gravity, tooltipMeasuredWidth, parent max width, x position of target view, adjustment
-            if (toolTipMeasuredWidth > parent.getWidth()){
+            if (toolTipMeasuredWidth > parent.getWidth()) {
                 resultPoint.x = getXForTooTip(mToolTip.mGravity, parent.getWidth(), targetViewX, adjustment);
             } else {
                 resultPoint.x = getXForTooTip(mToolTip.mGravity, toolTipMeasuredWidth, targetViewX, adjustment);
@@ -304,23 +318,23 @@ public class TourGuide {
             parent.addView(mToolTipViewGroup, layoutParams);
 
             // 1. width < screen check
-            if (toolTipMeasuredWidth > parent.getWidth()){
+            if (toolTipMeasuredWidth > parent.getWidth()) {
                 mToolTipViewGroup.getLayoutParams().width = parent.getWidth();
                 toolTipMeasuredWidth = parent.getWidth();
             }
             // 2. x left boundary check
-            if (resultPoint.x < 0){
+            if (resultPoint.x < 0) {
                 mToolTipViewGroup.getLayoutParams().width = toolTipMeasuredWidth + resultPoint.x; //since point.x is negative, use plus
                 resultPoint.x = 0;
             }
             // 3. x right boundary check
             int tempRightX = resultPoint.x + toolTipMeasuredWidth;
-            if ( tempRightX > parent.getWidth()){
+            if (tempRightX > parent.getWidth()) {
                 mToolTipViewGroup.getLayoutParams().width = parent.getWidth() - resultPoint.x; //since point.x is negative, use plus
             }
 
             // pass toolTip onClickListener into toolTipViewGroup
-            if (mToolTip.mOnClickListener!=null) {
+            if (mToolTip.mOnClickListener != null) {
                 mToolTipViewGroup.setOnClickListener(mToolTip.mOnClickListener);
             }
 
@@ -353,42 +367,43 @@ public class TourGuide {
 
     }
 
-    private int getXForTooTip(int gravity, int toolTipMeasuredWidth, int targetViewX, float adjustment){
+    private int getXForTooTip(int gravity, int toolTipMeasuredWidth, int targetViewX, float adjustment) {
         int x;
-        if ((gravity & Gravity.LEFT) == Gravity.LEFT){
-            x = targetViewX - toolTipMeasuredWidth + (int)adjustment;
+        if ((gravity & Gravity.LEFT) == Gravity.LEFT) {
+            x = targetViewX - toolTipMeasuredWidth + (int) adjustment;
         } else if ((gravity & Gravity.RIGHT) == Gravity.RIGHT) {
-            x = targetViewX + mHighlightedView.getWidth() - (int)adjustment;
+            x = targetViewX + mHighlightedView.getWidth() - (int) adjustment;
         } else {
             x = targetViewX + mHighlightedView.getWidth() / 2 - toolTipMeasuredWidth / 2;
         }
         return x;
     }
-    private int getYForTooTip(int gravity, int toolTipMeasuredHeight, int targetViewY, float adjustment){
+
+    private int getYForTooTip(int gravity, int toolTipMeasuredHeight, int targetViewY, float adjustment) {
         int y;
         if ((gravity & Gravity.TOP) == Gravity.TOP) {
 
             if (((gravity & Gravity.LEFT) == Gravity.LEFT) || ((gravity & Gravity.RIGHT) == Gravity.RIGHT)) {
-                y =  targetViewY - toolTipMeasuredHeight + (int)adjustment;
+                y = targetViewY - toolTipMeasuredHeight + (int) adjustment;
             } else {
-                y =  targetViewY - toolTipMeasuredHeight - (int)adjustment;
+                y = targetViewY - toolTipMeasuredHeight - (int) adjustment;
             }
         } else { // this is center
             if (((gravity & Gravity.LEFT) == Gravity.LEFT) || ((gravity & Gravity.RIGHT) == Gravity.RIGHT)) {
-                y =  targetViewY + mHighlightedView.getHeight() - (int) adjustment;
+                y = targetViewY + mHighlightedView.getHeight() - (int) adjustment;
             } else {
-                y =  targetViewY + mHighlightedView.getHeight() + (int) adjustment;
+                y = targetViewY + mHighlightedView.getHeight() + (int) adjustment;
             }
         }
         return y;
     }
 
-    private FloatingActionButton setupAndAddFABToFrameLayout(final FrameLayoutWithHole frameLayoutWithHole){
+    private FloatingActionButton setupAndAddFABToFrameLayout(final FrameLayoutWithHole frameLayoutWithHole) {
         // invisFab is invisible, and it's only used for getting the width and height
         final FloatingActionButton invisFab = new FloatingActionButton(mActivity);
         invisFab.setSize(FloatingActionButton.SIZE_MINI);
         invisFab.setVisibility(View.INVISIBLE);
-        ((ViewGroup)mActivity.getWindow().getDecorView()).addView(invisFab);
+        ((ViewGroup) mActivity.getWindow().getDecorView()).addView(invisFab);
 
         // fab is the real fab that is going to be added
         final FloatingActionButton fab = new FloatingActionButton(mActivity);
@@ -401,13 +416,10 @@ public class TourGuide {
             @Override
             public void onGlobalLayout() {
                 // make sure this only run once
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                    //noinspection deprecation
-                    invisFab.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                } else {
-                    invisFab.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                }
-                final FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                invisFab.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+                final FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
                 frameLayoutWithHole.addView(fab, params);
 
                 // measure size of image to be placed
@@ -419,28 +431,37 @@ public class TourGuide {
         return fab;
     }
 
-    private void setupFrameLayout(){
+    private void setupFrameLayout() {
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
         ViewGroup contentArea = (ViewGroup) mActivity.getWindow().getDecorView().findViewById(android.R.id.content);
-        int [] pos = new int[2];
+        int[] pos = new int[2];
         contentArea.getLocationOnScreen(pos);
         // frameLayoutWithHole's coordinates are calculated taking full screen height into account
         // but we're adding it to the content area only, so we need to offset it to the same Y value of contentArea
 
-        layoutParams.setMargins(0,-pos[1],0,0);
+        layoutParams.setMargins(0, -pos[1], 0, 0);
         contentArea.addView(mFrameLayout, layoutParams);
     }
 
-    private void performAnimationOn(final View view){
+    private void performAnimationOn(final View view) {
 
-        if (mTechnique != null && mTechnique == Technique.HORIZONTAL_LEFT){
+        if (mTechnique != null && mTechnique == Technique.HORIZONTAL_LEFT) {
 
             final AnimatorSet animatorSet = new AnimatorSet();
             final AnimatorSet animatorSet2 = new AnimatorSet();
             Animator.AnimatorListener lis1 = new Animator.AnimatorListener() {
-                @Override public void onAnimationStart(Animator animator) {}
-                @Override public void onAnimationCancel(Animator animator) {}
-                @Override public void onAnimationRepeat(Animator animator) {}
+                @Override
+                public void onAnimationStart(Animator animator) {
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animator) {
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animator) {
+                }
+
                 @Override
                 public void onAnimationEnd(Animator animator) {
                     view.setScaleX(1f);
@@ -450,9 +471,18 @@ public class TourGuide {
                 }
             };
             Animator.AnimatorListener lis2 = new Animator.AnimatorListener() {
-                @Override public void onAnimationStart(Animator animator) {}
-                @Override public void onAnimationCancel(Animator animator) {}
-                @Override public void onAnimationRepeat(Animator animator) {}
+                @Override
+                public void onAnimationStart(Animator animator) {
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animator) {
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animator) {
+                }
+
                 @Override
                 public void onAnimationEnd(Animator animator) {
                     view.setScaleX(1f);
@@ -466,7 +496,7 @@ public class TourGuide {
             long scaleDownDuration = 800;
             long goLeftXDuration = 2000;
             long fadeOutDuration = goLeftXDuration;
-            float translationX = getScreenWidth()/2;
+            float translationX = getScreenWidth() / 2;
 
             final ValueAnimator fadeInAnim = ObjectAnimator.ofFloat(view, "alpha", 0f, 1f);
             fadeInAnim.setDuration(fadeInDuration);
@@ -505,19 +535,28 @@ public class TourGuide {
             /* these animatorSets are kept track in FrameLayout, so that they can be cleaned up when FrameLayout is detached from window */
             mFrameLayout.addAnimatorSet(animatorSet);
             mFrameLayout.addAnimatorSet(animatorSet2);
-        } else if (mTechnique != null && mTechnique == Technique.HORIZONTAL_RIGHT){ //TODO: new feature
+        } else if (mTechnique != null && mTechnique == Technique.HORIZONTAL_RIGHT) { //TODO: new feature
 
-        } else if (mTechnique != null && mTechnique == Technique.VERTICAL_UPWARD){//TODO: new feature
+        } else if (mTechnique != null && mTechnique == Technique.VERTICAL_UPWARD) {//TODO: new feature
 
-        } else if (mTechnique != null && mTechnique == Technique.VERTICAL_DOWNWARD){//TODO: new feature
+        } else if (mTechnique != null && mTechnique == Technique.VERTICAL_DOWNWARD) {//TODO: new feature
 
         } else { // do click for default case
             final AnimatorSet animatorSet = new AnimatorSet();
             final AnimatorSet animatorSet2 = new AnimatorSet();
             Animator.AnimatorListener lis1 = new Animator.AnimatorListener() {
-                @Override public void onAnimationStart(Animator animator) {}
-                @Override public void onAnimationCancel(Animator animator) {}
-                @Override public void onAnimationRepeat(Animator animator) {}
+                @Override
+                public void onAnimationStart(Animator animator) {
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animator) {
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animator) {
+                }
+
                 @Override
                 public void onAnimationEnd(Animator animator) {
                     view.setScaleX(1f);
@@ -527,9 +566,18 @@ public class TourGuide {
                 }
             };
             Animator.AnimatorListener lis2 = new Animator.AnimatorListener() {
-                @Override public void onAnimationStart(Animator animator) {}
-                @Override public void onAnimationCancel(Animator animator) {}
-                @Override public void onAnimationRepeat(Animator animator) {}
+                @Override
+                public void onAnimationStart(Animator animator) {
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animator) {
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animator) {
+                }
+
                 @Override
                 public void onAnimationEnd(Animator animator) {
                     view.setScaleX(1f);
@@ -594,8 +642,9 @@ public class TourGuide {
             mFrameLayout.addAnimatorSet(animatorSet2);
         }
     }
-    private int getScreenWidth(){
-        if (mActivity!=null) {
+
+    private int getScreenWidth() {
+        if (mActivity != null) {
             return mActivity.getResources().getDisplayMetrics().widthPixels;
         } else {
             return 0;

@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.view.Gravity;
 
 public class Pointer {
+
     public int mGravity = Gravity.CENTER;
     public int mColor = Color.WHITE;
 
@@ -21,17 +22,18 @@ public class Pointer {
      * @param color
      * @return return Pointer instance for chaining purpose
      */
-    public Pointer setColor(int color){
+    public Pointer setColor(int color) {
         mColor = color;
         return this;
     }
 
     /**
      * Set gravity
+     *
      * @param gravity
      * @return return Pointer instance for chaining purpose
      */
-    public Pointer setGravity(int gravity){
+    public Pointer setGravity(int gravity) {
         mGravity = gravity;
         return this;
     }

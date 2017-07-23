@@ -213,7 +213,7 @@
 
     <string name="splash_snackbar_stop_fetch">Выполняется поиск файлов. Прервать и выйти?</string>
 
-    <string name="update_no_period">Не выполнять поиск</string>
+    <string name="update_no_period">Не выполнять поиск файлов</string>
     <string name="update_period_30_minutes">30 минут</string>
     <string name="update_period_1_hour">1 час</string>
     <string name="update_period_3_hours">3 часа</string>
