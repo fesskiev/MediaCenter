@@ -4,6 +4,7 @@ package com.fesskiev.mediacenter.ui;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.Animatable;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -16,6 +17,8 @@ import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -47,6 +50,10 @@ import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
 import com.fesskiev.mediacenter.widgets.dialogs.ExitDialog;
+import com.fesskiev.mediacenter.widgets.guide.Overlay;
+import com.fesskiev.mediacenter.widgets.guide.Pointer;
+import com.fesskiev.mediacenter.widgets.guide.ToolTip;
+import com.fesskiev.mediacenter.widgets.guide.TourGuide;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
 
@@ -141,6 +148,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         } else {
             restoreState(savedInstanceState);
         }
+
+//        createMainActivityGuide();
     }
 
     private boolean startAnimate;
@@ -654,5 +663,22 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 break;
             }
         }
+    }
+
+    private void createMainActivityGuide() {
+        drawer.openDrawer(GravityCompat.START);
+
+        ToolTip toolTip = new ToolTip().
+                setTitle("Welcome to SoloPlayer!")
+                .setDescription("Click to view tutorial. Next button is disabled until tutorial is viewed");
+
+        TourGuide tourGuide = TourGuide.init(this).with(TourGuide.Technique.CLICK)
+                .motionType(TourGuide.MotionType.ALLOW_ALL)
+                .setPointer(new Pointer())
+                .setToolTip(toolTip)
+                .setOverlay(new Overlay())
+                .playOn(appIcon);
+
+
     }
 }

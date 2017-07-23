@@ -28,7 +28,7 @@ public class TourGuide {
      * This describes the animation techniques
      */
     public enum Technique {
-        CLICK, HORIZONTAL_LEFT, HORIZONTAL_RIGHT, VERTICAL_UPWARD, VERTICAL_DOWNWARD
+        CLICK, HORIZONTAL_LEFT
     }
 
     /**
@@ -150,12 +150,6 @@ public class TourGuide {
         return mToolTipViewGroup;
     }
 
-    /******
-     *
-     * Private methods
-     *
-     *******/
-    //TODO: move into Pointer
     private int getXBasedOnGravity(int width) {
         int[] pos = new int[2];
         mHighlightedView.getLocationOnScreen(pos);
@@ -165,11 +159,10 @@ public class TourGuide {
         } else if ((mPointer.mGravity & Gravity.LEFT) == Gravity.LEFT) {
             return x;
         } else { // this is center
-            return x + mHighlightedView.getWidth() / 2 - width / 2;
+            return x + mHighlightedView.getWidth() / 2;
         }
     }
 
-    //TODO: move into Pointer
     private int getYBasedOnGravity(int height) {
         int[] pos = new int[2];
         mHighlightedView.getLocationInWindow(pos);
@@ -179,7 +172,7 @@ public class TourGuide {
         } else if ((mPointer.mGravity & Gravity.TOP) == Gravity.TOP) {
             return y;
         } else { // this is center
-            return y + mHighlightedView.getHeight() / 2 - height / 2;
+            return y + mHighlightedView.getHeight() / 2;
         }
     }
 
@@ -195,12 +188,7 @@ public class TourGuide {
             viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
                 public void onGlobalLayout() {
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                        //noinspection deprecation
-                        mHighlightedView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                    } else {
-                        mHighlightedView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    }
+                    mHighlightedView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                     startView();
                 }
             });
@@ -243,7 +231,8 @@ public class TourGuide {
     }
 
     private void setupToolTip() {
-        final FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        final FrameLayout.LayoutParams layoutParams =
+                new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
 
         if (mToolTip != null) {
             /* inflate and get views */
@@ -346,13 +335,7 @@ public class TourGuide {
             mToolTipViewGroup.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
                 public void onGlobalLayout() {
-                    // make sure this only run once
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                        //noinspection deprecation
-                        mToolTipViewGroup.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                    } else {
-                        mToolTipViewGroup.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    }
+                    mToolTipViewGroup.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
                     int fixedY;
                     int toolTipHeightAfterLayouted = mToolTipViewGroup.getHeight();
@@ -399,34 +382,17 @@ public class TourGuide {
     }
 
     private FloatingActionButton setupAndAddFABToFrameLayout(final FrameLayoutWithHole frameLayoutWithHole) {
-        // invisFab is invisible, and it's only used for getting the width and height
-        final FloatingActionButton invisFab = new FloatingActionButton(mActivity);
-        invisFab.setSize(FloatingActionButton.SIZE_MINI);
-        invisFab.setVisibility(View.INVISIBLE);
-        ((ViewGroup) mActivity.getWindow().getDecorView()).addView(invisFab);
 
         // fab is the real fab that is going to be added
         final FloatingActionButton fab = new FloatingActionButton(mActivity);
         fab.setBackgroundColor(Color.BLUE);
+        fab.setVisibility(View.VISIBLE);
         fab.setSize(FloatingActionButton.SIZE_MINI);
-        fab.setClickable(false);
-
-        // When invisFab is layouted, it's width and height can be used to calculate the correct position of fab
-        invisFab.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                // make sure this only run once
-                invisFab.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-
-                final FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT);
-                frameLayoutWithHole.addView(fab, params);
-
-                // measure size of image to be placed
-                params.setMargins(getXBasedOnGravity(invisFab.getWidth()), getYBasedOnGravity(invisFab.getHeight()), 0, 0);
-            }
-        });
-
+        fab.setClickable(true);
+        final FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.setMargins(getXBasedOnGravity(fab.getWidth() * 2), getYBasedOnGravity(fab.getHeight() * 2), 0, 0);
+        frameLayoutWithHole.addView(fab, params);
 
         return fab;
     }
@@ -535,13 +501,7 @@ public class TourGuide {
             /* these animatorSets are kept track in FrameLayout, so that they can be cleaned up when FrameLayout is detached from window */
             mFrameLayout.addAnimatorSet(animatorSet);
             mFrameLayout.addAnimatorSet(animatorSet2);
-        } else if (mTechnique != null && mTechnique == Technique.HORIZONTAL_RIGHT) { //TODO: new feature
-
-        } else if (mTechnique != null && mTechnique == Technique.VERTICAL_UPWARD) {//TODO: new feature
-
-        } else if (mTechnique != null && mTechnique == Technique.VERTICAL_DOWNWARD) {//TODO: new feature
-
-        } else { // do click for default case
+        } else {
             final AnimatorSet animatorSet = new AnimatorSet();
             final AnimatorSet animatorSet2 = new AnimatorSet();
             Animator.AnimatorListener lis1 = new Animator.AnimatorListener() {
