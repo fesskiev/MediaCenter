@@ -122,7 +122,6 @@ dependencies {
     compile "com.google.firebase:firebase-ads:${firebaseLibVersion}"
     compile "com.google.firebase:firebase-analytics:${firebaseLibVersion}"
 
-
     compile group: 'commons-io', name: 'commons-io', version: '2.5'
     compile 'com.android.support:multidex:1.0.1'
     compile 'com.github.clans:fab:1.6.4'
