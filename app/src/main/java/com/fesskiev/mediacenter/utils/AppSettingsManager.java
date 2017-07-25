@@ -53,6 +53,8 @@ public class AppSettingsManager {
     private static final String KEY_CONVERT_PATH = "com.fesskiev.player.KEY_CONVERT_PATH";
     private static final String KEY_CUT_PATH = "com.fesskiev.player.KEY_CUT_PATH";
 
+    private static final String KEY_GUIDE_MAIN_ACTIVITY = "com.fesskiev.player.KEY_GUIDE_MAIN_ACTIVITY";
+
     private SharedPreferences sharedPreferences;
     private static AppSettingsManager INSTANCE;
 
@@ -308,6 +310,15 @@ public class AppSettingsManager {
         editor.apply();
     }
 
+    public boolean isNeedMainActivityGuide() {
+        return sharedPreferences.getBoolean(KEY_GUIDE_MAIN_ACTIVITY, true);
+    }
+
+    public void setNeedMainActivityGuide(boolean need) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_GUIDE_MAIN_ACTIVITY, need);
+        editor.apply();
+    }
 }
 
 

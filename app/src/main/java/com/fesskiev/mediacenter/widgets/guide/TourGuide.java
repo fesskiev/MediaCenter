@@ -5,10 +5,10 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
-import android.graphics.Color;
+import android.content.res.ColorStateList;
 import android.graphics.Point;
-import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.view.Gravity;
@@ -232,7 +232,8 @@ public class TourGuide {
 
     private void setupToolTip() {
         final FrameLayout.LayoutParams layoutParams =
-                new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+                new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT,
+                        FrameLayout.LayoutParams.WRAP_CONTENT);
 
         if (mToolTip != null) {
             /* inflate and get views */
@@ -385,13 +386,14 @@ public class TourGuide {
 
         // fab is the real fab that is going to be added
         final FloatingActionButton fab = new FloatingActionButton(mActivity);
-        fab.setBackgroundColor(Color.BLUE);
         fab.setVisibility(View.VISIBLE);
         fab.setSize(FloatingActionButton.SIZE_MINI);
         fab.setClickable(true);
+        fab.setBackgroundTintList(new ColorStateList(new int[][]{new int[]{0}},
+                new int[]{ContextCompat.getColor(fab.getContext(), R.color.red)}));
         final FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.setMargins(getXBasedOnGravity(fab.getWidth() * 2), getYBasedOnGravity(fab.getHeight() * 2), 0, 0);
+        params.setMargins(getXBasedOnGravity(fab.getWidth()), getYBasedOnGravity(fab.getHeight()), 0, 0);
         frameLayoutWithHole.addView(fab, params);
 
         return fab;
@@ -611,4 +613,7 @@ public class TourGuide {
         }
     }
 
+    public View getHighlightedView() {
+        return mHighlightedView;
+    }
 }

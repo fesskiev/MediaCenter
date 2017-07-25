@@ -39,7 +39,6 @@ public class MediaNavigationView extends NavigationView implements View.OnClickL
     private FetchContentView fetchContentView;
     private SwitchCompat[] switchCompats;
 
-
     public MediaNavigationView(Context context) {
         super(context);
         init(context);
@@ -200,5 +199,9 @@ public class MediaNavigationView extends NavigationView implements View.OnClickL
 
     public FetchContentView getFetchContentView() {
         return fetchContentView;
+    }
+
+    public View getSettingsView() {
+        return findViewById(R.id.effectsTitle);
     }
 }
