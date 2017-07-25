@@ -32,23 +32,37 @@
                 android:layout_below="@+id/viewSettingsTitle"
                 android:layout_marginTop="10dp" />
 
-            <RelativeLayout
+            <LinearLayout
                 android:id="@+id/viewContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/divider10"
-                android:layout_marginTop="10dp">
+                android:layout_marginTop="10dp"
+                android:orientation="vertical">
 
                 <android.support.v7.widget.SwitchCompat
                     android:id="@+id/fullScreenSwitch"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
                     android:gravity="center"
                     android:text="@string/settings_view_full_scree_enable" />
 
-            </RelativeLayout>
+                <View
+                    android:id="@+id/divider14"
+                    style="@style/DividerStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="10dp" />
+
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/enableAppGuideSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center"
+                    android:text="@string/settings_view_enable_app_guide" />
+
+            </LinearLayout>
 
             <View
                 android:id="@+id/divider11"

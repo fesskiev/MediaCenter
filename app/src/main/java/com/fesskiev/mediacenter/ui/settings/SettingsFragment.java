@@ -57,7 +57,8 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
                 (SwitchCompat) view.findViewById(R.id.downloadWifiSwitch),
                 (SwitchCompat) view.findViewById(R.id.encryptDataSwitch),
                 (SwitchCompat) view.findViewById(R.id.showHiddenFilesSwitch),
-                (SwitchCompat) view.findViewById(R.id.fullScreenSwitch)
+                (SwitchCompat) view.findViewById(R.id.fullScreenSwitch),
+                (SwitchCompat) view.findViewById(R.id.enableAppGuideSwitch)
         };
 
         recordSavePath = (TextView) view.findViewById(R.id.recordPathToSave);
@@ -131,6 +132,9 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
                 case R.id.fullScreenSwitch:
                     switchCompat.setChecked(appSettingsManager.isFullScreenMode());
                     break;
+                case R.id.enableAppGuideSwitch:
+                    switchCompat.setChecked(appSettingsManager.isNeedMainActivityGuide());
+                    break;
             }
         }
     }
@@ -153,6 +157,9 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
             case R.id.showHiddenFilesSwitch:
                 appSettingsManager.setShowHiddenFiles(isChecked);
                 refreshRepository();
+                break;
+            case R.id.enableAppGuideSwitch:
+                appSettingsManager.setNeedMainActivityGuide(isChecked);
                 break;
         }
     }

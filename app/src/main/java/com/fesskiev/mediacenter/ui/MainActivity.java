@@ -75,6 +75,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private TextView appName;
     private TextView appPromo;
 
+    private AppGuide appGuide;
+
     private int selectedState;
     private boolean startAnimate;
 
@@ -151,7 +153,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         new Handler().postDelayed(this::makeGuideIfNeed, 1000);
     }
 
-    private AppGuide appGuide;
 
     private void makeGuideIfNeed() {
         if (settingsManager.isNeedMainActivityGuide()) {
@@ -190,18 +191,24 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     private void makeAudioEffectsGuide() {
-        appGuide.makeGuide(mediaNavigationView.getSettingsView(),
-                "Effects Settings!", "Please, short guide, click next");
+        if (appGuide != null) {
+            appGuide.makeGuide(mediaNavigationView.getSettingsView(),
+                    "Effects Settings!", "Please, short guide, click next");
+        }
     }
 
     private void makeSearchGuide() {
-        appGuide.makeGuide(toolbar.findViewById(R.id.menu_search),
-                "Audio Search!", "You can search audio content on your device");
+        if (appGuide != null) {
+            appGuide.makeGuide(toolbar.findViewById(R.id.menu_search),
+                    "Audio Search!", "You can search audio content on your device");
+        }
     }
 
     private void makeWelcomeGuide() {
-        appGuide.makeGuide(appIcon,
-                "Welcome to SoloPlayer!", "Please, short guide, click next");
+        if (appGuide != null) {
+            appGuide.makeGuide(appIcon,
+                    "Welcome to SoloPlayer!", "Please, short guide, click next");
+        }
     }
 
 
