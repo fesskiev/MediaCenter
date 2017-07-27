@@ -17,6 +17,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.utils.AppLog;
 
 
 public class AudioVolumeSeekView extends View {
@@ -29,6 +30,8 @@ public class AudioVolumeSeekView extends View {
         void changeSeekStart(int seek);
 
         void changeSeekFinish();
+
+        void changeLoopState(boolean enable);
     }
 
     private OnAudioVolumeSeekListener listener;
@@ -51,6 +54,8 @@ public class AudioVolumeSeekView extends View {
 
     private float cx;
     private float cy;
+
+    private int progressColor;
 
     private GestureDetectorCompat gestureDetector;
 
@@ -80,7 +85,7 @@ public class AudioVolumeSeekView extends View {
         int circleColor = a.getColor(
                 R.styleable.AudioVolumeSeekView_circleColor,
                 ContextCompat.getColor(context, R.color.player_secondary));
-        int progressColor = a.getColor(
+        progressColor = a.getColor(
                 R.styleable.AudioVolumeSeekView_progressColor,
                 ContextCompat.getColor(context, R.color.player_primary));
 
@@ -154,21 +159,48 @@ public class AudioVolumeSeekView extends View {
 
     }
 
+    private boolean longPress;
 
     private final GestureDetector.SimpleOnGestureListener
             gestureListener = new GestureDetector.SimpleOnGestureListener() {
 
         @Override
-        public boolean onDoubleTap(MotionEvent e) {
-
+        public boolean onDown(MotionEvent event) {
             return true;
         }
 
+        @Override
+        public boolean onSingleTapUp(MotionEvent event) {
+            return true;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            super.onLongPress(e);
+            if (inCircle(e.getX(), e.getY(), seekSlider.x, seekSlider.y, seekSlider.radius)) {
+                longPress = !longPress;
+                if (longPress) {
+                    circleFillPaint.setColor(getResources().getColor(R.color.yellow));
+                } else {
+                    circleFillPaint.setColor(progressColor);
+                }
+                if(listener != null){
+                    listener.changeLoopState(longPress);
+                }
+                invalidate();
+            }
+        }
     };
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean dispatchTouchEvent(MotionEvent event) {
         gestureDetector.onTouchEvent(event);
+        return super.dispatchTouchEvent(event);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+
         int action = event.getActionMasked();
 
         float x = event.getX();
@@ -177,8 +209,10 @@ public class AudioVolumeSeekView extends View {
         switch (action) {
             case MotionEvent.ACTION_DOWN:
 
-                if (inCircle(x, y, seekSlider.x, seekSlider.y, seekSlider.radius)) {
-                    seekSlider.check = true;
+                if (!longPress) {
+                    if (inCircle(x, y, seekSlider.x, seekSlider.y, seekSlider.radius)) {
+                        seekSlider.check = true;
+                    }
                 }
                 if (enableChangeVolume) {
                     if (inCircle(x, y, volumeSlider.x, volumeSlider.y, volumeSlider.radius)) {

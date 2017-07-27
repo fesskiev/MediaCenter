@@ -20,6 +20,8 @@ public class AudioControlView extends FrameLayout {
         void onVolumeStateChanged(int volume, boolean change);
 
         void onSeekStateChanged(int seek, boolean change);
+
+        void onLoopStateChanged(boolean enable);
     }
 
     private OnAudioControlListener listener;
@@ -73,6 +75,13 @@ public class AudioControlView extends FrameLayout {
             public void changeSeekFinish() {
                 if (listener != null) {
                     listener.onSeekStateChanged(0, false);
+                }
+            }
+
+            @Override
+            public void changeLoopState(boolean enable) {
+                if(listener != null){
+                    listener.onLoopStateChanged(enable);
                 }
             }
         });

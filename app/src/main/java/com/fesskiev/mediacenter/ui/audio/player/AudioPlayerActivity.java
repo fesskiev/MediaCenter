@@ -182,6 +182,15 @@ public class AudioPlayerActivity extends AnalyticsActivity {
                 }
                 scrollView.setEnableScrolling(!change);
             }
+
+            @Override
+            public void onLoopStateChanged(boolean enable) {
+                if (enable) {
+                    PlaybackService.startLooping(getApplicationContext());
+                } else {
+                    PlaybackService.endLooping(getApplicationContext());
+                }
+            }
         });
 
         controlView.setPlay(lastPlaying);

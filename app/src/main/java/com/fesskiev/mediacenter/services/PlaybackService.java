@@ -81,6 +81,11 @@ public class PlaybackService extends Service {
     public static final String ACTION_PLAYBACK_TEMPO =
             "com.fesskiev.player.action.ACTION_PLAYBACK_TEMPO";
 
+    public static final String ACTION_LOOPING_START =
+            "com.fesskiev.player.action.ACTION_LOOPING_START";
+    public static final String ACTION_LOOPING_END =
+            "com.fesskiev.player.action.ACTION_LOOPING_END";
+
     public static final String ACTION_START_RECORDING =
             "com.fesskiev.player.action.ACTION_START_RECORDING";
     public static final String ACTION_STOP_RECORDING =
@@ -266,6 +271,18 @@ public class PlaybackService extends Service {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_OPEN_FILE);
         intent.putExtra(PLAYBACK_EXTRA_MUSIC_FILE_PATH, path);
+        context.startService(intent);
+    }
+
+    public static void startLooping(Context context) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_LOOPING_START);
+        context.startService(intent);
+    }
+
+    public static void endLooping(Context context) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_LOOPING_END);
         context.startService(intent);
     }
 
@@ -476,6 +493,12 @@ public class PlaybackService extends Service {
                     case ACTION_START_CONVERT:
                         setStartConvertState();
                         break;
+                    case ACTION_LOOPING_START:
+                        loopBetween(0, position * 1000);
+                        break;
+                    case ACTION_LOOPING_END:
+                        loopExit();
+                        break;
                 }
             }
         }
@@ -491,18 +514,18 @@ public class PlaybackService extends Service {
 
     private void updateNotification(AudioFile audioFile) {
         BitmapHelper.getInstance().loadBitmap(audioFile, new BitmapHelper.OnBitmapLoadListener() {
-                    @Override
-                    public void onLoaded(Bitmap bitmap) {
-                        notificationHelper.updateNotification(audioFile, bitmap, playing);
-                        startForeground(NotificationHelper.NOTIFICATION_ID,
-                                notificationHelper.getNotification());
-                    }
+            @Override
+            public void onLoaded(Bitmap bitmap) {
+                notificationHelper.updateNotification(audioFile, bitmap, playing);
+                startForeground(NotificationHelper.NOTIFICATION_ID,
+                        notificationHelper.getNotification());
+            }
 
-                    @Override
-                    public void onFailed() {
+            @Override
+            public void onFailed() {
 
-                    }
-                });
+            }
+        });
     }
 
     private void registerNotificationReceiver() {
