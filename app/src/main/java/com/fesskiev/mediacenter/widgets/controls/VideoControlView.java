@@ -120,23 +120,35 @@ public class VideoControlView extends FrameLayout {
 
     public VideoControlView(Context context) {
         super(context);
-        init(context);
+        init(context, null, 0);
     }
 
     public VideoControlView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        init(context, attrs, 0);
     }
 
     public VideoControlView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context);
+        init(context, attrs, defStyleAttr);
     }
 
-    private void init(Context context) {
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(
-                Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.video_player_control, this, true);
+    private void init(Context context, AttributeSet attrs, int defStyle) {
+
+        final TypedArray a = getContext().obtainStyledAttributes(
+                attrs, R.styleable.VideoControlView, defStyle, 0);
+
+        String orientation = a.getString(R.styleable.VideoControlView_orientation);
+
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view;
+        if (orientation.equals("portrait")) {
+            view = inflater.inflate(R.layout.video_player_control, this, true);
+        } else {
+            view = inflater.inflate(R.layout.video_player_control_landscape, this, true);
+        }
+
+        a.recycle();
 
         rendererStates = new TreeSet<>();
 

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:alpha="0.9">
+    android:alpha="0.8">
 
     <TextView
         android:id="@+id/videoName"
@@ -14,32 +14,6 @@
         android:ellipsize="end"
         android:gravity="center"
         android:maxLines="2" />
-
-
-    <ImageView
-        android:id="@+id/cutVideoButton"
-        android:layout_width="34dp"
-        android:layout_height="34dp"
-        android:layout_above="@+id/videoLockScreen"
-        android:layout_alignParentEnd="true"
-        android:layout_marginBottom="16dp"
-        android:layout_marginEnd="8dp"
-        android:contentDescription="@string/app_name"
-        android:scaleType="fitCenter"
-        android:src="@drawable/icon_cut_1" />
-
-    <ImageView
-        android:id="@+id/videoLockScreen"
-        android:layout_width="34dp"
-        android:layout_height="34dp"
-        android:layout_above="@+id/resizeModeState"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="16dp"
-        android:layout_marginStart="8dp"
-        android:contentDescription="@string/app_name"
-        android:scaleType="fitCenter"
-        android:src="@drawable/icon_video_unlock_screen" />
-
 
     <TextView
         android:id="@+id/resizeModeState"
@@ -57,36 +31,11 @@
         android:maxLines="2"
         tools:text="Fixed height" />
 
-    <ImageView
-        android:id="@+id/addSubButton"
-        android:layout_width="34dp"
-        android:layout_height="34dp"
-        android:layout_above="@+id/settingsButton"
-        android:layout_alignParentEnd="true"
-        android:layout_marginBottom="16dp"
-        android:layout_marginEnd="8dp"
-        android:contentDescription="@string/app_name"
-        android:scaleType="fitCenter"
-        android:src="@drawable/icon_add_sub" />
-
-    <ImageView
-        android:id="@+id/settingsButton"
-        android:layout_width="34dp"
-        android:layout_height="34dp"
-        android:layout_above="@+id/controlContainer"
-        android:layout_alignParentEnd="true"
-        android:layout_marginBottom="16dp"
-        android:layout_marginEnd="8dp"
-        android:contentDescription="@string/app_name"
-        android:scaleType="fitCenter"
-        android:src="@drawable/icon_video_settings" />
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/settingsButton"
-        android:layout_alignParentTop="true"
-        android:layout_marginBottom="10dp">
+        android:layout_above="@+id/controlContainer"
+        android:layout_alignParentTop="true">
 
         <LinearLayout
             android:id="@+id/videoControlPanel"
@@ -95,7 +44,7 @@
             android:background="@color/track_background"
             android:orientation="vertical"
             android:padding="8dp"
-            android:translationY="-100dp">
+            android:translationY="-400dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -173,8 +122,6 @@
 
     </RelativeLayout>
 
-
-
     <RelativeLayout
         android:id="@+id/videoTimeControl"
         android:layout_width="match_parent"
@@ -208,44 +155,100 @@
             android:id="@+id/seekVideo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="2dp"
+            android:max="100"
             android:maxHeight="2dp"
-            android:max="100"/>
+            android:minHeight="2dp" />
 
     </RelativeLayout>
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/controlContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/videoTimeControl"
         android:layout_alignParentStart="true"
-        android:layout_marginBottom="10dp">
+        android:baselineAligned="false"
+        android:orientation="horizontal">
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/previousVideo"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center|start"
+                android:contentDescription="@string/app_name"
+                android:scaleType="fitCenter"
+                android:src="@drawable/avd_music_previous" />
+
+        </FrameLayout>
 
         <ImageView
-            android:id="@+id/previousVideo"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:id="@+id/cutVideoButton"
+            android:layout_width="0dp"
+            android:layout_height="34dp"
             android:layout_gravity="center_vertical"
+            android:layout_weight="1"
             android:contentDescription="@string/app_name"
             android:scaleType="fitCenter"
-            android:src="@drawable/avd_music_previous" />
+            android:src="@drawable/icon_cut_1" />
+
+        <ImageView
+            android:id="@+id/videoLockScreen"
+            android:layout_width="0dp"
+            android:layout_height="34dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:contentDescription="@string/app_name"
+            android:scaleType="fitCenter"
+            android:src="@drawable/icon_video_unlock_screen" />
 
         <com.fesskiev.mediacenter.widgets.buttons.PlayPauseButton
             android:id="@+id/playPauseButton"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
-            android:layout_gravity="center_horizontal" />
+            android:layout_width="0dp"
+            android:layout_height="54dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1" />
 
         <ImageView
-            android:id="@+id/nextVideo"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_gravity="center_vertical|end"
+            android:id="@+id/addSubButton"
+            android:layout_width="0dp"
+            android:layout_height="34dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
             android:contentDescription="@string/app_name"
             android:scaleType="fitCenter"
-            android:src="@drawable/avd_music_next" />
+            android:src="@drawable/icon_add_sub" />
 
-    </FrameLayout>
+        <ImageView
+            android:id="@+id/settingsButton"
+            android:layout_width="0dp"
+            android:layout_height="34dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:contentDescription="@string/app_name"
+            android:scaleType="fitCenter"
+            android:src="@drawable/icon_video_settings" />
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/nextVideo"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center|end"
+                android:contentDescription="@string/app_name"
+                android:scaleType="fitCenter"
+                android:src="@drawable/avd_music_next" />
+
+        </FrameLayout>
+
+    </LinearLayout>
 
 </RelativeLayout>

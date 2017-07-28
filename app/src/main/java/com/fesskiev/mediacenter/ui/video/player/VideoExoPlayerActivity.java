@@ -2,7 +2,6 @@ package com.fesskiev.mediacenter.ui.video.player;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
@@ -116,8 +115,6 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_exo_player);
-
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 
         videoPlayer = MediaApplication.getInstance().getVideoPlayer();
 

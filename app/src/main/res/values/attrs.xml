@@ -73,4 +73,8 @@
         <attr name="absoluteMaxValue" format="integer|float"/>
     </declare-styleable>
 
+    <declare-styleable name="VideoControlView">
+        <attr name="orientation" format="string" />
+    </declare-styleable>
+
 </resources>
