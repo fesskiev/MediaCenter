@@ -16,6 +16,7 @@
         <item name="seekBarStyle">@style/Widget.SeekBarStyle</item>
         <item name="android:scrollbarThumbVertical">@android:color/transparent</item>
         <item name="android:actionOverflowButtonStyle">@style/ActionButtonOverflow</item>
+        <item name="android:windowTranslucentStatus">true</item>
     </style>
 
     <style name="Base.Theme.Player.VideoExoPlayer">
