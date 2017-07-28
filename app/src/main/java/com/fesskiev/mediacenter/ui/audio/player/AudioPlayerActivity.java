@@ -6,6 +6,7 @@ import android.graphics.drawable.Animatable;
 import android.os.Bundle;
 import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,6 +33,7 @@ import com.fesskiev.mediacenter.widgets.buttons.MuteSoloButton;
 import com.fesskiev.mediacenter.widgets.buttons.RepeatButton;
 import com.fesskiev.mediacenter.widgets.cards.DescriptionCardView;
 import com.fesskiev.mediacenter.widgets.controls.AudioControlView;
+import com.fesskiev.mediacenter.widgets.dialogs.LoopingDialog;
 import com.fesskiev.mediacenter.widgets.utils.DisabledScrollView;
 
 import org.greenrobot.eventbus.EventBus;
@@ -147,8 +149,17 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         });
 
         repeatButton = (RepeatButton) findViewById(R.id.repeatButton);
-        repeatButton.setOnRepeatStateChangedListener(repeat ->
-                PlaybackService.changeLoopingState(getApplicationContext(), repeat));
+        repeatButton.setOnRepeatStateChangedListener(new RepeatButton.OnRepeatStateChangedListener() {
+            @Override
+            public void onRepeatStateChanged(boolean repeat) {
+                PlaybackService.changeLoopingState(getApplicationContext(), repeat);
+            }
+
+            @Override
+            public void onLoopingBetweenClick() {
+                makeLoopingDialog();
+            }
+        });
 
         final DisabledScrollView scrollView = (DisabledScrollView) findViewById(R.id.scrollView);
 
@@ -201,6 +212,13 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         PlaybackService.requestPlaybackStateIfNeed(getApplicationContext());
 
         checkFirstOrLastTrack();
+    }
+
+    private void makeLoopingDialog() {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.addToBackStack(null);
+        LoopingDialog dialog = LoopingDialog.newInstance(lastDurationSeconds);
+        dialog.show(transaction, LoopingDialog.class.getName());
     }
 
     @Override

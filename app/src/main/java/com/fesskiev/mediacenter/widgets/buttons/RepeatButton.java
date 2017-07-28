@@ -10,10 +10,12 @@ import android.widget.ImageView;
 
 import com.fesskiev.mediacenter.R;
 
-public class RepeatButton extends ImageView implements View.OnClickListener {
+public class RepeatButton extends ImageView implements View.OnClickListener, View.OnLongClickListener {
 
     public interface OnRepeatStateChangedListener {
         void onRepeatStateChanged(boolean repeat);
+
+        void onLoopingBetweenClick();
     }
 
     private final static int DURATION = 200;
@@ -38,6 +40,7 @@ public class RepeatButton extends ImageView implements View.OnClickListener {
 
     private void init() {
         setOnClickListener(this);
+        setOnLongClickListener(this);
         setRepeatOff();
     }
 
@@ -53,6 +56,7 @@ public class RepeatButton extends ImageView implements View.OnClickListener {
         setImageResource(R.drawable.icon_repeat_off);
     }
 
+
     @Override
     public void onClick(View v) {
         repeat = !repeat;
@@ -60,6 +64,14 @@ public class RepeatButton extends ImageView implements View.OnClickListener {
             listener.onRepeatStateChanged(repeat);
         }
         changeState();
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        if(listener != null){
+            listener.onLoopingBetweenClick();
+        }
+        return true;
     }
 
     private void animateShowButton() {
