@@ -193,15 +193,6 @@ public class AudioPlayerActivity extends AnalyticsActivity {
                 }
                 scrollView.setEnableScrolling(!change);
             }
-
-            @Override
-            public void onLoopStateChanged(boolean enable) {
-                if (enable) {
-                    PlaybackService.startLooping(getApplicationContext());
-                } else {
-                    PlaybackService.endLooping(getApplicationContext());
-                }
-            }
         });
 
         controlView.setPlay(lastPlaying);
@@ -219,6 +210,8 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         transaction.addToBackStack(null);
         LoopingDialog dialog = LoopingDialog.newInstance(lastDurationSeconds);
         dialog.show(transaction, LoopingDialog.class.getName());
+        dialog.setLoopingBetweenListener((start, end) ->
+                PlaybackService.startLooping(getApplicationContext(), start, end));
     }
 
     @Override

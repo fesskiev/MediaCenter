@@ -132,6 +132,11 @@ public class PlaybackService extends Service {
     public static final String PLAYBACK_EXTRA_TEMPO_LEVEL
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_TEMPO_LEVEL";
 
+    public static final String PLAYBACK_EXTRA_LOOPING_START
+            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_LOOPING_START";
+    public static final String PLAYBACK_EXTRA_LOOPING_END
+            = "com.fesskiev.player.extra.PLAYBACK_EXTRA_LOOPING_END";
+
     private NotificationHelper notificationHelper;
 
     private AudioFocusManager audioFocusManager;
@@ -274,9 +279,11 @@ public class PlaybackService extends Service {
         context.startService(intent);
     }
 
-    public static void startLooping(Context context) {
+    public static void startLooping(Context context, double start, double end) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(ACTION_LOOPING_START);
+        intent.putExtra(PLAYBACK_EXTRA_LOOPING_START, start);
+        intent.putExtra(PLAYBACK_EXTRA_LOOPING_END, end);
         context.startService(intent);
     }
 
@@ -494,7 +501,9 @@ public class PlaybackService extends Service {
                         setStartConvertState();
                         break;
                     case ACTION_LOOPING_START:
-                        loopBetween(0, position * 1000);
+                        double start = intent.getDoubleExtra(PLAYBACK_EXTRA_LOOPING_START, 0);
+                        double end = intent.getDoubleExtra(PLAYBACK_EXTRA_LOOPING_END, 0);
+                        loopBetween(start * 1000, end * 1000);
                         break;
                     case ACTION_LOOPING_END:
                         loopExit();

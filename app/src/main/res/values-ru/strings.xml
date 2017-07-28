@@ -268,4 +268,7 @@
     <string name="group_genres">Жанры</string>
     <string name="group_artists">Артисты</string>
 
+    <string name="looping_title_text">Выберите диапазон</string>
+    <string name="looping_button_text">Начать</string>
+
 </resources>

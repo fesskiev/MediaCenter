@@ -12,7 +12,7 @@
         style="@style/ConvertTitleAppearance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Choose looping range" />
+        android:text="@string/looping_title_text" />
 
     <View
         android:id="@+id/divider"
@@ -34,13 +34,13 @@
         android:layout_marginTop="25dp" />
 
     <Button
-        android:id="@+id/enterAppButton"
+        android:id="@+id/startLoopingButton"
         style="@style/ButtonStyle"
         android:layout_width="@dimen/button_width"
         android:layout_height="@dimen/button_height"
         android:layout_gravity="end"
         android:layout_marginTop="10dp"
         android:gravity="center"
-        android:text="OK" />
+        android:text="@string/looping_button_text" />
 
 </LinearLayout>

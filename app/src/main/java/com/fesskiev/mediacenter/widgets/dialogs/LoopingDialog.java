@@ -15,6 +15,11 @@ public class LoopingDialog extends DialogFragment {
 
     private static final String AUDIO_FILE_DURATION = "com.fesskiev.player.AUDIO_FILE_DURATION ";
 
+
+    public interface OnLoopingBetweenListener {
+        void onStartLooping(int start, int end);
+    }
+
     public static LoopingDialog newInstance(int duration) {
         LoopingDialog dialog = new LoopingDialog();
         Bundle args = new Bundle();
@@ -23,7 +28,11 @@ public class LoopingDialog extends DialogFragment {
         return dialog;
     }
 
+    private OnLoopingBetweenListener listener;
+
     private int duration;
+    private int start;
+    private int end;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,13 +53,27 @@ public class LoopingDialog extends DialogFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+
+        view.findViewById(R.id.startLoopingButton).setOnClickListener(v -> processStartLooping());
+
         RangeSeekBar<Integer> rangeSeekBar = (RangeSeekBar) view.findViewById(R.id.rangeSeekBar);
         rangeSeekBar.setRangeValues(0, duration);
-
         rangeSeekBar.setCutType(0);
         rangeSeekBar.setOnRangeSeekBarChangeListener((bar, minValue, maxValue) -> {
-
+            start = minValue;
+            end = maxValue;
         });
 
+    }
+
+    private void processStartLooping() {
+        if (listener != null && end > 0) {
+            listener.onStartLooping(start, end);
+            dismiss();
+        }
+    }
+
+    public void setLoopingBetweenListener(OnLoopingBetweenListener l) {
+        this.listener = l;
     }
 }
