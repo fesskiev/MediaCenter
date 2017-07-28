@@ -190,6 +190,7 @@ public class AlbumSearchActivity extends AnalyticsActivity {
             showEnterAlbumError();
             return;
         }
+        Utils.hideKeyboard(this);
         showProgressBar();
         subscription = MediaApplication.getInstance()
                 .getRepository().getAlbum(artist.trim(), album.trim())
@@ -261,7 +262,6 @@ public class AlbumSearchActivity extends AnalyticsActivity {
                 adapter.refreshAdapter(listTracks);
             }
         }
-
         showLoadSuccess();
     }
 
