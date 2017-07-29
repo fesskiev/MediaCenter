@@ -5,6 +5,9 @@ buildscript {
         jcenter {
             url "http://jcenter.bintray.com/"
         }
+        maven {
+            url "http://maven.google.com"
+        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.0-alpha8'
@@ -16,6 +19,9 @@ allprojects {
     repositories {
         jcenter {
             url "http://jcenter.bintray.com/"
+        }
+        maven {
+            url "http://maven.google.com"
         }
         flatDir {
             dirs 'libs'
