@@ -17,7 +17,6 @@ import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,7 +39,7 @@ import com.fesskiev.mediacenter.ui.search.SearchActivity;
 import com.fesskiev.mediacenter.ui.settings.SettingsActivity;
 import com.fesskiev.mediacenter.ui.splash.SplashActivity;
 import com.fesskiev.mediacenter.ui.video.VideoFoldersFragment;
-import com.fesskiev.mediacenter.utils.AnimationUtils;
+import com.fesskiev.mediacenter.utils.AppAnimationUtils;
 import com.fesskiev.mediacenter.utils.AppGuide;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
@@ -93,7 +92,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        AnimationUtils.getInstance().animateToolbar(toolbar);
+
+        AppAnimationUtils.getInstance().animateToolbar(toolbar);
 
         timerView = (ImageView) findViewById(R.id.timer);
 
@@ -217,7 +217,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             ViewCompat.animate(appIcon)
                     .alpha(slideOffset)
                     .setDuration(600)
-                    .setInterpolator(AnimationUtils.getInstance().getFastOutSlowInInterpolator())
+                    .setInterpolator(AppAnimationUtils.getInstance().getFastOutSlowInInterpolator())
                     .start();
 
             ViewCompat.animate(appName)
@@ -225,7 +225,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                     .scaleY(slideOffset)
                     .alpha(slideOffset)
                     .setDuration(800)
-                    .setInterpolator(AnimationUtils.getInstance().getFastOutSlowInInterpolator())
+                    .setInterpolator(AppAnimationUtils.getInstance().getFastOutSlowInInterpolator())
                     .start();
 
             ViewCompat.animate(appPromo)
@@ -233,7 +233,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                     .scaleY(slideOffset)
                     .alpha(slideOffset)
                     .setDuration(1000)
-                    .setInterpolator(AnimationUtils.getInstance().getFastOutSlowInInterpolator())
+                    .setInterpolator(AppAnimationUtils.getInstance().getFastOutSlowInInterpolator())
                     .setListener(new ViewPropertyAnimatorListener() {
                         @Override
                         public void onAnimationStart(View view) {
@@ -399,7 +399,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 AppLog.INFO("onFetchAudioContentStart");
                 if (clear) {
                     clearPlayback();
-                    AnimationUtils.getInstance().animateBottomSheet(bottomSheet, false);
+                    AppAnimationUtils.getInstance().animateBottomSheet(bottomSheet, false);
                     clearAudioFragment();
                 }
             }
@@ -416,7 +416,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             public void onFetchMediaContentFinish() {
                 AppLog.INFO("onFetchMediaContentFinish");
 
-                AnimationUtils.getInstance().animateBottomSheet(bottomSheet, true);
+                AppAnimationUtils.getInstance().animateBottomSheet(bottomSheet, true);
                 hideToolbarTimer();
                 enableSwipeRefresh();
             }

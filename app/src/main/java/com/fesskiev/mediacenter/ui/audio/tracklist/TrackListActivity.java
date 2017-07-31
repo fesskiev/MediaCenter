@@ -25,7 +25,7 @@ import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.mediacenter.ui.audio.CONTENT_TYPE;
-import com.fesskiev.mediacenter.utils.AnimationUtils;
+import com.fesskiev.mediacenter.utils.AppAnimationUtils;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
@@ -62,6 +62,7 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
 
     private AppSettingsManager settingsManager;
 
+    private RecyclerView recyclerView;
     private TrackListAdapter adapter;
     private AudioPlayer audioPlayer;
     private List<SlidingCardView> openCards;
@@ -122,7 +123,8 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                 sortButton.setOnClickListener(this);
             }
 
-            RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycleView);
+            recyclerView = (RecyclerView) findViewById(R.id.recycleView);
+            recyclerView.setHasFixedSize(true);
             recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(this,
                     LinearLayoutManager.VERTICAL, false, 1000));
             adapter = new TrackListAdapter();
@@ -185,6 +187,11 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
         }
     }
 
+    private void animateItems() {
+        AppAnimationUtils.getInstance().loadLinearRecyclerItemAnimation(recyclerView);
+        recyclerView.scheduleLayoutAnimation();
+    }
+
     private void fetchContentByType() {
         Observable<List<AudioFile>> audioFilesObservable = null;
 
@@ -204,7 +211,6 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
             subscription = audioFilesObservable
                     .first()
                     .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
                     .flatMap(Observable::from)
                     .filter(audioFile -> {
                         if (AppSettingsManager.getInstance().isShowHiddenFiles()) {
@@ -215,7 +221,9 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                     .toList()
                     .map(unsortedList -> audioPlayer.sortAudioFiles(settingsManager.getSortType(), unsortedList))
                     .doOnNext(sortedList -> audioPlayer.setSortingTrackList(sortedList))
-                    .subscribe(audioFiles -> adapter.refreshAdapter(audioFiles));
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnNext(audioFiles -> adapter.refreshAdapter(audioFiles))
+                    .subscribe(audioFiles -> animateItems());
         }
     }
 
@@ -265,13 +273,13 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
     private void hideViews() {
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) actionMenu.getLayoutParams();
         int fabBottomMargin = lp.bottomMargin;
-        AnimationUtils.getInstance().translate(actionMenu, actionMenu.getHeight()
+        AppAnimationUtils.getInstance().translate(actionMenu, actionMenu.getHeight()
                 + fabBottomMargin);
 
     }
 
     private void showViews() {
-        AnimationUtils.getInstance().translate(actionMenu, 0);
+        AppAnimationUtils.getInstance().translate(actionMenu, 0);
     }
 
 
@@ -350,14 +358,14 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                     public void onShown(Snackbar snackbar) {
                         super.onShown(snackbar);
                         closeMenu();
-                        AnimationUtils.getInstance().translateMenu(actionMenu,
+                        AppAnimationUtils.getInstance().translateMenu(actionMenu,
                                 -snackbar.getView().getHeight());
                     }
 
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {
                         super.onDismissed(snackbar, event);
-                        AnimationUtils.getInstance().translateMenu(actionMenu, 0);
+                        AppAnimationUtils.getInstance().translateMenu(actionMenu, 0);
                         closeOpenCards();
                     }
                 }).show();
@@ -389,14 +397,14 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                             public void onShown(Snackbar snackbar) {
                                 super.onShown(snackbar);
                                 closeMenu();
-                                AnimationUtils.getInstance().translateMenu(actionMenu,
+                                AppAnimationUtils.getInstance().translateMenu(actionMenu,
                                         -snackbar.getView().getHeight());
                             }
 
                             @Override
                             public void onDismissed(Snackbar snackbar, int event) {
                                 super.onDismissed(snackbar, event);
-                                AnimationUtils.getInstance().translateMenu(actionMenu, 0);
+                                AppAnimationUtils.getInstance().translateMenu(actionMenu, 0);
                             }
                         }).show();
                     }
@@ -440,14 +448,14 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                                 public void onShown(Snackbar snackbar) {
                                     super.onShown(snackbar);
                                     closeMenu();
-                                    AnimationUtils.getInstance().translateMenu(actionMenu,
+                                    AppAnimationUtils.getInstance().translateMenu(actionMenu,
                                             -snackbar.getView().getHeight());
                                 }
 
                                 @Override
                                 public void onDismissed(Snackbar snackbar, int event) {
                                     super.onDismissed(snackbar, event);
-                                    AnimationUtils.getInstance().translateMenu(actionMenu, 0);
+                                    AppAnimationUtils.getInstance().translateMenu(actionMenu, 0);
                                 }
                             }).show();
 

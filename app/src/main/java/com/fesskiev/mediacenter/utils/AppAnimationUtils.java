@@ -4,9 +4,12 @@ package com.fesskiev.mediacenter.utils;
 import android.animation.Animator;
 import android.content.Context;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewAnimationUtils;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.view.animation.RotateAnimation;
 import android.widget.TextView;
 
@@ -16,7 +19,7 @@ import com.fesskiev.mediacenter.R;
 import static android.view.animation.Animation.RELATIVE_TO_SELF;
 
 //TODO replace all animations here
-public class AnimationUtils {
+public class AppAnimationUtils {
 
     private static final int DURATION_300 = 300;
     private static final int DURATION_FAST = 600;
@@ -24,22 +27,28 @@ public class AnimationUtils {
     private static final int DURATION_SLOW = 1800;
     private static final int STARTUP_DELAY = 600;
 
-    private static AnimationUtils INSTANCE;
+    private static AppAnimationUtils INSTANCE;
 
     private Context context;
     private FastOutSlowInInterpolator fastOutSlowInInterpolator;
+    private LayoutAnimationController fromRightAnimation;
+    private LayoutAnimationController scaleRandomAnimation;
 
-    public static AnimationUtils getInstance() {
+    public static AppAnimationUtils getInstance() {
         if (INSTANCE == null) {
-            INSTANCE = new AnimationUtils();
+            INSTANCE = new AppAnimationUtils();
         }
         return INSTANCE;
     }
 
-    private AnimationUtils() {
+    private AppAnimationUtils() {
         context = MediaApplication.getInstance().getApplicationContext();
 
         fastOutSlowInInterpolator = new FastOutSlowInInterpolator();
+        fromRightAnimation =
+                AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_from_right);
+        scaleRandomAnimation =
+                AnimationUtils.loadLayoutAnimation(context, R.anim.grid_layout_animation_scale_random);
 
     }
 
@@ -59,13 +68,13 @@ public class AnimationUtils {
     }
 
     public void animateBottomSheet(View view, boolean show) {
-            view.setAlpha(show ? 0f : 1f);
-            view.animate()
-                    .alpha(show ? 1f : 0f)
-                    .scaleX(show ? 1f : 0f)
-                    .scaleY(show ? 1f : 0f)
-                    .setDuration(1000)
-                    .setInterpolator(fastOutSlowInInterpolator);
+        view.setAlpha(show ? 0f : 1f);
+        view.animate()
+                .alpha(show ? 1f : 0f)
+                .scaleX(show ? 1f : 0f)
+                .scaleY(show ? 1f : 0f)
+                .setDuration(1000)
+                .setInterpolator(fastOutSlowInInterpolator);
     }
 
     public void translate(View menu, float value) {
@@ -130,7 +139,7 @@ public class AnimationUtils {
                 .setInterpolator(fastOutSlowInInterpolator);
     }
 
-    public void rotateExpand(View view){
+    public void rotateExpand(View view) {
         RotateAnimation rotate =
                 new RotateAnimation(360, 180, RELATIVE_TO_SELF,
                         0.5f, RELATIVE_TO_SELF, 0.5f);
@@ -139,7 +148,7 @@ public class AnimationUtils {
         view.setAnimation(rotate);
     }
 
-    public void rotateCollapse(View view){
+    public void rotateCollapse(View view) {
         RotateAnimation rotate =
                 new RotateAnimation(180, 360, RELATIVE_TO_SELF,
                         0.5f, RELATIVE_TO_SELF, 0.5f);
@@ -151,5 +160,13 @@ public class AnimationUtils {
 
     public FastOutSlowInInterpolator getFastOutSlowInInterpolator() {
         return fastOutSlowInInterpolator;
+    }
+
+    public void loadLinearRecyclerItemAnimation(RecyclerView recyclerView) {
+        recyclerView.setLayoutAnimation(fromRightAnimation);
+    }
+
+    public void loadGridRecyclerItemAnimation(RecyclerView recyclerView) {
+        recyclerView.setLayoutAnimation(scaleRandomAnimation);
     }
 }

@@ -24,12 +24,10 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.video.RendererState;
 import com.fesskiev.mediacenter.ui.cut.CutMediaActivity;
-import com.fesskiev.mediacenter.ui.video.player.VideoExoPlayerActivity;
-import com.fesskiev.mediacenter.utils.AnimationUtils;
+import com.fesskiev.mediacenter.utils.AppAnimationUtils;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.widgets.buttons.PlayPauseButton;
 import com.google.android.exoplayer2.C;
@@ -255,28 +253,28 @@ public class VideoControlView extends FrameLayout {
 
 
     private void setSubTrack(int index) {
-        AnimationUtils.getInstance().scaleToSmallViews(audioTrackView, videoTrackView);
-        AnimationUtils.getInstance().scaleToOriginalView(subTrackView);
+        AppAnimationUtils.getInstance().scaleToSmallViews(audioTrackView, videoTrackView);
+        AppAnimationUtils.getInstance().scaleToOriginalView(subTrackView);
         rendererIndex = index;
         setTrack();
     }
 
     private void setVideoTrack(int index) {
-        AnimationUtils.getInstance().scaleToSmallViews(audioTrackView, subTrackView);
-        AnimationUtils.getInstance().scaleToOriginalView(videoTrackView);
+        AppAnimationUtils.getInstance().scaleToSmallViews(audioTrackView, subTrackView);
+        AppAnimationUtils.getInstance().scaleToOriginalView(videoTrackView);
         rendererIndex = index;
         setTrack();
     }
 
     private void setAudioTrack(int index) {
-        AnimationUtils.getInstance().scaleToSmallViews(subTrackView, videoTrackView);
-        AnimationUtils.getInstance().scaleToOriginalView(audioTrackView);
+        AppAnimationUtils.getInstance().scaleToSmallViews(subTrackView, videoTrackView);
+        AppAnimationUtils.getInstance().scaleToOriginalView(audioTrackView);
         rendererIndex = index;
         setTrack();
     }
 
     private void changeResizeMode() {
-        AnimationUtils.getInstance().errorAnimation(resizeModeState);
+        AppAnimationUtils.getInstance().errorAnimation(resizeModeState);
         switch (resizeMode) {
             case RESIZE_MODE_FIT:
                 resizeModeState.setText(getResources().getString(R.string.resize_mode_fill));
@@ -772,7 +770,7 @@ public class VideoControlView extends FrameLayout {
     }
 
     private void togglePanel(ImageView settingsButton) {
-        AnimationUtils.getInstance().rotateAnimation(settingsButton);
+        AppAnimationUtils.getInstance().rotateAnimation(settingsButton);
         if (showPanel) {
             hidePanel();
         } else {
@@ -789,7 +787,7 @@ public class VideoControlView extends FrameLayout {
     }
 
     private void toggleLockScreen() {
-        AnimationUtils.getInstance().errorAnimation(videoLockScreen);
+        AppAnimationUtils.getInstance().errorAnimation(videoLockScreen);
         lockScreen = !lockScreen;
         if (lockScreen) {
             videoLockScreen.setImageResource(R.drawable.icon_video_lock_screen);

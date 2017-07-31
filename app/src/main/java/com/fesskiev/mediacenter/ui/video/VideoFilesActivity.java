@@ -26,6 +26,7 @@ import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.players.VideoPlayer;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.video.player.VideoExoPlayerActivity;
+import com.fesskiev.mediacenter.utils.AppAnimationUtils;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
@@ -34,6 +35,7 @@ import com.fesskiev.mediacenter.widgets.dialogs.VideoFileDetailsDialog;
 import com.fesskiev.mediacenter.widgets.item.VideoCardView;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.menu.VideoContextMenu;
+import com.fesskiev.mediacenter.widgets.recycleview.ItemOffsetDecoration;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -56,6 +58,7 @@ public class VideoFilesActivity extends AnalyticsActivity {
     }
 
     private VideoFilesAdapter adapter;
+    private RecyclerView recyclerView;
     private Subscription subscription;
     private DataRepository repository;
     private VideoFolder videoFolder;
@@ -80,12 +83,15 @@ public class VideoFilesActivity extends AnalyticsActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2,
-                GridLayoutManager.VERTICAL, false);
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.foldersGridView);
+        final GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
+
+        final int spacing = getResources().getDimensionPixelOffset(R.dimen.default_spacing_small);
+
+        recyclerView = (RecyclerView) findViewById(R.id.foldersGridView);
         recyclerView.setLayoutManager(gridLayoutManager);
         adapter = new VideoFilesAdapter(this);
         recyclerView.setAdapter(adapter);
+        recyclerView.addItemDecoration(new ItemOffsetDecoration(spacing));
     }
 
     @Override
@@ -113,7 +119,10 @@ public class VideoFilesActivity extends AnalyticsActivity {
                     return !file.isHidden;
                 })
                 .toList()
-                .subscribe(videoFiles -> adapter.refresh(videoFiles));
+                .subscribe(videoFiles -> {
+                    adapter.refresh(videoFiles);
+                    animateItems();
+                });
     }
 
     public void refreshVideoContent() {
@@ -141,6 +150,11 @@ public class VideoFilesActivity extends AnalyticsActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPlaybackStateEvent(PlaybackService playbackState) {
         adapter.setPlaying(playbackState.isPlaying());
+    }
+
+    private void animateItems() {
+        AppAnimationUtils.getInstance().loadGridRecyclerItemAnimation(recyclerView);
+        recyclerView.scheduleLayoutAnimation();
     }
 
     private static class VideoFilesAdapter extends RecyclerView.Adapter<VideoFilesAdapter.ViewHolder> {

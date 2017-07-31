@@ -26,6 +26,7 @@ import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.services.FileSystemService;
+import com.fesskiev.mediacenter.utils.AppAnimationUtils;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.CacheManager;
@@ -36,6 +37,7 @@ import com.fesskiev.mediacenter.widgets.dialogs.VideoFolderDetailsDialog;
 import com.fesskiev.mediacenter.widgets.item.VideoFolderCardView;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.menu.FolderContextMenu;
+import com.fesskiev.mediacenter.widgets.recycleview.ItemOffsetDecoration;
 import com.fesskiev.mediacenter.widgets.recycleview.helper.ItemTouchHelperAdapter;
 import com.fesskiev.mediacenter.widgets.recycleview.helper.ItemTouchHelperViewHolder;
 import com.fesskiev.mediacenter.widgets.recycleview.helper.SimpleItemTouchHelperCallback;
@@ -60,6 +62,7 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
     public static final String EXTRA_VIDEO_FOLDER = "com.fesskiev.player.extra.EXTRA_VIDEO_FOLDER";
 
     private VideoFoldersAdapter adapter;
+    private RecyclerView recyclerView;
     private CardView emptyVideoContent;
     private SwipeRefreshLayout swipeRefreshLayout;
     private Subscription subscription;
@@ -83,13 +86,15 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2,
-                GridLayoutManager.VERTICAL, false);
+        final GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
 
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.foldersGridView);
+        final int spacing = getResources().getDimensionPixelOffset(R.dimen.default_spacing_small);
+
+        recyclerView = (RecyclerView) view.findViewById(R.id.foldersGridView);
         recyclerView.setLayoutManager(gridLayoutManager);
         adapter = new VideoFoldersAdapter(getActivity());
         recyclerView.setAdapter(adapter);
+        recyclerView.addItemDecoration(new ItemOffsetDecoration(spacing));
 
         ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(adapter);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
@@ -133,6 +138,7 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
                             showEmptyContentCard();
                         }
                         adapter.refresh(videoFolders);
+                        animateItems();
                     } else {
                         showEmptyContentCard();
                     }
@@ -196,6 +202,10 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
         return swipeRefreshLayout;
     }
 
+    private void animateItems() {
+        AppAnimationUtils.getInstance().loadGridRecyclerItemAnimation(recyclerView);
+        recyclerView.scheduleLayoutAnimation();
+    }
 
     private static class VideoFoldersAdapter extends RecyclerView.Adapter<VideoFoldersAdapter.ViewHolder> implements ItemTouchHelperAdapter {
 

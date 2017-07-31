@@ -18,7 +18,7 @@ import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.chooser.FileSystemChooserActivity;
-import com.fesskiev.mediacenter.utils.AnimationUtils;
+import com.fesskiev.mediacenter.utils.AppAnimationUtils;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.cue.CueParser;
@@ -260,13 +260,13 @@ public class CueActivity extends AnalyticsActivity {
     private void hideViews() {
         CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) addCueFab.getLayoutParams();
         int fabBottomMargin = lp.bottomMargin;
-        AnimationUtils.getInstance().translate(addCueFab, addCueFab.getHeight()
+        AppAnimationUtils.getInstance().translate(addCueFab, addCueFab.getHeight()
                 + fabBottomMargin);
 
     }
 
     private void showViews() {
-        AnimationUtils.getInstance().translate(addCueFab, 0);
+        AppAnimationUtils.getInstance().translate(addCueFab, 0);
     }
 
     private static class SelectableTrackData {

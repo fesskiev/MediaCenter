@@ -48,4 +48,6 @@
     <dimen name="mark_size">50dp</dimen>
     <dimen name="audio_control_padding">3dp</dimen>
 
+    <dimen name="default_spacing_small">4dp</dimen>
+
 </resources>

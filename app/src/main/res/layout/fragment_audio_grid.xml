@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <android.support.v7.widget.RecyclerView
+    <com.fesskiev.mediacenter.widgets.recycleview.GridRecyclerView
         android:id="@+id/foldersGridView"
         style="@style/FolderGridView"
         android:layout_width="match_parent"

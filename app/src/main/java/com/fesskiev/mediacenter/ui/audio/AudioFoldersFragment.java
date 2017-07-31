@@ -108,6 +108,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                             showEmptyContentCard();
                         }
                         ((AudioFoldersAdapter) adapter).refresh(audioFolders);
+                        animateItems();
                         checkNeedShowPlayback(audioFolders);
                     }
                 });

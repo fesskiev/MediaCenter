@@ -6,7 +6,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import com.fesskiev.mediacenter.utils.AnimationUtils;
+import com.fesskiev.mediacenter.utils.AppAnimationUtils;
 
 public class AnimateStateShow extends FrameLayout {
 
@@ -28,7 +28,7 @@ public class AnimateStateShow extends FrameLayout {
         isShow = !isShow;
         if (isShow) {
             setVisibility(View.VISIBLE);
-            AnimationUtils.getInstance().createCircularRevealAnim(this);
+            AppAnimationUtils.getInstance().createCircularRevealAnim(this);
         } else {
             setVisibility(View.GONE);
         }

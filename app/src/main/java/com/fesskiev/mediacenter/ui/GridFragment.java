@@ -10,7 +10,9 @@ import android.view.ViewGroup;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.ui.playback.HidingPlaybackFragment;
+import com.fesskiev.mediacenter.utils.AppAnimationUtils;
 import com.fesskiev.mediacenter.widgets.recycleview.HidingScrollListener;
+import com.fesskiev.mediacenter.widgets.recycleview.ItemOffsetDecoration;
 
 public abstract class GridFragment extends HidingPlaybackFragment {
 
@@ -28,13 +30,16 @@ public abstract class GridFragment extends HidingPlaybackFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2,
-                GridLayoutManager.VERTICAL, false);
+        final GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
+
+        final int spacing = getResources().getDimensionPixelOffset(R.dimen.default_spacing_small);
 
         recyclerView = (RecyclerView) view.findViewById(R.id.foldersGridView);
         recyclerView.setLayoutManager(gridLayoutManager);
         adapter = createAdapter();
         recyclerView.setAdapter(adapter);
+        recyclerView.addItemDecoration(new ItemOffsetDecoration(spacing));
+
         recyclerView.addOnScrollListener(new HidingScrollListener() {
             @Override
             public void onHide() {
@@ -52,6 +57,7 @@ public abstract class GridFragment extends HidingPlaybackFragment {
             }
         });
 
+
         emptyAudioContent = (CardView) view.findViewById(R.id.emptyAudioContentCard);
     }
 
@@ -61,6 +67,11 @@ public abstract class GridFragment extends HidingPlaybackFragment {
 
     protected void hideEmptyContentCard() {
         emptyAudioContent.setVisibility(View.GONE);
+    }
+
+    protected void animateItems(){
+        AppAnimationUtils.getInstance().loadGridRecyclerItemAnimation(recyclerView);
+        recyclerView.scheduleLayoutAnimation();
     }
 
 

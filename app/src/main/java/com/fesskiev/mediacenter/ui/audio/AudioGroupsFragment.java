@@ -20,7 +20,7 @@ import com.fesskiev.mediacenter.data.model.GroupItem;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity;
 import com.fesskiev.mediacenter.ui.playback.HidingPlaybackFragment;
-import com.fesskiev.mediacenter.utils.AnimationUtils;
+import com.fesskiev.mediacenter.utils.AppAnimationUtils;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.widgets.recycleview.HidingScrollListener;
 import com.thoughtbot.expandablecheckrecyclerview.CheckableChildRecyclerViewAdapter;
@@ -205,11 +205,11 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
             }
 
             private void animateExpand() {
-                AnimationUtils.getInstance().rotateExpand(arrow);
+                AppAnimationUtils.getInstance().rotateExpand(arrow);
             }
 
             private void animateCollapse() {
-                AnimationUtils.getInstance().rotateCollapse(arrow);
+                AppAnimationUtils.getInstance().rotateCollapse(arrow);
             }
         }
 

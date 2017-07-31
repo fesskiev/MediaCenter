@@ -19,7 +19,7 @@ import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity;
-import com.fesskiev.mediacenter.utils.AnimationUtils;
+import com.fesskiev.mediacenter.utils.AppAnimationUtils;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
@@ -177,7 +177,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
     private boolean checkTrackSelected() {
         if (currentTrack == null) {
-            AnimationUtils.getInstance().errorAnimation(playPauseButton);
+            AppAnimationUtils.getInstance().errorAnimation(playPauseButton);
             return false;
         }
         return true;
