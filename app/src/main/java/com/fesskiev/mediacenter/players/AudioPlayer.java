@@ -26,6 +26,8 @@ import java.util.ListIterator;
 import java.util.Locale;
 
 import rx.Observable;
+import rx.Scheduler;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class AudioPlayer implements Playable {
@@ -56,7 +58,8 @@ public class AudioPlayer implements Playable {
 
     public void getCurrentTrackAndTrackList() {
         repository.getSelectedFolderAudioFiles()
-                .flatMap(audioFiles -> Observable.just(sortAudioFiles(AppSettingsManager.getInstance().getSortType(), audioFiles)))
+                .flatMap(audioFiles -> Observable.just(sortAudioFiles(AppSettingsManager.getInstance()
+                        .getSortType(), audioFiles)))
                 .doOnNext(audioFiles -> {
                     currentTrackList = audioFiles;
                     notifyCurrentTrackList();
@@ -70,7 +73,6 @@ public class AudioPlayer implements Playable {
                     }
                 })
                 .first()
-                .subscribeOn(Schedulers.io())
                 .subscribe(object -> Log.e(TAG, AudioPlayer.this.toString()), Throwable::printStackTrace);
     }
 

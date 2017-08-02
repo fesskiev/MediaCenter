@@ -59,9 +59,11 @@ public class VideoFilesActivity extends AnalyticsActivity {
 
     private VideoFilesAdapter adapter;
     private RecyclerView recyclerView;
+
+    private VideoFolder videoFolder;
+
     private Subscription subscription;
     private DataRepository repository;
-    private VideoFolder videoFolder;
 
     private boolean layoutAnimate;
 
@@ -113,7 +115,6 @@ public class VideoFilesActivity extends AnalyticsActivity {
         subscription = repository.getVideoFiles(videoFolder.id)
                 .first()
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(Observable::from)
                 .filter(file -> {
                     if (AppSettingsManager.getInstance().isShowHiddenFiles()) {
@@ -122,6 +123,7 @@ public class VideoFilesActivity extends AnalyticsActivity {
                     return !file.isHidden;
                 })
                 .toList()
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(videoFiles -> {
                     adapter.refresh(videoFiles);
                     animateLayout();

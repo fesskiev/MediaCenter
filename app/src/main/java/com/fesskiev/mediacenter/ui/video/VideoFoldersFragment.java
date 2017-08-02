@@ -61,14 +61,15 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
 
     public static final String EXTRA_VIDEO_FOLDER = "com.fesskiev.player.extra.EXTRA_VIDEO_FOLDER";
 
+    private Subscription subscription;
+    private DataRepository repository;
+
     private VideoFoldersAdapter adapter;
     private RecyclerView recyclerView;
     private CardView emptyVideoContent;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private Subscription subscription;
-    private DataRepository repository;
-    private boolean layoutAnimate;
 
+    private boolean layoutAnimate;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -122,7 +123,6 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
         subscription = repository.getVideoFolders()
                 .first()
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(Observable::from)
                 .filter(folder -> {
                     if (AppSettingsManager.getInstance().isShowHiddenFiles()) {
@@ -131,10 +131,16 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
                     return !folder.isHidden;
                 })
                 .toList()
+                .flatMap(videoFolders -> {
+                    if (videoFolders != null && !videoFolders.isEmpty()) {
+                        Collections.sort(videoFolders);
+                    }
+                    return Observable.just(videoFolders);
+                })
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(videoFolders -> {
                     if (videoFolders != null) {
                         if (!videoFolders.isEmpty()) {
-                            Collections.sort(videoFolders);
                             hideEmptyContentCard();
                         } else {
                             showEmptyContentCard();
@@ -205,7 +211,7 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
     }
 
     private void animateLayout() {
-        if(!layoutAnimate) {
+        if (!layoutAnimate) {
             AppAnimationUtils.getInstance().loadGridRecyclerItemAnimation(recyclerView);
             recyclerView.scheduleLayoutAnimation();
             layoutAnimate = true;

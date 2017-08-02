@@ -4,6 +4,7 @@ package com.fesskiev.mediacenter.ui.audio;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -58,6 +59,13 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
     }
 
     private Subscription subscription;
+    private DataRepository repository;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        repository = MediaApplication.getInstance().getRepository();
+    }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -74,49 +82,9 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
     @Override
     public void onResume() {
         super.onResume();
-        if (MediaApplication.getInstance().getRepository().getMemorySource().isCacheFoldersDirty()) {
+        if (repository.getMemorySource().isCacheFoldersDirty()) {
             fetch();
         }
-    }
-
-    @Override
-    public RecyclerView.Adapter createAdapter() {
-        return new AudioFoldersAdapter(getActivity());
-    }
-
-    @Override
-    public void fetch() {
-        subscription = MediaApplication.getInstance().getRepository().getAudioFolders()
-                .first()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(Observable::from)
-                .filter(folder -> {
-                    if (AppSettingsManager.getInstance().isShowHiddenFiles()) {
-                        return true;
-                    }
-                    return !folder.isHidden;
-                })
-                .toList()
-                .subscribe(audioFolders -> {
-                    if (audioFolders != null) {
-                        AppLog.INFO("onNext:folders: " + audioFolders.size());
-                        if (!audioFolders.isEmpty()) {
-                            Collections.sort(audioFolders);
-                            hideEmptyContentCard();
-                        } else {
-                            showEmptyContentCard();
-                        }
-                        ((AudioFoldersAdapter) adapter).refresh(audioFolders);
-                        animateLayout();
-                        checkNeedShowPlayback(audioFolders);
-                    }
-                });
-    }
-
-    @Override
-    public void clear() {
-        ((AudioFoldersAdapter) adapter).clearAdapter();
     }
 
     @Override
@@ -128,8 +96,52 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        MediaApplication.getInstance().getRepository().getMemorySource().setCacheFoldersDirty(true);
+        repository.getMemorySource().setCacheFoldersDirty(true);
     }
+
+    @Override
+    public RecyclerView.Adapter createAdapter() {
+        return new AudioFoldersAdapter(getActivity());
+    }
+
+    @Override
+    public void fetch() {
+        subscription = repository.getAudioFolders()
+                .first()
+                .subscribeOn(Schedulers.io())
+                .flatMap(Observable::from)
+                .filter(folder -> {
+                    if (AppSettingsManager.getInstance().isShowHiddenFiles()) {
+                        return true;
+                    }
+                    return !folder.isHidden;
+                })
+                .toList()
+                .flatMap(audioFolders -> {
+                    if (audioFolders != null) {
+                        AppLog.INFO("onNext:folders: " + audioFolders.size());
+                        if (!audioFolders.isEmpty()) {
+                            Collections.sort(audioFolders);
+                            hideEmptyContentCard();
+                        } else {
+                            showEmptyContentCard();
+                        }
+                    }
+                    return Observable.just(audioFolders);
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(audioFolders -> {
+                    ((AudioFoldersAdapter) adapter).refresh(audioFolders);
+                    animateLayout();
+                    checkNeedShowPlayback(audioFolders);
+                });
+    }
+
+    @Override
+    public void clear() {
+        ((AudioFoldersAdapter) adapter).clearAdapter();
+    }
+
 
     private static class AudioFoldersAdapter extends RecyclerView.Adapter<AudioFoldersAdapter.ViewHolder>
             implements ItemTouchHelperAdapter {
