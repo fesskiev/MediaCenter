@@ -1,10 +1,12 @@
 package com.fesskiev.mediacenter.ui.audio;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,9 +28,13 @@ import com.fesskiev.mediacenter.widgets.recycleview.HidingScrollListener;
 import com.thoughtbot.expandablecheckrecyclerview.CheckableChildRecyclerViewAdapter;
 import com.thoughtbot.expandablecheckrecyclerview.models.CheckedExpandableGroup;
 import com.thoughtbot.expandablecheckrecyclerview.viewholders.CheckableChildViewHolder;
+import com.thoughtbot.expandablerecyclerview.listeners.GroupExpandCollapseListener;
 import com.thoughtbot.expandablerecyclerview.models.ExpandableGroup;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import rx.Observable;
 import rx.Subscription;
@@ -45,6 +51,7 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
         return new AudioGroupsFragment();
     }
 
+    private final static String BUNDLE_EXPANDED_IDS = "com.fesskiev.player.BUNDLE_EXPANDED_IDS";
 
     private RecyclerView recyclerView;
     private GroupsAdapter adapter;
@@ -52,9 +59,19 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
     private Subscription subscription;
     private DataRepository repository;
 
+    private ArrayList<Integer> expandedGroupIds;
+
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState == null) {
+            expandedGroupIds = new ArrayList<>();
+            expandedGroupIds.add(Group.GROUP_ARTIST);
+            expandedGroupIds.add(Group.GROUP_GENRE);
+        } else {
+            expandedGroupIds = savedInstanceState.getIntegerArrayList(BUNDLE_EXPANDED_IDS);
+        }
         repository = MediaApplication.getInstance().getRepository();
     }
 
@@ -70,7 +87,7 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
         super.onViewCreated(view, savedInstanceState);
 
         recyclerView = (RecyclerView) view.findViewById(R.id.recycleView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setLayoutManager(new NpaLinearLayoutManager(getContext()));
         recyclerView.addOnScrollListener(new HidingScrollListener() {
             @Override
             public void onHide() {
@@ -87,14 +104,24 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
 
             }
         });
+    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
         fetch();
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onPause() {
+        super.onPause();
         RxUtils.unsubscribe(subscription);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putIntegerArrayList(BUNDLE_EXPANDED_IDS, expandedGroupIds);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -113,7 +140,7 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
     public void clear() {
         List<CheckedExpandableGroup> groups = (List<CheckedExpandableGroup>) adapter.getGroups();
         if (groups != null && !groups.isEmpty()) {
-            for (CheckedExpandableGroup group : groups){
+            for (CheckedExpandableGroup group : groups) {
                 group.getItems().clear();
             }
         }
@@ -125,7 +152,37 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
         adapter = new GroupsAdapter(groups);
         recyclerView.setAdapter(adapter);
         adapter.setChildClickListener((v, checked, group, childIndex) -> processClick(group, childIndex));
+        adapter.setOnGroupExpandCollapseListener(new GroupExpandCollapseListener() {
+            @Override
+            public void onGroupExpanded(ExpandableGroup group) {
+                addExpandedId(((Group) group).getId());
+            }
 
+            @Override
+            public void onGroupCollapsed(ExpandableGroup group) {
+                removeExpandedId(((Group) group).getId());
+            }
+        });
+        toggleGroups();
+    }
+
+    private void removeExpandedId(Integer id) {
+        if (expandedGroupIds.contains(id)) {
+            expandedGroupIds.remove(id);
+        }
+    }
+
+    private void addExpandedId(Integer id) {
+        if (!expandedGroupIds.contains(id)) {
+            expandedGroupIds.add(id);
+        }
+    }
+
+    private void toggleGroups() {
+        for (int i = 0; i < expandedGroupIds.size(); i++) {
+            int id = expandedGroupIds.get(i);
+            adapter.toggleGroup(id);
+        }
     }
 
     private void processClick(CheckedExpandableGroup group, int childIndex) {
@@ -149,6 +206,22 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
                 default:
                     break;
             }
+        }
+    }
+
+    private static class NpaLinearLayoutManager extends LinearLayoutManager {
+        /**
+         * Disable predictive animations. There is a bug in RecyclerView which causes views that
+         * are being reloaded to pull invalid ViewHolders from the internal recycler stack if the
+         * adapter size has decreased since the ViewHolder was recycled.
+         */
+        @Override
+        public boolean supportsPredictiveItemAnimations() {
+            return false;
+        }
+
+        public NpaLinearLayoutManager(Context context) {
+            super(context);
         }
     }
 
@@ -229,7 +302,6 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
         @Override
         public void onBindGroupViewHolder(GroupViewHolder holder, int flatPosition,
                                           ExpandableGroup group) {
-
             holder.setGroupTitle(group);
         }
 
@@ -241,7 +313,8 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
         }
 
         @Override
-        public void onBindCheckChildViewHolder(GroupItemViewHolder holder, int flatPosition, CheckedExpandableGroup group, int childIndex) {
+        public void onBindCheckChildViewHolder(GroupItemViewHolder holder, int flatPosition,
+                                               CheckedExpandableGroup group, int childIndex) {
             final GroupItem groupItem = (GroupItem) group.getItems().get(childIndex);
             holder.setGroupItemName(groupItem.getName());
         }

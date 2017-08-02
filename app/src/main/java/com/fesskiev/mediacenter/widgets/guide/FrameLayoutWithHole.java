@@ -24,15 +24,12 @@ import java.util.ArrayList;
 
 public class FrameLayoutWithHole extends FrameLayout {
 
-    private TextPaint mTextPaint;
     private Activity mActivity;
     private TourGuide.MotionType mMotionType;
     private Paint mEraser;
 
-    Bitmap mEraserBitmap;
+    private Bitmap mEraserBitmap;
     private Canvas mEraserCanvas;
-    private Paint mPaint;
-    private Paint transparentPaint;
     private View mViewHole; // This is the targeted view to be highlighted, where the hole should be placed
     private int mRadius;
     private int[] mPos;
@@ -107,7 +104,7 @@ public class FrameLayoutWithHole extends FrameLayout {
         mMotionType = motionType;
 
         // Init a RectF to be used in OnDraw for a ROUNDED_RECTANGLE Style Overlay
-        if (mOverlay !=null && mOverlay.mStyle == Overlay.Style.ROUNDED_RECTANGLE) {
+        if (mOverlay != null && mOverlay.mStyle == Overlay.Style.ROUNDED_RECTANGLE) {
             int recfFPaddingPx = (int) (mOverlay.mPaddingDp * mDensity);
             mRectF = new RectF(mPos[0] - recfFPaddingPx + mOverlay.mHoleOffsetLeft,
                     mPos[1] - recfFPaddingPx + mOverlay.mHoleOffsetTop,
@@ -117,15 +114,10 @@ public class FrameLayoutWithHole extends FrameLayout {
     }
 
     private void init(AttributeSet attrs, int defStyle) {
-        // Load attributes
-//        final TypedArray a = getContext().obtainStyledAttributes(
-//                attrs, FrameLayoutWithHole, defStyle, 0);
-//
-//
-//        a.recycle();
+
         setWillNotDraw(false);
         // Set up a default TextPaint object
-        mTextPaint = new TextPaint();
+        TextPaint mTextPaint = new TextPaint();
         mTextPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
         mTextPaint.setTextAlign(Paint.Align.LEFT);
 
@@ -136,9 +128,9 @@ public class FrameLayoutWithHole extends FrameLayout {
         mEraserBitmap = Bitmap.createBitmap(size.x, size.y, Bitmap.Config.ARGB_8888);
         mEraserCanvas = new Canvas(mEraserBitmap);
 
-        mPaint = new Paint();
+        Paint mPaint = new Paint();
         mPaint.setColor(0xcc000000);
-        transparentPaint = new Paint();
+        Paint transparentPaint = new Paint();
         transparentPaint.setColor(getResources().getColor(android.R.color.transparent));
         transparentPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
 
@@ -146,9 +138,6 @@ public class FrameLayoutWithHole extends FrameLayout {
         mEraser.setColor(0xFFFFFFFF);
         mEraser.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
         mEraser.setFlags(Paint.ANTI_ALIAS_FLAG);
-
-        Log.d("tourguide", "getHeight: " + size.y);
-        Log.d("tourguide", "getWidth: " + size.x);
 
     }
 
@@ -166,7 +155,7 @@ public class FrameLayoutWithHole extends FrameLayout {
 
     private void performOverlayExitAnimation() {
         if (!mCleanUpLock) {
-            final FrameLayout _pointerToFrameLayout = this;
+            final FrameLayout pointerToFrameLayout = this;
             mCleanUpLock = true;
             Log.d("tourguide", "Overlay exit animation listener is overwritten...");
             mOverlay.mExitAnimation.setAnimationListener(new Animation.AnimationListener() {
@@ -180,7 +169,7 @@ public class FrameLayoutWithHole extends FrameLayout {
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
-                    ((ViewGroup) _pointerToFrameLayout.getParent()).removeView(_pointerToFrameLayout);
+                    ((ViewGroup) pointerToFrameLayout.getParent()).removeView(pointerToFrameLayout);
                 }
             });
             this.startAnimation(mOverlay.mExitAnimation);
@@ -203,78 +192,31 @@ public class FrameLayoutWithHole extends FrameLayout {
         }
     }
 
-    /**
-     * Show an event in the LogCat view, for debugging
-     */
-    private static void dumpEvent(MotionEvent event) {
-        String[] names = {"DOWN", "UP", "MOVE", "CANCEL", "OUTSIDE",
-                "POINTER_DOWN", "POINTER_UP", "7?", "8?", "9?"};
-        StringBuilder sb = new StringBuilder();
-        int action = event.getAction();
-        int actionCode = action & MotionEvent.ACTION_MASK;
-        sb.append("event ACTION_").append(names[actionCode]);
-        if (actionCode == MotionEvent.ACTION_POINTER_DOWN
-                || actionCode == MotionEvent.ACTION_POINTER_UP) {
-            sb.append("(pid ").append(
-                    action >> MotionEvent.ACTION_POINTER_ID_SHIFT);
-            sb.append(")");
-        }
-        sb.append("[");
-        for (int i = 0; i < event.getPointerCount(); i++) {
-            sb.append("#").append(i);
-            sb.append("(pid ").append(event.getPointerId(i));
-            sb.append(")=").append((int) event.getX(i));
-            sb.append(",").append((int) event.getY(i));
-            if (i + 1 < event.getPointerCount())
-                sb.append(";");
-        }
-        sb.append("]");
-        Log.d("tourguide", sb.toString());
-    }
 
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        //first check if the location button should handle the touch event
-//        dumpEvent(ev);
-//        int action = MotionEventCompat.getActionMasked(ev);
-        if (mViewHole != null) {
-
-//            Log.d("tourguide", "[dispatchTouchEvent] mViewHole.getHeight(): "+mViewHole.getHeight());
-//            Log.d("tourguide", "[dispatchTouchEvent] mViewHole.getWidth(): "+mViewHole.getWidth());
+//    @Override
+//    public boolean dispatchTouchEvent(MotionEvent ev) {
+//        if (mViewHole != null) {
+//            if (isWithinButton(ev) && mOverlay != null && mOverlay.mDisableClickThroughHole) {
+//                Log.d("tourguide", "block user clicking through hole");
+//                // block it
+//                return true;
+//            } else if (isWithinButton(ev)) {
+//                // let it pass through
+//                return false;
+//            }
+//        }
+//        // do nothing, just propagating up to super
+//        return super.dispatchTouchEvent(ev);
+//    }
 //
-//            Log.d("tourguide", "[dispatchTouchEvent] Touch X(): "+ev.getRawX());
-//            Log.d("tourguide", "[dispatchTouchEvent] Touch Y(): "+ev.getRawY());
-
-//            Log.d("tourguide", "[dispatchTouchEvent] X of image: "+pos[0]);
-//            Log.d("tourguide", "[dispatchTouchEvent] Y of image: "+pos[1]);
-
-//            Log.d("tourguide", "[dispatchTouchEvent] X lower bound: "+ pos[0]);
-//            Log.d("tourguide", "[dispatchTouchEvent] X higher bound: "+(pos[0] +mViewHole.getWidth()));
-//
-//            Log.d("tourguide", "[dispatchTouchEvent] Y lower bound: "+ pos[1]);
-//            Log.d("tourguide", "[dispatchTouchEvent] Y higher bound: "+(pos[1] +mViewHole.getHeight()));
-
-            if (isWithinButton(ev) && mOverlay != null && mOverlay.mDisableClickThroughHole) {
-                Log.d("tourguide", "block user clicking through hole");
-                // block it
-                return true;
-            } else if (isWithinButton(ev)) {
-                // let it pass through
-                return false;
-            }
-        }
-        // do nothing, just propagating up to super
-        return super.dispatchTouchEvent(ev);
-    }
-
-    private boolean isWithinButton(MotionEvent ev) {
-        int[] pos = new int[2];
-        mViewHole.getLocationOnScreen(pos);
-        return ev.getRawY() >= pos[1] &&
-                ev.getRawY() <= (pos[1] + mViewHole.getHeight()) &&
-                ev.getRawX() >= pos[0] &&
-                ev.getRawX() <= (pos[0] + mViewHole.getWidth());
-    }
+//    private boolean isWithinButton(MotionEvent ev) {
+//        int[] pos = new int[2];
+//        mViewHole.getLocationOnScreen(pos);
+//        return ev.getRawY() >= pos[1] &&
+//                ev.getRawY() <= (pos[1] + mViewHole.getHeight()) &&
+//                ev.getRawX() >= pos[0] &&
+//                ev.getRawX() <= (pos[0] + mViewHole.getWidth());
+//    }
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -284,7 +226,6 @@ public class FrameLayoutWithHole extends FrameLayout {
         if (mOverlay != null) {
             mEraserCanvas.drawColor(mOverlay.mBackgroundColor);
             int padding = (int) (mOverlay.mPaddingDp * mDensity);
-            Log.i("TOURGUIDE", String.format("**********PADDING: %s**********", padding));
 
             if (mOverlay.mStyle == Overlay.Style.RECTANGLE) {
                 mEraserCanvas.drawRect(

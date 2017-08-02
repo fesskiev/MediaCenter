@@ -20,7 +20,7 @@ public class Overlay {
     public View.OnClickListener mOnClickListener;
     public int mHoleRadius = NOT_SET;
     public final static int NOT_SET = -1;
-    public int mPaddingDp = 10;
+    public int mPaddingDp = 8;
     public int mRoundedCornerRadiusDp = 0;
 
     public enum Style {
@@ -48,7 +48,8 @@ public class Overlay {
     }
 
     /**
-     * Set to true if you want to block all user input to pass through this overlay, set to false if you want to allow user input under the overlay
+     * Set to true if you want to block all user input to pass through this overlay,
+     * set to false if you want to allow user input under the overlay
      * @param yesNo
      * @return return {@link Overlay} instance for chaining purpose
      */

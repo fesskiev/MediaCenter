@@ -122,15 +122,17 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                         AppLog.INFO("onNext:folders: " + audioFolders.size());
                         if (!audioFolders.isEmpty()) {
                             Collections.sort(audioFolders);
-                            hideEmptyContentCard();
-                        } else {
-                            showEmptyContentCard();
                         }
                     }
                     return Observable.just(audioFolders);
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(audioFolders -> {
+                    if (!audioFolders.isEmpty()) {
+                        hideEmptyContentCard();
+                    } else {
+                        showEmptyContentCard();
+                    }
                     ((AudioFoldersAdapter) adapter).refresh(audioFolders);
                     animateLayout();
                     checkNeedShowPlayback(audioFolders);

@@ -51,7 +51,7 @@ public class AppGuide {
         view.setTag(title);
         if (!isWatchedView(view)) {
             tourGuide = TourGuide.init(activity)
-                    .setToolTip(new ToolTip().setTitle(title).setDescription(desc))
+                    .setToolTip(new ToolTip().setTitle(title).setDescription(desc).setShadow(true))
                     .setOverlay(new Overlay()
                             .setEnterAnimation(enterAnimation)
                             .setExitAnimation(exitAnimation)

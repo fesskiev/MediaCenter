@@ -11,15 +11,24 @@ import java.util.List;
 
 public class Group extends MultiCheckExpandableGroup {
 
-    private int iconResId;
+    public static final int GROUP_GENRE = 0;
+    public static final int GROUP_ARTIST = 1;
 
-    public Group(String title, List<GroupItem> items, int iconResId) {
+    private int iconResId;
+    private int id;
+
+    public Group(String title, List<GroupItem> items, int iconResId, int id) {
         super(title, items);
         this.iconResId = iconResId;
+        this.id = id;
     }
 
     public int getIconResId() {
         return iconResId;
+    }
+
+    public int getId() {
+        return id;
     }
 
     private static Group makeExpandArtists(Context context, List<String> artists) {
@@ -28,7 +37,7 @@ public class Group extends MultiCheckExpandableGroup {
             groupItems.add(new GroupItem(artist, CONTENT_TYPE.ARTIST));
         }
 
-        return new Group(context.getString(R.string.group_artists), groupItems, R.drawable.icon_artist);
+        return new Group(context.getString(R.string.group_artists), groupItems, R.drawable.icon_artist, GROUP_ARTIST);
     }
 
     private static Group makeExpandGenres(Context context, List<String> genres) {
@@ -37,7 +46,7 @@ public class Group extends MultiCheckExpandableGroup {
             groupItems.add(new GroupItem(genre, CONTENT_TYPE.GENRE));
         }
 
-        return new Group(context.getString(R.string.group_genres), groupItems, R.drawable.icon_genre);
+        return new Group(context.getString(R.string.group_genres), groupItems, R.drawable.icon_genre, GROUP_GENRE);
     }
 
     public static List<Group> makeGroups(Context context, List<String> genres, List<String> artists){
