@@ -63,6 +63,9 @@ public class VideoFilesActivity extends AnalyticsActivity {
     private DataRepository repository;
     private VideoFolder videoFolder;
 
+    private boolean layoutAnimate;
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,7 +124,7 @@ public class VideoFilesActivity extends AnalyticsActivity {
                 .toList()
                 .subscribe(videoFiles -> {
                     adapter.refresh(videoFiles);
-                    animateItems();
+                    animateLayout();
                 });
     }
 
@@ -152,9 +155,12 @@ public class VideoFilesActivity extends AnalyticsActivity {
         adapter.setPlaying(playbackState.isPlaying());
     }
 
-    private void animateItems() {
-        AppAnimationUtils.getInstance().loadGridRecyclerItemAnimation(recyclerView);
-        recyclerView.scheduleLayoutAnimation();
+    private void animateLayout() {
+        if (!layoutAnimate) {
+            AppAnimationUtils.getInstance().loadGridRecyclerItemAnimation(recyclerView);
+            recyclerView.scheduleLayoutAnimation();
+            layoutAnimate = true;
+        }
     }
 
     private static class VideoFilesAdapter extends RecyclerView.Adapter<VideoFilesAdapter.ViewHolder> {

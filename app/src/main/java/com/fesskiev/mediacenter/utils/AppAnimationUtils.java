@@ -31,7 +31,6 @@ public class AppAnimationUtils {
 
     private Context context;
     private FastOutSlowInInterpolator fastOutSlowInInterpolator;
-    private LayoutAnimationController fromRightAnimation;
     private LayoutAnimationController scaleRandomAnimation;
 
     public static AppAnimationUtils getInstance() {
@@ -45,8 +44,6 @@ public class AppAnimationUtils {
         context = MediaApplication.getInstance().getApplicationContext();
 
         fastOutSlowInInterpolator = new FastOutSlowInInterpolator();
-        fromRightAnimation =
-                AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_from_right);
         scaleRandomAnimation =
                 AnimationUtils.loadLayoutAnimation(context, R.anim.grid_layout_animation_scale_random);
 
@@ -160,10 +157,6 @@ public class AppAnimationUtils {
 
     public FastOutSlowInInterpolator getFastOutSlowInInterpolator() {
         return fastOutSlowInInterpolator;
-    }
-
-    public void loadLinearRecyclerItemAnimation(RecyclerView recyclerView) {
-        recyclerView.setLayoutAnimation(fromRightAnimation);
     }
 
     public void loadGridRecyclerItemAnimation(RecyclerView recyclerView) {

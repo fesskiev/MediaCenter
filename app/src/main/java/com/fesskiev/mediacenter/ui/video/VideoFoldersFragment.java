@@ -67,6 +67,8 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
     private SwipeRefreshLayout swipeRefreshLayout;
     private Subscription subscription;
     private DataRepository repository;
+    private boolean layoutAnimate;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -138,7 +140,7 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
                             showEmptyContentCard();
                         }
                         adapter.refresh(videoFolders);
-                        animateItems();
+                        animateLayout();
                     } else {
                         showEmptyContentCard();
                     }
@@ -202,9 +204,12 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
         return swipeRefreshLayout;
     }
 
-    private void animateItems() {
-        AppAnimationUtils.getInstance().loadGridRecyclerItemAnimation(recyclerView);
-        recyclerView.scheduleLayoutAnimation();
+    private void animateLayout() {
+        if(!layoutAnimate) {
+            AppAnimationUtils.getInstance().loadGridRecyclerItemAnimation(recyclerView);
+            recyclerView.scheduleLayoutAnimation();
+            layoutAnimate = true;
+        }
     }
 
     private static class VideoFoldersAdapter extends RecyclerView.Adapter<VideoFoldersAdapter.ViewHolder> implements ItemTouchHelperAdapter {

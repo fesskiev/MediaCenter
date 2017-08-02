@@ -21,6 +21,8 @@ public abstract class GridFragment extends HidingPlaybackFragment {
     protected RecyclerView.Adapter adapter;
     protected RecyclerView recyclerView;
     private CardView emptyAudioContent;
+    private boolean layoutAnimate;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -69,9 +71,12 @@ public abstract class GridFragment extends HidingPlaybackFragment {
         emptyAudioContent.setVisibility(View.GONE);
     }
 
-    protected void animateItems(){
-        AppAnimationUtils.getInstance().loadGridRecyclerItemAnimation(recyclerView);
-        recyclerView.scheduleLayoutAnimation();
+    protected void animateLayout() {
+        if (!layoutAnimate) {
+            AppAnimationUtils.getInstance().loadGridRecyclerItemAnimation(recyclerView);
+            recyclerView.scheduleLayoutAnimation();
+            layoutAnimate = true;
+        }
     }
 
 

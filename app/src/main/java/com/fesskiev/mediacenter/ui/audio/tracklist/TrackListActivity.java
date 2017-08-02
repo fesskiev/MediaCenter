@@ -73,7 +73,6 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
 
     private boolean lastPlaying;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -145,16 +144,13 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                     closeOpenCards();
                 }
             });
-
-            fetchContentByType();
         }
     }
 
-
     @Override
-    public void onResume() {
-        super.onResume();
-        notifyTrackStateChanged();
+    protected void onStart() {
+        super.onStart();
+        fetchContentByType();
     }
 
     @Override
@@ -187,11 +183,6 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
         }
     }
 
-    private void animateItems() {
-        AppAnimationUtils.getInstance().loadLinearRecyclerItemAnimation(recyclerView);
-        recyclerView.scheduleLayoutAnimation();
-    }
-
     private void fetchContentByType() {
         Observable<List<AudioFile>> audioFilesObservable = null;
 
@@ -222,8 +213,7 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                     .map(unsortedList -> audioPlayer.sortAudioFiles(settingsManager.getSortType(), unsortedList))
                     .doOnNext(sortedList -> audioPlayer.setSortingTrackList(sortedList))
                     .observeOn(AndroidSchedulers.mainThread())
-                    .doOnNext(audioFiles -> adapter.refreshAdapter(audioFiles))
-                    .subscribe(audioFiles -> animateItems());
+                    .subscribe(audioFiles -> adapter.refreshAdapter(audioFiles));
         }
     }
 
