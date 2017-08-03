@@ -1,6 +1,7 @@
 package com.fesskiev.mediacenter.ui;
 
 
+import android.animation.Animator;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
@@ -14,13 +15,19 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
+import android.support.v4.view.animation.FastOutLinearInInterpolator;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.MediaApplication;
@@ -49,6 +56,7 @@ import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
 import com.fesskiev.mediacenter.widgets.dialogs.ExitDialog;
+import com.fesskiev.mediacenter.widgets.fetch.FetchContentScreen;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
 
@@ -326,34 +334,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         }
     }
 
-    private void disableSwipeRefresh() {
-        VideoFoldersFragment videoFragment = (VideoFoldersFragment) getSupportFragmentManager().
-                findFragmentByTag(VideoFoldersFragment.class.getName());
-        if (videoFragment != null) {
-            videoFragment.getSwipeRefreshLayout().setEnabled(false);
-        }
-
-        AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
-                findFragmentByTag(AudioFragment.class.getName());
-        if (audioFragment != null) {
-            audioFragment.getSwipeRefreshLayout().setEnabled(false);
-        }
-
-    }
-
-    private void enableSwipeRefresh() {
-        VideoFoldersFragment videoFragment = (VideoFoldersFragment) getSupportFragmentManager().
-                findFragmentByTag(VideoFoldersFragment.class.getName());
-        if (videoFragment != null) {
-            videoFragment.getSwipeRefreshLayout().setEnabled(true);
-        }
-
-        AudioFragment audioFragment = (AudioFragment) getSupportFragmentManager().
-                findFragmentByTag(AudioFragment.class.getName());
-        if (audioFragment != null) {
-            audioFragment.getSwipeRefreshLayout().setEnabled(true);
-        }
-    }
 
     private void showToolbarTimer() {
         timerView.setVisibility(View.VISIBLE);
@@ -379,6 +359,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
 
     private void setFetchManager() {
+        final FetchContentScreen fetchContentScreen = new FetchContentScreen(this);
+
         fetchMediaFilesManager = FetchMediaFilesManager.getInstance();
         fetchMediaFilesManager.setFetchContentView(mediaNavigationView.getFetchContentView());
         fetchMediaFilesManager.register();
@@ -391,7 +373,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
                 fetchMediaFilesManager.setTextPrimary();
                 showToolbarTimer();
-                disableSwipeRefresh();
+                fetchContentScreen.disableTouchActivity();
             }
 
             @Override
@@ -418,7 +400,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
                 AppAnimationUtils.getInstance().animateBottomSheet(bottomSheet, true);
                 hideToolbarTimer();
-                enableSwipeRefresh();
+                fetchContentScreen.enableTouchActivity();
             }
 
             @Override

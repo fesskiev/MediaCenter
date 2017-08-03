@@ -383,7 +383,8 @@ public class TourGuide {
     }
 
     private void setupFrameLayout() {
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT);
         ViewGroup contentArea = (ViewGroup) mActivity.getWindow().getDecorView().findViewById(android.R.id.content);
         int[] pos = new int[2];
         contentArea.getLocationOnScreen(pos);
@@ -491,17 +492,10 @@ public class TourGuide {
         animatorSet2.addListener(lis2);
         animatorSet.start();
 
-            /* these animatorSets are kept track in FrameLayout, so that they can be cleaned up when FrameLayout is detached from window */
+            /* these animatorSets are kept track in FrameLayout,
+            so that they can be cleaned up when FrameLayout is detached from window */
         mFrameLayout.addAnimatorSet(animatorSet);
         mFrameLayout.addAnimatorSet(animatorSet2);
-    }
-
-    private int getScreenWidth() {
-        if (mActivity != null) {
-            return mActivity.getResources().getDisplayMetrics().widthPixels;
-        } else {
-            return 0;
-        }
     }
 
     public View getHighlightedView() {
