@@ -1,11 +1,9 @@
 package com.fesskiev.mediacenter.ui;
 
 
-import android.animation.Animator;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
-import android.graphics.drawable.Animatable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
@@ -15,19 +13,13 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
-import android.support.v4.view.animation.FastOutLinearInInterpolator;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.MediaApplication;
@@ -51,7 +43,6 @@ import com.fesskiev.mediacenter.utils.AppGuide;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.CacheManager;
-import com.fesskiev.mediacenter.utils.CountDownTimer;
 import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
@@ -67,16 +58,15 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private static final int SELECTED_VIDEO = 1;
 
     private Class<? extends Activity> selectedActivity;
-    private CountDownTimer countDownTimer;
 
     private AppSettingsManager settingsManager;
     private FetchMediaFilesManager fetchMediaFilesManager;
+    private FetchContentScreen fetchContentScreen;
 
     private Toolbar toolbar;
     private MediaNavigationView mediaNavigationView;
     private NavigationView navigationViewMain;
     private DrawerLayout drawer;
-    private ImageView timerView;
 
     private ImageView appIcon;
     private TextView appName;
@@ -102,8 +92,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         setSupportActionBar(toolbar);
 
         AppAnimationUtils.getInstance().animateToolbar(toolbar);
-
-        timerView = (ImageView) findViewById(R.id.timer);
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (!Utils.isTablet()) {
@@ -270,7 +258,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
     private void restoreState(Bundle savedInstanceState) {
         if (fetchMediaFilesManager.isFetchStart()) {
-            showToolbarTimer();
+            fetchContentScreen.disableTouchActivity();
         }
 
         selectedState = savedInstanceState.getInt("selectedState");
@@ -335,23 +323,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
 
-    private void showToolbarTimer() {
-        timerView.setVisibility(View.VISIBLE);
-        ((Animatable) timerView.getDrawable()).start();
-
-        countDownTimer = new CountDownTimer(2000);
-        countDownTimer.setOnCountDownListener(() -> ((Animatable) timerView.getDrawable()).start());
-    }
-
-    private void hideToolbarTimer() {
-        timerView.setVisibility(View.INVISIBLE);
-        ((Animatable) timerView.getDrawable()).stop();
-
-        if (countDownTimer != null) {
-            countDownTimer.stop();
-        }
-    }
-
     @Override
     public MediaNavigationView getMediaNavigationView() {
         return mediaNavigationView;
@@ -359,20 +330,17 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
 
     private void setFetchManager() {
-        final FetchContentScreen fetchContentScreen = new FetchContentScreen(this);
+        fetchContentScreen = new FetchContentScreen(this);
 
         fetchMediaFilesManager = FetchMediaFilesManager.getInstance();
-        fetchMediaFilesManager.setFetchContentView(mediaNavigationView.getFetchContentView());
+        fetchMediaFilesManager.setFetchContentView(fetchContentScreen.getFetchContentView());
         fetchMediaFilesManager.register();
-        fetchMediaFilesManager.isNeedTimer(false);
+        fetchMediaFilesManager.setTextWhite();
         fetchMediaFilesManager.setOnFetchMediaFilesListener(new FetchMediaFilesManager.OnFetchMediaFilesListener() {
 
             @Override
             public void onFetchMediaPrepare() {
                 AppLog.INFO("PREPARE!");
-
-                fetchMediaFilesManager.setTextPrimary();
-                showToolbarTimer();
                 fetchContentScreen.disableTouchActivity();
             }
 
@@ -399,7 +367,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 AppLog.INFO("onFetchMediaContentFinish");
 
                 AppAnimationUtils.getInstance().animateBottomSheet(bottomSheet, true);
-                hideToolbarTimer();
                 fetchContentScreen.enableTouchActivity();
             }
 

@@ -40,6 +40,7 @@ import org.greenrobot.eventbus.EventBus;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -284,7 +285,7 @@ public class FileSystemService extends JobService {
     }
 
     private void fileWalk(String startPath, SCAN_TYPE scanType) {
-        Iterator<File> iterator = FileUtils.iterateFilesAndDirs(new File(startPath),
+        Collection<File> listOfFiles = FileUtils.listFilesAndDirs(new File(startPath),
                 TrueFileFilter.INSTANCE,
                 new IOFileFilter() {
                     @Override
@@ -306,11 +307,14 @@ public class FileSystemService extends JobService {
                     }
                 });
 
-        File n;
         try {
-            while (iterator.hasNext() && shouldContinue) {
-                n = iterator.next();
 
+
+            int size = listOfFiles.size();
+            float count = 0;
+
+            Log.e("test", "size: " + size);
+            for (File n : listOfFiles) {
                 if (n.getAbsolutePath().equals(CacheManager.EXTERNAL_STORAGE)) {
                     continue;
                 }
@@ -319,9 +323,11 @@ public class FileSystemService extends JobService {
                 } else {
                     checkFile(n, scanType);
                 }
+                Log.e("test", "proc: " + (count / (float) size) * 100);
+                count++;
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

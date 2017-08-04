@@ -59,7 +59,6 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
 
         fetchMediaFilesManager = FetchMediaFilesManager.getInstance();
         fetchMediaFilesManager.setFetchContentView(fetchContentView);
-        fetchMediaFilesManager.isNeedTimer(true);
         fetchMediaFilesManager.setTextWhite();
         fetchMediaFilesManager.setOnFetchMediaFilesListener(new FetchMediaFilesManager.OnFetchMediaFilesListener() {
 
@@ -140,7 +139,6 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
 
 
     private void fetchMediaFilesSuccess() {
-
         fetchText.setVisibility(View.VISIBLE);
         fetchText.setText(getString(R.string.search_media_files_success));
         fetchText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.icon_walk_through_ok, 0, 0);

@@ -13,20 +13,22 @@
         android:ellipsize="end"
         android:gravity="center"
         android:minLines="2"
-        android:textAllCaps="true"
-        android:text="@string/dialog_fetch_audio_title" />
+        android:text="@string/dialog_fetch_audio_title"
+        android:textAllCaps="true" />
 
     <View
         android:id="@+id/divider0"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_below="@+id/fetchTitle"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         android:background="@color/divider" />
 
     <RelativeLayout
         android:id="@+id/fetchDataContainer"
         android:layout_width="match_parent"
-        android:layout_height="120dp"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/divider0">
 
         <ImageView
@@ -41,8 +43,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@+id/timer"
             android:layout_centerVertical="true"
+            android:layout_toEndOf="@+id/timer"
             android:orientation="vertical">
 
             <TextView
@@ -60,6 +62,7 @@
                 style="@style/FetchDialogDescTextAppearance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
                 android:gravity="center"
                 android:minLines="2"
                 android:text="@string/dialog_fetch_audio_track_name" />
@@ -72,6 +75,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_below="@+id/fetchDataContainer"
+        android:layout_marginTop="10dp"
         android:background="@color/divider" />
 
 </RelativeLayout>

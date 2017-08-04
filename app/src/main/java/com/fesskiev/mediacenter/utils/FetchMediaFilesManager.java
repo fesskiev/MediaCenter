@@ -53,7 +53,6 @@ public class FetchMediaFilesManager {
 
     private boolean fetchStart;
     private boolean fetchComplete;
-    private boolean needTimer;
     private int folderAudioCount;
     private int folderVideoCount;
 
@@ -143,9 +142,7 @@ public class FetchMediaFilesManager {
         FetchContentView fetchContentView = fetchContentRef.get();
         if (fetchContentView != null) {
             fetchContentView.setVisibleContent();
-            if (needTimer) {
-                fetchContentView.showTimer();
-            }
+            fetchContentView.showTimer();
         }
     }
 
@@ -184,10 +181,8 @@ public class FetchMediaFilesManager {
         FetchContentView fetchContentView = fetchContentRef.get();
         if (fetchContentView != null) {
             fetchContentView.setInvisibleContent();
-            if (needTimer) {
-                fetchContentView.hideTimer();
-                fetchContentView.clear();
-            }
+            fetchContentView.hideTimer();
+            fetchContentView.clear();
         }
         fetchStart = false;
         fetchComplete = true;
@@ -217,15 +212,4 @@ public class FetchMediaFilesManager {
         }
     }
 
-    public void setTextPrimary() {
-        FetchContentView fetchContentView = fetchContentRef.get();
-        if (fetchContentView != null) {
-            fetchContentView.setTextColor(ContextCompat.getColor(MediaApplication.getInstance().getApplicationContext(),
-                    R.color.primary));
-        }
-    }
-
-    public void isNeedTimer(boolean needTimer) {
-        this.needTimer = needTimer;
-    }
 }

@@ -271,7 +271,4 @@
     <string name="looping_title_text">Выберите диапазон</string>
     <string name="looping_button_text">Начать</string>
 
-    <string name="content_search">Пожалуйста подождите, идет поиск контента</string>
-
-
 </resources>

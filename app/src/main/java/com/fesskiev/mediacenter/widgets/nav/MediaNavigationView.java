@@ -12,7 +12,6 @@ import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.services.PlaybackService;
-import com.fesskiev.mediacenter.widgets.fetch.FetchContentView;
 
 import java.util.Locale;
 
@@ -36,7 +35,6 @@ public class MediaNavigationView extends NavigationView implements View.OnClickL
 
     private OnEffectChangedListener listener;
 
-    private FetchContentView fetchContentView;
     private SwitchCompat[] switchCompats;
 
     public MediaNavigationView(Context context) {
@@ -61,8 +59,6 @@ public class MediaNavigationView extends NavigationView implements View.OnClickL
 
         view.findViewById(R.id.effectsSettingsContainer).setOnClickListener(v -> effectClick());
         view.findViewById(R.id.imageHeader).setOnClickListener(v -> effectClick());
-
-        fetchContentView = (FetchContentView) view.findViewById(R.id.fetchContentView);
 
         switchCompats = new SwitchCompat[]{
                 (SwitchCompat) view.findViewById(R.id.eqSwitch),
@@ -194,11 +190,6 @@ public class MediaNavigationView extends NavigationView implements View.OnClickL
 
     public void setWhooshEnable(boolean enable) {
         switchCompats[3].setChecked(enable);
-    }
-
-
-    public FetchContentView getFetchContentView() {
-        return fetchContentView;
     }
 
     public View getSettingsView() {
