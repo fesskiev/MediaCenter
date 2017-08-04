@@ -82,9 +82,9 @@
     <string name="shackbar_connection_repeat">Repeat</string>
 
 
-    <string name="dialog_fetch_audio_folder_name">Searching folders....</string>
-    <string name="dialog_fetch_audio_track_name">Searching tracks....</string>
-    <string name="dialog_fetch_audio_title">File searching</string>
+    <string name="dialog_fetch_folder_name">Searching folders....</string>
+    <string name="dialog_fetch_file_name">Searching files....</string>
+    <string name="dialog_fetch_title">Please wait, there is a search</string>
 
     <string name="dialog_refresh_folders_title">Audio search</string>
     <string name="dialog_refresh_folders_message">Do you want to perform a full search for audio files?</string>

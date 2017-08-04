@@ -57,6 +57,10 @@ public class FetchContentScreen {
                 .setDuration(1200)
                 .setInterpolator(interpolator)
                 .setListener(null);
+
+        fetchContentView.setDefaultState(activity.getString(R.string.dialog_fetch_folder_name),
+                activity.getString(R.string.dialog_fetch_file_name));
+        fetchContentView.setProgress(0f);
     }
 
     public void enableTouchActivity() {

@@ -263,9 +263,12 @@ public class FFmpegHelper {
 
 
     public static boolean isAudioFileFLAC(AudioFile audioFile) {
-        String path = audioFile.getFilePath();
-        String extension = path.substring(path.lastIndexOf("."));
-        return extension.equalsIgnoreCase(".flac");
+        if (audioFile != null) {
+            String path = audioFile.getFilePath();
+            String extension = path.substring(path.lastIndexOf("."));
+            return extension.equalsIgnoreCase(".flac");
+        }
+        return false;
     }
 
     private String getPathWithoutExtension(String path) {

@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.utils.CountDownTimer;
+import com.fesskiev.mediacenter.widgets.progress.NumberProgressBar;
 
 
 public class FetchContentView extends FrameLayout {
@@ -19,6 +20,7 @@ public class FetchContentView extends FrameLayout {
     private TextView fileNameText;
     private TextView titleFetchText;
     private ImageView timerView;
+    private NumberProgressBar progressBar;
     private CountDownTimer countDownTimer;
 
     public FetchContentView(Context context) {
@@ -45,6 +47,8 @@ public class FetchContentView extends FrameLayout {
         fileNameText = (TextView) view.findViewById(R.id.fetchFileName);
         titleFetchText = (TextView) view.findViewById(R.id.fetchTitle);
 
+        progressBar = (NumberProgressBar) view.findViewById(R.id.fetchProgressBar);
+
         timerView = (ImageView) view.findViewById(R.id.timer);
 
         setVisibility(INVISIBLE);
@@ -57,6 +61,11 @@ public class FetchContentView extends FrameLayout {
     }
 
     public void setFileName(String trackName) {
+        fileNameText.setText(trackName);
+    }
+
+    public void setDefaultState(String folderName, String trackName) {
+        folderNameText.setText(folderName);
         fileNameText.setText(trackName);
     }
 
@@ -93,6 +102,10 @@ public class FetchContentView extends FrameLayout {
         if (countDownTimer != null) {
             countDownTimer.stop();
         }
+    }
+
+    public void setProgress(float percent) {
+        progressBar.setProgress((int) percent);
     }
 }
 

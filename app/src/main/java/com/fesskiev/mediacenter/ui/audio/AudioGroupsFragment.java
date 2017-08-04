@@ -260,6 +260,7 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
                 genreName = (TextView) itemView.findViewById(R.id.itemGroupName);
                 arrow = (ImageView) itemView.findViewById(R.id.itemArrow);
                 icon = (ImageView) itemView.findViewById(R.id.itemGroupIcon);
+                animateExpand();
             }
 
             public void setGroupTitle(ExpandableGroup group) {

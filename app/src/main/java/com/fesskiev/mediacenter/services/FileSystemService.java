@@ -41,7 +41,6 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -313,7 +312,6 @@ public class FileSystemService extends JobService {
             int size = listOfFiles.size();
             float count = 0;
 
-            Log.e("test", "size: " + size);
             for (File n : listOfFiles) {
                 if (n.getAbsolutePath().equals(CacheManager.EXTERNAL_STORAGE)) {
                     continue;
@@ -323,7 +321,7 @@ public class FileSystemService extends JobService {
                 } else {
                     checkFile(n, scanType);
                 }
-                Log.e("test", "proc: " + (count / (float) size) * 100);
+                EventBus.getDefault().post(+ (count / (float) size) * 100);
                 count++;
             }
         } catch (IOException e) {

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -13,7 +14,7 @@
         android:ellipsize="end"
         android:gravity="center"
         android:minLines="2"
-        android:text="@string/dialog_fetch_audio_title"
+        android:text="@string/dialog_fetch_title"
         android:textAllCaps="true" />
 
     <View
@@ -21,8 +22,8 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_below="@+id/fetchTitle"
-        android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
         android:background="@color/divider" />
 
     <RelativeLayout
@@ -54,28 +55,40 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:gravity="center"
-                android:minLines="2"
-                android:text="@string/dialog_fetch_audio_folder_name" />
+                android:minLines="3"
+                android:text="@string/dialog_fetch_folder_name" />
 
             <TextView
                 android:id="@+id/fetchFileName"
                 style="@style/FetchDialogDescTextAppearance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
                 android:gravity="center"
-                android:minLines="2"
-                android:text="@string/dialog_fetch_audio_track_name" />
+                android:minLines="3"
+                android:text="@string/dialog_fetch_file_name" />
 
         </LinearLayout>
 
     </RelativeLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
+    <com.fesskiev.mediacenter.widgets.progress.NumberProgressBar
+        android:id="@+id/fetchProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/fetchDataContainer"
-        android:layout_marginTop="10dp"
-        android:background="@color/divider" />
+        android:layout_gravity="center"
+        android:layout_marginEnd="@dimen/card_view_margin_end"
+        android:layout_marginStart="@dimen/card_view_margin_start"
+        android:layout_marginTop="15dp"
+        app:max="100"
+        app:progress="0"
+        app:progress_reached_bar_height="4dp"
+        app:progress_reached_color="@color/yellow"
+        app:progress_text_color="@color/yellow"
+        app:progress_text_offset="2dp"
+        app:progress_text_size="14sp"
+        app:progress_text_visibility="visible"
+        app:progress_unreached_bar_height="3dp"
+        app:progress_unreached_color="@color/white" />
 
 </RelativeLayout>

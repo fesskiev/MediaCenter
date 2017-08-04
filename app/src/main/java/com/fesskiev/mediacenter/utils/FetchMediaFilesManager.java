@@ -2,6 +2,7 @@ package com.fesskiev.mediacenter.utils;
 
 
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
@@ -99,6 +100,13 @@ public class FetchMediaFilesManager {
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onFetchPercent(Float percent) {
+        FetchContentView fetchContentView = fetchContentRef.get();
+        if (fetchContentView != null) {
+            fetchContentView.setProgress(percent);
+        }
+    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onFetchObjectEvent(FileSystemService.FetchDescription fetchDescription) {

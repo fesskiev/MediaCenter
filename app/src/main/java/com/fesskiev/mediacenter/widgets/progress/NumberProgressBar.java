@@ -14,30 +14,6 @@ import android.view.View;
 
 import com.fesskiev.mediacenter.R;
 
-
-/**
- *
- *    <com.fesskiev.mediacenter.widgets.progress.NumberProgressBar
- android:id="@+id/downloadProgressBar"
- android:layout_width="wrap_content"
- android:layout_height="wrap_content"
- android:layout_gravity="center"
- android:layout_marginEnd="@dimen/card_view_margin_end"
- android:layout_marginStart="@dimen/card_view_margin_start"
- android:layout_weight="1"
- app:max="100"
- app:progress="0"
- app:progress_reached_bar_height="2dp"
- app:progress_reached_color="@color/primary"
- app:progress_text_color="@color/accent"
- app:progress_text_offset="1dp"
- app:progress_text_size="12sp"
- app:progress_text_visibility="visible"
- app:progress_unreached_bar_height="1.5dp"
- app:progress_unreached_color="@color/primary_light" />
- */
-
-//TODO not use now!
 public class NumberProgressBar extends View {
 
     private Context mContext;

@@ -80,9 +80,9 @@
 
     <string name="shackbar_connection_repeat">Повторить</string>
 
-    <string name="dialog_fetch_audio_folder_name">Поиск папок....</string>
-    <string name="dialog_fetch_audio_track_name">Поиск треков....</string>
-    <string name="dialog_fetch_audio_title">Поиск файлов</string>
+    <string name="dialog_fetch_folder_name">Поиск папок....</string>
+    <string name="dialog_fetch_file_name">Поиск файлов....</string>
+    <string name="dialog_fetch_title">Пожалуйста, подождите, идет поиск</string>
 
     <string name="dialog_refresh_folders_title">Поиск музыки</string>
     <string name="dialog_refresh_folders_message">Выполнить полный поиск музыки по разделам?</string>
