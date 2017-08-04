@@ -255,6 +255,7 @@
 
     <style name="FetchDialogTitleTextAppearance" parent="@android:style/TextAppearance">
         <item name="android:textSize">@dimen/text_fetch_dialog_title</item>
+        <item name="android:textStyle">bold</item>
         <item name="android:fontFamily">sans-seri</item>
     </style>
 

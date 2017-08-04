@@ -14,8 +14,7 @@
         android:ellipsize="end"
         android:gravity="center"
         android:minLines="2"
-        android:text="@string/dialog_fetch_title"
-        android:textAllCaps="true" />
+        android:text="@string/dialog_fetch_title"/>
 
     <View
         android:id="@+id/divider0"
@@ -50,7 +49,7 @@
 
             <TextView
                 android:id="@+id/fetchFolderName"
-                style="@style/FetchDialogTitleTextAppearance"
+                style="@style/FetchDialogDescTextAppearance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
