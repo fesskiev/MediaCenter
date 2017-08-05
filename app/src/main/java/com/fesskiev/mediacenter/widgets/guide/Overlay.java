@@ -4,24 +4,22 @@ import android.graphics.Color;
 import android.view.View;
 import android.view.animation.Animation;
 
-/**
- * {@link Overlay} shows a tinted background to cover up the rest of the screen.
- * A 'hole' will be made on this overlay to let users obtain focus on the targeted element.
- */
 public class Overlay {
 
-    public int mBackgroundColor;
-    public boolean mDisableClick;
-    public boolean mDisableClickThroughHole;
-    public Style mStyle;
-    public Animation mEnterAnimation, mExitAnimation;
-    public int mHoleOffsetLeft = 0;
-    public int mHoleOffsetTop = 0;
-    public View.OnClickListener mOnClickListener;
-    public int mHoleRadius = NOT_SET;
+    public Style style;
+    public Animation enterAnimation, exitAnimation;
+
+    public int holeOffsetLeft = 0;
+    public int holeOffsetTop = 0;
+    public int holeRadius = NOT_SET;
     public final static int NOT_SET = -1;
-    public int mPaddingDp = 8;
-    public int mRoundedCornerRadiusDp = 0;
+    public int paddingDp = 8;
+    public int roundedCornerRadiusDp = 0;
+    public int backgroundColor;
+    public boolean disableClick;
+    public boolean disableClickThroughHole;
+
+    public View.OnClickListener onClickListener;
 
     public enum Style {
         CIRCLE, RECTANGLE, ROUNDED_RECTANGLE, NO_HOLE
@@ -32,9 +30,9 @@ public class Overlay {
     }
 
     public Overlay(boolean disableClick, int backgroundColor, Style style) {
-        mDisableClick = disableClick;
-        mBackgroundColor = backgroundColor;
-        mStyle = style;
+        this.disableClick = disableClick;
+        this.backgroundColor = backgroundColor;
+        this.style = style;
     }
 
     /**
@@ -43,7 +41,7 @@ public class Overlay {
      * @return return {@link Overlay} instance for chaining purpose
      */
     public Overlay setBackgroundColor(int backgroundColor){
-        mBackgroundColor = backgroundColor;
+        this.backgroundColor = backgroundColor;
         return this;
     }
 
@@ -54,7 +52,7 @@ public class Overlay {
      * @return return {@link Overlay} instance for chaining purpose
      */
     public Overlay disableClick(boolean yesNo){
-        mDisableClick = yesNo;
+        disableClick = yesNo;
         return this;
     }
 
@@ -65,12 +63,12 @@ public class Overlay {
      * @return return Overlay instance for chaining purpose
      */
     public Overlay disableClickThroughHole(boolean yesNo){
-        mDisableClickThroughHole = yesNo;
+        disableClickThroughHole = yesNo;
         return this;
     }
 
     public Overlay setStyle(Style style){
-        mStyle = style;
+        this.style = style;
         return this;
     }
 
@@ -80,7 +78,7 @@ public class Overlay {
      * @return return {@link Overlay} instance for chaining purpose
      */
     public Overlay setEnterAnimation(Animation enterAnimation){
-        mEnterAnimation = enterAnimation;
+        this.enterAnimation = enterAnimation;
         return this;
     }
     /**
@@ -89,17 +87,17 @@ public class Overlay {
      * @return return {@link Overlay} instance for chaining purpose
      */
     public Overlay setExitAnimation(Animation exitAnimation){
-        mExitAnimation = exitAnimation;
+        this.exitAnimation = exitAnimation;
         return this;
     }
 
     /**
-     * Set {@link Overlay#mOnClickListener} for the {@link Overlay}
+     * Set {@link Overlay#onClickListener} for the {@link Overlay}
      * @param onClickListener
      * @return return {@link Overlay} instance for chaining purpose
      */
     public Overlay setOnClickListener(View.OnClickListener onClickListener){
-        mOnClickListener=onClickListener;
+        this.onClickListener =onClickListener;
         return this;
     }
 
@@ -112,7 +110,7 @@ public class Overlay {
      * @return return {@link Overlay} instance for chaining purpose
      */
     public Overlay setHoleRadius(int holeRadius) {
-        mHoleRadius = holeRadius;
+        this.holeRadius = holeRadius;
         return this;
     }
 
@@ -124,8 +122,8 @@ public class Overlay {
      * @return {@link Overlay} instance for chaining purpose
      */
     public Overlay setHoleOffsets(int offsetLeft, int offsetTop) {
-        mHoleOffsetLeft = offsetLeft;
-        mHoleOffsetTop = offsetTop;
+        holeOffsetLeft = offsetLeft;
+        holeOffsetTop = offsetTop;
         return this;
     }
 
@@ -135,7 +133,7 @@ public class Overlay {
      * @return {@link Overlay} intance for chaining purpose
      */
     public Overlay setHolePadding(int paddingDp){
-        mPaddingDp = paddingDp;
+        this.paddingDp = paddingDp;
         return this;
     }
 
@@ -146,7 +144,7 @@ public class Overlay {
      * @return {@link Overlay} intance for chaining purpose
      */
     public Overlay setRoundedCornerRadius(int roundedCornerRadiusDp){
-        mRoundedCornerRadiusDp = roundedCornerRadiusDp;
+        this.roundedCornerRadiusDp = roundedCornerRadiusDp;
         return this;
     }
 }

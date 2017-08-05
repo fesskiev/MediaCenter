@@ -636,6 +636,20 @@
         <item name="android:fontFamily">sans-serif</item>
     </style>
 
+    <style name="ToolTipTitleTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/primary_dark</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="ToolTipTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/primary_dark</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
     <style name="RadioButtonTheme" parent="Theme.AppCompat">
         <item name="colorAccent">@color/yellow</item>
         <item name="android:textColorSecondary">@color/white</item>

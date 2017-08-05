@@ -12,8 +12,6 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -24,51 +22,44 @@ import java.util.ArrayList;
 
 public class FrameLayoutWithHole extends FrameLayout {
 
-    private Activity mActivity;
-    private TourGuide.MotionType mMotionType;
-    private Paint mEraser;
+    private Activity activity;
+    private TourGuide.MotionType motionType;
+    private Paint eraser;
 
-    private Bitmap mEraserBitmap;
-    private Canvas mEraserCanvas;
-    private View mViewHole; // This is the targeted view to be highlighted, where the hole should be placed
-    private int mRadius;
-    private int[] mPos;
-    private float mDensity;
-    private Overlay mOverlay;
-    private RectF mRectF;
+    private Bitmap eraserBitmap;
+    private Canvas eraserCanvas;
+    private View viewHole;
+    private int radius;
+    private int[] pos;
+    private float density;
+    private Overlay overlay;
+    private RectF rectF;
+
+    private boolean mCleanUpLock = false;
 
     private ArrayList<AnimatorSet> mAnimatorSetArrayList;
 
     public void setViewHole(View viewHole) {
-        this.mViewHole = viewHole;
+        this.viewHole = viewHole;
         enforceMotionType();
     }
 
     public void addAnimatorSet(AnimatorSet animatorSet) {
         if (mAnimatorSetArrayList == null) {
-            mAnimatorSetArrayList = new ArrayList<AnimatorSet>();
+            mAnimatorSetArrayList = new ArrayList<>();
         }
         mAnimatorSetArrayList.add(animatorSet);
     }
 
     private void enforceMotionType() {
-        Log.d("tourguide", "enforceMotionType 1");
-        if (mViewHole != null) {
-            Log.d("tourguide", "enforceMotionType 2");
-            if (mMotionType != null && mMotionType == TourGuide.MotionType.CLICK_ONLY) {
-                Log.d("tourguide", "enforceMotionType 3");
-                Log.d("tourguide", "only Clicking");
-                mViewHole.setOnTouchListener(new OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View view, MotionEvent motionEvent) {
-                        mViewHole.getParent().requestDisallowInterceptTouchEvent(true);
-                        return false;
-                    }
+        if (viewHole != null) {
+            if (motionType != null && motionType == TourGuide.MotionType.CLICK_ONLY) {
+                viewHole.setOnTouchListener((view, motionEvent) -> {
+                    viewHole.getParent().requestDisallowInterceptTouchEvent(true);
+                    return false;
                 });
-            } else if (mMotionType != null && mMotionType == TourGuide.MotionType.SWIPE_ONLY) {
-                Log.d("tourguide", "enforceMotionType 4");
-                Log.d("tourguide", "only Swiping");
-                mViewHole.setClickable(false);
+            } else if (motionType != null && motionType == TourGuide.MotionType.SWIPE_ONLY) {
+                viewHole.setClickable(false);
             }
         }
     }
@@ -83,33 +74,33 @@ public class FrameLayoutWithHole extends FrameLayout {
 
     public FrameLayoutWithHole(Activity context, View view, TourGuide.MotionType motionType, Overlay overlay) {
         super(context);
-        mActivity = context;
-        mViewHole = view;
+        activity = context;
+        viewHole = view;
         init(null, 0);
         enforceMotionType();
-        mOverlay = overlay;
+        this.overlay = overlay;
 
         int[] pos = new int[2];
-        mViewHole.getLocationOnScreen(pos);
-        mPos = pos;
+        viewHole.getLocationOnScreen(pos);
+        this.pos = pos;
 
-        mDensity = context.getResources().getDisplayMetrics().density;
-        int padding = (int) (20 * mDensity);
+        density = context.getResources().getDisplayMetrics().density;
+        int padding = (int) (20 * density);
 
-        if (mViewHole.getHeight() > mViewHole.getWidth()) {
-            mRadius = mViewHole.getHeight() / 2 + padding;
+        if (viewHole.getHeight() > viewHole.getWidth()) {
+            radius = viewHole.getHeight() / 2 + padding;
         } else {
-            mRadius = mViewHole.getWidth() / 2 + padding;
+            radius = viewHole.getWidth() / 2 + padding;
         }
-        mMotionType = motionType;
+        this.motionType = motionType;
 
         // Init a RectF to be used in OnDraw for a ROUNDED_RECTANGLE Style Overlay
-        if (mOverlay != null && mOverlay.mStyle == Overlay.Style.ROUNDED_RECTANGLE) {
-            int recfFPaddingPx = (int) (mOverlay.mPaddingDp * mDensity);
-            mRectF = new RectF(mPos[0] - recfFPaddingPx + mOverlay.mHoleOffsetLeft,
-                    mPos[1] - recfFPaddingPx + mOverlay.mHoleOffsetTop,
-                    mPos[0] + mViewHole.getWidth() + recfFPaddingPx + mOverlay.mHoleOffsetLeft,
-                    mPos[1] + mViewHole.getHeight() + recfFPaddingPx + mOverlay.mHoleOffsetTop);
+        if (this.overlay != null && this.overlay.style == Overlay.Style.ROUNDED_RECTANGLE) {
+            int recfFPaddingPx = (int) (this.overlay.paddingDp * density);
+            rectF = new RectF(this.pos[0] - recfFPaddingPx + this.overlay.holeOffsetLeft,
+                    this.pos[1] - recfFPaddingPx + this.overlay.holeOffsetTop,
+                    this.pos[0] + viewHole.getWidth() + recfFPaddingPx + this.overlay.holeOffsetLeft,
+                    this.pos[1] + viewHole.getHeight() + recfFPaddingPx + this.overlay.holeOffsetTop);
         }
     }
 
@@ -122,11 +113,11 @@ public class FrameLayoutWithHole extends FrameLayout {
         mTextPaint.setTextAlign(Paint.Align.LEFT);
 
         Point size = new Point();
-        size.x = mActivity.getResources().getDisplayMetrics().widthPixels;
-        size.y = mActivity.getResources().getDisplayMetrics().heightPixels;
+        size.x = activity.getResources().getDisplayMetrics().widthPixels;
+        size.y = activity.getResources().getDisplayMetrics().heightPixels;
 
-        mEraserBitmap = Bitmap.createBitmap(size.x, size.y, Bitmap.Config.ARGB_8888);
-        mEraserCanvas = new Canvas(mEraserBitmap);
+        eraserBitmap = Bitmap.createBitmap(size.x, size.y, Bitmap.Config.ARGB_8888);
+        eraserCanvas = new Canvas(eraserBitmap);
 
         Paint mPaint = new Paint();
         mPaint.setColor(0xcc000000);
@@ -134,18 +125,18 @@ public class FrameLayoutWithHole extends FrameLayout {
         transparentPaint.setColor(getResources().getColor(android.R.color.transparent));
         transparentPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
 
-        mEraser = new Paint();
-        mEraser.setColor(0xFFFFFFFF);
-        mEraser.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-        mEraser.setFlags(Paint.ANTI_ALIAS_FLAG);
+        eraser = new Paint();
+        eraser.setColor(0xFFFFFFFF);
+        eraser.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+        eraser.setFlags(Paint.ANTI_ALIAS_FLAG);
 
     }
 
-    private boolean mCleanUpLock = false;
+
 
     protected void cleanUp() {
         if (getParent() != null) {
-            if (mOverlay != null && mOverlay.mExitAnimation != null) {
+            if (overlay != null && overlay.exitAnimation != null) {
                 performOverlayExitAnimation();
             } else {
                 ((ViewGroup) this.getParent()).removeView(this);
@@ -157,8 +148,7 @@ public class FrameLayoutWithHole extends FrameLayout {
         if (!mCleanUpLock) {
             final FrameLayout pointerToFrameLayout = this;
             mCleanUpLock = true;
-            Log.d("tourguide", "Overlay exit animation listener is overwritten...");
-            mOverlay.mExitAnimation.setAnimationListener(new Animation.AnimationListener() {
+            overlay.exitAnimation.setAnimationListener(new Animation.AnimationListener() {
                 @Override
                 public void onAnimationStart(Animation animation) {
                 }
@@ -172,17 +162,23 @@ public class FrameLayoutWithHole extends FrameLayout {
                     ((ViewGroup) pointerToFrameLayout.getParent()).removeView(pointerToFrameLayout);
                 }
             });
-            this.startAnimation(mOverlay.mExitAnimation);
+            this.startAnimation(overlay.exitAnimation);
         }
     }
 
-    /* comment this whole method to cause a memory leak */
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        if (overlay != null && overlay.enterAnimation != null) {
+            this.startAnimation(overlay.enterAnimation);
+        }
+    }
+
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        /* cleanup reference to prevent memory leak */
-        mEraserCanvas.setBitmap(null);
-        mEraserBitmap = null;
+        eraserCanvas.setBitmap(null);
+        eraserBitmap = null;
 
         if (mAnimatorSetArrayList != null && !mAnimatorSetArrayList.isEmpty()) {
             for (int i = 0; i < mAnimatorSetArrayList.size(); i++) {
@@ -192,97 +188,44 @@ public class FrameLayoutWithHole extends FrameLayout {
         }
     }
 
-
-//    @Override
-//    public boolean dispatchTouchEvent(MotionEvent ev) {
-//        if (mViewHole != null) {
-//            if (isWithinButton(ev) && mOverlay != null && mOverlay.mDisableClickThroughHole) {
-//                Log.d("tourguide", "block user clicking through hole");
-//                // block it
-//                return true;
-//            } else if (isWithinButton(ev)) {
-//                // let it pass through
-//                return false;
-//            }
-//        }
-//        // do nothing, just propagating up to super
-//        return super.dispatchTouchEvent(ev);
-//    }
-//
-//    private boolean isWithinButton(MotionEvent ev) {
-//        int[] pos = new int[2];
-//        mViewHole.getLocationOnScreen(pos);
-//        return ev.getRawY() >= pos[1] &&
-//                ev.getRawY() <= (pos[1] + mViewHole.getHeight()) &&
-//                ev.getRawX() >= pos[0] &&
-//                ev.getRawX() <= (pos[0] + mViewHole.getWidth());
-//    }
-
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        mEraserBitmap.eraseColor(Color.TRANSPARENT);
+        eraserBitmap.eraseColor(Color.TRANSPARENT);
 
-        if (mOverlay != null) {
-            mEraserCanvas.drawColor(mOverlay.mBackgroundColor);
-            int padding = (int) (mOverlay.mPaddingDp * mDensity);
+        if (overlay != null) {
+            eraserCanvas.drawColor(overlay.backgroundColor);
+            int padding = (int) (overlay.paddingDp * density);
 
-            if (mOverlay.mStyle == Overlay.Style.RECTANGLE) {
-                mEraserCanvas.drawRect(
-                        mPos[0] - padding + mOverlay.mHoleOffsetLeft,
-                        mPos[1] - padding + mOverlay.mHoleOffsetTop,
-                        mPos[0] + mViewHole.getWidth() + padding + mOverlay.mHoleOffsetLeft,
-                        mPos[1] + mViewHole.getHeight() + padding + mOverlay.mHoleOffsetTop, mEraser);
-            } else if (mOverlay.mStyle == Overlay.Style.NO_HOLE) {
-                mEraserCanvas.drawCircle(
-                        mPos[0] + mViewHole.getWidth() / 2 + mOverlay.mHoleOffsetLeft,
-                        mPos[1] + mViewHole.getHeight() / 2 + mOverlay.mHoleOffsetTop,
-                        0, mEraser);
-            } else if (mOverlay.mStyle == Overlay.Style.ROUNDED_RECTANGLE) {
+            if (overlay.style == Overlay.Style.RECTANGLE) {
+                eraserCanvas.drawRect(
+                        pos[0] - padding + overlay.holeOffsetLeft,
+                        pos[1] - padding + overlay.holeOffsetTop,
+                        pos[0] + viewHole.getWidth() + padding + overlay.holeOffsetLeft,
+                        pos[1] + viewHole.getHeight() + padding + overlay.holeOffsetTop, eraser);
+            } else if (overlay.style == Overlay.Style.NO_HOLE) {
+                eraserCanvas.drawCircle(
+                        pos[0] + viewHole.getWidth() / 2 + overlay.holeOffsetLeft,
+                        pos[1] + viewHole.getHeight() / 2 + overlay.holeOffsetTop,
+                        0, eraser);
+            } else if (overlay.style == Overlay.Style.ROUNDED_RECTANGLE) {
                 int roundedCornerRadiusPx;
-                if (mOverlay.mRoundedCornerRadiusDp != 0) {
-                    roundedCornerRadiusPx = (int) (mOverlay.mRoundedCornerRadiusDp * mDensity);
+                if (overlay.roundedCornerRadiusDp != 0) {
+                    roundedCornerRadiusPx = (int) (overlay.roundedCornerRadiusDp * density);
                 } else {
-                    roundedCornerRadiusPx = (int) (10 * mDensity);
+                    roundedCornerRadiusPx = (int) (10 * density);
                 }
-                mEraserCanvas.drawRoundRect(mRectF, roundedCornerRadiusPx, roundedCornerRadiusPx, mEraser);
+                eraserCanvas.drawRoundRect(rectF, roundedCornerRadiusPx, roundedCornerRadiusPx, eraser);
             } else {
-                int holeRadius = mOverlay.mHoleRadius != Overlay.NOT_SET ? mOverlay.mHoleRadius : mRadius;
-                mEraserCanvas.drawCircle(
-                        mPos[0] + mViewHole.getWidth() / 2 + mOverlay.mHoleOffsetLeft,
-                        mPos[1] + mViewHole.getHeight() / 2 + mOverlay.mHoleOffsetTop,
-                        holeRadius, mEraser);
+                int holeRadius = overlay.holeRadius != Overlay.NOT_SET ? overlay.holeRadius : radius;
+                eraserCanvas.drawCircle(
+                        pos[0] + viewHole.getWidth() / 2 + overlay.holeOffsetLeft,
+                        pos[1] + viewHole.getHeight() / 2 + overlay.holeOffsetTop,
+                        holeRadius, eraser);
             }
         }
-        canvas.drawBitmap(mEraserBitmap, 0, 0, null);
+        canvas.drawBitmap(eraserBitmap, 0, 0, null);
 
     }
 
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        if (mOverlay != null && mOverlay.mEnterAnimation != null) {
-            this.startAnimation(mOverlay.mEnterAnimation);
-        }
-    }
-
-    /**
-     * Convenient method to obtain screen width in pixel
-     *
-     * @param activity
-     * @return screen width in pixel
-     */
-    public int getScreenWidth(Activity activity) {
-        return activity.getResources().getDisplayMetrics().widthPixels;
-    }
-
-    /**
-     * Convenient method to obtain screen height in pixel
-     *
-     * @param activity
-     * @return screen width in pixel
-     */
-    public int getScreenHeight(Activity activity) {
-        return activity.getResources().getDisplayMetrics().heightPixels;
-    }
 }

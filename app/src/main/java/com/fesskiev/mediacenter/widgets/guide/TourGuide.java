@@ -10,7 +10,6 @@ import android.graphics.Point;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,14 +32,14 @@ public class TourGuide {
         ALLOW_ALL, CLICK_ONLY, SWIPE_ONLY
     }
 
-    private View mHighlightedView;
-    private Activity mActivity;
-    private MotionType mMotionType;
-    private FrameLayoutWithHole mFrameLayout;
-    private View mToolTipViewGroup;
-    private ToolTip mToolTip;
-    private Pointer mPointer;
-    private Overlay mOverlay;
+    private View highlightedView;
+    private Activity activity;
+    private MotionType motionType;
+    private FrameLayoutWithHole frameLayout;
+    private View toolTipViewGroup;
+    private ToolTip toolTip;
+    private Pointer pointer;
+    private Overlay overlay;
 
 
     public static TourGuide init(Activity activity) {
@@ -49,7 +48,7 @@ public class TourGuide {
 
     /* Constructor */
     public TourGuide(Activity activity) {
-        mActivity = activity;
+        this.activity = activity;
     }
 
 
@@ -60,7 +59,7 @@ public class TourGuide {
      * @return return TourGuide instance for chaining purpose
      */
     public TourGuide motionType(MotionType motionType) {
-        mMotionType = motionType;
+        this.motionType = motionType;
         return this;
     }
 
@@ -71,7 +70,7 @@ public class TourGuide {
      * @return return TourGuide instance for chaining purpose
      */
     public TourGuide playOn(View targetView) {
-        mHighlightedView = targetView;
+        highlightedView = targetView;
         setupView();
         return this;
     }
@@ -83,7 +82,7 @@ public class TourGuide {
      * @return return TourGuide instance for chaining purpose
      */
     public TourGuide setOverlay(Overlay overlay) {
-        mOverlay = overlay;
+        this.overlay = overlay;
         return this;
     }
 
@@ -94,7 +93,7 @@ public class TourGuide {
      * @return return TourGuide instance for chaining purpose
      */
     public TourGuide setToolTip(ToolTip toolTip) {
-        mToolTip = toolTip;
+        this.toolTip = toolTip;
         return this;
     }
 
@@ -105,7 +104,7 @@ public class TourGuide {
      * @return return TourGuide instance for chaining purpose
      */
     public TourGuide setPointer(Pointer pointer) {
-        mPointer = pointer;
+        this.pointer = pointer;
         return this;
     }
 
@@ -113,9 +112,9 @@ public class TourGuide {
      * Clean up the tutorial that is added to the activity
      */
     public void cleanUp() {
-        mFrameLayout.cleanUp();
-        if (mToolTipViewGroup != null) {
-            ((ViewGroup) mActivity.getWindow().getDecorView()).removeView(mToolTipViewGroup);
+        frameLayout.cleanUp();
+        if (toolTipViewGroup != null) {
+            ((ViewGroup) activity.getWindow().getDecorView()).removeView(toolTipViewGroup);
         }
     }
 
@@ -123,39 +122,39 @@ public class TourGuide {
      * @return FrameLayoutWithHole that is used as overlay
      */
     public FrameLayoutWithHole getOverlay() {
-        return mFrameLayout;
+        return frameLayout;
     }
 
     /**
      * @return the ToolTip container View
      */
     public View getToolTip() {
-        return mToolTipViewGroup;
+        return toolTipViewGroup;
     }
 
     private int getXBasedOnGravity(int width) {
         int[] pos = new int[2];
-        mHighlightedView.getLocationOnScreen(pos);
+        highlightedView.getLocationOnScreen(pos);
         int x = pos[0];
-        if ((mPointer.mGravity & Gravity.RIGHT) == Gravity.RIGHT) {
-            return x + mHighlightedView.getWidth() - width;
-        } else if ((mPointer.mGravity & Gravity.LEFT) == Gravity.LEFT) {
+        if ((pointer.gravity & Gravity.RIGHT) == Gravity.RIGHT) {
+            return x + highlightedView.getWidth() - width;
+        } else if ((pointer.gravity & Gravity.LEFT) == Gravity.LEFT) {
             return x;
         } else { // this is center
-            return x + mHighlightedView.getWidth() / 2;
+            return x + highlightedView.getWidth() / 2;
         }
     }
 
     private int getYBasedOnGravity(int height) {
         int[] pos = new int[2];
-        mHighlightedView.getLocationInWindow(pos);
+        highlightedView.getLocationInWindow(pos);
         int y = pos[1];
-        if ((mPointer.mGravity & Gravity.BOTTOM) == Gravity.BOTTOM) {
-            return y + mHighlightedView.getHeight() - height;
-        } else if ((mPointer.mGravity & Gravity.TOP) == Gravity.TOP) {
+        if ((pointer.gravity & Gravity.BOTTOM) == Gravity.BOTTOM) {
+            return y + highlightedView.getHeight() - height;
+        } else if ((pointer.gravity & Gravity.TOP) == Gravity.TOP) {
             return y;
         } else { // this is center
-            return y + mHighlightedView.getHeight() / 2;
+            return y + highlightedView.getHeight() / 2;
         }
     }
 
@@ -164,14 +163,14 @@ public class TourGuide {
         // so when this is the 1st time TourGuide is being added,
         // else block will be executed, and ViewTreeObserver will make TourGuide setup process to be delayed until everything is ready
         // when this is run the 2nd or more times, if block will be executed
-        if (ViewCompat.isAttachedToWindow(mHighlightedView)) {
+        if (ViewCompat.isAttachedToWindow(highlightedView)) {
             startView();
         } else {
-            final ViewTreeObserver viewTreeObserver = mHighlightedView.getViewTreeObserver();
+            final ViewTreeObserver viewTreeObserver = highlightedView.getViewTreeObserver();
             viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
                 public void onGlobalLayout() {
-                    mHighlightedView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    highlightedView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                     startView();
                 }
             });
@@ -180,13 +179,13 @@ public class TourGuide {
 
     private void startView() {
         /* Initialize a frame layout with a hole */
-        mFrameLayout = new FrameLayoutWithHole(mActivity, mHighlightedView, mMotionType, mOverlay);
+        frameLayout = new FrameLayoutWithHole(activity, highlightedView, motionType, overlay);
         /* handle click disable */
-        handleDisableClicking(mFrameLayout);
+        handleDisableClicking(frameLayout);
 
         /* setup floating action button */
-        if (mPointer != null) {
-            FloatingActionButton fab = setupAndAddFABToFrameLayout(mFrameLayout);
+        if (pointer != null) {
+            FloatingActionButton fab = setupAndAddFABToFrameLayout(frameLayout);
             performAnimationOn(fab);
         }
         setupFrameLayout();
@@ -196,14 +195,13 @@ public class TourGuide {
 
     private void handleDisableClicking(FrameLayoutWithHole frameLayoutWithHole) {
         // 1. if user provides an overlay listener, use that as 1st priority
-        if (mOverlay != null && mOverlay.mOnClickListener != null) {
+        if (overlay != null && overlay.onClickListener != null) {
             frameLayoutWithHole.setClickable(true);
-            frameLayoutWithHole.setOnClickListener(mOverlay.mOnClickListener);
+            frameLayoutWithHole.setOnClickListener(overlay.onClickListener);
         }
         // 2. if overlay listener is not provided, check if it's disabled
-        else if (mOverlay != null && mOverlay.mDisableClick) {
-            Log.w("tourguide", "Overlay's default OnClickListener is null, it will proceed to next tourguide when it is clicked");
-            frameLayoutWithHole.setViewHole(mHighlightedView);
+        else if (overlay != null && overlay.disableClick) {
+            frameLayoutWithHole.setViewHole(highlightedView);
             frameLayoutWithHole.setSoundEffectsEnabled(false);
             frameLayoutWithHole.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -218,97 +216,81 @@ public class TourGuide {
                 new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT,
                         FrameLayout.LayoutParams.WRAP_CONTENT);
 
-        if (mToolTip != null) {
+        if (toolTip != null) {
             /* inflate and get views */
-            ViewGroup parent = (ViewGroup) mActivity.getWindow().getDecorView();
-            LayoutInflater layoutInflater = mActivity.getLayoutInflater();
+            ViewGroup parent = (ViewGroup) activity.getWindow().getDecorView();
+            LayoutInflater layoutInflater = activity.getLayoutInflater();
 
-            if (mToolTip.getCustomView() == null) {
-                mToolTipViewGroup = layoutInflater.inflate(R.layout.tooltip_layout, null);
-                View toolTipContainer = mToolTipViewGroup.findViewById(R.id.toolTip_container);
-                TextView toolTipTitleTV = (TextView) mToolTipViewGroup.findViewById(R.id.title);
-                TextView toolTipDescriptionTV = (TextView) mToolTipViewGroup.findViewById(R.id.description);
+            toolTipViewGroup = layoutInflater.inflate(R.layout.tooltip_layout, null);
+            TextView toolTipTitleTV = (TextView) toolTipViewGroup.findViewById(R.id.title);
+            TextView toolTipDescriptionTV = (TextView) toolTipViewGroup.findViewById(R.id.description);
 
-                /* set tooltip attributes */
-                toolTipContainer.setBackgroundColor(mToolTip.mBackgroundColor);
-                toolTipTitleTV.setTextColor(mToolTip.mTextColor);
-                toolTipDescriptionTV.setTextColor(mToolTip.mTextColor);
-
-                if (mToolTip.mTitle == null || mToolTip.mTitle.isEmpty()) {
-                    toolTipTitleTV.setVisibility(View.GONE);
-                } else {
-                    toolTipTitleTV.setVisibility(View.VISIBLE);
-                    toolTipTitleTV.setText(mToolTip.mTitle);
-                }
-
-                if (mToolTip.mDescription == null || mToolTip.mDescription.isEmpty()) {
-                    toolTipDescriptionTV.setVisibility(View.GONE);
-                } else {
-                    toolTipDescriptionTV.setVisibility(View.VISIBLE);
-                    toolTipDescriptionTV.setText(mToolTip.mDescription);
-                }
-
-                if (mToolTip.mWidth != -1) {
-                    layoutParams.width = mToolTip.mWidth;
-                }
+            if (toolTip.title == null || toolTip.title.isEmpty()) {
+                toolTipTitleTV.setVisibility(View.GONE);
             } else {
-                mToolTipViewGroup = mToolTip.getCustomView();
+                toolTipTitleTV.setVisibility(View.VISIBLE);
+                toolTipTitleTV.setText(toolTip.title);
             }
 
-            mToolTipViewGroup.startAnimation(mToolTip.mEnterAnimation);
-
-            /* add setShadow if it's turned on */
-            if (mToolTip.mShadow) {
-                mToolTipViewGroup.setBackgroundDrawable(mActivity.getResources().getDrawable(R.drawable.drop_shadow));
+            if (toolTip.description == null || toolTip.description.isEmpty()) {
+                toolTipDescriptionTV.setVisibility(View.GONE);
+            } else {
+                toolTipDescriptionTV.setVisibility(View.VISIBLE);
+                toolTipDescriptionTV.setText(toolTip.description);
             }
+
+            if (toolTip.width != -1) {
+                layoutParams.width = toolTip.width;
+            }
+
+            toolTipViewGroup.startAnimation(toolTip.enterAnimation);
 
             /* position and size calculation */
             int[] pos = new int[2];
-            mHighlightedView.getLocationOnScreen(pos);
+            highlightedView.getLocationOnScreen(pos);
             int targetViewX = pos[0];
             final int targetViewY = pos[1];
 
             // get measured size of tooltip
-            mToolTipViewGroup.measure(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-            int toolTipMeasuredWidth = mToolTip.mWidth != -1 ? mToolTip.mWidth : mToolTipViewGroup.getMeasuredWidth();
-            int toolTipMeasuredHeight = mToolTipViewGroup.getMeasuredHeight();
+            toolTipViewGroup.measure(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+            int toolTipMeasuredWidth = toolTip.width != -1 ? toolTip.width : toolTipViewGroup.getMeasuredWidth();
+            int toolTipMeasuredHeight = toolTipViewGroup.getMeasuredHeight();
 
             Point resultPoint = new Point(); // this holds the final position of tooltip
-            float density = mActivity.getResources().getDisplayMetrics().density;
+            float density = activity.getResources().getDisplayMetrics().density;
             final float adjustment = 10 * density; //adjustment is that little overlapping area of tooltip and targeted button
 
             // calculate x position, based on gravity, tooltipMeasuredWidth, parent max width, x position of target view, adjustment
             if (toolTipMeasuredWidth > parent.getWidth()) {
-                resultPoint.x = getXForTooTip(mToolTip.mGravity, parent.getWidth(), targetViewX, adjustment);
+                resultPoint.x = getXForTooTip(toolTip.gravity, parent.getWidth(), targetViewX, adjustment);
             } else {
-                resultPoint.x = getXForTooTip(mToolTip.mGravity, toolTipMeasuredWidth, targetViewX, adjustment);
+                resultPoint.x = getXForTooTip(toolTip.gravity, toolTipMeasuredWidth, targetViewX, adjustment);
             }
 
-            resultPoint.y = getYForTooTip(mToolTip.mGravity, toolTipMeasuredHeight, targetViewY, adjustment);
+            resultPoint.y = getYForTooTip(toolTip.gravity, toolTipMeasuredHeight, targetViewY, adjustment);
 
             // add view to parent
-//            ((ViewGroup) mActivity.getWindow().getDecorView().findViewById(android.R.id.content)).addView(mToolTipViewGroup, layoutParams);
-            parent.addView(mToolTipViewGroup, layoutParams);
+            parent.addView(toolTipViewGroup, layoutParams);
 
             // 1. width < screen check
             if (toolTipMeasuredWidth > parent.getWidth()) {
-                mToolTipViewGroup.getLayoutParams().width = parent.getWidth();
+                toolTipViewGroup.getLayoutParams().width = parent.getWidth();
                 toolTipMeasuredWidth = parent.getWidth();
             }
             // 2. x left boundary check
             if (resultPoint.x < 0) {
-                mToolTipViewGroup.getLayoutParams().width = toolTipMeasuredWidth + resultPoint.x; //since point.x is negative, use plus
+                toolTipViewGroup.getLayoutParams().width = toolTipMeasuredWidth + resultPoint.x; //since point.x is negative, use plus
                 resultPoint.x = 0;
             }
             // 3. x right boundary check
             int tempRightX = resultPoint.x + toolTipMeasuredWidth;
             if (tempRightX > parent.getWidth()) {
-                mToolTipViewGroup.getLayoutParams().width = parent.getWidth() - resultPoint.x; //since point.x is negative, use plus
+                toolTipViewGroup.getLayoutParams().width = parent.getWidth() - resultPoint.x; //since point.x is negative, use plus
             }
 
             // pass toolTip onClickListener into toolTipViewGroup
-            if (mToolTip.mOnClickListener != null) {
-                mToolTipViewGroup.setOnClickListener(mToolTip.mOnClickListener);
+            if (toolTip.onClickListener != null) {
+                toolTipViewGroup.setOnClickListener(toolTip.onClickListener);
             }
 
             // TODO: no boundary check for height yet, this is a unlikely case though
@@ -316,15 +298,15 @@ public class TourGuide {
 
             // this needs an viewTreeObserver, that's because TextView measurement of it's vertical height is not accurate (didn't take into account of multiple lines yet) before it's rendered
             // re-calculate height again once it's rendered
-            mToolTipViewGroup.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            toolTipViewGroup.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
                 public void onGlobalLayout() {
-                    mToolTipViewGroup.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    toolTipViewGroup.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
                     int fixedY;
-                    int toolTipHeightAfterLayouted = mToolTipViewGroup.getHeight();
-                    fixedY = getYForTooTip(mToolTip.mGravity, toolTipHeightAfterLayouted, targetViewY, adjustment);
-                    layoutParams.setMargins((int) mToolTipViewGroup.getX(), fixedY, 0, 0);
+                    int toolTipHeightAfterLayouted = toolTipViewGroup.getHeight();
+                    fixedY = getYForTooTip(toolTip.gravity, toolTipHeightAfterLayouted, targetViewY, adjustment);
+                    layoutParams.setMargins((int) toolTipViewGroup.getX(), fixedY, 0, 0);
                 }
             });
 
@@ -339,9 +321,9 @@ public class TourGuide {
         if ((gravity & Gravity.LEFT) == Gravity.LEFT) {
             x = targetViewX - toolTipMeasuredWidth + (int) adjustment;
         } else if ((gravity & Gravity.RIGHT) == Gravity.RIGHT) {
-            x = targetViewX + mHighlightedView.getWidth() - (int) adjustment;
+            x = targetViewX + highlightedView.getWidth() - (int) adjustment;
         } else {
-            x = targetViewX + mHighlightedView.getWidth() / 2 - toolTipMeasuredWidth / 2;
+            x = targetViewX + highlightedView.getWidth() / 2 - toolTipMeasuredWidth / 2;
         }
         return x;
     }
@@ -357,9 +339,9 @@ public class TourGuide {
             }
         } else { // this is center
             if (((gravity & Gravity.LEFT) == Gravity.LEFT) || ((gravity & Gravity.RIGHT) == Gravity.RIGHT)) {
-                y = targetViewY + mHighlightedView.getHeight() - (int) adjustment;
+                y = targetViewY + highlightedView.getHeight() - (int) adjustment;
             } else {
-                y = targetViewY + mHighlightedView.getHeight() + (int) adjustment;
+                y = targetViewY + highlightedView.getHeight() + (int) adjustment;
             }
         }
         return y;
@@ -368,7 +350,7 @@ public class TourGuide {
     private FloatingActionButton setupAndAddFABToFrameLayout(final FrameLayoutWithHole frameLayoutWithHole) {
 
         // fab is the real fab that is going to be added
-        final FloatingActionButton fab = new FloatingActionButton(mActivity);
+        final FloatingActionButton fab = new FloatingActionButton(activity);
         fab.setVisibility(View.VISIBLE);
         fab.setSize(FloatingActionButton.SIZE_MINI);
         fab.setClickable(true);
@@ -384,15 +366,15 @@ public class TourGuide {
 
     private void setupFrameLayout() {
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT);
-        ViewGroup contentArea = (ViewGroup) mActivity.getWindow().getDecorView().findViewById(android.R.id.content);
+                FrameLayout.LayoutParams.MATCH_PARENT);
+        ViewGroup contentArea = (ViewGroup) activity.getWindow().getDecorView().findViewById(android.R.id.content);
         int[] pos = new int[2];
         contentArea.getLocationOnScreen(pos);
         // frameLayoutWithHole's coordinates are calculated taking full screen height into account
         // but we're adding it to the content area only, so we need to offset it to the same Y value of contentArea
 
         layoutParams.setMargins(0, -pos[1], 0, 0);
-        contentArea.addView(mFrameLayout, layoutParams);
+        contentArea.addView(frameLayout, layoutParams);
     }
 
     private void performAnimationOn(final View view) {
@@ -477,7 +459,7 @@ public class TourGuide {
         final ValueAnimator fadeOutAnim2 = ObjectAnimator.ofFloat(view, "alpha", 1f, 0f);
         fadeOutAnim2.setDuration(fadeOutDuration);
         view.setAlpha(0);
-        animatorSet.setStartDelay(mToolTip != null ? mToolTip.mEnterAnimation.getDuration() : 0);
+        animatorSet.setStartDelay(toolTip != null ? toolTip.enterAnimation.getDuration() : 0);
         animatorSet.play(fadeInAnim);
         animatorSet.play(scaleDownX).with(scaleDownY).after(fadeInAnim);
         animatorSet.play(scaleUpX).with(scaleUpY).with(fadeOutAnim).after(scaleDownY);
@@ -494,11 +476,11 @@ public class TourGuide {
 
             /* these animatorSets are kept track in FrameLayout,
             so that they can be cleaned up when FrameLayout is detached from window */
-        mFrameLayout.addAnimatorSet(animatorSet);
-        mFrameLayout.addAnimatorSet(animatorSet2);
+        frameLayout.addAnimatorSet(animatorSet);
+        frameLayout.addAnimatorSet(animatorSet2);
     }
 
     public View getHighlightedView() {
-        return mHighlightedView;
+        return highlightedView;
     }
 }

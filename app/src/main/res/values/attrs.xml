@@ -60,14 +60,6 @@
         </attr>
     </declare-styleable>
 
-    <declare-styleable name="InkPageIndicator">
-        <attr name="dotDiameter" format="dimension" />
-        <attr name="dotGap" format="dimension" />
-        <attr name="animationDuration" format="integer" />
-        <attr name="pageIndicatorColor" format="color" />
-        <attr name="currentPageIndicatorColor" format="color" />
-    </declare-styleable>
-
     <declare-styleable name="RangeSeekBar">
         <attr name="absoluteMinValue" format="integer|float"/>
         <attr name="absoluteMaxValue" format="integer|float"/>
