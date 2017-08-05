@@ -78,7 +78,9 @@ public class AudioPlayer implements Playable {
 
     @Override
     public void open(MediaFile audioFile) {
-        PlaybackService.openFile(context, audioFile.getFilePath());
+        if (audioFile != null) {
+            PlaybackService.openFile(context, audioFile.getFilePath());
+        }
     }
 
 
