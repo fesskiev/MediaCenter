@@ -76,6 +76,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     private static final int REQUEST_CODE_SUBTITLE = 1337;
 
     public static final String BUNDLE_PLAYER_POSITION = "com.fesskiev.player.BUNDLE_PLAYER_POSITION";
+    public static final String BUNDLE_AUTO_PLAY = "com.fesskiev.player.BUNDLE_AUTO_PLAY";
 
     public static final String ACTION_VIEW_URI = "com.fesskiev.player.action.VIEW_LIST";
     public static final String URI_EXTRA = "com.fesskiev.player.URI_EXTRA";
@@ -121,12 +122,15 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         Log.wtf(TAG, "onCreate(Bundle savedInstanceState): " + (savedInstanceState == null));
         if (savedInstanceState != null) {
             playerPosition = savedInstanceState.getLong(BUNDLE_PLAYER_POSITION);
+            shouldAutoPlay = savedInstanceState.getBoolean(BUNDLE_AUTO_PLAY);
+            Log.wtf(TAG, "auto play: " + shouldAutoPlay);
             isTimelineStatic = true;
+        } else {
+            shouldAutoPlay = true;
         }
 
         gestureDetector = new GestureDetector(getApplicationContext(), new GestureListener());
 
-        shouldAutoPlay = true;
 
         window = new Timeline.Window();
         mediaDataSourceFactory = buildDataSourceFactory(true);
@@ -263,6 +267,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     public void onSaveInstanceState(Bundle out) {
         Log.wtf(TAG, "onSaveInstanceState()");
         out.putLong(BUNDLE_PLAYER_POSITION, playerPosition);
+        out.putBoolean(BUNDLE_AUTO_PLAY, shouldAutoPlay);
         super.onSaveInstanceState(out);
     }
 
@@ -299,6 +304,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         if (Util.SDK_INT <= 23) {
             releasePlayer();
         }
+        shouldAutoPlay = false;
     }
 
     @Override
@@ -475,11 +481,11 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
                 currentVideoName = intent.getStringExtra(VIDEO_NAME_EXTRA);
                 videoControlView.setVideoName(currentVideoName);
             } else if (Intent.ACTION_VIEW.equals(action)) {
-                videoControlView.setVideoName("");
                 String type = intent.getType();
                 if (type != null) {
                     if (type.startsWith("video/")) {
                         uri = intent.getData();
+                        videoControlView.setVideoName(uri.getLastPathSegment());
                     }
                 }
                 videoControlView.disableNextVideoButton();
