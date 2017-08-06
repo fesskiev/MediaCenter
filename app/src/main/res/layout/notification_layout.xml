@@ -62,32 +62,30 @@
 
             <ImageView
                 android:id="@+id/notificationPrevious"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
                 android:contentDescription="@string/app_name"
-                android:scaleType="centerCrop"
                 android:src="@drawable/icon_previous_media_control" />
 
             <ImageView
                 android:id="@+id/notificationPlayPause"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:layout_centerInParent="true"
                 android:layout_centerVertical="true"
                 android:contentDescription="@string/app_name"
-                android:scaleType="centerCrop"
+
                 android:src="@drawable/icon_play_media_control" />
 
             <ImageView
                 android:id="@+id/notificationNext"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:contentDescription="@string/app_name"
-                android:scaleType="centerCrop"
                 android:src="@drawable/icon_next_media_control" />
 
         </RelativeLayout>
