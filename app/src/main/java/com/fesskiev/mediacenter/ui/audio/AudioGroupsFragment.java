@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,11 +29,10 @@ import com.thoughtbot.expandablecheckrecyclerview.models.CheckedExpandableGroup;
 import com.thoughtbot.expandablecheckrecyclerview.viewholders.CheckableChildViewHolder;
 import com.thoughtbot.expandablerecyclerview.listeners.GroupExpandCollapseListener;
 import com.thoughtbot.expandablerecyclerview.models.ExpandableGroup;
+import com.thoughtbot.expandablerecyclerview.viewholders.GroupViewHolder;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import rx.Observable;
 import rx.Subscription;
@@ -226,7 +224,7 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
     }
 
 
-    public static class GroupsAdapter extends CheckableChildRecyclerViewAdapter<GroupsAdapter.GroupViewHolder, GroupsAdapter.GroupItemViewHolder> {
+    public class GroupsAdapter extends CheckableChildRecyclerViewAdapter<GroupsAdapter.CustomGroupViewHolder, GroupsAdapter.GroupItemViewHolder> {
 
 
         public class GroupItemViewHolder extends CheckableChildViewHolder {
@@ -249,23 +247,32 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
 
         }
 
-        public class GroupViewHolder extends com.thoughtbot.expandablerecyclerview.viewholders.GroupViewHolder {
+        public class CustomGroupViewHolder extends GroupViewHolder {
 
             private TextView genreName;
             private ImageView arrow;
             private ImageView icon;
 
-            public GroupViewHolder(View itemView) {
+            public CustomGroupViewHolder(View itemView) {
                 super(itemView);
                 genreName = (TextView) itemView.findViewById(R.id.itemGroupName);
                 arrow = (ImageView) itemView.findViewById(R.id.itemArrow);
                 icon = (ImageView) itemView.findViewById(R.id.itemGroupIcon);
-                animateExpand();
             }
 
-            public void setGroupTitle(ExpandableGroup group) {
+            public void setGroup(ExpandableGroup group) {
+                Group g = ((Group) group);
                 genreName.setText(group.getTitle());
-                icon.setBackgroundResource(((Group) group).getIconResId());
+                icon.setBackgroundResource(g.getIconResId());
+
+                for (int i = 0; i < expandedGroupIds.size(); i++) {
+                    int id = expandedGroupIds.get(i);
+                    if (id == g.getId()) {
+                        animateExpand();
+                        return;
+                    }
+                }
+                animateCollapse();
             }
 
             @Override
@@ -293,17 +300,17 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
         }
 
         @Override
-        public GroupViewHolder onCreateGroupViewHolder(ViewGroup parent, int viewType) {
+        public CustomGroupViewHolder onCreateGroupViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.list_group, parent, false);
-            return new GroupViewHolder(view);
+            return new CustomGroupViewHolder(view);
         }
 
 
         @Override
-        public void onBindGroupViewHolder(GroupViewHolder holder, int flatPosition,
+        public void onBindGroupViewHolder(CustomGroupViewHolder holder, int flatPosition,
                                           ExpandableGroup group) {
-            holder.setGroupTitle(group);
+            holder.setGroup(group);
         }
 
         @Override
