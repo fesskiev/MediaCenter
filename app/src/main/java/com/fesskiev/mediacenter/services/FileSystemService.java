@@ -135,23 +135,26 @@ public class FileSystemService extends JobService {
         builder.setRequiresDeviceIdle(false);
         builder.setRequiresCharging(false);
 
-        int jobValue = js.schedule(builder.build());
-        if (jobValue == JobScheduler.RESULT_FAILURE) {
-            Log.w(TAG, "JobScheduler launch the task failure");
-        } else {
-            Log.w(TAG, "JobScheduler launch the task success: " + jobValue);
+        if (js != null) {
+            int jobValue = js.schedule(builder.build());
+            if (jobValue == JobScheduler.RESULT_FAILURE) {
+                Log.w(TAG, "JobScheduler launch the task failure");
+            } else {
+                Log.w(TAG, "JobScheduler launch the task success: " + jobValue);
+            }
+            Log.i(TAG, "JOB SCHEDULED!");
         }
-
-        Log.i(TAG, "JOB SCHEDULED!");
     }
 
     public static boolean isScheduled(Context context) {
         JobScheduler js = (JobScheduler)
                 context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        List<JobInfo> jobs = js.getAllPendingJobs();
-        for (int i = 0; i < jobs.size(); i++) {
-            if (jobs.get(i).getId() == MEDIA_CONTENT_JOB) {
-                return true;
+        if (js != null) {
+            List<JobInfo> jobs = js.getAllPendingJobs();
+            for (int i = 0; i < jobs.size(); i++) {
+                if (jobs.get(i).getId() == MEDIA_CONTENT_JOB) {
+                    return true;
+                }
             }
         }
         return false;
@@ -160,9 +163,10 @@ public class FileSystemService extends JobService {
     public static void cancelJob(Context context) {
         JobScheduler js = (JobScheduler)
                 context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        js.cancel(MEDIA_CONTENT_JOB);
-
-        Log.i(TAG, "JOB SCHEDULED? " + isScheduled(context));
+        if (js != null) {
+            js.cancel(MEDIA_CONTENT_JOB);
+            Log.i(TAG, "JOB SCHEDULED? " + isScheduled(context));
+        }
     }
 
     @Override
@@ -308,7 +312,6 @@ public class FileSystemService extends JobService {
 
         try {
 
-
             int size = listOfFiles.size();
             float count = 0;
 
@@ -321,7 +324,7 @@ public class FileSystemService extends JobService {
                 } else {
                     checkFile(n, scanType);
                 }
-                EventBus.getDefault().post(+ (count / (float) size) * 100);
+                EventBus.getDefault().post(+(count / (float) size) * 100);
                 count++;
             }
         } catch (IOException e) {

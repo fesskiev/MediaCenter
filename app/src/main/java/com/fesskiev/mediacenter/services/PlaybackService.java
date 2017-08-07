@@ -30,9 +30,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
-
 public class PlaybackService extends Service {
 
     private static final String TAG = PlaybackService.class.getSimpleName();
