@@ -25,6 +25,7 @@ import com.fesskiev.mediacenter.ui.audio.tracklist.PlayerTrackListActivity;
 import com.fesskiev.mediacenter.ui.cue.CueActivity;
 import com.fesskiev.mediacenter.ui.cut.CutMediaActivity;
 import com.fesskiev.mediacenter.ui.effects.EffectsActivity;
+import com.fesskiev.mediacenter.utils.AppGuide;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
@@ -45,6 +46,8 @@ import java.util.List;
 public class AudioPlayerActivity extends AnalyticsActivity {
 
     private AudioPlayer audioPlayer;
+
+    private AppGuide appGuide;
 
     private AudioControlView controlView;
     private DescriptionCardView cardDescription;
@@ -194,6 +197,52 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         PlaybackService.requestPlaybackStateIfNeed(getApplicationContext());
 
         checkFirstOrLastTrack();
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        controlView.postDelayed(this::makeGuideIfNeed, 1000);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (appGuide != null) {
+            appGuide.clear();
+        }
+    }
+
+    private void makeGuideIfNeed() {
+        appGuide = new AppGuide(this, 5);
+        appGuide.OnAppGuideListener(new AppGuide.OnAppGuideListener() {
+            @Override
+            public void next(int count) {
+                switch (count) {
+                    case 1:
+                        appGuide.makeGuide(prevTrack, "prev button!", "");
+                        break;
+                    case 2:
+                        appGuide.makeGuide(nextTrack, "next button!", "");
+                        break;
+                    case 3:
+                        appGuide.makeGuide(repeatButton,
+                                "looping long click enable range value", "");
+                        break;
+                    case 4:
+                        appGuide.makeGuide(controlView.getPlayPauseButton(),
+                                "play pause button", "");
+                        break;
+                }
+            }
+
+            @Override
+            public void watched() {
+
+            }
+        });
+        appGuide.makeGuide(findViewById(R.id.trackList), "open tracklist!", "");
     }
 
     @Override

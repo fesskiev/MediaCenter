@@ -17,7 +17,7 @@ public class AppGuide {
     public interface OnAppGuideListener {
         void next(int count);
 
-        void allViewWatched();
+        void watched();
     }
 
     private Activity activity;
@@ -60,6 +60,7 @@ public class AppGuide {
         }
     }
 
+
     private boolean isWatchedView(View view) {
         for (View watched : watchedViews) {
             if (watched.getTag().equals(view.getTag())) {
@@ -73,7 +74,7 @@ public class AppGuide {
         if (tourGuide != null) {
             tourGuide.cleanUp();
 
-            watchedViews.add(tourGuide.getHighlightedView());
+            watchedViews.add(tourGuide.getTargetView());
             if (viewSize == watchedViews.size()) {
                 allViewWatchedChanged();
                 return;
@@ -85,7 +86,7 @@ public class AppGuide {
 
     private void allViewWatchedChanged() {
         if (listener != null) {
-            listener.allViewWatched();
+            listener.watched();
         }
     }
 

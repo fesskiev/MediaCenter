@@ -173,4 +173,12 @@ public class SlidingCardView extends FrameLayout {
     public boolean isOpen() {
         return isOpen;
     }
+
+    public void open() {
+        animateSlidingContainer(true);
+    }
+
+    public void close () {
+        animateSlidingContainer(false);
+    }
 }

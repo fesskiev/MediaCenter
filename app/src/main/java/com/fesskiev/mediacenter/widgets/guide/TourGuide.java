@@ -32,7 +32,7 @@ public class TourGuide {
         ALLOW_ALL, CLICK_ONLY, SWIPE_ONLY
     }
 
-    private View highlightedView;
+    private View targetView;
     private Activity activity;
     private MotionType motionType;
     private FrameLayoutWithHole frameLayout;
@@ -70,7 +70,7 @@ public class TourGuide {
      * @return return TourGuide instance for chaining purpose
      */
     public TourGuide playOn(View targetView) {
-        highlightedView = targetView;
+        this.targetView = targetView;
         setupView();
         return this;
     }
@@ -134,27 +134,27 @@ public class TourGuide {
 
     private int getXBasedOnGravity(int width) {
         int[] pos = new int[2];
-        highlightedView.getLocationOnScreen(pos);
+        targetView.getLocationOnScreen(pos);
         int x = pos[0];
         if ((pointer.gravity & Gravity.RIGHT) == Gravity.RIGHT) {
-            return x + highlightedView.getWidth() - width;
+            return x + targetView.getWidth() - width;
         } else if ((pointer.gravity & Gravity.LEFT) == Gravity.LEFT) {
             return x;
         } else { // this is center
-            return x + highlightedView.getWidth() / 2;
+            return x + targetView.getWidth() / 2;
         }
     }
 
     private int getYBasedOnGravity(int height) {
         int[] pos = new int[2];
-        highlightedView.getLocationInWindow(pos);
+        targetView.getLocationInWindow(pos);
         int y = pos[1];
         if ((pointer.gravity & Gravity.BOTTOM) == Gravity.BOTTOM) {
-            return y + highlightedView.getHeight() - height;
+            return y + targetView.getHeight() - height;
         } else if ((pointer.gravity & Gravity.TOP) == Gravity.TOP) {
             return y;
         } else { // this is center
-            return y + highlightedView.getHeight() / 2;
+            return y + targetView.getHeight() / 2;
         }
     }
 
@@ -163,14 +163,14 @@ public class TourGuide {
         // so when this is the 1st time TourGuide is being added,
         // else block will be executed, and ViewTreeObserver will make TourGuide setup process to be delayed until everything is ready
         // when this is run the 2nd or more times, if block will be executed
-        if (ViewCompat.isAttachedToWindow(highlightedView)) {
+        if (ViewCompat.isAttachedToWindow(targetView)) {
             startView();
         } else {
-            final ViewTreeObserver viewTreeObserver = highlightedView.getViewTreeObserver();
+            final ViewTreeObserver viewTreeObserver = targetView.getViewTreeObserver();
             viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
                 public void onGlobalLayout() {
-                    highlightedView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    targetView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                     startView();
                 }
             });
@@ -179,7 +179,7 @@ public class TourGuide {
 
     private void startView() {
         /* Initialize a frame layout with a hole */
-        frameLayout = new FrameLayoutWithHole(activity, highlightedView, motionType, overlay);
+        frameLayout = new FrameLayoutWithHole(activity, targetView, motionType, overlay);
         /* handle click disable */
         handleDisableClicking(frameLayout);
 
@@ -201,7 +201,7 @@ public class TourGuide {
         }
         // 2. if overlay listener is not provided, check if it's disabled
         else if (overlay != null && overlay.disableClick) {
-            frameLayoutWithHole.setViewHole(highlightedView);
+            frameLayoutWithHole.setViewHole(targetView);
             frameLayoutWithHole.setSoundEffectsEnabled(false);
             frameLayoutWithHole.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -247,7 +247,7 @@ public class TourGuide {
 
             /* position and size calculation */
             int[] pos = new int[2];
-            highlightedView.getLocationOnScreen(pos);
+            targetView.getLocationOnScreen(pos);
             int targetViewX = pos[0];
             final int targetViewY = pos[1];
 
@@ -321,9 +321,9 @@ public class TourGuide {
         if ((gravity & Gravity.LEFT) == Gravity.LEFT) {
             x = targetViewX - toolTipMeasuredWidth + (int) adjustment;
         } else if ((gravity & Gravity.RIGHT) == Gravity.RIGHT) {
-            x = targetViewX + highlightedView.getWidth() - (int) adjustment;
+            x = targetViewX + targetView.getWidth() - (int) adjustment;
         } else {
-            x = targetViewX + highlightedView.getWidth() / 2 - toolTipMeasuredWidth / 2;
+            x = targetViewX + targetView.getWidth() / 2 - toolTipMeasuredWidth / 2;
         }
         return x;
     }
@@ -339,9 +339,9 @@ public class TourGuide {
             }
         } else { // this is center
             if (((gravity & Gravity.LEFT) == Gravity.LEFT) || ((gravity & Gravity.RIGHT) == Gravity.RIGHT)) {
-                y = targetViewY + highlightedView.getHeight() - (int) adjustment;
+                y = targetViewY + targetView.getHeight() - (int) adjustment;
             } else {
-                y = targetViewY + highlightedView.getHeight() + (int) adjustment;
+                y = targetViewY + targetView.getHeight() + (int) adjustment;
             }
         }
         return y;
@@ -480,7 +480,7 @@ public class TourGuide {
         frameLayout.addAnimatorSet(animatorSet2);
     }
 
-    public View getHighlightedView() {
-        return highlightedView;
+    public View getTargetView() {
+        return targetView;
     }
 }

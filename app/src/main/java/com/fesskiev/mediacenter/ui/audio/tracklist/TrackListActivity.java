@@ -26,6 +26,7 @@ import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.mediacenter.ui.audio.CONTENT_TYPE;
 import com.fesskiev.mediacenter.utils.AppAnimationUtils;
+import com.fesskiev.mediacenter.utils.AppGuide;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
@@ -43,6 +44,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
 import rx.Subscription;
@@ -56,6 +58,7 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
     public static final String EXTRA_AUDIO_FOLDER = "com.fesskiev.player.EXTRA_AUDIO_FOLDER";
 
     private FloatingActionMenu actionMenu;
+    private AppGuide appGuide;
 
     private Subscription subscription;
     private DataRepository repository;
@@ -157,6 +160,9 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
     protected void onPause() {
         super.onPause();
         RxUtils.unsubscribe(subscription);
+        if (appGuide != null) {
+            appGuide.clear();
+        }
     }
 
     @Override
@@ -210,10 +216,52 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                         return !audioFile.isHidden;
                     })
                     .toList()
-                    .map(unsortedList -> audioPlayer.sortAudioFiles(settingsManager.getSortType(), unsortedList))
+                    .map(unsortedList -> audioPlayer.sortAudioFiles(settingsManager.getSortType(),
+                            unsortedList))
                     .doOnNext(sortedList -> audioPlayer.setSortingTrackList(sortedList))
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(audioFiles -> adapter.refreshAdapter(audioFiles));
+                    .doOnNext(audioFiles -> adapter.refreshAdapter(audioFiles))
+                    .delay(1000, TimeUnit.MILLISECONDS)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(audioFiles -> makeGuideIfNeed());
+        }
+    }
+
+    private void makeGuideIfNeed() {
+        TrackListAdapter.ViewHolder viewHolder
+                = (TrackListAdapter.ViewHolder) recyclerView.findViewHolderForAdapterPosition(0);
+        if (viewHolder != null) {
+            SlidingCardView slidingCardView = (SlidingCardView) viewHolder.itemView;
+            slidingCardView.open();
+
+            final View addToPlaylist = slidingCardView.findViewById(R.id.addPlaylistButton);
+            final View editButton = slidingCardView.findViewById(R.id.editButton);
+            final View deleteButton = slidingCardView.findViewById(R.id.deleteButton);
+
+            appGuide = new AppGuide(this, 4);
+            appGuide.OnAppGuideListener(new AppGuide.OnAppGuideListener() {
+                @Override
+                public void next(int count) {
+                    switch (count) {
+                        case 1:
+                            appGuide.makeGuide(deleteButton, "delete button!", "");
+                            break;
+                        case 2:
+                            appGuide.makeGuide(editButton, "edit button!", "");
+                            break;
+                        case 3:
+                            appGuide.makeGuide(actionMenu.getMenuIconView(),
+                                    "sorting menu!!", "");
+                            break;
+                    }
+                }
+
+                @Override
+                public void watched() {
+                    closeOpenCards();
+                }
+            });
+            appGuide.makeGuide(addToPlaylist, "add to playlist!", "");
         }
     }
 
@@ -248,9 +296,10 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
         if (!openCards.isEmpty()) {
             for (SlidingCardView cardView : openCards) {
                 if (cardView.isOpen()) {
-                    cardView.animateSlidingContainer(false);
+                    cardView.close();
                 }
             }
+            openCards.clear();
         }
     }
 

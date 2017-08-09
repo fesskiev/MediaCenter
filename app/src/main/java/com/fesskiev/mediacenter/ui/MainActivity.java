@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -145,10 +144,21 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             restoreState(savedInstanceState);
         }
 
-
-        new Handler().postDelayed(this::makeGuideIfNeed, 1000);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mediaNavigationView.postDelayed(this::makeGuideIfNeed, 1500);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (appGuide != null){
+            appGuide.clear();
+        }
+    }
 
     private void makeGuideIfNeed() {
         if (settingsManager.isNeedMainActivityGuide()) {
@@ -170,7 +180,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 }
 
                 @Override
-                public void allViewWatched() {
+                public void watched() {
                     settingsManager.setNeedMainActivityGuide(false);
                 }
             });
