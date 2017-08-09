@@ -1,6 +1,7 @@
 package com.fesskiev.mediacenter.testing;
 
 
+import android.Manifest;
 import android.support.test.espresso.ViewInteraction;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -39,15 +40,19 @@ public class NavigateAppTest {
     public ActivityTestRule<SplashActivity> activityTestRule = new ActivityTestRule<>(SplashActivity.class);
 
     @Test
-    public void recordEspressoActivityTest() {
+    public void navigationAppEspressoTest() {
         // Added a sleep statement to match the app's execution delay.
         // The recommended way to handle such scenarios is to use Espresso idling resources:
         // https://google.github.io/android-testing-support-library/docs/espresso/idling-resource/index.html
         try {
-            Thread.sleep(2000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        /**
+         *  START WALKTHROUGH
+         */
 
         ViewInteraction appCompatButton = onView(
                 allOf(withId(R.id.buttonGranted), withText("YES"),
@@ -59,27 +64,10 @@ public class NavigateAppTest {
                         isDisplayed()));
         appCompatButton.perform(click());
 
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        PermissionGranter.allowPermissionsIfNeeded(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        PermissionGranter.allowPermissionsIfNeeded(Manifest.permission.MODIFY_AUDIO_SETTINGS);
+        PermissionGranter.allowPermissionsIfNeeded(Manifest.permission.RECORD_AUDIO);
 
-        ViewInteraction disableSwipingViewPager = onView(
-                allOf(withId(R.id.viewpager),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.walkRoot),
-                                        0),
-                                0),
-                        isDisplayed()));
-        disableSwipingViewPager.perform(swipeLeft());
-
-        try {
-            Thread.sleep(60000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
         ViewInteraction appCompatButton2 = onView(
                 allOf(withId(R.id.fetchMediaButton), withText("YES"),
@@ -92,20 +80,12 @@ public class NavigateAppTest {
         appCompatButton2.perform(click());
 
         try {
-            Thread.sleep(5000);
+            Thread.sleep(60000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        ViewInteraction disableSwipingViewPager2 = onView(
-                allOf(withId(R.id.viewpager),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.walkRoot),
-                                        0),
-                                0),
-                        isDisplayed()));
-        disableSwipingViewPager2.perform(swipeLeft());
+        onView(withId(R.id.viewpager)).perform(swipeLeft());
 
         ViewInteraction appCompatButton3 = onView(
                 allOf(withId(R.id.enterAppButton), withText("Enter"),
@@ -119,8 +99,12 @@ public class NavigateAppTest {
         appCompatButton3.perform(click());
 
 
+        /**
+         *  FINISH WALKTHROUGH
+         */
+
         try {
-            Thread.sleep(5000);
+            Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -165,7 +149,7 @@ public class NavigateAppTest {
         appCompatImageView.perform(click());
 
         try {
-            Thread.sleep(5000);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -173,7 +157,7 @@ public class NavigateAppTest {
         pressBack();
 
         try {
-            Thread.sleep(5000);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -191,7 +175,7 @@ public class NavigateAppTest {
         pressBack();
 
         try {
-            Thread.sleep(5000);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -210,7 +194,7 @@ public class NavigateAppTest {
         pressBack();
 
         try {
-            Thread.sleep(5000);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
