@@ -15,7 +15,7 @@
         android:padding="@dimen/inner_frame_layout_padding"
         app:layout_box="all">
 
-        <android.support.wear.widget.WearableRecyclerView
+        <android.support.wearable.view.WearableRecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
