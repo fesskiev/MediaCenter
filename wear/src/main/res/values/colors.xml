@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="primary">#00838f</color>
+    <color name="primary_dark">#005662</color>
+    <color name="primary_light">#4fb3bf</color>
+    <color name="accent">#428e92</color>
+
+    <color name="primary_light_50">#804fb3bf</color>
+
+    <color name="primary_text">#212121</color>
+    <color name="secondary_text">#757575</color>
+
+    <color name="player_primary">#607d8b</color>
+    <color name="player_secondary">#a7c0cd</color>
+
+    <color name="divider">#B6B6B6</color>
+    <color name="dialog_background">#7F97A2</color>
+    <color name="white_text">#FFFFFF</color>
+    <color name="white">#FFFFFF</color>
+    <color name="track_background">#ecf5f9</color>
+    <color name="switch_thumb_color_on">#3d4041</color>
+    <color name="switch_thumb_color_off">#B6B6B6</color>
+
+    <color name="color_background">#E5EEF3</color>
+
+    <color name="search_background">#99B6B6B6</color>
+    <color name="colorSnackBarError">#D94E20</color>
+    <color name="context_menu_background">#99766767</color>
+    <color name="colorFabBackground">#cc3e4854</color>
+
+    <color name="red">#f74343</color>
+    <color name="yellow">#EFC84A</color>
+
+    <color name="grid_state_pressed">#1Affffff</color>
+    <color name="grid_state_focused">#80000000</color>
+
+    <color name="video_player_background">#101010</color>
+
+</resources>
