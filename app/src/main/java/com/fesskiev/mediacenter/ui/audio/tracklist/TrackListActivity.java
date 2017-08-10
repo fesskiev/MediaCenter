@@ -228,40 +228,43 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
     }
 
     private void makeGuideIfNeed() {
-        TrackListAdapter.ViewHolder viewHolder
-                = (TrackListAdapter.ViewHolder) recyclerView.findViewHolderForAdapterPosition(0);
-        if (viewHolder != null) {
-            SlidingCardView slidingCardView = (SlidingCardView) viewHolder.itemView;
-            slidingCardView.open();
+        if(settingsManager.isNeedTrackListActivityGuide()) {
+            TrackListAdapter.ViewHolder viewHolder
+                    = (TrackListAdapter.ViewHolder) recyclerView.findViewHolderForAdapterPosition(0);
+            if (viewHolder != null) {
+                SlidingCardView slidingCardView = (SlidingCardView) viewHolder.itemView;
+                slidingCardView.open();
 
-            final View addToPlaylist = slidingCardView.findViewById(R.id.addPlaylistButton);
-            final View editButton = slidingCardView.findViewById(R.id.editButton);
-            final View deleteButton = slidingCardView.findViewById(R.id.deleteButton);
+                final View addToPlaylist = slidingCardView.findViewById(R.id.addPlaylistButton);
+                final View editButton = slidingCardView.findViewById(R.id.editButton);
+                final View deleteButton = slidingCardView.findViewById(R.id.deleteButton);
 
-            appGuide = new AppGuide(this, 4);
-            appGuide.OnAppGuideListener(new AppGuide.OnAppGuideListener() {
-                @Override
-                public void next(int count) {
-                    switch (count) {
-                        case 1:
-                            appGuide.makeGuide(deleteButton, "delete button!", "");
-                            break;
-                        case 2:
-                            appGuide.makeGuide(editButton, "edit button!", "");
-                            break;
-                        case 3:
-                            appGuide.makeGuide(actionMenu.getMenuIconView(),
-                                    "sorting menu!!", "");
-                            break;
+                appGuide = new AppGuide(this, 4);
+                appGuide.OnAppGuideListener(new AppGuide.OnAppGuideListener() {
+                    @Override
+                    public void next(int count) {
+                        switch (count) {
+                            case 1:
+                                appGuide.makeGuide(deleteButton, "delete button!", "");
+                                break;
+                            case 2:
+                                appGuide.makeGuide(editButton, "edit button!", "");
+                                break;
+                            case 3:
+                                appGuide.makeGuide(actionMenu.getMenuIconView(),
+                                        "sorting menu!!", "");
+                                break;
+                        }
                     }
-                }
 
-                @Override
-                public void watched() {
-                    closeOpenCards();
-                }
-            });
-            appGuide.makeGuide(addToPlaylist, "add to playlist!", "");
+                    @Override
+                    public void watched() {
+                        settingsManager.setNeedTrackListActivityGuide(false);
+                        closeOpenCards();
+                    }
+                });
+                appGuide.makeGuide(addToPlaylist, "add to playlist!", "");
+            }
         }
     }
 

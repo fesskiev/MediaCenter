@@ -54,6 +54,8 @@ public class AppSettingsManager {
     private static final String KEY_CUT_PATH = "com.fesskiev.player.KEY_CUT_PATH";
 
     private static final String KEY_GUIDE_MAIN_ACTIVITY = "com.fesskiev.player.KEY_GUIDE_MAIN_ACTIVITY";
+    private static final String KEY_GUIDE_TRACKLIST_ACTIVITY = "com.fesskiev.player.KEY_GUIDE_TRACKLIST_ACTIVITY";
+    private static final String KEY_GUIDE_AUDIO_PLAYER_ACTIVITY = "com.fesskiev.player.KEY_GUIDE_AUDIO_PLAYER_ACTIVITY";
 
     private SharedPreferences sharedPreferences;
     private static AppSettingsManager INSTANCE;
@@ -310,6 +312,8 @@ public class AppSettingsManager {
         editor.apply();
     }
 
+
+
     public boolean isNeedMainActivityGuide() {
         return sharedPreferences.getBoolean(KEY_GUIDE_MAIN_ACTIVITY, true);
     }
@@ -317,6 +321,40 @@ public class AppSettingsManager {
     public void setNeedMainActivityGuide(boolean need) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(KEY_GUIDE_MAIN_ACTIVITY, need);
+        editor.apply();
+    }
+
+    public boolean isNeedTrackListActivityGuide() {
+        return sharedPreferences.getBoolean(KEY_GUIDE_TRACKLIST_ACTIVITY, true);
+    }
+
+    public void setNeedTrackListActivityGuide(boolean need) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_GUIDE_TRACKLIST_ACTIVITY, need);
+        editor.apply();
+    }
+
+    public boolean isNeedAudioPlayerActivityGuide() {
+        return sharedPreferences.getBoolean(KEY_GUIDE_AUDIO_PLAYER_ACTIVITY, true);
+    }
+
+    public void setNeedAudioPlayerActivityGuide(boolean need) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_GUIDE_AUDIO_PLAYER_ACTIVITY, need);
+        editor.apply();
+    }
+
+    public boolean isNeedGuide() {
+        return sharedPreferences.getBoolean(KEY_GUIDE_MAIN_ACTIVITY, true) ||
+                sharedPreferences.getBoolean(KEY_GUIDE_AUDIO_PLAYER_ACTIVITY, true) ||
+                sharedPreferences.getBoolean(KEY_GUIDE_TRACKLIST_ACTIVITY, true);
+    }
+
+    public void setNeedGuide(boolean need) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_GUIDE_MAIN_ACTIVITY, need);
+        editor.putBoolean(KEY_GUIDE_AUDIO_PLAYER_ACTIVITY, need);
+        editor.putBoolean(KEY_GUIDE_TRACKLIST_ACTIVITY, need);
         editor.apply();
     }
 }

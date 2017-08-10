@@ -133,7 +133,7 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
                     switchCompat.setChecked(appSettingsManager.isFullScreenMode());
                     break;
                 case R.id.enableAppGuideSwitch:
-                    switchCompat.setChecked(appSettingsManager.isNeedMainActivityGuide());
+                    switchCompat.setChecked(appSettingsManager.isNeedGuide());
                     break;
             }
         }
@@ -159,7 +159,7 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
                 refreshRepository();
                 break;
             case R.id.enableAppGuideSwitch:
-                appSettingsManager.setNeedMainActivityGuide(isChecked);
+                appSettingsManager.setNeedGuide(isChecked);
                 break;
         }
     }

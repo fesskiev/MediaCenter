@@ -46,6 +46,7 @@ import java.util.List;
 public class AudioPlayerActivity extends AnalyticsActivity {
 
     private AudioPlayer audioPlayer;
+    private AppSettingsManager settingsManager;
 
     private AppGuide appGuide;
 
@@ -83,14 +84,15 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_audio_player);
 
+        settingsManager = AppSettingsManager.getInstance();
+        audioPlayer = MediaApplication.getInstance().getAudioPlayer();
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
             setSupportActionBar(toolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
-
-        audioPlayer = MediaApplication.getInstance().getAudioPlayer();
 
         backdrop = (ImageView) findViewById(R.id.backdrop);
         muteSoloButton = (MuteSoloButton) findViewById(R.id.muteSoloButton);
@@ -215,40 +217,42 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     }
 
     private void makeGuideIfNeed() {
-        appGuide = new AppGuide(this, 5);
-        appGuide.OnAppGuideListener(new AppGuide.OnAppGuideListener() {
-            @Override
-            public void next(int count) {
-                switch (count) {
-                    case 1:
-                        appGuide.makeGuide(prevTrack, "prev button!", "");
-                        break;
-                    case 2:
-                        appGuide.makeGuide(nextTrack, "next button!", "");
-                        break;
-                    case 3:
-                        appGuide.makeGuide(repeatButton,
-                                "looping long click enable range value", "");
-                        break;
-                    case 4:
-                        appGuide.makeGuide(controlView.getPlayPauseButton(),
-                                "play pause button", "");
-                        break;
+        if (settingsManager.isNeedAudioPlayerActivityGuide()) {
+            appGuide = new AppGuide(this, 5);
+            appGuide.OnAppGuideListener(new AppGuide.OnAppGuideListener() {
+                @Override
+                public void next(int count) {
+                    switch (count) {
+                        case 1:
+                            appGuide.makeGuide(prevTrack, "prev button!", "");
+                            break;
+                        case 2:
+                            appGuide.makeGuide(nextTrack, "next button!", "");
+                            break;
+                        case 3:
+                            appGuide.makeGuide(repeatButton,
+                                    "looping long click enable range value", "");
+                            break;
+                        case 4:
+                            appGuide.makeGuide(controlView.getPlayPauseButton(),
+                                    "play pause button", "");
+                            break;
+                    }
                 }
-            }
 
-            @Override
-            public void watched() {
-
-            }
-        });
-        appGuide.makeGuide(findViewById(R.id.trackList), "open tracklist!", "");
+                @Override
+                public void watched() {
+                    settingsManager.setNeedAudioPlayerActivityGuide(false);
+                }
+            });
+            appGuide.makeGuide(findViewById(R.id.trackList), "open tracklist!", "");
+        }
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (hasFocus && AppSettingsManager.getInstance().isFullScreenMode()) {
+        if (hasFocus && settingsManager.isFullScreenMode()) {
             getWindow().getDecorView().setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                             | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -270,7 +274,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        boolean isProUser = AppSettingsManager.getInstance().isUserPro();
+        boolean isProUser = settingsManager.isUserPro();
         if (isProUser) {
             MenuInflater inflater = getMenuInflater();
             inflater.inflate(R.menu.menu_player, menu);
