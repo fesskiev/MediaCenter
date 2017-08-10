@@ -80,6 +80,8 @@ public class VideoControlView extends FrameLayout {
     private TextView resizeModeState;
     private TextView videoName;
     private ImageView videoLockScreen;
+    private ImageView addSubButton;
+    private ImageView settingsButton;
 
     private ImageView nextVideo;
     private ImageView previousVideo;
@@ -173,12 +175,11 @@ public class VideoControlView extends FrameLayout {
         subTrackView = (TextView) view.findViewById(R.id.subTrackButton);
         subTrackView.setOnClickListener(v -> setSubTrack((int) v.getTag()));
 
-
         resizeModeState = (TextView) view.findViewById(R.id.resizeModeState);
         resizeModeState.setOnClickListener(v -> changeResizeMode());
 
-
-        view.findViewById(R.id.addSubButton).setOnClickListener(v -> {
+        addSubButton = (ImageView) view.findViewById(R.id.addSubButton);
+        addSubButton.setOnClickListener(v -> {
             if (listener != null) {
                 listener.addSubButtonClick();
             }
@@ -194,7 +195,7 @@ public class VideoControlView extends FrameLayout {
             cutVideoButton.setVisibility(GONE);
         }
 
-        ImageView settingsButton = (ImageView) view.findViewById(R.id.settingsButton);
+        settingsButton = (ImageView) view.findViewById(R.id.settingsButton);
         settingsButton.setOnClickListener(v -> togglePanel(settingsButton));
 
         nextVideo = (ImageView) findViewById(R.id.nextVideo);
@@ -875,4 +876,31 @@ public class VideoControlView extends FrameLayout {
         nextVideo.setClickable(false);
     }
 
+    public TextView getResizeModeState() {
+        return resizeModeState;
+    }
+
+    public ImageView getVideoLockScreen() {
+        return videoLockScreen;
+    }
+
+    public ImageView getAddSubButton() {
+        return addSubButton;
+    }
+
+    public ImageView getSettingsButton() {
+        return settingsButton;
+    }
+
+    public ImageView getNextVideo() {
+        return nextVideo;
+    }
+
+    public ImageView getPreviousVideo() {
+        return previousVideo;
+    }
+
+    public PlayPauseButton getPlayPauseButton() {
+        return playPauseButton;
+    }
 }

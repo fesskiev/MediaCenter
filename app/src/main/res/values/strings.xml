@@ -296,6 +296,56 @@
     <string name="looping_title_text">Choose looping range</string>
     <string name="looping_button_text">Start</string>
 
+    <string name="app_guide_welcome_title">Добро пожаловать в SoloPlayer!</string>
+    <string name="app_guide_welcome_desc">Вам будут показаны небольшие подсказки по приложению (можно отключить в настройках)</string>
+
+    <string name="app_guide_search_title">Поиск аудиофайлов</string>
+    <string name="app_guide_search_desc">Быстрый поск по файлам на диске</string>
+
+    <string name="app_guide_effects_title">Аудио эффекты</string>
+    <string name="app_guide_effects_desc">Доступны в этом меню и детально по нажатию на отдельной вкладке</string>
+
+    <string name="app_guide_add_playlist_title">Добавить в плейлист</string>
+    <string name="app_guide_add_playlist_desc">Возможность добавить трек в плейлист на отдельную вкладку</string>
+
+    <string name="app_guide_sorting_title">Сортировка</string>
+    <string name="app_guide_sorting_desc">Удобная сортировка с большим выбором условий</string>
+
+    <string name="app_guide_edit_title">Редиктирование</string>
+    <string name="app_guide_edit_desc">Возможность изменить имя артиста, альбом, жанр и т.д.</string>
+
+    <string name="app_guide_delete_title">Удаление</string>
+    <string name="app_guide_delete_desc">Возможность удалить файл</string>
+
+    <string name="app_guide_track_list_title">Треклист</string>
+    <string name="app_guide_track_list_desc">Быстрый доступ к треклисту</string>
+
+    <string name="app_guide_audio_prev_title">Предыдущий трек</string>
+    <string name="app_guide_audio_prev_desc">Будет выбран предыдущий трек по списку</string>
+
+    <string name="app_guide_audio_next_title">Следующий трек</string>
+    <string name="app_guide_audio_next_desc">Будет выбран следующий трек по списку</string>
+
+    <string name="app_guide_looping_title">Зацикливание</string>
+    <string name="app_guide_looping_desc">При коротком нажатии будет выбран режим автоматического повтора трека.При длинном нажатии откроется диалог с выбором промежутка для зацикливания</string>
+
+    <string name="app_guide_subtitle_title">Субтитры</string>
+    <string name="app_guide_subtitle_desc">Возможность загрузить субтитры из файловой системы</string>
+
+    <string name="app_guide_settings_title">Настройки</string>
+    <string name="app_guide_settings_desc">Выбор аудиодорожки, видеодорожки и вшитых субтиторв</string>
+
+    <string name="app_guide_lock_title">Блокировка</string>
+    <string name="app_guide_lock_desc">Экран будет заблокирован от любых случайных нажатий</string>
+
+    <string name="app_guide_video_prev_title">Предыдущий видеофайл</string>
+    <string name="app_guide_video_prev_desc">Будет выбран предыдущий видеофайл по списку</string>
+
+    <string name="app_guide_video_next_title">Следующий видеофайл</string>
+    <string name="app_guide_video_next_desc">Будет выбран следующий видеофайл по списку</string>
+
+
+
     <string name="last_fm_api_key">adc1430e56411c85fadf04c03b54068f</string>
 
     <string name="billing_api_key">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAr9C+V0KqpnB7BUz8Tk7VehGHaRt9WiyT84pl8iXuLUrZdyHY+Tv2GTKNPq9SyqKH9I3jIZQFZ3beLbf0mGf8pTzpKFVwNxFGr/RKe2dHM5u4/4+hs8ptBem/Vcbq3eCZH8Y6BvbJpA81Jc83t6dOLe10GKA3fgNdMJO+rDVkWM4rW8SyDJD+dIt2KkmpbPeQUQx0iyP+nsLUiUrRksLJmdfbv0RVNJ7TBycCLJj/TeKYZjc+fjvJl0yqcrvTWISU46SZ5OMDiDa2rLvKAVPcM5ntcpgikZxw1YytCpdwP/3Thkmpa10ReA4S2Tzxfu7VRHBW78mQUgPTtQ+/WYpSGQIDAQAB</string>

@@ -199,21 +199,24 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private void makeAudioEffectsGuide() {
         if (appGuide != null) {
             appGuide.makeGuide(mediaNavigationView.getSettingsView(),
-                    "Effects Settings!", "Please, short guide, click next");
+                    getString(R.string.app_guide_effects_title),
+                    getString(R.string.app_guide_effects_desc));
         }
     }
 
     private void makeSearchGuide() {
         if (appGuide != null) {
             appGuide.makeGuide(toolbar.findViewById(R.id.menu_search),
-                    "Audio Search!", "You can search audio content on your device");
+                    getString(R.string.app_guide_search_title),
+                    getString(R.string.app_guide_search_desc));
         }
     }
 
     private void makeWelcomeGuide() {
         if (appGuide != null) {
             appGuide.makeGuide(appIcon,
-                    "Welcome to SoloPlayer!", "Please, short guide, click next");
+                    getString(R.string.app_guide_welcome_title),
+                    getString(R.string.app_guide_welcome_desc));
         }
     }
 

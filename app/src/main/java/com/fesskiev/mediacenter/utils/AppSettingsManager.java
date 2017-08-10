@@ -54,8 +54,9 @@ public class AppSettingsManager {
     private static final String KEY_CUT_PATH = "com.fesskiev.player.KEY_CUT_PATH";
 
     private static final String KEY_GUIDE_MAIN_ACTIVITY = "com.fesskiev.player.KEY_GUIDE_MAIN_ACTIVITY";
-    private static final String KEY_GUIDE_TRACKLIST_ACTIVITY = "com.fesskiev.player.KEY_GUIDE_TRACKLIST_ACTIVITY";
+    private static final String KEY_GUIDE_TRACK_LIST_ACTIVITY = "com.fesskiev.player.KEY_GUIDE_TRACK_LIST_ACTIVITY";
     private static final String KEY_GUIDE_AUDIO_PLAYER_ACTIVITY = "com.fesskiev.player.KEY_GUIDE_AUDIO_PLAYER_ACTIVITY";
+    private static final String KEY_GUIDE_VIDEO_PLAYER_ACTIVITY = "com.fesskiev.player.KEY_GUIDE_VIDEO_PLAYER_ACTIVITY";
 
     private SharedPreferences sharedPreferences;
     private static AppSettingsManager INSTANCE;
@@ -66,7 +67,7 @@ public class AppSettingsManager {
                 context.getSharedPreferences(APP_SETTINGS_PREFERENCES, Context.MODE_PRIVATE);
     }
 
-    public static AppSettingsManager getInstance() {
+    public static synchronized AppSettingsManager getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new AppSettingsManager(MediaApplication.getInstance().getApplicationContext());
         }
@@ -325,12 +326,12 @@ public class AppSettingsManager {
     }
 
     public boolean isNeedTrackListActivityGuide() {
-        return sharedPreferences.getBoolean(KEY_GUIDE_TRACKLIST_ACTIVITY, true);
+        return sharedPreferences.getBoolean(KEY_GUIDE_TRACK_LIST_ACTIVITY, true);
     }
 
     public void setNeedTrackListActivityGuide(boolean need) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(KEY_GUIDE_TRACKLIST_ACTIVITY, need);
+        editor.putBoolean(KEY_GUIDE_TRACK_LIST_ACTIVITY, need);
         editor.apply();
     }
 
@@ -344,17 +345,29 @@ public class AppSettingsManager {
         editor.apply();
     }
 
+    public boolean isNeedVideoPlayerActivityGuide() {
+        return sharedPreferences.getBoolean(KEY_GUIDE_VIDEO_PLAYER_ACTIVITY, true);
+    }
+
+    public void setNeedVideoPlayerActivityGuide(boolean need) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_GUIDE_VIDEO_PLAYER_ACTIVITY, need);
+        editor.apply();
+    }
+
     public boolean isNeedGuide() {
         return sharedPreferences.getBoolean(KEY_GUIDE_MAIN_ACTIVITY, true) ||
                 sharedPreferences.getBoolean(KEY_GUIDE_AUDIO_PLAYER_ACTIVITY, true) ||
-                sharedPreferences.getBoolean(KEY_GUIDE_TRACKLIST_ACTIVITY, true);
+                sharedPreferences.getBoolean(KEY_GUIDE_VIDEO_PLAYER_ACTIVITY, true) ||
+                sharedPreferences.getBoolean(KEY_GUIDE_TRACK_LIST_ACTIVITY, true);
     }
 
     public void setNeedGuide(boolean need) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(KEY_GUIDE_MAIN_ACTIVITY, need);
         editor.putBoolean(KEY_GUIDE_AUDIO_PLAYER_ACTIVITY, need);
-        editor.putBoolean(KEY_GUIDE_TRACKLIST_ACTIVITY, need);
+        editor.putBoolean(KEY_GUIDE_VIDEO_PLAYER_ACTIVITY, need);
+        editor.putBoolean(KEY_GUIDE_TRACK_LIST_ACTIVITY, need);
         editor.apply();
     }
 }

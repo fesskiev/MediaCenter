@@ -66,10 +66,6 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
 
         view.findViewById(R.id.recordContainer).setOnClickListener(v -> startChooserActivity());
 
-        for (SwitchCompat switchCompat : switches) {
-            switchCompat.setOnCheckedChangeListener(this);
-        }
-
         MediaContentUpdateTimeView contentUpdateTimeView
                 = (MediaContentUpdateTimeView) view.findViewById(R.id.mediaContentUpdateTime);
         contentUpdateTimeView.setOnMediaContentTimeUpdateListener(new MediaContentUpdateTimeView
@@ -92,6 +88,9 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
         });
 
         setSettingsState(switches);
+        for (SwitchCompat switchCompat : switches) {
+            switchCompat.setOnCheckedChangeListener(this);
+        }
     }
 
     private void startChooserActivity() {

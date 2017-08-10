@@ -218,24 +218,25 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
     private void makeGuideIfNeed() {
         if (settingsManager.isNeedAudioPlayerActivityGuide()) {
-            appGuide = new AppGuide(this, 5);
+            appGuide = new AppGuide(this, 4);
             appGuide.OnAppGuideListener(new AppGuide.OnAppGuideListener() {
                 @Override
                 public void next(int count) {
                     switch (count) {
                         case 1:
-                            appGuide.makeGuide(prevTrack, "prev button!", "");
+                            appGuide.makeGuide(repeatButton,
+                                    getString(R.string.app_guide_looping_title),
+                                    getString(R.string.app_guide_looping_desc));
                             break;
                         case 2:
-                            appGuide.makeGuide(nextTrack, "next button!", "");
+                            appGuide.makeGuide(prevTrack,
+                                    getString(R.string.app_guide_audio_prev_title),
+                                    getString(R.string.app_guide_audio_prev_desc));
                             break;
                         case 3:
-                            appGuide.makeGuide(repeatButton,
-                                    "looping long click enable range value", "");
-                            break;
-                        case 4:
-                            appGuide.makeGuide(controlView.getPlayPauseButton(),
-                                    "play pause button", "");
+                            appGuide.makeGuide(nextTrack,
+                                    getString(R.string.app_guide_audio_next_title),
+                                    getString(R.string.app_guide_audio_next_desc));
                             break;
                     }
                 }
@@ -245,7 +246,9 @@ public class AudioPlayerActivity extends AnalyticsActivity {
                     settingsManager.setNeedAudioPlayerActivityGuide(false);
                 }
             });
-            appGuide.makeGuide(findViewById(R.id.trackList), "open tracklist!", "");
+            appGuide.makeGuide(findViewById(R.id.trackList),
+                    getString(R.string.app_guide_track_list_title),
+                    getString(R.string.app_guide_track_list_desc));
         }
     }
 

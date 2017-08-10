@@ -228,7 +228,7 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
     }
 
     private void makeGuideIfNeed() {
-        if(settingsManager.isNeedTrackListActivityGuide()) {
+        if (settingsManager.isNeedTrackListActivityGuide()) {
             TrackListAdapter.ViewHolder viewHolder
                     = (TrackListAdapter.ViewHolder) recyclerView.findViewHolderForAdapterPosition(0);
             if (viewHolder != null) {
@@ -245,14 +245,19 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                     public void next(int count) {
                         switch (count) {
                             case 1:
-                                appGuide.makeGuide(deleteButton, "delete button!", "");
+                                appGuide.makeGuide(deleteButton,
+                                        getString(R.string.app_guide_delete_title),
+                                        getString(R.string.app_guide_delete_desc));
                                 break;
                             case 2:
-                                appGuide.makeGuide(editButton, "edit button!", "");
+                                appGuide.makeGuide(editButton,
+                                        getString(R.string.app_guide_edit_title),
+                                        getString(R.string.app_guide_edit_desc));
                                 break;
                             case 3:
                                 appGuide.makeGuide(actionMenu.getMenuIconView(),
-                                        "sorting menu!!", "");
+                                        getString(R.string.app_guide_sorting_title),
+                                        getString(R.string.app_guide_sorting_desc));
                                 break;
                         }
                     }
@@ -263,7 +268,8 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                         closeOpenCards();
                     }
                 });
-                appGuide.makeGuide(addToPlaylist, "add to playlist!", "");
+                appGuide.makeGuide(addToPlaylist, getString(R.string.app_guide_add_playlist_title),
+                        getString(R.string.app_guide_add_playlist_desc));
             }
         }
     }

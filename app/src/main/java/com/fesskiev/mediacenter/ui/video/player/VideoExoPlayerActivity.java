@@ -21,6 +21,8 @@ import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.players.VideoPlayer;
+import com.fesskiev.mediacenter.utils.AppGuide;
+import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.controls.VideoControlView;
 import com.google.android.exoplayer2.C;
@@ -83,10 +85,15 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     public static final String VIDEO_NAME_EXTRA = "com.fesskiev.player.VIDEO_NAME_EXTRA";
     public static final String SUB_EXTRA = "com.fesskiev.player.SUB_EXTRA";
 
+
+    private AppSettingsManager settingsManager;
+    private VideoPlayer videoPlayer;
+
+    private AppGuide appGuide;
+
     private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
 
     private GestureDetector gestureDetector;
-    private VideoPlayer videoPlayer;
     private VideoControlView videoControlView;
     private DataSource.Factory mediaDataSourceFactory;
     private TrackSelection.Factory videoTrackSelectionFactory;
@@ -117,13 +124,12 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_exo_player);
 
+        settingsManager = AppSettingsManager.getInstance();
         videoPlayer = MediaApplication.getInstance().getVideoPlayer();
 
-        Log.wtf(TAG, "onCreate(Bundle savedInstanceState): " + (savedInstanceState == null));
         if (savedInstanceState != null) {
             playerPosition = savedInstanceState.getLong(BUNDLE_PLAYER_POSITION);
             shouldAutoPlay = savedInstanceState.getBoolean(BUNDLE_AUTO_PLAY);
-            Log.wtf(TAG, "auto play: " + shouldAutoPlay);
             isTimelineStatic = true;
         } else {
             shouldAutoPlay = true;
@@ -219,7 +225,6 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        Log.i(TAG, "onNewIntent");
         videoControlView.resetIndicators();
         isTimelineStatic = false;
 
@@ -265,7 +270,6 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
 
     @Override
     public void onSaveInstanceState(Bundle out) {
-        Log.wtf(TAG, "onSaveInstanceState()");
         out.putLong(BUNDLE_PLAYER_POSITION, playerPosition);
         out.putBoolean(BUNDLE_AUTO_PLAY, shouldAutoPlay);
         super.onSaveInstanceState(out);
@@ -279,18 +283,56 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     @Override
     public void onStart() {
         super.onStart();
-        Log.wtf(TAG, "onStart()");
-
         if (Util.SDK_INT > 23) {
             initializePlayer();
+        }
+        videoControlView.postDelayed(this::makeGuideIfNeed, 1000);
+    }
+
+    private void makeGuideIfNeed() {
+        if (settingsManager.isNeedVideoPlayerActivityGuide()) {
+            appGuide = new AppGuide(this, 5);
+            appGuide.OnAppGuideListener(new AppGuide.OnAppGuideListener() {
+                @Override
+                public void next(int count) {
+                    switch (count) {
+                        case 1:
+                            appGuide.makeGuide(videoControlView.getSettingsButton(),
+                                    getString(R.string.app_guide_settings_title),
+                                    getString(R.string.app_guide_settings_desc));
+                            break;
+                        case 2:
+                            appGuide.makeGuide(videoControlView.getVideoLockScreen(),
+                                    getString(R.string.app_guide_lock_title),
+                                    getString(R.string.app_guide_looping_desc));
+                            break;
+                        case 3:
+                            appGuide.makeGuide(videoControlView.getPreviousVideo(),
+                                    getString(R.string.app_guide_video_prev_title),
+                                    getString(R.string.app_guide_video_prev_desc));
+                            break;
+                        case 4:
+                            appGuide.makeGuide(videoControlView.getNextVideo(),
+                                    getString(R.string.app_guide_video_next_title),
+                                    getString(R.string.app_guide_video_next_desc));
+                            break;
+                    }
+                }
+
+                @Override
+                public void watched() {
+                    settingsManager.setNeedVideoPlayerActivityGuide(false);
+                }
+            });
+            appGuide.makeGuide(videoControlView.getAddSubButton(),
+                    getString(R.string.app_guide_subtitle_title),
+                    getString(R.string.app_guide_subtitle_desc));
         }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Log.wtf(TAG, "onResume()");
-
         if ((Util.SDK_INT <= 23 || player == null)) {
             initializePlayer();
         }
@@ -299,10 +341,11 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     @Override
     public void onPause() {
         super.onPause();
-        Log.wtf(TAG, "onPause()");
-
         if (Util.SDK_INT <= 23) {
             releasePlayer();
+        }
+        if (appGuide != null) {
+            appGuide.clear();
         }
         shouldAutoPlay = false;
     }
@@ -310,7 +353,6 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     @Override
     public void onStop() {
         super.onStop();
-        Log.wtf(TAG, "onStop()");
 
         if (Util.SDK_INT > 23) {
             releasePlayer();
@@ -322,7 +364,6 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.wtf(TAG, "onDestroy()");
 
         EventBus.getDefault().unregister(this);
         videoControlView.clearRendererState();
@@ -444,9 +485,6 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
 
     private void initializePlayer() {
         Intent intent = getIntent();
-
-        Log.wtf(TAG, "INIT PLAYER: " + (player == null));
-
         if (player == null) {
 
             videoTrackSelectionFactory = new AdaptiveVideoTrackSelection.Factory(BANDWIDTH_METER);
