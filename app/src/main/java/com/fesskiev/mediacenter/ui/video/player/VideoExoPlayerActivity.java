@@ -304,7 +304,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
                         case 2:
                             appGuide.makeGuide(videoControlView.getVideoLockScreen(),
                                     getString(R.string.app_guide_lock_title),
-                                    getString(R.string.app_guide_looping_desc));
+                                    getString(R.string.app_guide_lock_desc));
                             break;
                         case 3:
                             appGuide.makeGuide(videoControlView.getPreviousVideo(),
