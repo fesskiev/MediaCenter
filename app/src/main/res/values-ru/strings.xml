@@ -308,16 +308,16 @@
     <string name="app_guide_subtitle_desc">Возможность загрузить субтитры из файловой системы</string>
 
     <string name="app_guide_settings_title">Настройки</string>
-    <string name="app_guide_settings_desc">Выбор аудиодорожки, видеодорожки и вшитых субтиторв</string>
+    <string name="app_guide_settings_desc">Выбор аудиодорожки, видеодорожки и вшитых субтитров</string>
 
     <string name="app_guide_lock_title">Блокировка</string>
     <string name="app_guide_lock_desc">Экран будет заблокирован от любых случайных нажатий</string>
 
     <string name="app_guide_video_prev_title">Предыдущий видеофайл</string>
-    <string name="app_guide_video_prev_desc">Будет выбран предыдущий видеофайл по списку</string>
+    <string name="app_guide_video_prev_desc">Будет выбран предыдущий видеофайл из папки</string>
 
     <string name="app_guide_video_next_title">Следующий видеофайл</string>
-    <string name="app_guide_video_next_desc">Будет выбран следующий видеофайл по списку</string>
+    <string name="app_guide_video_next_desc">Будет выбран следующий видеофайл из папки</string>
 
 
 </resources>

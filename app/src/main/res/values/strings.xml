@@ -84,7 +84,7 @@
 
     <string name="dialog_fetch_folder_name">Searching folders....</string>
     <string name="dialog_fetch_file_name">Searching files....</string>
-    <string name="dialog_fetch_title">Please wait, there is a search</string>
+    <string name="dialog_fetch_title">Please wait, searching for new data</string>
 
     <string name="dialog_refresh_folders_title">Audio search</string>
     <string name="dialog_refresh_folders_message">Do you want to perform a full search for audio files?</string>
@@ -296,53 +296,53 @@
     <string name="looping_title_text">Choose looping range</string>
     <string name="looping_button_text">Start</string>
 
-    <string name="app_guide_welcome_title">Добро пожаловать в SoloPlayer!</string>
-    <string name="app_guide_welcome_desc">Вам будут показаны небольшие подсказки по приложению (можно отключить в настройках)</string>
+    <string name="app_guide_welcome_title">Welcome to SoloPlayer!</string>
+    <string name="app_guide_welcome_desc">You will see a little tips throughout the app (possible disable in settings)</string>
 
-    <string name="app_guide_search_title">Поиск аудиофайлов</string>
-    <string name="app_guide_search_desc">Быстрый поск по файлам на диске</string>
+    <string name="app_guide_search_title">Audio searching</string>
+    <string name="app_guide_search_desc">Quick searching by file system on the disk</string>
 
-    <string name="app_guide_effects_title">Аудио эффекты</string>
-    <string name="app_guide_effects_desc">Доступны в этом меню и детально по нажатию на отдельной вкладке</string>
+    <string name="app_guide_effects_title">Audio effects</string>
+    <string name="app_guide_effects_desc">Available in this menu and in detail by clicking on the separate tab</string>
 
-    <string name="app_guide_add_playlist_title">Добавить в плейлист</string>
-    <string name="app_guide_add_playlist_desc">Возможность добавить трек в плейлист на отдельную вкладку</string>
+    <string name="app_guide_add_playlist_title">Add to playlist</string>
+    <string name="app_guide_add_playlist_desc">Opportunity add a track to playlist on the separate tab</string>
 
-    <string name="app_guide_sorting_title">Сортировка</string>
-    <string name="app_guide_sorting_desc">Удобная сортировка с большим выбором условий</string>
+    <string name="app_guide_sorting_title">Sorting</string>
+    <string name="app_guide_sorting_desc">Usable sorting with a big choice of parameters</string>
 
-    <string name="app_guide_edit_title">Редиктирование</string>
-    <string name="app_guide_edit_desc">Возможность изменить имя артиста, альбом, жанр и т.д.</string>
+    <string name="app_guide_edit_title">Editing</string>
+    <string name="app_guide_edit_desc">Opportunity to change artist name, album, genre, etc.</string>
 
-    <string name="app_guide_delete_title">Удаление</string>
-    <string name="app_guide_delete_desc">Возможность удалить файл</string>
+    <string name="app_guide_delete_title">Deleting</string>
+    <string name="app_guide_delete_desc">Opportunity delete the file</string>
 
-    <string name="app_guide_track_list_title">Треклист</string>
-    <string name="app_guide_track_list_desc">Быстрый доступ к треклисту</string>
+    <string name="app_guide_track_list_title">Tracklist</string>
+    <string name="app_guide_track_list_desc">Quick access to the tracklist</string>
 
-    <string name="app_guide_audio_prev_title">Предыдущий трек</string>
-    <string name="app_guide_audio_prev_desc">Будет выбран предыдущий трек по списку</string>
+    <string name="app_guide_audio_prev_title">Previous track</string>
+    <string name="app_guide_audio_prev_desc">The previous track will be selected</string>
 
-    <string name="app_guide_audio_next_title">Следующий трек</string>
-    <string name="app_guide_audio_next_desc">Будет выбран следующий трек по списку</string>
+    <string name="app_guide_audio_next_title">Next track</string>
+    <string name="app_guide_audio_next_desc">The next track will be selected</string>
 
-    <string name="app_guide_looping_title">Зацикливание</string>
-    <string name="app_guide_looping_desc">При коротком нажатии будет выбран режим автоматического повтора трека.При длинном нажатии откроется диалог с выбором промежутка для зацикливания</string>
+    <string name="app_guide_looping_title">Looping</string>
+    <string name="app_guide_looping_desc">With a short press, the automatic repeat mode of the track will be selected. A long press will open the dialog with the selection of the range for looping</string>
 
-    <string name="app_guide_subtitle_title">Субтитры</string>
-    <string name="app_guide_subtitle_desc">Возможность загрузить субтитры из файловой системы</string>
+    <string name="app_guide_subtitle_title">Subtitles</string>
+    <string name="app_guide_subtitle_desc">Opportunity loading subtitles from the file system</string>
 
-    <string name="app_guide_settings_title">Настройки</string>
-    <string name="app_guide_settings_desc">Выбор аудиодорожки, видеодорожки и вшитых субтиторв</string>
+    <string name="app_guide_settings_title">Settings</string>
+    <string name="app_guide_settings_desc">Select audio track, video track and subtitles</string>
 
-    <string name="app_guide_lock_title">Блокировка</string>
-    <string name="app_guide_lock_desc">Экран будет заблокирован от любых случайных нажатий</string>
+    <string name="app_guide_lock_title">Screen blocking</string>
+    <string name="app_guide_lock_desc">Screen will be block from any random touches</string>
 
-    <string name="app_guide_video_prev_title">Предыдущий видеофайл</string>
-    <string name="app_guide_video_prev_desc">Будет выбран предыдущий видеофайл по списку</string>
+    <string name="app_guide_video_prev_title">Previous video file</string>
+    <string name="app_guide_video_prev_desc">The previous video from the folder will be selected</string>
 
-    <string name="app_guide_video_next_title">Следующий видеофайл</string>
-    <string name="app_guide_video_next_desc">Будет выбран следующий видеофайл по списку</string>
+    <string name="app_guide_video_next_title">Next track</string>
+    <string name="app_guide_video_next_desc">The next video from the folder will be selected</string>
 
 
 
