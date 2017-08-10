@@ -1,14 +1,18 @@
 package com.fesskiev.mediacenterwear;
 
+import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 
 public class ControlFragment extends Fragment {
+
+    public static Fragment newInstance() {
+        return new ControlFragment();
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,4 +45,6 @@ public class ControlFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
     }
+
+
 }

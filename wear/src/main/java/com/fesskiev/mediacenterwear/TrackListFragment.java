@@ -1,20 +1,35 @@
 package com.fesskiev.mediacenterwear;
 
 
+import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.wearable.view.WearableRecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.fesskiev.common.data.CAudioFile;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class TrackListFragment extends Fragment {
+
+    public static Fragment newInstance() {
+        return new TrackListFragment();
+    }
 
     private WearableRecyclerView wearableRecyclerView;
     private TrackListAdapter adapter;
+    private List<CAudioFile> audioFiles;
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        audioFiles = new ArrayList<>();
+    }
 
     @Nullable
     @Override
@@ -29,7 +44,7 @@ public class TrackListFragment extends Fragment {
 
         wearableRecyclerView = (WearableRecyclerView) view.findViewById(R.id.recyclerView);
         wearableRecyclerView.setHasFixedSize(true);
-        wearableRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(),
+        wearableRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false));
         adapter = new TrackListAdapter();
         wearableRecyclerView.setAdapter(adapter);
