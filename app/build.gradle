@@ -144,6 +144,8 @@ dependencies {
     compile 'org.greenrobot:eventbus:3.0.0'
     compile 'com.thoughtbot:expandablecheckrecyclerview:1.4'
 
+    compile 'com.google.android.gms:play-services-wearable:11.0.4'
+
     testCompile "junit:junit:$junitVersion"
 
     androidTestCompile "com.android.support.test:runner:$runnerVersion"

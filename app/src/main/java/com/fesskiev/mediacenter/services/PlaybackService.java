@@ -25,10 +25,13 @@ import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.CountDownTimer;
 import com.fesskiev.mediacenter.utils.NotificationHelper;
+import com.fesskiev.mediacenter.utils.WearHelper;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.List;
 
 public class PlaybackService extends Service {
 
@@ -135,6 +138,7 @@ public class PlaybackService extends Service {
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_LOOPING_END";
 
     private NotificationHelper notificationHelper;
+    private WearHelper wearHelper;
 
     private AudioFocusManager audioFocusManager;
     private CountDownTimer timer;
@@ -407,6 +411,7 @@ public class PlaybackService extends Service {
                 switch (action) {
                     case ACTION_START_FOREGROUND:
                         tryStartForeground();
+                        makeWearModule();
                         break;
                     case ACTION_OPEN_FILE:
                         String openPath = intent.getStringExtra(PLAYBACK_EXTRA_MUSIC_FILE_PATH);
@@ -511,11 +516,31 @@ public class PlaybackService extends Service {
         return START_STICKY;
     }
 
+    private void makeWearModule() {
+        wearHelper = new WearHelper(getApplicationContext());
+        wearHelper.connect();
+    }
+
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onCurrentTrackEvent(AudioFile currentTrack) {
         this.currentTrack = currentTrack;
         updateNotification(currentTrack);
+        updateWearTrack(currentTrack);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onCurrentTrackListEvent(List<AudioFile> currentTrackList) {
+        updateWearTrackList(currentTrackList);
+    }
+
+    private void updateWearTrackList(List<AudioFile> currentTrackList) {
+        wearHelper.updateTrackList(currentTrackList);
+    }
+
+
+    private void updateWearTrack(AudioFile currentTrack) {
+        wearHelper.updateTrack(currentTrack);
     }
 
     private void updateNotification(AudioFile audioFile) {
@@ -763,6 +788,7 @@ public class PlaybackService extends Service {
         timer.stop();
 
         notificationHelper.stopNotification();
+        wearHelper.disconnect();
 
         unregisterNotificationReceiver();
         unregisterHeadsetReceiver();
