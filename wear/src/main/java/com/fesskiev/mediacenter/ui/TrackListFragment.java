@@ -9,8 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.fesskiev.common.data.CAudioFile;
-import com.fesskiev.mediacenterwear.R;
+import com.fesskiev.common.data.MapAudioFile;
+import com.fesskiev.mediacenter.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ public class TrackListFragment extends Fragment {
 
     private WearableRecyclerView wearableRecyclerView;
     private TrackListAdapter adapter;
-    private List<CAudioFile> audioFiles;
+    private List<MapAudioFile> audioFiles;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

@@ -4,19 +4,25 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
+import com.fesskiev.common.data.MapAudioFile;
 import com.fesskiev.mediacenter.ui.MainActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataItem;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.fesskiev.common.Constants.COUNT_PATH;
-import static com.fesskiev.common.Constants.DATA_ITEM_RECEIVED_PATH;
+import static com.fesskiev.common.Constants.TRACK_LIST_KEY;
+import static com.fesskiev.common.Constants.TRACK_LIST_PATH;
 import static com.fesskiev.common.Constants.START_ACTIVITY_PATH;
 
 public class DataLayerListenerService extends WearableListenerService {
@@ -47,22 +53,33 @@ public class DataLayerListenerService extends WearableListenerService {
             }
         }
 
-        // Loop through the events and send a message back to the node that created the data item.
         for (DataEvent event : dataEvents) {
-            Uri uri = event.getDataItem().getUri();
-            String path = uri.getPath();
-            if (COUNT_PATH.equals(path)) {
-                // Get the node id of the node that created the data item from the host portion of
-                // the uri.
-                String nodeId = uri.getHost();
-                // Set the data of the message to be the bytes of the Uri.
-                byte[] payload = uri.toString().getBytes();
+            if (event.getType() == DataEvent.TYPE_CHANGED) {
+                DataItem item = event.getDataItem();
 
-                // Send the rpc
-                Wearable.MessageApi.sendMessage(googleApiClient, nodeId, DATA_ITEM_RECEIVED_PATH,
-                        payload);
+                Uri uri = event.getDataItem().getUri();
+                String path = uri.getPath();
+                if (TRACK_LIST_PATH.equals(path)) {
+                    List<DataMap> dataMaps = DataMapItem.fromDataItem(item).getDataMap()
+                            .getDataMapArrayList(TRACK_LIST_KEY);
+
+                    List<MapAudioFile> audioFiles = new ArrayList<>();
+                    for (DataMap dataMap : dataMaps) {
+                        audioFiles.add(MapAudioFile.toMapAudioFile(dataMap));
+                    }
+
+                    /**
+                     * print
+                     */
+                    for (MapAudioFile audioFile : audioFiles) {
+                        Log.w("test", audioFile.toString());
+                    }
+                }
+            } else if (event.getType() == DataEvent.TYPE_DELETED) {
+                // DataItem deleted
             }
         }
+
     }
 
     @Override

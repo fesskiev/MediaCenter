@@ -13,7 +13,7 @@ import android.support.wearable.view.drawer.WearableNavigationDrawer;
 import android.view.Gravity;
 import android.view.ViewTreeObserver;
 
-import com.fesskiev.mediacenterwear.R;
+import com.fesskiev.mediacenter.R;
 
 
 public class MainActivity extends WearableActivity {
