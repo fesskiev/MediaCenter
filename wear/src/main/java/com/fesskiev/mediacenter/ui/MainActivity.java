@@ -10,6 +10,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.wearable.activity.WearableActivity;
 import android.support.wearable.view.drawer.WearableDrawerLayout;
 import android.support.wearable.view.drawer.WearableNavigationDrawer;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.ViewTreeObserver;
 
@@ -22,16 +23,11 @@ public class MainActivity extends WearableActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // Enables Always-on
-        setAmbientEnabled();
-
 
         final WearableDrawerLayout wearableDrawerLayout = (WearableDrawerLayout) findViewById(R.id.drawerLayout);
         WearableNavigationDrawer wearableNavigationDrawer = (WearableNavigationDrawer) findViewById(R.id.navigationDrawer);
         wearableNavigationDrawer.setAdapter(new NavigationAdapter());
 
-
-        // Temporarily peeks the navigation and action drawers to ensure the user is aware of them.
         ViewTreeObserver observer = wearableDrawerLayout.getViewTreeObserver();
         observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -40,7 +36,6 @@ public class MainActivity extends WearableActivity {
                 wearableDrawerLayout.peekDrawer(Gravity.TOP);
             }
         });
-
     }
 
     @Override
@@ -101,6 +96,7 @@ public class MainActivity extends WearableActivity {
         if (controlFragment == null) {
             transaction.add(R.id.content, ControlFragment.newInstance(),
                     ControlFragment.class.getName());
+            transaction.addToBackStack(ControlFragment.class.getName());
         } else {
             transaction.show(controlFragment);
         }
