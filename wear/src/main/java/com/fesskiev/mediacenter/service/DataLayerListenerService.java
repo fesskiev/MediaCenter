@@ -2,6 +2,7 @@ package com.fesskiev.mediacenter.service;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.fesskiev.common.data.MapAudioFile;
@@ -28,6 +29,10 @@ import static com.fesskiev.common.Constants.START_ACTIVITY_PATH;
 public class DataLayerListenerService extends WearableListenerService {
 
     private static final String TAG = "DataLayerService";
+
+    public static final String ACTION_TRACK_LIST = "com.fesskiev.player.wear.ACTION_TRACK_LIST";
+
+    public static final String EXTRA_TRACK_LIST = "com.fesskiev.player.wear.EXTRA_TRACK_LIST";
 
     private GoogleApiClient googleApiClient;
 
@@ -63,17 +68,12 @@ public class DataLayerListenerService extends WearableListenerService {
                     List<DataMap> dataMaps = DataMapItem.fromDataItem(item).getDataMap()
                             .getDataMapArrayList(TRACK_LIST_KEY);
 
-                    List<MapAudioFile> audioFiles = new ArrayList<>();
+                    ArrayList<MapAudioFile> audioFiles = new ArrayList<>();
                     for (DataMap dataMap : dataMaps) {
                         audioFiles.add(MapAudioFile.toMapAudioFile(dataMap));
                     }
+                    sendTrackListBroadcast(audioFiles);
 
-                    /**
-                     * print
-                     */
-                    for (MapAudioFile audioFile : audioFiles) {
-                        Log.w("test", audioFile.toString());
-                    }
                 }
             } else if (event.getType() == DataEvent.TYPE_DELETED) {
                 // DataItem deleted
@@ -89,5 +89,12 @@ public class DataLayerListenerService extends WearableListenerService {
             startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(startIntent);
         }
+    }
+
+
+    private void sendTrackListBroadcast(ArrayList<MapAudioFile> audioFiles){
+        Intent intent = new Intent(ACTION_TRACK_LIST);
+        intent.putParcelableArrayListExtra(EXTRA_TRACK_LIST, audioFiles);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 }

@@ -1,9 +1,12 @@
 package com.fesskiev.common.data;
 
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.android.gms.wearable.DataMap;
 
-public class MapAudioFile {
+public class MapAudioFile implements Parcelable {
 
     public String id;
     public String artist;
@@ -16,6 +19,25 @@ public class MapAudioFile {
     public long length;
     public long size;
     public long timestamp;
+
+
+    public MapAudioFile() {
+
+    }
+
+    protected MapAudioFile(Parcel in) {
+        this.id = in.readString();
+        this.artist = in.readString();
+        this.title = in.readString();
+        this.album = in.readString();
+        this.genre = in.readString();
+        this.bitrate = in.readString();
+        this.sampleRate = in.readString();
+        this.trackNumber = in.readInt();
+        this.length = in.readLong();
+        this.size = in.readLong();
+        this.timestamp = in.readLong();
+    }
 
 
     public DataMap toDataMap(DataMap map) {
@@ -65,6 +87,39 @@ public class MapAudioFile {
                 ", timestamp=" + timestamp +
                 '}';
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.id);
+        dest.writeString(this.artist);
+        dest.writeString(this.title);
+        dest.writeString(this.album);
+        dest.writeString(this.genre);
+        dest.writeString(this.bitrate);
+        dest.writeString(this.sampleRate);
+        dest.writeInt(this.trackNumber);
+        dest.writeLong(this.length);
+        dest.writeLong(this.size);
+        dest.writeLong(this.timestamp);
+    }
+
+    public static final Parcelable.Creator<MapAudioFile> CREATOR = new Parcelable.Creator<MapAudioFile>() {
+        @Override
+        public MapAudioFile createFromParcel(Parcel source) {
+            return new MapAudioFile(source);
+        }
+
+        @Override
+        public MapAudioFile[] newArray(int size) {
+            return new MapAudioFile[size];
+        }
+    };
+
 
     public static final class MapAudioFileBuilder {
 
@@ -158,6 +213,5 @@ public class MapAudioFile {
             mapAudioFile.trackNumber = this.trackNumber;
             return mapAudioFile;
         }
-
     }
 }

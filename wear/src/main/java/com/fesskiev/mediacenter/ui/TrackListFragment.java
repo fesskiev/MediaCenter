@@ -1,19 +1,28 @@
 package com.fesskiev.mediacenter.ui;
 
 import android.app.Fragment;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.wearable.view.WearableRecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.fesskiev.common.data.MapAudioFile;
 import com.fesskiev.mediacenter.R;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.fesskiev.mediacenter.service.DataLayerListenerService.ACTION_TRACK_LIST;
+import static com.fesskiev.mediacenter.service.DataLayerListenerService.EXTRA_TRACK_LIST;
 
 public class TrackListFragment extends Fragment {
 
@@ -54,11 +63,14 @@ public class TrackListFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        registerTrackListReceiver();
     }
+
 
     @Override
     public void onPause() {
         super.onPause();
+        unregisterTrackListReceiver();
     }
 
     @Override
@@ -67,14 +79,44 @@ public class TrackListFragment extends Fragment {
     }
 
 
+    private void registerTrackListReceiver() {
+        LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).registerReceiver(
+                receiver, new IntentFilter(ACTION_TRACK_LIST));
+    }
+
+    private void unregisterTrackListReceiver() {
+        LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).unregisterReceiver(receiver);
+    }
+
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ArrayList<MapAudioFile> audioFiles = intent.getParcelableArrayListExtra(EXTRA_TRACK_LIST);
+            if (audioFiles != null) {
+                adapter.refreshAdapter(audioFiles);
+            }
+        }
+    };
+
     public class TrackListAdapter extends WearableRecyclerView.Adapter<TrackListAdapter.ViewHolder> {
 
+        private ArrayList<MapAudioFile> audioFiles;
+
+        public TrackListAdapter() {
+            audioFiles = new ArrayList<>();
+        }
 
         public class ViewHolder extends WearableRecyclerView.ViewHolder {
+
+            TextView duration;
+            TextView title;
 
 
             public ViewHolder(View view) {
                 super(view);
+
+                duration = (TextView) view.findViewById(R.id.itemDuration);
+                title = (TextView) view.findViewById(R.id.itemTitle);
 
             }
         }
@@ -89,12 +131,21 @@ public class TrackListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-
+            MapAudioFile audioFile = audioFiles.get(position);
+            if (audioFile != null) {
+                viewHolder.title.setText(audioFile.title);
+            }
         }
 
         @Override
         public int getItemCount() {
-            return 0;
+            return audioFiles.size();
+        }
+
+        public void refreshAdapter(ArrayList<MapAudioFile> audioFiles) {
+            this.audioFiles.clear();
+            this.audioFiles.addAll(audioFiles);
+            notifyDataSetChanged();
         }
     }
 }

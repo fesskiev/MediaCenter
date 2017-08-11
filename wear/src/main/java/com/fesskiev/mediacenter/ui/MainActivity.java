@@ -10,7 +10,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.wearable.activity.WearableActivity;
 import android.support.wearable.view.drawer.WearableDrawerLayout;
 import android.support.wearable.view.drawer.WearableNavigationDrawer;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.ViewTreeObserver;
 
