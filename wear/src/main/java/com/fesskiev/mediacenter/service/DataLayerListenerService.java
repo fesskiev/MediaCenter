@@ -4,22 +4,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.support.annotation.NonNull;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Message;
+import android.os.Process;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.fesskiev.common.data.MapAudioFile;
 import com.fesskiev.mediacenter.ui.MainActivity;
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
-import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
@@ -29,7 +28,6 @@ import com.google.android.gms.wearable.WearableListenerService;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static com.fesskiev.common.Constants.COVER;
 import static com.fesskiev.common.Constants.TRACK_LIST_KEY;
@@ -55,10 +53,15 @@ public class DataLayerListenerService extends WearableListenerService {
     }
 
     private GoogleApiClient googleApiClient;
+    private ServiceThread serviceThread;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        serviceThread = new ServiceThread();
+        serviceThread.start();
+
+
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
                 .build();
@@ -80,6 +83,13 @@ public class DataLayerListenerService extends WearableListenerService {
         return START_STICKY;
     }
 
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        serviceThread.quit();
+    }
+
     @Override
     public void onDataChanged(DataEventBuffer dataEvents) {
         if (!googleApiClient.isConnected()) {
@@ -99,26 +109,79 @@ public class DataLayerListenerService extends WearableListenerService {
                     List<DataMap> dataMaps = DataMapItem.fromDataItem(item).getDataMap()
                             .getDataMapArrayList(TRACK_LIST_KEY);
 
-                    ArrayList<MapAudioFile> audioFiles = new ArrayList<>();
-                    for (DataMap dataMap : dataMaps) {
-                        MapAudioFile audioFile = MapAudioFile.toMapAudioFile(dataMap);
-
-                        Asset coverAsset = dataMap.getAsset(COVER);
-
-                        InputStream assetInputStream = Wearable.DataApi.getFdForAsset(
-                                googleApiClient, coverAsset).await().getInputStream();
-                        if (assetInputStream != null) {
-                            audioFile.cover = BitmapFactory.decodeStream(assetInputStream);
-                        }
-
-                        audioFiles.add(audioFile);
-                    }
-                    sendTrackListBroadcast(audioFiles);
-
+                    serviceThread.processTrackList(dataMaps);
                 }
             } else if (event.getType() == DataEvent.TYPE_DELETED) {
                 // DataItem deleted
             }
+        }
+    }
+
+    private class ServiceThread extends HandlerThread {
+
+        private final int SEND_MESSAGE = 0;
+        private final int TRACK_LIST = 1;
+
+        private Handler handler;
+
+        public ServiceThread() {
+            super(ServiceThread.class.getName(), Process.THREAD_PRIORITY_BACKGROUND);
+        }
+
+        @Override
+        protected void onLooperPrepared() {
+            super.onLooperPrepared();
+            handler = new Handler(getLooper()) {
+                @Override
+                public void handleMessage(Message msg) {
+                    switch(msg.what) {
+                        case SEND_MESSAGE:
+                            String path = (String)msg.obj;
+                            sendMessageApi(path);
+                            break;
+                        case TRACK_LIST:
+                            List<DataMap> dataMaps = (List<DataMap>) msg.obj;
+                            fetchTrackList(dataMaps);
+                            break;
+                    }
+                }
+            };
+        }
+
+        private void fetchTrackList(List<DataMap> dataMaps) {
+            ArrayList<MapAudioFile> audioFiles = new ArrayList<>();
+            for (DataMap dataMap : dataMaps) {
+                MapAudioFile audioFile = MapAudioFile.toMapAudioFile(dataMap);
+
+                Asset coverAsset = dataMap.getAsset(COVER);
+
+                InputStream assetInputStream = Wearable.DataApi.getFdForAsset(
+                        googleApiClient, coverAsset).await().getInputStream();
+                if (assetInputStream != null) {
+                    audioFile.cover = BitmapFactory.decodeStream(assetInputStream);
+                }
+
+                audioFiles.add(audioFile);
+            }
+            sendTrackListBroadcast(audioFiles);
+        }
+
+        private void sendMessageApi(String path) {
+            List<String> nodeIds = getNodes();
+            for(String nodeId : nodeIds) {
+                Wearable.MessageApi.sendMessage(googleApiClient, nodeId, path,
+                        new byte[0]);
+            }
+        }
+
+
+
+        public void processSendMessage(String path) {
+            handler.sendMessage(Message.obtain(Message.obtain(handler, SEND_MESSAGE, path)));
+        }
+
+        public void processTrackList(List<DataMap> dataMaps) {
+            handler.sendMessage(Message.obtain(Message.obtain(handler, TRACK_LIST, dataMaps)));
         }
     }
 
@@ -142,13 +205,7 @@ public class DataLayerListenerService extends WearableListenerService {
         if (!googleApiClient.isConnected()) {
             return;
         }
-        new Thread(() -> {
-            List<String> nodeIds = getNodes();
-            for(String nodeId : nodeIds) {
-                Wearable.MessageApi.sendMessage(googleApiClient, nodeId, path,
-                        new byte[0]);
-            }
-        }).start();
+       serviceThread.processSendMessage(path);
     }
 
     private List<String> getNodes() {
