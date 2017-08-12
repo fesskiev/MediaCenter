@@ -38,7 +38,7 @@ public class ControlFragment extends Fragment {
     }
 
     private void animateButtons(View view) {
-        ViewGroup container = (ViewGroup) view.findViewById(R.id.rootContainer);
+        ViewGroup container = view.findViewById(R.id.rootContainer);
         for (int i = 0; i < container.getChildCount(); i++) {
             View v = container.getChildAt(i);
             ViewCompat.animate(v)

@@ -1,6 +1,7 @@
 package com.fesskiev.mediacenter.service;
 
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -9,6 +10,7 @@ import com.fesskiev.common.data.MapAudioFile;
 import com.fesskiev.mediacenter.ui.MainActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;
@@ -18,10 +20,12 @@ import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.fesskiev.common.Constants.COVER;
 import static com.fesskiev.common.Constants.TRACK_LIST_KEY;
 import static com.fesskiev.common.Constants.TRACK_LIST_PATH;
 import static com.fesskiev.common.Constants.START_ACTIVITY_PATH;
@@ -57,7 +61,10 @@ public class DataLayerListenerService extends WearableListenerService {
                 return;
             }
         }
+        processEvent(dataEvents);
+    }
 
+    private void processEvent(DataEventBuffer dataEvents) {
         for (DataEvent event : dataEvents) {
             if (event.getType() == DataEvent.TYPE_CHANGED) {
                 DataItem item = event.getDataItem();
@@ -70,7 +77,17 @@ public class DataLayerListenerService extends WearableListenerService {
 
                     ArrayList<MapAudioFile> audioFiles = new ArrayList<>();
                     for (DataMap dataMap : dataMaps) {
-                        audioFiles.add(MapAudioFile.toMapAudioFile(dataMap));
+                        MapAudioFile audioFile = MapAudioFile.toMapAudioFile(dataMap);
+
+                        Asset coverAsset = dataMap.getAsset(COVER);
+
+                        InputStream assetInputStream = Wearable.DataApi.getFdForAsset(
+                                googleApiClient, coverAsset).await().getInputStream();
+                        if (assetInputStream != null) {
+                            audioFile.cover = BitmapFactory.decodeStream(assetInputStream);
+                        }
+
+                        audioFiles.add(audioFile);
                     }
                     sendTrackListBroadcast(audioFiles);
 
@@ -79,7 +96,6 @@ public class DataLayerListenerService extends WearableListenerService {
                 // DataItem deleted
             }
         }
-
     }
 
     @Override
@@ -92,7 +108,7 @@ public class DataLayerListenerService extends WearableListenerService {
     }
 
 
-    private void sendTrackListBroadcast(ArrayList<MapAudioFile> audioFiles){
+    private void sendTrackListBroadcast(ArrayList<MapAudioFile> audioFiles) {
         Intent intent = new Intent(ACTION_TRACK_LIST);
         intent.putParcelableArrayListExtra(EXTRA_TRACK_LIST, audioFiles);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);

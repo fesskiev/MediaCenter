@@ -1,35 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.wearable.view.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        app:layout_box="all">
+        android:layout_height="wrap_content"
+        app:boxedEdges="all">
 
-        <TextView
-            android:id="@+id/itemTitle"
-            style="@style/TrackListTileTextAppearance"
+        <ImageView
+            android:id="@+id/cover"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:contentDescription="@string/app_name"
+            tools:src="@mipmap/ic_launcher" />
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:gravity="center"
-            android:maxLines="1"
-            tools:text="Nothing Heren" />
+            android:layout_height="match_parent"
+            android:layout_toEndOf="@+id/cover"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/itemDuration"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:gravity="center"
-            android:maxLines="1"
-            tools:text="02:28" />
+            <TextView
+                android:id="@+id/itemTitle"
+                style="@style/TrackListTileTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:maxLines="1"
+                tools:text="Nothing Heren" />
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/itemDuration"
+                style="@style/TrackListTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:maxLines="1"
+                tools:text="02:28" />
 
-</android.support.wearable.view.BoxInsetLayout>
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</android.support.wear.widget.BoxInsetLayout>

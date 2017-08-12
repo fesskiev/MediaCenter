@@ -7,11 +7,8 @@ import android.os.Bundle;
 
 import android.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
+import android.support.wear.widget.drawer.WearableNavigationDrawerView;
 import android.support.wearable.activity.WearableActivity;
-import android.support.wearable.view.drawer.WearableDrawerLayout;
-import android.support.wearable.view.drawer.WearableNavigationDrawer;
-import android.view.Gravity;
-import android.view.ViewTreeObserver;
 
 import com.fesskiev.mediacenter.R;
 
@@ -23,17 +20,20 @@ public class MainActivity extends WearableActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final WearableDrawerLayout wearableDrawerLayout = (WearableDrawerLayout) findViewById(R.id.drawerLayout);
-        WearableNavigationDrawer wearableNavigationDrawer = (WearableNavigationDrawer) findViewById(R.id.navigationDrawer);
-        wearableNavigationDrawer.setAdapter(new NavigationAdapter());
+        WearableNavigationDrawerView wearableNavigationDrawer = findViewById(R.id.navigationDrawer);
+        wearableNavigationDrawer.getController().peekDrawer();
 
-        ViewTreeObserver observer = wearableDrawerLayout.getViewTreeObserver();
-        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                wearableDrawerLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                wearableDrawerLayout.peekDrawer(Gravity.TOP);
+        wearableNavigationDrawer.setAdapter(new NavigationAdapter());
+        wearableNavigationDrawer.addOnItemSelectedListener(pos -> {
+            switch (pos) {
+                case 0:
+                    addControlFragment();
+                    break;
+                case 1:
+                    addTrackListFragment();
+                    break;
             }
+
         });
     }
 
@@ -43,23 +43,11 @@ public class MainActivity extends WearableActivity {
         addControlFragment();
     }
 
-    private final class NavigationAdapter extends WearableNavigationDrawer.WearableNavigationDrawerAdapter {
+    private final class NavigationAdapter extends WearableNavigationDrawerView.WearableNavigationDrawerAdapter {
 
         @Override
         public int getCount() {
             return 2;
-        }
-
-        @Override
-        public void onItemSelected(int position) {
-            switch (position) {
-                case 0:
-                    addControlFragment();
-                    break;
-                case 1:
-                    addTrackListFragment();
-                    break;
-            }
         }
 
         @Override

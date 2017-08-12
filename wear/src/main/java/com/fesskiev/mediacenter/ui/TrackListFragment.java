@@ -5,21 +5,23 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.wearable.view.WearableRecyclerView;
+import android.support.wear.widget.WearableLinearLayoutManager;
+import android.support.wear.widget.WearableRecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fesskiev.common.data.MapAudioFile;
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.utils.Utils;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static com.fesskiev.mediacenter.service.DataLayerListenerService.ACTION_TRACK_LIST;
 import static com.fesskiev.mediacenter.service.DataLayerListenerService.EXTRA_TRACK_LIST;
@@ -30,15 +32,7 @@ public class TrackListFragment extends Fragment {
         return new TrackListFragment();
     }
 
-    private WearableRecyclerView wearableRecyclerView;
     private TrackListAdapter adapter;
-    private List<MapAudioFile> audioFiles;
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        audioFiles = new ArrayList<>();
-    }
 
     @Nullable
     @Override
@@ -51,13 +45,16 @@ public class TrackListFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        wearableRecyclerView = (WearableRecyclerView) view.findViewById(R.id.recyclerView);
+        WearableRecyclerView wearableRecyclerView = view.findViewById(R.id.recyclerView);
         wearableRecyclerView.setHasFixedSize(true);
-        wearableRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),
-                LinearLayoutManager.VERTICAL, false));
+        wearableRecyclerView.setLayoutManager(new WearableLinearLayoutManager(getActivity().getApplicationContext()));
         adapter = new TrackListAdapter();
+
         wearableRecyclerView.setAdapter(adapter);
-        wearableRecyclerView.setCenterEdgeItems(true);
+        wearableRecyclerView.setEdgeItemsCenteringEnabled(true);
+        wearableRecyclerView.setCircularScrollingGestureEnabled(true);
+        wearableRecyclerView.setBezelFraction(0.5f);
+        wearableRecyclerView.setScrollDegreesPerScreen(90);
     }
 
     @Override
@@ -108,6 +105,7 @@ public class TrackListFragment extends Fragment {
 
         public class ViewHolder extends WearableRecyclerView.ViewHolder {
 
+            ImageView cover;
             TextView duration;
             TextView title;
 
@@ -115,8 +113,9 @@ public class TrackListFragment extends Fragment {
             public ViewHolder(View view) {
                 super(view);
 
-                duration = (TextView) view.findViewById(R.id.itemDuration);
-                title = (TextView) view.findViewById(R.id.itemTitle);
+                cover  = view.findViewById(R.id.cover);
+                duration = view.findViewById(R.id.itemDuration);
+                title = view.findViewById(R.id.itemTitle);
 
             }
         }
@@ -133,7 +132,12 @@ public class TrackListFragment extends Fragment {
         public void onBindViewHolder(ViewHolder viewHolder, final int position) {
             MapAudioFile audioFile = audioFiles.get(position);
             if (audioFile != null) {
+                Bitmap cover = audioFile.cover;
+                if(cover != null){
+                    viewHolder.cover.setImageBitmap(cover);
+                }
                 viewHolder.title.setText(audioFile.title);
+                viewHolder.duration.setText(Utils.getDurationString(audioFile.length));
             }
         }
 
