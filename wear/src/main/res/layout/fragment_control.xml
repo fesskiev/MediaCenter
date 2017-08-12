@@ -71,7 +71,7 @@
             tools:alpha="1">
 
             <ImageView
-                android:id="@+id/volumeMinus"
+                android:id="@+id/volumeDown"
                 android:layout_width="34dp"
                 android:layout_height="34dp"
                 android:layout_weight="1"
@@ -87,7 +87,7 @@
                 android:src="@drawable/icon_volume_off" />
 
             <ImageView
-                android:id="@+id/volumePlus"
+                android:id="@+id/volumeUp"
                 android:layout_width="34dp"
                 android:layout_height="34dp"
                 android:layout_weight="1"

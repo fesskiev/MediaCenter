@@ -13,8 +13,6 @@ import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.Asset;
-import com.google.android.gms.wearable.CapabilityApi;
-import com.google.android.gms.wearable.CapabilityInfo;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataMap;
@@ -36,14 +34,39 @@ import rx.Subscription;
 import rx.schedulers.Schedulers;
 
 import static com.fesskiev.common.Constants.COVER;
+import static com.fesskiev.common.Constants.NEXT_PATH;
+import static com.fesskiev.common.Constants.PAUSE_PATH;
+import static com.fesskiev.common.Constants.PLAY_PATH;
+import static com.fesskiev.common.Constants.PREVIOUS_PATH;
 import static com.fesskiev.common.Constants.START_ACTIVITY_PATH;
 import static com.fesskiev.common.Constants.TRACK_LIST_KEY;
 import static com.fesskiev.common.Constants.TRACK_LIST_PATH;
+import static com.fesskiev.common.Constants.VOLUME_DOWN;
+import static com.fesskiev.common.Constants.VOLUME_OFF;
+import static com.fesskiev.common.Constants.VOLUME_UP;
 
 public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         DataApi.DataListener,
-        MessageApi.MessageListener,
-        CapabilityApi.CapabilityListener {
+        MessageApi.MessageListener {
+
+    public interface OnWearControlListener {
+
+        void onPrevious();
+
+        void onNext();
+
+        void onPause();
+
+        void onPlay();
+
+        void onVolumeUp();
+
+        void onVolumeDown();
+
+        void onVolumeOff();
+    }
+
+    private OnWearControlListener listener;
 
     private GoogleApiClient googleApiClient;
     private Subscription subscription;
@@ -64,7 +87,6 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
         if ((googleApiClient != null) && googleApiClient.isConnected()) {
             Wearable.DataApi.removeListener(googleApiClient, this);
             Wearable.MessageApi.removeListener(googleApiClient, this);
-            Wearable.CapabilityApi.removeListener(googleApiClient, this);
             googleApiClient.disconnect();
         }
         RxUtils.unsubscribe(subscription);
@@ -159,7 +181,8 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-
+        Wearable.DataApi.addListener(googleApiClient, this);
+        Wearable.MessageApi.addListener(googleApiClient, this);
     }
 
     @Override
@@ -173,17 +196,40 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
     }
 
     @Override
-    public void onCapabilityChanged(CapabilityInfo capabilityInfo) {
-
-    }
-
-    @Override
     public void onDataChanged(DataEventBuffer dataEventBuffer) {
 
     }
 
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
+        if(listener != null) {
+            switch (messageEvent.getPath()) {
+                case PREVIOUS_PATH:
+                    listener.onPrevious();
+                    break;
+                case NEXT_PATH:
+                    listener.onNext();
+                    break;
+                case PAUSE_PATH:
+                    listener.onPause();
+                    break;
+                case PLAY_PATH:
+                    listener.onPlay();
+                    break;
+                case VOLUME_DOWN:
+                    listener.onVolumeDown();
+                    break;
+                case VOLUME_UP:
+                    listener.onVolumeUp();
+                    break;
+                case VOLUME_OFF:
+                    listener.onVolumeOff();
+                    break;
+            }
+        }
+    }
 
+    public void setOnWearControlListener(OnWearControlListener listener) {
+        this.listener = listener;
     }
 }

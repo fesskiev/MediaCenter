@@ -1,14 +1,9 @@
 package com.fesskiev.mediacenter.ui;
 
 import android.app.Fragment;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.wear.widget.WearableLinearLayoutManager;
 import android.support.wear.widget.WearableRecyclerView;
 import android.view.LayoutInflater;
@@ -22,9 +17,6 @@ import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.utils.Utils;
 
 import java.util.ArrayList;
-
-import static com.fesskiev.mediacenter.service.DataLayerListenerService.ACTION_TRACK_LIST;
-import static com.fesskiev.mediacenter.service.DataLayerListenerService.EXTRA_TRACK_LIST;
 
 public class TrackListFragment extends Fragment {
 
@@ -52,48 +44,13 @@ public class TrackListFragment extends Fragment {
 
         wearableRecyclerView.setAdapter(adapter);
         wearableRecyclerView.setEdgeItemsCenteringEnabled(true);
-        wearableRecyclerView.setCircularScrollingGestureEnabled(true);
-        wearableRecyclerView.setBezelFraction(0.5f);
-        wearableRecyclerView.setScrollDegreesPerScreen(90);
+        wearableRecyclerView.setBezelFraction(1.0f);
+        wearableRecyclerView.setScrollDegreesPerScreen(180);
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        registerTrackListReceiver();
+    public void refreshAdapter(ArrayList<MapAudioFile> audioFiles){
+        adapter.refreshAdapter(audioFiles);
     }
-
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        unregisterTrackListReceiver();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-
-    private void registerTrackListReceiver() {
-        LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).registerReceiver(
-                receiver, new IntentFilter(ACTION_TRACK_LIST));
-    }
-
-    private void unregisterTrackListReceiver() {
-        LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).unregisterReceiver(receiver);
-    }
-
-    private BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            ArrayList<MapAudioFile> audioFiles = intent.getParcelableArrayListExtra(EXTRA_TRACK_LIST);
-            if (audioFiles != null) {
-                adapter.refreshAdapter(audioFiles);
-            }
-        }
-    };
 
     public class TrackListAdapter extends WearableRecyclerView.Adapter<TrackListAdapter.ViewHolder> {
 

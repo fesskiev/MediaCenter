@@ -7,17 +7,30 @@ import android.support.v4.view.ViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.service.DataLayerListenerService;
+
+import static com.fesskiev.common.Constants.NEXT_PATH;
+import static com.fesskiev.common.Constants.PAUSE_PATH;
+import static com.fesskiev.common.Constants.PLAY_PATH;
+import static com.fesskiev.common.Constants.PREVIOUS_PATH;
+import static com.fesskiev.common.Constants.VOLUME_DOWN;
+import static com.fesskiev.common.Constants.VOLUME_OFF;
+import static com.fesskiev.common.Constants.VOLUME_UP;
 
 
-public class ControlFragment extends Fragment {
+public class ControlFragment extends Fragment implements View.OnClickListener {
 
     public static Fragment newInstance() {
         return new ControlFragment();
     }
 
     private static final int ITEM_DELAY = 300;
+
+
+    private ImageView[] buttons;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -34,6 +47,18 @@ public class ControlFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        buttons = new ImageView[]{
+                view.findViewById(R.id.previous),
+                view.findViewById(R.id.next),
+                view.findViewById(R.id.play),
+                view.findViewById(R.id.pause),
+                view.findViewById(R.id.volumeDown),
+                view.findViewById(R.id.volumeOff),
+                view.findViewById(R.id.volumeUp),
+        };
+        for (ImageView button : buttons) {
+            button.setOnClickListener(this);
+        }
         animateButtons(view);
     }
 
@@ -50,19 +75,31 @@ public class ControlFragment extends Fragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onClick(View view) {
+        String path = null;
+        switch (view.getId()) {
+            case R.id.previous:
+                path = PREVIOUS_PATH;
+                break;
+            case R.id.next:
+                path = NEXT_PATH;
+                break;
+            case R.id.play:
+                path = PLAY_PATH;
+                break;
+            case R.id.pause:
+                path = PAUSE_PATH;
+                break;
+            case R.id.volumeUp:
+                path = VOLUME_UP;
+                break;
+            case R.id.volumeDown:
+                path = VOLUME_DOWN;
+                break;
+            case R.id.volumeOff:
+                path = VOLUME_OFF;
+                break;
+        }
+        DataLayerListenerService.sendMessage(getActivity().getApplicationContext(), path);
     }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-
 }

@@ -2,15 +2,26 @@ package com.fesskiev.mediacenter.ui;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import android.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.wear.widget.drawer.WearableNavigationDrawerView;
 import android.support.wearable.activity.WearableActivity;
 
+import com.fesskiev.common.data.MapAudioFile;
 import com.fesskiev.mediacenter.R;
+
+import java.util.ArrayList;
+
+import static com.fesskiev.mediacenter.service.DataLayerListenerService.ACTION_TRACK_LIST;
+import static com.fesskiev.mediacenter.service.DataLayerListenerService.EXTRA_TRACK_LIST;
 
 
 public class MainActivity extends WearableActivity {
@@ -38,12 +49,49 @@ public class MainActivity extends WearableActivity {
     }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
+        registerTrackListReceiver();
         addControlFragment();
+
     }
 
-    private final class NavigationAdapter extends WearableNavigationDrawerView.WearableNavigationDrawerAdapter {
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        unregisterTrackListReceiver();
+    }
+
+
+    private void registerTrackListReceiver() {
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(
+                receiver, new IntentFilter(ACTION_TRACK_LIST));
+    }
+
+    private void unregisterTrackListReceiver() {
+        LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(receiver);
+    }
+
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ArrayList<MapAudioFile> audioFiles = intent.getParcelableArrayListExtra(EXTRA_TRACK_LIST);
+            if (audioFiles != null) {
+                updateTrackList(audioFiles);
+            }
+        }
+    };
+
+    private void updateTrackList(ArrayList<MapAudioFile> audioFiles) {
+        TrackListFragment trackListFragment = (TrackListFragment) getFragmentManager().
+                findFragmentByTag(TrackListFragment.class.getName());
+        if (trackListFragment != null) {
+            trackListFragment.refreshAdapter(audioFiles);
+        }
+    }
+
+    private class NavigationAdapter extends WearableNavigationDrawerView.WearableNavigationDrawerAdapter {
 
         @Override
         public int getCount() {
@@ -89,6 +137,7 @@ public class MainActivity extends WearableActivity {
         }
         transaction.commitAllowingStateLoss();
     }
+
 
     private void addTrackListFragment() {
         FragmentTransaction transaction = getFragmentManager().beginTransaction();

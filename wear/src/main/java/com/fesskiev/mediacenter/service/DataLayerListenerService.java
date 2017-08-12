@@ -1,8 +1,10 @@
 package com.fesskiev.mediacenter.service;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -10,13 +12,17 @@ import com.fesskiev.common.data.MapAudioFile;
 import com.fesskiev.mediacenter.ui.MainActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.MessageEvent;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
 
@@ -34,9 +40,19 @@ public class DataLayerListenerService extends WearableListenerService {
 
     private static final String TAG = "DataLayerService";
 
+    public static final String ACTION_SEND_MESSAGE = "com.fesskiev.player.wear.action.ACTION_SEND_MESSAGE";
+
     public static final String ACTION_TRACK_LIST = "com.fesskiev.player.wear.ACTION_TRACK_LIST";
 
     public static final String EXTRA_TRACK_LIST = "com.fesskiev.player.wear.EXTRA_TRACK_LIST";
+    public static final String EXTRA_MESSAGE_PATH = "com.fesskiev.player.wear.EXTRA_MESSAGE_PATH";
+
+    public static void sendMessage(Context context, String type) {
+        Intent intent = new Intent(context, DataLayerListenerService.class);
+        intent.setAction(ACTION_SEND_MESSAGE);
+        intent.putExtra(EXTRA_MESSAGE_PATH, type);
+        context.startService(intent);
+    }
 
     private GoogleApiClient googleApiClient;
 
@@ -50,16 +66,24 @@ public class DataLayerListenerService extends WearableListenerService {
     }
 
     @Override
-    public void onDataChanged(DataEventBuffer dataEvents) {
-        Log.w(TAG, "onDataChanged: " + dataEvents);
-        if (!googleApiClient.isConnected() || !googleApiClient.isConnecting()) {
-            ConnectionResult connectionResult = googleApiClient
-                    .blockingConnect(30, TimeUnit.SECONDS);
-            if (!connectionResult.isSuccess()) {
-                Log.e(TAG, "DataLayerListenerService failed to connect to GoogleApiClient, "
-                        + "error code: " + connectionResult.getErrorCode());
-                return;
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        String action = intent.getAction();
+        if (action != null) {
+            switch (action) {
+                case ACTION_SEND_MESSAGE:
+                    String path = intent.getStringExtra(EXTRA_MESSAGE_PATH);
+                    sendMessageToHandSet(path);
+                    break;
+
             }
+        }
+        return START_STICKY;
+    }
+
+    @Override
+    public void onDataChanged(DataEventBuffer dataEvents) {
+        if (!googleApiClient.isConnected()) {
+           return;
         }
         processEvent(dataEvents);
     }
@@ -112,5 +136,28 @@ public class DataLayerListenerService extends WearableListenerService {
         Intent intent = new Intent(ACTION_TRACK_LIST);
         intent.putParcelableArrayListExtra(EXTRA_TRACK_LIST, audioFiles);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+    private void sendMessageToHandSet(String path){
+        if (!googleApiClient.isConnected()) {
+            return;
+        }
+        new Thread(() -> {
+            List<String> nodeIds = getNodes();
+            for(String nodeId : nodeIds) {
+                Wearable.MessageApi.sendMessage(googleApiClient, nodeId, path,
+                        new byte[0]);
+            }
+        }).start();
+    }
+
+    private List<String> getNodes() {
+        List<String> results = new ArrayList<>();
+        NodeApi.GetConnectedNodesResult nodes =
+                Wearable.NodeApi.getConnectedNodes(googleApiClient).await();
+        for (Node node : nodes.getNodes()) {
+            results.add(node.getId());
+        }
+        return results;
     }
 }

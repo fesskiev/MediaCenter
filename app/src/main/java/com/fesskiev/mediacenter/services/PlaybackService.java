@@ -519,6 +519,51 @@ public class PlaybackService extends Service {
     private void makeWearModule() {
         wearHelper = new WearHelper(getApplicationContext());
         wearHelper.connect();
+        wearHelper.setOnWearControlListener(new WearHelper.OnWearControlListener() {
+
+            @Override
+            public void onPrevious() {
+                audioPlayer.previous();
+            }
+
+            @Override
+            public void onNext() {
+                audioPlayer.next();
+            }
+
+            @Override
+            public void onPause() {
+                stop();
+            }
+
+            @Override
+            public void onPlay() {
+                play();
+            }
+
+            @Override
+            public void onVolumeUp() {
+                if (volume + 10 >= 100) {
+                    setVolumeAudioPlayer(100f);
+                } else {
+                    setVolumeAudioPlayer(volume + 10f);
+                }
+            }
+
+            @Override
+            public void onVolumeDown() {
+                if (volume - 10 < 0) {
+                    setVolumeAudioPlayer(0f);
+                } else {
+                    setVolumeAudioPlayer(volume - 10f);
+                }
+            }
+
+            @Override
+            public void onVolumeOff() {
+                setVolumeAudioPlayer(0f);
+            }
+        });
     }
 
 
