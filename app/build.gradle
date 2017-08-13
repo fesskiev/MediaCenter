@@ -114,7 +114,6 @@ dependencies {
     compile "com.android.support:percent:$rootProject.supportLibVersion"
 
     compile "com.google.firebase:firebase-crash:${firebaseLibVersion}"
-    compile "com.google.firebase:firebase-ads:${firebaseLibVersion}"
     compile "com.google.firebase:firebase-analytics:${firebaseLibVersion}"
 
     compile "com.google.android.gms:play-services-wearable:$rootProject.playServiceWearable"
