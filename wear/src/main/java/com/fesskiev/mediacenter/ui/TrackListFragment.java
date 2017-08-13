@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 public class TrackListFragment extends Fragment {
 
-    public static Fragment newInstance() {
+    public static TrackListFragment newInstance() {
         return new TrackListFragment();
     }
 

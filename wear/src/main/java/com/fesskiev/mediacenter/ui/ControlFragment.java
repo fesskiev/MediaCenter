@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.service.DataLayerListenerService;
+import com.fesskiev.mediacenter.service.DataLayerService;
 
 import static com.fesskiev.common.Constants.NEXT_PATH;
 import static com.fesskiev.common.Constants.PAUSE_PATH;
@@ -23,7 +23,7 @@ import static com.fesskiev.common.Constants.VOLUME_UP;
 
 public class ControlFragment extends Fragment implements View.OnClickListener {
 
-    public static Fragment newInstance() {
+    public static ControlFragment newInstance() {
         return new ControlFragment();
     }
 
@@ -100,6 +100,6 @@ public class ControlFragment extends Fragment implements View.OnClickListener {
                 path = VOLUME_OFF;
                 break;
         }
-        DataLayerListenerService.sendMessage(getActivity().getApplicationContext(), path);
+        DataLayerService.sendMessage(getActivity().getApplicationContext(), path);
     }
 }

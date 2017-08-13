@@ -517,7 +517,7 @@ public class PlaybackService extends Service {
     }
 
     private void makeWearModule() {
-        wearHelper = new WearHelper(getApplicationContext());
+        wearHelper = new WearHelper(getApplicationContext(), audioPlayer);
         wearHelper.connect();
         wearHelper.setOnWearControlListener(new WearHelper.OnWearControlListener() {
 

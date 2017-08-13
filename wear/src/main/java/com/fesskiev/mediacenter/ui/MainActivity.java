@@ -14,24 +14,28 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.wear.widget.drawer.WearableNavigationDrawerView;
 import android.support.wearable.activity.WearableActivity;
+import android.util.Log;
 
 import com.fesskiev.common.data.MapAudioFile;
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.service.DataLayerService;
 
 import java.util.ArrayList;
 
-import static com.fesskiev.mediacenter.service.DataLayerListenerService.ACTION_TRACK_LIST;
-import static com.fesskiev.mediacenter.service.DataLayerListenerService.EXTRA_TRACK_LIST;
+import static com.fesskiev.mediacenter.service.DataLayerService.ACTION_TRACK_LIST;
+import static com.fesskiev.mediacenter.service.DataLayerService.EXTRA_TRACK_LIST;
 
 
 public class MainActivity extends WearableActivity {
+
+    private WearableNavigationDrawerView wearableNavigationDrawer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        WearableNavigationDrawerView wearableNavigationDrawer = findViewById(R.id.navigationDrawer);
+        wearableNavigationDrawer = findViewById(R.id.navigationDrawer);
         wearableNavigationDrawer.getController().peekDrawer();
 
         wearableNavigationDrawer.setAdapter(new NavigationAdapter());
@@ -46,23 +50,19 @@ public class MainActivity extends WearableActivity {
             }
 
         });
-    }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        registerTrackListReceiver();
         addControlFragment();
 
+        registerTrackListReceiver();
+        startService(new Intent(this, DataLayerService.class));
     }
-
 
     @Override
-    public void onPause() {
-        super.onPause();
+    protected void onDestroy() {
+        super.onDestroy();
         unregisterTrackListReceiver();
+        stopService(new Intent(this, DataLayerService.class));
     }
-
 
     private void registerTrackListReceiver() {
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(
@@ -76,20 +76,21 @@ public class MainActivity extends WearableActivity {
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+
             ArrayList<MapAudioFile> audioFiles = intent.getParcelableArrayListExtra(EXTRA_TRACK_LIST);
             if (audioFiles != null) {
-                updateTrackList(audioFiles);
+                TrackListFragment trackListFragment = addTrackListFragment();
+                if (!trackListFragment.isAdded()) {
+                    Log.w("test", "invisible");
+                } else {
+                    Log.w("test", "refresh: " + audioFiles.size());
+
+                    trackListFragment.refreshAdapter(audioFiles);
+                    wearableNavigationDrawer.setCurrentItem(1, true);
+                }
             }
         }
     };
-
-    private void updateTrackList(ArrayList<MapAudioFile> audioFiles) {
-        TrackListFragment trackListFragment = (TrackListFragment) getFragmentManager().
-                findFragmentByTag(TrackListFragment.class.getName());
-        if (trackListFragment != null) {
-            trackListFragment.refreshAdapter(audioFiles);
-        }
-    }
 
     private class NavigationAdapter extends WearableNavigationDrawerView.WearableNavigationDrawerAdapter {
 
@@ -139,7 +140,7 @@ public class MainActivity extends WearableActivity {
     }
 
 
-    private void addTrackListFragment() {
+    private TrackListFragment addTrackListFragment() {
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
         hideVisibleFragment(transaction);
@@ -147,13 +148,17 @@ public class MainActivity extends WearableActivity {
         TrackListFragment trackListFragment = (TrackListFragment) getFragmentManager().
                 findFragmentByTag(TrackListFragment.class.getName());
         if (trackListFragment == null) {
-            transaction.add(R.id.content, TrackListFragment.newInstance(),
+            trackListFragment = TrackListFragment.newInstance();
+
+            transaction.add(R.id.content, trackListFragment,
                     TrackListFragment.class.getName());
             transaction.addToBackStack(TrackListFragment.class.getName());
         } else {
             transaction.show(trackListFragment);
         }
         transaction.commitAllowingStateLoss();
+
+        return trackListFragment;
     }
 
     private void hideVisibleFragment(FragmentTransaction transaction) {

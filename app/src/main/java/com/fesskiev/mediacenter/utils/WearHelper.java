@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 
 import com.fesskiev.common.data.MapAudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFile;
+import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.Asset;
@@ -71,7 +72,11 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
     private GoogleApiClient googleApiClient;
     private Subscription subscription;
 
-    public WearHelper(Context context) {
+    private AudioPlayer audioPlayer;
+
+    public WearHelper(Context context, AudioPlayer audioPlayer) {
+        this.audioPlayer = audioPlayer;
+
         googleApiClient = new GoogleApiClient.Builder(context)
                 .addApi(Wearable.API)
                 .addConnectionCallbacks(this)
@@ -110,24 +115,26 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
                 .subscribeOn(Schedulers.io())
                 .flatMap(audioFiles -> {
                     ArrayList<DataMap> dataMaps = new ArrayList<>();
-                    for (AudioFile audioFile : currentTrackList) {
-                        DataMap dataMap = new DataMap();
+                    synchronized (currentTrackList) {
+                        for (AudioFile audioFile : currentTrackList) {
+                            DataMap dataMap = new DataMap();
 
-                        MapAudioFile mapAudioFile = MapAudioFile.MapAudioFileBuilder.buildMapAudioFile()
-                                .withAlbum(audioFile.album)
-                                .withBitrate(audioFile.bitrate)
-                                .withSampleRate(audioFile.sampleRate)
-                                .withTitle(audioFile.title)
-                                .withSize(audioFile.size)
-                                .withTimestamp(audioFile.timestamp)
-                                .withId(audioFile.id)
-                                .withGenre(audioFile.genre)
-                                .withArtist(audioFile.artist)
-                                .withLength(audioFile.length)
-                                .withTrackNumber(audioFile.trackNumber)
-                                .build();
-                        mapAudioFile.toDataMap(dataMap).putAsset(COVER, toAsset(audioFile.getArtworkPath()));
-                        dataMaps.add(dataMap);
+                            MapAudioFile mapAudioFile = MapAudioFile.MapAudioFileBuilder.buildMapAudioFile()
+                                    .withAlbum(audioFile.album)
+                                    .withBitrate(audioFile.bitrate)
+                                    .withSampleRate(audioFile.sampleRate)
+                                    .withTitle(audioFile.title)
+                                    .withSize(audioFile.size)
+                                    .withTimestamp(audioFile.timestamp)
+                                    .withId(audioFile.id)
+                                    .withGenre(audioFile.genre)
+                                    .withArtist(audioFile.artist)
+                                    .withLength(audioFile.length)
+                                    .withTrackNumber(audioFile.trackNumber)
+                                    .build();
+                            mapAudioFile.toDataMap(dataMap).putAsset(COVER, toAsset(audioFile.getArtworkPath()));
+                            dataMaps.add(dataMap);
+                        }
                     }
                     return Observable.just(dataMaps);
                 })
@@ -157,25 +164,28 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
     }
 
     private static Asset toAsset(String path) {
-        ByteArrayOutputStream byteStream = null;
-        try {
-            byteStream = new ByteArrayOutputStream();
+        if (path != null) {
+            ByteArrayOutputStream byteStream = null;
+            try {
+                byteStream = new ByteArrayOutputStream();
 
-            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-            Bitmap bitmap = BitmapFactory.decodeFile(path, bmOptions);
-            bitmap = Bitmap.createScaledBitmap(bitmap, 320, 320, true);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteStream);
+                BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+                Bitmap bitmap = BitmapFactory.decodeFile(path, bmOptions);
+                bitmap = Bitmap.createScaledBitmap(bitmap, 320, 320, true);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteStream);
 
-            return Asset.createFromBytes(byteStream.toByteArray());
-        } finally {
-            if (byteStream != null) {
-                try {
-                    byteStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                return Asset.createFromBytes(byteStream.toByteArray());
+            } finally {
+                if (byteStream != null) {
+                    try {
+                        byteStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
+        return null;
     }
 
 
@@ -183,6 +193,8 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
     public void onConnected(@Nullable Bundle bundle) {
         Wearable.DataApi.addListener(googleApiClient, this);
         Wearable.MessageApi.addListener(googleApiClient, this);
+
+        updateTrackList(audioPlayer.getCurrentTrackList());
     }
 
     @Override
@@ -202,7 +214,7 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
-        if(listener != null) {
+        if (listener != null) {
             switch (messageEvent.getPath()) {
                 case PREVIOUS_PATH:
                     listener.onPrevious();
