@@ -91,14 +91,16 @@ public class DataLayerService extends Service implements GoogleApiClient.Connect
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        String action = intent.getAction();
-        if (action != null) {
-            switch (action) {
-                case ACTION_SEND_MESSAGE:
-                    String path = intent.getStringExtra(EXTRA_MESSAGE_PATH);
-                    serviceThread.processSendMessage(path);
-                    break;
+        if (intent != null) {
+            String action = intent.getAction();
+            if (action != null) {
+                switch (action) {
+                    case ACTION_SEND_MESSAGE:
+                        String path = intent.getStringExtra(EXTRA_MESSAGE_PATH);
+                        serviceThread.processSendMessage(path);
+                        break;
 
+                }
             }
         }
         return START_STICKY;

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.wear.widget.WearableLinearLayoutManager;
 import android.support.wear.widget.WearableRecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,7 @@ public class TrackListFragment extends Fragment {
     }
 
     private TrackListAdapter adapter;
+    private volatile boolean isAdd;
 
     @Nullable
     @Override
@@ -46,9 +48,26 @@ public class TrackListFragment extends Fragment {
         wearableRecyclerView.setEdgeItemsCenteringEnabled(true);
         wearableRecyclerView.setBezelFraction(1.0f);
         wearableRecyclerView.setScrollDegreesPerScreen(180);
+
+        Log.wtf("test", "onViewCreated: " + isAdd);
+
     }
 
-    public void refreshAdapter(ArrayList<MapAudioFile> audioFiles){
+    @Override
+    public void onStart() {
+        super.onStart();
+        isAdd = true;
+        Log.wtf("test", "onStart(): " + isAdd);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        isAdd = false;
+        Log.wtf("test", "onDestroy(): " + isAdd);
+    }
+
+    public void refreshAdapter(ArrayList<MapAudioFile> audioFiles) {
         adapter.refreshAdapter(audioFiles);
     }
 
@@ -66,13 +85,20 @@ public class TrackListFragment extends Fragment {
             TextView duration;
             TextView title;
 
-
             public ViewHolder(View view) {
                 super(view);
+                view.setOnClickListener(v -> handleItemClick(getAdapterPosition()));
 
-                cover  = view.findViewById(R.id.cover);
+                cover = view.findViewById(R.id.cover);
                 duration = view.findViewById(R.id.itemDuration);
                 title = view.findViewById(R.id.itemTitle);
+
+            }
+        }
+
+        private void handleItemClick(int position) {
+            MapAudioFile audioFile = audioFiles.get(position);
+            if (audioFile != null) {
 
             }
         }
@@ -90,7 +116,7 @@ public class TrackListFragment extends Fragment {
             MapAudioFile audioFile = audioFiles.get(position);
             if (audioFile != null) {
                 Bitmap cover = audioFile.cover;
-                if(cover != null){
+                if (cover != null) {
                     viewHolder.cover.setImageBitmap(cover);
                 }
                 viewHolder.title.setText(audioFile.title);
@@ -103,10 +129,14 @@ public class TrackListFragment extends Fragment {
             return audioFiles.size();
         }
 
-        public void refreshAdapter(ArrayList<MapAudioFile> audioFiles) {
-            this.audioFiles.clear();
-            this.audioFiles.addAll(audioFiles);
+        public void refreshAdapter(ArrayList<MapAudioFile> newAudioFiles) {
+            audioFiles.clear();
+            audioFiles.addAll(newAudioFiles);
             notifyDataSetChanged();
         }
+    }
+
+    public boolean isAdd() {
+        return isAdd;
     }
 }

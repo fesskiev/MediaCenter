@@ -89,7 +89,7 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
     }
 
     public void disconnect() {
-        if ((googleApiClient != null) && googleApiClient.isConnected()) {
+        if (googleApiClient != null && googleApiClient.isConnected()) {
             Wearable.DataApi.removeListener(googleApiClient, this);
             Wearable.MessageApi.removeListener(googleApiClient, this);
             googleApiClient.disconnect();
@@ -111,30 +111,33 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
     }
 
     public void updateTrackList(List<AudioFile> currentTrackList) {
+        if (googleApiClient == null || !googleApiClient.isConnected()) {
+            return;
+        }
         subscription = Observable.just(currentTrackList)
                 .subscribeOn(Schedulers.io())
                 .flatMap(audioFiles -> {
                     ArrayList<DataMap> dataMaps = new ArrayList<>();
-                    synchronized (currentTrackList) {
-                        for (AudioFile audioFile : currentTrackList) {
-                            DataMap dataMap = new DataMap();
 
-                            MapAudioFile mapAudioFile = MapAudioFile.MapAudioFileBuilder.buildMapAudioFile()
-                                    .withAlbum(audioFile.album)
-                                    .withBitrate(audioFile.bitrate)
-                                    .withSampleRate(audioFile.sampleRate)
-                                    .withTitle(audioFile.title)
-                                    .withSize(audioFile.size)
-                                    .withTimestamp(audioFile.timestamp)
-                                    .withId(audioFile.id)
-                                    .withGenre(audioFile.genre)
-                                    .withArtist(audioFile.artist)
-                                    .withLength(audioFile.length)
-                                    .withTrackNumber(audioFile.trackNumber)
-                                    .build();
-                            mapAudioFile.toDataMap(dataMap).putAsset(COVER, toAsset(audioFile.getArtworkPath()));
-                            dataMaps.add(dataMap);
-                        }
+                    List<AudioFile> list = new ArrayList<>(currentTrackList);
+                    for (AudioFile audioFile : list) {
+                        DataMap dataMap = new DataMap();
+
+                        MapAudioFile mapAudioFile = MapAudioFile.MapAudioFileBuilder.buildMapAudioFile()
+                                .withAlbum(audioFile.album)
+                                .withBitrate(audioFile.bitrate)
+                                .withSampleRate(audioFile.sampleRate)
+                                .withTitle(audioFile.title)
+                                .withSize(audioFile.size)
+                                .withTimestamp(audioFile.timestamp)
+                                .withId(audioFile.id)
+                                .withGenre(audioFile.genre)
+                                .withArtist(audioFile.artist)
+                                .withLength(audioFile.length)
+                                .withTrackNumber(audioFile.trackNumber)
+                                .build();
+                        mapAudioFile.toDataMap(dataMap).putAsset(COVER, toAsset(audioFile.getArtworkPath()));
+                        dataMaps.add(dataMap);
                     }
                     return Observable.just(dataMaps);
                 })

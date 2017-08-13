@@ -1,7 +1,6 @@
 package com.fesskiev.mediacenter.ui;
 
 import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,17 +9,20 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import android.app.FragmentManager;
+import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.ViewPager;
 import android.support.wear.widget.drawer.WearableNavigationDrawerView;
 import android.support.wearable.activity.WearableActivity;
-import android.util.Log;
+import android.view.ViewGroup;
 
 import com.fesskiev.common.data.MapAudioFile;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.service.DataLayerService;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.fesskiev.mediacenter.service.DataLayerService.ACTION_TRACK_LIST;
 import static com.fesskiev.mediacenter.service.DataLayerService.EXTRA_TRACK_LIST;
@@ -28,33 +30,55 @@ import static com.fesskiev.mediacenter.service.DataLayerService.EXTRA_TRACK_LIST
 
 public class MainActivity extends WearableActivity {
 
-    private WearableNavigationDrawerView wearableNavigationDrawer;
+    private ViewPagerAdapter adapter;
+    private ViewPager viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        wearableNavigationDrawer = findViewById(R.id.navigationDrawer);
+        WearableNavigationDrawerView wearableNavigationDrawer = findViewById(R.id.navigationDrawer);
         wearableNavigationDrawer.getController().peekDrawer();
 
         wearableNavigationDrawer.setAdapter(new NavigationAdapter());
-        wearableNavigationDrawer.addOnItemSelectedListener(pos -> {
-            switch (pos) {
-                case 0:
-                    addControlFragment();
-                    break;
-                case 1:
-                    addTrackListFragment();
-                    break;
+        wearableNavigationDrawer.addOnItemSelectedListener(pos -> viewPager.setCurrentItem(pos));
+
+        viewPager = findViewById(R.id.viewpager);
+        viewPager.setOffscreenPageLimit(2);
+        setupViewPager(viewPager);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
             }
 
+            @Override
+            public void onPageSelected(int position) {
+                wearableNavigationDrawer.setCurrentItem(position, true);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
         });
 
-        addControlFragment();
 
         registerTrackListReceiver();
         startService(new Intent(this, DataLayerService.class));
+    }
+
+    private void setupViewPager(ViewPager viewPager) {
+        adapter = new ViewPagerAdapter(getFragmentManager());
+        Fragment[] fragments = new Fragment[]{
+                ControlFragment.newInstance(),
+                TrackListFragment.newInstance()
+        };
+        for (Fragment fragment : fragments) {
+            adapter.addFragment(fragment);
+        }
+        viewPager.setAdapter(adapter);
     }
 
     @Override
@@ -79,18 +103,66 @@ public class MainActivity extends WearableActivity {
 
             ArrayList<MapAudioFile> audioFiles = intent.getParcelableArrayListExtra(EXTRA_TRACK_LIST);
             if (audioFiles != null) {
-                TrackListFragment trackListFragment = addTrackListFragment();
-                if (!trackListFragment.isAdded()) {
-                    Log.w("test", "invisible");
-                } else {
-                    Log.w("test", "refresh: " + audioFiles.size());
-
-                    trackListFragment.refreshAdapter(audioFiles);
-                    wearableNavigationDrawer.setCurrentItem(1, true);
-                }
+                adapter.getTrackLsitFragment().refreshAdapter(audioFiles);
             }
         }
     };
+
+    private class ViewPagerAdapter extends FragmentStatePagerAdapter {
+
+        private List<Fragment> fragmentList = new ArrayList<>();
+        private List<Fragment> registeredFragments = new ArrayList<>();
+
+        public ViewPagerAdapter(FragmentManager manager) {
+            super(manager);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return fragmentList.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return fragmentList.size();
+        }
+
+        public void addFragment(Fragment fragment) {
+            fragmentList.add(fragment);
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            Fragment fragment = (Fragment) super.instantiateItem(container, position);
+            registeredFragments.add(fragment);
+
+            return fragment;
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            registeredFragments.remove(position);
+            super.destroyItem(container, position, object);
+        }
+
+        public ControlFragment getControlFragment() {
+            for (Fragment fragment : registeredFragments) {
+                if (fragment instanceof ControlFragment) {
+                    return (ControlFragment) fragment;
+                }
+            }
+            return null;
+        }
+
+        public TrackListFragment getTrackLsitFragment() {
+            for (Fragment fragment : registeredFragments) {
+                if (fragment instanceof TrackListFragment) {
+                    return (TrackListFragment) fragment;
+                }
+            }
+            return null;
+        }
+    }
 
     private class NavigationAdapter extends WearableNavigationDrawerView.WearableNavigationDrawerAdapter {
 
@@ -119,57 +191,6 @@ public class MainActivity extends WearableActivity {
                     return ContextCompat.getDrawable(getApplicationContext(), R.drawable.icon_tracklist);
             }
             return null;
-        }
-    }
-
-    private void addControlFragment() {
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-
-        hideVisibleFragment(transaction);
-
-        ControlFragment controlFragment = (ControlFragment) getFragmentManager().
-                findFragmentByTag(ControlFragment.class.getName());
-        if (controlFragment == null) {
-            transaction.add(R.id.content, ControlFragment.newInstance(),
-                    ControlFragment.class.getName());
-            transaction.addToBackStack(ControlFragment.class.getName());
-        } else {
-            transaction.show(controlFragment);
-        }
-        transaction.commitAllowingStateLoss();
-    }
-
-
-    private TrackListFragment addTrackListFragment() {
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-
-        hideVisibleFragment(transaction);
-
-        TrackListFragment trackListFragment = (TrackListFragment) getFragmentManager().
-                findFragmentByTag(TrackListFragment.class.getName());
-        if (trackListFragment == null) {
-            trackListFragment = TrackListFragment.newInstance();
-
-            transaction.add(R.id.content, trackListFragment,
-                    TrackListFragment.class.getName());
-            transaction.addToBackStack(TrackListFragment.class.getName());
-        } else {
-            transaction.show(trackListFragment);
-        }
-        transaction.commitAllowingStateLoss();
-
-        return trackListFragment;
-    }
-
-    private void hideVisibleFragment(FragmentTransaction transaction) {
-        FragmentManager fragmentManager = getFragmentManager();
-        for (int entry = 0; entry < fragmentManager.getBackStackEntryCount(); entry++) {
-            Fragment fragment =
-                    fragmentManager.findFragmentByTag(fragmentManager.getBackStackEntryAt(entry).getName());
-            if (fragment != null && fragment.isAdded() && fragment.isVisible()) {
-                transaction.hide(fragment);
-                break;
-            }
         }
     }
 }
