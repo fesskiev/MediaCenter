@@ -15,9 +15,12 @@ import android.widget.TextView;
 
 import com.fesskiev.common.data.MapAudioFile;
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.service.DataLayerService;
 import com.fesskiev.mediacenter.utils.Utils;
 
 import java.util.ArrayList;
+
+import static com.fesskiev.common.Constants.CHOOSE_TRACK;
 
 public class TrackListFragment extends Fragment {
 
@@ -26,7 +29,6 @@ public class TrackListFragment extends Fragment {
     }
 
     private TrackListAdapter adapter;
-    private volatile boolean isAdd;
 
     @Nullable
     @Override
@@ -49,22 +51,6 @@ public class TrackListFragment extends Fragment {
         wearableRecyclerView.setBezelFraction(1.0f);
         wearableRecyclerView.setScrollDegreesPerScreen(180);
 
-        Log.wtf("test", "onViewCreated: " + isAdd);
-
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        isAdd = true;
-        Log.wtf("test", "onStart(): " + isAdd);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        isAdd = false;
-        Log.wtf("test", "onDestroy(): " + isAdd);
     }
 
     public void refreshAdapter(ArrayList<MapAudioFile> audioFiles) {
@@ -99,7 +85,8 @@ public class TrackListFragment extends Fragment {
         private void handleItemClick(int position) {
             MapAudioFile audioFile = audioFiles.get(position);
             if (audioFile != null) {
-
+                DataLayerService.sendChooseTrackMessage(getActivity().getApplicationContext(),
+                        CHOOSE_TRACK, audioFile.title);
             }
         }
 
@@ -134,9 +121,5 @@ public class TrackListFragment extends Fragment {
             audioFiles.addAll(newAudioFiles);
             notifyDataSetChanged();
         }
-    }
-
-    public boolean isAdd() {
-        return isAdd;
     }
 }

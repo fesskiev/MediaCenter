@@ -563,6 +563,11 @@ public class PlaybackService extends Service {
             public void onVolumeOff() {
                 setVolumeAudioPlayer(0f);
             }
+
+            @Override
+            public void onChooseTrack(String title) {
+                audioPlayer.playTrackByTitle(title);
+            }
         });
     }
 

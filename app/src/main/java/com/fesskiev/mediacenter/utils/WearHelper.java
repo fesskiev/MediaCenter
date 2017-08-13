@@ -34,6 +34,7 @@ import rx.Observable;
 import rx.Subscription;
 import rx.schedulers.Schedulers;
 
+import static com.fesskiev.common.Constants.CHOOSE_TRACK;
 import static com.fesskiev.common.Constants.COVER;
 import static com.fesskiev.common.Constants.NEXT_PATH;
 import static com.fesskiev.common.Constants.PAUSE_PATH;
@@ -65,6 +66,8 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
         void onVolumeDown();
 
         void onVolumeOff();
+
+        void onChooseTrack(String title);
     }
 
     private OnWearControlListener listener;
@@ -239,6 +242,9 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
                     break;
                 case VOLUME_OFF:
                     listener.onVolumeOff();
+                    break;
+                case CHOOSE_TRACK:
+                    listener.onChooseTrack(new String(messageEvent.getData()));
                     break;
             }
         }

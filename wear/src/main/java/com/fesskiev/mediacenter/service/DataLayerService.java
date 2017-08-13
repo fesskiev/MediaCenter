@@ -55,11 +55,20 @@ public class DataLayerService extends Service implements GoogleApiClient.Connect
 
     public static final String EXTRA_TRACK_LIST = "com.fesskiev.player.wear.EXTRA_TRACK_LIST";
     public static final String EXTRA_MESSAGE_PATH = "com.fesskiev.player.wear.EXTRA_MESSAGE_PATH";
+    public static final String EXTRA_MESSAGE_DATA = "com.fesskiev.player.wear.EXTRA_MESSAGE_DATA";
 
     public static void sendMessage(Context context, String type) {
         Intent intent = new Intent(context, DataLayerService.class);
         intent.setAction(ACTION_SEND_MESSAGE);
         intent.putExtra(EXTRA_MESSAGE_PATH, type);
+        context.startService(intent);
+    }
+
+    public static void sendChooseTrackMessage(Context context, String type, String title) {
+        Intent intent = new Intent(context, DataLayerService.class);
+        intent.setAction(ACTION_SEND_MESSAGE);
+        intent.putExtra(EXTRA_MESSAGE_PATH, type);
+        intent.putExtra(EXTRA_MESSAGE_DATA, title);
         context.startService(intent);
     }
 
@@ -97,7 +106,8 @@ public class DataLayerService extends Service implements GoogleApiClient.Connect
                 switch (action) {
                     case ACTION_SEND_MESSAGE:
                         String path = intent.getStringExtra(EXTRA_MESSAGE_PATH);
-                        serviceThread.processSendMessage(path);
+                        String data = intent.getStringExtra(EXTRA_MESSAGE_DATA);
+                        serviceThread.processSendMessage(path, data);
                         break;
 
                 }
@@ -178,8 +188,8 @@ public class DataLayerService extends Service implements GoogleApiClient.Connect
                 public void handleMessage(Message msg) {
                     switch (msg.what) {
                         case SEND_MESSAGE:
-                            String path = (String) msg.obj;
-                            sendMessageApi(path);
+                            MessageObject message = (MessageObject) msg.obj;
+                            sendMessageApi(message.path, message.data);
                             break;
                         case TRACK_LIST:
                             List<DataMap> dataMaps = (List<DataMap>) msg.obj;
@@ -208,24 +218,36 @@ public class DataLayerService extends Service implements GoogleApiClient.Connect
             sendTrackListBroadcast(audioFiles);
         }
 
-        private void sendMessageApi(String path) {
+        private void sendMessageApi(String path, String data) {
             if (!googleApiClient.isConnected()) {
                 return;
             }
             List<String> nodeIds = getNodes();
             for (String nodeId : nodeIds) {
                 Wearable.MessageApi.sendMessage(googleApiClient, nodeId, path,
-                        new byte[0]);
+                        data == null ? new byte[0] : data.getBytes());
             }
         }
 
 
-        public void processSendMessage(String path) {
-            handler.sendMessage(Message.obtain(Message.obtain(handler, SEND_MESSAGE, path)));
+        public void processSendMessage(String path, String data) {
+            handler.sendMessage(Message.obtain(Message.obtain(handler, SEND_MESSAGE,
+                    new MessageObject(path, data))));
         }
 
         public void processTrackList(List<DataMap> dataMaps) {
             handler.sendMessage(Message.obtain(Message.obtain(handler, TRACK_LIST, dataMaps)));
+        }
+
+        private class MessageObject {
+
+            String path;
+            String data;
+
+            public MessageObject(String path, String data) {
+                this.path = path;
+                this.data = data;
+            }
         }
     }
 

@@ -297,6 +297,16 @@ public class AudioPlayer implements Playable {
         return sortedList;
     }
 
+    public void playTrackByTitle(String title) {
+        if (currentTrackList != null) {
+            for (AudioFile audioFile : currentTrackList) {
+                if (audioFile.title.equals(title)) {
+                    setCurrentAudioFileAndPlay(audioFile);
+                }
+            }
+        }
+    }
+
 
     private class TrackListIterator implements ListIterator<AudioFile> {
 
