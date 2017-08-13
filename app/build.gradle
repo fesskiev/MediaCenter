@@ -6,14 +6,13 @@ def superpowered_sdk_path = properties.getProperty('superpowered.dir')
 
 android {
 
-    compileSdkVersion 25
-    buildToolsVersion '25.0.3'
-
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
     defaultConfig {
 
         applicationId = "com.fesskiev.mediacenter"
-        minSdkVersion 21
-        targetSdkVersion 25
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode = 13
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
@@ -100,17 +99,6 @@ android {
     }
 }
 
-
-ext {
-    supportLibVersion = '25.3.1'
-    firebaseLibVersion = '11.0.4'
-
-    runnerVersion = '0.5'
-    rulesVersion = '0.5'
-    espressoVersion = '2.2.2'
-    junitVersion = '4.12'
-}
-
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile files('libs/jaudiotagger-2.2.4.jar')
@@ -118,44 +106,44 @@ dependencies {
     compile project(':extensions')
     compile project(':common')
 
-    compile "com.android.support:appcompat-v7:${supportLibVersion}"
-    compile "com.android.support:recyclerview-v7:${supportLibVersion}"
-    compile "com.android.support:cardview-v7:${supportLibVersion}"
-    compile "com.android.support:design:${supportLibVersion}"
-    compile "com.android.support:support-v4:${supportLibVersion}"
-    compile "com.android.support:percent:${supportLibVersion}"
+    compile "com.android.support:appcompat-v7:$rootProject.supportLibVersion"
+    compile "com.android.support:recyclerview-v7:$rootProject.supportLibVersion"
+    compile "com.android.support:cardview-v7:$rootProject.supportLibVersion"
+    compile "com.android.support:design:$rootProject.supportLibVersion"
+    compile "com.android.support:support-v4:$rootProject.supportLibVersion"
+    compile "com.android.support:percent:$rootProject.supportLibVersion"
 
     compile "com.google.firebase:firebase-crash:${firebaseLibVersion}"
     compile "com.google.firebase:firebase-ads:${firebaseLibVersion}"
     compile "com.google.firebase:firebase-analytics:${firebaseLibVersion}"
 
-    compile group: 'commons-io', name: 'commons-io', version: '2.5'
-    compile 'com.android.support:multidex:1.0.1'
-    compile 'com.github.clans:fab:1.6.4'
-    compile 'com.github.bumptech.glide:glide:3.7.0'
-    compile 'com.google.android.exoplayer:exoplayer:r2.1.1'
-    compile 'io.reactivex:rxandroid:1.2.1'
-    compile 'io.reactivex:rxjava:1.2.0'
-    compile 'com.squareup.okhttp3:okhttp:3.7.0'
-    compile 'com.squareup.retrofit2:retrofit:2.0.2'
-    compile 'com.squareup.retrofit2:converter-gson:2.0.2'
-    compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
-    compile 'com.squareup.sqlbrite:sqlbrite:0.7.0'
-    compile 'org.greenrobot:eventbus:3.0.0'
-    compile 'com.thoughtbot:expandablecheckrecyclerview:1.4'
+    compile "com.google.android.gms:play-services-wearable:$rootProject.playServiceWearable"
 
-    compile 'com.google.android.gms:play-services-wearable:11.0.4'
+    compile group: "commons-io", name: "commons-io", version: "$rootProject.commons"
+    compile "com.android.support:multidex:$rootProject.multidex"
+    compile "com.github.clans:fab:$rootProject.fab"
+    compile "com.github.bumptech.glide:glide:$rootProject.glide"
+    compile "com.google.android.exoplayer:exoplayer:$rootProject.exoplayer"
+    compile "io.reactivex:rxandroid:$rootProject.rxandroid"
+    compile "io.reactivex:rxjava:$rootProject.rxjava"
+    compile "com.squareup.okhttp3:okhttp:$rootProject.okhttp"
+    compile "com.squareup.retrofit2:retrofit:$rootProject.retrofit"
+    compile "com.squareup.retrofit2:converter-gson:$rootProject.gson"
+    compile "com.squareup.retrofit2:adapter-rxjava:$rootProject.rxjavaAdapter"
+    compile "com.squareup.sqlbrite:sqlbrite:$rootProject.sqlbrite"
+    compile "org.greenrobot:eventbus:$rootProject.eventbus"
+    compile "com.thoughtbot:expandablecheckrecyclerview:$rootProject.expandablecheckrecyclerview"
 
-    testCompile "junit:junit:$junitVersion"
+    testCompile "junit:junit:$rootProject.junitVersion"
 
-    androidTestCompile "com.android.support.test:runner:$runnerVersion"
-    androidTestCompile "com.android.support.test:rules:$rulesVersion"
+    androidTestCompile "com.android.support.test:runner:$rootProject.runnerVersion"
+    androidTestCompile "com.android.support.test:rules:$rootProject.rulesVersion"
 
-    androidTestCompile "com.android.support.test.espresso:espresso-core:$espressoVersion"
-    androidTestCompile "com.android.support.test.espresso:espresso-contrib:$espressoVersion"
-    androidTestCompile "com.android.support.test.espresso:espresso-intents:$espressoVersion"
+    androidTestCompile "com.android.support.test.espresso:espresso-core:$rootProject.espressoVersion"
+    androidTestCompile "com.android.support.test.espresso:espresso-contrib:$rootProject.espressoVersion"
+    androidTestCompile "com.android.support.test.espresso:espresso-intents:$rootProject.espressoVersion"
 
-    androidTestCompile 'com.android.support.test.uiautomator:uiautomator-v18:2.1.1'
+    androidTestCompile "com.android.support.test.uiautomator:uiautomator-v18:$rootProject.uiautomator"
 
 }
 
@@ -166,5 +154,5 @@ Resolves dependency versions across test and production APKs, specifically, tran
 dependencies. This is required since Espresso internally has a dependency on support-annotations.
 */
 configurations.all {
-    resolutionStrategy.force "com.android.support:support-annotations:${supportLibVersion}"
+    resolutionStrategy.force "com.android.support:support-annotations:$rootProject.supportLibVersion"
 }

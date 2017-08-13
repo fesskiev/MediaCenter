@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 
 android {
 
-    compileSdkVersion 26
-    buildToolsVersion '25.0.3'
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
         applicationId "com.fesskiev.mediacenter"
-        minSdkVersion 23
-        targetSdkVersion 26
+        minSdkVersion rootProject.ext.minSdkVersionWear
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
     }
@@ -30,9 +30,9 @@ dependencies {
     compile project(':common')
 
 
-    implementation 'com.google.android.support:wearable:2.0.4'
-    implementation 'com.google.android.gms:play-services-wearable:11.0.4'
-    compile 'com.android.support:wear:26.0.0'
-    compile 'com.android.support:support-v13:26.0.0'
-    compileOnly 'com.google.android.wearable:wearable:2.0.4'
+    implementation "com.google.android.support:wearable:$rootProject.wearable"
+    implementation "com.google.android.gms:play-services-wearable:$rootProject.playServiceWearable"
+    compile "com.android.support:wear:$rootProject.supportLibVersion"
+    compile "com.android.support:support-v13:$rootProject.supportLibVersion"
+    compileOnly "com.google.android.wearable:wearable:$rootProject.wearable"
 }
