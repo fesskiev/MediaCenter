@@ -28,11 +28,11 @@
     <string name="title_cue_activity">Cue-файл парсер</string>
     <string name="title_cut_activity">Вырезать файл</string>
     <string name="title_converter_activity">Медиа конвертер</string>
+    <string name="title_wear_activity">Умные часы</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="title_activity_equalizer">EqualizerActivity</string>
-    <string name="title_activity_music_vk">MusicVKActivity</string>
 
     <string name="empty_music_file_artist">Артист неизвестен</string>
     <string name="empty_music_file_title">Название неизвестно</string>
@@ -50,6 +50,7 @@
     <string name="drawer_item_converter">Конвертер</string>
     <string name="drawer_buy_pro">Купить Pro-пользователя</string>
     <string name="drawer_effects_settings">Настройки эффектов</string>
+    <string name="drawer_item_wear">Умные часы</string>
 
     <string name="audio_tab_title_albums">Альбомы</string>
     <string name="audio_tab_title_groups">Группы</string>

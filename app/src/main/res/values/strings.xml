@@ -28,6 +28,7 @@
     <string name="title_cue_activity">Cue file parser</string>
     <string name="title_cut_activity">Cut file</string>
     <string name="title_converter_activity">Media Converter</string>
+    <string name="title_wear_activity">Wear</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -50,6 +51,7 @@
     <string name="drawer_item_converter">Converter</string>
     <string name="drawer_buy_pro">Buy Pro User</string>
     <string name="drawer_effects_settings">Effects Settings</string>
+    <string name="drawer_item_wear">Wear</string>
 
     <string name="audio_tab_title_albums">AlBUMS</string>
     <string name="audio_tab_title_groups">GROUPS</string>

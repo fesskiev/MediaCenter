@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.MediaApplication;
@@ -37,6 +38,7 @@ import com.fesskiev.mediacenter.ui.search.SearchActivity;
 import com.fesskiev.mediacenter.ui.settings.SettingsActivity;
 import com.fesskiev.mediacenter.ui.splash.SplashActivity;
 import com.fesskiev.mediacenter.ui.video.VideoFoldersFragment;
+import com.fesskiev.mediacenter.ui.wear.WearActivity;
 import com.fesskiev.mediacenter.utils.AppAnimationUtils;
 import com.fesskiev.mediacenter.utils.AppGuide;
 import com.fesskiev.mediacenter.utils.AppLog;
@@ -410,6 +412,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         appName = (TextView) headerLayout.findViewById(R.id.headerTitle);
         appPromo = (TextView) headerLayout.findViewById(R.id.headerText);
 
+        findWearStatus();
 
     }
 
@@ -496,6 +499,9 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.wear:
+                selectedActivity = WearActivity.class;
+                break;
             case R.id.billing:
                 selectedActivity = InAppBillingActivity.class;
                 break;
@@ -548,13 +554,18 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     private void hideDrawerPurchaseItem() {
-        navigationViewMain.getMenu().getItem(5).setVisible(false);
+        navigationViewMain.getMenu().getItem(6).setVisible(false);
     }
 
     private void hideDrawerConverterItem() {
         navigationViewMain.getMenu().getItem(1).setVisible(false);
     }
 
+    private void findWearStatus() {
+        LinearLayout layout = (LinearLayout) navigationViewMain.getMenu()
+                .findItem(R.id.wear).getActionView();
+        TextView statusText = (TextView) layout.findViewById(R.id.itemWearStatus);
+    }
 
     @Override
     public void onBackPressed() {

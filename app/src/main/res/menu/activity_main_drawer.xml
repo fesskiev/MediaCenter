@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <group
         android:id="@+id/menu_content">
         <item android:title="@string/drawer_title_content">
@@ -54,6 +55,18 @@
             android:id="@+id/about"
             android:icon="@drawable/icon_about"
             android:title="@string/drawer_item_about" />
+    </group>
+
+    <group
+        android:id="@+id/menu_wear"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/wear"
+            android:icon="@drawable/icon_wear"
+            android:title="@string/drawer_item_wear"
+            app:actionLayout="@layout/item_drawer_wear"/>
+
     </group>
 
     <group
