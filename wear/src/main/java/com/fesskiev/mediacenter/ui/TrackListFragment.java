@@ -4,9 +4,10 @@ import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.wear.widget.WearableLinearLayoutManager;
 import android.support.wear.widget.WearableRecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -104,7 +105,11 @@ public class TrackListFragment extends Fragment {
             if (audioFile != null) {
                 Bitmap cover = audioFile.cover;
                 if (cover != null) {
-                    viewHolder.cover.setImageBitmap(cover);
+                    RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory
+                            .create(getResources(), cover);
+                    drawable.setCircular(true);
+
+                    viewHolder.cover.setImageDrawable(drawable);
                 }
                 viewHolder.title.setText(audioFile.title);
                 viewHolder.duration.setText(Utils.getDurationString(audioFile.length));
