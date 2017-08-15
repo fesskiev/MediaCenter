@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.fesskiev.common.data.MapAudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFile;
@@ -220,6 +221,7 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
+        Log.wtf("test", "event: " + messageEvent.getPath());
         if (listener != null) {
             switch (messageEvent.getPath()) {
                 case PREVIOUS_PATH:

@@ -103,7 +103,7 @@ public class MainActivity extends WearableActivity {
 
             ArrayList<MapAudioFile> audioFiles = intent.getParcelableArrayListExtra(EXTRA_TRACK_LIST);
             if (audioFiles != null) {
-                adapter.getTrackLsitFragment().refreshAdapter(audioFiles);
+                adapter.getTrackListFragment().refreshAdapter(audioFiles);
             }
         }
     };
@@ -154,7 +154,7 @@ public class MainActivity extends WearableActivity {
             return null;
         }
 
-        public TrackListFragment getTrackLsitFragment() {
+        public TrackListFragment getTrackListFragment() {
             for (Fragment fragment : registeredFragments) {
                 if (fragment instanceof TrackListFragment) {
                     return (TrackListFragment) fragment;
