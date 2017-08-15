@@ -2,18 +2,26 @@ package com.fesskiev.mediacenter.utils;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.fesskiev.common.data.MapAudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.wearable.Asset;
+import com.google.android.gms.wearable.CapabilityApi;
+import com.google.android.gms.wearable.CapabilityInfo;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataMap;
@@ -24,11 +32,13 @@ import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
+import com.google.android.wearable.intent.RemoteIntent;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import rx.Observable;
 import rx.Subscription;
@@ -49,7 +59,18 @@ import static com.fesskiev.common.Constants.VOLUME_UP;
 
 public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         DataApi.DataListener,
-        MessageApi.MessageListener {
+        MessageApi.MessageListener,
+        CapabilityApi.CapabilityListener {
+
+    // TODO: Replace with your links/packages.
+    private static final String PLAY_STORE_APP_URI =
+            "market://details?id=com.example.android.wearable.wear.wearverifyremoteapp";
+
+    private static final String CAPABILITY_WEAR_APP = "verify_remote_example_wear_app";
+
+    private Context context;
+    private Set<Node> wearNodesWithApp;
+    private List<Node> allConnectedNodes;
 
     public interface OnWearControlListener {
 
@@ -78,6 +99,7 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
     private AudioPlayer audioPlayer;
 
     public WearHelper(Context context, AudioPlayer audioPlayer) {
+        this.context = context;
         this.audioPlayer = audioPlayer;
 
         googleApiClient = new GoogleApiClient.Builder(context)
@@ -95,6 +117,8 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
         if (googleApiClient != null && googleApiClient.isConnected()) {
             Wearable.DataApi.removeListener(googleApiClient, this);
             Wearable.MessageApi.removeListener(googleApiClient, this);
+            Wearable.CapabilityApi.removeCapabilityListener(googleApiClient, this,
+                    CAPABILITY_WEAR_APP);
             googleApiClient.disconnect();
         }
         RxUtils.unsubscribe(subscription);
@@ -194,14 +218,103 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
         return null;
     }
 
+    @Override
+    public void onCapabilityChanged(CapabilityInfo capabilityInfo) {
+
+        wearNodesWithApp = capabilityInfo.getNodes();
+
+        findAllWearDevices();
+        verifyNodeAndUpdateUI();
+        updateTrackList(audioPlayer.getCurrentTrackList());
+    }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Wearable.DataApi.addListener(googleApiClient, this);
         Wearable.MessageApi.addListener(googleApiClient, this);
+        Wearable.CapabilityApi.addCapabilityListener(googleApiClient, this,
+                CAPABILITY_WEAR_APP);
 
-        updateTrackList(audioPlayer.getCurrentTrackList());
+        findAllWearDevices();
+        findWearDevicesWithApp();
     }
+
+    private void findAllWearDevices() {
+        PendingResult<NodeApi.GetConnectedNodesResult> pendingResult =
+                Wearable.NodeApi.getConnectedNodes(googleApiClient);
+
+        pendingResult.setResultCallback(getConnectedNodesResult -> {
+            if (getConnectedNodesResult.getStatus().isSuccess()) {
+                allConnectedNodes = getConnectedNodesResult.getNodes();
+                verifyNodeAndUpdateUI();
+            }
+        });
+    }
+
+    private void findWearDevicesWithApp() {
+        PendingResult<CapabilityApi.GetCapabilityResult> pendingResult =
+                Wearable.CapabilityApi.getCapability(
+                        googleApiClient,
+                        CAPABILITY_WEAR_APP,
+                        CapabilityApi.FILTER_ALL);
+
+        pendingResult.setResultCallback(getCapabilityResult -> {
+            if (getCapabilityResult.getStatus().isSuccess()) {
+                CapabilityInfo capabilityInfo = getCapabilityResult.getCapability();
+                wearNodesWithApp = capabilityInfo.getNodes();
+                verifyNodeAndUpdateUI();
+            }
+        });
+    }
+
+    private void verifyNodeAndUpdateUI() {
+        if ((wearNodesWithApp == null) || (allConnectedNodes == null)) {
+            Log.d("test", "Waiting on Results for both connected nodes and nodes with app");
+            return;
+        }
+        if (allConnectedNodes.isEmpty()) {
+            Log.d("test", "no devices connection");
+        } else if (wearNodesWithApp.isEmpty()) {
+            Log.d("test", "devices connection without app");
+        } else if (wearNodesWithApp.size() < allConnectedNodes.size()) {
+            Log.d("test", "app installed on some devices ");
+        } else {
+            Log.d("test", "app installed on all devices ");
+        }
+    }
+
+    public void openPlayStoreOnWearDevicesWithoutApp() {
+        ArrayList<Node> nodesWithoutApp = new ArrayList<>();
+
+        for (Node node : allConnectedNodes) {
+            if (!wearNodesWithApp.contains(node)) {
+                nodesWithoutApp.add(node);
+            }
+        }
+
+        if (!nodesWithoutApp.isEmpty()) {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.addCategory(Intent.CATEGORY_BROWSABLE);
+            intent.setData(Uri.parse(PLAY_STORE_APP_URI));
+
+            for (Node node : nodesWithoutApp) {
+                RemoteIntent.startRemoteActivity(context, intent,
+                        resultReceiver,
+                        node.getId());
+            }
+        }
+    }
+
+    private final ResultReceiver resultReceiver = new ResultReceiver(new Handler()) {
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+            if (resultCode == RemoteIntent.RESULT_OK) {
+
+            } else if (resultCode == RemoteIntent.RESULT_FAILED) {
+
+            }
+        }
+    };
 
     @Override
     public void onConnectionSuspended(int i) {

@@ -117,6 +117,7 @@ dependencies {
     compile "com.google.firebase:firebase-analytics:${firebaseLibVersion}"
 
     compile "com.google.android.gms:play-services-wearable:$rootProject.playServiceWearable"
+    compile "com.google.android.support:wearable:$rootProject.wearable"
 
     compile group: "commons-io", name: "commons-io", version: "$rootProject.commons"
     compile "com.android.support:multidex:$rootProject.multidex"
