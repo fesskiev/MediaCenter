@@ -290,6 +290,11 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
 
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onCurrentTrackEvent(AudioFile currentTrack) {
+        notifyTrackStateChanged();
+    }
+
     @Override
     public boolean onSupportNavigateUp() {
         finish();
