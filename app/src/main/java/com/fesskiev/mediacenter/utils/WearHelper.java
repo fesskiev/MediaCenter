@@ -11,7 +11,6 @@ import android.os.Handler;
 import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.fesskiev.common.data.MapAudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFile;
@@ -91,12 +90,29 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
         void onChooseTrack(String title);
     }
 
-    private OnWearControlListener listener;
+    public interface OnWearConnectionListener {
+
+        void onNoDeviceConnected();
+
+        void onWithoutApp();
+
+        void onSomeDeviceWithApp();
+
+        void onAllDeviceWithApp();
+    }
+
+    private OnWearControlListener controlListener;
+    private OnWearConnectionListener connectionListener;
 
     private GoogleApiClient googleApiClient;
     private Subscription subscription;
 
     private AudioPlayer audioPlayer;
+
+
+    public WearHelper(Context context) {
+        this(context, null);
+    }
 
     public WearHelper(Context context, AudioPlayer audioPlayer) {
         this.context = context;
@@ -184,13 +200,15 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
     }
 
     private Observable<List<String>> getNodes() {
-        List<String> results = new ArrayList<>();
-        NodeApi.GetConnectedNodesResult nodes =
-                Wearable.NodeApi.getConnectedNodes(googleApiClient).await();
-        for (Node node : nodes.getNodes()) {
-            results.add(node.getId());
-        }
-        return Observable.just(results);
+       return Observable.create(subscriber -> {
+            List<String> results = new ArrayList<>();
+            NodeApi.GetConnectedNodesResult nodes =
+                    Wearable.NodeApi.getConnectedNodes(googleApiClient).await();
+            for (Node node : nodes.getNodes()) {
+                results.add(node.getId());
+            }
+            subscriber.onNext(results);
+        });
     }
 
     private static Asset toAsset(String path) {
@@ -224,8 +242,10 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
         wearNodesWithApp = capabilityInfo.getNodes();
 
         findAllWearDevices();
-        verifyNodeAndUpdateUI();
-        updateTrackList(audioPlayer.getCurrentTrackList());
+        verifyNode();
+        if(audioPlayer != null) {
+            updateTrackList(audioPlayer.getCurrentTrackList());
+        }
     }
 
     @Override
@@ -246,7 +266,7 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
         pendingResult.setResultCallback(getConnectedNodesResult -> {
             if (getConnectedNodesResult.getStatus().isSuccess()) {
                 allConnectedNodes = getConnectedNodesResult.getNodes();
-                verifyNodeAndUpdateUI();
+                verifyNode();
             }
         });
     }
@@ -262,24 +282,31 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
             if (getCapabilityResult.getStatus().isSuccess()) {
                 CapabilityInfo capabilityInfo = getCapabilityResult.getCapability();
                 wearNodesWithApp = capabilityInfo.getNodes();
-                verifyNodeAndUpdateUI();
+                verifyNode();
             }
         });
     }
 
-    private void verifyNodeAndUpdateUI() {
+    private void verifyNode() {
         if ((wearNodesWithApp == null) || (allConnectedNodes == null)) {
-            Log.d("test", "Waiting on Results for both connected nodes and nodes with app");
             return;
         }
         if (allConnectedNodes.isEmpty()) {
-            Log.d("test", "no devices connection");
+            if(connectionListener != null){
+                connectionListener.onNoDeviceConnected();
+            }
         } else if (wearNodesWithApp.isEmpty()) {
-            Log.d("test", "devices connection without app");
+            if(connectionListener != null){
+                connectionListener.onWithoutApp();
+            }
         } else if (wearNodesWithApp.size() < allConnectedNodes.size()) {
-            Log.d("test", "app installed on some devices ");
+            if(connectionListener != null){
+                connectionListener.onSomeDeviceWithApp();
+            }
         } else {
-            Log.d("test", "app installed on all devices ");
+            if(connectionListener != null){
+                connectionListener.onAllDeviceWithApp();
+            }
         }
     }
 
@@ -333,37 +360,41 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
-        if (listener != null) {
+        if (controlListener != null) {
             switch (messageEvent.getPath()) {
                 case PREVIOUS_PATH:
-                    listener.onPrevious();
+                    controlListener.onPrevious();
                     break;
                 case NEXT_PATH:
-                    listener.onNext();
+                    controlListener.onNext();
                     break;
                 case PAUSE_PATH:
-                    listener.onPause();
+                    controlListener.onPause();
                     break;
                 case PLAY_PATH:
-                    listener.onPlay();
+                    controlListener.onPlay();
                     break;
                 case VOLUME_DOWN:
-                    listener.onVolumeDown();
+                    controlListener.onVolumeDown();
                     break;
                 case VOLUME_UP:
-                    listener.onVolumeUp();
+                    controlListener.onVolumeUp();
                     break;
                 case VOLUME_OFF:
-                    listener.onVolumeOff();
+                    controlListener.onVolumeOff();
                     break;
                 case CHOOSE_TRACK:
-                    listener.onChooseTrack(new String(messageEvent.getData()));
+                    controlListener.onChooseTrack(new String(messageEvent.getData()));
                     break;
             }
         }
     }
 
     public void setOnWearControlListener(OnWearControlListener listener) {
-        this.listener = listener;
+        this.controlListener = listener;
+    }
+
+    public void setOnWearConnectionListener(OnWearConnectionListener connectionListener) {
+        this.connectionListener = connectionListener;
     }
 }

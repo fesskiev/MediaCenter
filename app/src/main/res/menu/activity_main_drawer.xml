@@ -64,8 +64,7 @@
         <item
             android:id="@+id/wear"
             android:icon="@drawable/icon_wear"
-            android:title="@string/drawer_item_wear"
-            app:actionLayout="@layout/item_drawer_wear"/>
+            android:title="@string/drawer_item_wear"/>
 
     </group>
 

@@ -346,6 +346,12 @@
     <string name="app_guide_video_next_title">Next track</string>
     <string name="app_guide_video_next_desc">The next video from the folder will be selected</string>
 
+    <string name="wear_install">Install</string>
+    <string name="wear_open">Open</string>
+    <string name="wear_no_connected">You have no wear devices linked to your phone at this time</string>
+    <string name="wear_open_app">Wear app installed on all your devices. To open the wear app, please click on the button below</string>
+    <string name="wear_without_app">You are missing the wear app on all your wear devices, please click on the button below to install it on those device(s)</string>
+    <string name="wear_some_devices">Wear app installed on some your device(s). To install the Wear app on the other devices, please click on the button below</string>
 
 
     <string name="last_fm_api_key">adc1430e56411c85fadf04c03b54068f</string>
