@@ -17,6 +17,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.fesskiev.common.data.MapAudioFile;
+import com.fesskiev.common.data.MapPlayback;
 import com.fesskiev.mediacenter.ui.MainActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -38,6 +39,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.fesskiev.common.Constants.COVER;
+import static com.fesskiev.common.Constants.PLAYBACK_KEY;
+import static com.fesskiev.common.Constants.PLAYBACK_PATH;
+import static com.fesskiev.common.Constants.PLAY_PATH;
 import static com.fesskiev.common.Constants.TRACK_KEY;
 import static com.fesskiev.common.Constants.TRACK_LIST_KEY;
 import static com.fesskiev.common.Constants.TRACK_LIST_PATH;
@@ -55,9 +59,11 @@ public class DataLayerService extends Service implements GoogleApiClient.Connect
 
     public static final String ACTION_TRACK_LIST = "com.fesskiev.player.wear.ACTION_TRACK_LIST";
     public static final String ACTION_TRACK = "com.fesskiev.player.wear.ACTION_TRACK";
+    public static final String ACTION_PLAYBACK = "com.fesskiev.player.wear.ACTION_PLAYBACK";
 
     public static final String EXTRA_TRACK_LIST = "com.fesskiev.player.wear.EXTRA_TRACK_LIST";
     public static final String EXTRA_TRACK = "com.fesskiev.player.wear.EXTRA_TRACK";
+    public static final String EXTRA_PLAYBACK = "com.fesskiev.player.wear.EXTRA_PLAYBACK";
     public static final String EXTRA_MESSAGE_PATH = "com.fesskiev.player.wear.EXTRA_MESSAGE_PATH";
     public static final String EXTRA_MESSAGE_DATA = "com.fesskiev.player.wear.EXTRA_MESSAGE_DATA";
 
@@ -170,6 +176,10 @@ public class DataLayerService extends Service implements GoogleApiClient.Connect
                     DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap()
                             .getDataMap(TRACK_KEY);
                     serviceThread.processTrack(dataMap);
+                } else if (PLAYBACK_PATH.equals(path)) {
+                    DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap()
+                            .getDataMap(PLAYBACK_KEY);
+                    serviceThread.processPlayback(dataMap);
                 }
             } else if (event.getType() == DataEvent.TYPE_DELETED) {
                 // DataItem deleted
@@ -182,6 +192,7 @@ public class DataLayerService extends Service implements GoogleApiClient.Connect
         private final int SEND_MESSAGE = 0;
         private final int TRACK_LIST = 1;
         private final int TRACK = 2;
+        private final int PLAYBACK = 3;
 
         private Handler handler;
 
@@ -208,10 +219,19 @@ public class DataLayerService extends Service implements GoogleApiClient.Connect
                             DataMap dataMap = (DataMap) msg.obj;
                             fetchTrack(dataMap);
                             break;
+                        case PLAYBACK:
+                            DataMap playbackMap = (DataMap) msg.obj;
+                            fetchPlayback(playbackMap);
+                            break;
                     }
                 }
 
             };
+        }
+
+        private void fetchPlayback(DataMap playbackMap) {
+            MapPlayback playback = MapPlayback.toMapPlayback(playbackMap);
+            sendPlaybackBroadcast(playback);
         }
 
         private void fetchTrack(DataMap dataMap) {
@@ -271,6 +291,10 @@ public class DataLayerService extends Service implements GoogleApiClient.Connect
             handler.sendMessage(Message.obtain(Message.obtain(handler, TRACK, dataMap)));
         }
 
+        public void processPlayback(DataMap dataMap) {
+            handler.sendMessage(Message.obtain(Message.obtain(handler, PLAYBACK, dataMap)));
+        }
+
         private class MessageObject {
 
             String path;
@@ -293,6 +317,11 @@ public class DataLayerService extends Service implements GoogleApiClient.Connect
         }
     }
 
+    private void sendPlaybackBroadcast(MapPlayback playback) {
+        Intent intent = new Intent(ACTION_PLAYBACK);
+        intent.putExtra(EXTRA_PLAYBACK, playback);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
 
     private void sendTrackListBroadcast(ArrayList<MapAudioFile> audioFiles) {
         Intent intent = new Intent(ACTION_TRACK_LIST);

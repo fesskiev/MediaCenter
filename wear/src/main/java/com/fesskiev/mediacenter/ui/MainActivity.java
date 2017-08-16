@@ -19,14 +19,17 @@ import android.util.Log;
 import android.view.ViewGroup;
 
 import com.fesskiev.common.data.MapAudioFile;
+import com.fesskiev.common.data.MapPlayback;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.service.DataLayerService;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.fesskiev.mediacenter.service.DataLayerService.ACTION_PLAYBACK;
 import static com.fesskiev.mediacenter.service.DataLayerService.ACTION_TRACK;
 import static com.fesskiev.mediacenter.service.DataLayerService.ACTION_TRACK_LIST;
+import static com.fesskiev.mediacenter.service.DataLayerService.EXTRA_PLAYBACK;
 import static com.fesskiev.mediacenter.service.DataLayerService.EXTRA_TRACK;
 import static com.fesskiev.mediacenter.service.DataLayerService.EXTRA_TRACK_LIST;
 
@@ -95,6 +98,7 @@ public class MainActivity extends WearableActivity {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ACTION_TRACK_LIST);
         intentFilter.addAction(ACTION_TRACK);
+        intentFilter.addAction(ACTION_PLAYBACK);
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(
                 receiver, intentFilter);
     }
@@ -122,6 +126,13 @@ public class MainActivity extends WearableActivity {
                                     intent.getParcelableExtra(EXTRA_TRACK);
                             if (audioFile != null) {
                                 adapter.getControlFragment().updateCurrentTrack(audioFile);
+                            }
+                            break;
+                        case ACTION_PLAYBACK:
+                            MapPlayback playback =
+                                    intent.getParcelableExtra(EXTRA_PLAYBACK);
+                            if (playback != null) {
+                                adapter.getControlFragment().updatePlayback(playback);
                             }
                             break;
                     }

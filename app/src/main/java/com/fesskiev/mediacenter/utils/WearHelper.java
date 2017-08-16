@@ -13,8 +13,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.fesskiev.common.data.MapAudioFile;
+import com.fesskiev.common.data.MapPlayback;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.players.AudioPlayer;
+import com.fesskiev.mediacenter.services.PlaybackService;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -47,6 +49,8 @@ import static com.fesskiev.common.Constants.CHOOSE_TRACK;
 import static com.fesskiev.common.Constants.COVER;
 import static com.fesskiev.common.Constants.NEXT_PATH;
 import static com.fesskiev.common.Constants.PAUSE_PATH;
+import static com.fesskiev.common.Constants.PLAYBACK_KEY;
+import static com.fesskiev.common.Constants.PLAYBACK_PATH;
 import static com.fesskiev.common.Constants.PLAY_PATH;
 import static com.fesskiev.common.Constants.PREVIOUS_PATH;
 import static com.fesskiev.common.Constants.START_ACTIVITY_PATH;
@@ -72,6 +76,8 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
     private Context context;
     private Set<Node> wearNodesWithApp;
     private List<Node> allConnectedNodes;
+
+    private boolean playing;
 
     public interface OnWearControlListener {
 
@@ -155,6 +161,39 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     }
 
+    public void updatePlayingState(PlaybackService service, boolean playing) {
+        if (googleApiClient == null || !googleApiClient.isConnected()) {
+            return;
+        }
+        this.playing = playing;
+        subscription = Observable.just(service)
+                .subscribeOn(Schedulers.io())
+                .flatMap(ser -> {
+                    DataMap dataMap = new DataMap();
+
+                    MapPlayback mapPlayback = MapPlayback.MapPlaybackBuilder.buildMapPlayback()
+                            .withDuration(ser.getDuration())
+                            .withPosition(ser.getPosition())
+                            .withPositionPercent(ser.getPositionPercent())
+                            .withVolume(ser.getVolume())
+                            .withFocusedVolume(ser.getFocusedVolume())
+                            .withDurationScale(ser.getDurationScale())
+                            .withPlaying(ser.isPlaying())
+                            .withLooping(ser.isLooping())
+                            .build();
+                    mapPlayback.toDataMap(dataMap);
+                    return Observable.just(dataMap);
+                }).doOnNext(dataMap -> {
+                    PutDataMapRequest dataMapRequest = PutDataMapRequest.create(PLAYBACK_PATH);
+                    dataMapRequest.getDataMap().putDataMap(PLAYBACK_KEY, dataMap);
+
+                    PutDataRequest request = dataMapRequest.asPutDataRequest();
+                    request.setUrgent();
+                    Wearable.DataApi.putDataItem(googleApiClient, request);
+                })
+                .subscribe();
+    }
+
     public void updateTrackList(List<AudioFile> currentTrackList) {
         if (googleApiClient == null || !googleApiClient.isConnected()) {
             return;
@@ -230,11 +269,10 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
                     Wearable.DataApi.putDataItem(googleApiClient, request);
                 })
                 .subscribe();
-
     }
 
     private Observable<List<String>> getNodes() {
-       return Observable.create(subscriber -> {
+        return Observable.create(subscriber -> {
             List<String> results = new ArrayList<>();
             NodeApi.GetConnectedNodesResult nodes =
                     Wearable.NodeApi.getConnectedNodes(googleApiClient).await();
@@ -277,7 +315,7 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
 
         findAllWearDevices();
         verifyNode();
-        if(audioPlayer != null) {
+        if (audioPlayer != null) {
             updateTrackList(audioPlayer.getCurrentTrackList());
         }
     }
@@ -326,19 +364,19 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
             return;
         }
         if (allConnectedNodes.isEmpty()) {
-            if(connectionListener != null){
+            if (connectionListener != null) {
                 connectionListener.onNoDeviceConnected();
             }
         } else if (wearNodesWithApp.isEmpty()) {
-            if(connectionListener != null){
+            if (connectionListener != null) {
                 connectionListener.onWithoutApp();
             }
         } else if (wearNodesWithApp.size() < allConnectedNodes.size()) {
-            if(connectionListener != null){
+            if (connectionListener != null) {
                 connectionListener.onSomeDeviceWithApp();
             }
         } else {
-            if(connectionListener != null){
+            if (connectionListener != null) {
                 connectionListener.onAllDeviceWithApp();
             }
         }
@@ -431,4 +469,10 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
     public void setOnWearConnectionListener(OnWearConnectionListener connectionListener) {
         this.connectionListener = connectionListener;
     }
+
+    public boolean isPlaying() {
+        return playing;
+    }
+
+
 }

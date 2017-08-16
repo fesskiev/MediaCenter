@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.fesskiev.common.data.MapAudioFile;
+import com.fesskiev.common.data.MapPlayback;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.service.DataLayerService;
 
@@ -67,6 +68,10 @@ public class ControlFragment extends Fragment implements View.OnClickListener {
 
     }
 
+    public void updatePlayback(MapPlayback playback) {
+
+    }
+
     private void animateButtons(View view) {
         ViewGroup container = view.findViewById(R.id.rootContainer);
         for (int i = 0; i < container.getChildCount(); i++) {
@@ -107,5 +112,4 @@ public class ControlFragment extends Fragment implements View.OnClickListener {
         }
         DataLayerService.sendMessage(getActivity().getApplicationContext(), path);
     }
-
 }

@@ -361,6 +361,13 @@ public class PlaybackService extends Service {
                 }
             }
 
+            if(wearHelper != null) {
+                boolean wearPlaying = wearHelper.isPlaying();
+                if (playing != wearPlaying) {
+                   wearHelper.updatePlayingState(this, playing);
+                }
+            }
+
 //            Log.d("event", PlaybackService.this.toString());
             EventBus.getDefault().post(PlaybackService.this);
         });
@@ -972,6 +979,14 @@ public class PlaybackService extends Service {
 
     public int getPosition() {
         return position;
+    }
+
+    public float getFocusedVolume() {
+        return focusedVolume;
+    }
+
+    public int getDurationScale() {
+        return durationScale;
     }
 
     public boolean isPlaying() {
