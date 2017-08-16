@@ -4,7 +4,8 @@ package com.fesskiev.common;
 public class Constants {
 
     public static final String START_ACTIVITY_PATH = "/start-activity";
-    public static final String TRACK_LIST_PATH = "/tracklist";;
+    public static final String TRACK_LIST_PATH = "/tracklist";
+    public static final String TRACK_PATH = "/track";
 
     public static final String PREVIOUS_PATH = "/previous";
     public static final String NEXT_PATH = "/next";
@@ -18,5 +19,6 @@ public class Constants {
     public static final String VOLUME_OFF = "/volume-off";
 
     public static final String TRACK_LIST_KEY = "tracklist";
+    public static final String TRACK_KEY = "track";
     public static final String COVER = "cover";
 }

@@ -50,8 +50,10 @@ import static com.fesskiev.common.Constants.PAUSE_PATH;
 import static com.fesskiev.common.Constants.PLAY_PATH;
 import static com.fesskiev.common.Constants.PREVIOUS_PATH;
 import static com.fesskiev.common.Constants.START_ACTIVITY_PATH;
+import static com.fesskiev.common.Constants.TRACK_KEY;
 import static com.fesskiev.common.Constants.TRACK_LIST_KEY;
 import static com.fesskiev.common.Constants.TRACK_LIST_PATH;
+import static com.fesskiev.common.Constants.TRACK_PATH;
 import static com.fesskiev.common.Constants.VOLUME_DOWN;
 import static com.fesskiev.common.Constants.VOLUME_OFF;
 import static com.fesskiev.common.Constants.VOLUME_UP;
@@ -196,6 +198,38 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
     }
 
     public void updateTrack(AudioFile currentTrack) {
+        if (googleApiClient == null || !googleApiClient.isConnected()) {
+            return;
+        }
+        subscription = Observable.just(currentTrack)
+                .subscribeOn(Schedulers.io())
+                .flatMap(audioFile -> {
+                    DataMap dataMap = new DataMap();
+
+                    MapAudioFile mapAudioFile = MapAudioFile.MapAudioFileBuilder.buildMapAudioFile()
+                            .withAlbum(audioFile.album)
+                            .withBitrate(audioFile.bitrate)
+                            .withSampleRate(audioFile.sampleRate)
+                            .withTitle(audioFile.title)
+                            .withSize(audioFile.size)
+                            .withTimestamp(audioFile.timestamp)
+                            .withId(audioFile.id)
+                            .withGenre(audioFile.genre)
+                            .withArtist(audioFile.artist)
+                            .withLength(audioFile.length)
+                            .withTrackNumber(audioFile.trackNumber)
+                            .build();
+                    mapAudioFile.toDataMap(dataMap).putAsset(COVER, toAsset(audioFile.getArtworkPath()));
+                    return Observable.just(dataMap);
+                }).doOnNext(dataMap -> {
+                    PutDataMapRequest dataMapRequest = PutDataMapRequest.create(TRACK_PATH);
+                    dataMapRequest.getDataMap().putDataMap(TRACK_KEY, dataMap);
+
+                    PutDataRequest request = dataMapRequest.asPutDataRequest();
+                    request.setUrgent();
+                    Wearable.DataApi.putDataItem(googleApiClient, request);
+                })
+                .subscribe();
 
     }
 

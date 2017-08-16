@@ -48,16 +48,6 @@
     </group>
 
     <group
-        android:id="@+id/menu_about"
-        android:checkableBehavior="single">
-
-        <item
-            android:id="@+id/about"
-            android:icon="@drawable/icon_about"
-            android:title="@string/drawer_item_about" />
-    </group>
-
-    <group
         android:id="@+id/menu_wear"
         android:checkableBehavior="single">
 
@@ -66,6 +56,16 @@
             android:icon="@drawable/icon_wear"
             android:title="@string/drawer_item_wear"/>
 
+    </group>
+
+    <group
+        android:id="@+id/menu_about"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/about"
+            android:icon="@drawable/icon_about"
+            android:title="@string/drawer_item_about" />
     </group>
 
     <group

@@ -38,9 +38,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.fesskiev.common.Constants.COVER;
+import static com.fesskiev.common.Constants.TRACK_KEY;
 import static com.fesskiev.common.Constants.TRACK_LIST_KEY;
 import static com.fesskiev.common.Constants.TRACK_LIST_PATH;
 import static com.fesskiev.common.Constants.START_ACTIVITY_PATH;
+import static com.fesskiev.common.Constants.TRACK_PATH;
 
 public class DataLayerService extends Service implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -52,8 +54,10 @@ public class DataLayerService extends Service implements GoogleApiClient.Connect
     public static final String ACTION_SEND_MESSAGE = "com.fesskiev.player.wear.action.ACTION_SEND_MESSAGE";
 
     public static final String ACTION_TRACK_LIST = "com.fesskiev.player.wear.ACTION_TRACK_LIST";
+    public static final String ACTION_TRACK = "com.fesskiev.player.wear.ACTION_TRACK";
 
     public static final String EXTRA_TRACK_LIST = "com.fesskiev.player.wear.EXTRA_TRACK_LIST";
+    public static final String EXTRA_TRACK = "com.fesskiev.player.wear.EXTRA_TRACK";
     public static final String EXTRA_MESSAGE_PATH = "com.fesskiev.player.wear.EXTRA_MESSAGE_PATH";
     public static final String EXTRA_MESSAGE_DATA = "com.fesskiev.player.wear.EXTRA_MESSAGE_DATA";
 
@@ -162,6 +166,10 @@ public class DataLayerService extends Service implements GoogleApiClient.Connect
                             .getDataMapArrayList(TRACK_LIST_KEY);
 
                     serviceThread.processTrackList(dataMaps);
+                } else if (TRACK_PATH.equals(path)) {
+                    DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap()
+                            .getDataMap(TRACK_KEY);
+                    serviceThread.processTrack(dataMap);
                 }
             } else if (event.getType() == DataEvent.TYPE_DELETED) {
                 // DataItem deleted
@@ -173,6 +181,7 @@ public class DataLayerService extends Service implements GoogleApiClient.Connect
 
         private final int SEND_MESSAGE = 0;
         private final int TRACK_LIST = 1;
+        private final int TRACK = 2;
 
         private Handler handler;
 
@@ -195,9 +204,28 @@ public class DataLayerService extends Service implements GoogleApiClient.Connect
                             List<DataMap> dataMaps = (List<DataMap>) msg.obj;
                             fetchTrackList(dataMaps);
                             break;
+                        case TRACK:
+                            DataMap dataMap = (DataMap) msg.obj;
+                            fetchTrack(dataMap);
+                            break;
                     }
                 }
+
             };
+        }
+
+        private void fetchTrack(DataMap dataMap) {
+            MapAudioFile audioFile = MapAudioFile.toMapAudioFile(dataMap);
+
+            Asset coverAsset = dataMap.getAsset(COVER);
+            if (coverAsset != null) {
+                InputStream assetInputStream = Wearable.DataApi.getFdForAsset(
+                        googleApiClient, coverAsset).await().getInputStream();
+                if (assetInputStream != null) {
+                    audioFile.cover = BitmapFactory.decodeStream(assetInputStream);
+                }
+            }
+            sendTrackBroadcast(audioFile);
         }
 
         private void fetchTrackList(List<DataMap> dataMaps) {
@@ -239,6 +267,10 @@ public class DataLayerService extends Service implements GoogleApiClient.Connect
             handler.sendMessage(Message.obtain(Message.obtain(handler, TRACK_LIST, dataMaps)));
         }
 
+        public void processTrack(DataMap dataMap) {
+            handler.sendMessage(Message.obtain(Message.obtain(handler, TRACK, dataMap)));
+        }
+
         private class MessageObject {
 
             String path;
@@ -250,6 +282,7 @@ public class DataLayerService extends Service implements GoogleApiClient.Connect
             }
         }
     }
+
 
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
@@ -264,6 +297,12 @@ public class DataLayerService extends Service implements GoogleApiClient.Connect
     private void sendTrackListBroadcast(ArrayList<MapAudioFile> audioFiles) {
         Intent intent = new Intent(ACTION_TRACK_LIST);
         intent.putParcelableArrayListExtra(EXTRA_TRACK_LIST, audioFiles);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+    private void sendTrackBroadcast(MapAudioFile audioFile) {
+        Intent intent = new Intent(ACTION_TRACK);
+        intent.putExtra(EXTRA_TRACK, audioFile);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 

@@ -15,6 +15,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.wear.widget.drawer.WearableNavigationDrawerView;
 import android.support.wearable.activity.WearableActivity;
+import android.util.Log;
 import android.view.ViewGroup;
 
 import com.fesskiev.common.data.MapAudioFile;
@@ -24,7 +25,9 @@ import com.fesskiev.mediacenter.service.DataLayerService;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.fesskiev.mediacenter.service.DataLayerService.ACTION_TRACK;
 import static com.fesskiev.mediacenter.service.DataLayerService.ACTION_TRACK_LIST;
+import static com.fesskiev.mediacenter.service.DataLayerService.EXTRA_TRACK;
 import static com.fesskiev.mediacenter.service.DataLayerService.EXTRA_TRACK_LIST;
 
 
@@ -89,8 +92,11 @@ public class MainActivity extends WearableActivity {
     }
 
     private void registerTrackListReceiver() {
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ACTION_TRACK_LIST);
+        intentFilter.addAction(ACTION_TRACK);
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(
-                receiver, new IntentFilter(ACTION_TRACK_LIST));
+                receiver, intentFilter);
     }
 
     private void unregisterTrackListReceiver() {
@@ -100,10 +106,26 @@ public class MainActivity extends WearableActivity {
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-
-            ArrayList<MapAudioFile> audioFiles = intent.getParcelableArrayListExtra(EXTRA_TRACK_LIST);
-            if (audioFiles != null) {
-                adapter.getTrackListFragment().refreshAdapter(audioFiles);
+            if (intent != null) {
+                String action = intent.getAction();
+                if (action != null) {
+                    switch (action) {
+                        case ACTION_TRACK_LIST:
+                            ArrayList<MapAudioFile> audioFiles =
+                                    intent.getParcelableArrayListExtra(EXTRA_TRACK_LIST);
+                            if (audioFiles != null) {
+                                adapter.getTrackListFragment().refreshAdapter(audioFiles);
+                            }
+                            break;
+                        case ACTION_TRACK:
+                            MapAudioFile audioFile =
+                                    intent.getParcelableExtra(EXTRA_TRACK);
+                            if (audioFile != null) {
+                                adapter.getControlFragment().updateCurrentTrack(audioFile);
+                            }
+                            break;
+                    }
+                }
             }
         }
     };
