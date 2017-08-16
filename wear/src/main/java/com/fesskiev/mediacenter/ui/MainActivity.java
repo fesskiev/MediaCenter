@@ -126,6 +126,7 @@ public class MainActivity extends WearableActivity {
                                     intent.getParcelableExtra(EXTRA_TRACK);
                             if (audioFile != null) {
                                 adapter.getControlFragment().updateCurrentTrack(audioFile);
+                                adapter.getTrackListFragment().updateCurrentTrack(audioFile);
                             }
                             break;
                         case ACTION_PLAYBACK:

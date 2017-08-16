@@ -1,9 +1,9 @@
 package com.fesskiev.mediacenter.ui;
 
 import android.app.Fragment;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.view.ViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +13,7 @@ import com.fesskiev.common.data.MapAudioFile;
 import com.fesskiev.common.data.MapPlayback;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.service.DataLayerService;
+import com.fesskiev.mediacenter.widgets.CoverBitmap;
 
 import static com.fesskiev.common.Constants.NEXT_PATH;
 import static com.fesskiev.common.Constants.PAUSE_PATH;
@@ -29,14 +30,24 @@ public class ControlFragment extends Fragment implements View.OnClickListener {
         return new ControlFragment();
     }
 
-    private static final int ITEM_DELAY = 300;
-
-
     private ImageView[] buttons;
+    private CoverBitmap coverView;
+    private MapPlayback playback;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        playback = new MapPlayback.MapPlaybackBuilder()
+                .withDuration(0)
+                .withPosition(0)
+                .withPositionPercent(0)
+                .withVolume(0)
+                .withFocusedVolume(0)
+                .withDurationScale(0)
+                .withPlaying(false)
+                .withLooping(false)
+                .build();
     }
 
     @Nullable
@@ -49,11 +60,11 @@ public class ControlFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        coverView = view.findViewById(R.id.cover);
         buttons = new ImageView[]{
                 view.findViewById(R.id.previous),
                 view.findViewById(R.id.next),
-                view.findViewById(R.id.play),
-                view.findViewById(R.id.pause),
+                view.findViewById(R.id.playPause),
                 view.findViewById(R.id.volumeDown),
                 view.findViewById(R.id.volumeOff),
                 view.findViewById(R.id.volumeUp),
@@ -61,26 +72,24 @@ public class ControlFragment extends Fragment implements View.OnClickListener {
         for (ImageView button : buttons) {
             button.setOnClickListener(this);
         }
-        animateButtons(view);
     }
 
     public void updateCurrentTrack(MapAudioFile audioFile) {
-
+        Bitmap cover = audioFile.cover;
+        if (cover != null) {
+            coverView.drawBitmap(cover);
+        }
     }
 
     public void updatePlayback(MapPlayback playback) {
-
-    }
-
-    private void animateButtons(View view) {
-        ViewGroup container = view.findViewById(R.id.rootContainer);
-        for (int i = 0; i < container.getChildCount(); i++) {
-            View v = container.getChildAt(i);
-            ViewCompat.animate(v)
-                    .alpha(1)
-                    .setStartDelay((ITEM_DELAY * i) + 500)
-                    .setDuration(1000)
-                    .start();
+        this.playback = playback;
+        ImageView playPauseButton = findButtonById(R.id.playPause);
+        if (playPauseButton != null) {
+            if (playback.isPlaying()) {
+                playPauseButton.setImageResource(R.drawable.icon_pause);
+            } else {
+                playPauseButton.setImageResource(R.drawable.icon_play);
+            }
         }
     }
 
@@ -94,11 +103,12 @@ public class ControlFragment extends Fragment implements View.OnClickListener {
             case R.id.next:
                 path = NEXT_PATH;
                 break;
-            case R.id.play:
-                path = PLAY_PATH;
-                break;
-            case R.id.pause:
-                path = PAUSE_PATH;
+            case R.id.playPause:
+                if (playback.isPlaying()) {
+                    path = PAUSE_PATH;
+                } else {
+                    path = PLAY_PATH;
+                }
                 break;
             case R.id.volumeUp:
                 path = VOLUME_UP;
@@ -111,5 +121,14 @@ public class ControlFragment extends Fragment implements View.OnClickListener {
                 break;
         }
         DataLayerService.sendMessage(getActivity().getApplicationContext(), path);
+    }
+
+    private ImageView findButtonById(int id) {
+        for (ImageView button : buttons) {
+            if (button.getId() == id) {
+                return button;
+            }
+        }
+        return null;
     }
 }

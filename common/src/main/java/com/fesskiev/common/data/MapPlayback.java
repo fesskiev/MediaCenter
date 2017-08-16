@@ -103,6 +103,10 @@ public class MapPlayback implements Parcelable {
         }
     };
 
+    public boolean isPlaying() {
+        return playing;
+    }
+
     public static final class MapPlaybackBuilder {
         private int duration;
         private int position;
@@ -113,9 +117,10 @@ public class MapPlayback implements Parcelable {
         private boolean playing;
         private boolean looping;
 
-        private MapPlaybackBuilder() {
+        public MapPlaybackBuilder() {
 
         }
+
 
         public static MapPlaybackBuilder buildMapPlayback() {
             return new MapPlaybackBuilder();

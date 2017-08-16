@@ -28,6 +28,29 @@ public class MapAudioFile implements Parcelable {
 
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MapAudioFile that = (MapAudioFile) o;
+
+        if (length != that.length) return false;
+        if (size != that.size) return false;
+        if (!id.equals(that.id)) return false;
+        if (!artist.equals(that.artist)) return false;
+        return title.equals(that.title);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id.hashCode();
+        result = 31 * result + artist.hashCode();
+        result = 31 * result + title.hashCode();
+        result = 31 * result + (int) (length ^ (length >>> 32));
+        result = 31 * result + (int) (size ^ (size >>> 32));
+        return result;
+    }
 
     public DataMap toDataMap(DataMap map) {
         map.putString("album", album);

@@ -1,101 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_background">
+    android:background="@color/color_background"
+    android:fitsSystemWindows="true"
+    android:orientation="horizontal">
 
-    <LinearLayout
-        android:id="@+id/rootContainer"
+    <com.fesskiev.mediacenter.widgets.CoverBitmap
+        android:id="@+id/cover"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        app:boxedEdges="all">
+        android:contentDescription="@string/app_name" />
 
-        <LinearLayout
+    <android.support.wear.widget.BoxInsetLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:alpha="0"
-            tools:alpha="1">
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:boxedEdges="all">
 
-            <ImageView
-                android:id="@+id/previous"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
-                android:layout_weight="1"
-                android:contentDescription="@string/app_name"
-                android:src="@drawable/icon_previous" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true">
 
-            <ImageView
-                android:id="@+id/next"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
-                android:layout_weight="1"
-                android:contentDescription="@string/app_name"
-                android:src="@drawable/icon_next" />
+                <ImageView
+                    android:id="@+id/previous"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/app_name"
+                    android:src="@drawable/icon_previous" />
 
-        </LinearLayout>
+                <ImageView
+                    android:id="@+id/playPause"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/app_name"
+                    android:src="@drawable/icon_play" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:alpha="0"
-            tools:alpha="1">
+                <ImageView
+                    android:id="@+id/next"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/app_name"
+                    android:src="@drawable/icon_next" />
 
-            <ImageView
-                android:id="@+id/play"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
-                android:layout_weight="1"
-                android:contentDescription="@string/app_name"
-                android:src="@drawable/icon_play" />
+            </LinearLayout>
 
-            <ImageView
-                android:id="@+id/pause"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
-                android:layout_weight="1"
-                android:contentDescription="@string/app_name"
-                android:src="@drawable/icon_pause" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true">
 
-        </LinearLayout>
+                <ImageView
+                    android:id="@+id/volumeDown"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/app_name"
+                    android:src="@drawable/icon_volume_minus" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:alpha="0"
-            tools:alpha="1">
+                <ImageView
+                    android:id="@+id/volumeOff"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/app_name"
+                    android:src="@drawable/icon_volume_off" />
 
-            <ImageView
-                android:id="@+id/volumeDown"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
-                android:layout_weight="1"
-                android:contentDescription="@string/app_name"
-                android:src="@drawable/icon_volume_minus" />
+                <ImageView
+                    android:id="@+id/volumeUp"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/app_name"
+                    android:src="@drawable/icon_volume_plus" />
 
-            <ImageView
-                android:id="@+id/volumeOff"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
-                android:layout_weight="1"
-                android:contentDescription="@string/app_name"
-                android:src="@drawable/icon_volume_off" />
+            </LinearLayout>
 
-            <ImageView
-                android:id="@+id/volumeUp"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
-                android:layout_weight="1"
-                android:contentDescription="@string/app_name"
-                android:src="@drawable/icon_volume_plus" />
+        </RelativeLayout>
 
-        </LinearLayout>
-
-    </LinearLayout>
-
-</android.support.wear.widget.BoxInsetLayout>
+    </android.support.wear.widget.BoxInsetLayout>
+</FrameLayout>

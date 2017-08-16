@@ -30,6 +30,7 @@ public class TrackListFragment extends Fragment {
     }
 
     private TrackListAdapter adapter;
+    private MapAudioFile currentTrack;
 
     @Nullable
     @Override
@@ -56,6 +57,11 @@ public class TrackListFragment extends Fragment {
 
     public void refreshAdapter(ArrayList<MapAudioFile> audioFiles) {
         adapter.refreshAdapter(audioFiles);
+    }
+
+    public void updateCurrentTrack(MapAudioFile audioFile) {
+        this.currentTrack = audioFile;
+        adapter.notifyDataSetChanged();
     }
 
     public class TrackListAdapter extends WearableRecyclerView.Adapter<TrackListAdapter.ViewHolder> {
@@ -113,6 +119,10 @@ public class TrackListFragment extends Fragment {
                 }
                 viewHolder.title.setText(audioFile.title);
                 viewHolder.duration.setText(Utils.getDurationString(audioFile.length));
+
+                if(currentTrack != null && currentTrack.equals(audioFile)){
+
+                }
             }
         }
 
