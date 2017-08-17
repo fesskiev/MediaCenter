@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">MediaCenter</string>
 
+    <string name="drawer_item_playback">Playback</string>
     <string name="drawer_item_control">Control</string>
     <string name="drawer_item_tracklist">Tracklist</string>
 

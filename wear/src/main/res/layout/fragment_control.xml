@@ -1,90 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<android.support.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_background"
-    android:fitsSystemWindows="true"
-    android:orientation="horizontal">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
 
-    <com.fesskiev.mediacenter.widgets.CoverBitmap
-        android:id="@+id/cover"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:contentDescription="@string/app_name" />
+        android:layout_height="wrap_content"
+        app:boxedEdges="all">
 
-    <android.support.wear.widget.BoxInsetLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        <ImageView
+            android:id="@+id/volumeDown"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:layout_weight="1"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/icon_volume_minus" />
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            app:boxedEdges="all">
+        <ImageView
+            android:id="@+id/volumeOff"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:layout_weight="1"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/icon_volume_off" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true">
+        <ImageView
+            android:id="@+id/volumeUp"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:layout_weight="1"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/icon_volume_plus" />
 
-                <ImageView
-                    android:id="@+id/previous"
-                    android:layout_width="34dp"
-                    android:layout_height="34dp"
-                    android:layout_weight="1"
-                    android:contentDescription="@string/app_name"
-                    android:src="@drawable/icon_previous" />
+    </LinearLayout>
 
-                <com.fesskiev.mediacenter.widgets.PlayPauseButton
-                    android:id="@+id/playPause"
-                    android:layout_width="34dp"
-                    android:layout_height="34dp"
-                    android:layout_weight="1"
-                    android:contentDescription="@string/app_name"/>
-
-                <ImageView
-                    android:id="@+id/next"
-                    android:layout_width="34dp"
-                    android:layout_height="34dp"
-                    android:layout_weight="1"
-                    android:contentDescription="@string/app_name"
-                    android:src="@drawable/icon_next" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true">
-
-                <ImageView
-                    android:id="@+id/volumeDown"
-                    android:layout_width="34dp"
-                    android:layout_height="34dp"
-                    android:layout_weight="1"
-                    android:contentDescription="@string/app_name"
-                    android:src="@drawable/icon_volume_minus" />
-
-                <ImageView
-                    android:id="@+id/volumeOff"
-                    android:layout_width="34dp"
-                    android:layout_height="34dp"
-                    android:layout_weight="1"
-                    android:contentDescription="@string/app_name"
-                    android:src="@drawable/icon_volume_off" />
-
-                <ImageView
-                    android:id="@+id/volumeUp"
-                    android:layout_width="34dp"
-                    android:layout_height="34dp"
-                    android:layout_weight="1"
-                    android:contentDescription="@string/app_name"
-                    android:src="@drawable/icon_volume_plus" />
-
-            </LinearLayout>
-
-        </RelativeLayout>
-
-    </android.support.wear.widget.BoxInsetLayout>
-</FrameLayout>
+</android.support.wear.widget.BoxInsetLayout>

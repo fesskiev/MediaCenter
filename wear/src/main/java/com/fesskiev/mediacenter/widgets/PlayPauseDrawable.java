@@ -7,7 +7,6 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -52,7 +51,7 @@ public class PlayPauseDrawable extends Drawable {
         final Resources res = context.getResources();
         paint.setAntiAlias(true);
         paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.WHITE);
+        paint.setColor(context.getColor(R.color.player_primary));
         pauseBarWidth = res.getDimensionPixelSize(R.dimen.pause_bar_width);
         pauseBarHeight = res.getDimensionPixelSize(R.dimen.pause_bar_height);
         pauseBarDistance = res.getDimensionPixelSize(R.dimen.pause_bar_distance);

@@ -15,5 +15,19 @@
         <item name="android:fontFamily">sans-serif</item>
     </style>
 
+    <style name="TrackTitleTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/primary_text</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="TrackTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/secondary_text</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
 
 </resources>

@@ -15,7 +15,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.wear.widget.drawer.WearableNavigationDrawerView;
 import android.support.wearable.activity.WearableActivity;
-import android.util.Log;
 import android.view.ViewGroup;
 
 import com.fesskiev.common.data.MapAudioFile;
@@ -51,7 +50,7 @@ public class MainActivity extends WearableActivity {
         wearableNavigationDrawer.addOnItemSelectedListener(pos -> viewPager.setCurrentItem(pos));
 
         viewPager = findViewById(R.id.viewpager);
-        viewPager.setOffscreenPageLimit(2);
+        viewPager.setOffscreenPageLimit(3);
         setupViewPager(viewPager);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -78,6 +77,7 @@ public class MainActivity extends WearableActivity {
     private void setupViewPager(ViewPager viewPager) {
         adapter = new ViewPagerAdapter(getFragmentManager());
         Fragment[] fragments = new Fragment[]{
+                PlaybackFragment.newInstance(),
                 ControlFragment.newInstance(),
                 TrackListFragment.newInstance()
         };
@@ -179,10 +179,10 @@ public class MainActivity extends WearableActivity {
             super.destroyItem(container, position, object);
         }
 
-        public ControlFragment getControlFragment() {
+        public PlaybackFragment getControlFragment() {
             for (Fragment fragment : registeredFragments) {
-                if (fragment instanceof ControlFragment) {
-                    return (ControlFragment) fragment;
+                if (fragment instanceof PlaybackFragment) {
+                    return (PlaybackFragment) fragment;
                 }
             }
             return null;
@@ -202,15 +202,17 @@ public class MainActivity extends WearableActivity {
 
         @Override
         public int getCount() {
-            return 2;
+            return 3;
         }
 
         @Override
         public String getItemText(int pos) {
             switch (pos) {
                 case 0:
-                    return getString(R.string.drawer_item_control);
+                    return getString(R.string.drawer_item_playback);
                 case 1:
+                    return getString(R.string.drawer_item_control);
+                case 2:
                     return getString(R.string.drawer_item_tracklist);
             }
             return "";
@@ -220,8 +222,10 @@ public class MainActivity extends WearableActivity {
         public Drawable getItemDrawable(int pos) {
             switch (pos) {
                 case 0:
-                    return ContextCompat.getDrawable(getApplicationContext(), R.drawable.icon_control);
+                    return ContextCompat.getDrawable(getApplicationContext(), R.drawable.icon_playback);
                 case 1:
+                    return ContextCompat.getDrawable(getApplicationContext(), R.drawable.icon_control);
+                case 2:
                     return ContextCompat.getDrawable(getApplicationContext(), R.drawable.icon_tracklist);
             }
             return null;
