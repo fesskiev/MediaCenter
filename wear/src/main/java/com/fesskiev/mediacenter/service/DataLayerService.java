@@ -173,7 +173,6 @@ public class DataLayerService extends Service implements GoogleApiClient.Connect
                 if (TRACK_LIST_PATH.equals(path)) {
                     List<DataMap> dataMaps = DataMapItem.fromDataItem(item).getDataMap()
                             .getDataMapArrayList(TRACK_LIST_KEY);
-
                     serviceThread.processTrackList(dataMaps);
                 } else if (TRACK_PATH.equals(path)) {
                     DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap()

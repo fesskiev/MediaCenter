@@ -11,7 +11,6 @@ import android.os.Handler;
 import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.fesskiev.common.data.MapAudioFile;
 import com.fesskiev.common.data.MapPlayback;
@@ -46,6 +45,7 @@ import java.util.Set;
 import rx.Observable;
 import rx.Subscription;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 import static com.fesskiev.common.Constants.CHOOSE_TRACK;
 import static com.fesskiev.common.Constants.COVER;
@@ -116,7 +116,7 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
     private OnWearConnectionListener connectionListener;
 
     private GoogleApiClient googleApiClient;
-    private Subscription subscription;
+    private CompositeSubscription subscription;
 
     private AudioPlayer audioPlayer;
     private PlaybackService service;
@@ -130,6 +130,7 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
         this.context = context;
         this.service = service;
         this.audioPlayer = MediaApplication.getInstance().getAudioPlayer();
+        this.subscription = new CompositeSubscription();
 
         googleApiClient = new GoogleApiClient.Builder(context)
                 .addApi(Wearable.API)
@@ -150,11 +151,14 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
                     CAPABILITY_WEAR_APP);
             googleApiClient.disconnect();
         }
-        RxUtils.unsubscribe(subscription);
+
+        if (subscription != null) {
+            subscription.clear();
+        }
     }
 
     public void startWearApp() {
-        subscription = getNodes()
+        subscription.add(getNodes()
                 .subscribeOn(Schedulers.io())
                 .doOnNext(nodes -> {
                     for (String node : nodes) {
@@ -162,7 +166,7 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
                                 googleApiClient, node, START_ACTIVITY_PATH, new byte[0]);
 
                     }
-                }).subscribe();
+                }).subscribe());
 
     }
 
@@ -171,7 +175,7 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
             return;
         }
         this.playing = service.isPlaying();
-        subscription = Observable.just(service)
+        subscription.add(Observable.just(service)
                 .subscribeOn(Schedulers.io())
                 .flatMap(ser -> {
                     DataMap dataMap = new DataMap();
@@ -187,6 +191,8 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
                             .withLooping(ser.isLooping())
                             .build();
                     mapPlayback.toDataMap(dataMap);
+                    dataMap.putLong("Time", System.currentTimeMillis());
+
                     return Observable.just(dataMap);
                 }).doOnNext(dataMap -> {
                     PutDataMapRequest dataMapRequest = PutDataMapRequest.create(PLAYBACK_PATH);
@@ -196,14 +202,14 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
                     request.setUrgent();
                     Wearable.DataApi.putDataItem(googleApiClient, request);
                 })
-                .subscribe();
+                .subscribe());
     }
 
     public void updateTrackList(List<AudioFile> currentTrackList) {
         if (googleApiClient == null || !googleApiClient.isConnected()) {
             return;
         }
-        subscription = Observable.just(currentTrackList)
+        subscription.add(Observable.just(currentTrackList)
                 .subscribeOn(Schedulers.io())
                 .flatMap(audioFiles -> {
                     ArrayList<DataMap> dataMaps = new ArrayList<>();
@@ -225,6 +231,7 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
                                 .withLength(audioFile.length)
                                 .withTrackNumber(audioFile.trackNumber)
                                 .build();
+                        dataMap.putLong("Time", System.currentTimeMillis());
                         mapAudioFile.toDataMap(dataMap).putAsset(COVER, toAsset(audioFile.getArtworkPath()));
                         dataMaps.add(dataMap);
                     }
@@ -238,14 +245,14 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
                     request.setUrgent();
                     Wearable.DataApi.putDataItem(googleApiClient, request);
                 })
-                .subscribe();
+                .subscribe());
     }
 
     public void updateTrack(AudioFile currentTrack) {
         if (googleApiClient == null || !googleApiClient.isConnected()) {
             return;
         }
-        subscription = Observable.just(currentTrack)
+        subscription.add(Observable.just(currentTrack)
                 .subscribeOn(Schedulers.io())
                 .flatMap(audioFile -> {
                     DataMap dataMap = new DataMap();
@@ -267,13 +274,14 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
                     return Observable.just(dataMap);
                 }).doOnNext(dataMap -> {
                     PutDataMapRequest dataMapRequest = PutDataMapRequest.create(TRACK_PATH);
+                    dataMapRequest.getDataMap().putLong("Time", System.currentTimeMillis());
                     dataMapRequest.getDataMap().putDataMap(TRACK_KEY, dataMap);
 
                     PutDataRequest request = dataMapRequest.asPutDataRequest();
                     request.setUrgent();
                     Wearable.DataApi.putDataItem(googleApiClient, request);
                 })
-                .subscribe();
+                .subscribe());
     }
 
     private Observable<List<String>> getNodes() {
@@ -461,7 +469,6 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
                     controlListener.onChooseTrack(new String(messageEvent.getData()));
                     break;
                 case SYNC_PATH:
-                    Log.wtf("test", "SYNC_PATH") ;
                     updatePlayingState();
                     updateTrack(audioPlayer.getCurrentTrack());
                     updateTrackList(audioPlayer.getCurrentTrackList());
