@@ -42,6 +42,7 @@ import static com.fesskiev.common.Constants.COVER;
 import static com.fesskiev.common.Constants.PLAYBACK_KEY;
 import static com.fesskiev.common.Constants.PLAYBACK_PATH;
 import static com.fesskiev.common.Constants.PLAY_PATH;
+import static com.fesskiev.common.Constants.SYNC_PATH;
 import static com.fesskiev.common.Constants.TRACK_KEY;
 import static com.fesskiev.common.Constants.TRACK_LIST_KEY;
 import static com.fesskiev.common.Constants.TRACK_LIST_PATH;
@@ -138,6 +139,8 @@ public class DataLayerService extends Service implements GoogleApiClient.Connect
     public void onConnected(@Nullable Bundle bundle) {
         Wearable.DataApi.addListener(googleApiClient, this);
         Wearable.MessageApi.addListener(googleApiClient, this);
+
+        sendMessage(getApplicationContext(), SYNC_PATH);
     }
 
     @Override

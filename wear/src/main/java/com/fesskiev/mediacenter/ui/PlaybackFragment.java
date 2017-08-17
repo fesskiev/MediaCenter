@@ -23,9 +23,6 @@ import static com.fesskiev.common.Constants.NEXT_PATH;
 import static com.fesskiev.common.Constants.PAUSE_PATH;
 import static com.fesskiev.common.Constants.PLAY_PATH;
 import static com.fesskiev.common.Constants.PREVIOUS_PATH;
-import static com.fesskiev.common.Constants.VOLUME_DOWN;
-import static com.fesskiev.common.Constants.VOLUME_OFF;
-import static com.fesskiev.common.Constants.VOLUME_UP;
 
 
 public class PlaybackFragment extends Fragment {

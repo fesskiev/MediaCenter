@@ -8,12 +8,14 @@ public class Constants {
     public static final String TRACK_PATH = "/track";
     public static final String PLAYBACK_PATH = "/playback";
 
+    public static final String SYNC_PATH = "/sync";
+
     public static final String PREVIOUS_PATH = "/previous";
     public static final String NEXT_PATH = "/next";
     public static final String PLAY_PATH = "/play";
     public static final String PAUSE_PATH = "/pause";
-    public static final String VOLUME_UP = "/volume-up";
-    public static final String VOLUME_DOWN = "/volume-down";
+    public static final String VOLUME_UP_PATH = "/volume-up";
+    public static final String VOLUME_DOWN_PATH = "/volume-down";
 
     public static final String CHOOSE_TRACK = "/choose-track";
 

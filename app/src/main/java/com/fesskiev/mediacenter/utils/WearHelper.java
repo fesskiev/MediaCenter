@@ -11,9 +11,11 @@ import android.os.Handler;
 import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.fesskiev.common.data.MapAudioFile;
 import com.fesskiev.common.data.MapPlayback;
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.services.PlaybackService;
@@ -54,13 +56,14 @@ import static com.fesskiev.common.Constants.PLAYBACK_PATH;
 import static com.fesskiev.common.Constants.PLAY_PATH;
 import static com.fesskiev.common.Constants.PREVIOUS_PATH;
 import static com.fesskiev.common.Constants.START_ACTIVITY_PATH;
+import static com.fesskiev.common.Constants.SYNC_PATH;
 import static com.fesskiev.common.Constants.TRACK_KEY;
 import static com.fesskiev.common.Constants.TRACK_LIST_KEY;
 import static com.fesskiev.common.Constants.TRACK_LIST_PATH;
 import static com.fesskiev.common.Constants.TRACK_PATH;
-import static com.fesskiev.common.Constants.VOLUME_DOWN;
+import static com.fesskiev.common.Constants.VOLUME_DOWN_PATH;
 import static com.fesskiev.common.Constants.VOLUME_OFF;
-import static com.fesskiev.common.Constants.VOLUME_UP;
+import static com.fesskiev.common.Constants.VOLUME_UP_PATH;
 
 public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         DataApi.DataListener,
@@ -116,15 +119,17 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
     private Subscription subscription;
 
     private AudioPlayer audioPlayer;
+    private PlaybackService service;
 
 
     public WearHelper(Context context) {
         this(context, null);
     }
 
-    public WearHelper(Context context, AudioPlayer audioPlayer) {
+    public WearHelper(Context context, PlaybackService service) {
         this.context = context;
-        this.audioPlayer = audioPlayer;
+        this.service = service;
+        this.audioPlayer = MediaApplication.getInstance().getAudioPlayer();
 
         googleApiClient = new GoogleApiClient.Builder(context)
                 .addApi(Wearable.API)
@@ -161,11 +166,11 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     }
 
-    public void updatePlayingState(PlaybackService service, boolean playing) {
+    public void updatePlayingState() {
         if (googleApiClient == null || !googleApiClient.isConnected()) {
             return;
         }
-        this.playing = playing;
+        this.playing = service.isPlaying();
         subscription = Observable.just(service)
                 .subscribeOn(Schedulers.io())
                 .flatMap(ser -> {
@@ -315,9 +320,6 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
 
         findAllWearDevices();
         verifyNode();
-        if (audioPlayer != null) {
-            updateTrackList(audioPlayer.getCurrentTrackList());
-        }
     }
 
     @Override
@@ -446,10 +448,10 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
                 case PLAY_PATH:
                     controlListener.onPlay();
                     break;
-                case VOLUME_DOWN:
+                case VOLUME_DOWN_PATH:
                     controlListener.onVolumeDown();
                     break;
-                case VOLUME_UP:
+                case VOLUME_UP_PATH:
                     controlListener.onVolumeUp();
                     break;
                 case VOLUME_OFF:
@@ -457,6 +459,12 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
                     break;
                 case CHOOSE_TRACK:
                     controlListener.onChooseTrack(new String(messageEvent.getData()));
+                    break;
+                case SYNC_PATH:
+                    Log.wtf("test", "SYNC_PATH") ;
+                    updatePlayingState();
+                    updateTrack(audioPlayer.getCurrentTrack());
+                    updateTrackList(audioPlayer.getCurrentTrackList());
                     break;
             }
         }

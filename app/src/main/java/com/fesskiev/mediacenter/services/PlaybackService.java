@@ -364,7 +364,7 @@ public class PlaybackService extends Service {
             if(wearHelper != null) {
                 boolean wearPlaying = wearHelper.isPlaying();
                 if (playing != wearPlaying) {
-                   wearHelper.updatePlayingState(this, playing);
+                   wearHelper.updatePlayingState();
                 }
             }
 
@@ -524,7 +524,7 @@ public class PlaybackService extends Service {
     }
 
     private void makeWearModule() {
-        wearHelper = new WearHelper(getApplicationContext(), audioPlayer);
+        wearHelper = new WearHelper(getApplicationContext(), this);
         wearHelper.connect();
         wearHelper.setOnWearControlListener(new WearHelper.OnWearControlListener() {
 

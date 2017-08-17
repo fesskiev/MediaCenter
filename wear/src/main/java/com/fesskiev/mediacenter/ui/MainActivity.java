@@ -125,15 +125,16 @@ public class MainActivity extends WearableActivity {
                             MapAudioFile audioFile =
                                     intent.getParcelableExtra(EXTRA_TRACK);
                             if (audioFile != null) {
-                                adapter.getControlFragment().updateCurrentTrack(audioFile);
+                                adapter.getPlaybackFragment().updateCurrentTrack(audioFile);
                                 adapter.getTrackListFragment().updateCurrentTrack(audioFile);
+                                adapter.getControlFragment().updateCurrentTrack(audioFile);
                             }
                             break;
                         case ACTION_PLAYBACK:
                             MapPlayback playback =
                                     intent.getParcelableExtra(EXTRA_PLAYBACK);
                             if (playback != null) {
-                                adapter.getControlFragment().updatePlayback(playback);
+                                adapter.getPlaybackFragment().updatePlayback(playback);
                             }
                             break;
                     }
@@ -179,7 +180,17 @@ public class MainActivity extends WearableActivity {
             super.destroyItem(container, position, object);
         }
 
-        public PlaybackFragment getControlFragment() {
+        public ControlFragment getControlFragment() {
+            for (Fragment fragment : registeredFragments) {
+                if (fragment instanceof ControlFragment) {
+                    return (ControlFragment) fragment;
+                }
+            }
+            return null;
+        }
+
+
+        public PlaybackFragment getPlaybackFragment() {
             for (Fragment fragment : registeredFragments) {
                 if (fragment instanceof PlaybackFragment) {
                     return (PlaybackFragment) fragment;

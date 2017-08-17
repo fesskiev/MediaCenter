@@ -1,39 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical">
+    android:background="@color/color_background"
+    android:fitsSystemWindows="true"
+    android:orientation="horizontal">
 
-    <LinearLayout
+    <com.fesskiev.mediacenter.widgets.CoverBitmap
+        android:id="@+id/cover"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:boxedEdges="all">
+        android:layout_height="match_parent"
+        android:contentDescription="@string/app_name" />
 
-        <ImageView
-            android:id="@+id/volumeDown"
-            android:layout_width="34dp"
-            android:layout_height="34dp"
-            android:layout_weight="1"
-            android:contentDescription="@string/app_name"
-            android:src="@drawable/icon_volume_minus" />
+    <android.support.wear.widget.BoxInsetLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/volumeOff"
-            android:layout_width="34dp"
-            android:layout_height="34dp"
-            android:layout_weight="1"
-            android:contentDescription="@string/app_name"
-            android:src="@drawable/icon_volume_off" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:boxedEdges="all">
 
-        <ImageView
-            android:id="@+id/volumeUp"
-            android:layout_width="34dp"
-            android:layout_height="34dp"
-            android:layout_weight="1"
-            android:contentDescription="@string/app_name"
-            android:src="@drawable/icon_volume_plus" />
+            <ImageView
+                android:id="@+id/volumeDown"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:layout_weight="1"
+                android:layout_gravity="center_horizontal"
+                android:contentDescription="@string/app_name"
+                android:src="@drawable/icon_volume_minus" />
 
-    </LinearLayout>
+            <ImageView
+                android:id="@+id/volumeOff"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:layout_weight="1"
+                android:layout_gravity="center_horizontal"
+                android:contentDescription="@string/app_name"
+                android:src="@drawable/icon_volume_off" />
 
-</android.support.wear.widget.BoxInsetLayout>
+            <ImageView
+                android:id="@+id/volumeUp"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:layout_weight="1"
+                android:layout_gravity="center_horizontal"
+                android:contentDescription="@string/app_name"
+                android:src="@drawable/icon_volume_plus" />
+
+        </LinearLayout>
+
+    </android.support.wear.widget.BoxInsetLayout>
+
+</FrameLayout>

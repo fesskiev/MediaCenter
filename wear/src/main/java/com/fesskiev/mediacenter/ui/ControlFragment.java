@@ -1,6 +1,7 @@
 package com.fesskiev.mediacenter.ui;
 
 import android.app.Fragment;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -8,12 +9,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.fesskiev.common.data.MapAudioFile;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.service.DataLayerService;
+import com.fesskiev.mediacenter.widgets.CoverBitmap;
 
-import static com.fesskiev.common.Constants.VOLUME_DOWN;
+import static com.fesskiev.common.Constants.VOLUME_DOWN_PATH;
 import static com.fesskiev.common.Constants.VOLUME_OFF;
-import static com.fesskiev.common.Constants.VOLUME_UP;
+import static com.fesskiev.common.Constants.VOLUME_UP_PATH;
 
 
 public class ControlFragment extends Fragment implements View.OnClickListener  {
@@ -21,6 +24,9 @@ public class ControlFragment extends Fragment implements View.OnClickListener  {
     public static ControlFragment newInstance() {
         return new ControlFragment();
     }
+
+
+    private CoverBitmap coverView;
 
     @Nullable
     @Override
@@ -32,6 +38,8 @@ public class ControlFragment extends Fragment implements View.OnClickListener  {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        coverView = view.findViewById(R.id.cover);
 
         ImageView[] buttons = new ImageView[]{
                 view.findViewById(R.id.volumeDown),
@@ -48,15 +56,22 @@ public class ControlFragment extends Fragment implements View.OnClickListener  {
         String path = null;
         switch (view.getId()) {
             case R.id.volumeUp:
-                path = VOLUME_UP;
+                path = VOLUME_UP_PATH;
                 break;
             case R.id.volumeDown:
-                path = VOLUME_DOWN;
+                path = VOLUME_DOWN_PATH;
                 break;
             case R.id.volumeOff:
                 path = VOLUME_OFF;
                 break;
         }
         DataLayerService.sendMessage(getActivity().getApplicationContext(), path);
+    }
+
+    public void updateCurrentTrack(MapAudioFile audioFile) {
+        Bitmap cover = audioFile.cover;
+        if (cover != null) {
+            coverView.drawBitmap(cover);
+        }
     }
 }
