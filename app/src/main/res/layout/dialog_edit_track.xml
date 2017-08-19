@@ -12,10 +12,12 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:textColorHint="@color/white_text"
-        app:errorTextAppearance="@style/TextErrorAppearance">
+        app:errorTextAppearance="@style/TextErrorAppearance"
+        app:hintTextAppearance="@style/EditAlbumTextAppearance">
 
         <android.support.v7.widget.AppCompatEditText
             android:id="@+id/editArtist"
+            style="@style/EditAlbumTextAppearance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/hint_artist"
@@ -30,10 +32,12 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:textColorHint="@color/white_text"
-        app:errorTextAppearance="@style/TextErrorAppearance">
+        app:errorTextAppearance="@style/TextErrorAppearance"
+        app:hintTextAppearance="@style/EditAlbumTextAppearance">
 
         <android.support.v7.widget.AppCompatEditText
             android:id="@+id/editTitle"
+            style="@style/EditAlbumTextAppearance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/hint_title"
@@ -48,10 +52,12 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:textColorHint="@color/white_text"
-        app:errorTextAppearance="@style/TextErrorAppearance">
+        app:errorTextAppearance="@style/TextErrorAppearance"
+        app:hintTextAppearance="@style/EditAlbumTextAppearance">
 
         <android.support.v7.widget.AppCompatEditText
             android:id="@+id/editAlbum"
+            style="@style/EditAlbumTextAppearance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/hint_album"
@@ -66,10 +72,12 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:textColorHint="@color/white_text"
-        app:errorTextAppearance="@style/TextErrorAppearance">
+        app:errorTextAppearance="@style/TextErrorAppearance"
+        app:hintTextAppearance="@style/EditAlbumTextAppearance">
 
         <android.support.v7.widget.AppCompatEditText
             android:id="@+id/editGenre"
+            style="@style/EditAlbumTextAppearance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/hint_genre"
@@ -88,6 +96,5 @@
         android:gravity="center"
         android:padding="8dp"
         android:text="@string/button_save_track_info_text" />
-
 
 </LinearLayout>

@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/button_context_menu"
+        android:fontFamily="@font/ubuntu"
         android:gravity="start|center_vertical"
         android:maxLines="1"
         android:paddingEnd="15dp"
@@ -17,12 +18,12 @@
         android:textColor="@color/white"
         android:textSize="14sp" />
 
-
     <Button
         android:id="@+id/menuAddVideoToPlayList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/button_context_menu"
+        android:fontFamily="@font/ubuntu"
         android:gravity="start|center_vertical"
         android:maxLines="1"
         android:paddingEnd="15dp"
@@ -36,6 +37,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/button_context_menu"
+        android:fontFamily="@font/ubuntu"
         android:gravity="start|center_vertical"
         android:maxLines="1"
         android:paddingEnd="15dp"
@@ -55,6 +57,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/button_context_menu"
+        android:fontFamily="@font/ubuntu"
         android:gravity="start|center_vertical"
         android:maxLines="1"
         android:paddingEnd="15dp"
