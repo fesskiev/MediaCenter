@@ -3,6 +3,7 @@ package com.fesskiev.mediacenter.widgets.dialogs;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.res.ResourcesCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -94,6 +95,7 @@ public class VideoFileDetailsDialog extends DialogFragment {
             fileResolution = (TextView) view.findViewById(R.id.fileResolution);
             fileTimestamp = (TextView) view.findViewById(R.id.fileTimestamp);
             hideFolder = (CheckBox) view.findViewById(R.id.hiddenVideoFileCheckBox);
+            hideFolder.setTypeface(ResourcesCompat.getFont(getContext(), R.font.ubuntu));
             hideFolder.setOnCheckedChangeListener((buttonView, isChecked) -> changeHiddenFleState(isChecked));
 
             view.findViewById(R.id.refreshVideoFile).setOnClickListener(v -> refreshVideoFile());

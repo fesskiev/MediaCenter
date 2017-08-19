@@ -129,12 +129,11 @@
 
         <android.support.v7.widget.AppCompatCheckBox
             android:id="@+id/hiddenVideoFileCheckBox"
+            style="@style/CheckBoxStyle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:buttonTint="@color/white"
-            android:text="@string/hide_video_file_text"
-            android:textColor="@color/white" />
+            android:text="@string/hide_video_file_text" />
 
         <TextView
             android:id="@+id/refreshVideoFile"
@@ -142,10 +141,10 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:gravity="center_vertical"
             android:contentDescription="@string/app_name"
             android:drawablePadding="6dp"
             android:drawableStart="@drawable/icon_content_refresh"
+            android:gravity="center_vertical"
             android:text="@string/video_details_refresh" />
 
     </LinearLayout>

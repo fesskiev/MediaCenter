@@ -166,6 +166,14 @@
         <item name="android:background">@android:color/transparent</item>
     </style>
 
+    <style name="CheckBoxStyle" parent="Theme.AppCompat.Light">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">@font/ubuntu</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:buttonTint">@color/white</item>
+    </style>
+
 
     <style name="DividerStyle" parent="@android:style/TextAppearance">
         <item name="android:background">@color/divider</item>

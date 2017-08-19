@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
+import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
 
 import java.text.SimpleDateFormat;
@@ -14,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -62,6 +64,16 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
                 .first()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .flatMap(videoFiles -> {
+                    for (VideoFile videoFile : videoFiles) {
+                        String path = videoFile.framePath;
+                        if (path != null) {
+                            BitmapHelper.getInstance().loadVideoFileCover(path, cover);
+                            break;
+                        }
+                    }
+                    return Observable.just(videoFiles);
+                })
                 .subscribe(this::calculateValues);
     }
 
