@@ -37,16 +37,18 @@
                 style="@style/HeaderTitleTextAppearance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/conthrax"
+                android:gravity="center"
+                android:fontFamily="@font/atlantique"
                 android:text="@string/app_name" />
 
             <TextView
                 android:id="@+id/headerText"
                 style="@style/HeaderTextAppearance"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:fontFamily="@font/conthrax"
+                android:gravity="center"
+                android:fontFamily="@font/atlantique"
                 android:text="@string/splash_screen_title" />
 
         </LinearLayout>
