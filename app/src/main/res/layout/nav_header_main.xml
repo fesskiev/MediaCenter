@@ -38,7 +38,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:fontFamily="@font/atlantique"
                 android:text="@string/app_name" />
 
             <TextView
@@ -48,7 +47,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:gravity="center"
-                android:fontFamily="@font/atlantique"
                 android:text="@string/splash_screen_title" />
 
         </LinearLayout>

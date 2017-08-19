@@ -2,10 +2,12 @@ package com.fesskiev.mediacenter.ui.settings;
 
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.graphics.drawable.Animatable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -60,6 +62,11 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
                 (SwitchCompat) view.findViewById(R.id.fullScreenSwitch),
                 (SwitchCompat) view.findViewById(R.id.enableAppGuideSwitch)
         };
+
+        Typeface tf = ResourcesCompat.getFont(getContext(), R.font.ubuntu);
+        for (SwitchCompat switchCompat : switches) {
+            switchCompat.setTypeface(tf);
+        }
 
         recordSavePath = (TextView) view.findViewById(R.id.recordPathToSave);
         recordSavePath.setText(appSettingsManager.getRecordPath());

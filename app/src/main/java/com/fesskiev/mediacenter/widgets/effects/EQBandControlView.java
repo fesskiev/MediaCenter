@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.AttributeSet;
 
 import com.fesskiev.mediacenter.R;
@@ -84,12 +85,14 @@ public class EQBandControlView extends DialerView {
         markPaint.setStyle(Paint.Style.FILL);
         markPaint.setStrokeWidth(markStrokeWidth);
 
+        Typeface tf = ResourcesCompat.getFont(context, R.font.ubuntu);
+
         namePaint = new Paint();
         namePaint.setColor(ContextCompat.getColor(context, android.R.color.white));
         namePaint.setStyle(Paint.Style.FILL);
         namePaint.setTextSize(nameStrokeWidth);
         namePaint.setAntiAlias(true);
-        namePaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+        namePaint.setTypeface(tf);
         namePaint.setTextAlign(Paint.Align.CENTER);
 
         rangePaint = new Paint();
@@ -97,7 +100,7 @@ public class EQBandControlView extends DialerView {
         rangePaint.setStyle(Paint.Style.FILL);
         rangePaint.setTextSize(rangeStrokeWidth);
         rangePaint.setAntiAlias(true);
-        rangePaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+        namePaint.setTypeface(tf);
         rangePaint.setTextAlign(Paint.Align.CENTER);
 
     }

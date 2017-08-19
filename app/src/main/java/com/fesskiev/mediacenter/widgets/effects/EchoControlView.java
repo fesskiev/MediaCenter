@@ -5,8 +5,10 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.AttributeSet;
 
+import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.utils.Utils;
 
 
@@ -62,12 +64,14 @@ public class EchoControlView extends DialerView {
         markPaint.setStyle(Paint.Style.FILL);
         markPaint.setStrokeWidth(markStrokeWidth);
 
+        Typeface tf = ResourcesCompat.getFont(context, R.font.ubuntu);
+
         rangePaint = new Paint();
         rangePaint.setColor(ContextCompat.getColor(context, android.R.color.white));
         rangePaint.setStyle(Paint.Style.FILL);
         rangePaint.setTextSize(rangeStrokeWidth);
         rangePaint.setAntiAlias(true);
-        rangePaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+        rangePaint.setTypeface(tf);
         rangePaint.setTextAlign(Paint.Align.CENTER);
     }
 

@@ -5,10 +5,13 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
+import com.fesskiev.mediacenter.utils.text.TextUtils;
 
 public class EffectsActivity extends AnalyticsActivity {
 
@@ -39,6 +42,12 @@ public class EffectsActivity extends AnalyticsActivity {
                         }
                         return true;
                     });
+
+            Menu menu = bottomNavigationView.getMenu();
+            for (int i = 0; i < menu.size(); i++) {
+                MenuItem menuItem = menu.getItem(i);
+                menuItem.setTitle(TextUtils.getTypefaceString(getApplicationContext(), menuItem.getTitle()));
+            }
 
             addEQFragment();
         }
