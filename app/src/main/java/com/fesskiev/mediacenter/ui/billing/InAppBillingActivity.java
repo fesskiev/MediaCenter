@@ -138,7 +138,7 @@ public class InAppBillingActivity extends AppCompatActivity {
         hideFab();
         Utils.showCustomSnackbar(findViewById(R.id.billingRoot), getApplicationContext(),
                 getString(R.string.ad_mob_remove_success), Snackbar.LENGTH_INDEFINITE)
-                .setAction(getString(R.string.snack_exit_action), v -> finishWithResult())
+                .setAction(getString(R.string.dialog_exit_title), v -> finishWithResult())
                 .addCallback(new Snackbar.Callback() {
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {

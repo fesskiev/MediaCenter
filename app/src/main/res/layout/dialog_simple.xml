@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:minHeight="90dp"
+    android:minWidth="380dp"
+    android:orientation="vertical"
+    android:padding="@dimen/activity_horizontal_margin">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/dialogIcon"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_centerVertical="true"
+            android:contentDescription="@string/app_name"
+            tools:src="@mipmap/ic_launcher" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_toEndOf="@+id/dialogIcon"
+            android:layout_centerVertical="true"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/dialogTitle"
+                style="@style/SimpleDialogTitleTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:maxLines="1"
+                tools:text="Search" />
+
+            <TextView
+                android:id="@+id/dialogMessage"
+                style="@style/SimpleDialogTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:maxLines="2"
+                tools:text="Do you want to perform search files?" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="15dp"
+        android:baselineAligned="false"
+        android:orientation="horizontal"
+        android:splitMotionEvents="false">
+
+        <Button
+            android:id="@+id/buttonNegativeConfirm"
+            style="@style/SimpleButtonTextAppearance"
+            android:layout_width="wrap_content"
+            android:layout_height="38dp"
+            android:background="?android:selectableItemBackground"
+            android:gravity="center_vertical"
+            android:minWidth="52dp"
+            android:paddingEnd="16dp"
+            android:paddingStart="16dp"
+            android:text="@string/dialog_permission_cancel" />
+
+        <Button
+            android:id="@+id/buttonPositiveConfirm"
+            style="@style/SimpleButtonTextAppearance"
+            android:layout_width="wrap_content"
+            android:layout_height="38dp"
+            android:background="?android:selectableItemBackground"
+            android:gravity="center_vertical"
+            android:minWidth="52dp"
+            android:paddingEnd="16dp"
+            android:paddingStart="16dp"
+            android:text="@string/dialog_permission_ok" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -19,8 +19,8 @@
 
     <string name="product_price">Price:</string>
 
-    <string name="snack_exit_text">Are you sure you want to exit from app?</string>
-    <string name="snack_exit_action">EXIT</string>
+    <string name="dialog_text_exit">Are you sure you want to exit from app?</string>
+    <string name="dialog_exit_title">Exit</string>
 
     <string name="title_settings_activity">Settings</string>
     <string name="title_about_activity">About</string>
@@ -230,7 +230,7 @@
 
     <string name="splash_screen_title">Power media player</string>
 
-    <string name="splash_snackbar_stop_fetch">Are you sure yo want stop searching and exit from app ?</string>
+    <string name="dialog_text_stop_fetch">Are you sure yo want stop searching and exit from app ?</string>
 
     <string name="update_no_period">Do not search files</string>
     <string name="update_period_30_minutes">30 minutes</string>

@@ -46,7 +46,7 @@ import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
-import com.fesskiev.mediacenter.widgets.dialogs.ExitDialog;
+import com.fesskiev.mediacenter.widgets.dialogs.SimpleDialog;
 import com.fesskiev.mediacenter.widgets.fetch.FetchContentScreen;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
@@ -156,7 +156,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     @Override
     protected void onPause() {
         super.onPause();
-        if (appGuide != null){
+        if (appGuide != null) {
             appGuide.clear();
         }
     }
@@ -570,14 +570,18 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.addToBackStack(null);
 
-        ExitDialog exitDialog;
+        SimpleDialog exitDialog;
         if (fetchMediaFilesManager.isFetchStart()) {
-            exitDialog = ExitDialog.newInstance(getString(R.string.splash_snackbar_stop_fetch));
+            exitDialog = SimpleDialog.newInstance(getString(R.string.dialog_exit_title),
+                    getString(R.string.dialog_text_stop_fetch),
+                    R.drawable.icon_exit);
         } else {
-            exitDialog = ExitDialog.newInstance(getString(R.string.snack_exit_text));
+            exitDialog = SimpleDialog.newInstance(getString(R.string.dialog_exit_title),
+                    getString(R.string.dialog_text_exit),
+                    R.drawable.icon_exit);
         }
-        exitDialog.show(transaction, ExitDialog.class.getName());
-        exitDialog.setOnExitListener(this::processFinishPlayback);
+        exitDialog.show(transaction, SimpleDialog.class.getName());
+        exitDialog.setPositiveListener(this::processFinishPlayback);
     }
 
     @Override

@@ -293,9 +293,24 @@
         <item name="android:fontFamily">@font/ubuntu</item>
     </style>
 
-    <style name="ExitButtonTextAppearance" parent="@android:style/TextAppearance">
+    <style name="SimpleButtonTextAppearance" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/yellow</item>
-        <item name="android:textSize">@dimen/text_walk_through</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/ubuntu</item>
+    </style>
+
+    <style name="SimpleDialogTitleTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:fontFamily">@font/ubuntu</item>
+    </style>
+
+    <style name="SimpleDialogTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:fontFamily">@font/ubuntu</item>
     </style>
 
@@ -512,13 +527,6 @@
         <item name="android:textSize">14sp</item>
         <item name="android:fontFamily">@font/ubuntu</item>
     </style>
-
-    <style name="ExitDialogTextAppearance" parent="@android:style/TextAppearance">
-        <item name="android:textColor">@color/white</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:fontFamily">@font/ubuntu</item>
-    </style>
-
 
     <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">@color/yellow</item>

@@ -54,9 +54,9 @@ public class WalkthroughActivity extends AnalyticsActivity {
                     View view = findViewById(R.id.content);
                     if (view != null) {
                         Utils.showCustomSnackbar(view, getApplicationContext(),
-                                getString(R.string.splash_snackbar_stop_fetch),
+                                getString(R.string.dialog_text_stop_fetch),
                                 Snackbar.LENGTH_LONG)
-                                .setAction(getString(R.string.snack_exit_action), v ->
+                                .setAction(getString(R.string.dialog_exit_title), v ->
                                         stopFetchMediaAndExit(fetchMediaFragment))
                                 .show();
                         return;
