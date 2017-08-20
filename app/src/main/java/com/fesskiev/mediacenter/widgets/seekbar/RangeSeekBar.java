@@ -12,6 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -141,6 +142,8 @@ public class RangeSeekBar<T extends Number> extends AppCompatImageView {
         setFocusable(true);
         setFocusableInTouchMode(true);
         scaledTouchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
+
+        paint.setTypeface(ResourcesCompat.getFont(getContext(), R.font.ubuntu));
     }
 
     public void setRangeValues(T minValue, T maxValue) {

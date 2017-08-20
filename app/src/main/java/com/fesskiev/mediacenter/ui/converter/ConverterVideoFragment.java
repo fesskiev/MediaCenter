@@ -2,10 +2,12 @@ package com.fesskiev.mediacenter.ui.converter;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.res.ResourcesCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import com.fesskiev.mediacenter.MediaApplication;
@@ -41,7 +43,14 @@ public class ConverterVideoFragment extends ConverterFragment implements RadioGr
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        ((RadioGroup) view.findViewById(R.id.radioGroupConvertFormat)).setOnCheckedChangeListener(this);
+        RadioGroup radioGroup = ((RadioGroup) view.findViewById(R.id.radioGroupConvertFormat));
+        radioGroup.setOnCheckedChangeListener(this);
+        for (int i = 0; i < radioGroup.getChildCount(); i++) {
+            View childAt = radioGroup.getChildAt(i);
+            if (childAt instanceof RadioButton) {
+                ((RadioButton) childAt).setTypeface(ResourcesCompat.getFont(getContext(), R.font.ubuntu));
+            }
+        }
 
         view.findViewById(R.id.convertFileFab).setOnClickListener(v -> startConvertFile());
         view.findViewById(R.id.chooseConvertFile).setOnClickListener(v -> selectConvertFile());

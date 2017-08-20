@@ -303,6 +303,13 @@
         <item name="android:fontFamily">@font/ubuntu</item>
     </style>
 
+    <style name="FileChooseTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/secondary_text</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/ubuntu</item>
+    </style>
+
     <style name="ButtonStyle" parent="android:style/Widget.Material.Button">
         <item name="android:background">@drawable/raised_button_background</item>
         <item name="android:textColor">@color/yellow</item>
