@@ -29,7 +29,7 @@
                 android:layout_weight="1"
                 android:layout_gravity="center_horizontal"
                 android:contentDescription="@string/app_name"
-                android:src="@drawable/icon_volume_minus" />
+                android:src="@drawable/icon_volume_down" />
 
             <ImageView
                 android:id="@+id/volumeOff"
@@ -47,7 +47,7 @@
                 android:layout_weight="1"
                 android:layout_gravity="center_horizontal"
                 android:contentDescription="@string/app_name"
-                android:src="@drawable/icon_volume_plus" />
+                android:src="@drawable/icon_volume_up" />
 
         </LinearLayout>
 
