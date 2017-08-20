@@ -38,7 +38,7 @@
             android:layout_height="32dp"
             android:layout_centerInParent="true"
             android:contentDescription="@string/app_name"
-            android:src="@drawable/icon_delete" />
+            android:src="@drawable/icon_trash_color" />
 
     </RelativeLayout>
 

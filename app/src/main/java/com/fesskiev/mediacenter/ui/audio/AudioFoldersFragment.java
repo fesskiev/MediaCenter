@@ -8,7 +8,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
@@ -31,6 +30,7 @@ import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.dialogs.AudioFolderDetailsDialog;
 import com.fesskiev.mediacenter.widgets.dialogs.MediaFolderDetailsDialog;
+import com.fesskiev.mediacenter.widgets.dialogs.SimpleDialog;
 import com.fesskiev.mediacenter.widgets.item.AudioCardView;
 import com.fesskiev.mediacenter.widgets.menu.FolderContextMenu;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
@@ -275,12 +275,14 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
             if (act != null) {
                 AudioFolder audioFolder = audioFolders.get(position);
                 if (audioFolder != null) {
-                    AlertDialog.Builder builder =
-                            new AlertDialog.Builder(act, R.style.AppCompatAlertDialogStyle);
-                    builder.setTitle(act.getString(R.string.dialog_delete_file_title));
-                    builder.setMessage(R.string.dialog_delete_folder_message);
-                    builder.setPositiveButton(R.string.dialog_delete_file_ok,
-                            (dialog, which) -> Observable.just(CacheManager.deleteDirectoryWithFiles(audioFolder.folderPath))
+                    FragmentTransaction transaction =
+                            ((FragmentActivity) act).getSupportFragmentManager().beginTransaction();
+                    transaction.addToBackStack(null);
+                    SimpleDialog dialog = SimpleDialog.newInstance(act.getString(R.string.dialog_delete_file_title),
+                            act.getString(R.string.dialog_delete_folder_message), R.drawable.icon_trash);
+                    dialog.show(transaction, SimpleDialog.class.getName());
+                    dialog.setPositiveListener(() ->
+                            Observable.just(CacheManager.deleteDirectoryWithFiles(audioFolder.folderPath))
                                     .first()
                                     .subscribeOn(Schedulers.io())
                                     .flatMap(result -> {
@@ -302,9 +304,6 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                                                 .show();
 
                                     }));
-                    builder.setNegativeButton(R.string.dialog_delete_file_cancel,
-                            (dialog, which) -> dialog.cancel());
-                    builder.show();
                 }
             }
         }

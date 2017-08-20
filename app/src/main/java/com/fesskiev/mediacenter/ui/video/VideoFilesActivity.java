@@ -8,7 +8,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -31,6 +30,7 @@ import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
+import com.fesskiev.mediacenter.widgets.dialogs.SimpleDialog;
 import com.fesskiev.mediacenter.widgets.dialogs.VideoFileDetailsDialog;
 import com.fesskiev.mediacenter.widgets.item.VideoCardView;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
@@ -281,31 +281,28 @@ public class VideoFilesActivity extends AnalyticsActivity {
             if (act != null) {
                 final VideoFile videoFile = videoFiles.get(position);
                 if (videoFile != null) {
-                    AlertDialog.Builder builder =
-                            new AlertDialog.Builder(act, R.style.AppCompatAlertDialogStyle);
-                    builder.setTitle(act.getString(R.string.dialog_delete_file_title));
-                    builder.setMessage(R.string.dialog_delete_file_message);
-                    builder.setPositiveButton(R.string.dialog_delete_file_ok,
-                            (dialog, which) -> {
-                                Observable.just(videoFile.filePath.delete())
-                                        .first()
-                                        .subscribeOn(Schedulers.io())
-                                        .flatMap(result -> {
-                                            DataRepository repository = MediaApplication.getInstance().getRepository();
-                                            return RxUtils.fromCallable(repository.deleteVideoFile(videoFile.getFilePath()));
-                                        })
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe(integer -> {
-                                            Utils.showCustomSnackbar(act.getCurrentFocus(),
-                                                    act, act.getString(R.string.shackbar_delete_file),
-                                                    Snackbar.LENGTH_LONG)
-                                                    .show();
-                                            removeItem(position);
-                                        });
-                            });
-                    builder.setNegativeButton(R.string.dialog_delete_file_cancel,
-                            (dialog, which) -> dialog.cancel());
-                    builder.show();
+                    FragmentTransaction transaction =
+                            ((FragmentActivity) act).getSupportFragmentManager().beginTransaction();
+                    transaction.addToBackStack(null);
+                    SimpleDialog dialog = SimpleDialog.newInstance(act.getString(R.string.dialog_delete_file_title),
+                            act.getString(R.string.dialog_delete_file_message), R.drawable.icon_trash);
+                    dialog.show(transaction, SimpleDialog.class.getName());
+                    dialog.setPositiveListener(() ->
+                            Observable.just(videoFile.filePath.delete())
+                                    .first()
+                                    .subscribeOn(Schedulers.io())
+                                    .flatMap(result -> {
+                                        DataRepository repository = MediaApplication.getInstance().getRepository();
+                                        return RxUtils.fromCallable(repository.deleteVideoFile(videoFile.getFilePath()));
+                                    })
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(integer -> {
+                                        Utils.showCustomSnackbar(act.getCurrentFocus(),
+                                                act, act.getString(R.string.shackbar_delete_file),
+                                                Snackbar.LENGTH_LONG)
+                                                .show();
+                                        removeItem(position);
+                                    }));
                 }
             }
         }

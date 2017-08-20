@@ -14,8 +14,8 @@
 
         <ImageView
             android:id="@+id/dialogIcon"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_centerVertical="true"
             android:contentDescription="@string/app_name"
             tools:src="@mipmap/ic_launcher" />
@@ -72,7 +72,7 @@
             android:minWidth="52dp"
             android:paddingEnd="16dp"
             android:paddingStart="16dp"
-            android:text="@string/dialog_permission_cancel" />
+            android:text="@string/dialog_cancel" />
 
         <Button
             android:id="@+id/buttonPositiveConfirm"
@@ -84,7 +84,7 @@
             android:minWidth="52dp"
             android:paddingEnd="16dp"
             android:paddingStart="16dp"
-            android:text="@string/dialog_permission_ok" />
+            android:text="@string/dialog_ok" />
 
     </LinearLayout>
 

@@ -2,6 +2,7 @@ package com.fesskiev.mediacenter.widgets.settings;
 
 
 import android.content.Context;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -64,6 +65,9 @@ public class MediaContentUpdateTimeView extends AnimateStateShow implements Radi
                 (RadioButton) view.findViewById(R.id.update6HoursButton),
                 (RadioButton) view.findViewById(R.id.update24HoursButton)
         };
+        for(RadioButton radioButton : radioButtons){
+            radioButton.setTypeface(ResourcesCompat.getFont(getContext(), R.font.ubuntu));
+        }
 
         settingsManager = AppSettingsManager.getInstance();
         setSelectedUpdateTimeType();

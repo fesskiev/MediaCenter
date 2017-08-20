@@ -34,7 +34,7 @@
             android:minWidth="48dp"
             android:paddingEnd="16dp"
             android:paddingStart="16dp"
-            android:text="@string/dialog_permission_ok" />
+            android:text="@string/dialog_ok" />
 
         <Button
             android:id="@+id/fetchMediaSkipButton"
@@ -46,7 +46,7 @@
             android:minWidth="48dp"
             android:paddingEnd="16dp"
             android:paddingStart="16dp"
-            android:text="@string/dialog_permission_cancel" />
+            android:text="@string/dialog_cancel" />
 
     </LinearLayout>
 

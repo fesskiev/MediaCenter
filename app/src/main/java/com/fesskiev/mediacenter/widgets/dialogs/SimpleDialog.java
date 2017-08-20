@@ -58,6 +58,8 @@ public class SimpleDialog extends DialogFragment implements View.OnClickListener
         title = getArguments().getString(TITLE_TEXT);
         message = getArguments().getString(MESSAGE_TEXT);
         resId = getArguments().getInt(RES_ID, -1);
+
+        setCancelable(false);
     }
 
     @Nullable

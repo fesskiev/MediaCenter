@@ -3,9 +3,9 @@ package com.fesskiev.mediacenter.ui.audio;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
@@ -17,6 +17,7 @@ import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.ui.ViewPagerFragment;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
+import com.fesskiev.mediacenter.widgets.dialogs.SimpleDialog;
 
 import java.util.List;
 
@@ -80,29 +81,24 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
 
     @Override
     public void onRefresh() {
-        AlertDialog.Builder builder =
-                new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
-        builder.setTitle(getString(R.string.dialog_refresh_folders_title));
-        builder.setMessage(R.string.dialog_refresh_folders_message);
-        builder.setPositiveButton(R.string.dialog_refresh_folders_ok,
-                (dialog, which) -> {
-                    swipeRefreshLayout.setRefreshing(false);
-                    subscription = RxUtils
-                            .fromCallable(repository.resetAudioContentDatabase())
-                            .subscribeOn(Schedulers.io())
-                            .doOnNext(integer -> {
-                                CacheManager.clearAudioImagesCache();
-                            })
-                            .subscribe(integer -> FileSystemService.startFetchAudio(getActivity()));
-                });
+        makeRefreshDialog();
+    }
 
-        builder.setNegativeButton(R.string.dialog_refresh_folders_cancel,
-                (dialog, which) -> {
-                    swipeRefreshLayout.setRefreshing(false);
-                    dialog.cancel();
-                });
-        builder.setOnCancelListener(dialog -> swipeRefreshLayout.setRefreshing(false));
-        builder.show();
+    private void makeRefreshDialog() {
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        transaction.addToBackStack(null);
+        SimpleDialog dialog = SimpleDialog.newInstance(getString(R.string.dialog_refresh_folders_title),
+                getString(R.string.dialog_refresh_folders_message), R.drawable.icon_refresh);
+        dialog.show(transaction, SimpleDialog.class.getName());
+        dialog.setPositiveListener(() -> {
+            swipeRefreshLayout.setRefreshing(false);
+            subscription = RxUtils
+                    .fromCallable(repository.resetAudioContentDatabase())
+                    .subscribeOn(Schedulers.io())
+                    .doOnNext(integer -> CacheManager.clearAudioImagesCache())
+                    .subscribe(integer -> FileSystemService.startFetchAudio(getActivity()));
+        });
+        dialog.setNegativeListener(() -> swipeRefreshLayout.setRefreshing(false));
     }
 
     @Override

@@ -8,8 +8,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.utils.Utils;
+import com.fesskiev.mediacenter.widgets.dialogs.SimpleDialog;
 
 
 public class PermissionFragment extends Fragment implements View.OnClickListener {
@@ -143,15 +144,13 @@ public class PermissionFragment extends Fragment implements View.OnClickListener
     }
 
     private void createExplanationPermissionDialog() {
-        AlertDialog.Builder builder =
-                new AlertDialog.Builder(getContext(), R.style.AppCompatAlertDialogStyle);
-        builder.setTitle(getString(R.string.dialog_permission_title));
-        builder.setMessage(R.string.dialog_permission_message);
-        builder.setPositiveButton(R.string.dialog_permission_ok,
-                (dialog, which) -> Utils.startSettingsActivity(getContext()));
-        builder.setNegativeButton(R.string.dialog_permission_cancel,
-                (dialog, which) -> getActivity().finish());
-        builder.setOnCancelListener(dialog -> getActivity().finish());
-        builder.show();
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        transaction.addToBackStack(null);
+        SimpleDialog dialog = SimpleDialog.newInstance(getString(R.string.dialog_permission_title),
+                getString(R.string.dialog_permission_message), R.drawable.icon_permission_settings);
+        dialog.show(transaction, SimpleDialog.class.getName());
+        dialog.setPositiveListener(() -> Utils.startSettingsActivity(getContext()));
+        dialog.setNegativeListener(() -> getActivity().finish());
+
     }
 }

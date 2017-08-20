@@ -67,8 +67,6 @@
 
     <string name="dialog_delete_file_title">Внимание</string>
     <string name="dialog_delete_file_message">Удалить данное видео?</string>
-    <string name="dialog_delete_file_ok">Да</string>
-    <string name="dialog_delete_file_cancel">Нет</string>
 
     <string name="dialog_delete_folder_message">Удалить папку с файлами?</string>
 
@@ -87,16 +85,12 @@
 
     <string name="dialog_refresh_folders_title">Поиск музыки</string>
     <string name="dialog_refresh_folders_message">Выполнить полный поиск музыки по разделам?</string>
-    <string name="dialog_refresh_folders_ok">Да</string>
-    <string name="dialog_refresh_folders_cancel">Нет</string>
 
     <string name="dialog_refresh_video_title">Поиск видео</string>
     <string name="dialog_refresh_video_message">Выполнить полный поиск видео по разделам?</string>
-    <string name="dialog_refresh_video_ok">Да</string>
-    <string name="dialog_refresh_video_cancel">Нет</string>
 
-    <string name="dialog_permission_ok">ДА</string>
-    <string name="dialog_permission_cancel">НЕТ</string>
+    <string name="dialog_ok">ДА</string>
+    <string name="dialog_cancel">НЕТ</string>
 
     <string name="context_menu_audio_details">Детали</string>
     <string name="context_menu_audio_search_data">Поиск по альбому</string>

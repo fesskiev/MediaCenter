@@ -68,8 +68,6 @@
 
     <string name="dialog_delete_file_title">Attention</string>
     <string name="dialog_delete_file_message">Do you want delete this file?</string>
-    <string name="dialog_delete_file_ok">YES</string>
-    <string name="dialog_delete_file_cancel">NO</string>
 
     <string name="dialog_delete_folder_message">Do you want delete this folder?</string>
 
@@ -90,16 +88,12 @@
 
     <string name="dialog_refresh_folders_title">Audio search</string>
     <string name="dialog_refresh_folders_message">Do you want to perform a full search for audio files?</string>
-    <string name="dialog_refresh_folders_ok">Yes</string>
-    <string name="dialog_refresh_folders_cancel">No</string>
 
     <string name="dialog_refresh_video_title">Video search</string>
     <string name="dialog_refresh_video_message">Do you want to perform a full search for video files?</string>
-    <string name="dialog_refresh_video_ok">Yes</string>
-    <string name="dialog_refresh_video_cancel">No</string>
 
-    <string name="dialog_permission_ok">YES</string>
-    <string name="dialog_permission_cancel">NO</string>
+    <string name="dialog_ok">YES</string>
+    <string name="dialog_cancel">NO</string>
 
     <string name="context_menu_audio_details">Details</string>
     <string name="context_menu_audio_search_data">Album info search</string>

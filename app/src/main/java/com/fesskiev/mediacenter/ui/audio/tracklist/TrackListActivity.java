@@ -3,6 +3,8 @@ package com.fesskiev.mediacenter.ui.audio.tracklist;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -33,6 +35,7 @@ import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.cards.SlidingCardView;
 import com.fesskiev.mediacenter.widgets.dialogs.EditTrackDialog;
+import com.fesskiev.mediacenter.widgets.dialogs.SimpleDialog;
 import com.fesskiev.mediacenter.widgets.recycleview.HidingScrollListener;
 import com.fesskiev.mediacenter.widgets.recycleview.ScrollingLinearLayoutManager;
 import com.github.clans.fab.FloatingActionButton;
@@ -485,41 +488,37 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
 
         private void deleteFile(final int position) {
             final AudioFile audioFile = audioFiles.get(position);
-            AlertDialog.Builder builder =
-                    new AlertDialog.Builder(TrackListActivity.this, R.style.AppCompatAlertDialogStyle);
-            builder.setTitle(getString(R.string.dialog_delete_file_title));
-            builder.setMessage(R.string.dialog_delete_file_message);
-            builder.setPositiveButton(R.string.dialog_delete_file_ok,
-                    (dialog, which) -> {
-                        if (!audioFile.filePath.exists() || audioFile.filePath.delete()) {
-                            Utils.showCustomSnackbar(getCurrentFocus(),
-                                    getApplicationContext(),
-                                    getString(R.string.shackbar_delete_audio_file),
-                                    Snackbar.LENGTH_LONG).addCallback(new Snackbar.Callback() {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.addToBackStack(null);
+            SimpleDialog dialog = SimpleDialog.newInstance(getString(R.string.dialog_delete_file_title),
+                    getString(R.string.dialog_delete_file_message), R.drawable.icon_trash);
+            dialog.show(transaction, SimpleDialog.class.getName());
+            dialog.setPositiveListener(() -> {
+                if (!audioFile.filePath.exists() || audioFile.filePath.delete()) {
+                    Utils.showCustomSnackbar(getCurrentFocus(),
+                            getApplicationContext(),
+                            getString(R.string.shackbar_delete_audio_file),
+                            Snackbar.LENGTH_LONG).addCallback(new Snackbar.Callback() {
 
-                                @Override
-                                public void onShown(Snackbar snackbar) {
-                                    super.onShown(snackbar);
-                                    closeMenu();
-                                    AppAnimationUtils.getInstance().translateMenu(actionMenu,
-                                            -snackbar.getView().getHeight());
-                                }
-
-                                @Override
-                                public void onDismissed(Snackbar snackbar, int event) {
-                                    super.onDismissed(snackbar, event);
-                                    AppAnimationUtils.getInstance().translateMenu(actionMenu, 0);
-                                }
-                            }).show();
-
-                            repository.deleteAudioFile(audioFile.getFilePath());
-                            adapter.removeItem(position);
-
+                        @Override
+                        public void onShown(Snackbar snackbar) {
+                            super.onShown(snackbar);
+                            closeMenu();
+                            AppAnimationUtils.getInstance().translateMenu(actionMenu,
+                                    -snackbar.getView().getHeight());
                         }
-                    });
-            builder.setNegativeButton(R.string.dialog_delete_file_cancel,
-                    (dialog, which) -> dialog.cancel());
-            builder.show();
+
+                        @Override
+                        public void onDismissed(Snackbar snackbar, int event) {
+                            super.onDismissed(snackbar, event);
+                            AppAnimationUtils.getInstance().translateMenu(actionMenu, 0);
+                        }
+                    }).show();
+
+                    repository.deleteAudioFile(audioFile.getFilePath());
+                    adapter.removeItem(position);
+                }
+            });
         }
 
         @Override
