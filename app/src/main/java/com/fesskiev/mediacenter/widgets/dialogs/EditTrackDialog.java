@@ -1,14 +1,15 @@
 package com.fesskiev.mediacenter.widgets.dialogs;
 
 
-import android.content.Context;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
+import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.WindowManager;
+import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.fesskiev.mediacenter.MediaApplication;
@@ -28,7 +29,17 @@ import org.jaudiotagger.tag.id3.ID3v23Tag;
 
 import java.io.IOException;
 
-public class EditTrackDialog extends AlertDialog implements View.OnClickListener, TextWatcher {
+public class EditTrackDialog extends DialogFragment implements View.OnClickListener, TextWatcher {
+
+    protected static final String AUDIO_FILE = "com.fesskiev.player.AUDIO_FILE";
+
+    public static EditTrackDialog newInstance(AudioFile audioFile) {
+        EditTrackDialog dialog = new EditTrackDialog();
+        Bundle args = new Bundle();
+        args.putParcelable(AUDIO_FILE, audioFile);
+        dialog.setArguments(args);
+        return dialog;
+    }
 
     public interface OnEditTrackChangedListener {
 
@@ -45,30 +56,39 @@ public class EditTrackDialog extends AlertDialog implements View.OnClickListener
     private EditText editGenre;
 
 
-    public EditTrackDialog(Context context, AudioFile audioFile, OnEditTrackChangedListener listener) {
-        super(context);
-        this.audioFile = audioFile;
-        this.listener = listener;
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setStyle(DialogFragment.STYLE_NO_TITLE, R.style.CustomFragmentDialog);
+
+        audioFile = getArguments().getParcelable(AUDIO_FILE);
+    }
+
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+         /*
+         *  bug! http://stackoverflow.com/questions/32784009/styling-custom-dialog-fragment-not-working?noredirect=1&lq=1
+         */
+        return getActivity().getLayoutInflater().inflate(R.layout.dialog_edit_track, null);
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.dialog_edit_track);
-        getWindow().
-                clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
-                        WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        editArtist = (EditText) findViewById(R.id.editArtist);
+        editArtist = (EditText) view.findViewById(R.id.editArtist);
         editArtist.addTextChangedListener(this);
-        editTitle = (EditText) findViewById(R.id.editTitle);
+        editTitle = (EditText) view.findViewById(R.id.editTitle);
         editTitle.addTextChangedListener(this);
-        editAlbum = (EditText) findViewById(R.id.editAlbum);
+        editAlbum = (EditText) view.findViewById(R.id.editAlbum);
         editAlbum.addTextChangedListener(this);
-        editGenre = (EditText) findViewById(R.id.editGenre);
+        editGenre = (EditText) view.findViewById(R.id.editGenre);
         editGenre.addTextChangedListener(this);
 
-        findViewById(R.id.saveTrackInfoButton).setOnClickListener(this);
+        view.findViewById(R.id.saveTrackInfoButton).setOnClickListener(this);
 
         setDialogFields();
     }
@@ -99,7 +119,6 @@ public class EditTrackDialog extends AlertDialog implements View.OnClickListener
 
     private void editTrackTagger() {
         try {
-
             TagOptionSingleton.getInstance().setAndroid(true);
             org.jaudiotagger.audio.AudioFile audioFile = AudioFileIO.read(this.audioFile.filePath);
             audioFile.setTag(new ID3v23Tag());
@@ -114,7 +133,6 @@ public class EditTrackDialog extends AlertDialog implements View.OnClickListener
                 updateAudioFileDatabase(this.audioFile);
 
                 listener.onEditTrackChanged(this.audioFile);
-                hide();
             } else {
                 listener.onEditTrackError();
             }
@@ -123,6 +141,8 @@ public class EditTrackDialog extends AlertDialog implements View.OnClickListener
             e.printStackTrace();
 
             listener.onEditTrackError();
+        } finally {
+            dismiss();
         }
     }
 
@@ -150,5 +170,9 @@ public class EditTrackDialog extends AlertDialog implements View.OnClickListener
                 audioFile.genre = value;
             }
         }
+    }
+
+    public void setOnEditTrackChangedListener(OnEditTrackChangedListener listener) {
+        this.listener = listener;
     }
 }

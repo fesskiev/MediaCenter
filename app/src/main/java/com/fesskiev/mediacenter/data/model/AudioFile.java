@@ -2,6 +2,8 @@ package com.fesskiev.mediacenter.data.model;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.fesskiev.mediacenter.R;
@@ -28,7 +30,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-public class AudioFile implements MediaFile, Comparable<AudioFile> {
+public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
 
     public interface OnAudioTagListener {
         void onFetchCompleted(AudioFile audioFile);
@@ -55,6 +57,7 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
     public boolean isHidden;
 
     private OnAudioTagListener listener;
+
 
     public AudioFile() {
         fillEmptyFields();
@@ -329,4 +332,64 @@ public class AudioFile implements MediaFile, Comparable<AudioFile> {
                 ", isHidden=" + isHidden +
                 '}';
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.id);
+        dest.writeSerializable(this.filePath);
+        dest.writeSerializable(this.convertedPath);
+        dest.writeString(this.artist);
+        dest.writeString(this.title);
+        dest.writeString(this.album);
+        dest.writeString(this.genre);
+        dest.writeString(this.bitrate);
+        dest.writeString(this.sampleRate);
+        dest.writeString(this.artworkPath);
+        dest.writeString(this.folderArtworkPath);
+        dest.writeInt(this.trackNumber);
+        dest.writeLong(this.length);
+        dest.writeLong(this.size);
+        dest.writeLong(this.timestamp);
+        dest.writeByte(this.inPlayList ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isSelected ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isHidden ? (byte) 1 : (byte) 0);
+    }
+
+    protected AudioFile(Parcel in) {
+        this.id = in.readString();
+        this.filePath = (File) in.readSerializable();
+        this.convertedPath = (File) in.readSerializable();
+        this.artist = in.readString();
+        this.title = in.readString();
+        this.album = in.readString();
+        this.genre = in.readString();
+        this.bitrate = in.readString();
+        this.sampleRate = in.readString();
+        this.artworkPath = in.readString();
+        this.folderArtworkPath = in.readString();
+        this.trackNumber = in.readInt();
+        this.length = in.readLong();
+        this.size = in.readLong();
+        this.timestamp = in.readLong();
+        this.inPlayList = in.readByte() != 0;
+        this.isSelected = in.readByte() != 0;
+        this.isHidden = in.readByte() != 0;
+    }
+
+    public static final Parcelable.Creator<AudioFile> CREATOR = new Parcelable.Creator<AudioFile>() {
+        @Override
+        public AudioFile createFromParcel(Parcel source) {
+            return new AudioFile(source);
+        }
+
+        @Override
+        public AudioFile[] newArray(int size) {
+            return new AudioFile[size];
+        }
+    };
 }

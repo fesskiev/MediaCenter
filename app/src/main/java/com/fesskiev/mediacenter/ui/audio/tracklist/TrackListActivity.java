@@ -3,10 +3,8 @@ package com.fesskiev.mediacenter.ui.audio.tracklist;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -471,18 +469,21 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
         private void showEditDialog(final int position) {
             AudioFile audioFile = audioFiles.get(position);
             if (audioFile != null) {
-                EditTrackDialog editTrackDialog = new EditTrackDialog(TrackListActivity.this, audioFile,
-                        new EditTrackDialog.OnEditTrackChangedListener() {
-                            @Override
-                            public void onEditTrackChanged(AudioFile audioFile) {
-                                adapter.updateItem(position, audioFile);
-                            }
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.addToBackStack(null);
+                EditTrackDialog dialog = EditTrackDialog.newInstance(audioFile);
+                dialog.show(transaction, EditTrackDialog.class.getName());
+                dialog.setOnEditTrackChangedListener(new EditTrackDialog.OnEditTrackChangedListener() {
+                    @Override
+                    public void onEditTrackChanged(AudioFile audioFile) {
+                        adapter.updateItem(position, audioFile);
+                    }
 
-                            @Override
-                            public void onEditTrackError() {
-                            }
-                        });
-                editTrackDialog.show();
+                    @Override
+                    public void onEditTrackError() {
+
+                    }
+                });
             }
         }
 
