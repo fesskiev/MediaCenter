@@ -2,6 +2,8 @@ package com.fesskiev.mediacenter.ui;
 
 import android.app.Fragment;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
@@ -49,9 +51,9 @@ public class TrackListFragment extends Fragment {
         adapter = new TrackListAdapter();
 
         wearableRecyclerView.setAdapter(adapter);
-        wearableRecyclerView.setEdgeItemsCenteringEnabled(true);
-        wearableRecyclerView.setBezelFraction(1.0f);
-        wearableRecyclerView.setScrollDegreesPerScreen(180);
+//        wearableRecyclerView.setEdgeItemsCenteringEnabled(true);
+//        wearableRecyclerView.setBezelFraction(1.0f);
+//        wearableRecyclerView.setScrollDegreesPerScreen(180);
 
     }
 
@@ -111,18 +113,18 @@ public class TrackListFragment extends Fragment {
             if (audioFile != null) {
                 Bitmap cover = audioFile.cover;
                 if (cover != null) {
-                    RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory
-                            .create(getResources(), cover);
-                    drawable.setCircular(true);
-
-                    viewHolder.cover.setImageDrawable(drawable);
+                    if (currentTrack != null && currentTrack.equals(audioFile)) {
+                        RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory
+                                .create(getResources(), cover);
+                        drawable.setCircular(true);
+                        viewHolder.cover.setVisibility(View.VISIBLE);
+                        viewHolder.cover.setImageDrawable(drawable);
+                    } else {
+                        viewHolder.cover.setVisibility(View.INVISIBLE);
+                    }
                 }
                 viewHolder.title.setText(audioFile.title);
                 viewHolder.duration.setText(Utils.getDurationString(audioFile.length));
-
-                if(currentTrack != null && currentTrack.equals(audioFile)){
-
-                }
             }
         }
 
