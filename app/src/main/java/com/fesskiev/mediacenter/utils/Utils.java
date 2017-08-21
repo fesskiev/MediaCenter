@@ -67,8 +67,9 @@ public class Utils {
 
     public static Snackbar showCustomSnackbar(View view, Context context, String text, int duration) {
         Snackbar snack = Snackbar.make(view, text, duration);
+        snack.setActionTextColor(context.getResources().getColor(R.color.yellow));
         ViewGroup group = (ViewGroup) snack.getView();
-        group.setBackgroundColor(ContextCompat.getColor(context, R.color.primary_dark));
+        group.setBackgroundColor(ContextCompat.getColor(context, R.color.primary));
         return snack;
     }
 

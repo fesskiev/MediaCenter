@@ -160,9 +160,10 @@
 
     <string name="search_artist_enter_error">Введите корректное имя артиста</string>
     <string name="search_album_enter_error">Введите корректное имя альбома</string>
-    <string name="search_load_album_success">Альбом загржен успешно</string>
+    <string name="search_load_album_success">Альбом загржен успешно. Сохранить обложку?</string>
     <string name="search_load_album_error">Ошибка загрузки альбома</string>
     <string name="search_save_bitmap_error">Ошибка сохранения изображения</string>
+    <string name="search_save_bitmap_success">Обложка успешно сохранена</string>
 
     <string name="auth_text_login">Телефон или e-mail</string>
     <string name="auth_text_password">Пароль</string>

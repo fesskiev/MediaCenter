@@ -74,6 +74,7 @@
                             style="@style/PlaybackHeaderDescTextAppearance"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
                             android:ellipsize="end"
                             android:maxLines="1"
                             tools:text="Astray" />
@@ -92,11 +93,11 @@
                 </RelativeLayout>
 
                 <View
-                    style="@style/DividerStyle"
                     android:id="@+id/divider1"
+                    style="@style/DividerStyle"
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_below="@+id/basicNavPlayerContainer"/>
+                    android:layout_below="@+id/basicNavPlayerContainer" />
 
                 <FrameLayout
                     android:layout_width="match_parent"

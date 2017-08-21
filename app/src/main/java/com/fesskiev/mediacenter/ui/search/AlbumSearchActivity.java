@@ -22,6 +22,7 @@ import android.widget.TextView;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
+import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.model.search.Album;
 import com.fesskiev.mediacenter.data.model.search.Image;
@@ -29,6 +30,7 @@ import com.fesskiev.mediacenter.data.model.search.Tag;
 import com.fesskiev.mediacenter.data.model.search.Tags;
 import com.fesskiev.mediacenter.data.model.search.Track;
 import com.fesskiev.mediacenter.data.model.search.Tracks;
+import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.data.source.remote.ErrorHelper;
 import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.utils.AppLog;
@@ -43,6 +45,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -58,10 +61,12 @@ public class AlbumSearchActivity extends AnalyticsActivity {
 
     private final static String EXTRA_AUDIO_FOLDER = "com.fesskiev.mediacenter.EXTRA_AUDIO_FOLDER";
 
-    private SearchAdapter adapter;
 
-    private AudioFolder audioFolder;
+    private DataRepository repository;
     private Subscription subscription;
+    private AudioFolder audioFolder;
+
+    private SearchAdapter adapter;
 
     private MaterialProgressBar progressBar;
     private TextInputLayout artistInputLayout;
@@ -84,6 +89,9 @@ public class AlbumSearchActivity extends AnalyticsActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_album);
+
+        repository = MediaApplication.getInstance().getRepository();
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
             setSupportActionBar(toolbar);
@@ -160,15 +168,6 @@ public class AlbumSearchActivity extends AnalyticsActivity {
         return this.getLocalClassName();
     }
 
-    private void openChooseImageQualityDialog() {
-        if (images != null) {
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.addToBackStack(null);
-            SelectImageDialog dialog = SelectImageDialog.newInstance((ArrayList<Image>) images);
-            dialog.show(transaction, SelectImageDialog.class.getName());
-            dialog.setOnSelectedImageListener(this::loadSelectedImage);
-        }
-    }
 
     private void parseAudioFolderName() {
         String[] parts = audioFolder.folderName.split("-");
@@ -192,11 +191,35 @@ public class AlbumSearchActivity extends AnalyticsActivity {
         }
         Utils.hideKeyboard(this);
         showProgressBar();
-        subscription = MediaApplication.getInstance()
-                .getRepository().getAlbum(artist.trim(), album.trim())
+        subscription = repository.getAlbum(artist.trim(), album.trim())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(data -> parseAlbum(data.getAlbum()), this::handleError);
+                .doOnNext(albumResponse -> parseAlbum(albumResponse.getAlbum()))
+                .observeOn(Schedulers.io())
+                .flatMap(albumResponse -> parseAlbumCover(albumResponse.getAlbum()))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::setLoadedCover, this::handleError);
+    }
+
+    private void setLoadedCover(Bitmap bitmap) {
+        if (bitmap != null) {
+            albumCover.setImageBitmap(bitmap);
+        }
+    }
+
+    private Observable<Bitmap> parseAlbumCover(Album album) {
+        if (album != null) {
+            images = album.getImage();
+            if (images != null) {
+                for (Image image : images) {
+                    AppLog.DEBUG("image: " + image.toString());
+                    if (image.getSize().equals("large")) {
+                        return BitmapHelper.getInstance().getBitmapFromURL(image.getText());
+                    }
+                }
+            }
+        }
+        return Observable.empty();
     }
 
     private void parseAlbum(Album album) {
@@ -230,29 +253,6 @@ public class AlbumSearchActivity extends AnalyticsActivity {
                 tagsResult.setText(sb.toString());
             }
         }
-
-        images = album.getImage();
-        if (images != null) {
-            for (Image image : images) {
-                AppLog.DEBUG("image: " + image.toString());
-                if (image.getSize().equals("large")) {
-                    BitmapHelper.getInstance().loadURLBitmap(image.getText(),
-                            new BitmapHelper.OnBitmapLoadListener() {
-                                @Override
-                                public void onLoaded(Bitmap bitmap) {
-                                    albumCover.setImageBitmap(bitmap);
-                                    hideProgressBar();
-                                }
-
-                                @Override
-                                public void onFailed() {
-                                    hideProgressBar();
-                                    showLoadAlbumError();
-                                }
-                            });
-                }
-            }
-        }
         albumRoot.setVisibility(View.VISIBLE);
 
         Tracks tracks = album.getTracks();
@@ -262,6 +262,7 @@ public class AlbumSearchActivity extends AnalyticsActivity {
                 adapter.refreshAdapter(listTracks);
             }
         }
+        hideProgressBar();
         showLoadSuccess();
     }
 
@@ -348,21 +349,50 @@ public class AlbumSearchActivity extends AnalyticsActivity {
         }
     }
 
+    private void openChooseImageQualityDialog() {
+        if (images != null) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.addToBackStack(null);
+            SelectImageDialog dialog = SelectImageDialog.newInstance((ArrayList<Image>) images);
+            dialog.show(transaction, SelectImageDialog.class.getName());
+            dialog.setOnSelectedImageListener(this::loadSelectedImage);
+        }
+    }
 
     public void loadSelectedImage(Image image) {
-        BitmapHelper.getInstance().loadURLBitmap(image.getText(),
-                new BitmapHelper.OnBitmapLoadListener() {
-                    @Override
-                    public void onLoaded(Bitmap bitmap) {
-                        removeFolderImages();
-                        saveArtworkAndUpdate(bitmap);
+        subscription = BitmapHelper.getInstance().getBitmapFromURL(image.getText())
+                .subscribeOn(Schedulers.io())
+                .doOnNext(bitmap -> removeFolderImages())
+                .doOnNext(this::saveArtworkAndUpdateFolder)
+                .flatMap(bitmap -> repository.getAudioTracks(audioFolder.id))
+                .doOnNext(audioFiles -> {
+                    for (AudioFile audioFile : audioFiles) {
+                        audioFile.folderArtworkPath = audioFolder.folderImage.getAbsolutePath();
+                        repository.updateAudioFile(audioFile);
                     }
+                })
+                .first()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(audioFiles -> showSuccessSaveBitmap(),
+                        throwable -> showErrorSaveBitmap());
+    }
 
-                    @Override
-                    public void onFailed() {
-                        showLoadAlbumError();
-                    }
-                });
+
+    private void saveArtworkAndUpdateFolder(Bitmap bitmap) {
+        try {
+            File path = File.createTempFile(audioFolder.folderName, ".jpg", audioFolder.folderPath);
+
+            BitmapHelper.getInstance().saveBitmap(bitmap, path);
+
+            audioFolder.folderImage = path;
+
+            repository.updateAudioFolder(audioFolder);
+            repository.getMemorySource().setCacheFoldersDirty(true);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showErrorSaveBitmap();
+        }
     }
 
     private void removeFolderImages() {
@@ -371,24 +401,6 @@ public class AlbumSearchActivity extends AnalyticsActivity {
             for (File image : filterImages) {
                 image.delete();
             }
-        }
-    }
-
-    private void saveArtworkAndUpdate(Bitmap bitmap) {
-
-        try {
-            File path = File.createTempFile(audioFolder.folderName, ".jpg", audioFolder.folderPath);
-
-            BitmapHelper.getInstance().saveBitmap(bitmap, path);
-
-            audioFolder.folderImage = path;
-
-            MediaApplication.getInstance().getRepository().updateAudioFolder(audioFolder);
-            MediaApplication.getInstance().getRepository().getMemorySource().setCacheFoldersDirty(true);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            showErrorSaveBitmap();
         }
     }
 
@@ -458,9 +470,16 @@ public class AlbumSearchActivity extends AnalyticsActivity {
                 getApplicationContext(), getString(R.string.search_save_bitmap_error), Snackbar.LENGTH_LONG).show();
     }
 
+    private void showSuccessSaveBitmap() {
+        Utils.showCustomSnackbar(findViewById(R.id.albumSearchRoot),
+                getApplicationContext(), getString(R.string.search_save_bitmap_success), Snackbar.LENGTH_LONG).show();
+    }
+
     private void showLoadSuccess() {
         Utils.showCustomSnackbar(findViewById(R.id.albumSearchRoot),
-                getApplicationContext(), getString(R.string.search_load_album_success), Snackbar.LENGTH_LONG).show();
+                getApplicationContext(), getString(R.string.search_load_album_success),
+                Snackbar.LENGTH_INDEFINITE)
+                .setAction(getString(R.string.button_ok), view -> openChooseImageQualityDialog()).show();
     }
 
 }

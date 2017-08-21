@@ -23,6 +23,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
+
+import rx.Observable;
 
 public class BitmapHelper {
 
@@ -51,24 +54,21 @@ public class BitmapHelper {
         context = MediaApplication.getInstance().getApplicationContext();
     }
 
-    public void loadURLBitmap(String url, final OnBitmapLoadListener listener) {
-        Glide.with(context)
-                .load(url)
-                .asBitmap()
-                .override(WIDTH * 3, HEIGHT * 3)
-                .centerCrop()
-                .listener(loggingListener)
-                .diskCacheStrategy(DiskCacheStrategy.RESULT)
-                .into(new SimpleTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                        if (listener != null) {
-                            listener.onLoaded(resource);
-                        }
-                    }
-                });
+    public Observable<Bitmap> getBitmapFromURL(String url) {
+        return Observable.create(subscriber -> {
+            Bitmap bitmap = null;
+            try {
+                bitmap = Glide.with(context)
+                        .load(url)
+                        .asBitmap()
+                        .into(WIDTH * 3, HEIGHT * 3)
+                        .get();
+            } catch (InterruptedException | ExecutionException e) {
+                subscriber.onError(e);
+            }
+            subscriber.onNext(bitmap);
+        });
     }
-
 
     public void loadBitmap(MediaFile mediaFile, final OnBitmapLoadListener listener) {
         String path = findPath(mediaFile);
