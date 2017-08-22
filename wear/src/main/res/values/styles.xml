@@ -29,5 +29,12 @@
         <item name="android:fontFamily">@font/ubuntu</item>
     </style>
 
+    <style name="ProgressTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/ubuntu</item>
+    </style>
+
 
 </resources>

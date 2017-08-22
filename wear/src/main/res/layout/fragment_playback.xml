@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/color_background"
     android:fitsSystemWindows="true"
     android:orientation="horizontal">
@@ -70,11 +70,11 @@
                     android:id="@+id/previous"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:layout_centerVertical="true"
                     android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
                     android:contentDescription="@string/app_name"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/avd_music_previous"/>
+                    android:src="@drawable/avd_music_previous" />
 
                 <com.fesskiev.mediacenter.widgets.PlayPauseButton
                     android:id="@+id/playPause"
@@ -82,22 +82,52 @@
                     android:layout_height="48dp"
                     android:layout_centerInParent="true"
                     android:layout_gravity="center_vertical"
-                    android:contentDescription="@string/app_name"/>
+                    android:contentDescription="@string/app_name" />
 
                 <ImageView
                     android:id="@+id/next"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:layout_centerVertical="true"
                     android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
                     android:contentDescription="@string/app_name"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/avd_music_next"/>
+                    android:src="@drawable/avd_music_next" />
 
             </RelativeLayout>
 
         </RelativeLayout>
 
     </android.support.wear.widget.BoxInsetLayout>
+
+    <android.support.wear.widget.CircularProgressLayout
+        android:id="@+id/circularProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:padding="4dp"
+        app:backgroundColor="@color/primary"
+        app:colorSchemeColors="@color/yellow"
+        app:strokeWidth="4dp">
+
+        <FrameLayout
+            android:layout_width="68dp"
+            android:layout_height="68dp"
+            android:layout_gravity="center">
+
+            <ImageView
+                android:id="@+id/synchronizeView"
+                style="@style/ProgressTextAppearance"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/app_name"
+                android:layout_gravity="center"
+                android:scaleType="fitXY"
+                android:src="@drawable/icon_synchronize" />
+
+        </FrameLayout>
+
+    </android.support.wear.widget.CircularProgressLayout>
+
 
 </FrameLayout>

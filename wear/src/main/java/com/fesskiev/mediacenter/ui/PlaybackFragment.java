@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Animatable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.wear.widget.CircularProgressLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,13 +24,19 @@ import static com.fesskiev.common.Constants.NEXT_PATH;
 import static com.fesskiev.common.Constants.PAUSE_PATH;
 import static com.fesskiev.common.Constants.PLAY_PATH;
 import static com.fesskiev.common.Constants.PREVIOUS_PATH;
+import static com.fesskiev.common.Constants.SYNC_PATH;
 
 
-public class PlaybackFragment extends Fragment {
+public class PlaybackFragment extends Fragment implements
+        CircularProgressLayout.OnTimerFinishedListener, View.OnClickListener {
 
     public static PlaybackFragment newInstance() {
         return new PlaybackFragment();
     }
+
+    private CircularProgressLayout circularProgress;
+    private ImageView synchronizeView;
+    private boolean synchronize;
 
     private CoverBitmap coverView;
     private ImageView prevTrack;
@@ -68,6 +75,14 @@ public class PlaybackFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        circularProgress = view.findViewById(R.id.circularProgress);
+        circularProgress.setTotalTime(5000);
+        circularProgress.setOnTimerFinishedListener(this);
+        circularProgress.setOnClickListener(this);
+        circularProgress.startTimer();
+
+        synchronizeView = view.findViewById(R.id.synchronizeView);
+
         albumText = view.findViewById(R.id.album);
         titleText = view.findViewById(R.id.title);
         durationText = view.findViewById(R.id.duration);
@@ -75,7 +90,6 @@ public class PlaybackFragment extends Fragment {
         coverView = view.findViewById(R.id.cover);
         playPauseButton = view.findViewById(R.id.playPause);
         playPauseButton.setOnClickListener(v -> togglePlayback());
-        playPauseButton.setPlay(false);
 
         prevTrack = view.findViewById(R.id.previous);
         prevTrack.setOnClickListener(v -> {
@@ -89,6 +103,26 @@ public class PlaybackFragment extends Fragment {
             next();
         });
     }
+
+    @Override
+    public void onTimerFinished(CircularProgressLayout layout) {
+        if(!synchronize){
+            synchronizeView.setImageResource(R.drawable.icon_no_synchronize);
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        synchronizeView.setImageResource(R.drawable.icon_synchronize);
+        circularProgress.startTimer();
+
+        DataLayerService.sendMessage(getActivity().getApplicationContext(), SYNC_PATH);
+    }
+
+    private void hideCircularProgress(){
+        circularProgress.setVisibility(View.GONE);
+    }
+
 
     private void next() {
         DataLayerService.sendMessage(getActivity().getApplicationContext(), NEXT_PATH);
@@ -116,6 +150,9 @@ public class PlaybackFragment extends Fragment {
         albumText.setText(audioFile.album);
         titleText.setText(audioFile.title);
         durationText.setText(Utils.getDurationString(audioFile.length));
+
+        synchronize = true;
+        hideCircularProgress();
     }
 
     public void updatePlayback(MapPlayback playback) {
