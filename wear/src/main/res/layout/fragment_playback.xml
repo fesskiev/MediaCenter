@@ -15,8 +15,10 @@
         android:contentDescription="@string/app_name" />
 
     <android.support.wear.widget.BoxInsetLayout
+        android:id="@+id/containerViews"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:visibility="invisible">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -120,14 +122,13 @@
                 style="@style/ProgressTextAppearance"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:contentDescription="@string/app_name"
                 android:layout_gravity="center"
+                android:contentDescription="@string/app_name"
                 android:scaleType="fitXY"
                 android:src="@drawable/icon_synchronize" />
 
         </FrameLayout>
 
     </android.support.wear.widget.CircularProgressLayout>
-
 
 </FrameLayout>

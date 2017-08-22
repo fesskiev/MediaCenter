@@ -3,14 +3,15 @@ package com.fesskiev.mediacenter.widgets.buttons;
 
 import android.animation.Animator;
 import android.content.Context;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
-import android.widget.ImageView;
 
 import com.fesskiev.mediacenter.R;
 
-public class RepeatButton extends ImageView implements View.OnClickListener, View.OnLongClickListener {
+public class RepeatButton extends AppCompatImageView implements View.OnClickListener,
+        View.OnLongClickListener {
 
     public interface OnRepeatStateChangedListener {
         void onRepeatStateChanged(boolean repeat);

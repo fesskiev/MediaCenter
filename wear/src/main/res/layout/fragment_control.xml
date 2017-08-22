@@ -14,42 +14,84 @@
         android:contentDescription="@string/app_name" />
 
     <android.support.wear.widget.BoxInsetLayout
+        android:id="@+id/containerViews"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:visibility="invisible">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:orientation="vertical"
             app:boxedEdges="all">
 
-            <ImageView
-                android:id="@+id/volumeDown"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
-                android:layout_weight="1"
-                android:layout_gravity="center_horizontal"
-                android:contentDescription="@string/app_name"
-                android:src="@drawable/icon_volume_down" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-            <ImageView
-                android:id="@+id/volumeOff"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
-                android:layout_weight="1"
-                android:layout_gravity="center_horizontal"
-                android:contentDescription="@string/app_name"
-                android:src="@drawable/icon_volume_off" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
 
-            <ImageView
-                android:id="@+id/volumeUp"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
-                android:layout_weight="1"
-                android:layout_gravity="center_horizontal"
-                android:contentDescription="@string/app_name"
-                android:src="@drawable/icon_volume_up" />
+                    <ImageView
+                        android:id="@+id/volumeDown"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_weight="1"
+                        android:contentDescription="@string/app_name"
+                        android:src="@drawable/icon_volume_down" />
 
-        </LinearLayout>
+                    <ImageView
+                        android:id="@+id/volumeUp"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="15dp"
+                        android:layout_weight="1"
+                        android:contentDescription="@string/app_name"
+                        android:src="@drawable/icon_volume_up" />
+
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/volumeOff"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_gravity="center_horizontal"
+                    android:contentDescription="@string/app_name"
+                    android:src="@drawable/icon_volume_off" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true">
+
+                <ImageView
+                    android:id="@+id/shutdown"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/app_name"
+                    android:src="@drawable/icon_shutdown" />
+
+                <ImageView
+                    android:id="@+id/repeat"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/app_name"
+                    android:src="@drawable/icon_repeat_off" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
 
     </android.support.wear.widget.BoxInsetLayout>
 

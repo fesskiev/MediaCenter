@@ -33,7 +33,7 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/playlist"
-            android:icon="@drawable/icon_playlist_icon"
+            android:icon="@drawable/icon_playlist"
             android:title="@string/drawer_item_playlist" />
     </group>
 

@@ -38,6 +38,8 @@ public class PlaybackFragment extends Fragment implements
     private ImageView synchronizeView;
     private boolean synchronize;
 
+    private View containerViews;
+
     private CoverBitmap coverView;
     private ImageView prevTrack;
     private ImageView nextTrack;
@@ -83,6 +85,8 @@ public class PlaybackFragment extends Fragment implements
 
         synchronizeView = view.findViewById(R.id.synchronizeView);
 
+        containerViews = view.findViewById(R.id.containerViews);
+
         albumText = view.findViewById(R.id.album);
         titleText = view.findViewById(R.id.title);
         durationText = view.findViewById(R.id.duration);
@@ -119,11 +123,6 @@ public class PlaybackFragment extends Fragment implements
         DataLayerService.sendMessage(getActivity().getApplicationContext(), SYNC_PATH);
     }
 
-    private void hideCircularProgress(){
-        circularProgress.setVisibility(View.GONE);
-    }
-
-
     private void next() {
         DataLayerService.sendMessage(getActivity().getApplicationContext(), NEXT_PATH);
     }
@@ -151,13 +150,22 @@ public class PlaybackFragment extends Fragment implements
         titleText.setText(audioFile.title);
         durationText.setText(Utils.getDurationString(audioFile.length));
 
-        synchronize = true;
         hideCircularProgress();
+        showViews();
+    }
+
+    private void showViews() {
+        containerViews.setVisibility(View.VISIBLE);
     }
 
     public void updatePlayback(MapPlayback playback) {
         this.playback = playback;
         playPauseButton.setPlay(playback.isPlaying());
+    }
+
+    protected void hideCircularProgress(){
+        circularProgress.setVisibility(View.GONE);
+        synchronize = true;
     }
 
 }

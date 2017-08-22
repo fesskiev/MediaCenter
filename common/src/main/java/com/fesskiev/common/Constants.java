@@ -20,6 +20,9 @@ public class Constants {
     public static final String CHOOSE_TRACK = "/choose-track";
 
     public static final String VOLUME_OFF = "/volume-off";
+    public static final String REPEAT_OFF = "/repeat-off";
+    public static final String REPEAT_ON = "/repeat-on";
+    public static final String SHUTDOWN = "/shutdown";
 
     public static final String TRACK_LIST_KEY = "tracklist";
     public static final String TRACK_KEY = "track";
