@@ -192,7 +192,7 @@ public class VideoControlView extends FrameLayout {
         cutVideoButton.setOnClickListener(v -> startCutActivity());
         boolean isProUser = AppSettingsManager.getInstance().isUserPro();
         if (!isProUser) {
-            cutVideoButton.setVisibility(GONE);
+            cutVideoButton.setVisibility(INVISIBLE);
         }
 
         settingsButton = (ImageView) view.findViewById(R.id.settingsButton);
