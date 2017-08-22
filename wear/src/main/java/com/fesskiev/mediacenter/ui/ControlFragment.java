@@ -7,9 +7,11 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import com.fesskiev.common.data.MapAudioFile;
+import com.fesskiev.common.data.MapPlayback;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.service.DataLayerService;
 import com.fesskiev.mediacenter.widgets.CoverBitmap;
@@ -31,7 +33,9 @@ public class ControlFragment extends Fragment implements View.OnClickListener {
     private View containerViews;
 
     private CoverBitmap coverView;
-    private boolean repeat;
+    private ImageView[] buttons;
+
+    private MapPlayback playback;
 
     @Nullable
     @Override
@@ -48,7 +52,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener {
 
         coverView = view.findViewById(R.id.cover);
 
-        ImageView[] buttons = new ImageView[]{
+        buttons = new ImageView[]{
                 view.findViewById(R.id.volumeDown),
                 view.findViewById(R.id.volumeOff),
                 view.findViewById(R.id.volumeUp),
@@ -74,7 +78,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener {
                 path = VOLUME_OFF;
                 break;
             case R.id.repeat:
-                if (repeat) {
+                if (playback.isLooping()) {
                     path = REPEAT_OFF;
                 } else {
                     path = REPEAT_ON;
@@ -85,6 +89,23 @@ public class ControlFragment extends Fragment implements View.OnClickListener {
                 break;
         }
         DataLayerService.sendMessage(getActivity().getApplicationContext(), path);
+    }
+
+    public void updatePlayback(MapPlayback playback) {
+        this.playback = playback;
+        if (playback.isLooping()) {
+            setRepeatViewImage(R.drawable.icon_repeat_on);
+        } else {
+            setRepeatViewImage(R.drawable.icon_repeat_off);
+        }
+    }
+
+    private void setRepeatViewImage(int resId) {
+        for (ImageView button : buttons) {
+            if (button.getId() == R.id.repeat) {
+                button.setImageResource(resId);
+            }
+        }
     }
 
     public void updateCurrentTrack(MapAudioFile audioFile) {

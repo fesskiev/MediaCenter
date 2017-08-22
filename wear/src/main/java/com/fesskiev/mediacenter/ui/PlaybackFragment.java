@@ -78,7 +78,7 @@ public class PlaybackFragment extends Fragment implements
         super.onViewCreated(view, savedInstanceState);
 
         circularProgress = view.findViewById(R.id.circularProgress);
-        circularProgress.setTotalTime(5000);
+        circularProgress.setTotalTime(3000);
         circularProgress.setOnTimerFinishedListener(this);
         circularProgress.setOnClickListener(this);
         circularProgress.startTimer();

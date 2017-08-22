@@ -55,6 +55,9 @@ import static com.fesskiev.common.Constants.PLAYBACK_KEY;
 import static com.fesskiev.common.Constants.PLAYBACK_PATH;
 import static com.fesskiev.common.Constants.PLAY_PATH;
 import static com.fesskiev.common.Constants.PREVIOUS_PATH;
+import static com.fesskiev.common.Constants.REPEAT_OFF;
+import static com.fesskiev.common.Constants.REPEAT_ON;
+import static com.fesskiev.common.Constants.SHUTDOWN;
 import static com.fesskiev.common.Constants.START_ACTIVITY_PATH;
 import static com.fesskiev.common.Constants.SYNC_PATH;
 import static com.fesskiev.common.Constants.TRACK_KEY;
@@ -81,6 +84,7 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
     private List<Node> allConnectedNodes;
 
     private boolean playing;
+    private boolean looping;
 
     public interface OnWearControlListener {
 
@@ -99,6 +103,10 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
         void onVolumeOff();
 
         void onChooseTrack(String title);
+
+        void onRepeatChanged(boolean repeat);
+
+        void onShutdown();
     }
 
     public interface OnWearConnectionListener {
@@ -175,6 +183,8 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
             return;
         }
         this.playing = service.isPlaying();
+        this.looping = service.isLooping();
+
         subscription.add(Observable.just(service)
                 .subscribeOn(Schedulers.io())
                 .flatMap(ser -> {
@@ -468,6 +478,15 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
                 case CHOOSE_TRACK:
                     controlListener.onChooseTrack(new String(messageEvent.getData()));
                     break;
+                case REPEAT_ON:
+                    controlListener.onRepeatChanged(true);
+                    break;
+                case REPEAT_OFF:
+                    controlListener.onRepeatChanged(false);
+                    break;
+                case SHUTDOWN:
+                    controlListener.onShutdown();
+                    break;
                 case SYNC_PATH:
                     updatePlayingState();
                     updateTrack(audioPlayer.getCurrentTrack());
@@ -489,5 +508,7 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
         return playing;
     }
 
-
+    public boolean isLooping() {
+        return looping;
+    }
 }

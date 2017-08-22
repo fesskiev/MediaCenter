@@ -361,10 +361,11 @@ public class PlaybackService extends Service {
                 }
             }
 
-            if(wearHelper != null) {
+            if (wearHelper != null) {
                 boolean wearPlaying = wearHelper.isPlaying();
-                if (playing != wearPlaying) {
-                   wearHelper.updatePlayingState();
+                boolean wearLooping = wearHelper.isLooping();
+                if (playing != wearPlaying || looping != wearLooping) {
+                    wearHelper.updatePlayingState();
                 }
             }
 
@@ -574,6 +575,16 @@ public class PlaybackService extends Service {
             @Override
             public void onChooseTrack(String title) {
                 audioPlayer.playTrackByTitle(title);
+            }
+
+            @Override
+            public void onRepeatChanged(boolean repeat) {
+                setLoopingAudioPlayer(repeat);
+            }
+
+            @Override
+            public void onShutdown() {
+                closeApp();
             }
         });
     }

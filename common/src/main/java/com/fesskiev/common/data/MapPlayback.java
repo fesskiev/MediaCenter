@@ -107,6 +107,34 @@ public class MapPlayback implements Parcelable {
         return playing;
     }
 
+    public int getDuration() {
+        return duration;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public float getPositionPercent() {
+        return positionPercent;
+    }
+
+    public float getVolume() {
+        return volume;
+    }
+
+    public float getFocusedVolume() {
+        return focusedVolume;
+    }
+
+    public int getDurationScale() {
+        return durationScale;
+    }
+
+    public boolean isLooping() {
+        return looping;
+    }
+
     public static final class MapPlaybackBuilder {
         private int duration;
         private int position;

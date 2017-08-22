@@ -135,6 +135,7 @@ public class MainActivity extends WearableActivity {
                                     intent.getParcelableExtra(EXTRA_PLAYBACK);
                             if (playback != null) {
                                 adapter.getPlaybackFragment().updatePlayback(playback);
+                                adapter.getControlFragment().updatePlayback(playback);
                             }
                             break;
                     }
