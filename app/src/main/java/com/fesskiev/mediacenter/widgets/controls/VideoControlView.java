@@ -10,6 +10,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.text.TextUtils;
+import android.transition.TransitionManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Pair;
@@ -29,6 +30,7 @@ import com.fesskiev.mediacenter.data.model.video.RendererState;
 import com.fesskiev.mediacenter.ui.cut.CutMediaActivity;
 import com.fesskiev.mediacenter.utils.AppAnimationUtils;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
+import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.buttons.PlayPauseButton;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -68,9 +70,12 @@ public class VideoControlView extends FrameLayout {
         void previousVideo();
 
         void resizeModeChanged(int mode);
+
+        void pictureInPictureModeChanged(boolean enable);
     }
 
     private OnVideoPlayerControlListener listener;
+
     private View trackSelectionPanel;
     private View videoControlPanel;
     private PlayPauseButton playPauseButton;
@@ -82,14 +87,14 @@ public class VideoControlView extends FrameLayout {
     private ImageView videoLockScreen;
     private ImageView addSubButton;
     private ImageView settingsButton;
-
+    private ImageView pipButton;
     private ImageView nextVideo;
     private ImageView previousVideo;
-
     private TextView audioTrackView;
     private TextView videoTrackView;
     private TextView subTrackView;
 
+    private boolean isPictureInPicture;
     private boolean isPlaying;
     private int resizeMode;
     private boolean showPanel;
@@ -195,6 +200,17 @@ public class VideoControlView extends FrameLayout {
             cutVideoButton.setVisibility(INVISIBLE);
         }
 
+        pipButton = (ImageView) view.findViewById(R.id.pipButton);
+        pipButton.setOnClickListener(v -> {
+            isPictureInPicture = !isPictureInPicture;
+            if (listener != null) {
+                listener.pictureInPictureModeChanged(isPictureInPicture);
+            }
+        });
+        if (Utils.isOreo()) {
+            pipButton.setVisibility(VISIBLE);
+        }
+
         settingsButton = (ImageView) view.findViewById(R.id.settingsButton);
         settingsButton.setOnClickListener(v -> togglePanel(settingsButton));
 
@@ -247,6 +263,7 @@ public class VideoControlView extends FrameLayout {
             }
         });
     }
+
 
     private void startCutActivity() {
         CutMediaActivity.startCutMediaActivity((Activity) getContext(), CutMediaActivity.CUT_VIDEO);
@@ -824,6 +841,48 @@ public class VideoControlView extends FrameLayout {
         }
     }
 
+    public void hideControls() {
+        TransitionManager.beginDelayedTransition(this);
+        trackSelectionPanel.setVisibility(INVISIBLE);
+        videoControlPanel.setVisibility(INVISIBLE);
+        playPauseButton.setVisibility(INVISIBLE);
+        seekVideo.setVisibility(INVISIBLE);
+        videoTimeCount.setVisibility(INVISIBLE);
+        videoTimeTotal.setVisibility(INVISIBLE);
+        resizeModeState.setVisibility(INVISIBLE);
+        videoName.setVisibility(INVISIBLE);
+        videoLockScreen.setVisibility(INVISIBLE);
+        addSubButton.setVisibility(INVISIBLE);
+        settingsButton.setVisibility(INVISIBLE);
+        pipButton.setVisibility(INVISIBLE);
+        nextVideo.setVisibility(INVISIBLE);
+        previousVideo.setVisibility(INVISIBLE);
+        audioTrackView.setVisibility(INVISIBLE);
+        videoTrackView.setVisibility(INVISIBLE);
+        subTrackView.setVisibility(INVISIBLE);
+    }
+
+    public void showControls() {
+        TransitionManager.beginDelayedTransition(this);
+        trackSelectionPanel.setVisibility(VISIBLE);
+        videoControlPanel.setVisibility(VISIBLE);
+        playPauseButton.setVisibility(VISIBLE);
+        seekVideo.setVisibility(VISIBLE);
+        videoTimeCount.setVisibility(VISIBLE);
+        videoTimeTotal.setVisibility(VISIBLE);
+        resizeModeState.setVisibility(VISIBLE);
+        videoName.setVisibility(VISIBLE);
+        videoLockScreen.setVisibility(VISIBLE);
+        addSubButton.setVisibility(VISIBLE);
+        settingsButton.setVisibility(VISIBLE);
+        pipButton.setVisibility(VISIBLE);
+        nextVideo.setVisibility(VISIBLE);
+        previousVideo.setVisibility(VISIBLE);
+        audioTrackView.setVisibility(VISIBLE);
+        videoTrackView.setVisibility(VISIBLE);
+        subTrackView.setVisibility(VISIBLE);
+    }
+
     private void showControl() {
         if (!animateControl) {
             animateControl = true;
@@ -902,5 +961,9 @@ public class VideoControlView extends FrameLayout {
 
     public PlayPauseButton getPlayPauseButton() {
         return playPauseButton;
+    }
+
+    public void setPictureInPicture(boolean pictureInPicture) {
+        isPictureInPicture = pictureInPicture;
     }
 }

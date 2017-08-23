@@ -1,9 +1,18 @@
 package com.fesskiev.mediacenter.ui.video.player;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.app.PictureInPictureParams;
+import android.app.RemoteAction;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.graphics.drawable.Icon;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -12,6 +21,7 @@ import android.provider.DocumentsContract;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.Rational;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -66,16 +76,26 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
+@TargetApi(Build.VERSION_CODES.O)
 public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlayer.EventListener {
 
     private static final String TAG = VideoExoPlayerActivity.class.getSimpleName();
 
+
+    private static final int CONTROL_TYPE_PLAY = 1;
+    private static final int CONTROL_TYPE_PAUSE = 2;
+    private static final int REQUEST_PLAY = 1;
+    private static final int REQUEST_PAUSE = 2;
     private static final int REQUEST_CODE_SUBTITLE = 1337;
+
+    private static final String ACTION_MEDIA_CONTROL = "com.fesskiev.player.ACTION_MEDIA_CONTROL";
+    private static final String EXTRA_CONTROL_TYPE = "com.fesskiev.player.EXTRA_CONTROL_TYPE";
 
     public static final String BUNDLE_PLAYER_POSITION = "com.fesskiev.player.BUNDLE_PLAYER_POSITION";
     public static final String BUNDLE_AUTO_PLAY = "com.fesskiev.player.BUNDLE_AUTO_PLAY";
@@ -92,6 +112,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     private AppGuide appGuide;
 
     private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
+    private final PictureInPictureParams.Builder pictureInPictureParamsBuilder = new PictureInPictureParams.Builder();
 
     private GestureDetector gestureDetector;
     private VideoControlView videoControlView;
@@ -119,6 +140,8 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         }
     };
 
+    private BroadcastReceiver pictureInPictureReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -141,11 +164,18 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         window = new Timeline.Window();
         mediaDataSourceFactory = buildDataSourceFactory(true);
 
-        videoControlView = (VideoControlView) findViewById(R.id.videoPlayerControl);
+        videoControlView = findViewById(R.id.videoPlayerControl);
         videoControlView.setOnVideoPlayerControlListener(new VideoControlView.OnVideoPlayerControlListener() {
             @Override
             public void playPauseButtonClick(boolean isPlaying) {
                 player.setPlayWhenReady(isPlaying);
+                if (isPlaying) {
+                    updatePictureInPictureActions(R.drawable.ic_pause_24dp,
+                            "Pause", CONTROL_TYPE_PAUSE, REQUEST_PAUSE);
+                } else {
+                    updatePictureInPictureActions(R.drawable.ic_play_24dp,
+                            "Play", CONTROL_TYPE_PLAY, REQUEST_PLAY);
+                }
             }
 
             @Override
@@ -172,11 +202,18 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
             public void resizeModeChanged(int mode) {
                 simpleExoPlayerView.setResizeMode(mode);
             }
+
+            @Override
+            public void pictureInPictureModeChanged(boolean enable) {
+                if (enable) {
+                    minimize();
+                }
+            }
         });
 
         videoControlView.setPlay(shouldAutoPlay);
 
-        simpleExoPlayerView = (SimpleExoPlayerView) findViewById(R.id.videoView);
+        simpleExoPlayerView = findViewById(R.id.videoView);
         simpleExoPlayerView.setUseController(false);
         simpleExoPlayerView.requestFocus();
 
@@ -186,6 +223,86 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         EventBus.getDefault().register(this);
 
         checkFirstOrLastVideoFile();
+    }
+
+    private void minimize() {
+        videoControlView.hideControls();
+        videoControlView.setPlay(false);
+        if (player.getPlayWhenReady()) {
+            player.setPlayWhenReady(false);
+        }
+
+        Rational aspectRatio = new Rational(videoControlView.getHeight(), videoControlView.getWidth());
+        pictureInPictureParamsBuilder.setAspectRatio(aspectRatio).build();
+        enterPictureInPictureMode(pictureInPictureParamsBuilder.build());
+    }
+
+    @Override
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode);
+        videoControlView.setPictureInPicture(isInPictureInPictureMode);
+        if (isInPictureInPictureMode) {
+            if (player != null) {
+                if (player.getPlayWhenReady()) {
+                    updatePictureInPictureActions(R.drawable.ic_pause_24dp,
+                            "Pause", CONTROL_TYPE_PAUSE, REQUEST_PAUSE);
+                } else {
+                    updatePictureInPictureActions(R.drawable.ic_play_24dp,
+                            "Play", CONTROL_TYPE_PLAY, REQUEST_PLAY);
+                }
+            }
+
+            pictureInPictureReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    if (intent == null || !ACTION_MEDIA_CONTROL.equals(intent.getAction())) {
+                        return;
+                    }
+                    final int controlType = intent.getIntExtra(EXTRA_CONTROL_TYPE, 0);
+                    switch (controlType) {
+                        case CONTROL_TYPE_PLAY:
+                            player.setPlayWhenReady(true);
+                            updatePictureInPictureActions(R.drawable.ic_pause_24dp,
+                                    "Pause", CONTROL_TYPE_PAUSE, REQUEST_PAUSE);
+                            break;
+                        case CONTROL_TYPE_PAUSE:
+                            player.setPlayWhenReady(false);
+                            updatePictureInPictureActions(R.drawable.ic_play_24dp,
+                                    "Play", CONTROL_TYPE_PLAY, REQUEST_PLAY);
+                            break;
+                    }
+                }
+            };
+            registerReceiver(pictureInPictureReceiver, new IntentFilter(ACTION_MEDIA_CONTROL));
+        } else {
+            if (player != null) {
+                shouldAutoPlay = player.getPlayWhenReady();
+                videoControlView.setPlay(shouldAutoPlay);
+                if (shouldAutoPlay) {
+                    updatePictureInPictureActions(R.drawable.ic_pause_24dp,
+                            "Pause", CONTROL_TYPE_PAUSE, REQUEST_PAUSE);
+                } else {
+                    updatePictureInPictureActions(R.drawable.ic_play_24dp,
+                            "Play", CONTROL_TYPE_PLAY, REQUEST_PLAY);
+                }
+            }
+            unregisterReceiver(pictureInPictureReceiver);
+            videoControlView.showControls();
+        }
+    }
+
+
+    void updatePictureInPictureActions(int iconId, String title, int controlType, int requestCode) {
+        final ArrayList<RemoteAction> actions = new ArrayList<>();
+
+        final PendingIntent intent = PendingIntent.getBroadcast(VideoExoPlayerActivity.this,
+                requestCode, new Intent(ACTION_MEDIA_CONTROL)
+                        .putExtra(EXTRA_CONTROL_TYPE, controlType), 0);
+        final Icon icon = Icon.createWithResource(VideoExoPlayerActivity.this, iconId);
+        actions.add(new RemoteAction(icon, title, title, intent));
+
+        pictureInPictureParamsBuilder.setActions(actions).build();
+        setPictureInPictureParams(pictureInPictureParamsBuilder.build());
     }
 
     @Override

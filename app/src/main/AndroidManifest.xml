@@ -136,8 +136,9 @@
         <activity
             android:name=".ui.video.player.VideoExoPlayerActivity"
             android:launchMode="singleTop"
+            android:supportsPictureInPicture="true"
             android:parentActivityName=".ui.MainActivity"
-            android:screenOrientation="sensor"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
             android:theme="@style/Base.Theme.Player.VideoExoPlayer">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

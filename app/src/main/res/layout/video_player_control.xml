@@ -15,6 +15,18 @@
         android:gravity="center"
         android:maxLines="2" />
 
+    <ImageView
+        android:id="@+id/pipButton"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:layout_above="@+id/videoLockScreen"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginStart="8dp"
+        android:contentDescription="@string/app_name"
+        android:scaleType="fitCenter"
+        android:visibility="invisible"
+        android:src="@drawable/icon_picture_in_picture" />
 
     <ImageView
         android:id="@+id/cutVideoButton"
