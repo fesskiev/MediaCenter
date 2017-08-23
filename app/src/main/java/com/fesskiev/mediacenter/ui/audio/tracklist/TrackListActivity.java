@@ -31,7 +31,7 @@ import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
-import com.fesskiev.mediacenter.widgets.cards.SlidingCardView;
+import com.fesskiev.mediacenter.widgets.cards.TrackListCardView;
 import com.fesskiev.mediacenter.widgets.dialogs.EditTrackDialog;
 import com.fesskiev.mediacenter.widgets.dialogs.SimpleDialog;
 import com.fesskiev.mediacenter.widgets.recycleview.HidingScrollListener;
@@ -69,7 +69,7 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
     private RecyclerView recyclerView;
     private TrackListAdapter adapter;
     private AudioPlayer audioPlayer;
-    private List<SlidingCardView> openCards;
+    private List<TrackListCardView> openCards;
 
     private AudioFolder audioFolder;
     private CONTENT_TYPE contentType;
@@ -233,7 +233,7 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
             TrackListAdapter.ViewHolder viewHolder
                     = (TrackListAdapter.ViewHolder) recyclerView.findViewHolderForAdapterPosition(0);
             if (viewHolder != null) {
-                SlidingCardView slidingCardView = (SlidingCardView) viewHolder.itemView;
+                TrackListCardView slidingCardView = (TrackListCardView) viewHolder.itemView;
                 slidingCardView.open();
 
                 final View addToPlaylist = slidingCardView.findViewById(R.id.addPlaylistButton);
@@ -309,7 +309,7 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
 
     private void closeOpenCards() {
         if (!openCards.isEmpty()) {
-            for (SlidingCardView cardView : openCards) {
+            for (TrackListCardView cardView : openCards) {
                 if (cardView.isOpen()) {
                     cardView.close();
                 }
@@ -364,8 +364,8 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                 cover = (ImageView) v.findViewById(R.id.itemCover);
                 playEq = (ImageView) v.findViewById(R.id.playEq);
 
-                ((SlidingCardView) v).
-                        setOnSlidingCardListener(new SlidingCardView.OnSlidingCardListener() {
+                ((TrackListCardView) v).
+                        setOnTrackListCardListener(new TrackListCardView.OnTrackListCardListener() {
                             @Override
                             public void onDeleteClick() {
                                 deleteFile(getAdapterPosition());
@@ -387,7 +387,7 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                             }
 
                             @Override
-                            public void onAnimateChanged(SlidingCardView cardView, boolean open) {
+                            public void onAnimateChanged(TrackListCardView cardView, boolean open) {
                                 if (open) {
                                     openCards.add(cardView);
                                 } else {

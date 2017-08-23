@@ -279,6 +279,16 @@ public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
     }
 
     @Override
+    public boolean inPlayList() {
+        return inPlayList;
+    }
+
+    @Override
+    public void setToPlayList(boolean inPlaylist) {
+        this.inPlayList = inPlaylist;
+    }
+
+    @Override
     public int compareTo(AudioFile another) {
         if (this.trackNumber > another.trackNumber) {
             return 1;

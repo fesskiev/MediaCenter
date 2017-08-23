@@ -167,6 +167,16 @@ public class VideoFile implements MediaFile, Parcelable {
     }
 
     @Override
+    public boolean inPlayList() {
+        return inPlayList;
+    }
+
+    @Override
+    public void setToPlayList(boolean inPlaylist) {
+        this.inPlayList = inPlaylist;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

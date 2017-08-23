@@ -21,4 +21,8 @@ public interface MediaFile {
 
     boolean exists();
 
+    boolean inPlayList();
+
+    void setToPlayList(boolean inPlaylist);
+
 }

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item
         android:id="@+id/action_clear_playlist"
-        android:icon="@drawable/icon_trash"
         android:title="@string/playlist_menu_clear"
+        app:actionLayout="@layout/playlist_action_delete"
         app:showAsAction="always" />
 
 </menu>

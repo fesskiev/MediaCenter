@@ -13,43 +13,41 @@ import android.widget.ImageView;
 
 import com.fesskiev.mediacenter.R;
 
-public class SlidingCardView extends FrameLayout {
+public class PlayListCardView extends FrameLayout {
 
-    public interface OnSlidingCardListener {
+    public interface OnPlayListCardListener {
+
         void onDeleteClick();
-
-        void onEditClick();
-
-        void onPlaylistClick();
 
         void onClick();
 
-        void onAnimateChanged(SlidingCardView cardView, boolean open);
+        void onAnimateChanged(PlayListCardView cardView, boolean open);
     }
 
     private static final int MIN_DISTANCE = 100;
 
+    private OnPlayListCardListener listener;
     private GestureDetector detector;
-    private OnSlidingCardListener listener;
-    private ImageView editButton;
+
     private ImageView deleteButton;
-    private ImageView addPlaylist;
+
     private View slidingContainer;
     private float x1;
     private float x2;
     private boolean isOpen;
 
-    public SlidingCardView(Context context) {
+
+    public PlayListCardView(Context context) {
         super(context);
         init(context);
     }
 
-    public SlidingCardView(Context context, AttributeSet attrs) {
+    public PlayListCardView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
 
-    public SlidingCardView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public PlayListCardView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context);
     }
@@ -57,36 +55,20 @@ public class SlidingCardView extends FrameLayout {
     private void init(Context context) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.card_sliding_layout, this, true);
+        View view = inflater.inflate(R.layout.card_playlist_layout, this, true);
 
-        editButton = (ImageView) view.findViewById(R.id.editButton);
         deleteButton = (ImageView) view.findViewById(R.id.deleteButton);
-        addPlaylist = (ImageView) view.findViewById(R.id.addPlaylistButton);
 
         slidingContainer = view.findViewById(R.id.slidingContainer);
 
-        detector = new GestureDetector(getContext(), new GestureListener());
+        detector = new GestureDetector(context, new GestureListener());
     }
-
 
     private class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
             if (isOpen) {
-                if (isPointInsideView(e.getRawX(), e.getRawY(), addPlaylist)) {
-                    if (listener != null) {
-                        listener.onPlaylistClick();
-                    }
-                    return true;
-                }
-
-                if (isPointInsideView(e.getRawX(), e.getRawY(), editButton)) {
-                    if (listener != null) {
-                        listener.onEditClick();
-                    }
-                    return true;
-                }
                 if (isPointInsideView(e.getRawX(), e.getRawY(), deleteButton)) {
                     if (listener != null) {
                         listener.onDeleteClick();
@@ -145,7 +127,7 @@ public class SlidingCardView extends FrameLayout {
             @Override
             public void onAnimationStart(Animator animation) {
                 if (listener != null) {
-                    listener.onAnimateChanged(SlidingCardView.this, isOpen);
+                    listener.onAnimateChanged(PlayListCardView.this, isOpen);
                 }
             }
 
@@ -166,7 +148,7 @@ public class SlidingCardView extends FrameLayout {
         });
     }
 
-    public void setOnSlidingCardListener(OnSlidingCardListener listener) {
+    public void setOnPlayListCardListener(OnPlayListCardListener listener) {
         this.listener = listener;
     }
 
