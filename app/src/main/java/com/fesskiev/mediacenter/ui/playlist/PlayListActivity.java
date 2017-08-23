@@ -9,8 +9,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -31,6 +29,7 @@ import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.cards.PlayListCardView;
+import com.fesskiev.mediacenter.widgets.recycleview.HidingScrollListener;
 import com.fesskiev.mediacenter.widgets.recycleview.ScrollingLinearLayoutManager;
 
 import java.lang.ref.WeakReference;
@@ -51,12 +50,15 @@ public class PlayListActivity extends AnalyticsActivity {
     private CardView emptyPlaylistCard;
     private Menu menu;
 
+    private List<PlayListCardView> openCards;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playlist);
 
         repository = MediaApplication.getInstance().getRepository();
+        openCards = new ArrayList<>();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
@@ -72,26 +74,34 @@ public class PlayListActivity extends AnalyticsActivity {
                 LinearLayoutManager.VERTICAL, false, 1000));
         adapter = new AudioTracksAdapter(this);
         recyclerView.setAdapter(adapter);
+        recyclerView.addOnScrollListener(new HidingScrollListener() {
+            @Override
+            public void onHide() {
+
+            }
+
+            @Override
+            public void onShow() {
+
+            }
+
+            @Override
+            public void onItemPosition(int position) {
+                closeOpenCards();
+            }
+        });
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_playlist, menu);
+        getMenuInflater().inflate(R.menu.menu_playlist, menu);
+        menu.findItem(R.id.action_clear_playlist)
+                .getActionView()
+                .setOnClickListener(v -> clearPlaylist());
+
         fetchPlayListFiles();
         return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_clear_playlist:
-                clearPlaylist();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     @Override
@@ -116,6 +126,17 @@ public class PlayListActivity extends AnalyticsActivity {
         showEmptyCardPlaylist();
         repository.clearPlaylist();
         adapter.clearAdapter();
+    }
+
+    private void closeOpenCards() {
+        if (!openCards.isEmpty()) {
+            for (PlayListCardView cardView : openCards) {
+                if (cardView.isOpen()) {
+                    cardView.close();
+                }
+            }
+            openCards.clear();
+        }
     }
 
     public void fetchPlayListFiles() {
@@ -148,6 +169,10 @@ public class PlayListActivity extends AnalyticsActivity {
 
     public DataRepository getRepository() {
         return repository;
+    }
+
+    public List<PlayListCardView> getOpenCards() {
+        return openCards;
     }
 
     private void showEmptyCardPlaylist() {
@@ -199,7 +224,14 @@ public class PlayListActivity extends AnalyticsActivity {
 
                             @Override
                             public void onAnimateChanged(PlayListCardView cardView, boolean open) {
-
+                                PlayListActivity act = (PlayListActivity) activity.get();
+                                if (act != null) {
+                                    if (open) {
+                                        act.getOpenCards().add(cardView);
+                                    } else {
+                                        act.getOpenCards().remove(cardView);
+                                    }
+                                }
                             }
                         });
             }
