@@ -60,16 +60,16 @@ public class PlayListActivity extends AnalyticsActivity {
         repository = MediaApplication.getInstance().getRepository();
         openCards = new ArrayList<>();
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
             toolbar.setTitle(getString(R.string.title_playlist_activity));
             setSupportActionBar(toolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        emptyPlaylistCard = (CardView) findViewById(R.id.emptyPlaylistCard);
+        emptyPlaylistCard = findViewById(R.id.emptyPlaylistCard);
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycleView);
+        RecyclerView recyclerView = findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false, 1000));
         adapter = new AudioTracksAdapter(this);
@@ -96,9 +96,9 @@ public class PlayListActivity extends AnalyticsActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
         getMenuInflater().inflate(R.menu.menu_playlist, menu);
-        menu.findItem(R.id.action_clear_playlist)
-                .getActionView()
-                .setOnClickListener(v -> clearPlaylist());
+        View actionView = menu.findItem(R.id.action_clear_playlist).getActionView();
+        actionView.setOnClickListener(v -> clearPlaylist());
+        hideMenu();
 
         fetchPlayListFiles();
         return true;
@@ -123,9 +123,10 @@ public class PlayListActivity extends AnalyticsActivity {
 
 
     private void clearPlaylist() {
-        showEmptyCardPlaylist();
         repository.clearPlaylist();
         adapter.clearAdapter();
+        showEmptyCardPlaylist();
+        hideMenu();
     }
 
     private void closeOpenCards() {
@@ -156,6 +157,7 @@ public class PlayListActivity extends AnalyticsActivity {
                     adapter.refreshAdapter(mediaFiles);
                     if (!mediaFiles.isEmpty()) {
                         hideEmptyCardPlaylist();
+                        showMenu();
                     } else {
                         showEmptyCardPlaylist();
                         hideMenu();
@@ -165,6 +167,10 @@ public class PlayListActivity extends AnalyticsActivity {
 
     private void hideMenu() {
         menu.findItem(R.id.action_clear_playlist).setVisible(false);
+    }
+
+    private void showMenu() {
+        menu.findItem(R.id.action_clear_playlist).setVisible(true);
     }
 
     public DataRepository getRepository() {
@@ -204,10 +210,10 @@ public class PlayListActivity extends AnalyticsActivity {
             public ViewHolder(View v) {
                 super(v);
 
-                cover = (ImageView) v.findViewById(R.id.itemCover);
-                duration = (TextView) v.findViewById(R.id.itemDuration);
-                title = (TextView) v.findViewById(R.id.itemTitle);
-                filePath = (TextView) v.findViewById(R.id.itemPath);
+                cover = v.findViewById(R.id.itemCover);
+                duration = v.findViewById(R.id.itemDuration);
+                title = v.findViewById(R.id.itemTitle);
+                filePath = v.findViewById(R.id.itemPath);
                 filePath.setSelected(true);
 
                 ((PlayListCardView) v).setOnPlayListCardListener(

@@ -57,8 +57,7 @@ public class PlayListCardView extends FrameLayout {
                 Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.card_playlist_layout, this, true);
 
-        deleteButton = (ImageView) view.findViewById(R.id.deleteButton);
-
+        deleteButton = view.findViewById(R.id.deleteButton);
         slidingContainer = view.findViewById(R.id.slidingContainer);
 
         detector = new GestureDetector(context, new GestureListener());
@@ -71,6 +70,7 @@ public class PlayListCardView extends FrameLayout {
             if (isOpen) {
                 if (isPointInsideView(e.getRawX(), e.getRawY(), deleteButton)) {
                     if (listener != null) {
+                        closeCard();
                         listener.onDeleteClick();
                     }
                     return true;
@@ -114,6 +114,12 @@ public class PlayListCardView extends FrameLayout {
         int viewY = location[1];
         return (x > viewX && x < (viewX + view.getWidth())) &&
                 (y > viewY && y < (viewY + view.getHeight()));
+    }
+
+    private void closeCard() {
+        slidingContainer.animate()
+                .x((int) getResources().getDimension(R.dimen.card_view_margin_start))
+                .setDuration(50);
     }
 
     public void animateSlidingContainer(boolean open) {
@@ -160,7 +166,7 @@ public class PlayListCardView extends FrameLayout {
         animateSlidingContainer(true);
     }
 
-    public void close () {
+    public void close() {
         animateSlidingContainer(false);
     }
 }

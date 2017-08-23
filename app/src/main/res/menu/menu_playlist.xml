@@ -5,6 +5,7 @@
     <item
         android:id="@+id/action_clear_playlist"
         android:title="@string/playlist_menu_clear"
+        android:visible="false"
         app:actionLayout="@layout/playlist_action_delete"
         app:showAsAction="always" />
 
