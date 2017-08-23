@@ -26,6 +26,10 @@ public class AudioFocusManager implements AudioManager.OnAudioFocusChangeListene
     public AudioFocusManager() {
         audioManager = (AudioManager)
                 MediaApplication.getInstance().getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        if(audioManager != null) {
+            audioManager.setStreamMute(AudioManager.STREAM_NOTIFICATION, true);
+        }
+
         audioFocusState = AUDIO_NO_FOCUS_NO_DUCK;
     }
 

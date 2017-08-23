@@ -1,14 +1,16 @@
 package com.fesskiev.mediacenter.utils;
 
 
+import android.annotation.TargetApi;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.NotificationCompat;
 import android.widget.RemoteViews;
 
 import com.fesskiev.mediacenter.MediaApplication;
@@ -17,14 +19,32 @@ import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.ui.MainActivity;
 
 
+@TargetApi(Build.VERSION_CODES.O)
 public class NotificationHelper {
 
     private static NotificationHelper INSTANCE;
+
+    public static final String CONTROL_CHANNEL = "notification_channel_control";
+
+    private NotificationManager notificationManager;
     private Notification notification;
+
     private Context context;
 
     private NotificationHelper() {
         this.context = MediaApplication.getInstance().getApplicationContext();
+        this.notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (Utils.isOreo()) {
+            NotificationChannel channel = new NotificationChannel(CONTROL_CHANNEL,
+                    context.getString(R.string.app_name), NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+            channel.enableVibration(false);
+            channel.enableLights(false);
+            channel.setShowBadge(false);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
     public static NotificationHelper getInstance() {
@@ -64,8 +84,6 @@ public class NotificationHelper {
     }
 
     private void updateNotification(Notification notification) {
-        NotificationManager notificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(NOTIFICATION_ID, notification);
     }
 
@@ -90,15 +108,18 @@ public class NotificationHelper {
         notificationView.setTextViewText(R.id.notificationTitle, title);
         notificationView.setImageViewBitmap(R.id.notificationCover, bitmap);
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context);
+        Notification.Builder notificationBuilder = new Notification.Builder(context);
 
-        notificationBuilder
-                .setCustomBigContentView(notificationBigView)
-                .setCustomContentView(notificationView)
-                .setSmallIcon(R.drawable.icon_notification_player)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setContentIntent(createContentIntent());
+        notificationBuilder.setCustomBigContentView(notificationBigView);
+        notificationBuilder.setCustomContentView(notificationView);
+        notificationBuilder.setSmallIcon(R.drawable.icon_notification_player);
+        notificationBuilder.setVisibility(Notification.VISIBILITY_PUBLIC);
+        notificationBuilder.setPriority(Notification.PRIORITY_HIGH);
+        notificationBuilder.setOnlyAlertOnce(true);
+        if (Utils.isOreo()) {
+            notificationBuilder.setChannelId(CONTROL_CHANNEL);
+        }
+        notificationBuilder.setContentIntent(createContentIntent());
 
         notificationBigView.setOnClickPendingIntent(R.id.notificationNext, getPendingIntentAction(ACTION_MEDIA_CONTROL_NEXT));
         notificationBigView.setOnClickPendingIntent(R.id.notificationPrevious, getPendingIntentAction(ACTION_MEDIA_CONTROL_PREVIOUS));
@@ -138,8 +159,6 @@ public class NotificationHelper {
     }
 
     public void stopNotification() {
-        NotificationManager notificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(NOTIFICATION_ID);
     }
 
@@ -150,20 +169,17 @@ public class NotificationHelper {
 
     public void createFetchNotification() {
 
-        NotificationCompat.Builder notificationBuilder
-                = new NotificationCompat.Builder(context);
+        Notification.Builder notificationBuilder = new Notification.Builder(context);
         notificationBuilder
                 .setColor(ContextCompat.getColor(context, R.color.primary))
                 .setSmallIcon(R.drawable.icon_notification_fetch)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setVisibility(Notification.VISIBILITY_PUBLIC)
                 .setContentIntent(createContentIntent())
                 .setContentTitle("Fetch content start")
                 .setContentText("Job schedule start fetching content")
                 .setWhen(System.currentTimeMillis())
                 .setShowWhen(true);
 
-        NotificationManager notificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(NOTIFICATION_FETCH_ID, notificationBuilder.build());
 
     }
@@ -173,23 +189,19 @@ public class NotificationHelper {
         Intent intent = new Intent(context, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-        NotificationCompat.Builder notificationBuilder
-                = new NotificationCompat.Builder(context);
+        Notification.Builder notificationBuilder
+                = new Notification.Builder(context);
         notificationBuilder
                 .setColor(ContextCompat.getColor(context, R.color.primary))
                 .setSmallIcon(R.drawable.icon_notification_fetch)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setVisibility(Notification.VISIBILITY_PUBLIC)
                 .setContentIntent(PendingIntent.getActivity(context, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT))
                 .setContentTitle(context.getString(R.string.notification_folder_found))
                 .setContentText(path)
                 .setAutoCancel(true)
                 .setWhen(System.currentTimeMillis())
                 .setShowWhen(true);
-
-        NotificationManager notificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(id, notificationBuilder.build());
-
     }
 
     public boolean isPlaying() {
