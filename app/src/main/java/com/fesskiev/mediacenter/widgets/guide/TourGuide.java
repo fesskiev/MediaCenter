@@ -112,9 +112,11 @@ public class TourGuide {
      * Clean up the tutorial that is added to the activity
      */
     public void cleanUp() {
-        frameLayout.cleanUp();
-        if (toolTipViewGroup != null) {
-            ((ViewGroup) activity.getWindow().getDecorView()).removeView(toolTipViewGroup);
+        if (frameLayout != null) {
+            frameLayout.cleanUp();
+            if (toolTipViewGroup != null) {
+                ((ViewGroup) activity.getWindow().getDecorView()).removeView(toolTipViewGroup);
+            }
         }
     }
 

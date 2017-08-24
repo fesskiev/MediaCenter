@@ -615,9 +615,12 @@ public class PlaybackService extends Service {
         BitmapHelper.getInstance().loadBitmap(audioFile, new BitmapHelper.OnBitmapLoadListener() {
             @Override
             public void onLoaded(Bitmap bitmap) {
-                notificationHelper.updateNotification(audioFile, bitmap, playing);
-                startForeground(NotificationHelper.NOTIFICATION_ID,
-                        notificationHelper.getNotification());
+                if (notificationHelper != null) {
+                    notificationHelper.updateNotification(audioFile, bitmap, playing);
+
+                    //TODO start foreground
+                    startForeground(NotificationHelper.NOTIFICATION_ID, notificationHelper.getNotification());
+                }
             }
 
             @Override

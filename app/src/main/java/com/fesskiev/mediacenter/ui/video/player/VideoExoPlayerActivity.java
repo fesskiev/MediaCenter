@@ -112,7 +112,6 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     private AppGuide appGuide;
 
     private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
-    private final PictureInPictureParams.Builder pictureInPictureParamsBuilder = new PictureInPictureParams.Builder();
 
     private GestureDetector gestureDetector;
     private VideoControlView videoControlView;
@@ -169,13 +168,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
             @Override
             public void playPauseButtonClick(boolean isPlaying) {
                 player.setPlayWhenReady(isPlaying);
-                if (isPlaying) {
-                    updatePictureInPictureActions(R.drawable.ic_pause_24dp,
-                            "Pause", CONTROL_TYPE_PAUSE, REQUEST_PAUSE);
-                } else {
-                    updatePictureInPictureActions(R.drawable.ic_play_24dp,
-                            "Play", CONTROL_TYPE_PLAY, REQUEST_PLAY);
-                }
+                updatePictureInPictureState(isPlaying);
             }
 
             @Override
@@ -225,6 +218,18 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         checkFirstOrLastVideoFile();
     }
 
+    private void updatePictureInPictureState(boolean isPlaying) {
+        if (Utils.isOreo()) {
+            if (isPlaying) {
+                updatePictureInPictureActions(R.drawable.ic_pause_24dp,
+                        "Pause", CONTROL_TYPE_PAUSE, REQUEST_PAUSE);
+            } else {
+                updatePictureInPictureActions(R.drawable.ic_play_24dp,
+                        "Play", CONTROL_TYPE_PLAY, REQUEST_PLAY);
+            }
+        }
+    }
+
     private void minimize() {
         videoControlView.hideControls();
         videoControlView.setPlay(false);
@@ -233,7 +238,10 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         }
 
         Rational aspectRatio = new Rational(videoControlView.getHeight(), videoControlView.getWidth());
+
+        final PictureInPictureParams.Builder pictureInPictureParamsBuilder = new PictureInPictureParams.Builder();
         pictureInPictureParamsBuilder.setAspectRatio(aspectRatio).build();
+
         enterPictureInPictureMode(pictureInPictureParamsBuilder.build());
     }
 
@@ -243,13 +251,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         videoControlView.setPictureInPicture(isInPictureInPictureMode);
         if (isInPictureInPictureMode) {
             if (player != null) {
-                if (player.getPlayWhenReady()) {
-                    updatePictureInPictureActions(R.drawable.ic_pause_24dp,
-                            "Pause", CONTROL_TYPE_PAUSE, REQUEST_PAUSE);
-                } else {
-                    updatePictureInPictureActions(R.drawable.ic_play_24dp,
-                            "Play", CONTROL_TYPE_PLAY, REQUEST_PLAY);
-                }
+                updatePictureInPictureState(player.getPlayWhenReady());
             }
 
             pictureInPictureReceiver = new BroadcastReceiver() {
@@ -278,13 +280,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
             if (player != null) {
                 shouldAutoPlay = player.getPlayWhenReady();
                 videoControlView.setPlay(shouldAutoPlay);
-                if (shouldAutoPlay) {
-                    updatePictureInPictureActions(R.drawable.ic_pause_24dp,
-                            "Pause", CONTROL_TYPE_PAUSE, REQUEST_PAUSE);
-                } else {
-                    updatePictureInPictureActions(R.drawable.ic_play_24dp,
-                            "Play", CONTROL_TYPE_PLAY, REQUEST_PLAY);
-                }
+                updatePictureInPictureState(shouldAutoPlay);
             }
             unregisterReceiver(pictureInPictureReceiver);
             videoControlView.showControls();
@@ -292,7 +288,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     }
 
 
-    void updatePictureInPictureActions(int iconId, String title, int controlType, int requestCode) {
+    private void updatePictureInPictureActions(int iconId, String title, int controlType, int requestCode) {
         final ArrayList<RemoteAction> actions = new ArrayList<>();
 
         final PendingIntent intent = PendingIntent.getBroadcast(VideoExoPlayerActivity.this,
@@ -301,6 +297,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
         final Icon icon = Icon.createWithResource(VideoExoPlayerActivity.this, iconId);
         actions.add(new RemoteAction(icon, title, title, intent));
 
+        final PictureInPictureParams.Builder pictureInPictureParamsBuilder = new PictureInPictureParams.Builder();
         pictureInPictureParamsBuilder.setActions(actions).build();
         setPictureInPictureParams(pictureInPictureParamsBuilder.build());
     }
