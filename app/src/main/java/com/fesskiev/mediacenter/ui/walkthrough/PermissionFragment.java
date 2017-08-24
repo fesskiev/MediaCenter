@@ -115,7 +115,6 @@ public class PermissionFragment extends Fragment implements View.OnClickListener
     private void showSuccessPermissions() {
         permissionText.setText(getString(R.string.permission_granted));
         permissionText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.icon_walk_through_ok, 0, 0);
-        permissionText.setCompoundDrawablePadding((int) Utils.dipToPixels(getContext().getApplicationContext(), 8));
 
         hideButtons();
         notifyPermissionGranted();

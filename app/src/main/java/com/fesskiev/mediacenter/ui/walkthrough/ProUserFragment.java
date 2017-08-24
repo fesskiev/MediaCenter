@@ -120,7 +120,6 @@ public class ProUserFragment extends Fragment implements View.OnClickListener {
     private void showSuccessPurchase() {
         adMobText.setText(getString(R.string.ad_mob_remove_success));
         adMobText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.icon_walk_through_ok, 0, 0);
-        adMobText.setCompoundDrawablePadding((int) Utils.dipToPixels(getContext().getApplicationContext(), 8));
 
         hideButtons();
         notifyProUserGranted();
@@ -130,7 +129,6 @@ public class ProUserFragment extends Fragment implements View.OnClickListener {
     private void showSkipPurchase() {
         adMobText.setText(getString(R.string.ad_mob_remove_skip));
         adMobText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.icon_walk_through_ok, 0, 0);
-        adMobText.setCompoundDrawablePadding((int) Utils.dipToPixels(getContext().getApplicationContext(), 8));
     }
 
     private void showErrorPurchaseView() {
