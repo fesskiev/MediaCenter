@@ -79,23 +79,27 @@ public class WearFragment extends Fragment {
         openAppButton.setVisibility(View.INVISIBLE);
         installAppButton.setVisibility(View.VISIBLE);
         connectionState.setText(getString(R.string.wear_some_devices));
+        connectionState.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.icon_wear_get_app, 0, 0);
     }
 
     private void withoutApp() {
         openAppButton.setVisibility(View.INVISIBLE);
         installAppButton.setVisibility(View.VISIBLE);
         connectionState.setText(getString(R.string.wear_without_app));
+        connectionState.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.icon_wear_get_app, 0, 0);
     }
 
     private void noConnected() {
         openAppButton.setVisibility(View.INVISIBLE);
         installAppButton.setVisibility(View.INVISIBLE);
         connectionState.setText(getString(R.string.wear_no_connected));
+        connectionState.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.icon_wear_no_connected, 0, 0);
     }
 
     private void openApp() {
         openAppButton.setVisibility(View.VISIBLE);
         installAppButton.setVisibility(View.INVISIBLE);
         connectionState.setText(getString(R.string.wear_open_app));
+        connectionState.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.icon_wear_connected, 0, 0);
     }
 }
