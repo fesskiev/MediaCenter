@@ -312,11 +312,7 @@ public class DataLayerService extends Service implements GoogleApiClient.Connect
 
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
-        if (messageEvent.getPath().equals(START_ACTIVITY_PATH)) {
-            Intent startIntent = new Intent(this, MainActivity.class);
-            startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(startIntent);
-        }
+
     }
 
     private void sendPlaybackBroadcast(MapPlayback playback) {
