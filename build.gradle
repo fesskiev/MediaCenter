@@ -56,7 +56,7 @@ ext {
     sqlbrite = '0.7.0'
     fab = '1.6.4'
     glide = '3.7.0'
-    exoplayer = 'r2.1.1'
+    exoplayer = 'r2.5.1'
     rxandroid = '1.2.1'
     rxjava = '1.2.0'
     rxjavaAdapter = '2.1.0'

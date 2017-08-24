@@ -26,7 +26,6 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.fesskiev.extensions.player.SimpleMediaCenterPlayer;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.VideoFile;
@@ -36,16 +35,14 @@ import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.controls.VideoControlView;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
-import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
-import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
-import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
-import com.google.android.exoplayer2.drm.UnsupportedDrmException;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
@@ -59,15 +56,15 @@ import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
-import com.google.android.exoplayer2.trackselection.AdaptiveVideoTrackSelection;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 
@@ -77,16 +74,18 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.UUID;
 
 @TargetApi(Build.VERSION_CODES.O)
-public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlayer.EventListener {
+public class VideoExoPlayerActivity extends AppCompatActivity implements Player.EventListener {
 
     private static final String TAG = VideoExoPlayerActivity.class.getSimpleName();
 
+    private static final int DEFAULT_MIN_BUFFER_MS = 3000;
+    private static final int DEFAULT_MAX_BUFFER_MS = 5000;
+    private static final int DEFAULT_BUFFER_FOR_PLAYBACK_MS = 1000;
+    private static final int DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS = 2000;
 
     private static final int CONTROL_TYPE_PLAY = 1;
     private static final int CONTROL_TYPE_PAUSE = 2;
@@ -116,11 +115,11 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     private GestureDetector gestureDetector;
     private VideoControlView videoControlView;
     private DataSource.Factory mediaDataSourceFactory;
-    private TrackSelection.Factory videoTrackSelectionFactory;
+    private TrackSelection.Factory trackSelectionFactory;
     private EventLogger eventLogger;
     private Timeline.Window window;
     private SimpleExoPlayerView simpleExoPlayerView;
-    private SimpleMediaCenterPlayer player;
+    private SimpleExoPlayer player;
     private DefaultTrackSelector trackSelector;
     private Timer timer;
 
@@ -282,8 +281,10 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
                 videoControlView.setPlay(shouldAutoPlay);
                 updatePictureInPictureState(shouldAutoPlay);
             }
-            unregisterReceiver(pictureInPictureReceiver);
             videoControlView.showControls();
+
+            unregisterReceiver(pictureInPictureReceiver);
+            pictureInPictureReceiver = null;
         }
     }
 
@@ -486,7 +487,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onCurrentVideoFileEvent(VideoFile videoFile) {
-        Log.e("video", "PLAYER onCurrentVideoFileEvent: " + videoFile.toString());
+        Log.e(TAG, "PLAYER onCurrentVideoFileEvent: " + videoFile.toString());
         videoControlView.resetIndicators();
         isTimelineStatic = false;
 
@@ -537,21 +538,21 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
         switch (playbackState) {
-            case ExoPlayer.STATE_BUFFERING:
+            case Player.STATE_BUFFERING:
                 Log.wtf(TAG, "buffering");
                 break;
-            case ExoPlayer.STATE_ENDED:
+            case Player.STATE_ENDED:
                 Log.wtf(TAG, "ended");
                 break;
-            case ExoPlayer.STATE_IDLE:
+            case Player.STATE_IDLE:
                 Log.wtf(TAG, "idle");
                 break;
-            case ExoPlayer.STATE_READY:
+            case Player.STATE_READY:
                 Log.wtf(TAG, "ready");
                 videoControlView.setVideoTimeTotal(Utils.getVideoFileTimeFormat(player.getDuration()));
                 updateProgressControls();
                 startUpdateTimer();
-                videoControlView.setVideoTrackInfo(player, trackSelector, videoTrackSelectionFactory);
+                videoControlView.setVideoTrackInfo(player, trackSelector, trackSelectionFactory);
                 break;
         }
     }
@@ -597,22 +598,46 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
     }
 
 
+    @Override
+    public void onRepeatModeChanged(int repeatMode) {
+
+    }
+
+    @Override
+    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+
+    }
+
     private void initializePlayer() {
         Intent intent = getIntent();
         if (player == null) {
 
-            videoTrackSelectionFactory = new AdaptiveVideoTrackSelection.Factory(BANDWIDTH_METER);
-            trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
+            trackSelectionFactory = new AdaptiveTrackSelection.Factory(BANDWIDTH_METER);
 
-            player = new SimpleMediaCenterPlayer(this, trackSelector, true);
+            trackSelector = new DefaultTrackSelector(trackSelectionFactory);
+            trackSelector.setTunnelingAudioSessionId(C.generateAudioSessionIdV21(getApplicationContext()));
+
+
+            player = ExoPlayerFactory.newSimpleInstance(
+                    new CustomRenderersFactory(getApplicationContext()),
+                    trackSelector,
+                    new DefaultLoadControl(
+                            new DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE),
+                            DEFAULT_MIN_BUFFER_MS,
+                            DEFAULT_MAX_BUFFER_MS,
+                            DEFAULT_BUFFER_FOR_PLAYBACK_MS,
+                            DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS
+                    )
+            );
+
             player.addListener(this);
             eventLogger = new EventLogger(trackSelector);
             player.addListener(eventLogger);
             player.setAudioDebugListener(eventLogger);
             player.setVideoDebugListener(eventLogger);
-            player.setId3Output(eventLogger);
 
             simpleExoPlayerView.setPlayer(player);
+
             if (isTimelineStatic) {
                 if (playerPosition == C.TIME_UNSET) {
                     player.seekToDefaultPosition(playerWindow);
@@ -705,19 +730,6 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements ExoPlay
 
     private DataSource.Factory buildDataSourceFactory(boolean useBandwidthMeter) {
         return MediaApplication.getInstance().buildDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
-    }
-
-    private HttpDataSource.Factory buildHttpDataSourceFactory(boolean useBandwidthMeter) {
-        return MediaApplication.getInstance().buildHttpDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
-    }
-
-
-    private DrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(UUID uuid,
-                                                                           String licenseUrl, Map<String, String> keyRequestProperties) throws UnsupportedDrmException {
-        HttpMediaDrmCallback drmCallback = new HttpMediaDrmCallback(licenseUrl,
-                buildHttpDataSourceFactory(false), keyRequestProperties);
-        return new StreamingDrmSessionManager<>(uuid,
-                FrameworkMediaDrm.newInstance(uuid), drmCallback, null, handler, eventLogger);
     }
 
     private void updateProgressControls() {

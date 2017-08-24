@@ -609,7 +609,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         settingsManager.setWhooshEnable(false);
         settingsManager.setEchoEnable(false);
 
-        finish();
+        finishAffinity();
     }
 
     @Override

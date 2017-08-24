@@ -7,22 +7,24 @@ import android.view.Surface;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
-import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
+import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
+import com.google.android.exoplayer2.metadata.emsg.EventMessage;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.metadata.id3.CommentFrame;
 import com.google.android.exoplayer2.metadata.id3.GeobFrame;
 import com.google.android.exoplayer2.metadata.id3.Id3Frame;
 import com.google.android.exoplayer2.metadata.id3.PrivFrame;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
-import com.google.android.exoplayer2.metadata.id3.TxxxFrame;
+import com.google.android.exoplayer2.metadata.id3.UrlLinkFrame;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -38,12 +40,8 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-/**
- * Logs player events using {@link Log}.
- */
-/* package */ final class EventLogger implements ExoPlayer.EventListener,
-        AudioRendererEventListener, VideoRendererEventListener, AdaptiveMediaSourceEventListener,
-        ExtractorMediaSource.EventListener, StreamingDrmSessionManager.EventListener,
+final class EventLogger implements Player.EventListener, AudioRendererEventListener, VideoRendererEventListener, AdaptiveMediaSourceEventListener,
+        ExtractorMediaSource.EventListener, DefaultDrmSessionManager.EventListener,
         MetadataRenderer.Output {
 
     private static final String TAG = "EventLogger";
@@ -69,7 +67,7 @@ import java.util.Locale;
         startTimeMs = SystemClock.elapsedRealtime();
     }
 
-    // ExoPlayer.EventListener
+    // Player.EventListener
 
     @Override
     public void onLoadingChanged(boolean isLoading) {
@@ -83,15 +81,23 @@ import java.util.Locale;
     }
 
     @Override
+    public void onRepeatModeChanged(@Player.RepeatMode int repeatMode) {
+        Log.d(TAG, "repeatMode [" + getRepeatModeString(repeatMode) + "]");
+    }
+
+    @Override
     public void onPositionDiscontinuity() {
         Log.d(TAG, "positionDiscontinuity");
     }
 
     @Override
+    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+        Log.d(TAG, "playbackParameters " + String.format(
+                "[speed=%.2f, pitch=%.2f]", playbackParameters.speed, playbackParameters.pitch));
+    }
+
+    @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
-        if (timeline == null) {
-            return;
-        }
         int periodCount = timeline.getPeriodCount();
         int windowCount = timeline.getWindowCount();
         Log.d(TAG, "sourceInfo [periodCount=" + periodCount + ", windowCount=" + windowCount);
@@ -142,7 +148,7 @@ import java.util.Locale;
                         String formatSupport = getFormatSupportString(
                                 mappedTrackInfo.getTrackFormatSupport(rendererIndex, groupIndex, trackIndex));
                         Log.d(TAG, "      " + status + " Track:" + trackIndex + ", "
-                                + getFormatString(trackGroup.getFormat(trackIndex))
+                                + Format.toLogString(trackGroup.getFormat(trackIndex))
                                 + ", supported=" + formatSupport);
                     }
                     Log.d(TAG, "    ]");
@@ -174,7 +180,7 @@ import java.util.Locale;
                     String formatSupport = getFormatSupportString(
                             RendererCapabilities.FORMAT_UNSUPPORTED_TYPE);
                     Log.d(TAG, "      " + status + " Track:" + trackIndex + ", "
-                            + getFormatString(trackGroup.getFormat(trackIndex))
+                            + Format.toLogString(trackGroup.getFormat(trackIndex))
                             + ", supported=" + formatSupport);
                 }
                 Log.d(TAG, "    ]");
@@ -213,7 +219,7 @@ import java.util.Locale;
 
     @Override
     public void onAudioInputFormatChanged(Format format) {
-        Log.d(TAG, "audioFormatChanged [" + getSessionTimeString() + ", " + getFormatString(format)
+        Log.d(TAG, "audioFormatChanged [" + getSessionTimeString() + ", " + Format.toLogString(format)
                 + "]");
     }
 
@@ -243,7 +249,7 @@ import java.util.Locale;
 
     @Override
     public void onVideoInputFormatChanged(Format format) {
-        Log.d(TAG, "videoFormatChanged [" + getSessionTimeString() + ", " + getFormatString(format)
+        Log.d(TAG, "videoFormatChanged [" + getSessionTimeString() + ", " + Format.toLogString(format)
                 + "]");
     }
 
@@ -260,19 +266,29 @@ import java.util.Locale;
     @Override
     public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
                                    float pixelWidthHeightRatio) {
-        // Do nothing.
+        Log.d(TAG, "videoSizeChanged [" + width + ", " + height + "]");
     }
 
     @Override
     public void onRenderedFirstFrame(Surface surface) {
-        // Do nothing.
+        Log.d(TAG, "renderedFirstFrame [" + surface + "]");
     }
 
-    // StreamingDrmSessionManager.EventListener
+    // DefaultDrmSessionManager.EventListener
 
     @Override
     public void onDrmSessionManagerError(Exception e) {
         printInternalError("drmSessionManagerError", e);
+    }
+
+    @Override
+    public void onDrmKeysRestored() {
+        Log.d(TAG, "drmKeysRestored [" + getSessionTimeString() + "]");
+    }
+
+    @Override
+    public void onDrmKeysRemoved() {
+        Log.d(TAG, "drmKeysRemoved [" + getSessionTimeString() + "]");
     }
 
     @Override
@@ -338,10 +354,13 @@ import java.util.Locale;
     private void printMetadata(Metadata metadata, String prefix) {
         for (int i = 0; i < metadata.length(); i++) {
             Metadata.Entry entry = metadata.get(i);
-            if (entry instanceof TxxxFrame) {
-                TxxxFrame txxxFrame = (TxxxFrame) entry;
-                Log.d(TAG, prefix + String.format("%s: description=%s, value=%s", txxxFrame.id,
-                        txxxFrame.description, txxxFrame.value));
+            if (entry instanceof TextInformationFrame) {
+                TextInformationFrame textInformationFrame = (TextInformationFrame) entry;
+                Log.d(TAG, prefix + String.format("%s: value=%s", textInformationFrame.id,
+                        textInformationFrame.value));
+            } else if (entry instanceof UrlLinkFrame) {
+                UrlLinkFrame urlLinkFrame = (UrlLinkFrame) entry;
+                Log.d(TAG, prefix + String.format("%s: url=%s", urlLinkFrame.id, urlLinkFrame.url));
             } else if (entry instanceof PrivFrame) {
                 PrivFrame privFrame = (PrivFrame) entry;
                 Log.d(TAG, prefix + String.format("%s: owner=%s", privFrame.id, privFrame.owner));
@@ -353,17 +372,17 @@ import java.util.Locale;
                 ApicFrame apicFrame = (ApicFrame) entry;
                 Log.d(TAG, prefix + String.format("%s: mimeType=%s, description=%s",
                         apicFrame.id, apicFrame.mimeType, apicFrame.description));
-            } else if (entry instanceof TextInformationFrame) {
-                TextInformationFrame textInformationFrame = (TextInformationFrame) entry;
-                Log.d(TAG, prefix + String.format("%s: description=%s", textInformationFrame.id,
-                        textInformationFrame.description));
             } else if (entry instanceof CommentFrame) {
                 CommentFrame commentFrame = (CommentFrame) entry;
-                Log.d(TAG, prefix + String.format("%s: language=%s description=%s", commentFrame.id,
+                Log.d(TAG, prefix + String.format("%s: language=%s, description=%s", commentFrame.id,
                         commentFrame.language, commentFrame.description));
             } else if (entry instanceof Id3Frame) {
                 Id3Frame id3Frame = (Id3Frame) entry;
                 Log.d(TAG, prefix + String.format("%s", id3Frame.id));
+            } else if (entry instanceof EventMessage) {
+                EventMessage eventMessage = (EventMessage) entry;
+                Log.d(TAG, prefix + String.format("EMSG: scheme=%s, id=%d, value=%s",
+                        eventMessage.schemeIdUri, eventMessage.id, eventMessage.value));
             }
         }
     }
@@ -378,13 +397,13 @@ import java.util.Locale;
 
     private static String getStateString(int state) {
         switch (state) {
-            case ExoPlayer.STATE_BUFFERING:
+            case Player.STATE_BUFFERING:
                 return "B";
-            case ExoPlayer.STATE_ENDED:
+            case Player.STATE_ENDED:
                 return "E";
-            case ExoPlayer.STATE_IDLE:
+            case Player.STATE_IDLE:
                 return "I";
-            case ExoPlayer.STATE_READY:
+            case Player.STATE_READY:
                 return "R";
             default:
                 return "?";
@@ -422,33 +441,6 @@ import java.util.Locale;
         }
     }
 
-    private static String getFormatString(Format format) {
-        if (format == null) {
-            return "null";
-        }
-        StringBuilder builder = new StringBuilder();
-        builder.append("id=").append(format.id).append(", mimeType=").append(format.sampleMimeType);
-        if (format.bitrate != Format.NO_VALUE) {
-            builder.append(", bitrate=").append(format.bitrate);
-        }
-        if (format.width != Format.NO_VALUE && format.height != Format.NO_VALUE) {
-            builder.append(", res=").append(format.width).append("x").append(format.height);
-        }
-        if (format.frameRate != Format.NO_VALUE) {
-            builder.append(", fps=").append(format.frameRate);
-        }
-        if (format.channelCount != Format.NO_VALUE) {
-            builder.append(", channels=").append(format.channelCount);
-        }
-        if (format.sampleRate != Format.NO_VALUE) {
-            builder.append(", sample_rate=").append(format.sampleRate);
-        }
-        if (format.language != null) {
-            builder.append(", language=").append(format.language);
-        }
-        return builder.toString();
-    }
-
     private static String getTrackStatusString(TrackSelection selection, TrackGroup group,
                                                int trackIndex) {
         return getTrackStatusString(selection != null && selection.getTrackGroup() == group
@@ -459,4 +451,16 @@ import java.util.Locale;
         return enabled ? "[X]" : "[ ]";
     }
 
+    private static String getRepeatModeString(@Player.RepeatMode int repeatMode) {
+        switch (repeatMode) {
+            case Player.REPEAT_MODE_OFF:
+                return "OFF";
+            case Player.REPEAT_MODE_ONE:
+                return "ONE";
+            case Player.REPEAT_MODE_ALL:
+                return "ALL";
+            default:
+                return "?";
+        }
+    }
 }
