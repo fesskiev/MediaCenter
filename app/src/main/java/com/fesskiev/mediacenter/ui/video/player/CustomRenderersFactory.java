@@ -55,6 +55,8 @@ class CustomRenderersFactory implements RenderersFactory {
             Renderer renderer = (Renderer) constructor.newInstance(true, 5000,
                     eventHandler, videoRendererEventListener, 50);
             out.add(renderer);
+        } catch (ClassNotFoundException e) {
+            // Expected if the app was built without the extension.
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -67,6 +69,8 @@ class CustomRenderersFactory implements RenderersFactory {
             Renderer renderer = (Renderer) constructor.newInstance(eventHandler, audioRendererEventListener,
                     new AudioProcessor[0]);
             out.add(renderer);
+        } catch (ClassNotFoundException e) {
+            // Expected if the app was built without the extension.
         } catch (Exception e) {
             e.printStackTrace();
         }
