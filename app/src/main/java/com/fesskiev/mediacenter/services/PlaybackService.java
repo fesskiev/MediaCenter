@@ -378,18 +378,21 @@ public class PlaybackService extends Service {
                 state -> {
                     switch (state) {
                         case AudioFocusManager.AUDIO_FOCUSED:
-                            Log.d(TAG, "onFocusChanged: FOCUSED");
+                            Log.d(TAG, "onFocusChanged: FOCUSED: " + focusedVolume);
                             if (!playing) {
                                 play();
                             }
                             setVolumeAudioPlayer(focusedVolume);
                             break;
                         case AudioFocusManager.AUDIO_NO_FOCUS_CAN_DUCK:
-                            Log.d(TAG, "onFocusChanged: NO_FOCUS_CAN_DUCK");
                             focusedVolume = volume;
+
+                            Log.d(TAG, "onFocusChanged: NO_FOCUS_CAN_DUCK: " + focusedVolume);
                             setVolumeAudioPlayer(50);
+
                             break;
                         case AudioFocusManager.AUDIO_NO_FOCUS_NO_DUCK:
+                            focusedVolume = volume;
                             Log.d(TAG, "onFocusChanged: NO_FOCUS_NO_DUCK");
                             if (playing) {
                                 stop();

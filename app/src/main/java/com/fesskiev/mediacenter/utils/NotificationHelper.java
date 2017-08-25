@@ -38,6 +38,7 @@ public class NotificationHelper {
             NotificationChannel channelControl = new NotificationChannel(CONTROL_CHANNEL,
                     context.getString(R.string.app_name), NotificationManager.IMPORTANCE_DEFAULT);
             channelControl.setLockscreenVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+            channelControl.setSound(null, null);
             channelControl.enableVibration(false);
             channelControl.enableLights(false);
             channelControl.setShowBadge(false);
@@ -48,7 +49,7 @@ public class NotificationHelper {
             channelMedia.setLockscreenVisibility(NotificationCompat.VISIBILITY_PUBLIC);
             channelMedia.enableVibration(false);
             channelMedia.enableLights(false);
-            channelMedia.setShowBadge(false);
+            channelMedia.setShowBadge(true);
             notificationManager.createNotificationChannel(channelMedia);
         }
     }
@@ -122,6 +123,7 @@ public class NotificationHelper {
                 .setSmallIcon(R.drawable.icon_notification_player)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setOnlyAlertOnce(true)
                 .setContentIntent(createContentIntent());
 
         notificationBigView.setOnClickPendingIntent(R.id.notificationNext, getPendingIntentAction(ACTION_MEDIA_CONTROL_NEXT));
