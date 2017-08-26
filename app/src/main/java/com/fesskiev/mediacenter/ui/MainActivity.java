@@ -1,9 +1,12 @@
 package com.fesskiev.mediacenter.ui;
 
 
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -18,6 +21,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -75,8 +80,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private AppGuide appGuide;
 
     private int selectedState;
-    private boolean startAnimate;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,20 +104,18 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             drawer.addDrawerListener(new DrawerLayout.DrawerListener() {
                 @Override
                 public void onDrawerSlide(View drawerView, float slideOffset) {
-                    animateHeaderViews(slideOffset);
+
                 }
 
                 @Override
                 public void onDrawerOpened(View drawerView) {
-                    startAnimate = false;
-                    animateHeaderViews(1f);
+                    animateHeaderViews();
+
                     openDrawerGuide(drawerView);
                 }
 
                 @Override
                 public void onDrawerClosed(View drawerView) {
-                    startAnimate = false;
-                    animateHeaderViews(0f);
 
                     if (selectedActivity != null) {
                         startSelectedActivity();
@@ -221,47 +222,47 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         }
     }
 
+    float angle = 360f;
 
-    private void animateHeaderViews(float slideOffset) {
-        if (!startAnimate) {
-            ViewCompat.animate(appIcon)
-                    .alpha(slideOffset)
-                    .setDuration(600)
-                    .setInterpolator(AppAnimationUtils.getInstance().getFastOutSlowInInterpolator())
-                    .start();
+    private void animateHeaderViews() {
+        ViewCompat.animate(appIcon)
+                .rotationX(angle)
+                .rotationY(angle)
+                .setDuration(1800)
+                .setInterpolator(AppAnimationUtils.getInstance().getFastOutSlowInInterpolator())
+                .setListener(new ViewPropertyAnimatorListener() {
+                    @Override
+                    public void onAnimationStart(View view) {
 
-            ViewCompat.animate(appName)
-                    .scaleX(slideOffset)
-                    .scaleY(slideOffset)
-                    .alpha(slideOffset)
-                    .setDuration(800)
-                    .setInterpolator(AppAnimationUtils.getInstance().getFastOutSlowInInterpolator())
-                    .start();
+                    }
 
-            ViewCompat.animate(appPromo)
-                    .scaleX(slideOffset)
-                    .scaleY(slideOffset)
-                    .alpha(slideOffset)
-                    .setDuration(1000)
-                    .setInterpolator(AppAnimationUtils.getInstance().getFastOutSlowInInterpolator())
-                    .setListener(new ViewPropertyAnimatorListener() {
-                        @Override
-                        public void onAnimationStart(View view) {
-                            startAnimate = true;
+                    @Override
+                    public void onAnimationEnd(View view) {
+                        if(angle == 360f){
+                            angle = 0;
+                        } else {
+                            angle = 360;
                         }
+                    }
 
-                        @Override
-                        public void onAnimationEnd(View view) {
-                            startAnimate = false;
-                        }
+                    @Override
+                    public void onAnimationCancel(View view) {
 
-                        @Override
-                        public void onAnimationCancel(View view) {
-                            startAnimate = false;
-                        }
-                    })
-                    .start();
-        }
+                    }
+                })
+                .start();
+
+        ObjectAnimator colorAnim = ObjectAnimator.ofInt(appName, "textColor",
+                getResources().getColor(R.color.yellow), getResources().getColor(R.color.white));
+        colorAnim.setEvaluator(new ArgbEvaluator());
+        colorAnim.setDuration(1800);
+        colorAnim.start();
+
+        ObjectAnimator colorAnim1 = ObjectAnimator.ofInt(appPromo, "textColor",
+                getResources().getColor(R.color.yellow), getResources().getColor(R.color.white));
+        colorAnim1.setEvaluator(new ArgbEvaluator());
+        colorAnim1.setDuration(1800);
+        colorAnim1.start();
     }
 
     @Override

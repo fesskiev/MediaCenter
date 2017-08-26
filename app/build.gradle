@@ -134,6 +134,9 @@ dependencies {
     compile "org.greenrobot:eventbus:$rootProject.eventbus"
     compile "com.thoughtbot:expandablecheckrecyclerview:$rootProject.expandablecheckrecyclerview"
 
+    debugCompile "com.squareup.leakcanary:leakcanary-android:$rootProject.leakCanary"
+    releaseCompile "com.squareup.leakcanary:leakcanary-android-no-op:$rootProject.leakCanary"
+
     testCompile "junit:junit:$rootProject.junitVersion"
 
     androidTestCompile "com.android.support.test:runner:$rootProject.runnerVersion"

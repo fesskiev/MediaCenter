@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
 import com.google.firebase.crash.FirebaseCrash;
+import com.squareup.leakcanary.LeakCanary;
 
 import rx.plugins.RxJavaHooks;
 
@@ -43,6 +44,7 @@ public class MediaApplication extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
         INSTANCE = this;
+        initLeakCanary();
 
         repository = DataRepository.getInstance(RemoteDataSource.getInstance(),
                 LocalDataSource.getInstance(), MemoryDataSource.getInstance());
@@ -67,6 +69,13 @@ public class MediaApplication extends MultiDexApplication {
         RxJavaHooks.setOnError(FirebaseCrash::report);
 
         userAgent = Util.getUserAgent(this, "ExoPlayer");
+    }
+
+    private void initLeakCanary() {
+        if (LeakCanary.isInAnalyzerProcess(this)) {
+            return;
+        }
+        LeakCanary.install(this);
     }
 
     public static synchronized MediaApplication getInstance() {

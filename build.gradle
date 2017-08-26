@@ -9,7 +9,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0-beta3'
+        classpath 'com.android.tools.build:gradle:3.0.0-beta2'
         classpath 'com.google.gms:google-services:3.1.0'
     }
 }
@@ -42,8 +42,8 @@ ext {
 
     // App dependencies
     supportLibVersion = '26.0.1'
-    firebaseLibVersion = '11.0.4'
-    playServiceWearable = '11.0.4'
+    firebaseLibVersion = '11.2.0'
+    playServiceWearable = '11.2.0'
     multidex = '1.0.2'
     wearable = '2.0.4'
     runnerVersion = '0.5'
@@ -64,5 +64,6 @@ ext {
     retrofit = '2.0.2'
     gson = '2.0.2'
     commons = '2.5'
+    leakCanary = '1.5.1'
 }
 
