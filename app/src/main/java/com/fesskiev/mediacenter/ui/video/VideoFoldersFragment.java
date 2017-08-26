@@ -93,7 +93,7 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
 
         final int spacing = getResources().getDimensionPixelOffset(R.dimen.default_spacing_small);
 
-        recyclerView = (RecyclerView) view.findViewById(R.id.foldersGridView);
+        recyclerView = view.findViewById(R.id.foldersGridView);
         recyclerView.setLayoutManager(gridLayoutManager);
         adapter = new VideoFoldersAdapter(getActivity());
         recyclerView.setAdapter(adapter);
@@ -103,8 +103,8 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
-        emptyVideoContent = (CardView) view.findViewById(R.id.emptyVideoContentCard);
-        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
+        emptyVideoContent = view.findViewById(R.id.emptyVideoContentCard);
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefresh);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.primary_light));
         swipeRefreshLayout.setProgressViewOffset(false, 0,
@@ -234,7 +234,7 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
             public ViewHolder(View v) {
                 super(v);
 
-                folderCard = (VideoFolderCardView) v.findViewById(R.id.videoFolderCardView);
+                folderCard = v.findViewById(R.id.videoFolderCardView);
                 folderCard.setOnVideoFolderCardViewListener(new VideoFolderCardView.OnVideoFolderCardViewListener() {
                     @Override
                     public void onPopupMenuButtonCall(View view) {

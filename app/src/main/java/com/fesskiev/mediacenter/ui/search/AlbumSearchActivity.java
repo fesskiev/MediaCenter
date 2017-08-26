@@ -92,37 +92,37 @@ public class AlbumSearchActivity extends AnalyticsActivity {
 
         repository = MediaApplication.getInstance().getRepository();
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
             setSupportActionBar(toolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycleView);
+        RecyclerView recyclerView = findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false, 1000));
         adapter = new SearchAdapter();
         recyclerView.setAdapter(adapter);
 
-        progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.progressBar);
         findViewById(R.id.searchAlbumFab).setOnClickListener(v -> loadAlbum());
 
         albumRoot = findViewById(R.id.albumViewRoot);
 
-        albumCover = (ImageView) findViewById(R.id.albumCover);
+        albumCover = findViewById(R.id.albumCover);
         albumCover.setOnClickListener(v -> openChooseImageQualityDialog());
 
-        artistEditText = (EditText) findViewById(R.id.editArtist);
-        albumEditText = (EditText) findViewById(R.id.editAlbum);
+        artistEditText = findViewById(R.id.editArtist);
+        albumEditText = findViewById(R.id.editAlbum);
 
-        artistResult = (TextView) findViewById(R.id.artistNameResult);
-        albumResult = (TextView) findViewById(R.id.albumNameResult);
-        tagsResult = (TextView) findViewById(R.id.tagsResult);
-        artistURL = (TextView) findViewById(R.id.artistUrl);
+        artistResult = findViewById(R.id.artistNameResult);
+        albumResult = findViewById(R.id.albumNameResult);
+        tagsResult = findViewById(R.id.tagsResult);
+        artistURL = findViewById(R.id.artistUrl);
         artistURL.setOnClickListener(v -> openUrl(artistURL.getText().toString()));
 
-        artistInputLayout = (TextInputLayout) findViewById(R.id.artistTextInputLayout);
-        albumInputLayout = (TextInputLayout) findViewById(R.id.albumTextInputLayout);
+        artistInputLayout = findViewById(R.id.artistTextInputLayout);
+        albumInputLayout = findViewById(R.id.albumTextInputLayout);
 
         if (savedInstanceState != null) {
             audioFolder = savedInstanceState.getParcelable(EXTRA_AUDIO_FOLDER);
@@ -285,9 +285,9 @@ public class AlbumSearchActivity extends AnalyticsActivity {
                 super(v);
                 v.setOnClickListener(v1 -> openTrackUrl(getAdapterPosition()));
 
-                trackName = (TextView) v.findViewById(R.id.itemTrackName);
-                trackUrl = (TextView) v.findViewById(R.id.itemUrl);
-                trackDuration = (TextView) v.findViewById(R.id.itemDuration);
+                trackName = v.findViewById(R.id.itemTrackName);
+                trackUrl = v.findViewById(R.id.itemUrl);
+                trackDuration = v.findViewById(R.id.itemDuration);
             }
 
             private void openTrackUrl(int position) {

@@ -47,7 +47,7 @@ public abstract class ViewPagerFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+        viewPager = view.findViewById(R.id.viewpager);
         viewPager.setPageTransformer(true, new DepthPageTransformer());
         viewPager.setOffscreenPageLimit(getPagerFragments().length);
         setupViewPager(viewPager);
@@ -90,7 +90,7 @@ public abstract class ViewPagerFragment extends Fragment {
             }
         });
 
-        tabLayout = (TabLayout) view.findViewById(R.id.tabs);
+        tabLayout = view.findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
 
         createTabs();
@@ -174,12 +174,12 @@ public abstract class ViewPagerFragment extends Fragment {
 
         public View getTabView(int imageResId, String textTitle, int tabTextColor) {
             View v = LayoutInflater.from(getActivity()).inflate(R.layout.custom_tab, null);
-            TextView tv = (TextView) v.findViewById(R.id.titleTab);
+            TextView tv = v.findViewById(R.id.titleTab);
             tv.setText(textTitle);
             tv.setTextColor(tabTextColor);
             titleTextViews.add(tv);
 
-            AppCompatImageView img = (AppCompatImageView) v.findViewById(R.id.imageTab);
+            AppCompatImageView img = v.findViewById(R.id.imageTab);
             img.setBackgroundResource(imageResId);
             img.setSupportBackgroundTintList(ColorStateList.valueOf(tabTextColor));
             titleImageViews.add(img);

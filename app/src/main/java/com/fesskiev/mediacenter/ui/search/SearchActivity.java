@@ -51,7 +51,7 @@ public class SearchActivity extends AppCompatActivity {
         setContentView(R.layout.activity_search);
         findViewById(R.id.backIcon).setOnClickListener(v -> onBackPressed());
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycleView);
+        RecyclerView recyclerView = findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false, 1000));
 
@@ -81,7 +81,7 @@ public class SearchActivity extends AppCompatActivity {
 
 
     private void setupSearchView() {
-        searchView = (SearchView) findViewById(R.id.searchView);
+        searchView = findViewById(R.id.searchView);
         SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setQueryHint(getString(R.string.search_hint));
@@ -169,7 +169,7 @@ public class SearchActivity extends AppCompatActivity {
 
             public SearchViewHolder(View v) {
                 super(v);
-                searchTitle = (TextView) v.findViewById(R.id.itemSearch);
+                searchTitle = v.findViewById(R.id.itemSearch);
             }
         }
 
@@ -183,10 +183,10 @@ public class SearchActivity extends AppCompatActivity {
             public ResultViewHolder(View v) {
                 super(v);
                 v.setOnClickListener(v1 -> startPlayerActivity(getAdapterPosition()));
-                duration = (TextView) v.findViewById(R.id.itemDuration);
-                title = (TextView) v.findViewById(R.id.itemTitle);
-                filePath = (TextView) v.findViewById(R.id.itemPath);
-                cover = (ImageView) v.findViewById(R.id.itemCover);
+                duration = v.findViewById(R.id.itemDuration);
+                title = v.findViewById(R.id.itemTitle);
+                filePath = v.findViewById(R.id.itemPath);
+                cover = v.findViewById(R.id.itemCover);
             }
         }
 

@@ -36,7 +36,7 @@ public abstract class GridFragment extends HidingPlaybackFragment {
 
         final int spacing = getResources().getDimensionPixelOffset(R.dimen.default_spacing_small);
 
-        recyclerView = (RecyclerView) view.findViewById(R.id.foldersGridView);
+        recyclerView = view.findViewById(R.id.foldersGridView);
         recyclerView.setLayoutManager(gridLayoutManager);
         adapter = createAdapter();
         recyclerView.setAdapter(adapter);
@@ -60,7 +60,7 @@ public abstract class GridFragment extends HidingPlaybackFragment {
         });
 
 
-        emptyAudioContent = (CardView) view.findViewById(R.id.emptyAudioContentCard);
+        emptyAudioContent = view.findViewById(R.id.emptyAudioContentCard);
     }
 
     protected void showEmptyContentCard() {

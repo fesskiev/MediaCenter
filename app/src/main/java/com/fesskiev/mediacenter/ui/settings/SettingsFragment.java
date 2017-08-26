@@ -54,12 +54,12 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
         super.onViewCreated(view, savedInstanceState);
 
         SwitchCompat[] switches = new SwitchCompat[]{
-                (SwitchCompat) view.findViewById(R.id.playHeadsetPlugInSwitch),
+                view.findViewById(R.id.playHeadsetPlugInSwitch),
                 //TODO hide download switch temp
-                (SwitchCompat) view.findViewById(R.id.downloadWifiSwitch),
-                (SwitchCompat) view.findViewById(R.id.showHiddenFilesSwitch),
-                (SwitchCompat) view.findViewById(R.id.fullScreenSwitch),
-                (SwitchCompat) view.findViewById(R.id.enableAppGuideSwitch)
+                view.findViewById(R.id.downloadWifiSwitch),
+                view.findViewById(R.id.showHiddenFilesSwitch),
+                view.findViewById(R.id.fullScreenSwitch),
+                view.findViewById(R.id.enableAppGuideSwitch)
         };
 
         Typeface tf = ResourcesCompat.getFont(getContext(), R.font.ubuntu);
@@ -67,13 +67,13 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
             switchCompat.setTypeface(tf);
         }
 
-        recordSavePath = (TextView) view.findViewById(R.id.recordPathToSave);
+        recordSavePath = view.findViewById(R.id.recordPathToSave);
         recordSavePath.setText(appSettingsManager.getRecordPath());
 
         view.findViewById(R.id.recordContainer).setOnClickListener(v -> startChooserActivity());
 
         MediaContentUpdateTimeView contentUpdateTimeView
-                = (MediaContentUpdateTimeView) view.findViewById(R.id.mediaContentUpdateTime);
+                = view.findViewById(R.id.mediaContentUpdateTime);
         contentUpdateTimeView.setOnMediaContentTimeUpdateListener(new MediaContentUpdateTimeView
                 .OnMediaContentTimeUpdateListener() {
             @Override
@@ -87,7 +87,7 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
             }
         });
 
-        ImageView timerView = (ImageView) view.findViewById(R.id.timerView);
+        ImageView timerView = view.findViewById(R.id.timerView);
         view.findViewById(R.id.searchFilesTitleContainer).setOnClickListener(v -> {
             ((Animatable) timerView.getDrawable()).start();
             contentUpdateTimeView.toggleWithAnimate();

@@ -84,7 +84,7 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        recyclerView = (RecyclerView) view.findViewById(R.id.recycleView);
+        recyclerView = view.findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new NpaLinearLayoutManager(getContext()));
         recyclerView.addOnScrollListener(new HidingScrollListener() {
             @Override
@@ -233,7 +233,7 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
 
             public GroupItemViewHolder(View itemView) {
                 super(itemView);
-                groupItemName = (CheckedTextView) itemView.findViewById(R.id.itemName);
+                groupItemName = itemView.findViewById(R.id.itemName);
             }
 
             public void setGroupItemName(String name) {
@@ -255,9 +255,9 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
 
             public CustomGroupViewHolder(View itemView) {
                 super(itemView);
-                genreName = (TextView) itemView.findViewById(R.id.itemGroupName);
-                arrow = (ImageView) itemView.findViewById(R.id.itemArrow);
-                icon = (ImageView) itemView.findViewById(R.id.itemGroupIcon);
+                genreName = itemView.findViewById(R.id.itemGroupName);
+                arrow = itemView.findViewById(R.id.itemArrow);
+                icon = itemView.findViewById(R.id.itemGroupIcon);
             }
 
             public void setGroup(ExpandableGroup group) {

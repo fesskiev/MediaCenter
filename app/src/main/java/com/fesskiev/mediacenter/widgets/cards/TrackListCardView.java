@@ -61,9 +61,9 @@ public class TrackListCardView extends FrameLayout {
                 Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.card_tracklist_layout, this, true);
 
-        editButton = (ImageView) view.findViewById(R.id.editButton);
-        deleteButton = (ImageView) view.findViewById(R.id.deleteButton);
-        addPlaylist = (ImageView) view.findViewById(R.id.addPlaylistButton);
+        editButton = view.findViewById(R.id.editButton);
+        deleteButton = view.findViewById(R.id.deleteButton);
+        addPlaylist = view.findViewById(R.id.addPlaylistButton);
 
         slidingContainer = view.findViewById(R.id.slidingContainer);
 

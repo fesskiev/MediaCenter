@@ -64,7 +64,7 @@ public class OtherEffectsFragment extends Fragment implements EchoControlView.On
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        SwitchCompat switchEchoState = (SwitchCompat) view.findViewById(R.id.stateEcho);
+        SwitchCompat switchEchoState = view.findViewById(R.id.stateEcho);
         switchEchoState.setOnClickListener(v -> {
             boolean checked = ((SwitchCompat) v).isChecked();
 
@@ -74,7 +74,7 @@ public class OtherEffectsFragment extends Fragment implements EchoControlView.On
         switchEchoState.setChecked(settingsManager.isEchoEnable());
 
 
-        SwitchCompat switchWhooshState = (SwitchCompat) view.findViewById(R.id.stateWhoosh);
+        SwitchCompat switchWhooshState = view.findViewById(R.id.stateWhoosh);
         switchWhooshState.setOnClickListener(v -> {
             boolean checked = ((SwitchCompat) v).isChecked();
 
@@ -85,8 +85,8 @@ public class OtherEffectsFragment extends Fragment implements EchoControlView.On
 
 
         WhooshControlView[] whooshControlViews = new WhooshControlView[]{
-                (WhooshControlView) view.findViewById(R.id.whooshbMix),
-                (WhooshControlView) view.findViewById(R.id.whooshFreq)
+                view.findViewById(R.id.whooshbMix),
+                view.findViewById(R.id.whooshFreq)
         };
 
         for (WhooshControlView whooshControlView : whooshControlViews) {
@@ -94,7 +94,7 @@ public class OtherEffectsFragment extends Fragment implements EchoControlView.On
             whooshControlView.setOnWhooshControlListener(this);
         }
 
-        EchoControlView echoControlView = (EchoControlView) view.findViewById(R.id.echoView);
+        EchoControlView echoControlView = view.findViewById(R.id.echoView);
         echoControlView.setOnDealerViewListener(this);
         echoControlView.setOnEchoControlListener(this);
 

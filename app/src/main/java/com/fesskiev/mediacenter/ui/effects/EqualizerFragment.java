@@ -50,7 +50,7 @@ public class EqualizerFragment extends Fragment implements EQBandControlView.OnB
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        SwitchCompat switchEQState = (SwitchCompat) view.findViewById(R.id.stateEqualizer);
+        SwitchCompat switchEQState = view.findViewById(R.id.stateEqualizer);
         switchEQState.setOnClickListener(v -> {
             boolean checked = ((SwitchCompat) v).isChecked();
 
@@ -61,9 +61,9 @@ public class EqualizerFragment extends Fragment implements EQBandControlView.OnB
 
 
         EQBandControlView[] EQBandControlViews = new EQBandControlView[]{
-                (EQBandControlView) view.findViewById(R.id.bandControlLow),
-                (EQBandControlView) view.findViewById(R.id.bandControlMid),
-                (EQBandControlView) view.findViewById(R.id.bandControlHigh)
+                view.findViewById(R.id.bandControlLow),
+                view.findViewById(R.id.bandControlMid),
+                view.findViewById(R.id.bandControlHigh)
         };
 
         for (EQBandControlView EQBandControlView : EQBandControlViews) {

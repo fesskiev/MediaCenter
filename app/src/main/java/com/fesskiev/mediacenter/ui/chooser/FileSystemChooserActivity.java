@@ -53,17 +53,17 @@ public class FileSystemChooserActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_directory_chooser);
 
-        Button buttonConfirm = (Button) findViewById(R.id.buttonConfirm);
-        Button buttonCancel = (Button) findViewById(R.id.buttonCancel);
-        ImageButton buttonNavUp = (ImageButton) findViewById(R.id.buttonNavUp);
+        Button buttonConfirm = findViewById(R.id.buttonConfirm);
+        Button buttonCancel = findViewById(R.id.buttonCancel);
+        ImageButton buttonNavUp = findViewById(R.id.buttonNavUp);
 
-        selectedPathText = (TextView) findViewById(R.id.textSelectedPath);
+        selectedPathText = findViewById(R.id.textSelectedPath);
 
         buttonConfirm.setOnClickListener(v -> checkConfirm());
 
         buttonCancel.setOnClickListener(v -> cancelChooser());
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycleView);
+        RecyclerView recyclerView = findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false, 1000));
         adapter = new ChooserAdapter();
@@ -221,8 +221,8 @@ public class FileSystemChooserActivity extends AppCompatActivity {
             public ViewHolder(View v) {
                 super(v);
 
-                itemIcon = (ImageView) v.findViewById(R.id.itemChooserIcon);
-                fileName = (TextView) v.findViewById(R.id.itemChooserFileName);
+                itemIcon = v.findViewById(R.id.itemChooserIcon);
+                fileName = v.findViewById(R.id.itemChooserFileName);
 
                 v.setOnClickListener(view -> processFileSystem(getAdapterPosition()));
             }

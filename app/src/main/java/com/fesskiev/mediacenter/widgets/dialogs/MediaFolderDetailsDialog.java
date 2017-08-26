@@ -88,14 +88,14 @@ public abstract class MediaFolderDetailsDialog extends DialogFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        cover = (ImageView) view.findViewById(R.id.folderCover);
-        folderName = (TextView) view.findViewById(R.id.folderName);
-        folderPath = (TextView) view.findViewById(R.id.folderPath);
-        folderSizeText = (TextView) view.findViewById(R.id.folderSize);
-        folderLengthText = (TextView) view.findViewById(R.id.folderLength);
-        folderTrackCountText = (TextView) view.findViewById(R.id.folderTrackCount);
-        folderTimestamp = (TextView) view.findViewById(R.id.folderTimestamp);
-        hideFolder = (CheckBox) view.findViewById(R.id.hiddenFolderCheckBox);
+        cover = view.findViewById(R.id.folderCover);
+        folderName = view.findViewById(R.id.folderName);
+        folderPath = view.findViewById(R.id.folderPath);
+        folderSizeText = view.findViewById(R.id.folderSize);
+        folderLengthText = view.findViewById(R.id.folderLength);
+        folderTrackCountText = view.findViewById(R.id.folderTrackCount);
+        folderTimestamp = view.findViewById(R.id.folderTimestamp);
+        hideFolder = view.findViewById(R.id.hiddenFolderCheckBox);
         hideFolder.setTypeface(ResourcesCompat.getFont(getContext(), R.font.ubuntu));
 
         fillFolderData();

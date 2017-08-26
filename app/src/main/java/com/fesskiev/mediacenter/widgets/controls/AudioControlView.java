@@ -46,7 +46,7 @@ public class AudioControlView extends FrameLayout {
                 Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.audio_control_layout, this, true);
 
-        volumeSeekView = (AudioVolumeSeekView) view.findViewById(R.id.audioVolumeControl);
+        volumeSeekView = view.findViewById(R.id.audioVolumeControl);
         volumeSeekView.setListener(new AudioVolumeSeekView.OnAudioVolumeSeekListener() {
             @Override
             public void changeVolumeStart(int volume) {
@@ -77,7 +77,7 @@ public class AudioControlView extends FrameLayout {
             }
         });
 
-        playPauseButton = (PlayPauseButton) view.findViewById(R.id.playPauseButton);
+        playPauseButton = view.findViewById(R.id.playPauseButton);
         playPauseButton.setColor(ContextCompat.getColor(context, R.color.player_primary));
         playPauseButton.setOnClickListener(v -> {
             if (listener != null) {

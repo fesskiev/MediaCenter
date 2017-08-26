@@ -21,8 +21,7 @@ import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
 import com.google.firebase.crash.FirebaseCrash;
 
-import rx.plugins.RxJavaErrorHandler;
-import rx.plugins.RxJavaPlugins;
+import rx.plugins.RxJavaHooks;
 
 public class MediaApplication extends MultiDexApplication {
 
@@ -64,14 +63,8 @@ public class MediaApplication extends MultiDexApplication {
                     }
                 });
 
-        RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
-            @Override
-            public void handleError(Throwable e) {
-                e.printStackTrace();
-                FirebaseCrash.report(e);
-                super.handleError(e);
-            }
-        });
+
+        RxJavaHooks.setOnError(FirebaseCrash::report);
 
         userAgent = Util.getUserAgent(this, "ExoPlayer");
     }

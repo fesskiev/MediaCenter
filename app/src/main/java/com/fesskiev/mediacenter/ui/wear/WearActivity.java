@@ -24,7 +24,7 @@ public class WearActivity extends AnalyticsActivity {
         int height = (int) (getResources().getDisplayMetrics().heightPixels * scaleValue);
         getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, height);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
             toolbar.setTitle(getString(R.string.title_wear_activity));
             setSupportActionBar(toolbar);

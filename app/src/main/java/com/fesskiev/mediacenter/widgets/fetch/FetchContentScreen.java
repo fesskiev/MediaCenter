@@ -31,7 +31,7 @@ public class FetchContentScreen {
         View view = LayoutInflater.from(activity).inflate(R.layout.search_content_layout, linearLayout,
                 false);
 
-        fetchContentView = (FetchContentView) view.findViewById(R.id.fetchContentView);
+        fetchContentView = view.findViewById(R.id.fetchContentView);
 
         linearLayout.addView(view);
     }
@@ -43,7 +43,7 @@ public class FetchContentScreen {
         FrameLayout.LayoutParams layoutParams =
                 new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
                         FrameLayout.LayoutParams.MATCH_PARENT);
-        ViewGroup contentArea = (ViewGroup) activity.getWindow()
+        ViewGroup contentArea = activity.getWindow()
                 .getDecorView().findViewById(android.R.id.content);
         int[] pos = new int[2];
         contentArea.getLocationOnScreen(pos);

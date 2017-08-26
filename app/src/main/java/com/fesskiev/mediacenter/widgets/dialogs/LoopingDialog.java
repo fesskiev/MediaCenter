@@ -56,7 +56,7 @@ public class LoopingDialog extends DialogFragment {
 
         view.findViewById(R.id.startLoopingButton).setOnClickListener(v -> processStartLooping());
 
-        RangeSeekBar<Integer> rangeSeekBar = (RangeSeekBar) view.findViewById(R.id.rangeSeekBar);
+        RangeSeekBar<Integer> rangeSeekBar = view.findViewById(R.id.rangeSeekBar);
         rangeSeekBar.setRangeValues(0, duration);
         rangeSeekBar.setCutType(0);
         rangeSeekBar.setOnRangeSeekBarChangeListener((bar, minValue, maxValue) -> {

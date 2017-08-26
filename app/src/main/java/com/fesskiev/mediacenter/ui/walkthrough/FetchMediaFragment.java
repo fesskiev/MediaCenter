@@ -44,18 +44,18 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        fetchText = (TextView) view.findViewById(R.id.fetchText);
+        fetchText = view.findViewById(R.id.fetchText);
 
         buttons = new Button[]{
-                (Button) view.findViewById(R.id.fetchMediaButton),
-                (Button) view.findViewById(R.id.fetchMediaSkipButton)
+                view.findViewById(R.id.fetchMediaButton),
+                view.findViewById(R.id.fetchMediaSkipButton)
         };
 
         for (Button button : buttons) {
             button.setOnClickListener(this);
         }
 
-        FetchContentView fetchContentView = (FetchContentView) view.findViewById(R.id.fetchContentView);
+        FetchContentView fetchContentView = view.findViewById(R.id.fetchContentView);
 
         fetchMediaFilesManager = FetchMediaFilesManager.getInstance();
         fetchMediaFilesManager.setFetchContentView(fetchContentView);

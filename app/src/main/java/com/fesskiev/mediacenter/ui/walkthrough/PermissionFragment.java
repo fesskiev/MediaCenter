@@ -42,11 +42,11 @@ public class PermissionFragment extends Fragment implements View.OnClickListener
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        permissionText = (TextView) view.findViewById(R.id.permissionText);
+        permissionText = view.findViewById(R.id.permissionText);
 
         buttons = new Button[]{
-                (Button) view.findViewById(R.id.buttonGranted),
-                (Button) view.findViewById(R.id.buttonCancel)
+                view.findViewById(R.id.buttonGranted),
+                view.findViewById(R.id.buttonCancel)
         };
 
         for (Button button : buttons) {

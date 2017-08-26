@@ -88,12 +88,12 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         settingsManager = AppSettingsManager.getInstance();
         FileSystemService.startFileSystemService(getApplicationContext());
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         AppAnimationUtils.getInstance().animateToolbar(toolbar);
 
-        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer = findViewById(R.id.drawer_layout);
         if (!Utils.isTablet()) {
             ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                     this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -401,19 +401,19 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     private void setMainNavView() {
-        navigationViewMain = (NavigationView) findViewById(R.id.nav_view_main);
+        navigationViewMain = findViewById(R.id.nav_view_main);
         navigationViewMain.setNavigationItemSelectedListener(this);
         navigationViewMain.setItemIconTintList(null);
         View headerLayout =
                 navigationViewMain.inflateHeaderView(R.layout.nav_header_main);
 
-        appIcon = (ImageView) headerLayout.findViewById(R.id.appIcon);
-        appName = (TextView) headerLayout.findViewById(R.id.headerTitle);
-        appPromo = (TextView) headerLayout.findViewById(R.id.headerText);
+        appIcon = headerLayout.findViewById(R.id.appIcon);
+        appName = headerLayout.findViewById(R.id.headerTitle);
+        appPromo = headerLayout.findViewById(R.id.headerText);
     }
 
     private void setEffectsNavView() {
-        mediaNavigationView = (MediaNavigationView) findViewById(R.id.nav_view_effects);
+        mediaNavigationView = findViewById(R.id.nav_view_effects);
         mediaNavigationView.setOnEffectChangedListener(new MediaNavigationView.OnEffectChangedListener() {
             @Override
             public void onEffectClick() {

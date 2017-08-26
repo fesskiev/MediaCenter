@@ -49,11 +49,11 @@ public class ProUserFragment extends Fragment implements View.OnClickListener {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        adMobText = (TextView) view.findViewById(R.id.adMobText);
+        adMobText = view.findViewById(R.id.adMobText);
 
         buttons = new Button[]{
-                (Button) view.findViewById(R.id.buttonRemoveAdMob),
-                (Button) view.findViewById(R.id.buttonSkipRemoveAdMob)
+                view.findViewById(R.id.buttonRemoveAdMob),
+                view.findViewById(R.id.buttonSkipRemoveAdMob)
         };
 
         for (Button button : buttons) {

@@ -56,7 +56,7 @@ public class ReverbFragment extends Fragment implements DialerView.OnDialerViewL
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        SwitchCompat switchEQState = (SwitchCompat) view.findViewById(R.id.stateReverb);
+        SwitchCompat switchEQState = view.findViewById(R.id.stateReverb);
         switchEQState.setOnClickListener(v -> {
             boolean checked = ((SwitchCompat) v).isChecked();
 
@@ -66,10 +66,10 @@ public class ReverbFragment extends Fragment implements DialerView.OnDialerViewL
         switchEQState.setChecked(settingsManager.isReverbEnable());
 
         ReverbControlView[] reverbControlViews = new ReverbControlView[]{
-                (ReverbControlView) view.findViewById(R.id.reverbMix),
-                (ReverbControlView) view.findViewById(R.id.reverbWidth),
-                (ReverbControlView) view.findViewById(R.id.reverbDamp),
-                (ReverbControlView) view.findViewById(R.id.reverRoomSize)
+                view.findViewById(R.id.reverbMix),
+                view.findViewById(R.id.reverbWidth),
+                view.findViewById(R.id.reverbDamp),
+                view.findViewById(R.id.reverRoomSize)
         };
 
         for (ReverbControlView reverbControlView : reverbControlViews) {

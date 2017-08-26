@@ -43,7 +43,7 @@ public class ConverterAudioFragment extends ConverterFragment implements RadioGr
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        RadioGroup radioGroup = ((RadioGroup) view.findViewById(R.id.radioGroupConvertFormat));
+        RadioGroup radioGroup = view.findViewById(R.id.radioGroupConvertFormat);
         radioGroup.setOnCheckedChangeListener(this);
         for (int i = 0; i < radioGroup.getChildCount(); i++) {
             View childAt = radioGroup.getChildAt(i);

@@ -79,7 +79,7 @@ public class Utils {
         layout.setBackgroundColor(ContextCompat.getColor(context, R.color.colorSnackBarError));
         snack.setActionTextColor(ContextCompat.getColor(context, R.color.accent));
         TextView snackBarText =
-                (TextView) layout.findViewById(android.support.design.R.id.snackbar_text);
+                layout.findViewById(android.support.design.R.id.snackbar_text);
         snackBarText.setMaxLines(5);
         return snack;
     }

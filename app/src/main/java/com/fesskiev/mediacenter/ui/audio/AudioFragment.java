@@ -41,7 +41,7 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
 
         repository = MediaApplication.getInstance().getRepository();
 
-        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefresh);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.primary_light));
         swipeRefreshLayout.setProgressViewOffset(false, 0,

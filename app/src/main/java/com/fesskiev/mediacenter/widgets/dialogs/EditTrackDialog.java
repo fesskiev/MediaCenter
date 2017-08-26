@@ -79,13 +79,13 @@ public class EditTrackDialog extends DialogFragment implements View.OnClickListe
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        editArtist = (EditText) view.findViewById(R.id.editArtist);
+        editArtist = view.findViewById(R.id.editArtist);
         editArtist.addTextChangedListener(this);
-        editTitle = (EditText) view.findViewById(R.id.editTitle);
+        editTitle = view.findViewById(R.id.editTitle);
         editTitle.addTextChangedListener(this);
-        editAlbum = (EditText) view.findViewById(R.id.editAlbum);
+        editAlbum = view.findViewById(R.id.editAlbum);
         editAlbum.addTextChangedListener(this);
-        editGenre = (EditText) view.findViewById(R.id.editGenre);
+        editGenre = view.findViewById(R.id.editGenre);
         editGenre.addTextChangedListener(this);
 
         view.findViewById(R.id.saveTrackInfoButton).setOnClickListener(this);

@@ -80,7 +80,7 @@ public class VideoFilesActivity extends AnalyticsActivity {
         videoFolder =
                 getIntent().getExtras().getParcelable(VideoFoldersFragment.EXTRA_VIDEO_FOLDER);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
 
         if (videoFolder != null) {
             toolbar.setTitle(videoFolder.folderName);
@@ -92,7 +92,7 @@ public class VideoFilesActivity extends AnalyticsActivity {
 
         final int spacing = getResources().getDimensionPixelOffset(R.dimen.default_spacing_small);
 
-        recyclerView = (RecyclerView) findViewById(R.id.foldersGridView);
+        recyclerView = findViewById(R.id.foldersGridView);
         recyclerView.setLayoutManager(gridLayoutManager);
         adapter = new VideoFilesAdapter(this);
         recyclerView.setAdapter(adapter);
@@ -183,7 +183,7 @@ public class VideoFilesActivity extends AnalyticsActivity {
             public ViewHolder(View v) {
                 super(v);
 
-                videoCard = (VideoCardView) v.findViewById(R.id.videoCardView);
+                videoCard = v.findViewById(R.id.videoCardView);
                 videoCard.setOnVideoCardViewListener(new VideoCardView.OnVideoCardViewListener() {
                     @Override
                     public void onPopupMenuButtonCall(View view) {

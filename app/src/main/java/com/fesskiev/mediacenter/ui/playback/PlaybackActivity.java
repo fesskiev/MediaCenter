@@ -76,20 +76,20 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
 
         EventBus.getDefault().register(this);
 
-        track = (TextView) findViewById(R.id.track);
-        artist = (TextView) findViewById(R.id.artist);
-        cover = (ImageView) findViewById(R.id.cover);
-        durationText = (TextView) findViewById(R.id.duration);
+        track = findViewById(R.id.track);
+        artist = findViewById(R.id.artist);
+        cover = findViewById(R.id.cover);
+        durationText = findViewById(R.id.duration);
 
         emptyTrack = findViewById(R.id.emptyTrackCard);
         emptyFolder = findViewById(R.id.emptyFolderCard);
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.trackListControl);
+        RecyclerView recyclerView = findViewById(R.id.trackListControl);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new TrackListAdapter();
         recyclerView.setAdapter(adapter);
 
-        playPauseButton = (PlayPauseFloatingButton) findViewById(R.id.playPauseFAB);
+        playPauseButton = findViewById(R.id.playPauseFAB);
         playPauseButton.setOnClickListener(v -> {
             if (checkTrackSelected() && !lastConvertStart) {
                 if (lastPlaying) {
@@ -341,10 +341,10 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
                     }
                 });
 
-                playEq = (ImageView) v.findViewById(R.id.playEq);
-                title = (TextView) v.findViewById(R.id.title);
-                duration = (TextView) v.findViewById(R.id.duration);
-                filePath = (TextView) v.findViewById(R.id.filePath);
+                playEq = v.findViewById(R.id.playEq);
+                title = v.findViewById(R.id.title);
+                duration = v.findViewById(R.id.duration);
+                filePath = v.findViewById(R.id.filePath);
                 filePath.setSelected(true);
 
             }

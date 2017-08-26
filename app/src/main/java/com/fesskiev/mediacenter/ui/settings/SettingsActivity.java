@@ -13,7 +13,7 @@ public class SettingsActivity extends AnalyticsActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
             toolbar.setTitle(getString(R.string.title_settings_activity));
             setSupportActionBar(toolbar);

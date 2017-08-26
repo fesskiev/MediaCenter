@@ -46,14 +46,14 @@ public class CueActivity extends AnalyticsActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cue);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
             toolbar.setTitle(getString(R.string.title_cue_activity));
             setSupportActionBar(toolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycleView);
+        RecyclerView recyclerView = findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false, 1000));
         adapter = new CueAdapter();
@@ -76,7 +76,7 @@ public class CueActivity extends AnalyticsActivity {
         });
 
 
-        addCueFab = (FloatingActionButton) findViewById(R.id.addCueFileFab);
+        addCueFab = findViewById(R.id.addCueFileFab);
         addCueFab.setOnClickListener(v -> startChooserActivity());
 
         settingsManager = AppSettingsManager.getInstance();
@@ -168,10 +168,10 @@ public class CueActivity extends AnalyticsActivity {
                 super(v);
                 v.setOnClickListener(v1 -> seekToPosition(getAdapterPosition()));
 
-                performer = (TextView) v.findViewById(R.id.itemPerformer);
-                index = (TextView) v.findViewById(R.id.itemIndex);
-                title = (TextView) v.findViewById(R.id.itemTitle);
-                selected = (ImageView) v.findViewById(R.id.itemSelected);
+                performer = v.findViewById(R.id.itemPerformer);
+                index = v.findViewById(R.id.itemIndex);
+                title = v.findViewById(R.id.itemTitle);
+                selected = v.findViewById(R.id.itemSelected);
             }
         }
 

@@ -41,7 +41,7 @@ public class PlayerTrackListActivity extends AnalyticsActivity {
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
         audioFiles = audioPlayer.getCurrentTrackList();
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycleView);
+        RecyclerView recyclerView = findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false, 1000));
         recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
@@ -72,10 +72,10 @@ public class PlayerTrackListActivity extends AnalyticsActivity {
                     }
                 });
 
-                trackNumber = (TextView) v.findViewById(R.id.trackNumber);
-                duration = (TextView) v.findViewById(R.id.duration);
-                title = (TextView) v.findViewById(R.id.title);
-                filePath = (TextView) v.findViewById(R.id.filePath);
+                trackNumber = v.findViewById(R.id.trackNumber);
+                duration = v.findViewById(R.id.duration);
+                title = v.findViewById(R.id.title);
+                filePath = v.findViewById(R.id.filePath);
                 filePath.setSelected(true);
             }
         }

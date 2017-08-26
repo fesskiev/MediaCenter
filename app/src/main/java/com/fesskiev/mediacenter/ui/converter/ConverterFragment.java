@@ -39,10 +39,10 @@ public class ConverterFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        saveFolderPath = (TextView) view.findViewById(R.id.saveFolderPath);
-        convertFilePath = (TextView) view.findViewById(R.id.convertFilePath);
+        saveFolderPath = view.findViewById(R.id.saveFolderPath);
+        convertFilePath = view.findViewById(R.id.convertFilePath);
 
-        progressBar = (MaterialProgressBar) view.findViewById(R.id.progressBar);
+        progressBar = view.findViewById(R.id.progressBar);
     }
 
     @Override

@@ -43,13 +43,13 @@ public class FetchContentView extends FrameLayout {
                 Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.view_fetch_content, this, true);
 
-        folderNameText = (TextView) view.findViewById(R.id.fetchFolderName);
-        fileNameText = (TextView) view.findViewById(R.id.fetchFileName);
-        titleFetchText = (TextView) view.findViewById(R.id.fetchTitle);
+        folderNameText = view.findViewById(R.id.fetchFolderName);
+        fileNameText = view.findViewById(R.id.fetchFileName);
+        titleFetchText = view.findViewById(R.id.fetchTitle);
 
-        progressBar = (NumberProgressBar) view.findViewById(R.id.fetchProgressBar);
+        progressBar = view.findViewById(R.id.fetchProgressBar);
 
-        timerView = (ImageView) view.findViewById(R.id.timer);
+        timerView = view.findViewById(R.id.timer);
 
         setVisibility(INVISIBLE);
 

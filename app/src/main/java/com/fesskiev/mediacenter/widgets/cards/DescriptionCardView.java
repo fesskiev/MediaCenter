@@ -11,7 +11,7 @@ import com.fesskiev.mediacenter.R;
 public class DescriptionCardView extends CardView {
 
     private enum ANIMATION {
-        NEXT, PREVIOUS;
+        NEXT, PREVIOUS
     }
 
     public interface OnCardAnimationListener {

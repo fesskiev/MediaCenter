@@ -49,10 +49,10 @@ public class VideoCardView extends CardView {
                 Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.video_card_view, this, true);
 
-        popupMenu = (ImageView) view.findViewById(R.id.popupMenu);
-        frameView = (ImageView) view.findViewById(R.id.frameView);
-        playButton = (ImageView) view.findViewById(R.id.playVideoButton);
-        description = (TextView) view.findViewById(R.id.fileDescription);
+        popupMenu = view.findViewById(R.id.popupMenu);
+        frameView = view.findViewById(R.id.frameView);
+        playButton = view.findViewById(R.id.playVideoButton);
+        description = view.findViewById(R.id.fileDescription);
 
         detector = new GestureDetector(getContext(), new GestureListener());
     }

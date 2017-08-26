@@ -29,21 +29,21 @@ public interface Message {
      *
      * @return The message text.
      */
-    public String getMessage();
+    String getMessage();
 
     /**
      * Get the line number that this message applies to.
      *
      * @return The line number that this message applies to.
      */
-    public int getLineNumber();
+    int getLineNumber();
 
     /**
      * Get the input that this message applies to.
      *
      * @return The input that this message applies to.
      */
-    public String getInput();
+    String getInput();
 
     /**
      * Get a textual representation of this Message. It is highly desirable to have an informative
@@ -51,5 +51,5 @@ public interface Message {
      *
      * @return Aa textual representation of this Message.
      */
-    public String toString();
+    String toString();
 }

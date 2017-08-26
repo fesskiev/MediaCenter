@@ -163,7 +163,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
             public ViewHolder(View v) {
                 super(v);
 
-                audioCardView = (AudioCardView) v.findViewById(R.id.audioCardView);
+                audioCardView = v.findViewById(R.id.audioCardView);
                 audioCardView.setOnAudioCardViewListener(new AudioCardView.OnAudioCardViewListener() {
 
                     @Override

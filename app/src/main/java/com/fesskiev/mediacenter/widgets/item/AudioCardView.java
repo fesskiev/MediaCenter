@@ -49,9 +49,9 @@ public class AudioCardView extends CardView {
                 Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.audio_card_view, this, true);
 
-        popupMenu = (ImageView) view.findViewById(R.id.popupMenu);
-        albumName = (TextView) view.findViewById(R.id.audioName);
-        coverView = (ImageView) view.findViewById(R.id.audioCover);
+        popupMenu = view.findViewById(R.id.popupMenu);
+        albumName = view.findViewById(R.id.audioName);
+        coverView = view.findViewById(R.id.audioCover);
 
 
         detector = new GestureDetector(getContext(), new GestureListener());

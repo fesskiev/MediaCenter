@@ -166,41 +166,41 @@ public class VideoControlView extends FrameLayout {
 
         trackSelectionPanel = view.findViewById(R.id.trackSelectionPanel);
 
-        videoTimeCount = (TextView) view.findViewById(R.id.videoTimeCount);
-        videoTimeTotal = (TextView) view.findViewById(R.id.videoTimeTotal);
+        videoTimeCount = view.findViewById(R.id.videoTimeCount);
+        videoTimeTotal = view.findViewById(R.id.videoTimeTotal);
 
-        videoName = (TextView) view.findViewById(R.id.videoName);
+        videoName = view.findViewById(R.id.videoName);
 
-        audioTrackView = (TextView) view.findViewById(R.id.audioTrackButton);
+        audioTrackView = view.findViewById(R.id.audioTrackButton);
         audioTrackView.setOnClickListener(v -> setAudioTrack((int) v.getTag()));
 
-        videoTrackView = (TextView) view.findViewById(R.id.videoTrackButton);
+        videoTrackView = view.findViewById(R.id.videoTrackButton);
         videoTrackView.setOnClickListener(v -> setVideoTrack((int) v.getTag()));
 
-        subTrackView = (TextView) view.findViewById(R.id.subTrackButton);
+        subTrackView = view.findViewById(R.id.subTrackButton);
         subTrackView.setOnClickListener(v -> setSubTrack((int) v.getTag()));
 
-        resizeModeState = (TextView) view.findViewById(R.id.resizeModeState);
+        resizeModeState = view.findViewById(R.id.resizeModeState);
         resizeModeState.setOnClickListener(v -> changeResizeMode());
 
-        addSubButton = (ImageView) view.findViewById(R.id.addSubButton);
+        addSubButton = view.findViewById(R.id.addSubButton);
         addSubButton.setOnClickListener(v -> {
             if (listener != null) {
                 listener.addSubButtonClick();
             }
         });
 
-        videoLockScreen = (ImageView) view.findViewById(R.id.videoLockScreen);
+        videoLockScreen = view.findViewById(R.id.videoLockScreen);
         videoLockScreen.setOnClickListener(v -> toggleLockScreen());
 
-        ImageView cutVideoButton = (ImageView) view.findViewById(R.id.cutVideoButton);
+        ImageView cutVideoButton = view.findViewById(R.id.cutVideoButton);
         cutVideoButton.setOnClickListener(v -> startCutActivity());
         boolean isProUser = AppSettingsManager.getInstance().isUserPro();
         if (!isProUser) {
             cutVideoButton.setVisibility(INVISIBLE);
         }
 
-        pipButton = (ImageView) view.findViewById(R.id.pipButton);
+        pipButton = view.findViewById(R.id.pipButton);
         pipButton.setOnClickListener(v -> {
             isPictureInPicture = !isPictureInPicture;
             if (listener != null) {
@@ -211,10 +211,10 @@ public class VideoControlView extends FrameLayout {
             pipButton.setVisibility(VISIBLE);
         }
 
-        settingsButton = (ImageView) view.findViewById(R.id.settingsButton);
+        settingsButton = view.findViewById(R.id.settingsButton);
         settingsButton.setOnClickListener(v -> togglePanel(settingsButton));
 
-        nextVideo = (ImageView) findViewById(R.id.nextVideo);
+        nextVideo = findViewById(R.id.nextVideo);
         nextVideo.setOnClickListener(v -> {
             ((Animatable) nextVideo.getDrawable()).start();
             if (listener != null) {
@@ -222,14 +222,14 @@ public class VideoControlView extends FrameLayout {
             }
         });
 
-        previousVideo = (ImageView) findViewById(R.id.previousVideo);
+        previousVideo = findViewById(R.id.previousVideo);
         previousVideo.setOnClickListener(v -> {
             ((Animatable) previousVideo.getDrawable()).start();
             if (listener != null) {
                 listener.previousVideo();
             }
         });
-        playPauseButton = (PlayPauseButton) view.findViewById(R.id.playPauseButton);
+        playPauseButton = view.findViewById(R.id.playPauseButton);
         playPauseButton.setColor(ContextCompat.getColor(context, R.color.player_primary));
         playPauseButton.setOnClickListener(v -> {
             isPlaying = !isPlaying;
@@ -239,7 +239,7 @@ public class VideoControlView extends FrameLayout {
             }
         });
 
-        seekVideo = (SeekBar) findViewById(R.id.seekVideo);
+        seekVideo = findViewById(R.id.seekVideo);
         seekVideo.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             int progress;
 
@@ -534,7 +534,7 @@ public class VideoControlView extends FrameLayout {
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
-        ViewGroup root = (ViewGroup) trackSelectionPanel.findViewById(R.id.trackSelectionRoot);
+        ViewGroup root = trackSelectionPanel.findViewById(R.id.trackSelectionRoot);
         root.removeAllViews();
 
         root.addView(inflater.inflate(R.layout.item_video_list_divider, root, false));

@@ -224,8 +224,8 @@ public class TourGuide {
             LayoutInflater layoutInflater = activity.getLayoutInflater();
 
             toolTipViewGroup = layoutInflater.inflate(R.layout.tooltip_layout, null);
-            TextView toolTipTitleTV = (TextView) toolTipViewGroup.findViewById(R.id.title);
-            TextView toolTipDescriptionTV = (TextView) toolTipViewGroup.findViewById(R.id.description);
+            TextView toolTipTitleTV = toolTipViewGroup.findViewById(R.id.title);
+            TextView toolTipDescriptionTV = toolTipViewGroup.findViewById(R.id.description);
 
             if (toolTip.title == null || toolTip.title.isEmpty()) {
                 toolTipTitleTV.setVisibility(View.GONE);
@@ -369,7 +369,7 @@ public class TourGuide {
     private void setupFrameLayout() {
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT);
-        ViewGroup contentArea = (ViewGroup) activity.getWindow().getDecorView().findViewById(android.R.id.content);
+        ViewGroup contentArea = activity.getWindow().getDecorView().findViewById(android.R.id.content);
         int[] pos = new int[2];
         contentArea.getLocationOnScreen(pos);
         // frameLayoutWithHole's coordinates are calculated taking full screen height into account

@@ -53,16 +53,16 @@ public class VideoFolderCardView extends CardView {
                 Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.video_folder_card_view, this, true);
 
-        popupMenu = (ImageView) view.findViewById(R.id.popupMenu);
+        popupMenu = view.findViewById(R.id.popupMenu);
 
         frameContainer = view.findViewById(R.id.frameContainer);
         frameViews = new ImageView[]{
-                (ImageView) view.findViewById(R.id.frameView1),
-                (ImageView) view.findViewById(R.id.frameView2),
-                (ImageView) view.findViewById(R.id.frameView3),
-                (ImageView) view.findViewById(R.id.frameView4)
+                view.findViewById(R.id.frameView1),
+                view.findViewById(R.id.frameView2),
+                view.findViewById(R.id.frameView3),
+                view.findViewById(R.id.frameView4)
         };
-        description = (TextView) view.findViewById(R.id.fileDescription);
+        description = view.findViewById(R.id.fileDescription);
 
         detector = new GestureDetector(getContext(), new GestureListener());
 

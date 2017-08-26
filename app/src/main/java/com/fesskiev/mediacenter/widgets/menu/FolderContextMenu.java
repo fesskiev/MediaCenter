@@ -42,7 +42,7 @@ public class FolderContextMenu extends ContextMenu{
         });
 
 
-        Button searchDataButton = (Button) findViewById(R.id.menuSearchData);
+        Button searchDataButton = findViewById(R.id.menuSearchData);
         if(needSearch) {
             searchDataButton.setOnClickListener(v -> {
                 if (listener != null) {

@@ -194,8 +194,8 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void animateAndFetchData(boolean fromAction) {
-        ImageView appLogo = (ImageView) findViewById(R.id.appLogo);
-        ViewGroup container = (ViewGroup) findViewById(R.id.container);
+        ImageView appLogo = findViewById(R.id.appLogo);
+        ViewGroup container = findViewById(R.id.container);
 
         ViewCompat.animate(appLogo)
                 .translationY(-Utils.dipToPixels(getApplicationContext(), 100))

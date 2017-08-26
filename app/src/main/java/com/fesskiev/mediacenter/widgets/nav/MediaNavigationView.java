@@ -61,11 +61,11 @@ public class MediaNavigationView extends NavigationView implements View.OnClickL
         view.findViewById(R.id.imageHeader).setOnClickListener(v -> effectClick());
 
         switchCompats = new SwitchCompat[]{
-                (SwitchCompat) view.findViewById(R.id.eqSwitch),
-                (SwitchCompat) view.findViewById(R.id.reverbSwitch),
-                (SwitchCompat) view.findViewById(R.id.echoSwitch),
-                (SwitchCompat) view.findViewById(R.id.whooshSwitch),
-                (SwitchCompat) view.findViewById(R.id.recordSwitch)
+                view.findViewById(R.id.eqSwitch),
+                view.findViewById(R.id.reverbSwitch),
+                view.findViewById(R.id.echoSwitch),
+                view.findViewById(R.id.whooshSwitch),
+                view.findViewById(R.id.recordSwitch)
 
         };
 
@@ -73,8 +73,8 @@ public class MediaNavigationView extends NavigationView implements View.OnClickL
             switchCompat.setOnClickListener(this);
         }
 
-        TextView tempoValue = (TextView) view.findViewById(R.id.tempoValue);
-        SeekBar seekTempo = (SeekBar) view.findViewById(R.id.seekTempo);
+        TextView tempoValue = view.findViewById(R.id.tempoValue);
+        SeekBar seekTempo = view.findViewById(R.id.seekTempo);
         seekTempo.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -107,8 +107,8 @@ public class MediaNavigationView extends NavigationView implements View.OnClickL
             return true;
         });
 
-        TextView pitchShiftValue = (TextView) view.findViewById(R.id.pitchShiftValue);
-        SeekBar seekPitchShift = (SeekBar) view.findViewById(R.id.seekPitchShift);
+        TextView pitchShiftValue = view.findViewById(R.id.pitchShiftValue);
+        SeekBar seekPitchShift = view.findViewById(R.id.seekPitchShift);
         seekPitchShift.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {

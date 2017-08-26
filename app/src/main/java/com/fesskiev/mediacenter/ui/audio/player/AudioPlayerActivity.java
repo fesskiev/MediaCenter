@@ -87,31 +87,31 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         settingsManager = AppSettingsManager.getInstance();
         audioPlayer = MediaApplication.getInstance().getAudioPlayer();
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
             setSupportActionBar(toolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
 
-        backdrop = (ImageView) findViewById(R.id.backdrop);
-        muteSoloButton = (MuteSoloButton) findViewById(R.id.muteSoloButton);
-        trackTimeTotal = (TextView) findViewById(R.id.trackTimeTotal);
-        trackTimeCount = (TextView) findViewById(R.id.trackTimeCount);
-        artist = (TextView) findViewById(R.id.trackArtist);
-        title = (TextView) findViewById(R.id.trackTitle);
-        trackDescription = (TextView) findViewById(R.id.trackDescription);
-        genre = (TextView) findViewById(R.id.genre);
-        album = (TextView) findViewById(R.id.album);
-        volumeLevel = (TextView) findViewById(R.id.volumeLevel);
+        backdrop = findViewById(R.id.backdrop);
+        muteSoloButton = findViewById(R.id.muteSoloButton);
+        trackTimeTotal = findViewById(R.id.trackTimeTotal);
+        trackTimeCount = findViewById(R.id.trackTimeCount);
+        artist = findViewById(R.id.trackArtist);
+        title = findViewById(R.id.trackTitle);
+        trackDescription = findViewById(R.id.trackDescription);
+        genre = findViewById(R.id.genre);
+        album = findViewById(R.id.album);
+        volumeLevel = findViewById(R.id.volumeLevel);
 
-        prevTrack = (ImageView) findViewById(R.id.previousTrack);
+        prevTrack = findViewById(R.id.previousTrack);
         prevTrack.setOnClickListener(v -> {
             ((Animatable) prevTrack.getDrawable()).start();
             previous();
         });
 
-        nextTrack = (ImageView) findViewById(R.id.nextTrack);
+        nextTrack = findViewById(R.id.nextTrack);
         nextTrack.setOnClickListener(v -> {
             ((Animatable) nextTrack.getDrawable()).start();
             next();
@@ -120,7 +120,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         findViewById(R.id.equalizer).setOnClickListener(v -> startEqualizerActivity());
         findViewById(R.id.trackList).setOnClickListener(v -> openTrackList());
 
-        cardDescription = (DescriptionCardView) findViewById(R.id.cardDescription);
+        cardDescription = findViewById(R.id.cardDescription);
         cardDescription.setOnCardAnimationListener(new DescriptionCardView.OnCardAnimationListener() {
             @Override
             public void animationStart() {
@@ -144,7 +144,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
             PlaybackService.volumePlayback(getApplicationContext(), 0);
         });
 
-        repeatButton = (RepeatButton) findViewById(R.id.repeatButton);
+        repeatButton = findViewById(R.id.repeatButton);
         repeatButton.setOnRepeatStateChangedListener(new RepeatButton.OnRepeatStateChangedListener() {
             @Override
             public void onRepeatStateChanged(boolean repeat) {
@@ -157,9 +157,9 @@ public class AudioPlayerActivity extends AnalyticsActivity {
             }
         });
 
-        final DisabledScrollView scrollView = (DisabledScrollView) findViewById(R.id.scrollView);
+        final DisabledScrollView scrollView = findViewById(R.id.scrollView);
 
-        controlView = (AudioControlView) findViewById(R.id.audioControl);
+        controlView = findViewById(R.id.audioControl);
         controlView.setOnAudioControlListener(new AudioControlView.OnAudioControlListener() {
             @Override
             public void onPlayStateChanged() {

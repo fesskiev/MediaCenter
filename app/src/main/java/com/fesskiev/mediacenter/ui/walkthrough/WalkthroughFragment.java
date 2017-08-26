@@ -52,10 +52,10 @@ public class WalkthroughFragment extends Fragment {
 
         startAnimation(view);
 
-        viewPager = (DisableSwipingViewPager) view.findViewById(R.id.viewpager);
+        viewPager = view.findViewById(R.id.viewpager);
         viewPager.setOffscreenPageLimit(3);
 
-        enterAppButton = (Button) view.findViewById(R.id.enterAppButton);
+        enterAppButton = view.findViewById(R.id.enterAppButton);
         enterAppButton.setOnClickListener(v -> {
 
             AppSettingsManager.getInstance().setFirstStartApp();
@@ -83,13 +83,13 @@ public class WalkthroughFragment extends Fragment {
         adapter = new WalkthroughPagerAdapter(getFragmentManager());
         viewPager.setAdapter(adapter);
 
-        CirclePageIndicator indicator = (CirclePageIndicator) view.findViewById(R.id.indicator);
+        CirclePageIndicator indicator = view.findViewById(R.id.indicator);
         indicator.setViewPager(viewPager);
 
     }
 
     private void startAnimation(View view) {
-        RelativeLayout layout = (RelativeLayout) view.findViewById(R.id.walkRoot);
+        RelativeLayout layout = view.findViewById(R.id.walkRoot);
         AnimationDrawable animationDrawable = (AnimationDrawable) layout.getBackground();
         animationDrawable.setEnterFadeDuration(2500);
         animationDrawable.setExitFadeDuration(5000);

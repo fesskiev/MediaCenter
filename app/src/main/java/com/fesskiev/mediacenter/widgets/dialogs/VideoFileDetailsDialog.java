@@ -87,14 +87,14 @@ public class VideoFileDetailsDialog extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
         if (videoFile != null) {
 
-            cover = (ImageView) view.findViewById(R.id.fileCover);
-            filerName = (TextView) view.findViewById(R.id.fileName);
-            filePath = (TextView) view.findViewById(R.id.filePath);
-            fileSize = (TextView) view.findViewById(R.id.fileSize);
-            fileLength = (TextView) view.findViewById(R.id.fileLength);
-            fileResolution = (TextView) view.findViewById(R.id.fileResolution);
-            fileTimestamp = (TextView) view.findViewById(R.id.fileTimestamp);
-            hideFolder = (CheckBox) view.findViewById(R.id.hiddenVideoFileCheckBox);
+            cover = view.findViewById(R.id.fileCover);
+            filerName = view.findViewById(R.id.fileName);
+            filePath = view.findViewById(R.id.filePath);
+            fileSize = view.findViewById(R.id.fileSize);
+            fileLength = view.findViewById(R.id.fileLength);
+            fileResolution = view.findViewById(R.id.fileResolution);
+            fileTimestamp = view.findViewById(R.id.fileTimestamp);
+            hideFolder = view.findViewById(R.id.hiddenVideoFileCheckBox);
             hideFolder.setTypeface(ResourcesCompat.getFont(getContext(), R.font.ubuntu));
             hideFolder.setOnCheckedChangeListener((buttonView, isChecked) -> changeHiddenFleState(isChecked));
 

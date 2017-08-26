@@ -47,9 +47,9 @@ public class InAppBillingActivity extends AppCompatActivity {
         int height = (int) (getResources().getDisplayMetrics().heightPixels * scaleValue);
         getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, height);
 
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.progressBar);
 
-        purchaseButton = (FloatingActionButton) findViewById(R.id.fabPurchaseProduct);
+        purchaseButton = findViewById(R.id.fabPurchaseProduct);
         purchaseButton.setOnClickListener(v -> purchaseProduct());
 
         billing = new Billing(this);
@@ -161,9 +161,9 @@ public class InAppBillingActivity extends AppCompatActivity {
 
 
     private void fillProductInfo(Product product) {
-        TextView amount = (TextView) findViewById(R.id.productAmount);
-        TextView title = (TextView) findViewById(R.id.productTitle);
-        TextView description = (TextView) findViewById(R.id.productDesc);
+        TextView amount = findViewById(R.id.productAmount);
+        TextView title = findViewById(R.id.productTitle);
+        TextView description = findViewById(R.id.productDesc);
 
         amount.setText(String.format("%s %s", getString(R.string.product_price), product.getPrice()));
         title.setText(product.getTitle());

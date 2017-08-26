@@ -89,7 +89,7 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
 
         EventBus.getDefault().register(this);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
             String title = null;
             contentType =
@@ -112,21 +112,21 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
             setSupportActionBar(toolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-            actionMenu = (FloatingActionMenu) findViewById(R.id.menuSorting);
+            actionMenu = findViewById(R.id.menuSorting);
             actionMenu.setIconAnimated(true);
 
             FloatingActionButton[] sortButtons = new FloatingActionButton[]{
-                    (FloatingActionButton) findViewById(R.id.menuSortDuration),
-                    (FloatingActionButton) findViewById(R.id.menuSortFileSize),
-                    (FloatingActionButton) findViewById(R.id.menuSortTrackNumber),
-                    (FloatingActionButton) findViewById(R.id.menuSortTimestamp)
+                    findViewById(R.id.menuSortDuration),
+                    findViewById(R.id.menuSortFileSize),
+                    findViewById(R.id.menuSortTrackNumber),
+                    findViewById(R.id.menuSortTimestamp)
             };
 
             for (FloatingActionButton sortButton : sortButtons) {
                 sortButton.setOnClickListener(this);
             }
 
-            recyclerView = (RecyclerView) findViewById(R.id.recycleView);
+            recyclerView = findViewById(R.id.recycleView);
             recyclerView.setHasFixedSize(true);
             recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(this,
                     LinearLayoutManager.VERTICAL, false, 1000));
@@ -357,12 +357,12 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
             public ViewHolder(final View v) {
                 super(v);
 
-                duration = (TextView) v.findViewById(R.id.itemDuration);
-                size = (TextView) v.findViewById(R.id.itemSize);
-                title = (TextView) v.findViewById(R.id.itemTitle);
-                filePath = (TextView) v.findViewById(R.id.filePath);
-                cover = (ImageView) v.findViewById(R.id.itemCover);
-                playEq = (ImageView) v.findViewById(R.id.playEq);
+                duration = v.findViewById(R.id.itemDuration);
+                size = v.findViewById(R.id.itemSize);
+                title = v.findViewById(R.id.itemTitle);
+                filePath = v.findViewById(R.id.filePath);
+                cover = v.findViewById(R.id.itemCover);
+                playEq = v.findViewById(R.id.playEq);
 
                 ((TrackListCardView) v).
                         setOnTrackListCardListener(new TrackListCardView.OnTrackListCardListener() {

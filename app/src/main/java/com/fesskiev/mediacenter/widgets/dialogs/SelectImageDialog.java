@@ -82,7 +82,7 @@ public class SelectImageDialog extends DialogFragment {
                 radioGroup.addView(radioButton);
 
             }
-            LinearLayout ll = (LinearLayout) view.findViewById(R.id.radioButtonsRoot);
+            LinearLayout ll = view.findViewById(R.id.radioButtonsRoot);
             ll.addView(radioGroup);
         }
     }

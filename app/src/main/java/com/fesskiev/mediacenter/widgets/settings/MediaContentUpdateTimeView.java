@@ -58,12 +58,12 @@ public class MediaContentUpdateTimeView extends AnimateStateShow implements Radi
         ((RadioGroup) view.findViewById(R.id.radioGroupTimeUpdate)).setOnCheckedChangeListener(this);
 
         radioButtons = new RadioButton[]{
-                (RadioButton) view.findViewById(R.id.cancelUpdateByTime),
-                (RadioButton) view.findViewById(R.id.update30minuteButton),
-                (RadioButton) view.findViewById(R.id.update1HourButton),
-                (RadioButton) view.findViewById(R.id.update3HoursButton),
-                (RadioButton) view.findViewById(R.id.update6HoursButton),
-                (RadioButton) view.findViewById(R.id.update24HoursButton)
+                view.findViewById(R.id.cancelUpdateByTime),
+                view.findViewById(R.id.update30minuteButton),
+                view.findViewById(R.id.update1HourButton),
+                view.findViewById(R.id.update3HoursButton),
+                view.findViewById(R.id.update6HoursButton),
+                view.findViewById(R.id.update24HoursButton)
         };
         for(RadioButton radioButton : radioButtons){
             radioButton.setTypeface(ResourcesCompat.getFont(getContext(), R.font.ubuntu));

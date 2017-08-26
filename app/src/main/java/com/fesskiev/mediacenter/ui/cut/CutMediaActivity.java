@@ -63,7 +63,7 @@ public class CutMediaActivity extends AnalyticsActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cut);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
             toolbar.setTitle(getString(R.string.title_cut_activity));
             setSupportActionBar(toolbar);
@@ -89,7 +89,7 @@ public class CutMediaActivity extends AnalyticsActivity {
 
         findViewById(R.id.chooseCutSaveFolder).setOnClickListener(v -> selectSaveFolder());
 
-        RangeSeekBar<Integer> rangeSeekBar = (RangeSeekBar) findViewById(R.id.rangeSeekBar);
+        RangeSeekBar<Integer> rangeSeekBar = findViewById(R.id.rangeSeekBar);
         if (mediaFile != null) {
             rangeSeekBar.setRangeValues(0, (int) mediaFile.getLength());
         }
@@ -99,9 +99,9 @@ public class CutMediaActivity extends AnalyticsActivity {
             endCut = maxValue;
         });
 
-        progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
-        saveFolderPath = (TextView) findViewById(R.id.saveFolderPath);
-        fileName = (TextInputEditText) findViewById(R.id.fileName);
+        progressBar = findViewById(R.id.progressBar);
+        saveFolderPath = findViewById(R.id.saveFolderPath);
+        fileName = findViewById(R.id.fileName);
         if (mediaFile != null) {
             fileName.setText(mediaFile.getFileName());
         }

@@ -23,7 +23,7 @@ public class ConverterActivity extends AnalyticsActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_converter);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
             toolbar.setTitle(getString(R.string.title_converter_activity));
             setSupportActionBar(toolbar);
@@ -35,13 +35,13 @@ public class ConverterActivity extends AnalyticsActivity {
                 ConverterVideoFragment.newInstance(),
         };
 
-        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        ViewPager viewPager = findViewById(R.id.viewpager);
         viewPager.setOffscreenPageLimit(2);
 
         ProcessingPagerAdapter adapter = new ProcessingPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(adapter);
 
-        CirclePageIndicator indicator = (CirclePageIndicator) findViewById(R.id.indicator);
+        CirclePageIndicator indicator = findViewById(R.id.indicator);
         indicator.setViewPager(viewPager);
     }
 
