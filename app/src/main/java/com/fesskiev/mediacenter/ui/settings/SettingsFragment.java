@@ -55,8 +55,6 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
 
         SwitchCompat[] switches = new SwitchCompat[]{
                 view.findViewById(R.id.playHeadsetPlugInSwitch),
-                //TODO hide download switch temp
-                view.findViewById(R.id.downloadWifiSwitch),
                 view.findViewById(R.id.showHiddenFilesSwitch),
                 view.findViewById(R.id.fullScreenSwitch),
                 view.findViewById(R.id.enableAppGuideSwitch)
@@ -125,9 +123,6 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
                 case R.id.playHeadsetPlugInSwitch:
                     switchCompat.setChecked(appSettingsManager.isPlayPlugInHeadset());
                     break;
-                case R.id.downloadWifiSwitch:
-                    switchCompat.setChecked(appSettingsManager.isDownloadWiFiOnly());
-                    break;
                 case R.id.showHiddenFilesSwitch:
                     switchCompat.setChecked(appSettingsManager.isShowHiddenFiles());
                     break;
@@ -149,9 +144,6 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
                 break;
             case R.id.playHeadsetPlugInSwitch:
                 appSettingsManager.setPlayPlugInHeadset(isChecked);
-                break;
-            case R.id.downloadWifiSwitch:
-                appSettingsManager.setDownloadWiFiOnly(isChecked);
                 break;
             case R.id.showHiddenFilesSwitch:
                 appSettingsManager.setShowHiddenFiles(isChecked);

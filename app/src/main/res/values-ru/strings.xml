@@ -125,7 +125,6 @@
     <string name="settings_download_title">Загрузка</string>
     <string name="settings_play_music">Проигрывание музыки при подключении наушников</string>
     <string name="settings_searching_files">Фоновый поиск файлов</string>
-    <string name="settings_wifi_download">Загрузка только по Wi-Fi</string>
     <string name="settings_view_title">Вид</string>
     <string name="settings_view_full_scree_enable">Включить полноэкранный режим для аудио плеера</string>
     <string name="settings_view_enable_app_guide">Включить гид по приложению</string>
