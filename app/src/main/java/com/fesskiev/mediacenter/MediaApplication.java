@@ -5,6 +5,7 @@ import android.content.ComponentCallbacks2;
 import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
+import com.bumptech.glide.Glide;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.data.source.local.db.LocalDataSource;
 import com.fesskiev.mediacenter.data.source.memory.MemoryDataSource;
@@ -103,6 +104,7 @@ public class MediaApplication extends MultiDexApplication {
                 break;
             case ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL:
                 AppLog.INFO("TRIM_MEMORY_RUNNING_CRITICAL");
+                Glide.get(getApplicationContext()).trimMemory(ComponentCallbacks2.TRIM_MEMORY_MODERATE);
                 break;
             case ComponentCallbacks2.TRIM_MEMORY_COMPLETE:
                 AppLog.INFO("TRIM_MEMORY_COMPLETE");

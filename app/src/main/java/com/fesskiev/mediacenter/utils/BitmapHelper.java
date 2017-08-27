@@ -79,7 +79,6 @@ public class BitmapHelper {
                     .override(WIDTH, HEIGHT)
                     .centerCrop()
                     .listener(loggingListener)
-                    .diskCacheStrategy(DiskCacheStrategy.RESULT)
                     .into(new SimpleTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
@@ -95,7 +94,6 @@ public class BitmapHelper {
                     .override(WIDTH, HEIGHT)
                     .centerCrop()
                     .listener(loggingListener)
-                    .diskCacheStrategy(DiskCacheStrategy.RESULT)
                     .into(new SimpleTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
@@ -115,7 +113,6 @@ public class BitmapHelper {
                         .load(mediaArtworkPath)
                         .override(WIDTH * 3, HEIGHT * 3)
                         .centerCrop()
-                        .diskCacheStrategy(DiskCacheStrategy.RESULT)
                         .into(imageView);
                 return true;
             }
@@ -151,7 +148,6 @@ public class BitmapHelper {
                     .centerCrop()
                     .listener(loggingListener)
                     .error(R.drawable.no_cover_track_icon)
-                    .diskCacheStrategy(DiskCacheStrategy.RESULT)
                     .transform(new CircleTransform(context))
                     .into(imageView);
             return;
@@ -165,7 +161,6 @@ public class BitmapHelper {
                     .fitCenter()
                     .listener(loggingListener)
                     .error(R.drawable.no_cover_track_icon)
-                    .diskCacheStrategy(DiskCacheStrategy.RESULT)
                     .transform(new CircleTransform(context))
                     .into(imageView);
         }
@@ -200,7 +195,6 @@ public class BitmapHelper {
                     .centerCrop()
                     .listener(loggingListener)
                     .error(R.drawable.no_cover_folder_icon)
-                    .diskCacheStrategy(DiskCacheStrategy.RESULT)
                     .into(placeholder);
         } else {
             Glide.with(context)
@@ -208,7 +202,6 @@ public class BitmapHelper {
                     .override(WIDTH * 3, HEIGHT * 3)
                     .crossFade()
                     .centerCrop()
-                    .diskCacheStrategy(DiskCacheStrategy.RESULT)
                     .into(placeholder);
         }
     }
@@ -221,7 +214,6 @@ public class BitmapHelper {
                 .centerCrop()
                 .listener(loggingListener)
                 .error(R.drawable.no_cover_track_icon)
-                .diskCacheStrategy(DiskCacheStrategy.RESULT)
                 .into(placeholder);
     }
 
@@ -233,7 +225,6 @@ public class BitmapHelper {
                 .centerCrop()
                 .listener(loggingListener)
                 .error(R.drawable.no_cover_folder_icon)
-                .diskCacheStrategy(DiskCacheStrategy.RESULT)
                 .into(placeholder);
     }
 
