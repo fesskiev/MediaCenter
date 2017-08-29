@@ -11,6 +11,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -203,7 +204,10 @@ public class AlbumSearchActivity extends AnalyticsActivity {
 
     private void setLoadedCover(Bitmap bitmap) {
         if (bitmap != null) {
+            AppLog.ERROR("LOAD BITMAP");
             albumCover.setImageBitmap(bitmap);
+        } else {
+            albumCover.setImageResource(R.drawable.no_cover_track_icon);
         }
     }
 
@@ -214,12 +218,15 @@ public class AlbumSearchActivity extends AnalyticsActivity {
                 for (Image image : images) {
                     AppLog.DEBUG("image: " + image.toString());
                     if (image.getSize().equals("large")) {
-                        return BitmapHelper.getInstance().getBitmapFromURL(image.getText());
+                        String text = image.getText();
+                        if (text != null && !TextUtils.isEmpty(text)) {
+                            return BitmapHelper.getInstance().getBitmapFromURL(text);
+                        }
                     }
                 }
             }
         }
-        return Observable.empty();
+        return Observable.just(null);
     }
 
     private void parseAlbum(Album album) {
@@ -263,7 +270,26 @@ public class AlbumSearchActivity extends AnalyticsActivity {
             }
         }
         hideProgressBar();
-        showLoadSuccess();
+        if (hasImage(album)) {
+            enableCoverClick();
+            showLoadSuccess();
+        } else {
+            disableCoverClick();
+        }
+    }
+
+    private boolean hasImage(Album album) {
+        List<Image> images = album.getImage();
+        if (images == null) {
+            return false;
+        }
+        for (Image image : images) {
+            String text = image.getText();
+            if (text != null && !TextUtils.isEmpty(text)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -458,6 +484,16 @@ public class AlbumSearchActivity extends AnalyticsActivity {
         artistInputLayout.setError(null);
         artistInputLayout.setErrorEnabled(false);
 
+    }
+
+    private void disableCoverClick() {
+        albumCover.setEnabled(false);
+        albumCover.setClickable(false);
+    }
+
+    private void enableCoverClick() {
+        albumCover.setEnabled(true);
+        albumCover.setClickable(true);
     }
 
     private void showLoadAlbumError() {
