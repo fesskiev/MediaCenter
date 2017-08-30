@@ -1,12 +1,9 @@
 
 buildscript {
     repositories {
-        jcenter {
-            url "http://jcenter.bintray.com/"
-        }
-        maven {
-            url "https://dl.google.com/dl/android/maven2/"
-        }
+        jcenter()
+        mavenLocal()
+        maven { url 'https://maven.google.com'  }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.0-beta2'
@@ -16,12 +13,9 @@ buildscript {
 
 allprojects {
     repositories {
-        jcenter {
-            url "http://jcenter.bintray.com/"
-        }
-        maven {
-            url "https://dl.google.com/dl/android/maven2/"
-        }
+        jcenter()
+        mavenLocal()
+        maven { url 'https://maven.google.com'  }
         flatDir {
             dirs 'libs'
         }
