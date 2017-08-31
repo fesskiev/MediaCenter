@@ -23,7 +23,7 @@ android {
 
         externalNativeBuild {
             cmake {
-                arguments '-DANDROID_PLATFORM=android-21', '-DANDROID_TOOLCHAIN=clang', '-DANDROID_ARM_NEON=TRUE', '-DANDROID_STL=gnustl_static', "-DPATH_TO_SUPERPOWERED:STRING=${superpowered_sdk_path}"
+                arguments '-DANDROID_PLATFORM=android-16', '-DANDROID_TOOLCHAIN=clang', '-DANDROID_ARM_NEON=TRUE', '-DANDROID_STL=gnustl_static', "-DPATH_TO_SUPERPOWERED:STRING=${superpowered_sdk_path}"
                 cFlags '-O3', '-fsigned-char'
                 cppFlags '-fsigned-char', "-I${superpowered_sdk_path}"
             }
@@ -133,9 +133,6 @@ dependencies {
     compile "com.squareup.sqlbrite:sqlbrite:$rootProject.sqlbrite"
     compile "org.greenrobot:eventbus:$rootProject.eventbus"
     compile "com.thoughtbot:expandablecheckrecyclerview:$rootProject.expandablecheckrecyclerview"
-
-    debugCompile "com.squareup.leakcanary:leakcanary-android:$rootProject.leakCanary"
-    releaseCompile "com.squareup.leakcanary:leakcanary-android-no-op:$rootProject.leakCanary"
 
     testCompile "junit:junit:$rootProject.junitVersion"
 

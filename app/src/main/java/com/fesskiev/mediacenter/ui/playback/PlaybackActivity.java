@@ -153,6 +153,23 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         outState.putBoolean("startForeground", startForeground);
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (startForeground) {
+            PlaybackService.goForeground(getApplicationContext());
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (startForeground && !lastPlaying) {
+            PlaybackService.goBackground(getApplicationContext());
+        }
+    }
+
     private void restorePlaybackState(Bundle savedInstanceState) {
         startForeground = savedInstanceState.getBoolean("startForeground");
 
@@ -210,7 +227,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         }
 
         boolean isConvertStart = playbackState.isConvertStart();
-        if (lastConvertStart!= isConvertStart) {
+        if (lastConvertStart != isConvertStart) {
             lastConvertStart = isConvertStart;
             playPauseButton.startLoading();
         }

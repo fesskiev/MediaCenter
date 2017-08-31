@@ -86,7 +86,7 @@ static void playerEventCallback(void *clientData, SuperpoweredAdvancedAudioPlaye
 
 static bool audioProcessing(void *clientdata, short int *audioIO, int numberOfSamples,
                             int __unused samplerate) {
-//    __android_log_print(ANDROID_LOG_VERBOSE, "MediaCenter", "audioProcessing");
+   __android_log_print(ANDROID_LOG_VERBOSE, "MediaCenter", "audioProcessing");
 
     return ((SuperpoweredPlayer *) clientdata)->process(audioIO, (unsigned int) numberOfSamples);
 }
@@ -120,7 +120,6 @@ SuperpoweredPlayer::SuperpoweredPlayer(unsigned int samplerate, unsigned int buf
 }
 
 bool SuperpoweredPlayer::process(short int *inputOutput, unsigned int numberOfSamples) {
-
 
     bool silence = !player->process(buffer, false, numberOfSamples, volume);
 

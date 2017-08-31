@@ -94,6 +94,11 @@ public class PlaybackService extends Service {
     public static final String ACTION_START_CONVERT =
             "com.fesskiev.player.action.ACTION_START_CONVERT";
 
+    public static final String ACTION_GO_BACKGROUND =
+            "com.fesskiev.player.action.ACTION_GO_BACKGROUND";
+    public static final String ACTION_GO_FOREGROUND =
+            "com.fesskiev.player.action.ACTION_GO_FOREGROUND";
+
 
     public static final String PLAYBACK_EXTRA_MUSIC_FILE_PATH
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_MUSIC_FILE_PATH";
@@ -333,6 +338,18 @@ public class PlaybackService extends Service {
         context.startService(intent);
     }
 
+    public static void goBackground(Context context) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_GO_BACKGROUND);
+        context.startService(intent);
+    }
+
+    public static void goForeground(Context context) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(ACTION_GO_FOREGROUND);
+        context.startService(intent);
+    }
+
 
     @Override
     public void onCreate() {
@@ -420,6 +437,12 @@ public class PlaybackService extends Service {
             if (action != null) {
                 Log.d(TAG, "playback service handle intent: " + action);
                 switch (action) {
+                    case ACTION_GO_BACKGROUND:
+                        onBackground();
+                        break;
+                    case ACTION_GO_FOREGROUND:
+                        onForeground();
+                        break;
                     case ACTION_START_FOREGROUND:
                         tryStartForeground();
                         makeWearModule();
@@ -1070,4 +1093,5 @@ public class PlaybackService extends Service {
                 ", convertStart=" + convertStart +
                 '}';
     }
+
 }

@@ -58,6 +58,5 @@ ext {
     retrofit = '2.0.2'
     gson = '2.0.2'
     commons = '2.5'
-    leakCanary = '1.5.1'
 }
 
