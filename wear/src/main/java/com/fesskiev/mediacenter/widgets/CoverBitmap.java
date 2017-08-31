@@ -13,12 +13,15 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 
+import com.fesskiev.mediacenter.R;
+
 public class CoverBitmap extends View {
 
     private Paint paint;
     private RectF oval;
     private int w;
     private int h;
+    private boolean colorBackground;
 
     public CoverBitmap(Context context) {
         super(context);
@@ -27,7 +30,11 @@ public class CoverBitmap extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        canvas.drawArc(oval, 0, 360, true, paint);
+        if (colorBackground) {
+            canvas.drawColor(getContext().getColor(R.color.color_background));
+        } else {
+            canvas.drawArc(oval, 0, 360, true, paint);
+        }
     }
 
     public CoverBitmap(Context context, @Nullable AttributeSet attrs) {
@@ -61,6 +68,13 @@ public class CoverBitmap extends View {
         shader.setLocalMatrix(matrix);
         paint.setShader(shader);
         matrix.mapRect(oval, src);
+
+        colorBackground = false;
+        invalidate();
+    }
+
+    public void drawColorBackground() {
+        colorBackground = true;
         invalidate();
     }
 }

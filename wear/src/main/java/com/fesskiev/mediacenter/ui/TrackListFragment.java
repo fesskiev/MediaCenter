@@ -2,6 +2,7 @@ package com.fesskiev.mediacenter.ui;
 
 import android.app.Fragment;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -111,17 +112,22 @@ public class TrackListFragment extends Fragment {
         public void onBindViewHolder(ViewHolder viewHolder, final int position) {
             MapAudioFile audioFile = audioFiles.get(position);
             if (audioFile != null) {
-                Bitmap cover = audioFile.cover;
-                if (cover != null) {
-                    if (currentTrack != null && currentTrack.equals(audioFile)) {
-                        RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory
+                if (currentTrack != null && currentTrack.equals(audioFile)) {
+                    Bitmap cover = audioFile.cover;
+                    RoundedBitmapDrawable drawable;
+                    if (cover != null) {
+                        drawable = RoundedBitmapDrawableFactory
                                 .create(getResources(), cover);
-                        drawable.setCircular(true);
-                        viewHolder.cover.setVisibility(View.VISIBLE);
-                        viewHolder.cover.setImageDrawable(drawable);
                     } else {
-                        viewHolder.cover.setVisibility(View.INVISIBLE);
+                        drawable = RoundedBitmapDrawableFactory
+                                .create(getResources(), BitmapFactory.decodeResource(getResources(),
+                                        R.drawable.no_cover_track_icon));
                     }
+                    drawable.setCircular(true);
+                    viewHolder.cover.setVisibility(View.VISIBLE);
+                    viewHolder.cover.setImageDrawable(drawable);
+                } else {
+                    viewHolder.cover.setVisibility(View.INVISIBLE);
                 }
                 viewHolder.title.setText(audioFile.title);
                 viewHolder.duration.setText(Utils.getDurationString(audioFile.length));

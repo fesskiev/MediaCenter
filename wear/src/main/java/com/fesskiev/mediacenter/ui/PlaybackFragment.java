@@ -110,7 +110,7 @@ public class PlaybackFragment extends Fragment implements
 
     @Override
     public void onTimerFinished(CircularProgressLayout layout) {
-        if(!synchronize){
+        if (!synchronize) {
             synchronizeView.setImageResource(R.drawable.icon_no_synchronize);
         }
     }
@@ -145,7 +145,10 @@ public class PlaybackFragment extends Fragment implements
         Bitmap cover = audioFile.cover;
         if (cover != null) {
             coverView.drawBitmap(cover);
+        } else {
+            coverView.drawColorBackground();
         }
+
         albumText.setText(audioFile.album);
         titleText.setText(audioFile.title);
         durationText.setText(Utils.getDurationString(audioFile.length));
@@ -163,7 +166,7 @@ public class PlaybackFragment extends Fragment implements
         playPauseButton.setPlay(playback.isPlaying());
     }
 
-    protected void hideCircularProgress(){
+    protected void hideCircularProgress() {
         circularProgress.setVisibility(View.GONE);
         synchronize = true;
     }

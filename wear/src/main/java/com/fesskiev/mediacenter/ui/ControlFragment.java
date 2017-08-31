@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 
 import com.fesskiev.common.data.MapAudioFile;
@@ -112,6 +111,8 @@ public class ControlFragment extends Fragment implements View.OnClickListener {
         Bitmap cover = audioFile.cover;
         if (cover != null) {
             coverView.drawBitmap(cover);
+        } else {
+            coverView.drawColorBackground();
         }
         showViews();
     }
