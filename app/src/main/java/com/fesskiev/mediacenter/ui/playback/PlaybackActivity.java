@@ -1,11 +1,16 @@
 package com.fesskiev.mediacenter.ui.playback;
 
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.OnLifecycleEvent;
+import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -75,6 +80,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         super.onPostCreate(savedInstanceState);
 
         EventBus.getDefault().register(this);
+        addProcessLifecycleObserver();
 
         track = findViewById(R.id.track);
         artist = findViewById(R.id.artist);
@@ -147,27 +153,31 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         }
     }
 
+    private void addProcessLifecycleObserver() {
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(new ProcessLifecycleObserver());
+    }
+
+    public class ProcessLifecycleObserver implements LifecycleObserver {
+
+        @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+        public void resumed() {
+            if (startForeground) {
+                PlaybackService.goForeground(getApplicationContext());
+            }
+        }
+
+        @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+        public void paused() {
+            if (startForeground && !lastPlaying) {
+                PlaybackService.goBackground(getApplicationContext());
+            }
+        }
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean("startForeground", startForeground);
-    }
-
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (startForeground) {
-            PlaybackService.goForeground(getApplicationContext());
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (startForeground && !lastPlaying) {
-            PlaybackService.goBackground(getApplicationContext());
-        }
     }
 
     private void restorePlaybackState(Bundle savedInstanceState) {

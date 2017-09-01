@@ -136,6 +136,10 @@ dependencies {
 
     testCompile "junit:junit:$rootProject.junitVersion"
 
+    compile "android.arch.lifecycle:runtime:$rootProject.architectureComponents"
+    compile "android.arch.lifecycle:extensions:$rootProject.architectureComponents"
+    annotationProcessor "android.arch.lifecycle:compiler:$rootProject.architectureComponents"
+
     androidTestCompile "com.android.support.test:runner:$rootProject.runnerVersion"
     androidTestCompile "com.android.support.test:rules:$rootProject.rulesVersion"
 
