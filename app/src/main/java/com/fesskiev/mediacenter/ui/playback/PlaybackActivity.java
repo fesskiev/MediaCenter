@@ -25,6 +25,7 @@ import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.mediacenter.utils.AppAnimationUtils;
+import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
@@ -163,6 +164,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         public void resumed() {
             if (startForeground) {
                 PlaybackService.goForeground(getApplicationContext());
+                AppLog.ERROR("Lifecycle.Event.ON_RESUME");
             }
         }
 
@@ -170,6 +172,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         public void paused() {
             if (startForeground && !lastPlaying) {
                 PlaybackService.goBackground(getApplicationContext());
+                AppLog.ERROR("Lifecycle.Event.ON_PAUSE");
             }
         }
     }

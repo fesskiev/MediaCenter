@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/notificationCover"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:contentDescription="@string/app_name"
+        android:src="@mipmap/ic_launcher" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_toEndOf="@+id/notificationCover"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/notificationInfoContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/notificationTitle"
+                style="@style/NotificationBigTitleTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:gravity="start"
+                android:maxLines="2"
+                tools:text="Nothing Heren" />
+
+            <TextView
+                android:id="@+id/notificationText"
+                style="@style/NotificationBigArtistTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:ellipsize="end"
+                android:gravity="start"
+                tools:text="Nothing Heren" />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:background="@color/divider"
+            android:contentDescription="@string/app_name" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/addButton"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/button_height"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:drawableStart="@drawable/icon_notification_add"
+                android:gravity="center"
+                android:textAllCaps="true"
+                android:textColor="@color/secondary_text"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:text="@string/notification_add" />
+
+            <TextView
+                android:id="@+id/skipButton"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/button_height"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:drawableStart="@drawable/icon_notification_skip"
+                android:gravity="center"
+                android:textAllCaps="true"
+                android:textColor="@color/secondary_text"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:text="@string/notification_skip" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

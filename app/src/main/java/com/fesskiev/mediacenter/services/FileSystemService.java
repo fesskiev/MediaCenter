@@ -4,9 +4,11 @@ import android.app.job.JobInfo;
 import android.app.job.JobParameters;
 import android.app.job.JobScheduler;
 import android.app.job.JobService;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -48,6 +50,8 @@ import java.util.UUID;
 
 import rx.Observable;
 
+import static com.fesskiev.mediacenter.utils.NotificationHelper.EXTRA_ACTION_BUTTON;
+
 
 public class FileSystemService extends JobService {
 
@@ -66,8 +70,9 @@ public class FileSystemService extends JobService {
 
     private static final int MEDIA_CONTENT_JOB = 31;
 
-    private static final int MEDIA_FOLDER_FOUND_DELAY = 10000;
-
+    private static final int HANDLE_MEDIA = 0;
+    private static final int HANDLE_VIDEO = 1;
+    private static final int HANDLE_AUDIO = 2;
 
     private static final String ACTION_START_FETCH_MEDIA = "com.fesskiev.player.action.FETCH_MEDIA";
     private static final String ACTION_START_FETCH_AUDIO = "com.fesskiev.player.action.START_FETCH_AUDIO";
@@ -77,8 +82,6 @@ public class FileSystemService extends JobService {
     private Handler handler;
     private FetchContentThread fetchContentThread;
     private MediaObserver observer;
-
-    public static volatile boolean shouldContinue;
 
     private SCAN_TYPE scanType;
     private SCAN_STATE scanState;
@@ -182,6 +185,7 @@ public class FileSystemService extends JobService {
                 MEDIA_URI,
                 true,
                 observer);
+        registerNotificationReceiver();
     }
 
     @Override
@@ -192,6 +196,7 @@ public class FileSystemService extends JobService {
         fetchContentThread.quitSafely();
 
         getContentResolver().unregisterContentObserver(observer);
+        unregisterNotificationReceiver();
     }
 
 
@@ -203,13 +208,13 @@ public class FileSystemService extends JobService {
                 Log.w(TAG, "HANDLE INTENT: " + action);
                 switch (action) {
                     case ACTION_START_FETCH_MEDIA:
-                        handler.sendEmptyMessage(0);
+                        handler.sendEmptyMessage(HANDLE_MEDIA);
                         break;
                     case ACTION_START_FETCH_VIDEO:
-                        handler.sendEmptyMessage(1);
+                        handler.sendEmptyMessage(HANDLE_VIDEO);
                         break;
                     case ACTION_START_FETCH_AUDIO:
-                        handler.sendEmptyMessage(2);
+                        handler.sendEmptyMessage(HANDLE_AUDIO);
                         break;
                     case ACTION_FETCH_STATE:
                         sendFetchState();
@@ -219,6 +224,33 @@ public class FileSystemService extends JobService {
         }
         return START_NOT_STICKY;
     }
+
+    private void registerNotificationReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(NotificationHelper.ACTION_SKIP_BUTTON);
+        filter.addAction(NotificationHelper.ACTION_ADD_BUTTON);
+        registerReceiver(notificationReceiver, filter);
+
+    }
+
+    private void unregisterNotificationReceiver() {
+        unregisterReceiver(notificationReceiver);
+    }
+
+    private BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            final String extras = intent.getStringExtra(EXTRA_ACTION_BUTTON);
+            switch (action) {
+                case NotificationHelper.ACTION_SKIP_BUTTON:
+                    break;
+                case NotificationHelper.ACTION_ADD_BUTTON:
+                    break;
+            }
+            NotificationHelper.removeNotificationAndCloseNotificationBar(context);
+        }
+    };
 
     private void sendFetchState() {
         EventBus.getDefault().post(FileSystemService.this);
@@ -230,27 +262,21 @@ public class FileSystemService extends JobService {
     }
 
     private void startScanAll() {
-        shouldContinue = true;
         scanState = SCAN_STATE.SCANNING_ALL;
         EventBus.getDefault().post(FileSystemService.this);
     }
 
     private void startScanFound() {
-        shouldContinue = true;
         scanState = SCAN_STATE.SCANNING_FOUND;
         EventBus.getDefault().post(FileSystemService.this);
-        AppLog.WTF("finishScan()");
     }
 
     private void finishScan() {
         scanState = SCAN_STATE.FINISHED;
-        shouldContinue = false;
         EventBus.getDefault().post(FileSystemService.this);
-        AppLog.WTF("finishScan()");
-
     }
 
-    private void startScan(SCAN_TYPE scanType, Set<String> paths) {
+    private void startScan(SCAN_TYPE scanType) {
         prepareScan();
         try {
             Thread.sleep(500);
@@ -258,30 +284,13 @@ public class FileSystemService extends JobService {
             e.printStackTrace();
         }
 
-        if (paths == null) {
-            String[] storagePaths = StorageUtils.getStorageDirectories(getApplicationContext());
-            if (storagePaths.length > 0) {
-                startScanAll();
-                for (String path : storagePaths) {
-                    Log.e(TAG, "path: " + path);
-                    fileWalk(path, scanType);
-                }
-            }
-
-        } else {
-            startScanFound();
-
-            int notificationId = 1;
-            for (String path : paths) {
-                AppLog.ERROR("found folder: " + path);
-
-                notificationId += 1;
-                NotificationHelper.getInstance().createMediaFoundNotification(path, notificationId);
-
+        String[] storagePaths = StorageUtils.getStorageDirectories(getApplicationContext());
+        if (storagePaths.length > 0) {
+            startScanAll();
+            for (String path : storagePaths) {
+                Log.e(TAG, "path: " + path);
                 fileWalk(path, scanType);
             }
-
-            paths.clear();
         }
 
         finishScan();
@@ -484,6 +493,9 @@ public class FileSystemService extends JobService {
                         if (cursor.moveToLast()) {
                             String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
 
+                            AppLog.ERROR("FIND PATH: " + path);
+                            NotificationHelper.getInstance().createMediaFoundNotification(path, NotificationHelper.NOTIFICATION_MEDIA_ID);
+
                             File file = new File(path);
                             File parent = file.getParentFile();
                             if (parent.isDirectory()) {
@@ -492,17 +504,13 @@ public class FileSystemService extends JobService {
                                     File[] audioPaths = parent.listFiles(audioFilter());
                                     if (audioPaths != null && audioPaths.length > 0) {
                                         foldersPath.add(parentPath);
-
-                                        sendAudioFolderFound(foldersPath);
                                     }
 
                                     File[] videoPaths = parent.listFiles(videoFilter());
                                     if (videoPaths != null && videoPaths.length > 0) {
                                         foldersPath.add(parentPath);
 
-                                        sendVideoFolderFound(foldersPath);
                                     }
-
                                 }
                             }
                         }
@@ -518,22 +526,6 @@ public class FileSystemService extends JobService {
         }
     }
 
-    private void sendVideoFolderFound(Set<String> parentPath) {
-        handler.removeMessages(1);
-        Message msg = handler.obtainMessage();
-        msg.obj = parentPath;
-        msg.what = 1;
-        handler.sendMessageDelayed(msg, MEDIA_FOLDER_FOUND_DELAY);
-    }
-
-    private void sendAudioFolderFound(Set<String> parentPath) {
-        handler.removeMessages(2);
-        Message msg = handler.obtainMessage();
-        msg.obj = parentPath;
-        msg.what = 2;
-        handler.sendMessageDelayed(msg, MEDIA_FOLDER_FOUND_DELAY);
-    }
-
     private class FetchContentThread extends HandlerThread {
 
         public FetchContentThread() {
@@ -547,14 +539,14 @@ public class FileSystemService extends JobService {
                 @Override
                 public void handleMessage(Message msg) {
                     switch (msg.what) {
-                        case 0:
+                        case HANDLE_MEDIA:
                             getMediaContent(msg);
                             break;
-                        case 1:
-                            getVideoContent((Set<String>) msg.obj);
+                        case HANDLE_VIDEO:
+                            getVideoContent();
                             break;
-                        case 2:
-                            getAudioContent((Set<String>) msg.obj);
+                        case HANDLE_AUDIO:
+                            getAudioContent();
                             break;
                     }
                 }
@@ -611,7 +603,7 @@ public class FileSystemService extends JobService {
         if (handler != null) {
             Message msg = handler.obtainMessage();
             msg.obj = params;
-            msg.what = 0;
+            msg.what = HANDLE_MEDIA;
             handler.sendMessage(msg);
             Log.i(TAG, "Send job...");
         }
@@ -625,19 +617,19 @@ public class FileSystemService extends JobService {
     }
 
 
-    private void getAudioContent(Set<String> path) {
+    private void getAudioContent() {
         scanType = SCAN_TYPE.AUDIO;
-        startScan(scanType, path);
+        startScan(scanType);
     }
 
-    private void getVideoContent(Set<String> path) {
+    private void getVideoContent() {
         scanType = SCAN_TYPE.VIDEO;
-        startScan(scanType, path);
+        startScan(scanType);
     }
 
     private void getMediaContent() {
         scanType = SCAN_TYPE.BOTH;
-        startScan(scanType, null);
+        startScan(scanType);
     }
 
 

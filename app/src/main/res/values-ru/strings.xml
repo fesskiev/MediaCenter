@@ -129,7 +129,6 @@
     <string name="settings_view_full_scree_enable">Включить полноэкранный режим для аудио плеера</string>
     <string name="settings_view_enable_app_guide">Включить гид по приложению</string>
 
-    <string name="notification_folder_found">Найдена новая папка</string>
     <string name="splash_folder_parsing">Сканирование новой папки:</string>
 
     <string name="snackbar_loading_error">Ошибка при загрузке аудио файла</string>
@@ -320,5 +319,8 @@
     <string name="wear_open_app">Приложеиние установлено на всех ваших устройствах. Чтобы открыть приложение, пожалуйста, нажмите кнопку ниже</string>
     <string name="wear_without_app">Приложеиние не установленою. Чтобы установить приложение, пожалуйста, нажмите кнопку ниже</string>
     <string name="wear_some_devices">Приложение установлено на некоторых Ваших устройствах. Чтобы установить приложеине на остальные устройства, пожалуйста, нажмите кнопку ниже</string>
+
+    <string name="notification_skip">Пропустить</string>
+    <string name="notification_add">Добавить</string>
 
 </resources>

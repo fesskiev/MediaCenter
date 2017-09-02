@@ -165,7 +165,6 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
     }
 
     private void stopFetchFiles() {
-        FileSystemService.shouldContinue = false;
         FileSystemService.stopFileSystemService(getContext().getApplicationContext());
     }
 

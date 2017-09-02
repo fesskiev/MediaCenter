@@ -629,8 +629,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     private void stopFetchFiles() {
-        FileSystemService.shouldContinue = false;
-
         DataRepository repository = MediaApplication.getInstance().getRepository();
         repository.getMemorySource().setCacheArtistsDirty(true);
         repository.getMemorySource().setCacheGenresDirty(true);

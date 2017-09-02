@@ -134,7 +134,6 @@
     <string name="settings_view_full_scree_enable">Enable full screen mode for audio player</string>
     <string name="settings_view_enable_app_guide">Enable app guide</string>
 
-    <string name="notification_folder_found">Folder found</string>
     <string name="splash_folder_parsing">New folder scanning:</string>
 
     <string name="snackbar_loading_error">Unexpected loading audio error</string>
@@ -347,6 +346,8 @@
     <string name="wear_without_app">You are missing the wear app on all your wear devices, please click on the button below to install it on those device(s)</string>
     <string name="wear_some_devices">Wear app installed on some your device(s). To install the Wear app on the other devices, please click on the button below</string>
 
+    <string name="notification_skip">Skip</string>
+    <string name="notification_add">Add</string>
 
     <string name="last_fm_api_key">adc1430e56411c85fadf04c03b54068f</string>
 

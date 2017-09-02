@@ -101,7 +101,7 @@ public class SplashActivity extends AppCompatActivity {
                 .subscribeOn(Schedulers.io())
                 .flatMap(contain -> {
                     if (contain) {
-                        return selectAudioFolderAnFile(path);
+                        return selectAudioFolderAndFile(path);
                     }
                     return parseAudioFolder(path);
                 })
@@ -112,7 +112,7 @@ public class SplashActivity extends AppCompatActivity {
     }
 
 
-    private Observable<Void> selectAudioFolderAnFile(String path) {
+    private Observable<Void> selectAudioFolderAndFile(String path) {
         return repository.getAudioFileByPath(path)
                 .flatMap(audioFile -> {
                     if (audioFile != null) {
