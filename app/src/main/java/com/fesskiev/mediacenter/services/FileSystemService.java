@@ -466,15 +466,12 @@ public class FileSystemService extends JobService {
 
     private class MediaObserver extends ContentObserver {
 
-        private Set<String> foldersPath;
-
         private long lastTimeCall = 0L;
         private long lastTimeUpdate = 0L;
         private long threshold = 100;
 
         public MediaObserver(Handler handler) {
             super(handler);
-            foldersPath = new TreeSet<>();
         }
 
         @Override
@@ -487,31 +484,27 @@ public class FileSystemService extends JobService {
 
                 Cursor cursor = null;
                 try {
-                    String[] projection = {MediaStore.Audio.Media.DATA};
+                    String[] projection = {MediaStore.Files.FileColumns.DATA};
                     cursor = getContentResolver().query(uri, projection, null, null, null);
                     if (cursor != null) {
                         if (cursor.moveToLast()) {
-                            String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
-
+                            String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA));
                             AppLog.ERROR("FIND PATH: " + path);
+
                             NotificationHelper.getInstance().createMediaFoundNotification(path, NotificationHelper.NOTIFICATION_MEDIA_ID);
 
                             File file = new File(path);
-                            File parent = file.getParentFile();
-                            if (parent.isDirectory()) {
-                                String parentPath = parent.getAbsolutePath();
-                                if (!foldersPath.contains(parentPath)) {
-                                    File[] audioPaths = parent.listFiles(audioFilter());
-                                    if (audioPaths != null && audioPaths.length > 0) {
-                                        foldersPath.add(parentPath);
-                                    }
-
-                                    File[] videoPaths = parent.listFiles(videoFilter());
-                                    if (videoPaths != null && videoPaths.length > 0) {
-                                        foldersPath.add(parentPath);
-
-                                    }
+                            if (file.isDirectory()) {
+                                File[] audioPaths = file.listFiles(audioFilter());
+                                if (audioPaths != null && audioPaths.length > 0) {
+                                    AppLog.INFO("It is audio folder with file!");
                                 }
+                                File[] videoPaths = file.listFiles(videoFilter());
+                                if (videoPaths != null && videoPaths.length > 0) {
+                                    AppLog.INFO("It is video folder with file!");
+                                }
+                            } else {
+                                AppLog.INFO("It is file!");
                             }
                         }
                     }
