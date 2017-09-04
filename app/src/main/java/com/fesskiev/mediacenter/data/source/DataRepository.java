@@ -158,6 +158,10 @@ public class DataRepository {
         return localSource.getAudioFolderByPath(path);
     }
 
+    public Observable<VideoFolder> getVideoFolderByPath(String path) {
+        return localSource.getVideoFolderByPath(path);
+    }
+
     public Observable<AudioFolder> getSelectedAudioFolder() {
         return localSource.getSelectedAudioFolder();
     }
@@ -251,6 +255,7 @@ public class DataRepository {
     public MemoryDataSource getMemorySource() {
         return memorySource;
     }
+
 
 
 }

@@ -30,6 +30,8 @@ public interface LocalSource {
 
     Observable<AudioFile> getAudioFileByPath(String path);
 
+    Observable<VideoFolder> getVideoFolderByPath(String path);
+
     Observable<AudioFolder> getAudioFolderByPath(String path);
 
     Observable<List<AudioFile>> getSearchAudioFiles(String query);
@@ -43,8 +45,6 @@ public interface LocalSource {
     Observable<AudioFolder> getSelectedAudioFolder();
 
     Observable<AudioFile> getSelectedAudioFile();
-
-    Observable<List<String>> getFoldersPath();
 
     Observable<List<String>> getVideoFilesFrame(String id);
 

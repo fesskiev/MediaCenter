@@ -108,7 +108,6 @@ public class SplashActivity extends AppCompatActivity {
                 .first()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(v -> animateAndFetchData(true));
-
     }
 
 
@@ -162,14 +161,13 @@ public class SplashActivity extends AppCompatActivity {
             audioFolder.folderImage = filterImages[0];
         }
 
-
         File[] audioPaths = dir.listFiles(FileSystemService.audioFilter());
 
         if (audioPaths != null && audioPaths.length > 0) {
             for (File p : audioPaths) {
                 new AudioFile(getApplicationContext(), p, audioFolder.id, audioFile -> {
 
-                    MediaApplication.getInstance().getRepository().insertAudioFile(audioFile);
+                    repository.insertAudioFile(audioFile);
 
                     if (p.getAbsolutePath().equals(path)) {
                         Log.d("test", "parse select file: " + audioFile.toString());
@@ -180,7 +178,7 @@ public class SplashActivity extends AppCompatActivity {
             }
         }
 
-        MediaApplication.getInstance().getRepository().insertAudioFolder(audioFolder);
+        repository.insertAudioFolder(audioFolder);
 
         Log.d("test", "parse select folder: " + audioFolder.toString());
         audioFolder.isSelected = true;

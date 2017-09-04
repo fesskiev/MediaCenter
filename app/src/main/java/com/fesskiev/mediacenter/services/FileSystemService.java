@@ -42,13 +42,13 @@ import org.greenrobot.eventbus.EventBus;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.URLConnection;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.UUID;
 
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import static com.fesskiev.mediacenter.utils.NotificationHelper.EXTRA_ACTION_BUTTON;
 
@@ -78,6 +78,8 @@ public class FileSystemService extends JobService {
     private static final String ACTION_START_FETCH_AUDIO = "com.fesskiev.player.action.START_FETCH_AUDIO";
     private static final String ACTION_START_FETCH_VIDEO = "com.fesskiev.player.action.START_FETCH_VIDEO";
     private static final String ACTION_FETCH_STATE = "com.fesskiev.player.action.ACTION_FETCH_STATE";
+
+    private DataRepository repository;
 
     private Handler handler;
     private FetchContentThread fetchContentThread;
@@ -176,6 +178,8 @@ public class FileSystemService extends JobService {
     public void onCreate() {
         super.onCreate();
         Log.i(TAG, "File System Service created");
+
+        repository = MediaApplication.getInstance().getRepository();
 
         fetchContentThread = new FetchContentThread();
         fetchContentThread.start();
@@ -412,12 +416,12 @@ public class FileSystemService extends JobService {
                 VideoFile videoFile = new VideoFile(path);
                 videoFile.id = videoFolder.id;
 
-                MediaApplication.getInstance().getRepository().insertVideoFile(videoFile);
+                repository.insertVideoFile(videoFile);
 
                 sendFileDescription(videoFile.description);
             }
 
-            MediaApplication.getInstance().getRepository().insertVideoFolder(videoFolder);
+            repository.insertVideoFolder(videoFolder);
 
             sendFolderCreated(FetchFolderCreate.VIDEO);
 
@@ -452,13 +456,13 @@ public class FileSystemService extends JobService {
                         audioFile.folderArtworkPath = folderImage.getAbsolutePath();
                     }
 
-                    MediaApplication.getInstance().getRepository().insertAudioFile(audioFile);
+                    repository.insertAudioFile(audioFile);
 
                     sendFileDescription(audioFile.artist + "-" + audioFile.title);
                 });
             }
 
-            MediaApplication.getInstance().getRepository().insertAudioFolder(audioFolder);
+            repository.insertAudioFolder(audioFolder);
 
             sendFolderCreated(FetchFolderCreate.AUDIO);
         }
@@ -491,8 +495,6 @@ public class FileSystemService extends JobService {
                             String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA));
                             AppLog.ERROR("FIND PATH: " + path);
 
-                            NotificationHelper.getInstance().createMediaFoundNotification(path, NotificationHelper.NOTIFICATION_MEDIA_ID);
-
                             File file = new File(path);
                             if (file.isDirectory()) {
                                 File[] audioPaths = file.listFiles(audioFilter());
@@ -504,7 +506,42 @@ public class FileSystemService extends JobService {
                                     AppLog.INFO("It is video folder with file!");
                                 }
                             } else {
-                                AppLog.INFO("It is file!");
+                                if (isAudioFile(path)) {
+                                    repository.getAudioFolderByPath(file.getParent())
+                                            .subscribeOn(Schedulers.io())
+                                            .flatMap(audioFolder -> {
+                                                if (audioFolder != null) {
+                                                    return Observable.just(new AudioFile(getApplicationContext(), file,
+                                                            audioFolder.id, null));
+                                                }
+                                                return Observable.just(null);
+                                            })
+                                            .subscribe(audioFile -> {
+                                                if (audioFile != null) {
+                                                    NotificationHelper.getInstance()
+                                                            .createMediaFileNotification(audioFile,
+                                                                    NotificationHelper.NOTIFICATION_MEDIA_ID);
+                                                }
+                                            });
+                                    AppLog.INFO("It is audio file!");
+                                } else if (isVideoFile(path)) {
+                                    AppLog.INFO("It is video file!");
+                                    repository.getVideoFolderByPath(file.getParent())
+                                            .subscribeOn(Schedulers.io())
+                                            .flatMap(videoFolder -> {
+                                                if (videoFolder != null) {
+                                                    return Observable.just(new VideoFile(file));
+                                                }
+                                                return Observable.just(null);
+                                            })
+                                            .subscribe(videoFile -> {
+                                                if (videoFile != null) {
+                                                    NotificationHelper.getInstance()
+                                                            .createMediaFileNotification(videoFile,
+                                                                    NotificationHelper.NOTIFICATION_MEDIA_ID);
+                                                }
+                                            });
+                                }
                             }
                         }
                     }
@@ -513,7 +550,6 @@ public class FileSystemService extends JobService {
                         cursor.close();
                     }
                 }
-
                 lastTimeUpdate = System.currentTimeMillis();
             }
         }
@@ -548,8 +584,6 @@ public class FileSystemService extends JobService {
     }
 
     private void getMediaContent(Message msg) {
-        DataRepository repository = MediaApplication.getInstance().getRepository();
-
         Observable.zip(RxUtils.fromCallable(repository.resetAudioContentDatabase()),
                 RxUtils.fromCallable(repository.resetVideoContentDatabase()),
                 (integer, integer2) -> Observable.empty())
@@ -709,6 +743,16 @@ public class FileSystemService extends JobService {
         public String getFileName() {
             return fileName;
         }
+    }
+
+    public static boolean isVideoFile(String path) {
+        String mimeType = URLConnection.guessContentTypeFromName(path);
+        return mimeType != null && mimeType.startsWith("video");
+    }
+
+    public static boolean isAudioFile(String path) {
+        String mimeType = URLConnection.guessContentTypeFromName(path);
+        return mimeType != null && mimeType.startsWith("audio");
     }
 
     public static class FetchFolderCreate {

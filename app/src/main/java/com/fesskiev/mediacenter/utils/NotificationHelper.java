@@ -14,6 +14,7 @@ import android.widget.RemoteViews;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.AudioFile;
+import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.ui.MainActivity;
 
 
@@ -213,7 +214,7 @@ public class NotificationHelper {
 
     }
 
-    public void createMediaFoundNotification(String path, int id) {
+    public void createMediaFileNotification(MediaFile mediaFile, int id) {
 
         Intent intent = new Intent(context, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -221,16 +222,16 @@ public class NotificationHelper {
         RemoteViews notificationBigView = new RemoteViews(context.getPackageName(), R.layout.notification_fetch_big_lyout);
         RemoteViews notificationView = new RemoteViews(context.getPackageName(), R.layout.notification_fetch_layout);
 
-        notificationBigView.setTextViewText(R.id.notificationTitle, path);
-        notificationBigView.setTextViewText(R.id.notificationText, path);
+        notificationBigView.setTextViewText(R.id.notificationTitle, mediaFile.getFileName());
+        notificationBigView.setTextViewText(R.id.notificationText, mediaFile.getFilePath());
 
-        notificationView.setTextViewText(R.id.notificationTitle, path);
-        notificationView.setTextViewText(R.id.notificationText, path);
+        notificationView.setTextViewText(R.id.notificationTitle, mediaFile.getFileName());
+        notificationView.setTextViewText(R.id.notificationText, mediaFile.getFilePath());
 
         notificationBigView.setOnClickPendingIntent(R.id.skipButton,
-                getPendingIntentAction(ACTION_SKIP_BUTTON, path));
+                getPendingIntentAction(ACTION_SKIP_BUTTON, mediaFile.getFilePath()));
         notificationBigView.setOnClickPendingIntent(R.id.addButton,
-                getPendingIntentAction(ACTION_ADD_BUTTON, path));
+                getPendingIntentAction(ACTION_ADD_BUTTON, mediaFile.getFilePath()));
 
 
         NotificationCompat.Builder notificationBuilder

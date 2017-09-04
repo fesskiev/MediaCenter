@@ -403,18 +403,6 @@ public class LocalDataSource implements LocalSource {
     }
 
     @Override
-    public Observable<List<String>> getFoldersPath() {
-
-        String sql = String.format("SELECT %s FROM %s",
-                DatabaseHelper.FOLDER_PATH,
-                DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME);
-
-        return briteDatabase
-                .createQuery(DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME, sql)
-                .mapToList(cursor -> cursor.getString(cursor.getColumnIndex(DatabaseHelper.FOLDER_PATH)));
-    }
-
-    @Override
     public void clearPlaylist() {
 
         ContentValues contentValues;
@@ -581,6 +569,17 @@ public class LocalDataSource implements LocalSource {
 
         return briteDatabase.createQuery(DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME, sql)
                 .mapToOne(AudioFolder::new);
+    }
+
+    @Override
+    public Observable<VideoFolder> getVideoFolderByPath(String path) {
+
+        String sql = String.format("SELECT * FROM %s WHERE %s",
+                DatabaseHelper.VIDEO_FILES_TABLE_NAME,
+                DatabaseHelper.FOLDER_PATH + "=" + "'" + path + "'");
+
+        return briteDatabase.createQuery(DatabaseHelper.VIDEO_FILES_TABLE_NAME, sql)
+                .mapToOne(VideoFolder::new);
     }
 
     @Override
