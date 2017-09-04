@@ -32,10 +32,6 @@ import java.util.UUID;
 
 public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
 
-    public interface OnAudioTagListener {
-        void onFetchCompleted(AudioFile audioFile);
-    }
-
     private Context context;
     public String id;
     public File filePath;
@@ -56,20 +52,16 @@ public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
     public boolean isSelected;
     public boolean isHidden;
 
-    private OnAudioTagListener listener;
-
-
     public AudioFile() {
         fillEmptyFields();
     }
 
-    public AudioFile(Context context, File filePath, String folderId, OnAudioTagListener listener) {
+    public AudioFile(Context context, File filePath, String folderId) {
         this.id = folderId;
         this.context = context;
         this.filePath = filePath;
-        this.listener = listener;
         renameFileCorrect();
-        getTrackInfo();
+        parseMetadataTagger();
     }
 
     public AudioFile(Cursor cursor) {
@@ -135,13 +127,6 @@ public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
         }
         if (genre == null || TextUtils.isEmpty(genre)) {
             genre = context.getString(R.string.empty_music_file_genre);
-        }
-    }
-
-    private void getTrackInfo() {
-        parseMetadataTagger();
-        if (listener != null) {
-            listener.onFetchCompleted(this);
         }
     }
 

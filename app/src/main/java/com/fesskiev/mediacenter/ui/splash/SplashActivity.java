@@ -165,16 +165,13 @@ public class SplashActivity extends AppCompatActivity {
 
         if (audioPaths != null && audioPaths.length > 0) {
             for (File p : audioPaths) {
-                new AudioFile(getApplicationContext(), p, audioFolder.id, audioFile -> {
-
-                    repository.insertAudioFile(audioFile);
-
-                    if (p.getAbsolutePath().equals(path)) {
-                        Log.d("test", "parse select file: " + audioFile.toString());
-                        audioFile.isSelected = true;
-                        repository.updateSelectedAudioFile(audioFile);
-                    }
-                });
+                AudioFile audioFile = new AudioFile(getApplicationContext(), p, audioFolder.id);
+                repository.insertAudioFile(audioFile);
+                if (p.getAbsolutePath().equals(path)) {
+                    Log.d("test", "parse select file: " + audioFile.toString());
+                    audioFile.isSelected = true;
+                    repository.updateSelectedAudioFile(audioFile);
+                }
             }
         }
 

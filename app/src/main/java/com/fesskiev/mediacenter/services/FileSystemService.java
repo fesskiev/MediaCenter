@@ -448,18 +448,14 @@ public class FileSystemService extends JobService {
             sendFolderDescription(audioFolder.folderName);
 
             for (File path : audioPaths) {
+                AudioFile audioFile = new AudioFile(getApplicationContext(), path, audioFolder.id);
+                File folderImage = audioFolder.folderImage;
+                if (folderImage != null) {
+                    audioFile.folderArtworkPath = folderImage.getAbsolutePath();
+                }
+                repository.insertAudioFile(audioFile);
 
-                new AudioFile(getApplicationContext(), path, audioFolder.id, audioFile -> {
-
-                    File folderImage = audioFolder.folderImage;
-                    if (folderImage != null) {
-                        audioFile.folderArtworkPath = folderImage.getAbsolutePath();
-                    }
-
-                    repository.insertAudioFile(audioFile);
-
-                    sendFileDescription(audioFile.artist + "-" + audioFile.title);
-                });
+                sendFileDescription(audioFile.artist + "-" + audioFile.title);
             }
 
             repository.insertAudioFolder(audioFolder);
@@ -512,7 +508,7 @@ public class FileSystemService extends JobService {
                                             .flatMap(audioFolder -> {
                                                 if (audioFolder != null) {
                                                     return Observable.just(new AudioFile(getApplicationContext(), file,
-                                                            audioFolder.id, null));
+                                                            audioFolder.id));
                                                 }
                                                 return Observable.just(null);
                                             })
