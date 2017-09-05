@@ -69,12 +69,12 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
             }
 
             @Override
-            public void onFetchAudioContentStart(boolean clear) {
+            public void onFetchAudioContentStart() {
 
             }
 
             @Override
-            public void onFetchVideoContentStart(boolean clear) {
+            public void onFetchVideoContentStart() {
 
             }
 

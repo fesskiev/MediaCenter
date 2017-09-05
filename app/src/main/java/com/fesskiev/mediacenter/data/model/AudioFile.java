@@ -32,7 +32,6 @@ import java.util.UUID;
 
 public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
 
-    private Context context;
     public String id;
     public File filePath;
     public File convertedPath;
@@ -51,6 +50,8 @@ public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
     public boolean inPlayList;
     public boolean isSelected;
     public boolean isHidden;
+
+    private Context context;
 
     public AudioFile() {
         fillEmptyFields();
@@ -211,6 +212,10 @@ public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
         }
     }
 
+    @Override
+    public String getId() {
+        return id;
+    }
 
     @Override
     public MEDIA_TYPE getMediaType() {

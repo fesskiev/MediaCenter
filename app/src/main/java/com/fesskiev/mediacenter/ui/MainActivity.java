@@ -235,7 +235,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
                     @Override
                     public void onAnimationEnd(View view) {
-                        if(angle == 360f){
+                        if (angle == 360f) {
                             angle = 0;
                         } else {
                             angle = 360;
@@ -357,21 +357,17 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             }
 
             @Override
-            public void onFetchAudioContentStart(boolean clear) {
+            public void onFetchAudioContentStart() {
                 AppLog.INFO("onFetchAudioContentStart");
-                if (clear) {
-                    clearPlayback();
-                    AppAnimationUtils.getInstance().animateBottomSheet(bottomSheet, false);
-                    clearAudioFragment();
-                }
+                clearPlayback();
+                AppAnimationUtils.getInstance().animateBottomSheet(bottomSheet, false);
+                clearAudioFragment();
             }
 
             @Override
-            public void onFetchVideoContentStart(boolean clear) {
+            public void onFetchVideoContentStart() {
                 AppLog.INFO("onFetchVideoContentStart");
-                if (clear) {
-                    clearVideoFragment();
-                }
+                clearVideoFragment();
             }
 
             @Override

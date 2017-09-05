@@ -23,6 +23,8 @@ import android.util.Log;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
+import com.fesskiev.mediacenter.data.model.MediaFile;
+import com.fesskiev.mediacenter.data.model.MediaFolder;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
 import com.fesskiev.mediacenter.data.source.DataRepository;
@@ -43,11 +45,18 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 import static com.fesskiev.mediacenter.utils.NotificationHelper.EXTRA_ACTION_BUTTON;
@@ -60,7 +69,7 @@ public class FileSystemService extends JobService {
     }
 
     public enum SCAN_STATE {
-        PREPARE, SCANNING_ALL, SCANNING_FOUND, FINISHED
+        PREPARE, SCANNING_ALL, FINISHED
     }
 
 
@@ -245,16 +254,59 @@ public class FileSystemService extends JobService {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            final String extras = intent.getStringExtra(EXTRA_ACTION_BUTTON);
-            switch (action) {
-                case NotificationHelper.ACTION_SKIP_BUTTON:
-                    break;
-                case NotificationHelper.ACTION_ADD_BUTTON:
-                    break;
+            if (action != null) {
+                final String extrasPath = intent.getStringExtra(EXTRA_ACTION_BUTTON);
+                switch (action) {
+                    case NotificationHelper.ACTION_SKIP_BUTTON:
+                        break;
+                    case NotificationHelper.ACTION_ADD_BUTTON:
+                        addMedia(extrasPath);
+                        break;
+                }
             }
-            NotificationHelper.removeNotificationAndCloseNotificationBar(context);
         }
     };
+
+    private void addMedia(String extrasPath) {
+        Observable.just(extrasPath)
+                .subscribeOn(Schedulers.io())
+                .doOnNext(path -> {
+                    MediaFile mediaFile = observer.getMediaFileByPath(path);
+                    if (mediaFile != null) {
+                        if (mediaFile instanceof AudioFile) {
+                            repository.insertAudioFile((AudioFile) mediaFile);
+                        } else if (mediaFile instanceof VideoFile) {
+                            repository.insertVideoFile((VideoFile) mediaFile);
+                        }
+                    } else {
+                        Map.Entry<MediaFolder, List<MediaFile>> mediaFolderEntry =
+                                observer.getMediaFolderByPath(path);
+                        if (mediaFolderEntry != null) {
+                            MediaFolder mediaFolder = mediaFolderEntry.getKey();
+                            List<MediaFile> mediaFiles = mediaFolderEntry.getValue();
+
+                            if (mediaFolder instanceof AudioFolder) {
+                                repository.insertAudioFolder((AudioFolder) mediaFolder);
+                                for (MediaFile audioFile : mediaFiles) {
+                                    repository.insertAudioFile((AudioFile) audioFile);
+                                }
+                            } else if (mediaFolder instanceof VideoFolder) {
+                                repository.insertVideoFolder((VideoFolder) mediaFolder);
+                                for (MediaFile videoFile : mediaFiles) {
+                                    repository.insertVideoFile((VideoFile) videoFile);
+                                }
+                            }
+                        }
+                    }
+                })
+                .doOnNext(path -> {
+                    observer.removeMediaFileByPath(path);
+                    observer.removeMediaFolderByPath(path);
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(s -> NotificationHelper
+                        .removeNotificationAndCloseNotificationBar(getApplicationContext()));
+    }
 
     private void sendFetchState() {
         EventBus.getDefault().post(FileSystemService.this);
@@ -267,11 +319,6 @@ public class FileSystemService extends JobService {
 
     private void startScanAll() {
         scanState = SCAN_STATE.SCANNING_ALL;
-        EventBus.getDefault().post(FileSystemService.this);
-    }
-
-    private void startScanFound() {
-        scanState = SCAN_STATE.SCANNING_FOUND;
         EventBus.getDefault().post(FileSystemService.this);
     }
 
@@ -413,8 +460,7 @@ public class FileSystemService extends JobService {
 
             for (File path : videoPaths) {
 
-                VideoFile videoFile = new VideoFile(path);
-                videoFile.id = videoFolder.id;
+                VideoFile videoFile = new VideoFile(path, videoFolder.id);
 
                 repository.insertVideoFile(videoFile);
 
@@ -429,7 +475,6 @@ public class FileSystemService extends JobService {
     }
 
     private void filterAudioFolders(File directoryFile) {
-
         File[] audioPaths = directoryFile.listFiles(audioFilter());
         if (audioPaths != null && audioPaths.length > 0) {
 
@@ -466,12 +511,17 @@ public class FileSystemService extends JobService {
 
     private class MediaObserver extends ContentObserver {
 
+        private Set<MediaFile> mediaFiles;
+        private Map<MediaFolder, List<MediaFile>> mediaFoldersMap;
+
         private long lastTimeCall = 0L;
         private long lastTimeUpdate = 0L;
         private long threshold = 100;
 
         public MediaObserver(Handler handler) {
             super(handler);
+            mediaFiles = new TreeSet<>();
+            mediaFoldersMap = new TreeMap<>();
         }
 
         @Override
@@ -488,55 +538,105 @@ public class FileSystemService extends JobService {
                     cursor = getContentResolver().query(uri, projection, null, null, null);
                     if (cursor != null) {
                         if (cursor.moveToLast()) {
-                            String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA));
+                            String path =
+                                    cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA));
                             AppLog.ERROR("FIND PATH: " + path);
 
                             File file = new File(path);
                             if (file.isDirectory()) {
-                                File[] audioPaths = file.listFiles(audioFilter());
-                                if (audioPaths != null && audioPaths.length > 0) {
-                                    AppLog.INFO("It is audio folder with file!");
-                                }
-                                File[] videoPaths = file.listFiles(videoFilter());
-                                if (videoPaths != null && videoPaths.length > 0) {
-                                    AppLog.INFO("It is video folder with file!");
+                                if (!containsMediaFolder(path)) {
+                                    File[] audioPaths = file.listFiles(audioFilter());
+                                    if (audioPaths != null && audioPaths.length > 0) {
+                                        Observable.just(audioPaths)
+                                                .subscribeOn(Schedulers.io())
+                                                .doOnNext(files -> {
+                                                    AppLog.INFO("It is audio folder with file!");
+
+                                                    AudioFolder audioFolder = new AudioFolder();
+                                                    File[] filterImages = file.listFiles(folderImageFilter());
+                                                    if (filterImages != null && filterImages.length > 0) {
+                                                        audioFolder.folderImage = filterImages[0];
+                                                    }
+                                                    audioFolder.folderPath = file;
+                                                    audioFolder.folderName = file.getName();
+                                                    audioFolder.id = UUID.randomUUID().toString();
+                                                    audioFolder.timestamp = System.currentTimeMillis();
+
+                                                    List<MediaFile> audioFiles = new ArrayList<>();
+                                                    for (File p : audioPaths) {
+                                                        AudioFile audioFile = new AudioFile(getApplicationContext(), p,
+                                                                audioFolder.id);
+                                                        File folderImage = audioFolder.folderImage;
+                                                        if (folderImage != null) {
+                                                            audioFile.folderArtworkPath =
+                                                                    folderImage.getAbsolutePath();
+                                                        }
+                                                        audioFiles.add(audioFile);
+                                                    }
+                                                    mediaFoldersMap.put(audioFolder, audioFiles);
+                                                }).subscribe();
+                                    }
+                                    File[] videoPaths = file.listFiles(videoFilter());
+                                    if (videoPaths != null && videoPaths.length > 0) {
+                                        AppLog.INFO("It is video folder with file!");
+                                        Observable.just(videoPaths)
+                                                .subscribeOn(Schedulers.io())
+                                                .doOnNext(files -> {
+                                                    VideoFolder videoFolder = new VideoFolder();
+                                                    videoFolder.folderPath = file;
+                                                    videoFolder.folderName = file.getName();
+                                                    videoFolder.id = UUID.randomUUID().toString();
+                                                    videoFolder.timestamp = System.currentTimeMillis();
+
+                                                    List<MediaFile> videoFiles = new ArrayList<>();
+                                                    for (File p : videoPaths) {
+                                                        VideoFile videoFile = new VideoFile(p, videoFolder.id);
+                                                        videoFiles.add(videoFile);
+                                                    }
+                                                    mediaFoldersMap.put(videoFolder, videoFiles);
+                                                }).subscribe();
+                                    }
                                 }
                             } else {
-                                if (isAudioFile(path)) {
-                                    repository.getAudioFolderByPath(file.getParent())
-                                            .subscribeOn(Schedulers.io())
-                                            .flatMap(audioFolder -> {
-                                                if (audioFolder != null) {
-                                                    return Observable.just(new AudioFile(getApplicationContext(), file,
-                                                            audioFolder.id));
-                                                }
-                                                return Observable.just(null);
-                                            })
-                                            .subscribe(audioFile -> {
-                                                if (audioFile != null) {
-                                                    NotificationHelper.getInstance()
-                                                            .createMediaFileNotification(audioFile,
-                                                                    NotificationHelper.NOTIFICATION_MEDIA_ID);
-                                                }
-                                            });
-                                    AppLog.INFO("It is audio file!");
-                                } else if (isVideoFile(path)) {
-                                    AppLog.INFO("It is video file!");
-                                    repository.getVideoFolderByPath(file.getParent())
-                                            .subscribeOn(Schedulers.io())
-                                            .flatMap(videoFolder -> {
-                                                if (videoFolder != null) {
-                                                    return Observable.just(new VideoFile(file));
-                                                }
-                                                return Observable.just(null);
-                                            })
-                                            .subscribe(videoFile -> {
-                                                if (videoFile != null) {
-                                                    NotificationHelper.getInstance()
-                                                            .createMediaFileNotification(videoFile,
-                                                                    NotificationHelper.NOTIFICATION_MEDIA_ID);
-                                                }
-                                            });
+                                if (!containMediaFile(path)) {
+                                    if (isAudioFile(path)) {
+                                        repository.getAudioFolderByPath(file.getParent())
+                                                .subscribeOn(Schedulers.io())
+                                                .flatMap(audioFolder -> {
+                                                    if (audioFolder != null) {
+                                                        return Observable.just(new AudioFile(getApplicationContext(), file,
+                                                                audioFolder.id));
+                                                    }
+                                                    return Observable.just(null);
+                                                })
+                                                .subscribe(audioFile -> {
+                                                    if (audioFile != null) {
+                                                        NotificationHelper.getInstance()
+                                                                .createMediaFileNotification(audioFile,
+                                                                        NotificationHelper.NOTIFICATION_MEDIA_ID);
+                                                        mediaFiles.add(audioFile);
+                                                    }
+                                                });
+                                        AppLog.INFO("It is audio file!");
+                                    } else if (isVideoFile(path)) {
+                                        AppLog.INFO("It is video file!");
+                                        repository.getVideoFolderByPath(file.getParent())
+                                                .subscribeOn(Schedulers.io())
+                                                .flatMap(videoFolder -> {
+                                                    if (videoFolder != null) {
+                                                        return Observable.just(new VideoFile(file, videoFolder.id));
+                                                    }
+                                                    return Observable.just(null);
+                                                })
+                                                .subscribe(videoFile -> {
+                                                    if (videoFile != null) {
+                                                        NotificationHelper.getInstance()
+                                                                .createMediaFileNotification(videoFile,
+                                                                        NotificationHelper.NOTIFICATION_MEDIA_ID);
+                                                        mediaFiles.add(videoFile);
+                                                    }
+                                                });
+                                    }
                                 }
                             }
                         }
@@ -548,6 +648,65 @@ public class FileSystemService extends JobService {
                 }
                 lastTimeUpdate = System.currentTimeMillis();
             }
+
+        }
+
+        private boolean containsMediaFolder(String path) {
+            for (Map.Entry<MediaFolder, List<MediaFile>> entry : mediaFoldersMap.entrySet()) {
+                MediaFolder mediaFolder = entry.getKey();
+                if (mediaFolder.getPath().equals(path)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private boolean containMediaFile(String path) {
+            for (MediaFile mediaFile : mediaFiles) {
+                if (mediaFile.getFilePath().equals(path)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public MediaFile getMediaFileByPath(String path) {
+            for (MediaFile mediaFile : mediaFiles) {
+                if (mediaFile.getFilePath().equals(path)) {
+                    return mediaFile;
+                }
+            }
+            return null;
+        }
+
+        public void removeMediaFileByPath(String path) {
+            for (MediaFile mediaFile : mediaFiles) {
+                if (mediaFile.getFilePath().equals(path)) {
+                    mediaFiles.remove(mediaFile);
+                    break;
+                }
+            }
+        }
+
+        public void removeMediaFolderByPath(String path) {
+            for (Iterator<Map.Entry<MediaFolder, List<MediaFile>>> it = mediaFoldersMap.entrySet().iterator(); it.hasNext(); ) {
+                Map.Entry<MediaFolder, List<MediaFile>> entry = it.next();
+                MediaFolder mediaFolder = entry.getKey();
+                if (mediaFolder.getPath().equals(path)) {
+                    it.remove();
+                    break;
+                }
+            }
+        }
+
+        public Map.Entry<MediaFolder, List<MediaFile>> getMediaFolderByPath(String path) {
+            for (Map.Entry<MediaFolder, List<MediaFile>> entry : mediaFoldersMap.entrySet()) {
+                MediaFolder mediaFolder = entry.getKey();
+                if (mediaFolder.getPath().equals(path)) {
+                    return entry;
+                }
+            }
+            return null;
         }
     }
 

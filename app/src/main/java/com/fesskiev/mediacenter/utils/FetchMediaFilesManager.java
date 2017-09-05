@@ -2,7 +2,6 @@ package com.fesskiev.mediacenter.utils;
 
 
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
@@ -27,9 +26,9 @@ public class FetchMediaFilesManager {
 
         void onFetchMediaPrepare();
 
-        void onFetchAudioContentStart(boolean clear);
+        void onFetchAudioContentStart();
 
-        void onFetchVideoContentStart(boolean clear);
+        void onFetchVideoContentStart();
 
         void onFetchMediaContentFinish();
 
@@ -88,10 +87,7 @@ public class FetchMediaFilesManager {
                     prepare();
                     break;
                 case SCANNING_ALL:
-                    scanning(fileSystemService.getScanType(), true);
-                    break;
-                case SCANNING_FOUND:
-                    scanning(fileSystemService.getScanType(), false);
+                    scanning(fileSystemService.getScanType());
                     break;
                 case FINISHED:
                     finish();
@@ -154,7 +150,7 @@ public class FetchMediaFilesManager {
         }
     }
 
-    private void scanning(FileSystemService.SCAN_TYPE scanType, boolean clear) {
+    private void scanning(FileSystemService.SCAN_TYPE scanType) {
         visibleContent();
         fetchStart = true;
         fetchComplete = false;
@@ -162,18 +158,18 @@ public class FetchMediaFilesManager {
         switch (scanType) {
             case AUDIO:
                 if (listener != null) {
-                    listener.onFetchAudioContentStart(clear);
+                    listener.onFetchAudioContentStart();
                 }
                 break;
             case VIDEO:
                 if (listener != null) {
-                    listener.onFetchVideoContentStart(clear);
+                    listener.onFetchVideoContentStart();
                 }
                 break;
             case BOTH:
                 if (listener != null) {
-                    listener.onFetchAudioContentStart(clear);
-                    listener.onFetchVideoContentStart(clear);
+                    listener.onFetchAudioContentStart();
+                    listener.onFetchVideoContentStart();
                 }
                 break;
         }

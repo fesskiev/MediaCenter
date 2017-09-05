@@ -44,7 +44,8 @@ public class VideoFile implements MediaFile, Parcelable {
         timestamp = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.VIDEO_TIMESTAMP));
     }
 
-    public VideoFile(File path) {
+    public VideoFile(File path, String folderId) {
+        this.id = folderId;
         File newPath = new File(path.getParent(), Utils.replaceSymbols(path.getName()));
         boolean rename = path.renameTo(newPath);
         if (rename) {
@@ -119,6 +120,11 @@ public class VideoFile implements MediaFile, Parcelable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 
     @Override

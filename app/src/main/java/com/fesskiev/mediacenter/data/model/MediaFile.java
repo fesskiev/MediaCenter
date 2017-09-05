@@ -3,6 +3,8 @@ package com.fesskiev.mediacenter.data.model;
 
 public interface MediaFile {
 
+    String getId();
+
     MEDIA_TYPE getMediaType();
 
     String getTitle();
