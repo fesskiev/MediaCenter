@@ -299,13 +299,13 @@ public class FileSystemService extends JobService {
                         }
                     }
                 })
+                .doOnNext(path -> refreshRepository())
                 .doOnNext(path -> {
                     observer.removeMediaFileByPath(path);
                     observer.removeMediaFolderByPath(path);
                 })
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(s -> NotificationHelper
-                        .removeNotificationAndCloseNotificationBar(getApplicationContext()));
+                .subscribe(path -> NotificationHelper.removeNotificationAndCloseBar(getApplicationContext()));
     }
 
     private void sendFetchState() {
@@ -742,7 +742,7 @@ public class FileSystemService extends JobService {
         Observable.zip(RxUtils.fromCallable(repository.resetAudioContentDatabase()),
                 RxUtils.fromCallable(repository.resetVideoContentDatabase()),
                 (integer, integer2) -> Observable.empty())
-                .doOnNext(observable -> refreshRepository(repository))
+                .doOnNext(observable -> refreshRepository())
                 .doOnNext(observable -> clearImagesCache())
                 .subscribe(observable -> {
                     JobParameters jobParameters = (JobParameters) msg.obj;
@@ -770,9 +770,8 @@ public class FileSystemService extends JobService {
         CacheManager.clearAudioImagesCache();
     }
 
-    private void refreshRepository(DataRepository repository) {
+    private void refreshRepository() {
         MemoryDataSource memoryDataSource = repository.getMemorySource();
-
         memoryDataSource.setCacheArtistsDirty(true);
         memoryDataSource.setCacheGenresDirty(true);
         memoryDataSource.setCacheFoldersDirty(true);

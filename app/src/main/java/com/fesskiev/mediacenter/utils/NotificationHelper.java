@@ -180,7 +180,7 @@ public class NotificationHelper {
         notificationManager.cancel(NOTIFICATION_ID);
     }
 
-    public static void removeNotificationAndCloseNotificationBar(Context context){
+    public static void removeNotificationAndCloseBar(Context context){
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {
