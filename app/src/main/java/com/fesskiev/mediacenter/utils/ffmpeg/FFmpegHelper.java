@@ -16,7 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;;
 
 public class FFmpegHelper {
 
@@ -236,7 +236,7 @@ public class FFmpegHelper {
 
     public void convertAudioIfNeed(AudioFile audioFile, OnConvertProcessListener listener) {
         MediaApplication.getInstance().getRepository().getFolderFilePaths("Temp")
-                .first()
+                .first(null)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(paths -> {
                     String path = needConvert(paths, audioFile);

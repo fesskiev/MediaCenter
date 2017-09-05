@@ -45,10 +45,10 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.android.schedulers.AndroidSchedulers;;
+import io.reactivex.schedulers.Schedulers;
 
 
 public class VideoFilesActivity extends AnalyticsActivity {
@@ -62,7 +62,7 @@ public class VideoFilesActivity extends AnalyticsActivity {
 
     private VideoFolder videoFolder;
 
-    private Subscription subscription;
+    private Disposable subscription;
     private DataRepository repository;
 
     private boolean layoutAnimate;
@@ -113,9 +113,8 @@ public class VideoFilesActivity extends AnalyticsActivity {
 
     public void fetchVideoFolderFiles(VideoFolder videoFolder) {
         subscription = repository.getVideoFiles(videoFolder.id)
-                .first()
                 .subscribeOn(Schedulers.io())
-                .flatMap(Observable::from)
+                .flatMap(Observable::fromIterable)
                 .filter(file -> {
                     if (AppSettingsManager.getInstance().isShowHiddenFiles()) {
                         return true;
@@ -289,7 +288,6 @@ public class VideoFilesActivity extends AnalyticsActivity {
                     dialog.show(transaction, SimpleDialog.class.getName());
                     dialog.setPositiveListener(() ->
                             Observable.just(videoFile.filePath.delete())
-                                    .first()
                                     .subscribeOn(Schedulers.io())
                                     .flatMap(result -> {
                                         DataRepository repository = MediaApplication.getInstance().getRepository();

@@ -22,7 +22,7 @@ import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
 import com.google.firebase.crash.FirebaseCrash;
 
-import rx.plugins.RxJavaHooks;
+import io.reactivex.plugins.RxJavaPlugins;
 
 public class MediaApplication extends MultiDexApplication {
 
@@ -69,7 +69,7 @@ public class MediaApplication extends MultiDexApplication {
                 });
 
 
-        RxJavaHooks.setOnError(FirebaseCrash::report);
+        RxJavaPlugins.setErrorHandler(FirebaseCrash::report);
 
         userAgent = Util.getUserAgent(this, "ExoPlayer");
     }

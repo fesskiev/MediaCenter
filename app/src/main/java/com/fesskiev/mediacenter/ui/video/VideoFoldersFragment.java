@@ -47,10 +47,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.android.schedulers.AndroidSchedulers;;
+import io.reactivex.schedulers.Schedulers;
 
 
 public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -61,7 +61,7 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
 
     public static final String EXTRA_VIDEO_FOLDER = "com.fesskiev.player.extra.EXTRA_VIDEO_FOLDER";
 
-    private Subscription subscription;
+    private Disposable subscription;
     private DataRepository repository;
 
     private VideoFoldersAdapter adapter;
@@ -121,9 +121,8 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
     private void fetchVideoFolders() {
         RxUtils.unsubscribe(subscription);
         subscription = repository.getVideoFolders()
-                .first()
                 .subscribeOn(Schedulers.io())
-                .flatMap(Observable::from)
+                .flatMap(Observable::fromIterable)
                 .filter(folder -> {
                     if (AppSettingsManager.getInstance().isShowHiddenFiles()) {
                         return true;
@@ -131,6 +130,7 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
                     return !folder.isHidden;
                 })
                 .toList()
+                .toObservable()
                 .flatMap(videoFolders -> {
                     if (videoFolders != null && !videoFolders.isEmpty()) {
                         Collections.sort(videoFolders);
@@ -319,7 +319,6 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
                             act.getString(R.string.dialog_delete_folder_message), R.drawable.icon_trash);
                     dialog.show(transaction, SimpleDialog.class.getName());
                     dialog.setPositiveListener(() -> Observable.just(CacheManager.deleteDirectoryWithFiles(videoFolder.folderPath))
-                            .first()
                             .subscribeOn(Schedulers.io())
                             .flatMap(result -> {
                                 if (result) {
@@ -437,7 +436,7 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
         private void updateVideoFoldersIndexes() {
             RxUtils.fromCallable(MediaApplication.getInstance().getRepository()
                     .updateVideoFoldersIndex(videoFolders))
-                    .first()
+                    .firstOrError()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(integer -> notifyDataSetChanged());

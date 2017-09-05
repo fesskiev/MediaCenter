@@ -20,14 +20,14 @@ import com.fesskiev.mediacenter.utils.billing.Inventory;
 import com.fesskiev.mediacenter.utils.billing.Product;
 import com.fesskiev.mediacenter.utils.billing.Purchase;
 
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;;
+import io.reactivex.android.schedulers.AndroidSchedulers;;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class InAppBillingActivity extends AppCompatActivity {
 
-    private Subscription subscription;
+    private Disposable subscription;
     private Billing billing;
 
     private Product product;

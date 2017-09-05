@@ -7,8 +7,8 @@ import android.os.Looper;
 
 import java.util.concurrent.Callable;
 
-import rx.Observable;
-import rx.Subscription;
+import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;;
 
 public class RxUtils {
 
@@ -17,9 +17,9 @@ public class RxUtils {
     }
 
 
-    public static void unsubscribe(Subscription subscription) {
-        if (subscription != null) {
-            subscription.unsubscribe();
+    public static void unsubscribe(Disposable subscription) {
+        if (subscription != null && !subscription.isDisposed()) {
+            subscription.dispose();
         }
     }
 

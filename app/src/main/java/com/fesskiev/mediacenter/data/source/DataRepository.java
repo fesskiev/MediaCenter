@@ -16,7 +16,7 @@ import com.fesskiev.mediacenter.data.source.remote.RemoteDataSource;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import rx.Observable;
+import io.reactivex.Observable;;
 
 
 public class DataRepository {

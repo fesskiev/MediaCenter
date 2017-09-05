@@ -21,8 +21,8 @@ import com.fesskiev.mediacenter.widgets.dialogs.SimpleDialog;
 
 import java.util.List;
 
-import rx.Subscription;
-import rx.schedulers.Schedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 
 public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -32,7 +32,7 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
     }
 
     private SwipeRefreshLayout swipeRefreshLayout;
-    private Subscription subscription;
+    private Disposable subscription;
     private DataRepository repository;
 
     @Override
@@ -104,9 +104,7 @@ public class AudioFragment extends ViewPagerFragment implements SwipeRefreshLayo
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (subscription != null) {
-            subscription.unsubscribe();
-        }
+        RxUtils.unsubscribe(subscription);
     }
 
 

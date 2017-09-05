@@ -34,10 +34,10 @@ import com.thoughtbot.expandablerecyclerview.viewholders.GroupViewHolder;
 import java.util.ArrayList;
 import java.util.List;
 
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;;
+import io.reactivex.android.schedulers.AndroidSchedulers;;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 import static com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity.EXTRA_CONTENT_TYPE;
 import static com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity.EXTRA_CONTENT_TYPE_VALUE;
@@ -54,7 +54,7 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
     private RecyclerView recyclerView;
     private GroupsAdapter adapter;
 
-    private Subscription subscription;
+    private Disposable subscription;
     private DataRepository repository;
 
     private ArrayList<Integer> expandedGroupIds;
@@ -126,7 +126,7 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
     public void fetch() {
         subscription = Observable.zip(repository.getGenresList(), repository.getArtistsList(),
                 (genres, artists) -> Group.makeGroups(getContext(), genres, artists))
-                .first()
+                .first(null)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::makeExpandAdapter);

@@ -13,23 +13,10 @@ import android.widget.TextView;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.data.model.AudioFile;
-import com.fesskiev.mediacenter.data.model.AudioFolder;
-import com.fesskiev.mediacenter.data.model.MediaFolder;
-import com.fesskiev.mediacenter.data.model.VideoFolder;
 import com.fesskiev.mediacenter.data.source.DataRepository;
-import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
-import com.fesskiev.mediacenter.utils.Utils;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.disposables.Disposable;
 
 
 public abstract class MediaFolderDetailsDialog extends DialogFragment {
@@ -57,7 +44,7 @@ public abstract class MediaFolderDetailsDialog extends DialogFragment {
     protected TextView folderTimestamp;
     protected CheckBox hideFolder;
 
-    protected Subscription subscription;
+    protected Disposable subscription;
     protected DataRepository repository;
 
     protected long folderSize = 0L;

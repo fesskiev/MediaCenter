@@ -79,6 +79,9 @@ android {
             // but continue the build even when errors are found:
             abortOnError false
         }
+        packagingOptions {
+            exclude 'META-INF/rxjava.properties'
+        }
     }
 
     compileOptions {
@@ -124,13 +127,13 @@ dependencies {
     compile "com.github.clans:fab:$rootProject.fab"
     compile "com.github.bumptech.glide:glide:$rootProject.glide"
     compile "com.google.android.exoplayer:exoplayer:$rootProject.exoplayer"
-    compile "io.reactivex:rxandroid:$rootProject.rxandroid"
-    compile "io.reactivex:rxjava:$rootProject.rxjava"
+    compile "io.reactivex.rxjava2:rxandroid:$rootProject.rxandroid"
+    compile "io.reactivex.rxjava2:rxjava:$rootProject.rxjava"
     compile "com.squareup.okhttp3:okhttp:$rootProject.okhttp"
     compile "com.squareup.retrofit2:retrofit:$rootProject.retrofit"
     compile "com.squareup.retrofit2:converter-gson:$rootProject.gson"
     compile "com.squareup.retrofit2:adapter-rxjava:$rootProject.rxjavaAdapter"
-    compile "com.squareup.sqlbrite:sqlbrite:$rootProject.sqlbrite"
+    compile "com.squareup.sqlbrite2:sqlbrite:$rootProject.sqlbrite"
     compile "org.greenrobot:eventbus:$rootProject.eventbus"
     compile "com.thoughtbot:expandablecheckrecyclerview:$rootProject.expandablecheckrecyclerview"
 

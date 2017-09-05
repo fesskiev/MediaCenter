@@ -42,10 +42,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import rx.Observable;
-import rx.Subscription;
-import rx.schedulers.Schedulers;
-import rx.subscriptions.CompositeSubscription;
+import io.reactivex.Observable;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 
 import static com.fesskiev.common.Constants.CHOOSE_TRACK;
 import static com.fesskiev.common.Constants.COVER;
@@ -124,7 +123,7 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
     private OnWearConnectionListener connectionListener;
 
     private GoogleApiClient googleApiClient;
-    private CompositeSubscription subscription;
+    private CompositeDisposable subscription;
 
     private AudioPlayer audioPlayer;
     private PlaybackService service;
@@ -138,7 +137,7 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
         this.context = context;
         this.service = service;
         this.audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-        this.subscription = new CompositeSubscription();
+        this.subscription = new CompositeDisposable();
 
         googleApiClient = new GoogleApiClient.Builder(context)
                 .addApi(Wearable.API)

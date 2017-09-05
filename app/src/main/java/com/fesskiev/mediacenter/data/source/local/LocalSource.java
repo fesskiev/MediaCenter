@@ -10,7 +10,7 @@ import com.fesskiev.mediacenter.data.model.VideoFolder;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import rx.Observable;
+import io.reactivex.Observable;;
 
 public interface LocalSource {
 

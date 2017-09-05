@@ -6,7 +6,7 @@ import com.fesskiev.mediacenter.data.model.VideoFolder;
 
 import java.util.List;
 
-import rx.Observable;
+import io.reactivex.Observable;;
 
 public interface MemorySource {
 

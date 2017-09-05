@@ -3,7 +3,7 @@ package com.fesskiev.mediacenter.data.source.remote;
 
 import com.fesskiev.mediacenter.data.model.search.AlbumResponse;
 
-import rx.Observable;
+import io.reactivex.Observable;;
 
 public interface RemoteSource {
 

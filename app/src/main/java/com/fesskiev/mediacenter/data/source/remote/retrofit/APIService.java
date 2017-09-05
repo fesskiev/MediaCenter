@@ -7,7 +7,7 @@ import java.util.Map;
 
 import retrofit2.http.GET;
 import retrofit2.http.QueryMap;
-import rx.Observable;
+import io.reactivex.Observable;;
 
 public interface APIService {
 

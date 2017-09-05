@@ -29,10 +29,10 @@ import com.fesskiev.mediacenter.utils.Utils;
 import java.io.File;
 import java.util.UUID;
 
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;;
+import io.reactivex.android.schedulers.AndroidSchedulers;;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 
 public class SplashActivity extends AppCompatActivity {
@@ -44,7 +44,7 @@ public class SplashActivity extends AppCompatActivity {
     private static final int ITEM_DELAY = 300;
 
     private DataRepository repository;
-    private Subscription subscription;
+    private Disposable subscription;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -105,7 +105,7 @@ public class SplashActivity extends AppCompatActivity {
                     }
                     return parseAudioFolder(path);
                 })
-                .first()
+                .firstOrError()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(v -> animateAndFetchData(true));
     }

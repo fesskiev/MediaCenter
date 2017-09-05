@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import rx.Observable;
+import io.reactivex.Observable;;
 
 public class Billing {
 

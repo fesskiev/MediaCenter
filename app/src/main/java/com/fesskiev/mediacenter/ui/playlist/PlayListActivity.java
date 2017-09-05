@@ -36,14 +36,14 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;;
+import io.reactivex.android.schedulers.AndroidSchedulers;;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class PlayListActivity extends AnalyticsActivity {
 
-    private Subscription subscription;
+    private Disposable subscription;
     private DataRepository repository;
 
     private AudioTracksAdapter adapter;
@@ -149,7 +149,7 @@ public class PlayListActivity extends AnalyticsActivity {
                     mediaFiles.addAll(videoFiles);
                     return mediaFiles;
                 })
-                .first()
+                .first(null)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(mediaFiles -> {

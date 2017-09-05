@@ -25,10 +25,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
 
-import rx.Observable;
-import rx.Scheduler;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
 
 public class AudioPlayer implements Playable {
 
@@ -72,7 +69,7 @@ public class AudioPlayer implements Playable {
                         trackListIterator.findPosition();
                     }
                 })
-                .first()
+                .firstOrError()
                 .subscribe(object -> Log.e(TAG, AudioPlayer.this.toString()), Throwable::printStackTrace);
     }
 

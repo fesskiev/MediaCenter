@@ -23,10 +23,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;;
+import io.reactivex.android.schedulers.AndroidSchedulers;;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 
 public class VideoFileDetailsDialog extends DialogFragment {
@@ -48,7 +48,7 @@ public class VideoFileDetailsDialog extends DialogFragment {
 
     private OnVideoFileDetailsDialogListener listener;
 
-    private Subscription subscription;
+    private Disposable subscription;
     private DataRepository repository;
 
     private VideoFile videoFile;

@@ -47,10 +47,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;;
+import io.reactivex.android.schedulers.AndroidSchedulers;;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class TrackListActivity extends AnalyticsActivity implements View.OnClickListener {
 
@@ -61,7 +61,7 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
     private FloatingActionMenu actionMenu;
     private AppGuide appGuide;
 
-    private Subscription subscription;
+    private Disposable subscription;
     private DataRepository repository;
 
     private AppSettingsManager settingsManager;
@@ -207,9 +207,10 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
 
         if (audioFilesObservable != null) {
             subscription = audioFilesObservable
-                    .first()
+                    .firstOrError()
+                    .toObservable()
                     .subscribeOn(Schedulers.io())
-                    .flatMap(Observable::from)
+                    .flatMap(Observable::fromIterable)
                     .filter(audioFile -> {
                         if (AppSettingsManager.getInstance().isShowHiddenFiles()) {
                             return true;
@@ -217,6 +218,7 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                         return !audioFile.isHidden;
                     })
                     .toList()
+                    .toObservable()
                     .map(unsortedList -> audioPlayer.sortAudioFiles(settingsManager.getSortType(),
                             unsortedList))
                     .doOnNext(sortedList -> audioPlayer.setSortingTrackList(sortedList))

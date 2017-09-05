@@ -15,9 +15,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;;
+import io.reactivex.android.schedulers.AndroidSchedulers;;
+import io.reactivex.schedulers.Schedulers;
 
 public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
 
@@ -61,7 +61,8 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
     @Override
     public void fetchFolderFiles() {
         subscription = repository.getVideoFiles(videoFolder.getId())
-                .first()
+                .firstOrError()
+                .toObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(videoFiles -> {
@@ -96,7 +97,8 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
 
     private void changeHiddenFolderState(boolean hidden) {
         subscription = repository.getVideoFiles(videoFolder.getId())
-                .first()
+                .firstOrError()
+                .toObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(videoFiles -> updateHiddenVideoFolder(hidden))

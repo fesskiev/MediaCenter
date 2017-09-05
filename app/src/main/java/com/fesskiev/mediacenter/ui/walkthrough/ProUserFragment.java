@@ -21,10 +21,10 @@ import com.fesskiev.mediacenter.utils.billing.Billing;
 import com.fesskiev.mediacenter.utils.billing.Inventory;
 import com.fesskiev.mediacenter.utils.billing.Purchase;
 
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;;
+import io.reactivex.android.schedulers.AndroidSchedulers;;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 
 public class ProUserFragment extends Fragment implements View.OnClickListener {
@@ -33,7 +33,7 @@ public class ProUserFragment extends Fragment implements View.OnClickListener {
         return new ProUserFragment();
     }
 
-    private Subscription subscription;
+    private Disposable subscription;
     private Billing billing;
 
     private TextView adMobText;

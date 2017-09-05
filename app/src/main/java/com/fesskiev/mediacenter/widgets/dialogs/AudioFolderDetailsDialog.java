@@ -16,8 +16,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;;
+import io.reactivex.schedulers.Schedulers;
 
 public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
 
@@ -64,7 +64,8 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
     @Override
     public void fetchFolderFiles() {
         subscription = repository.getAudioTracks(audioFolder.getId())
-                .first()
+                .firstOrError()
+                .toObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::calculateValues);
@@ -91,7 +92,8 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
 
     private void changeHiddenFolderState(boolean hidden) {
         subscription = repository.getAudioTracks(audioFolder.getId())
-                .first()
+                .firstOrError()
+                .toObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(audioFiles -> updateHiddenAudioFolder(hidden))

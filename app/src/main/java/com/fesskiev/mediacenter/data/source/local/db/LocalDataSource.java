@@ -12,14 +12,15 @@ import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
 import com.fesskiev.mediacenter.data.source.local.LocalSource;
-import com.squareup.sqlbrite.BriteDatabase;
-import com.squareup.sqlbrite.SqlBrite;
+import com.squareup.sqlbrite2.BriteDatabase;
+import com.squareup.sqlbrite2.SqlBrite;
+
 
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import rx.Observable;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;;
+import io.reactivex.schedulers.Schedulers;
 
 public class LocalDataSource implements LocalSource {
 
@@ -36,7 +37,7 @@ public class LocalDataSource implements LocalSource {
     private LocalDataSource() {
         DatabaseHelper dbHelper
                 = new DatabaseHelper(MediaApplication.getInstance().getApplicationContext());
-        SqlBrite sqlBrite = SqlBrite.create();
+        SqlBrite sqlBrite = new SqlBrite.Builder().build();
         briteDatabase = sqlBrite.wrapDatabaseHelper(dbHelper, Schedulers.io());
     }
 

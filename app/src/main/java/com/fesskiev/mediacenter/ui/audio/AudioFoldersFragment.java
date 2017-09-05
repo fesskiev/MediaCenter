@@ -43,10 +43,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;;
+import io.reactivex.android.schedulers.AndroidSchedulers;;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 import static com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity.EXTRA_AUDIO_FOLDER;
 import static com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity.EXTRA_CONTENT_TYPE;
@@ -58,7 +58,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
         return new AudioFoldersFragment();
     }
 
-    private Subscription subscription;
+    private Disposable subscription;
     private DataRepository repository;
 
     @Override
@@ -107,16 +107,17 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
     @Override
     public void fetch() {
         subscription = repository.getAudioFolders()
-                .first()
+                .firstOrError()
+                .toObservable()
                 .subscribeOn(Schedulers.io())
-                .flatMap(Observable::from)
+                .flatMap(Observable::fromIterable)
                 .filter(folder -> {
                     if (AppSettingsManager.getInstance().isShowHiddenFiles()) {
                         return true;
                     }
                     return !folder.isHidden;
                 })
-                .toList()
+                .toList().toObservable()
                 .flatMap(audioFolders -> {
                     if (audioFolders != null) {
                         AppLog.INFO("onNext:folders: " + audioFolders.size());
@@ -283,7 +284,8 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                     dialog.show(transaction, SimpleDialog.class.getName());
                     dialog.setPositiveListener(() ->
                             Observable.just(CacheManager.deleteDirectoryWithFiles(audioFolder.folderPath))
-                                    .first()
+                                    .firstOrError()
+                                    .toObservable()
                                     .subscribeOn(Schedulers.io())
                                     .flatMap(result -> {
                                         DataRepository repository = MediaApplication.getInstance().getRepository();
@@ -372,7 +374,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
         public void updateAudioFoldersIndexes() {
             RxUtils.fromCallable(MediaApplication.getInstance().getRepository()
                     .updateAudioFoldersIndex(audioFolders))
-                    .first()
+                    .firstOrError()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(integer -> notifyDataSetChanged());

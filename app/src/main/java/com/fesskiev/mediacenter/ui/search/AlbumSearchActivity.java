@@ -36,6 +36,7 @@ import com.fesskiev.mediacenter.data.source.remote.ErrorHelper;
 import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
+import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.MaterialProgressBar;
 import com.fesskiev.mediacenter.widgets.dialogs.SelectImageDialog;
@@ -46,10 +47,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;;
+import io.reactivex.android.schedulers.AndroidSchedulers;;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 
 public class AlbumSearchActivity extends AnalyticsActivity {
@@ -64,7 +65,7 @@ public class AlbumSearchActivity extends AnalyticsActivity {
 
 
     private DataRepository repository;
-    private Subscription subscription;
+    private Disposable subscription;
     private AudioFolder audioFolder;
 
     private SearchAdapter adapter;
@@ -143,14 +144,9 @@ public class AlbumSearchActivity extends AnalyticsActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        unsubscribe();
+        RxUtils.unsubscribe(subscription);
     }
 
-    public void unsubscribe() {
-        if (subscription != null) {
-            subscription.unsubscribe();
-        }
-    }
 
     @Override
     public boolean onSupportNavigateUp() {
@@ -397,7 +393,7 @@ public class AlbumSearchActivity extends AnalyticsActivity {
                         repository.updateAudioFile(audioFile);
                     }
                 })
-                .first()
+                .firstOrError()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(audioFiles -> showSuccessSaveBitmap(),
                         throwable -> showErrorSaveBitmap());

@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
-import rx.Observable;
+import io.reactivex.Observable;;
 
 public class BitmapHelper {
 
