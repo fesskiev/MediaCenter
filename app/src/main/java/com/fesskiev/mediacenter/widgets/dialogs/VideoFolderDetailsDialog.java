@@ -97,9 +97,9 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
 
     private void changeHiddenFolderState(boolean hidden) {
         subscription = repository.getVideoFiles(videoFolder.getId())
+                .subscribeOn(Schedulers.io())
                 .firstOrError()
                 .toObservable()
-                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(videoFiles -> updateHiddenVideoFolder(hidden))
                 .doOnNext(videoFiles -> updateHiddenVideoFiles(videoFiles, hidden))

@@ -211,16 +211,10 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                     .toObservable()
                     .subscribeOn(Schedulers.io())
                     .flatMap(Observable::fromIterable)
-                    .filter(audioFile -> {
-                        if (AppSettingsManager.getInstance().isShowHiddenFiles()) {
-                            return true;
-                        }
-                        return !audioFile.isHidden;
-                    })
+                    .filter(audioFile -> AppSettingsManager.getInstance().isShowHiddenFiles() || !audioFile.isHidden)
                     .toList()
                     .toObservable()
-                    .map(unsortedList -> audioPlayer.sortAudioFiles(settingsManager.getSortType(),
-                            unsortedList))
+                    .map(unsortedList -> audioPlayer.sortAudioFiles(settingsManager.getSortType(), unsortedList))
                     .doOnNext(sortedList -> audioPlayer.setSortingTrackList(sortedList))
                     .observeOn(AndroidSchedulers.mainThread())
                     .doOnNext(audioFiles -> adapter.refreshAdapter(audioFiles))

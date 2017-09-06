@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.source.DataRepository;
+import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.RxUtils;
 
 import io.reactivex.disposables.Disposable;
@@ -89,6 +90,7 @@ public abstract class MediaFolderDetailsDialog extends DialogFragment {
         fetchFolderFiles();
 
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy();

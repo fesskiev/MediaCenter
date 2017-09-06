@@ -92,9 +92,9 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
 
     private void changeHiddenFolderState(boolean hidden) {
         subscription = repository.getAudioTracks(audioFolder.getId())
+                .subscribeOn(Schedulers.io())
                 .firstOrError()
                 .toObservable()
-                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(audioFiles -> updateHiddenAudioFolder(hidden))
                 .doOnNext(audioFiles -> updateHiddenAudioFiles(audioFiles, hidden))

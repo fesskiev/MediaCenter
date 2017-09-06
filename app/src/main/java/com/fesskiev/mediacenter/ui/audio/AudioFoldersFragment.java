@@ -111,13 +111,9 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                 .toObservable()
                 .subscribeOn(Schedulers.io())
                 .flatMap(Observable::fromIterable)
-                .filter(folder -> {
-                    if (AppSettingsManager.getInstance().isShowHiddenFiles()) {
-                        return true;
-                    }
-                    return !folder.isHidden;
-                })
-                .toList().toObservable()
+                .filter(folder -> AppSettingsManager.getInstance().isShowHiddenFiles() || !folder.isHidden)
+                .toList()
+                .toObservable()
                 .flatMap(audioFolders -> {
                     if (audioFolders != null) {
                         AppLog.INFO("onNext:folders: " + audioFolders.size());

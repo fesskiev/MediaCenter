@@ -121,14 +121,11 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
     private void fetchVideoFolders() {
         RxUtils.unsubscribe(subscription);
         subscription = repository.getVideoFolders()
+                .firstOrError()
+                .toObservable()
                 .subscribeOn(Schedulers.io())
                 .flatMap(Observable::fromIterable)
-                .filter(folder -> {
-                    if (AppSettingsManager.getInstance().isShowHiddenFiles()) {
-                        return true;
-                    }
-                    return !folder.isHidden;
-                })
+                .filter(folder -> AppSettingsManager.getInstance().isShowHiddenFiles() || !folder.isHidden)
                 .toList()
                 .toObservable()
                 .flatMap(videoFolders -> {
