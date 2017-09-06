@@ -83,8 +83,9 @@ public class SplashActivity extends AppCompatActivity {
         if (Intent.ACTION_VIEW.equals(action) && type != null) {
             if (type.startsWith("audio/")) {
                 Uri uri = intent.getData();
-
-                parseActionViewPath(uri.getPath());
+                if (uri != null) {
+                    parseActionViewPath(uri.getPath());
+                }
             }
         } else {
             animateAndFetchData(false);
@@ -118,7 +119,7 @@ public class SplashActivity extends AppCompatActivity {
                         audioFile.isSelected = true;
                         repository.updateSelectedAudioFile(audioFile);
                     }
-                    return Observable.just(audioFile);
+                    return audioFile != null ? Observable.just(audioFile) : Observable.empty();
                 })
                 .flatMap(audioFile -> repository.getAudioFolderByPath(new File(path).getParent()))
                 .flatMap(audioFolder -> {
@@ -126,7 +127,7 @@ public class SplashActivity extends AppCompatActivity {
                         audioFolder.isSelected = true;
                         repository.updateSelectedAudioFolder(audioFolder);
                     }
-                    return Observable.just(null);
+                    return Observable.empty();
                 });
     }
 
@@ -138,13 +139,13 @@ public class SplashActivity extends AppCompatActivity {
                         createParsingFolderSnackBar(dir.getName());
                         return Observable.just(dir);
                     }
-                    return Observable.just(null);
+                    return Observable.empty();
 
                 }).flatMap(dir -> {
                     if (dir != null) {
                         parseAudioFolderAndFile(dir, path);
                     }
-                    return Observable.just(null);
+                    return Observable.empty();
                 });
     }
 
@@ -236,8 +237,9 @@ public class SplashActivity extends AppCompatActivity {
                 repository.getGenresList(),
                 repository.getArtistsList(),
                 repository.getVideoFolders(),
-                (audioFolders, genres, artists, videoFolders) -> Observable.just(null))
+                (audioFolders, genres, artists, videoFolders) -> Observable.empty())
                 .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(o -> startMainActivity(fromAction));
     }
 

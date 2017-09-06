@@ -135,7 +135,7 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
                     if (videoFolders != null && !videoFolders.isEmpty()) {
                         Collections.sort(videoFolders);
                     }
-                    return Observable.just(videoFolders);
+                    return videoFolders != null ? Observable.just(videoFolders) : Observable.empty();
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(videoFolders -> {

@@ -113,6 +113,8 @@ public class VideoFilesActivity extends AnalyticsActivity {
 
     public void fetchVideoFolderFiles(VideoFolder videoFolder) {
         subscription = repository.getVideoFiles(videoFolder.id)
+                .firstOrError()
+                .toObservable()
                 .subscribeOn(Schedulers.io())
                 .flatMap(Observable::fromIterable)
                 .filter(file -> {
@@ -122,6 +124,7 @@ public class VideoFilesActivity extends AnalyticsActivity {
                     return !file.isHidden;
                 })
                 .toList()
+                .toObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(videoFiles -> {
                     adapter.refresh(videoFiles);

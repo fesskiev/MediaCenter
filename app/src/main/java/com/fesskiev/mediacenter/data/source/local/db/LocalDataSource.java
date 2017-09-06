@@ -238,7 +238,7 @@ public class LocalDataSource implements LocalSource {
                 DatabaseHelper.FOLDER_SELECTED + "=" + "'" + 1 + "'");
 
         return briteDatabase.createQuery(DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME, sql)
-                .mapToOneOrDefault(AudioFolder::new, null);
+                .mapToOne(AudioFolder::new);
 
     }
 
@@ -249,7 +249,7 @@ public class LocalDataSource implements LocalSource {
                 DatabaseHelper.TRACK_SELECTED + "=" + "'" + 1 + "'");
 
         return briteDatabase.createQuery(DatabaseHelper.AUDIO_TRACKS_TABLE_NAME, sql)
-                .mapToOneOrDefault(AudioFile::new, null);
+                .mapToOne(AudioFile::new);
 
     }
 

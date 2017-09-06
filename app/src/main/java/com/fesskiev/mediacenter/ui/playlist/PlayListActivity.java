@@ -149,7 +149,8 @@ public class PlayListActivity extends AnalyticsActivity {
                     mediaFiles.addAll(videoFiles);
                     return mediaFiles;
                 })
-                .first(null)
+                .firstOrError()
+                .toObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(mediaFiles -> {
