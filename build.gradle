@@ -53,9 +53,9 @@ ext {
     exoplayer = 'r2.5.1'
     rxandroid = '2.0.1'
     rxjava = '2.1.1'
-    rxjavaAdapter = '2.1.0'
+    rxjavaAdapter = '2.3.0'
     okhttp = '3.7.0'
-    retrofit = '2.0.2'
+    retrofit = '2.3.0'
     gson = '2.0.2'
     commons = '2.5'
     architectureComponents = "1.0.0-alpha9"
