@@ -66,13 +66,25 @@ public class WearFragment extends Fragment {
                 openApp();
             }
         });
-        wearHelper.connect();
+
+        if(wearHelper.isAvailable()) {
+            wearHelper.connect();
+        } else {
+            googlePlayServicesNotAvailable();
+        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         wearHelper.disconnect();
+    }
+
+    private void googlePlayServicesNotAvailable() {
+        openAppButton.setVisibility(View.INVISIBLE);
+        installAppButton.setVisibility(View.INVISIBLE);
+        connectionState.setText(getString(R.string.wear_not_available));
+        connectionState.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.icon_wear_no_connected, 0, 0);
     }
 
     private void someDeviceWithApp() {

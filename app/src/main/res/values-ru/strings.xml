@@ -313,6 +313,7 @@
     <string name="app_guide_video_next_title">Следующий видеофайл</string>
     <string name="app_guide_video_next_desc">Будет выбран следующий видеофайл из папки</string>
 
+    <string name="wear_not_available">Google play services не доступны!</string>
     <string name="wear_install">Установить</string>
     <string name="wear_open">Открыть</string>
     <string name="wear_no_connected">В данный момент нет присоединенных устройств</string>

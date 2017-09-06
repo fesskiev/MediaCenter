@@ -339,6 +339,7 @@
     <string name="app_guide_video_next_title">Next track</string>
     <string name="app_guide_video_next_desc">The next video from the folder will be selected</string>
 
+    <string name="wear_not_available">Google play services is not available!</string>
     <string name="wear_install">Install</string>
     <string name="wear_open">Open</string>
     <string name="wear_no_connected">You have no wear devices linked to your phone at this time</string>

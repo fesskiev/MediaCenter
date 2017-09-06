@@ -19,6 +19,7 @@ import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.wearable.Asset;
@@ -127,6 +128,7 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     private AudioPlayer audioPlayer;
     private PlaybackService service;
+    private boolean available;
 
 
     public WearHelper(Context context) {
@@ -135,6 +137,11 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     public WearHelper(Context context, PlaybackService service) {
         this.context = context;
+        if (!isGooglePlayServicesAvailable()) {
+            return;
+        } else {
+            available = true;
+        }
         this.service = service;
         this.audioPlayer = MediaApplication.getInstance().getAudioPlayer();
         this.subscription = new CompositeDisposable();
@@ -147,7 +154,9 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
     }
 
     public void connect() {
-        googleApiClient.connect();
+        if (googleApiClient != null) {
+            googleApiClient.connect();
+        }
     }
 
     public void disconnect() {
@@ -509,5 +518,15 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     public boolean isLooping() {
         return looping;
+    }
+
+    private boolean isGooglePlayServicesAvailable() {
+        GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
+        int status = googleApiAvailability.isGooglePlayServicesAvailable(context);
+        return status == ConnectionResult.SUCCESS;
+    }
+
+    public boolean isAvailable() {
+        return available;
     }
 }

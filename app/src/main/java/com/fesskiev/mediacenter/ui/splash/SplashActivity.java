@@ -22,7 +22,6 @@ import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.ui.MainActivity;
 import com.fesskiev.mediacenter.ui.walkthrough.WalkthroughActivity;
-import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
@@ -198,8 +197,6 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void animateAndFetchData(boolean fromAction) {
-        AppLog.ERROR("animateAndFetchData: " + fromAction);
-
         ImageView appLogo = findViewById(R.id.appLogo);
         ViewGroup container = findViewById(R.id.container);
 
