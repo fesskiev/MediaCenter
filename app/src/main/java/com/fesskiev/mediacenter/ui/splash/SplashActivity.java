@@ -22,6 +22,7 @@ import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.ui.MainActivity;
 import com.fesskiev.mediacenter.ui.walkthrough.WalkthroughActivity;
+import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
@@ -29,7 +30,7 @@ import com.fesskiev.mediacenter.utils.Utils;
 import java.io.File;
 import java.util.UUID;
 
-import io.reactivex.Observable;;
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -107,13 +108,16 @@ public class SplashActivity extends AppCompatActivity {
                     return parseAudioFolder(path);
                 })
                 .firstOrError()
+                .toObservable()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(v -> animateAndFetchData(true));
+                .subscribe(audioFolder -> animateAndFetchData(true));
     }
 
 
-    private Observable<Void> selectAudioFolderAndFile(String path) {
+    private Observable<AudioFolder> selectAudioFolderAndFile(String path) {
         return repository.getAudioFileByPath(path)
+                .firstOrError()
+                .toObservable()
                 .flatMap(audioFile -> {
                     if (audioFile != null) {
                         audioFile.isSelected = true;
@@ -121,17 +125,19 @@ public class SplashActivity extends AppCompatActivity {
                     }
                     return audioFile != null ? Observable.just(audioFile) : Observable.empty();
                 })
-                .flatMap(audioFile -> repository.getAudioFolderByPath(new File(path).getParent()))
+                .flatMap(audioFile -> repository.getAudioFolderByPath(new File(path).getParent())
+                        .firstOrError()
+                        .toObservable())
                 .flatMap(audioFolder -> {
                     if (audioFolder != null) {
                         audioFolder.isSelected = true;
                         repository.updateSelectedAudioFolder(audioFolder);
                     }
-                    return Observable.empty();
+                    return audioFolder != null ? Observable.just(audioFolder) : Observable.empty();
                 });
     }
 
-    private Observable<Void> parseAudioFolder(String path) {
+    private Observable<AudioFolder> parseAudioFolder(String path) {
         return Observable.just(new File(path))
                 .flatMap(file -> {
                     File dir = file.getParentFile();
@@ -143,13 +149,13 @@ public class SplashActivity extends AppCompatActivity {
 
                 }).flatMap(dir -> {
                     if (dir != null) {
-                        parseAudioFolderAndFile(dir, path);
+                        return Observable.just(parseAudioFolderAndFile(dir, path));
                     }
                     return Observable.empty();
                 });
     }
 
-    private void parseAudioFolderAndFile(File dir, String path) {
+    private AudioFolder parseAudioFolderAndFile(File dir, String path) {
         AudioFolder audioFolder = new AudioFolder();
 
         audioFolder.folderPath = dir;
@@ -181,6 +187,8 @@ public class SplashActivity extends AppCompatActivity {
         Log.d("test", "parse select folder: " + audioFolder.toString());
         audioFolder.isSelected = true;
         repository.updateSelectedAudioFolder(audioFolder);
+
+        return audioFolder;
     }
 
     private void createParsingFolderSnackBar(String name) {
@@ -190,6 +198,8 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void animateAndFetchData(boolean fromAction) {
+        AppLog.ERROR("animateAndFetchData: " + fromAction);
+
         ImageView appLogo = findViewById(R.id.appLogo);
         ViewGroup container = findViewById(R.id.container);
 

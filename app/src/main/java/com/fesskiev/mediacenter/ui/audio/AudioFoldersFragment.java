@@ -121,7 +121,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                             Collections.sort(audioFolders);
                         }
                     }
-                    return Observable.just(audioFolders);
+                    return audioFolders != null ? Observable.just(audioFolders) : Observable.empty();
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(audioFolders -> {
