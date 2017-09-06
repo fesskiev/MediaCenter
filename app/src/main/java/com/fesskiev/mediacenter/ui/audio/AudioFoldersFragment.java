@@ -295,6 +295,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                                             ((PlaybackActivity) act).clearPlayback();
                                         }
                                         removeFolder(position);
+                                        refreshAudioContent(act);
                                         Utils.showCustomSnackbar(act.getCurrentFocus(),
                                                 act,
                                                 act.getString(R.string.shackbar_delete_folder),

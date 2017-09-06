@@ -328,6 +328,7 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(integer -> {
                                 removeFolder(position);
+                                refreshVideoContent(act);
                                 Utils.showCustomSnackbar(act.getCurrentFocus(),
                                         act,
                                         act.getString(R.string.shackbar_delete_folder),
