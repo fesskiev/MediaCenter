@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -33,20 +34,23 @@
         android:layout_centerVertical="true"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/folderName"
-            style="@style/DetailsFolderTextAppearance"
+        <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ellipsize="marquee"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:freezesText="true"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:maxLines="1"
-            android:scrollHorizontally="true"
-            android:singleLine="true"
-            tools:text="Имя папки: Nikonn - Effrosyni (2016)" />
+            android:textColorHint="@color/white_text"
+            app:errorTextAppearance="@style/TextErrorAppearance"
+            app:hintTextAppearance="@style/EditAlbumTextAppearance">
+
+            <android.support.v7.widget.AppCompatEditText
+                android:id="@+id/folderName"
+                style="@style/EditAlbumTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/folder_details_name"
+                android:textColor="@color/white_text"
+                app:backgroundTint="@color/white_text" />
+
+        </android.support.design.widget.TextInputLayout>
 
         <TextView
             android:id="@+id/folderPath"
@@ -63,14 +67,6 @@
             android:scrollHorizontally="true"
             android:singleLine="true"
             tools:text="Путь: /storage/emulated/0/Music/Nikonn - Effrosyni (2016)" />
-
-        <View
-            android:id="@+id/divider1"
-            style="@style/DividerStyle"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="10dp" />
 
         <TextView
             android:id="@+id/folderSize"
@@ -123,12 +119,31 @@
         android:layout_marginBottom="10dp"
         android:layout_marginTop="10dp" />
 
-    <android.support.v7.widget.AppCompatCheckBox
-        android:id="@+id/hiddenFolderCheckBox"
-        style="@style/CheckBoxStyle"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/divider2"
-        android:text="@string/hide_folder_text" />
+        android:layout_below="@+id/divider2">
+
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/hiddenFolderCheckBox"
+            style="@style/CheckBoxStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="@string/hide_folder_text" />
+
+        <Button
+            android:id="@+id/saveFolderNameButton"
+            style="@style/ButtonStyle"
+            android:layout_width="@dimen/button_width_min"
+            android:layout_height="@dimen/button_height"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_margin="8dp"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="@string/button_save_track_info_text" />
+
+    </RelativeLayout>
 
 </RelativeLayout>

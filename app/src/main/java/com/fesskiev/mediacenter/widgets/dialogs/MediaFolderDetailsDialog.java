@@ -4,27 +4,34 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.res.ResourcesCompat;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.source.DataRepository;
-import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.RxUtils;
 
 import io.reactivex.disposables.Disposable;
 
 
-public abstract class MediaFolderDetailsDialog extends DialogFragment {
+public abstract class MediaFolderDetailsDialog extends DialogFragment implements TextWatcher {
 
     public abstract void fillFolderData();
 
     public abstract void fetchFolderFiles();
+
+    public abstract void folderNameChanged(String name);
+
 
     public interface OnMediaFolderDetailsDialogListener {
 
@@ -40,10 +47,11 @@ public abstract class MediaFolderDetailsDialog extends DialogFragment {
     protected TextView folderSizeText;
     protected TextView folderLengthText;
     protected TextView folderTrackCountText;
-    protected TextView folderName;
+    protected EditText folderName;
     protected TextView folderPath;
     protected TextView folderTimestamp;
     protected CheckBox hideFolder;
+    protected Button saveFolderNameButton;
 
     protected Disposable subscription;
     protected DataRepository repository;
@@ -77,7 +85,10 @@ public abstract class MediaFolderDetailsDialog extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
 
         cover = view.findViewById(R.id.folderCover);
+
         folderName = view.findViewById(R.id.folderName);
+        folderName.addTextChangedListener(this);
+
         folderPath = view.findViewById(R.id.folderPath);
         folderSizeText = view.findViewById(R.id.folderSize);
         folderLengthText = view.findViewById(R.id.folderLength);
@@ -86,15 +97,35 @@ public abstract class MediaFolderDetailsDialog extends DialogFragment {
         hideFolder = view.findViewById(R.id.hiddenFolderCheckBox);
         hideFolder.setTypeface(ResourcesCompat.getFont(getContext(), R.font.ubuntu));
 
+        saveFolderNameButton = view.findViewById(R.id.saveFolderNameButton);
+
+
         fillFolderData();
         fetchFolderFiles();
-
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         RxUtils.unsubscribe(subscription);
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        String value = s.toString();
+        if (!TextUtils.isEmpty(value)) {
+            folderNameChanged(value);
+        }
     }
 
     public void setOnMediaFolderDetailsDialogListener(OnMediaFolderDetailsDialogListener l) {

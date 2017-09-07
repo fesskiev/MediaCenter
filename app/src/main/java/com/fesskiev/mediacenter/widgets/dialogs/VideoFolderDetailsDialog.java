@@ -3,6 +3,8 @@ package com.fesskiev.mediacenter.widgets.dialogs;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
+import android.view.View;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.VideoFile;
@@ -15,7 +17,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import io.reactivex.Observable;;
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;;
 import io.reactivex.schedulers.Schedulers;
 
@@ -30,6 +32,7 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
     }
 
     private VideoFolder videoFolder;
+    private String folderNameChanged;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,12 +44,11 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
     @Override
     public void fillFolderData() {
 
-        folderName.setText(String.format(Locale.US, "%1$s %2$s", getString(R.string.folder_details_name),
-                videoFolder.getFolderName()));
-        folderName.setSelected(true);
+        saveFolderNameButton.setOnClickListener(v -> saveVideoFolderName());
 
-        folderPath.setText(String.format(Locale.US, "%1$s %2$s", getString(R.string.folder_details_path),
-                videoFolder.getPath()));
+        folderName.setText(videoFolder.getFolderName());
+
+        folderPath.setText(String.format(Locale.US, "%1$s %2$s", getString(R.string.folder_details_path), videoFolder.getPath()));
         folderPath.setSelected(true);
 
         folderTimestamp.setText(String.format("%1$s %2$s", getString(R.string.folder_details_timestamp),
@@ -76,6 +78,22 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
                     return Observable.just(videoFiles);
                 })
                 .subscribe(this::calculateValues);
+    }
+
+    @Override
+    public void folderNameChanged(String name) {
+        folderNameChanged = name;
+        if (folderNameChanged.equals(videoFolder.folderName)) {
+            saveFolderNameButton.setVisibility(View.INVISIBLE);
+        } else {
+            saveFolderNameButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void saveVideoFolderName() {
+        if (!TextUtils.isEmpty(folderNameChanged)) {
+
+        }
     }
 
     private void calculateValues(List<VideoFile> videoFiles) {
