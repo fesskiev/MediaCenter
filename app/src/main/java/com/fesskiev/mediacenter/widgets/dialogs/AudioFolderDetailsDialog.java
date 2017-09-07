@@ -99,10 +99,30 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
     }
 
     private void renameFolderFiles(String folderName) {
+        subscription = repository.getAudioTracks(audioFolder.getId())
+                .subscribeOn(Schedulers.io())
+                .firstOrError()
+                .toObservable()
+                .doOnNext(audioFiles -> {
 
+                })
+                .subscribe();
     }
 
-    private void renameFolder(String folderName) {
+    private void renameFolder(String toDir) {
+        subscription = Observable.just(toDir)
+                .subscribeOn(Schedulers.io())
+                .firstOrError()
+                .toObservable()
+                .doOnNext(toD -> {
+                    File to = new File(toDir);
+                    if (audioFolder.folderPath.renameTo(to)) {
+
+                    } else {
+
+                    }
+                })
+                .subscribe();
 
     }
 

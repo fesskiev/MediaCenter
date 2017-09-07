@@ -39,11 +39,11 @@
             android:layout_height="wrap_content"
             android:textColorHint="@color/white_text"
             app:errorTextAppearance="@style/TextErrorAppearance"
-            app:hintTextAppearance="@style/EditAlbumTextAppearance">
+            app:hintTextAppearance="@style/DetailsAlbumTextAppearance">
 
             <android.support.v7.widget.AppCompatEditText
                 android:id="@+id/folderName"
-                style="@style/EditAlbumTextAppearance"
+                style="@style/DetailsAlbumTextAppearance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/folder_details_name"
