@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
@@ -144,6 +145,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity implements Player.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_exo_player);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 
         settingsManager = AppSettingsManager.getInstance();
         videoPlayer = MediaApplication.getInstance().getVideoPlayer();
