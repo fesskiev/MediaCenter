@@ -9,10 +9,14 @@ import android.view.View;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
+import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -87,43 +91,50 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
         if (!TextUtils.isEmpty(folderNameChanged)) {
             subscription = Observable.just(folderNameChanged)
                     .subscribeOn(Schedulers.io())
-                    .doOnNext(this::renameFolder)
-                    .doOnNext(this::renameFolderFiles)
+                    .flatMap(toDir -> Observable.just(renameFolder(toDir)))
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(this::updateFolderPath);
+                    .doOnNext(this::updateFolderPath)
+                    .subscribeOn(Schedulers.io())
+                    .flatMap(toDir -> repository.getAudioTracks(audioFolder.getId())
+                            .firstOrError()
+                            .toObservable()
+                            .doOnNext(audioFiles -> renameFiles(audioFiles, toDir)))
+                    .subscribe();
         }
     }
 
     private void updateFolderPath(String folderName) {
-        folderPath.setText(audioFolder.folderPath.getParent() + "/" + folderName);
+        folderPath.setText(String.format(Locale.US, "%1$s/%2$s",
+                audioFolder.folderPath.getParent(), folderName));
     }
 
-    private void renameFolderFiles(String folderName) {
-        subscription = repository.getAudioTracks(audioFolder.getId())
-                .subscribeOn(Schedulers.io())
-                .firstOrError()
-                .toObservable()
-                .doOnNext(audioFiles -> {
 
-                })
-                .subscribe();
+    private void renameFiles(List<AudioFile> audioFiles, String to) {
+        for (AudioFile audioFile : audioFiles) {
+            String name = audioFile.getFileName();
+            String path = audioFile.filePath.getParentFile().getParent();
+
+            File newPath = new File(path + "/" + to + "/" + name);
+            AppLog.ERROR("path: " + newPath.getAbsolutePath());
+
+            audioFile.filePath = newPath;
+
+            try {
+                FileUtils.moveFile(audioFile.filePath, newPath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    private void renameFolder(String toDir) {
-        subscription = Observable.just(toDir)
-                .subscribeOn(Schedulers.io())
-                .firstOrError()
-                .toObservable()
-                .doOnNext(toD -> {
-                    File to = new File(toDir);
-                    if (audioFolder.folderPath.renameTo(to)) {
-
-                    } else {
-
-                    }
-                })
-                .subscribe();
-
+    private String renameFolder(String toDir) {
+        File to = new File(audioFolder.folderPath.getParent() + "/" + toDir);
+        try {
+            FileUtils.moveDirectory(audioFolder.folderPath, to);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return toDir;
     }
 
 

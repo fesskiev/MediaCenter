@@ -136,7 +136,7 @@
             android:id="@+id/saveFolderNameButton"
             style="@style/ButtonStyle"
             android:layout_width="@dimen/button_width_min"
-            android:layout_height="@dimen/button_height"
+            android:layout_height="@dimen/button_height_min"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:layout_margin="8dp"

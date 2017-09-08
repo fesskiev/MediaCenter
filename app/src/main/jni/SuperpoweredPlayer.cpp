@@ -87,7 +87,7 @@ static void playerEventCallback(void *clientData, SuperpoweredAdvancedAudioPlaye
 
 static bool audioProcessing(void *clientdata, short int *audioIO, int numberOfSamples,
                             int __unused samplerate) {
-   __android_log_print(ANDROID_LOG_VERBOSE, "MediaCenter", "audioProcessing");
+ //  __android_log_print(ANDROID_LOG_VERBOSE, "MediaCenter", "audioProcessing");
 
     return ((SuperpoweredPlayer *) clientdata)->process(audioIO, (unsigned int) numberOfSamples);
 }

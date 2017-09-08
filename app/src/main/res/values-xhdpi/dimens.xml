@@ -33,6 +33,7 @@
     <dimen name="tab_text_size">12sp</dimen>
     <dimen name="tab_margin">4dp</dimen>
 
+    <dimen name="button_height_min">34dp</dimen>
     <dimen name="button_height">44dp</dimen>
     <dimen name="button_width">154dp</dimen>
     <dimen name="button_width_min">114dp</dimen>
