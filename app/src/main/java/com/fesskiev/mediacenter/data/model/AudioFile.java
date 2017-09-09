@@ -32,7 +32,8 @@ import java.util.UUID;
 
 public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
 
-    public String id;
+    public String folderId;
+    public String fileId;
     public File filePath;
     public File convertedPath;
     public String artist;
@@ -58,7 +59,8 @@ public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
     }
 
     public AudioFile(Context context, File filePath, String folderId) {
-        this.id = folderId;
+        this.folderId = folderId;
+        this.fileId = UUID.randomUUID().toString();
         this.context = context;
         this.filePath = filePath;
         renameFileCorrect();
@@ -67,7 +69,8 @@ public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
 
     public AudioFile(Cursor cursor) {
 
-        id = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ID));
+        folderId = cursor.getString(cursor.getColumnIndex(DatabaseHelper.AUDIO_FOLDER_ID));
+        fileId = cursor.getString(cursor.getColumnIndex(DatabaseHelper.AUDIO_FILE_ID));
         filePath = new File(cursor.getString(cursor.getColumnIndex(DatabaseHelper.TRACK_PATH)));
         artist = cursor.getString(cursor.getColumnIndex(DatabaseHelper.TRACK_ARTIST));
         title = cursor.getString(cursor.getColumnIndex(DatabaseHelper.TRACK_TITLE));
@@ -214,7 +217,7 @@ public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
 
     @Override
     public String getId() {
-        return id;
+        return fileId;
     }
 
     @Override
@@ -295,15 +298,14 @@ public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
 
         AudioFile audioFile = (AudioFile) o;
 
-        if (!filePath.equals(audioFile.filePath)) return false;
+        if (!fileId.equals(audioFile.fileId)) return false;
         if (!artist.equals(audioFile.artist)) return false;
         return title.equals(audioFile.title);
-
     }
 
     @Override
     public int hashCode() {
-        int result = filePath.hashCode();
+        int result = fileId.hashCode();
         result = 31 * result + artist.hashCode();
         result = 31 * result + title.hashCode();
         return result;
@@ -312,7 +314,8 @@ public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
     @Override
     public String toString() {
         return "AudioFile{" +
-                "id='" + id + "\n" +
+                "folderId='" + folderId + '\'' +
+                ", fileId=" + fileId +
                 ", filePath=" + filePath + "\n" +
                 ", convertedPath=" + convertedPath + "\n" +
                 ", artist='" + artist + "\n" +
@@ -340,7 +343,8 @@ public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.id);
+        dest.writeString(this.folderId);
+        dest.writeString(this.fileId);
         dest.writeSerializable(this.filePath);
         dest.writeSerializable(this.convertedPath);
         dest.writeString(this.artist);
@@ -361,7 +365,8 @@ public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
     }
 
     protected AudioFile(Parcel in) {
-        this.id = in.readString();
+        this.folderId = in.readString();
+        this.fileId = in.readString();
         this.filePath = (File) in.readSerializable();
         this.convertedPath = (File) in.readSerializable();
         this.artist = in.readString();

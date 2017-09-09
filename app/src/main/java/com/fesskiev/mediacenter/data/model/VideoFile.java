@@ -19,7 +19,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class VideoFile implements MediaFile, Parcelable {
 
-    public String id;
+    public String folderId;
+    public String fileId;
     public File filePath;
     public String framePath;
     public String description;
@@ -32,7 +33,8 @@ public class VideoFile implements MediaFile, Parcelable {
 
     public VideoFile(Cursor cursor) {
 
-        id = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ID));
+        folderId = cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_FOLDER_ID));
+        fileId = cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_FILE_ID));
         filePath = new File(cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_FILE_PATH)));
         framePath = cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_FRAME_PATH));
         resolution = cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_RESOLUTION));
@@ -45,7 +47,8 @@ public class VideoFile implements MediaFile, Parcelable {
     }
 
     public VideoFile(File path, String folderId) {
-        this.id = folderId;
+        this.folderId = folderId;
+        this.fileId = UUID.randomUUID().toString();
         File newPath = new File(path.getParent(), Utils.replaceSymbols(path.getName()));
         boolean rename = path.renameTo(newPath);
         if (rename) {
@@ -56,7 +59,8 @@ public class VideoFile implements MediaFile, Parcelable {
     }
 
     protected VideoFile(Parcel in) {
-        this.id = in.readString();
+        this.folderId = in.readString();
+        this.fileId = in.readString();
         this.filePath = (File) in.readSerializable();
         this.framePath = in.readString();
         this.description = in.readString();
@@ -124,7 +128,7 @@ public class VideoFile implements MediaFile, Parcelable {
 
     @Override
     public String getId() {
-        return id;
+        return fileId;
     }
 
     @Override
@@ -189,22 +193,26 @@ public class VideoFile implements MediaFile, Parcelable {
 
         VideoFile videoFile = (VideoFile) o;
 
-        if (id != null ? !id.equals(videoFile.id) : videoFile.id != null) return false;
-        return filePath != null ? filePath.equals(videoFile.filePath) : videoFile.filePath == null;
-
+        if (size != videoFile.size) return false;
+        if (timestamp != videoFile.timestamp) return false;
+        if (length != videoFile.length) return false;
+        return fileId != null ? fileId.equals(videoFile.fileId) : videoFile.fileId == null;
     }
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (filePath != null ? filePath.hashCode() : 0);
+        int result = fileId != null ? fileId.hashCode() : 0;
+        result = 31 * result + (int) (size ^ (size >>> 32));
+        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        result = 31 * result + (int) (length ^ (length >>> 32));
         return result;
     }
 
     @Override
     public String toString() {
         return "VideoFile{" +
-                "id='" + id + '\'' +
+                "folderId='" + folderId + '\'' +
+                ", fileId=" + fileId +
                 ", filePath=" + filePath +
                 ", framePath='" + framePath + '\'' +
                 ", description='" + description + '\'' +
@@ -224,7 +232,8 @@ public class VideoFile implements MediaFile, Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.id);
+        dest.writeString(this.folderId);
+        dest.writeString(this.fileId);
         dest.writeSerializable(this.filePath);
         dest.writeString(this.framePath);
         dest.writeString(this.description);

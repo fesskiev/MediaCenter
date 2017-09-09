@@ -256,12 +256,12 @@ public class AudioPlayer implements Playable {
     }
 
     public boolean isDeletedFolderSelect(AudioFolder audioFolder) {
-        if (currentTrack != null && currentTrack.id.equals(audioFolder.id)) {
+        if (currentTrack != null && currentTrack.folderId.equals(audioFolder.id)) {
             return true;
         }
         if (currentTrackList != null) {
             for (AudioFile audioFile : currentTrackList) {
-                if (audioFile.id.equals(audioFolder.id)) {
+                if (audioFile.folderId.equals(audioFolder.id)) {
                     return true;
                 }
             }

@@ -9,7 +9,6 @@ import android.view.View;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
-import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
 
@@ -38,6 +37,7 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
 
     private AudioFolder audioFolder;
     private String folderNameChanged;
+    private String fromDir;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -98,8 +98,12 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
                     .flatMap(toDir -> repository.getAudioTracks(audioFolder.getId())
                             .firstOrError()
                             .toObservable()
-                            .doOnNext(audioFiles -> renameFiles(audioFiles, toDir)))
-                    .subscribe();
+                            .doOnNext(audioFiles -> renameFiles(audioFiles, toDir))
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .doOnNext(audioFiles -> refreshCache()))
+                    .subscribe(audioFiles -> {
+
+                    }, Throwable::printStackTrace);
         }
     }
 
@@ -108,33 +112,42 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
                 audioFolder.folderPath.getParent(), folderName));
     }
 
-
-    private void renameFiles(List<AudioFile> audioFiles, String to) {
-        for (AudioFile audioFile : audioFiles) {
-            String name = audioFile.getFileName();
-            String path = audioFile.filePath.getParentFile().getParent();
-
-            File newPath = new File(path + "/" + to + "/" + name);
-            AppLog.ERROR("path: " + newPath.getAbsolutePath());
-
-            audioFile.filePath = newPath;
-
-            try {
-                FileUtils.moveFile(audioFile.filePath, newPath);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     private String renameFolder(String toDir) {
-        File to = new File(audioFolder.folderPath.getParent() + "/" + toDir);
+        File toPath = new File(audioFolder.folderPath.getParent() + "/" + toDir);
         try {
-            FileUtils.moveDirectory(audioFolder.folderPath, to);
+            FileUtils.moveDirectory(audioFolder.folderPath, toPath);
+
+            fromDir = audioFolder.folderPath.getName();
+
+            audioFolder.folderPath = toPath;
+            audioFolder.folderName = toPath.getName();
+            File folderImage = audioFolder.folderImage;
+            if (folderImage != null) {
+                audioFolder.folderImage = new File(folderImage.getAbsolutePath().replace(fromDir, toDir));
+            }
+            repository.updateAudioFolder(audioFolder);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
         return toDir;
+    }
+
+    private void renameFiles(List<AudioFile> audioFiles, String toDir) {
+        for (AudioFile audioFile : audioFiles) {
+
+            audioFile.filePath = new File(audioFile.getFilePath().replace(fromDir, toDir));
+
+            String artworkPath = audioFile.artworkPath;
+            if (artworkPath != null) {
+                audioFile.artworkPath = artworkPath.replace(fromDir, toDir);
+            }
+            String folderArtworkPath = audioFile.folderArtworkPath;
+            if (folderArtworkPath != null) {
+                audioFile.folderArtworkPath = folderArtworkPath.replace(fromDir, toDir);
+            }
+            repository.updateAudioFile(audioFile);
+        }
     }
 
 

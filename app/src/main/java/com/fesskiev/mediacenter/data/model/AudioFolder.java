@@ -27,7 +27,7 @@ public class AudioFolder implements Comparable<AudioFolder>, Parcelable, MediaFo
 
     public AudioFolder(Cursor cursor) {
 
-        id = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ID));
+        id = cursor.getString(cursor.getColumnIndex(DatabaseHelper.AUDIO_FOLDER_ID));
         folderName = cursor.getString(cursor.getColumnIndex(DatabaseHelper.FOLDER_NAME));
         folderPath = new File(cursor.getString(cursor.getColumnIndex(DatabaseHelper.FOLDER_PATH)));
 

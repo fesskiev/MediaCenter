@@ -46,7 +46,7 @@ public class LocalDataSource implements LocalSource {
 
         ContentValues values = new ContentValues();
 
-        values.put(DatabaseHelper.ID, audioFolder.id);
+        values.put(DatabaseHelper.AUDIO_FOLDER_ID, audioFolder.id);
         values.put(DatabaseHelper.FOLDER_PATH, audioFolder.folderPath.getAbsolutePath());
         values.put(DatabaseHelper.FOLDER_NAME, audioFolder.folderName);
         values.put(DatabaseHelper.FOLDER_COVER,
@@ -64,7 +64,7 @@ public class LocalDataSource implements LocalSource {
     public void updateAudioFolder(AudioFolder audioFolder) {
         ContentValues values = new ContentValues();
 
-        values.put(DatabaseHelper.ID, audioFolder.id);
+        values.put(DatabaseHelper.AUDIO_FOLDER_ID, audioFolder.id);
         values.put(DatabaseHelper.FOLDER_PATH, audioFolder.folderPath.getAbsolutePath());
         values.put(DatabaseHelper.FOLDER_NAME, audioFolder.folderName);
         values.put(DatabaseHelper.FOLDER_COVER,
@@ -76,8 +76,7 @@ public class LocalDataSource implements LocalSource {
 
         briteDatabase.update(
                 DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME,
-                values,
-                DatabaseHelper.FOLDER_PATH + "=" + "'" + audioFolder.folderPath.getAbsolutePath().replaceAll("'", "''") + "'");
+                values, DatabaseHelper.AUDIO_FOLDER_ID + "=" + "'" + audioFolder.id + "'");
     }
 
 
@@ -86,7 +85,8 @@ public class LocalDataSource implements LocalSource {
 
         ContentValues values = new ContentValues();
 
-        values.put(DatabaseHelper.ID, audioFile.id);
+        values.put(DatabaseHelper.AUDIO_FOLDER_ID, audioFile.folderId);
+        values.put(DatabaseHelper.AUDIO_FILE_ID, audioFile.fileId);
         values.put(DatabaseHelper.TRACK_ARTIST, audioFile.artist);
         values.put(DatabaseHelper.TRACK_TITLE, audioFile.title);
         values.put(DatabaseHelper.TRACK_ALBUM, audioFile.album);
@@ -112,7 +112,8 @@ public class LocalDataSource implements LocalSource {
 
         ContentValues values = new ContentValues();
 
-        values.put(DatabaseHelper.ID, audioFile.id);
+        values.put(DatabaseHelper.AUDIO_FOLDER_ID, audioFile.folderId);
+        values.put(DatabaseHelper.AUDIO_FILE_ID, audioFile.fileId);
         values.put(DatabaseHelper.TRACK_ARTIST, audioFile.artist);
         values.put(DatabaseHelper.TRACK_TITLE, audioFile.title);
         values.put(DatabaseHelper.TRACK_ALBUM, audioFile.album);
@@ -132,9 +133,7 @@ public class LocalDataSource implements LocalSource {
 
         briteDatabase.update(
                 DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
-                values,
-                DatabaseHelper.TRACK_PATH + "=" + "'" +
-                        audioFile.getFilePath().replaceAll("'", "''")  + "'");
+                values, DatabaseHelper.AUDIO_FILE_ID + "=" + "'" + audioFile.fileId + "'");
     }
 
     @Override
@@ -142,7 +141,7 @@ public class LocalDataSource implements LocalSource {
 
         ContentValues values = new ContentValues();
 
-        values.put(DatabaseHelper.ID, videoFolder.id);
+        values.put(DatabaseHelper.VIDEO_FOLDER_ID, videoFolder.id);
         values.put(DatabaseHelper.FOLDER_PATH, videoFolder.folderPath.getAbsolutePath());
         values.put(DatabaseHelper.FOLDER_NAME, videoFolder.folderName);
         values.put(DatabaseHelper.FOLDER_TIMESTAMP, videoFolder.timestamp);
@@ -159,7 +158,7 @@ public class LocalDataSource implements LocalSource {
 
         ContentValues values = new ContentValues();
 
-        values.put(DatabaseHelper.ID, videoFolder.id);
+        values.put(DatabaseHelper.VIDEO_FOLDER_ID, videoFolder.id);
         values.put(DatabaseHelper.FOLDER_PATH, videoFolder.folderPath.getAbsolutePath());
         values.put(DatabaseHelper.FOLDER_NAME, videoFolder.folderName);
         values.put(DatabaseHelper.FOLDER_TIMESTAMP, videoFolder.timestamp);
@@ -183,7 +182,7 @@ public class LocalDataSource implements LocalSource {
 
             return briteDatabase.delete(
                     DatabaseHelper.VIDEO_FILES_TABLE_NAME,
-                    DatabaseHelper.ID + "=" + "'" + videoFolder.id + "'");
+                    DatabaseHelper.VIDEO_FOLDER_ID + "=" + "'" + videoFolder.id + "'");
 
         };
     }
@@ -193,7 +192,8 @@ public class LocalDataSource implements LocalSource {
 
         ContentValues values = new ContentValues();
 
-        values.put(DatabaseHelper.ID, videoFile.id);
+        values.put(DatabaseHelper.VIDEO_FOLDER_ID, videoFile.folderId);
+        values.put(DatabaseHelper.VIDEO_FILE_ID, videoFile.fileId);
         values.put(DatabaseHelper.VIDEO_FILE_PATH, videoFile.getFilePath());
         values.put(DatabaseHelper.VIDEO_FRAME_PATH, videoFile.framePath);
         values.put(DatabaseHelper.VIDEO_RESOLUTION, videoFile.resolution);
@@ -214,7 +214,8 @@ public class LocalDataSource implements LocalSource {
 
         ContentValues values = new ContentValues();
 
-        values.put(DatabaseHelper.ID, videoFile.id);
+        values.put(DatabaseHelper.VIDEO_FOLDER_ID, videoFile.folderId);
+        values.put(DatabaseHelper.VIDEO_FILE_ID, videoFile.fileId);
         values.put(DatabaseHelper.VIDEO_FILE_PATH, videoFile.getFilePath());
         values.put(DatabaseHelper.VIDEO_FRAME_PATH, videoFile.framePath);
         values.put(DatabaseHelper.VIDEO_RESOLUTION, videoFile.resolution);
@@ -228,7 +229,7 @@ public class LocalDataSource implements LocalSource {
         briteDatabase.update(
                 DatabaseHelper.VIDEO_FILES_TABLE_NAME,
                 values,
-                DatabaseHelper.VIDEO_FILE_PATH + "=" + "'" + videoFile.filePath + "'");
+                DatabaseHelper.VIDEO_FILE_ID + "=" + "'" + videoFile.fileId + "'");
     }
 
     @Override
@@ -257,7 +258,7 @@ public class LocalDataSource implements LocalSource {
     public Observable<List<AudioFile>> getSelectedFolderAudioFiles(AudioFolder audioFolder) {
 
         String sql = String.format("SELECT * FROM %s WHERE %s ORDER BY %s ASC", DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
-                DatabaseHelper.ID + "=" + "'" + audioFolder.id + "'", DatabaseHelper.TRACK_NUMBER);
+                DatabaseHelper.AUDIO_FOLDER_ID + "=" + "'" + audioFolder.id + "'", DatabaseHelper.TRACK_NUMBER);
 
         return briteDatabase.createQuery(DatabaseHelper.AUDIO_TRACKS_TABLE_NAME, sql).mapToList(AudioFile::new);
 
@@ -352,7 +353,7 @@ public class LocalDataSource implements LocalSource {
 
             return briteDatabase.delete(
                     DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
-                    DatabaseHelper.ID + "=" + "'" + audioFolder.id + "'");
+                    DatabaseHelper.AUDIO_FOLDER_ID + "=" + "'" + audioFolder.id + "'");
 
         };
     }
@@ -431,7 +432,7 @@ public class LocalDataSource implements LocalSource {
 
         String sql = String.format("SELECT * FROM %s WHERE %s",
                 DatabaseHelper.VIDEO_FILES_TABLE_NAME,
-                DatabaseHelper.ID + "=" + "'" + id + "'");
+                DatabaseHelper.VIDEO_FOLDER_ID + "=" + "'" + id + "'");
 
         return briteDatabase.createQuery(DatabaseHelper.VIDEO_FILES_TABLE_NAME, sql)
                 .mapToList(VideoFile::new);
@@ -442,7 +443,7 @@ public class LocalDataSource implements LocalSource {
 
         String sql = String.format("SELECT * FROM %s WHERE %s",
                 DatabaseHelper.VIDEO_FILES_TABLE_NAME,
-                DatabaseHelper.ID + "=" + "'" + id + "'");
+                DatabaseHelper.VIDEO_FOLDER_ID + "=" + "'" + id + "'");
 
         return briteDatabase
                 .createQuery(DatabaseHelper.VIDEO_FILES_TABLE_NAME, sql)
@@ -521,7 +522,7 @@ public class LocalDataSource implements LocalSource {
 
         String sql = String.format("SELECT * FROM %s WHERE %s ORDER BY %s",
                 DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
-                DatabaseHelper.ID + "=" + "'" + id + "'",
+                DatabaseHelper.AUDIO_FOLDER_ID + "=" + "'" + id + "'",
                 DatabaseHelper.TRACK_NUMBER + " ASC");
 
         return briteDatabase.createQuery(DatabaseHelper.AUDIO_TRACKS_TABLE_NAME, sql)
