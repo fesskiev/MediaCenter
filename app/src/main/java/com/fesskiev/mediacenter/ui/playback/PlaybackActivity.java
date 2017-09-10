@@ -7,6 +7,7 @@ import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -367,7 +368,14 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
                 v.setOnClickListener(view -> {
                     AudioFile audioFile = currentTrackList.get(getAdapterPosition());
                     if (audioFile != null && !lastConvertStart) {
-                        audioPlayer.setCurrentAudioFileAndPlay(audioFile);
+                        if (audioFile.exists()) {
+                            audioPlayer.setCurrentAudioFileAndPlay(audioFile);
+                        } else {
+                            Utils.showCustomSnackbar(getCurrentFocus(),
+                                    getApplicationContext(), getString(R.string.snackbar_file_not_exist),
+                                    Snackbar.LENGTH_LONG)
+                                    .show();
+                        }
                     }
                 });
 
