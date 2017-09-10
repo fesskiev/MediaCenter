@@ -63,9 +63,9 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
     @Override
     public void fetchFolderFiles() {
         subscription = repository.getVideoFiles(videoFolder.getId())
+                .subscribeOn(Schedulers.io())
                 .firstOrError()
                 .toObservable()
-                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(videoFiles -> {
                     for (VideoFile videoFile : videoFiles) {

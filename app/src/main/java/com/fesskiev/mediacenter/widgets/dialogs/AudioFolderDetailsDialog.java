@@ -70,9 +70,9 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
     @Override
     public void fetchFolderFiles() {
         subscription = repository.getAudioTracks(audioFolder.getId())
+                .subscribeOn(Schedulers.io())
                 .firstOrError()
                 .toObservable()
-                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::calculateValues);
     }
@@ -101,6 +101,7 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
                             .doOnNext(audioFiles -> renameFiles(audioFiles, toDir))
                             .observeOn(AndroidSchedulers.mainThread())
                             .doOnNext(audioFiles -> refreshCache()))
+                    .doOnNext(audioFiles -> audioPlayer.updateCurrentTrackAndTrackList())
                     .subscribe(audioFiles -> {
 
                     }, Throwable::printStackTrace);

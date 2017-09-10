@@ -26,6 +26,8 @@ import java.util.ListIterator;
 import java.util.Locale;
 
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class AudioPlayer implements Playable {
 
@@ -52,16 +54,41 @@ public class AudioPlayer implements Playable {
         trackListIterator = new TrackListIterator();
     }
 
-
-    public void getCurrentTrackAndTrackList() {
+    public void updateCurrentTrackAndTrackList() {
         repository.getSelectedFolderAudioFiles()
+                .subscribeOn(Schedulers.io())
                 .flatMap(audioFiles -> Observable.just(sortAudioFiles(AppSettingsManager.getInstance()
                         .getSortType(), audioFiles)))
+                .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(audioFiles -> {
                     currentTrackList = audioFiles;
                     notifyCurrentTrackList();
                 })
+                .subscribeOn(Schedulers.io())
                 .flatMap(audioFiles -> repository.getSelectedAudioFile())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(audioFile -> {
+                    currentTrack = audioFile;
+                    notifyCurrentTrack();
+                })
+                .firstOrError()
+                .subscribe(object -> Log.e(TAG, AudioPlayer.this.toString()), Throwable::printStackTrace);
+    }
+
+
+    public void getCurrentTrackAndTrackList() {
+        repository.getSelectedFolderAudioFiles()
+                .subscribeOn(Schedulers.io())
+                .flatMap(audioFiles -> Observable.just(sortAudioFiles(AppSettingsManager.getInstance()
+                        .getSortType(), audioFiles)))
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(audioFiles -> {
+                    currentTrackList = audioFiles;
+                    notifyCurrentTrackList();
+                })
+                .subscribeOn(Schedulers.io())
+                .flatMap(audioFiles -> repository.getSelectedAudioFile())
+                .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(audioFile -> {
                     currentTrack = audioFile;
                     openAudioFile(false);
@@ -240,10 +267,6 @@ public class AudioPlayer implements Playable {
             return false;
         }
         return currentTrackList.containsAll(audioFiles);
-    }
-
-    public Observable<AudioFolder> getCurrentAudioFolder() {
-        return repository.getSelectedAudioFolder();
     }
 
     public AudioFile getCurrentTrack() {

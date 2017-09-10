@@ -56,7 +56,7 @@ public abstract class MediaFolderDetailsDialog extends DialogFragment implements
 
     protected Disposable subscription;
     protected DataRepository repository;
-    private AudioPlayer audioPlayer;
+    protected AudioPlayer audioPlayer;
 
     protected long folderSize = 0L;
     protected long folderLength = 0L;
@@ -136,7 +136,6 @@ public abstract class MediaFolderDetailsDialog extends DialogFragment implements
     }
 
     protected void refreshCache() {
-        audioPlayer.getCurrentTrackAndTrackList();
         if (listener != null) {
             listener.onRefreshFolder();
         }
