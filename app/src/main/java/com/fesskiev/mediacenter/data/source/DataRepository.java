@@ -162,7 +162,7 @@ public class DataRepository {
         return localSource.getVideoFolderByPath(path);
     }
 
-    public Observable<AudioFolder> getSelectedAudioFolder() {
+    private Observable<AudioFolder> getSelectedAudioFolder() {
         return localSource.getSelectedAudioFolder();
     }
 
@@ -172,12 +172,17 @@ public class DataRepository {
 
 
     public Observable<List<AudioFile>> getSelectedFolderAudioFiles() {
-        return getSelectedAudioFolder().flatMap(audioFolder -> {
-            if (audioFolder != null) {
-                return localSource.getSelectedFolderAudioFiles(audioFolder);
-            }
-            return Observable.empty();
-        });
+        return getSelectedAudioFolder()
+                .firstOrError()
+                .toObservable()
+                .flatMap(audioFolder -> {
+                    if (audioFolder != null) {
+                        return localSource.getSelectedFolderAudioFiles(audioFolder)
+                                .firstOrError()
+                                .toObservable();
+                    }
+                    return Observable.empty();
+                });
     }
 
     public Callable<Integer> deleteAudioFolder(AudioFolder audioFolder) {
@@ -255,7 +260,6 @@ public class DataRepository {
     public MemoryDataSource getMemorySource() {
         return memorySource;
     }
-
 
 
 }

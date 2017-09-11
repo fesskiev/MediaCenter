@@ -72,7 +72,8 @@ public class AudioPlayer implements Playable {
                     notifyCurrentTrack();
                 })
                 .firstOrError()
-                .subscribe(object -> Log.e(TAG, AudioPlayer.this.toString()), Throwable::printStackTrace);
+                .subscribe(object -> Log.e(TAG, "UPDATE: " + AudioPlayer.this.toString()),
+                        Throwable::printStackTrace);
     }
 
 
@@ -97,7 +98,7 @@ public class AudioPlayer implements Playable {
                     }
                 })
                 .firstOrError()
-                .subscribe(object -> Log.e(TAG, AudioPlayer.this.toString()), Throwable::printStackTrace);
+                .subscribe(object -> Log.e(TAG, "GET: " + AudioPlayer.this.toString()), Throwable::printStackTrace);
     }
 
     @Override

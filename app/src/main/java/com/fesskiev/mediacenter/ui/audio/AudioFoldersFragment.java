@@ -338,6 +338,11 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
 
                 holder.audioCardView.needMenuVisible(true);
 
+                if(audioFolder.isSelected){
+
+                } else {
+
+                }
                 if (audioFolder.isHidden) {
                     holder.audioCardView.setAlpha(0.35f);
                 } else {

@@ -19,7 +19,7 @@ import com.squareup.sqlbrite2.SqlBrite;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import io.reactivex.Observable;;
+import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
 
 public class LocalDataSource implements LocalSource {
