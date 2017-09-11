@@ -8,6 +8,8 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
@@ -18,10 +20,11 @@ import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.source.DataRepository;
-import com.fesskiev.mediacenter.ui.GridFragment;
 import com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity;
+import com.fesskiev.mediacenter.ui.playback.HidingPlaybackFragment;
 import com.fesskiev.mediacenter.ui.playback.PlaybackActivity;
 import com.fesskiev.mediacenter.ui.search.AlbumSearchActivity;
+import com.fesskiev.mediacenter.utils.AppAnimationUtils;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
@@ -34,6 +37,8 @@ import com.fesskiev.mediacenter.widgets.dialogs.SimpleDialog;
 import com.fesskiev.mediacenter.widgets.item.AudioCardView;
 import com.fesskiev.mediacenter.widgets.menu.FolderContextMenu;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
+import com.fesskiev.mediacenter.widgets.recycleview.HidingScrollListener;
+import com.fesskiev.mediacenter.widgets.recycleview.ItemOffsetDecoration;
 import com.fesskiev.mediacenter.widgets.recycleview.helper.ItemTouchHelperAdapter;
 import com.fesskiev.mediacenter.widgets.recycleview.helper.ItemTouchHelperViewHolder;
 import com.fesskiev.mediacenter.widgets.recycleview.helper.SimpleItemTouchHelperCallback;
@@ -52,7 +57,7 @@ import static com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity.EXTR
 import static com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity.EXTRA_CONTENT_TYPE;
 
 
-public class AudioFoldersFragment extends GridFragment implements AudioContent {
+public class AudioFoldersFragment extends HidingPlaybackFragment implements AudioContent {
 
     public static AudioFoldersFragment newInstance() {
         return new AudioFoldersFragment();
@@ -61,6 +66,11 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
     private Disposable subscription;
     private DataRepository repository;
 
+    private AudioFoldersAdapter adapter;
+    private RecyclerView recyclerView;
+    private CardView emptyAudioContent;
+    private boolean layoutAnimate;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,11 +78,45 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
     }
 
     @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_audio_folders, container, false);
+    }
+
+    @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        ItemTouchHelper.Callback callback =
-                new SimpleItemTouchHelperCallback((ItemTouchHelperAdapter) adapter);
+        final GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
+
+        final int spacing = getResources().getDimensionPixelOffset(R.dimen.default_spacing_small);
+
+        recyclerView = view.findViewById(R.id.foldersGridView);
+        recyclerView.setLayoutManager(gridLayoutManager);
+        adapter = new AudioFoldersAdapter(getActivity());
+        recyclerView.setAdapter(adapter);
+        recyclerView.addItemDecoration(new ItemOffsetDecoration(spacing));
+
+        recyclerView.addOnScrollListener(new HidingScrollListener() {
+            @Override
+            public void onHide() {
+                hidePlaybackControl();
+            }
+
+            @Override
+            public void onShow() {
+                showPlaybackControl();
+            }
+
+            @Override
+            public void onItemPosition(int position) {
+
+            }
+        });
+
+
+        emptyAudioContent = view.findViewById(R.id.emptyAudioContentCard);
+
+        ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(adapter);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
@@ -99,10 +143,6 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
         repository.getMemorySource().setCacheFoldersDirty(true);
     }
 
-    @Override
-    public RecyclerView.Adapter createAdapter() {
-        return new AudioFoldersAdapter(getActivity());
-    }
 
     @Override
     public void fetch() {
@@ -130,7 +170,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
                     } else {
                         showEmptyContentCard();
                     }
-                    ((AudioFoldersAdapter) adapter).refresh(audioFolders);
+                    adapter.refresh(audioFolders);
                     animateLayout();
                     checkNeedShowPlayback(audioFolders);
                 });
@@ -138,9 +178,24 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
 
     @Override
     public void clear() {
-        ((AudioFoldersAdapter) adapter).clearAdapter();
+        adapter.clearAdapter();
     }
 
+    protected void showEmptyContentCard() {
+        emptyAudioContent.setVisibility(View.VISIBLE);
+    }
+
+    protected void hideEmptyContentCard() {
+        emptyAudioContent.setVisibility(View.GONE);
+    }
+
+    protected void animateLayout() {
+        if (!layoutAnimate) {
+            AppAnimationUtils.getInstance().loadGridRecyclerItemAnimation(recyclerView);
+            recyclerView.scheduleLayoutAnimation();
+            layoutAnimate = true;
+        }
+    }
 
     private static class AudioFoldersAdapter extends RecyclerView.Adapter<AudioFoldersAdapter.ViewHolder>
             implements ItemTouchHelperAdapter {
@@ -338,7 +393,7 @@ public class AudioFoldersFragment extends GridFragment implements AudioContent {
 
                 holder.audioCardView.needMenuVisible(true);
 
-                if(audioFolder.isSelected){
+                if (audioFolder.isSelected) {
                     holder.audioCardView.addSelectedFolder();
                 } else {
                     holder.audioCardView.removeSelectedFolder();
