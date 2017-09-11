@@ -15,6 +15,7 @@ import com.fesskiev.mediacenter.R;
 
 public class AudioCardView extends CardView {
 
+
     public interface OnAudioCardViewListener {
 
         void onPopupMenuButtonCall(View view);
@@ -24,6 +25,7 @@ public class AudioCardView extends CardView {
 
     private OnAudioCardViewListener listener;
     private GestureDetector detector;
+    private View footer;
     private ImageView popupMenu;
     private ImageView coverView;
     private TextView albumName;
@@ -52,6 +54,7 @@ public class AudioCardView extends CardView {
         popupMenu = view.findViewById(R.id.popupMenu);
         albumName = view.findViewById(R.id.audioName);
         coverView = view.findViewById(R.id.audioCover);
+        footer = view.findViewById(R.id.audioItemFooter);
 
 
         detector = new GestureDetector(getContext(), new GestureListener());
@@ -109,4 +112,13 @@ public class AudioCardView extends CardView {
         }
         this.menuVisible = visible;
     }
+
+    public void addSelectedFolder() {
+        footer.setBackgroundColor(getResources().getColor(R.color.yellow));
+    }
+
+    public void removeSelectedFolder() {
+        footer.setBackgroundColor(getResources().getColor(R.color.color_background));
+    }
+
 }
