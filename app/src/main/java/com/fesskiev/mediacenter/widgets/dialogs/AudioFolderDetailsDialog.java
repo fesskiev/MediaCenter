@@ -9,7 +9,6 @@ import android.view.View;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
-import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
 
@@ -21,7 +20,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;;
@@ -128,8 +126,6 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
             if (folderImage != null) {
                 audioFolder.folderImage = new File(folderImage.getAbsolutePath().replace(fromDir, toDir));
             }
-
-            AppLog.ERROR("rename folder: " + audioFolder.toString());
             repository.updateAudioFolder(audioFolder);
 
         } catch (IOException e) {
@@ -151,8 +147,6 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
             if (folderArtworkPath != null) {
                 audioFile.folderArtworkPath = folderArtworkPath.replace(fromDir, toDir);
             }
-
-            AppLog.ERROR("rename file: " + audioFile.toString());
             repository.updateAudioFile(audioFile);
         }
     }

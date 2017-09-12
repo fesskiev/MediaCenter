@@ -12,6 +12,10 @@ import com.fesskiev.mediacenter.data.model.VideoFolder;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
 
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -33,6 +37,7 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
 
     private VideoFolder videoFolder;
     private String folderNameChanged;
+    private String fromDir;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -92,8 +97,55 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
 
     private void saveVideoFolderName() {
         if (!TextUtils.isEmpty(folderNameChanged)) {
+            if (!TextUtils.isEmpty(folderNameChanged)) {
+                subscription = Observable.just(folderNameChanged)
+                        .subscribeOn(Schedulers.io())
+                        .flatMap(toDir -> Observable.just(renameFolder(toDir)))
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .doOnNext(this::updateFolderPath)
+                        .subscribeOn(Schedulers.io())
+                        .flatMap(toDir -> repository.getVideoFiles(videoFolder.getId())
+                                .firstOrError()
+                                .toObservable()
+                                .doOnNext(audioFiles -> renameFiles(audioFiles, toDir))
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .doOnNext(audioFiles -> refreshCache()))
+                        .subscribe(audioFiles -> {
 
+                        }, Throwable::printStackTrace);
+            }
         }
+    }
+
+    private String renameFolder(String toDir) {
+        File toPath = new File(videoFolder.folderPath.getParent() + "/" + toDir);
+        try {
+            FileUtils.moveDirectory(videoFolder.folderPath, toPath);
+
+            fromDir = videoFolder.folderPath.getName();
+
+            videoFolder.folderPath = toPath;
+            videoFolder.folderName = toPath.getName();
+
+            repository.updateVideoFolder(videoFolder);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return toDir;
+    }
+
+    private void renameFiles(List<VideoFile> videoFiles, String toDir) {
+        for (VideoFile videoFile : videoFiles) {
+            videoFile.filePath = new File(videoFile.getFilePath().replace(fromDir, toDir));
+            repository.updateVideoFile(videoFile);
+        }
+    }
+
+
+    private void updateFolderPath(String folderName) {
+        folderPath.setText(String.format(Locale.US, "%1$s/%2$s",
+                videoFolder.folderPath.getParent(), folderName));
     }
 
     private void calculateValues(List<VideoFile> videoFiles) {

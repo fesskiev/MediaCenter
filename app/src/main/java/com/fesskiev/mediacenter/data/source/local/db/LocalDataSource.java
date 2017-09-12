@@ -169,7 +169,7 @@ public class LocalDataSource implements LocalSource {
         briteDatabase.update(
                 DatabaseHelper.VIDEO_FOLDERS_TABLE_NAME,
                 values,
-                DatabaseHelper.FOLDER_PATH + "=" + "'" + videoFolder.folderPath.getAbsolutePath().replaceAll("'", "''") + "'");
+                DatabaseHelper.VIDEO_FOLDER_ID + "=" + "'" + videoFolder.id + "'");
 
     }
 
@@ -178,7 +178,7 @@ public class LocalDataSource implements LocalSource {
         return () -> {
             briteDatabase.delete(
                     DatabaseHelper.VIDEO_FOLDERS_TABLE_NAME,
-                    DatabaseHelper.FOLDER_PATH + "=" + "'" + videoFolder.folderPath.getAbsolutePath().replaceAll("'", "''") + "'");
+                    DatabaseHelper.VIDEO_FOLDER_ID + "=" + "'" + videoFolder.id + "'");
 
             return briteDatabase.delete(
                     DatabaseHelper.VIDEO_FILES_TABLE_NAME,
