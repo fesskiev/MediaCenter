@@ -139,9 +139,7 @@
             android:layout_height="@dimen/button_height_min"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:layout_margin="8dp"
             android:gravity="center"
-            android:padding="8dp"
             android:text="@string/button_save_track_info_text" />
 
     </RelativeLayout>

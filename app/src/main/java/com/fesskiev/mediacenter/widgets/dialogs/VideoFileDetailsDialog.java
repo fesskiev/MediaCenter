@@ -4,10 +4,15 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.res.ResourcesCompat;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -19,6 +24,10 @@ import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
 
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -29,7 +38,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 
-public class VideoFileDetailsDialog extends DialogFragment {
+public class VideoFileDetailsDialog extends DialogFragment implements TextWatcher {
 
     public interface OnVideoFileDetailsDialogListener {
 
@@ -54,13 +63,16 @@ public class VideoFileDetailsDialog extends DialogFragment {
     private VideoFile videoFile;
 
     private ImageView cover;
-    private TextView filerName;
+    private EditText filerName;
     private TextView filePath;
     private TextView fileSize;
     private TextView fileLength;
     private TextView fileResolution;
     private TextView fileTimestamp;
     private CheckBox hideFolder;
+    private Button saveFileNameButton;
+
+    private String folderNameChanged;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -87,8 +99,10 @@ public class VideoFileDetailsDialog extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
         if (videoFile != null) {
 
-            cover = view.findViewById(R.id.fileCover);
             filerName = view.findViewById(R.id.fileName);
+            filerName.addTextChangedListener(this);
+
+            cover = view.findViewById(R.id.fileCover);
             filePath = view.findViewById(R.id.filePath);
             fileSize = view.findViewById(R.id.fileSize);
             fileLength = view.findViewById(R.id.fileLength);
@@ -100,7 +114,67 @@ public class VideoFileDetailsDialog extends DialogFragment {
 
             view.findViewById(R.id.refreshVideoFile).setOnClickListener(v -> refreshVideoFile());
 
+            saveFileNameButton = view.findViewById(R.id.saveFileNameButton);
+            saveFileNameButton.setOnClickListener(view1 -> renameFile());
+
             updateDialog(videoFile);
+        }
+    }
+
+    private void renameFile() {
+        if (!TextUtils.isEmpty(folderNameChanged)) {
+            if (!TextUtils.isEmpty(folderNameChanged)) {
+                subscription = Observable.just(folderNameChanged)
+                        .subscribeOn(Schedulers.io())
+                        .flatMap(toDir -> Observable.just(renameFile(toDir)))
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .doOnNext(this::updateFilePath)
+                        .subscribe(audioFiles -> refreshCache(), Throwable::printStackTrace);
+            }
+        }
+    }
+
+    private String renameFile(String toDir) {
+        File toPath = new File(videoFile.filePath.getParent() + "/" + toDir);
+        try {
+            FileUtils.moveFile(videoFile.filePath, toPath);
+
+            videoFile.filePath = toPath;
+            videoFile.description = toPath.getName();
+
+            repository.updateVideoFile(videoFile);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return toDir;
+    }
+
+    private void updateFilePath(String fileName) {
+        filerName.setText(fileName);
+    }
+
+
+    @Override
+    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        String value = s.toString();
+        if (!TextUtils.isEmpty(value)) {
+            folderNameChanged = value;
+            if (folderNameChanged.equals(videoFile.description)) {
+                saveFileNameButton.setVisibility(View.INVISIBLE);
+            } else {
+                saveFileNameButton.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -115,9 +189,10 @@ public class VideoFileDetailsDialog extends DialogFragment {
 
     private void updateDialog(VideoFile videoFile) {
 
-        filerName.setText(String.format(Locale.US, "%1$s %2$s", getString(R.string.video_details_name),
-                videoFile.description));
-        filerName.setSelected(true);
+        filerName.setText(videoFile.description);
+        filerName.addTextChangedListener(this);
+
+
         filePath.setText(String.format(Locale.US, "%1$s %2$s", getString(R.string.folder_details_path),
                 videoFile.filePath.getAbsolutePath()));
         filePath.setSelected(true);
