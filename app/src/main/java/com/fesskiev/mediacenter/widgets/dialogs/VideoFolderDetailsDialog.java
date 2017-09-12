@@ -110,9 +110,7 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
                                 .doOnNext(audioFiles -> renameFiles(audioFiles, toDir))
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .doOnNext(audioFiles -> refreshCache()))
-                        .subscribe(audioFiles -> {
-
-                        }, Throwable::printStackTrace);
+                        .subscribe(audioFiles -> hideSaveButton(), Throwable::printStackTrace);
             }
         }
     }

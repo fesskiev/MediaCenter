@@ -104,6 +104,7 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
                         if (audioFolder.isSelected) {
                             audioPlayer.updateCurrentTrackAndTrackList();
                         }
+                        hideSaveButton();
                     }, Throwable::printStackTrace);
         }
     }

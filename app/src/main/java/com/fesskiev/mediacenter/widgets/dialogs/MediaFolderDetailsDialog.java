@@ -140,4 +140,8 @@ public abstract class MediaFolderDetailsDialog extends DialogFragment implements
             listener.onRefreshFolder();
         }
     }
+
+    protected void hideSaveButton(){
+        saveFolderNameButton.setVisibility(View.INVISIBLE);
+    }
 }
