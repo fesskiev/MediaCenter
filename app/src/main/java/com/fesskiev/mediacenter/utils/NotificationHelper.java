@@ -15,6 +15,7 @@ import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.MediaFile;
+import com.fesskiev.mediacenter.data.model.MediaFolder;
 import com.fesskiev.mediacenter.ui.MainActivity;
 
 
@@ -34,7 +35,6 @@ public class NotificationHelper {
     public static final int NOTIFICATION_FETCH_ID = 411;
     public static final int NOTIFICATION_MEDIA_ID = 413;
 
-    private static final int REQUEST_CODE = 100;
 
     public static final String ACTION_MEDIA_CONTROL_PLAY = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_PLAY";
     public static final String ACTION_MEDIA_CONTROL_PAUSE = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_PAUSE";
@@ -162,18 +162,18 @@ public class NotificationHelper {
     private PendingIntent createContentIntent() {
         Intent intent = new Intent(context, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        return PendingIntent.getActivity(context, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        return PendingIntent.getActivity(context, (int) System.currentTimeMillis(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     private PendingIntent getPendingIntentAction(String action) {
         Intent intent = new Intent(action);
-        return PendingIntent.getBroadcast(context, REQUEST_CODE, intent, 0);
+        return PendingIntent.getBroadcast(context, (int) System.currentTimeMillis(), intent, 0);
     }
 
     private PendingIntent getPendingIntentAction(String action, String extra) {
         Intent intent = new Intent(action);
         intent.putExtra(EXTRA_ACTION_BUTTON, extra);
-        return PendingIntent.getBroadcast(context, REQUEST_CODE, intent, 0);
+        return PendingIntent.getBroadcast(context, (int) System.currentTimeMillis(), intent, 0);
     }
 
     public void stopNotification() {
@@ -214,6 +214,40 @@ public class NotificationHelper {
 
     }
 
+    public void createMediaFolderNotification(MediaFolder mediaFolder, int id) {
+
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        RemoteViews notificationBigView = new RemoteViews(context.getPackageName(), R.layout.notification_fetch_big_lyout);
+        RemoteViews notificationView = new RemoteViews(context.getPackageName(), R.layout.notification_fetch_layout);
+
+        notificationBigView.setTextViewText(R.id.notificationTitle, mediaFolder.getFolderName());
+        notificationBigView.setTextViewText(R.id.notificationText, mediaFolder.getPath());
+
+        notificationView.setTextViewText(R.id.notificationTitle, mediaFolder.getFolderName());
+        notificationView.setTextViewText(R.id.notificationText, mediaFolder.getPath());
+
+        notificationBigView.setOnClickPendingIntent(R.id.skipButton,
+                getPendingIntentAction(ACTION_SKIP_BUTTON, mediaFolder.getPath()));
+        notificationBigView.setOnClickPendingIntent(R.id.addButton,
+                getPendingIntentAction(ACTION_ADD_BUTTON, mediaFolder.getPath()));
+
+
+        NotificationCompat.Builder notificationBuilder
+                = new NotificationCompat.Builder(context, MEDIA_CHANNEL);
+        notificationBuilder
+                .setCustomBigContentView(notificationBigView)
+                .setCustomContentView(notificationView)
+                .setSmallIcon(R.drawable.icon_notification_player)
+                .setVisibility(Notification.VISIBILITY_PUBLIC)
+                .setContentIntent(PendingIntent.getActivity(context, (int) System.currentTimeMillis(), intent, PendingIntent.FLAG_UPDATE_CURRENT))
+                .setAutoCancel(true);
+
+
+        notificationManager.notify(id, notificationBuilder.build());
+    }
+
     public void createMediaFileNotification(MediaFile mediaFile, int id) {
 
         Intent intent = new Intent(context, MainActivity.class);
@@ -241,7 +275,7 @@ public class NotificationHelper {
                 .setCustomContentView(notificationView)
                 .setSmallIcon(R.drawable.icon_notification_player)
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
-                .setContentIntent(PendingIntent.getActivity(context, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT))
+                .setContentIntent(PendingIntent.getActivity(context, (int) System.currentTimeMillis(), intent, PendingIntent.FLAG_UPDATE_CURRENT))
                 .setAutoCancel(true);
 
 

@@ -5,12 +5,16 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.ActivityOptions;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
@@ -52,6 +56,9 @@ import com.fesskiev.mediacenter.widgets.dialogs.SimpleDialog;
 import com.fesskiev.mediacenter.widgets.fetch.FetchContentScreen;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
+
+import static com.fesskiev.mediacenter.services.FileSystemService.ACTION_REFRESH_AUDIO_FRAGMENT;
+import static com.fesskiev.mediacenter.services.FileSystemService.ACTION_REFRESH_VIDEO_FRAGMENT;
 
 
 public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -143,6 +150,20 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             restoreState(savedInstanceState);
         }
 
+        registerRefreshFragmentsReceiver();
+
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        AppLog.DEBUG("onNewIntent: " + intent);
+        Bundle extras = intent.getExtras();
+        if (extras != null) {
+            if (extras.containsKey(SplashActivity.EXTRA_OPEN_FROM_ACTION)) {
+                audioPlayer.getCurrentTrackAndTrackList();
+                refreshAudioFragment();
+            }
+        }
     }
 
     @Override
@@ -158,6 +179,55 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             appGuide.clear();
         }
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkSelectedFragment();
+        if (!settingsManager.isUserPro()) {
+            hideDrawerConverterItem();
+        } else {
+            hideDrawerPurchaseItem();
+        }
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        fetchMediaFilesManager.unregister();
+        unregisterRefreshFragmentsReceiver();
+    }
+
+
+    private void registerRefreshFragmentsReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ACTION_REFRESH_AUDIO_FRAGMENT);
+        filter.addAction(ACTION_REFRESH_VIDEO_FRAGMENT);
+        LocalBroadcastManager.getInstance(this).registerReceiver(fileSystemReceiver, filter);
+    }
+
+    private void unregisterRefreshFragmentsReceiver() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(fileSystemReceiver);
+    }
+
+    private BroadcastReceiver fileSystemReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (action != null) {
+                switch (action) {
+                    case ACTION_REFRESH_AUDIO_FRAGMENT:
+                        refreshAudioFragment();
+                        break;
+                    case ACTION_REFRESH_VIDEO_FRAGMENT:
+                        refreshVideoFragment();
+                        break;
+
+                }
+            }
+        }
+    };
 
     private void makeGuideIfNeed() {
         if (settingsManager.isNeedMainActivityGuide()) {
@@ -286,19 +356,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             case SELECTED_VIDEO:
                 checkVideoContentItem();
                 break;
-        }
-    }
-
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        AppLog.DEBUG("onNewIntent: " + intent);
-        Bundle extras = intent.getExtras();
-        if (extras != null) {
-            if (extras.containsKey(SplashActivity.EXTRA_OPEN_FROM_ACTION)) {
-                audioPlayer.getCurrentTrackAndTrackList();
-                refreshAudioFragment();
-            }
         }
     }
 
@@ -604,24 +661,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         settingsManager.setEchoEnable(false);
 
         finishAffinity();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        checkSelectedFragment();
-        if (!settingsManager.isUserPro()) {
-            hideDrawerConverterItem();
-        } else {
-            hideDrawerPurchaseItem();
-        }
-    }
-
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        fetchMediaFilesManager.unregister();
     }
 
     private void stopFetchFiles() {
