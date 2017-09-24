@@ -41,6 +41,7 @@ import com.fesskiev.mediacenter.widgets.recycleview.ItemOffsetDecoration;
 import com.fesskiev.mediacenter.widgets.recycleview.helper.ItemTouchHelperAdapter;
 import com.fesskiev.mediacenter.widgets.recycleview.helper.ItemTouchHelperViewHolder;
 import com.fesskiev.mediacenter.widgets.recycleview.helper.SimpleItemTouchHelperCallback;
+import com.fesskiev.mediacenter.widgets.swipe.ScrollChildSwipeRefreshLayout;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -67,7 +68,7 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
     private VideoFoldersAdapter adapter;
     private RecyclerView recyclerView;
     private CardView emptyVideoContent;
-    private SwipeRefreshLayout swipeRefreshLayout;
+    private ScrollChildSwipeRefreshLayout swipeRefreshLayout;
 
     private boolean layoutAnimate;
 
@@ -109,6 +110,7 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
         swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.primary_light));
         swipeRefreshLayout.setProgressViewOffset(false, 0,
                 (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
+        swipeRefreshLayout.setScrollUpChild(recyclerView);
 
     }
 
@@ -298,7 +300,7 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
                         }
 
                         @Override
-                        public void onSearchData() {
+                        public void onSearchAlbum() {
 
                         }
                     }, false);

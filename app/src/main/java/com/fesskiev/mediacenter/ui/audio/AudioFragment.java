@@ -27,6 +27,7 @@ import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.widgets.dialogs.SimpleDialog;
+import com.fesskiev.mediacenter.widgets.swipe.ScrollChildSwipeRefreshLayout;
 import com.fesskiev.mediacenter.widgets.utils.DepthPageTransformer;
 
 import java.util.ArrayList;
@@ -47,7 +48,7 @@ public class AudioFragment extends Fragment implements SwipeRefreshLayout.OnRefr
 
     private TabLayout tabLayout;
     private ViewPagerAdapter adapter;
-    private SwipeRefreshLayout swipeRefreshLayout;
+    private ScrollChildSwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

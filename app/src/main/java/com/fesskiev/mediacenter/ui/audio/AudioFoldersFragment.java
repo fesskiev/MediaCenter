@@ -253,8 +253,8 @@ public class AudioFoldersFragment extends HidingPlaybackFragment implements Audi
                             }
 
                             @Override
-                            public void onSearchData() {
-                                startSearchDataActivity(position);
+                            public void onSearchAlbum() {
+                                startSearchAlbumActivity(position);
                             }
 
                         }, true);
@@ -288,7 +288,7 @@ public class AudioFoldersFragment extends HidingPlaybackFragment implements Audi
             }
         }
 
-        private void startSearchDataActivity(int position) {
+        private void startSearchAlbumActivity(int position) {
             Activity act = activity.get();
             if (act != null) {
                 AudioFolder audioFolder = audioFolders.get(position);

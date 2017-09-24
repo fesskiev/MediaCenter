@@ -242,7 +242,7 @@ public class NotificationHelper {
                 .setSmallIcon(R.drawable.icon_notification_player)
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
                 .setContentIntent(PendingIntent.getActivity(context, (int) System.currentTimeMillis(), intent, PendingIntent.FLAG_UPDATE_CURRENT))
-                .setAutoCancel(true);
+                .setAutoCancel(false);
 
 
         notificationManager.notify(id, notificationBuilder.build());
@@ -276,7 +276,7 @@ public class NotificationHelper {
                 .setSmallIcon(R.drawable.icon_notification_player)
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
                 .setContentIntent(PendingIntent.getActivity(context, (int) System.currentTimeMillis(), intent, PendingIntent.FLAG_UPDATE_CURRENT))
-                .setAutoCancel(true);
+                .setAutoCancel(false);
 
 
         notificationManager.notify(id, notificationBuilder.build());

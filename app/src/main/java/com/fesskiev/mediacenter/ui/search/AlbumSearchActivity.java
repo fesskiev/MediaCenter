@@ -33,6 +33,7 @@ import com.fesskiev.mediacenter.data.model.search.Track;
 import com.fesskiev.mediacenter.data.model.search.Tracks;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.data.source.remote.ErrorHelper;
+import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
@@ -67,6 +68,7 @@ public class AlbumSearchActivity extends AnalyticsActivity {
     private DataRepository repository;
     private Disposable subscription;
     private AudioFolder audioFolder;
+    private AudioPlayer audioPlayer;
 
     private SearchAdapter adapter;
 
@@ -93,6 +95,7 @@ public class AlbumSearchActivity extends AnalyticsActivity {
         setContentView(R.layout.activity_search_album);
 
         repository = MediaApplication.getInstance().getRepository();
+        audioPlayer = MediaApplication.getInstance().getAudioPlayer();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
@@ -393,12 +396,16 @@ public class AlbumSearchActivity extends AnalyticsActivity {
                         repository.updateAudioFile(audioFile);
                     }
                 })
+                .doOnNext(audioFiles -> updateAudioPlayer())
                 .firstOrError()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(audioFiles -> showSuccessSaveBitmap(),
                         throwable -> showErrorSaveBitmap());
     }
 
+    private void updateAudioPlayer() {
+        audioPlayer.updateCurrentTrackAndTrackList();
+    }
 
     private void saveArtworkAndUpdateFolder(Bitmap bitmap) {
         try {
@@ -410,6 +417,7 @@ public class AlbumSearchActivity extends AnalyticsActivity {
 
             repository.updateAudioFolder(audioFolder);
             repository.getMemorySource().setCacheFoldersDirty(true);
+
 
         } catch (IOException e) {
             e.printStackTrace();

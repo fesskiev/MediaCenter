@@ -13,7 +13,7 @@ public class FolderContextMenu extends ContextMenu{
 
         void onDeleteFolder();
 
-        void onSearchData();
+        void onSearchAlbum();
 
         void onDetailsFolder();
     }
@@ -46,7 +46,7 @@ public class FolderContextMenu extends ContextMenu{
         if(needSearch) {
             searchDataButton.setOnClickListener(v -> {
                 if (listener != null) {
-                    listener.onSearchData();
+                    listener.onSearchAlbum();
                 }
                 ContextMenuManager.getInstance().hideContextMenu();
             });

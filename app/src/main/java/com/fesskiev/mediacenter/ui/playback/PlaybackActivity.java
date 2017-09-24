@@ -11,7 +11,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -190,7 +189,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
         currentTrack = audioPlayer.getCurrentTrack();
         if (currentTrack != null) {
             hideEmptyTrackCard();
-            setMusicFileInfo(currentTrack);
+            setTrackInfo(currentTrack);
             startForegroundService();
         } else {
             showEmptyTrackCard();
@@ -305,7 +304,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     public void onCurrentTrackEvent(AudioFile currentTrack) {
         this.currentTrack = currentTrack;
         if (currentTrack != null) {
-            setMusicFileInfo(currentTrack);
+            setTrackInfo(currentTrack);
             hideEmptyTrackCard();
 
             adapter.notifyDataSetChanged();
@@ -323,7 +322,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     }
 
 
-    private void setMusicFileInfo(AudioFile audioFile) {
+    private void setTrackInfo(AudioFile audioFile) {
         track.setText(audioFile.title);
         artist.setText(audioFile.artist);
         clearDuration();
