@@ -36,7 +36,7 @@ public class ProUserFragment extends Fragment implements View.OnClickListener {
     private Disposable subscription;
     private Billing billing;
 
-    private TextView adMobText;
+    private TextView proUserText;
     private Button[] buttons;
 
     @Override
@@ -49,11 +49,11 @@ public class ProUserFragment extends Fragment implements View.OnClickListener {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        adMobText = view.findViewById(R.id.adMobText);
+        proUserText = view.findViewById(R.id.adMobText);
 
         buttons = new Button[]{
-                view.findViewById(R.id.buttonRemoveAdMob),
-                view.findViewById(R.id.buttonSkipRemoveAdMob)
+                view.findViewById(R.id.buttonGetPro),
+                view.findViewById(R.id.buttonSkipPro)
         };
 
         for (Button button : buttons) {
@@ -118,8 +118,8 @@ public class ProUserFragment extends Fragment implements View.OnClickListener {
 
 
     private void showSuccessPurchase() {
-        adMobText.setText(getString(R.string.ad_mob_remove_success));
-        adMobText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.icon_walk_through_ok, 0, 0);
+        proUserText.setText(getString(R.string.ad_mob_remove_success));
+        proUserText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.icon_walk_through_ok, 0, 0);
 
         hideButtons();
         notifyProUserGranted();
@@ -127,8 +127,8 @@ public class ProUserFragment extends Fragment implements View.OnClickListener {
     }
 
     private void showSkipPurchase() {
-        adMobText.setText(getString(R.string.ad_mob_remove_skip));
-        adMobText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.icon_walk_through_ok, 0, 0);
+        proUserText.setText(getString(R.string.ad_mob_remove_skip));
+        proUserText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.icon_walk_through_ok, 0, 0);
     }
 
     private void showErrorPurchaseView() {
@@ -162,10 +162,10 @@ public class ProUserFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.buttonRemoveAdMob:
+            case R.id.buttonGetPro:
                 startBillingActivity();
                 break;
-            case R.id.buttonSkipRemoveAdMob:
+            case R.id.buttonSkipPro:
                 showSkipPurchase();
                 notifyProUserGranted();
                 hideButtons();

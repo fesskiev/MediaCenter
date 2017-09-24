@@ -1,6 +1,6 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-    <string name="permission_read_external_storage">Read external storage are needed to access</string>
+    <string name="permissions_text">Read external storage and audio record permissions are need to correctly app work</string>
     <string name="permission_granted">All permissions granted. Thank you</string>
     <string name="button_ok">OK</string>
 
@@ -9,7 +9,7 @@
     <string name="search_media_files_title">You can search media files now or skip this step. Search now?</string>
     <string name="search_media_files_success">Searching files has been completed. Thank you</string>
 
-    <string name="ad_mob_text">You can remove AdMob, open Cue file parser and Media Converter. Buy pro user futures?</string>
+    <string name="pro_user_text">You can open Cue file parser and Media Converter. Buy pro user futures?</string>
     <string name="ad_mob_remove_success">You are pro user. Thank you for support!</string>
     <string name="ad_mob_remove_skip">In the future, you can buy pro user futures and disable AdMob in the application</string>
 

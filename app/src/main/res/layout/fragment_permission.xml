@@ -16,7 +16,7 @@
         android:drawablePadding="16dp"
         android:ellipsize="end"
         android:gravity="center"
-        android:text="@string/permission_read_external_storage" />
+        android:text="@string/permissions_text" />
 
     <LinearLayout
         android:layout_width="wrap_content"

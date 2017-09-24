@@ -272,14 +272,15 @@
     <style name="WalkThroughTextAppearance" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/white_text</item>
         <item name="android:textSize">@dimen/text_walk_through</item>
-        <item name="android:textStyle">normal</item>
         <item name="android:fontFamily">@font/ubuntu</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
     <style name="WalkThroughButtonTextAppearance" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/white_text</item>
         <item name="android:textSize">@dimen/text_walk_through</item>
         <item name="android:fontFamily">@font/ubuntu</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="SimpleButtonTextAppearance" parent="@android:style/TextAppearance">

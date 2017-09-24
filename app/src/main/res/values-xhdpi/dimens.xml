@@ -70,9 +70,7 @@
     <dimen name="text_fetch_dialog_title">14sp</dimen>
     <dimen name="text_fetch_dialog_desc">12sp</dimen>
 
-    <dimen name="text_walk_through">14sp</dimen>
-
-    <dimen name="text_vk_login">14sp</dimen>
+    <dimen name="text_walk_through">16sp</dimen>
 
     <dimen name="text_button">14sp</dimen>
 
