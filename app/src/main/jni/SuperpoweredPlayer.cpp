@@ -489,7 +489,7 @@ Java_com_fesskiev_mediacenter_services_PlaybackService_togglePlayback(JNIEnv *en
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_setVolumeAudioPlayer(JNIEnv *env,
+Java_com_fesskiev_mediacenter_services_PlaybackService_setVolume(JNIEnv *env,
                                                                             jobject instance,
                                                                             jfloat value) {
     player->setVolume(value);

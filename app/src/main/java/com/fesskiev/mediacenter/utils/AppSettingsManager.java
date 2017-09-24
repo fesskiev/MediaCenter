@@ -51,6 +51,10 @@ public class AppSettingsManager {
     private static final String KEY_CONVERT_PATH = "com.fesskiev.player.KEY_CONVERT_PATH";
     private static final String KEY_CUT_PATH = "com.fesskiev.player.KEY_CUT_PATH";
 
+    private static final String KEY_AUDIO_PLAYER_VOLUME = "com.fesskiev.player.AUDIO_PLAYER_VOLUME";
+    private static final String KEY_AUDIO_PLAYER_POSITION = "com.fesskiev.player.KEY_AUDIO_PLAYER_POSITION";
+
+
     private static final String KEY_GUIDE_MAIN_ACTIVITY = "com.fesskiev.player.KEY_GUIDE_MAIN_ACTIVITY";
     private static final String KEY_GUIDE_TRACK_LIST_ACTIVITY = "com.fesskiev.player.KEY_GUIDE_TRACK_LIST_ACTIVITY";
     private static final String KEY_GUIDE_AUDIO_PLAYER_ACTIVITY = "com.fesskiev.player.KEY_GUIDE_AUDIO_PLAYER_ACTIVITY";
@@ -82,6 +86,7 @@ public class AppSettingsManager {
         editor.putBoolean(KEY_FIRST_START_APP, false);
         editor.apply();
     }
+
     public boolean isReverbEnable() {
         return sharedPreferences.getBoolean(KEY_REVERB_ENABLE, false);
     }
@@ -281,7 +286,7 @@ public class AppSettingsManager {
     }
 
     public String getCuePath() {
-        return sharedPreferences.getString(KEY_CUE_PATH,  "");
+        return sharedPreferences.getString(KEY_CUE_PATH, "");
     }
 
     public void setCuePath(String path) {
@@ -289,7 +294,6 @@ public class AppSettingsManager {
         editor.putString(KEY_CUE_PATH, path);
         editor.apply();
     }
-
 
 
     public boolean isNeedMainActivityGuide() {
@@ -347,6 +351,24 @@ public class AppSettingsManager {
         editor.putBoolean(KEY_GUIDE_TRACK_LIST_ACTIVITY, need);
         editor.apply();
     }
+
+    public void setAudioPlayerPosition(int position) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(KEY_AUDIO_PLAYER_POSITION, position);
+        editor.apply();
+    }
+
+    public int getAudioPlayerPosition() {
+        return sharedPreferences.getInt(KEY_AUDIO_PLAYER_POSITION, 0);
+    }
+
+    public void setAudioPlayerVolume(float volume) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putFloat(KEY_AUDIO_PLAYER_VOLUME, volume);
+        editor.apply();
+    }
+
+    public float getAudioPlayerVolume() {
+        return sharedPreferences.getFloat(KEY_AUDIO_PLAYER_VOLUME, 100f);
+    }
 }
-
-

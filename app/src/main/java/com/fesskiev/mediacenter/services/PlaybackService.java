@@ -142,6 +142,8 @@ public class PlaybackService extends Service {
     public static final String PLAYBACK_EXTRA_LOOPING_END
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_LOOPING_END";
 
+    private AppSettingsManager settingsManager;
+
     private NotificationHelper notificationHelper;
     private WearHelper wearHelper;
 
@@ -170,6 +172,7 @@ public class PlaybackService extends Service {
     private boolean convertStart;
 
     private boolean finish;
+    private boolean restorePosition;
 
 
     public static void startPlaybackForegroundService(Context context) {
@@ -356,7 +359,10 @@ public class PlaybackService extends Service {
         super.onCreate();
         Log.d(TAG, "Create playback service!");
 
-        volume = 100;
+        settingsManager = AppSettingsManager.getInstance();
+
+        volume = settingsManager.getAudioPlayerVolume();
+        position = settingsManager.getAudioPlayerPosition();
 
         EventBus.getDefault().register(this);
 
@@ -399,13 +405,13 @@ public class PlaybackService extends Service {
                             if (!playing) {
                                 play();
                             }
-                            setVolumeAudioPlayer(focusedVolume);
+                            setVolume(focusedVolume);
                             break;
                         case AudioFocusManager.AUDIO_NO_FOCUS_CAN_DUCK:
                             focusedVolume = volume;
 
                             Log.d(TAG, "onFocusChanged: NO_FOCUS_CAN_DUCK: " + focusedVolume);
-                            setVolumeAudioPlayer(50);
+                            setVolume(50);
 
                             break;
                         case AudioFocusManager.AUDIO_NO_FOCUS_NO_DUCK:
@@ -423,6 +429,7 @@ public class PlaybackService extends Service {
         registerCallback();
 
         createPlayer();
+        EventBus.getDefault().post(PlaybackService.this);
     }
 
     private void next() {
@@ -467,7 +474,7 @@ public class PlaybackService extends Service {
                         break;
                     case ACTION_PLAYBACK_VOLUME:
                         int volumeValue = intent.getIntExtra(PLAYBACK_EXTRA_VOLUME, -1);
-                        setVolumeAudioPlayer(volumeValue);
+                        setVolume(volumeValue);
                         break;
                     case ACTION_PLAYBACK_EQ_STATE:
                         boolean eqEnable = intent.getBooleanExtra(PLAYBACK_EXTRA_EQ_ENABLE, false);
@@ -578,24 +585,24 @@ public class PlaybackService extends Service {
             @Override
             public void onVolumeUp() {
                 if (volume + 10 >= 100) {
-                    setVolumeAudioPlayer(100f);
+                    setVolume(100f);
                 } else {
-                    setVolumeAudioPlayer(volume + 10f);
+                    setVolume(volume + 10f);
                 }
             }
 
             @Override
             public void onVolumeDown() {
                 if (volume - 10 < 0) {
-                    setVolumeAudioPlayer(0f);
+                    setVolume(0f);
                 } else {
-                    setVolumeAudioPlayer(volume - 10f);
+                    setVolume(volume - 10f);
                 }
             }
 
             @Override
             public void onVolumeOff() {
-                setVolumeAudioPlayer(0f);
+                setVolume(0f);
             }
 
             @Override
@@ -782,6 +789,7 @@ public class PlaybackService extends Service {
                 CacheManager.getRecordTempPath().getAbsolutePath());
 
         setEffects();
+        setVolume(settingsManager.getAudioPlayerVolume());
     }
 
 
@@ -820,9 +828,7 @@ public class PlaybackService extends Service {
     private void createEQStateIfNeed() {
         EQState eqState = AppSettingsManager.getInstance().getEQState();
         if (eqState != null) {
-
             Log.wtf(TAG, "create EQ state: " + eqState.toString());
-
             for (int i = 0; i < 3; i++) {
                 switch (i) {
                     case 0:
@@ -854,6 +860,10 @@ public class PlaybackService extends Service {
         convertStart = false;
 
         openAudioFile(path);
+        if (!restorePosition) {
+            setPosition(settingsManager.getAudioPlayerPosition());
+            restorePosition = true;
+        }
     }
 
 
@@ -893,6 +903,9 @@ public class PlaybackService extends Service {
         onDestroyAudioPlayer();
 
         EventBus.getDefault().unregister(this);
+
+        settingsManager.setAudioPlayerPosition(position);
+        settingsManager.setAudioPlayerVolume(volume);
     }
 
     @Nullable
@@ -923,7 +936,7 @@ public class PlaybackService extends Service {
 
     public native void togglePlayback();
 
-    public native void setVolumeAudioPlayer(float value);
+    public native void setVolume(float value);
 
     public native void setSeekAudioPlayer(int value);
 
