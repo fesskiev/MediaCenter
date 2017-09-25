@@ -466,7 +466,7 @@ public class PlaybackService extends Service {
                         break;
                     case ACTION_PLAYBACK_SEEK:
                         int seekValue = intent.getIntExtra(PLAYBACK_EXTRA_SEEK, -1);
-                        setSeekAudioPlayer(seekValue);
+                        setSeek(seekValue);
                         break;
                     case ACTION_PLAYBACK_POSITION:
                         int positionValue = intent.getIntExtra(PLAYBACK_EXTRA_POSITION, -1);
@@ -484,7 +484,7 @@ public class PlaybackService extends Service {
                     case ACTION_PLAYBACK_LOOPING_STATE:
                         boolean looping =
                                 intent.getBooleanExtra(PLAYBACK_EXTRA_LOOPING_STATE, false);
-                        setLoopingAudioPlayer(looping);
+                        setLooping(looping);
                         break;
                     case ACTION_PLAYBACK_EQ_BAND_STATE:
                         int band = intent.getIntExtra(PLAYBACK_EXTRA_EQ_BAND, -1);
@@ -612,7 +612,7 @@ public class PlaybackService extends Service {
 
             @Override
             public void onRepeatChanged(boolean repeat) {
-                setLoopingAudioPlayer(repeat);
+                setLooping(repeat);
             }
 
             @Override
@@ -861,7 +861,9 @@ public class PlaybackService extends Service {
 
         openAudioFile(path);
         if (!restorePosition) {
-            setPosition(settingsManager.getAudioPlayerPosition());
+            int position = settingsManager.getAudioPlayerPosition();
+            Log.d(TAG, "set position: " + position);
+            setPosition(position);
             restorePosition = true;
         }
     }
@@ -938,11 +940,11 @@ public class PlaybackService extends Service {
 
     public native void setVolume(float value);
 
-    public native void setSeekAudioPlayer(int value);
+    public native void setSeek(int value);
 
     public native void setPosition(int value);
 
-    public native void setLoopingAudioPlayer(boolean isLooping);
+    public native void setLooping(boolean isLooping);
 
     public native void setTempo(double tempo);
 

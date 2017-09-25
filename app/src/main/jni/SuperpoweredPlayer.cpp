@@ -452,7 +452,7 @@ Java_com_fesskiev_mediacenter_services_PlaybackService_setEQBands(JNIEnv *javaEn
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_setLoopingAudioPlayer(JNIEnv *env,
+Java_com_fesskiev_mediacenter_services_PlaybackService_setLooping(JNIEnv *env,
                                                                              jobject instance,
                                                                              jboolean isLooping) {
     player->setLooping(isLooping);
@@ -496,7 +496,7 @@ Java_com_fesskiev_mediacenter_services_PlaybackService_setVolume(JNIEnv *env,
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_setSeekAudioPlayer(JNIEnv *env,
+Java_com_fesskiev_mediacenter_services_PlaybackService_setSeek(JNIEnv *env,
                                                                           jobject instance,
                                                                           jint value) {
     player->setSeek(value);
