@@ -860,12 +860,7 @@ public class PlaybackService extends Service {
         convertStart = false;
 
         openAudioFile(path);
-        if (!restorePosition) {
-            int position = settingsManager.getAudioPlayerPosition();
-            Log.d(TAG, "set position: " + position);
-            setPosition(position);
-            restorePosition = true;
-        }
+
     }
 
 
@@ -1001,6 +996,12 @@ public class PlaybackService extends Service {
                 next();
                 break;
             case LOAD_SUCCESS:
+                if (!restorePosition) {
+                    int position = settingsManager.getAudioPlayerPosition();
+                    Log.d(TAG, "set position: " + position);
+                    setPosition(position);
+                    restorePosition = true;
+                }
                 loadSuccess();
                 break;
             case LOAD_ERROR:

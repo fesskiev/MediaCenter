@@ -70,7 +70,7 @@ public abstract class PlaybackActivity extends AnalyticsActivity {
     private boolean lastLoadSuccess;
     private boolean lastConvertStart;
     private boolean lastPlaying;
-    private int lastPositionSeconds;
+    private int lastPositionSeconds = -1;
     private boolean lastEnableEQ;
     private boolean lastEnableReverb;
     private boolean lastEnableWhoosh;
