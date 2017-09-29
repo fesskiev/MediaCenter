@@ -97,6 +97,7 @@ public class MediaApplication extends MultiDexApplication {
             case ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL:
                 AppLog.INFO("TRIM_MEMORY_RUNNING_CRITICAL");
                 Glide.get(getApplicationContext()).trimMemory(ComponentCallbacks2.TRIM_MEMORY_MODERATE);
+                repository.getMemorySource().clearCache();
                 break;
             case ComponentCallbacks2.TRIM_MEMORY_COMPLETE:
                 AppLog.INFO("TRIM_MEMORY_COMPLETE");

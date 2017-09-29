@@ -128,4 +128,8 @@ public class MemoryDataSource implements MemorySource {
         List<VideoFolder> video = (List<VideoFolder>) cache.get(VIDEO_FOLDERS);
         return video != null && video.isEmpty();
     }
+
+    public void clearCache() {
+        cache.evictAll();
+    }
 }

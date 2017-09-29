@@ -889,11 +889,15 @@ public class PlaybackService extends Service {
         if (playing) {
             stop();
         }
-        timer.stop();
-
-        notificationHelper.stopNotification();
-        wearHelper.disconnect();
-
+        if (timer != null) {
+            timer.stop();
+        }
+        if (notificationHelper != null) {
+            notificationHelper.stopNotification();
+        }
+        if (wearHelper != null) {
+            wearHelper.disconnect();
+        }
         unregisterNotificationReceiver();
         unregisterHeadsetReceiver();
         unregisterCallback();
@@ -901,8 +905,10 @@ public class PlaybackService extends Service {
 
         EventBus.getDefault().unregister(this);
 
-        settingsManager.setAudioPlayerPosition(position);
-        settingsManager.setAudioPlayerVolume(volume);
+        if (settingsManager != null) {
+            settingsManager.setAudioPlayerPosition(position);
+            settingsManager.setAudioPlayerVolume(volume);
+        }
     }
 
     @Nullable
