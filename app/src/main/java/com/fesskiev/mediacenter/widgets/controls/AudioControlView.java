@@ -116,7 +116,9 @@ public class AudioControlView extends FrameLayout {
         playPauseButton.finishLoading();
     }
 
-    public PlayPauseButton getPlayPauseButton() {
-        return playPauseButton;
+    public void setColorFilter(int color, int color1){
+        volumeSeekView.setCircleColor(color);
+        volumeSeekView.setProgressColor(color1);
+        playPauseButton.setColor(color);
     }
 }

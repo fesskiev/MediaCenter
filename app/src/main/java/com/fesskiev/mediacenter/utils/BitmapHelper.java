@@ -4,6 +4,8 @@ package com.fesskiev.mediacenter.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.v7.graphics.Palette;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -25,7 +27,9 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
-import io.reactivex.Observable;;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;;
 
 public class BitmapHelper {
 
@@ -105,26 +109,54 @@ public class BitmapHelper {
         }
     }
 
-    public boolean loadAudioPlayerArtwork(AudioFile audioFile, ImageView imageView) {
-        if (audioFile != null) {
-            String mediaArtworkPath = findMediaFileArtworkPath(audioFile);
-            if (mediaArtworkPath != null) {
-                Glide.with(context)
-                        .load(mediaArtworkPath)
-                        .override(WIDTH * 3, HEIGHT * 3)
-                        .centerCrop()
-                        .into(imageView);
-                return true;
-            }
+    public Observable<PaletteColor> loadAudioPlayerArtwork(AudioFile audioFile, ImageView imageView) {
+        return Observable.just(audioFile)
+                .observeOn(AndroidSchedulers.mainThread())
+                .flatMap(file -> {
+                    if (file != null) {
+                        String mediaArtworkPath = findMediaFileArtworkPath(file);
+                        if (mediaArtworkPath != null) {
+                            Glide.with(context)
+                                    .load(mediaArtworkPath)
+                                    .listener(loggingListener)
+                                    .override(WIDTH * 3, HEIGHT * 3)
+                                    .centerCrop()
+                                    .into(imageView);
+                            return Observable.just(mediaArtworkPath);
+                        }
+                    } else {
+                        Glide.with(context)
+                                .load(R.drawable.no_cover_player)
+                                .listener(loggingListener)
+                                .fitCenter()
+                                .diskCacheStrategy(DiskCacheStrategy.RESULT)
+                                .into(imageView);
+                        return Observable.empty();
+                    }
+                    return Observable.empty();
+                })
+                .subscribeOn(Schedulers.io())
+                .flatMap(mediaArtworkPath -> {
+                    if (mediaArtworkPath != null && !TextUtils.isEmpty(mediaArtworkPath)) {
+                        return Observable.just(new PaletteColor(context, Palette
+                                .from(getBitmapFromPath(mediaArtworkPath))
+                                .generate()));
+                    }
+                    return Observable.empty();
+                });
+
+    }
+
+    public Observable<PaletteColor> getAudioFolderPalette(AudioFolder audioFolder) {
+        String coverFile = findAudioFolderArtworkPath(audioFolder);
+        if (coverFile != null) {
+            return Observable.just(coverFile)
+                    .subscribeOn(Schedulers.io())
+                    .flatMap(file -> Observable.just(new PaletteColor(context, Palette
+                            .from(getBitmapFromPath(file))
+                            .generate())));
         }
-
-        Glide.with(context)
-                .load(R.drawable.no_cover_player)
-                .fitCenter()
-                .diskCacheStrategy(DiskCacheStrategy.RESULT)
-                .into(imageView);
-
-        return false;
+        return Observable.empty();
     }
 
     private String findPath(MediaFile mediaFile) {
@@ -297,6 +329,63 @@ public class BitmapHelper {
 
     public Bitmap getBitmapFromResource(int resource) {
         return BitmapFactory.decodeResource(context.getResources(), resource);
+    }
+
+
+    public class PaletteColor {
+
+        private int vibrant;
+        private int vibrantLight;
+        private int vibrantDark;
+        private int muted;
+        private int mutedLight;
+        private int mutedDark;
+
+        public PaletteColor(Context context, Palette palette) {
+            int defaultValue = context.getResources().getColor(R.color.secondary_text);
+            vibrant = palette.getVibrantColor(defaultValue);
+            vibrantLight = palette.getLightVibrantColor(defaultValue);
+            vibrantDark = palette.getDarkVibrantColor(defaultValue);
+            muted = palette.getMutedColor(defaultValue);
+            mutedLight = palette.getLightMutedColor(defaultValue);
+            mutedDark = palette.getDarkMutedColor(defaultValue);
+        }
+
+        public int getVibrant() {
+            return vibrant;
+        }
+
+        public int getVibrantLight() {
+            return vibrantLight;
+        }
+
+        public int getVibrantDark() {
+            return vibrantDark;
+        }
+
+        public int getMuted() {
+            return muted;
+        }
+
+        public int getMutedLight() {
+            return mutedLight;
+        }
+
+        public int getMutedDark() {
+            return mutedDark;
+        }
+
+        @Override
+        public String toString() {
+            return "PaletteColor{" +
+                    "vibrant=" + vibrant +
+                    ", vibrantLight=" + vibrantLight +
+                    ", vibrantDark=" + vibrantDark +
+                    ", muted=" + muted +
+                    ", mutedLight=" + mutedLight +
+                    ", mutedDark=" + mutedDark +
+                    '}';
+        }
     }
 
 }

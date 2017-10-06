@@ -116,6 +116,7 @@ dependencies {
     compile "com.android.support:design:$rootProject.supportLibVersion"
     compile "com.android.support:support-v4:$rootProject.supportLibVersion"
     compile "com.android.support:percent:$rootProject.supportLibVersion"
+    compile "com.android.support:palette-v7:$rootProject.supportLibVersion"
 
     compile "com.google.firebase:firebase-crash:${firebaseLibVersion}"
     compile "com.google.firebase:firebase-analytics:${firebaseLibVersion}"

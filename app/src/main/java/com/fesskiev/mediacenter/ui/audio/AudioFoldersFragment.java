@@ -388,6 +388,7 @@ public class AudioFoldersFragment extends HidingPlaybackFragment implements Audi
             AudioFolder audioFolder = audioFolders.get(position);
             if (audioFolder != null) {
                 holder.audioCardView.setAlbumName(audioFolder.folderName);
+
                 BitmapHelper.getInstance().loadAudioFolderArtwork(audioFolder,
                         holder.audioCardView.getCoverView());
 
@@ -403,7 +404,23 @@ public class AudioFoldersFragment extends HidingPlaybackFragment implements Audi
                 } else {
                     holder.audioCardView.setAlpha(1f);
                 }
+
+                if (audioFolder.color == null) {
+                    BitmapHelper.getInstance().getAudioFolderPalette(audioFolder)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(paletteColor -> setPalette(paletteColor, audioFolder, holder));
+                } else {
+                    holder.audioCardView.setFooterBackgroundColor(audioFolder.color.getVibrantLight());
+                    holder.audioCardView.setAlbumTextColor(audioFolder.color.getMutedLight());
+                }
             }
+        }
+
+        private void setPalette(BitmapHelper.PaletteColor paletteColor,
+                                AudioFolder audioFolder, ViewHolder holder) {
+            audioFolder.color = paletteColor;
+            holder.audioCardView.setFooterBackgroundColor(audioFolder.color.getVibrantLight());
+            holder.audioCardView.setAlbumTextColor(audioFolder.color.getMutedLight());
         }
 
         @Override

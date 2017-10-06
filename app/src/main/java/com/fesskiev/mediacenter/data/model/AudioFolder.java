@@ -6,6 +6,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.fesskiev.mediacenter.data.source.local.db.DatabaseHelper;
+import com.fesskiev.mediacenter.utils.BitmapHelper;
 
 import java.io.File;
 
@@ -19,6 +20,7 @@ public class AudioFolder implements Comparable<AudioFolder>, Parcelable, MediaFo
     public long timestamp;
     public boolean isSelected;
     public boolean isHidden;
+    public BitmapHelper.PaletteColor color;
 
 
     public AudioFolder() {

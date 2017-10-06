@@ -315,6 +315,18 @@ public class AudioVolumeSeekView extends View {
         invalidate();
     }
 
+    public void setCircleColor(int circleColor) {
+        circlePaint.setColor(circleColor);
+        linePaint.setColor(circleColor);
+        invalidate();
+    }
+
+    public void setProgressColor(int progressColor) {
+        circleFillPaint.setColor(progressColor);
+        progressPaint.setColor(progressColor);
+        invalidate();
+    }
+
     public void setEnableChangeVolume(boolean enable) {
         enableChangeVolume = enable;
     }

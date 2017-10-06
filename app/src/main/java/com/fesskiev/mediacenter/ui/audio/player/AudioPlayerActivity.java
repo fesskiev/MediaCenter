@@ -28,6 +28,7 @@ import com.fesskiev.mediacenter.ui.effects.EffectsActivity;
 import com.fesskiev.mediacenter.utils.AppGuide;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
+import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
 import com.fesskiev.mediacenter.widgets.buttons.MuteSoloButton;
@@ -43,10 +44,14 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+
 public class AudioPlayerActivity extends AnalyticsActivity {
 
     private AudioPlayer audioPlayer;
     private AppSettingsManager settingsManager;
+    private Disposable subscription;
 
     private AppGuide appGuide;
 
@@ -54,7 +59,6 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     private DescriptionCardView cardDescription;
     private MuteSoloButton muteSoloButton;
     private RepeatButton repeatButton;
-    private ImageView backdrop;
     private TextView trackTimeCount;
     private TextView trackTimeTotal;
     private TextView artist;
@@ -65,6 +69,11 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     private TextView trackDescription;
     private ImageView prevTrack;
     private ImageView nextTrack;
+    private ImageView backdrop;
+    private ImageView equalizer;
+    private ImageView trackList;
+    private ImageView timer;
+
 
     private boolean lastConvertStart;
     private boolean lastLoadSuccess;
@@ -94,6 +103,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
 
+        timer = findViewById(R.id.timerImage);
         backdrop = findViewById(R.id.backdrop);
         muteSoloButton = findViewById(R.id.muteSoloButton);
         trackTimeTotal = findViewById(R.id.trackTimeTotal);
@@ -117,8 +127,10 @@ public class AudioPlayerActivity extends AnalyticsActivity {
             next();
         });
 
-        findViewById(R.id.equalizer).setOnClickListener(v -> startEqualizerActivity());
-        findViewById(R.id.trackList).setOnClickListener(v -> openTrackList());
+        equalizer = findViewById(R.id.equalizer);
+        equalizer.setOnClickListener(v -> startEqualizerActivity());
+        trackList = findViewById(R.id.trackList);
+        trackList.setOnClickListener(v -> openTrackList());
 
         cardDescription = findViewById(R.id.cardDescription);
         cardDescription.setOnCardAnimationListener(new DescriptionCardView.OnCardAnimationListener() {
@@ -214,6 +226,13 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         if (appGuide != null) {
             appGuide.clear();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+        RxUtils.unsubscribe(subscription);
     }
 
     private void makeGuideIfNeed() {
@@ -317,13 +336,6 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     private void startCutActivity() {
         CutMediaActivity.startCutMediaActivity(AudioPlayerActivity.this, CutMediaActivity.CUT_AUDIO);
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
-    }
-
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onCurrentTrackEvent(AudioFile currentTrack) {
@@ -460,9 +472,30 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
 
     private void setBackdropImage(AudioFile audioFile) {
-        BitmapHelper.getInstance().loadAudioPlayerArtwork(audioFile, backdrop);
+        subscription = BitmapHelper.getInstance().loadAudioPlayerArtwork(audioFile, backdrop)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::setPalette);
     }
 
+    private void setPalette(BitmapHelper.PaletteColor color) {
+        int vibrant = color.getMuted();
+        trackTimeCount.setTextColor(vibrant);
+        trackTimeTotal.setTextColor(vibrant);
+        artist.setTextColor(vibrant);
+        volumeLevel.setTextColor(vibrant);
+        title.setTextColor(vibrant);
+        genre.setTextColor(vibrant);
+        album.setTextColor(vibrant);
+        trackDescription.setTextColor(vibrant);
+        prevTrack.setColorFilter(vibrant);
+        nextTrack.setColorFilter(vibrant);
+        equalizer.setColorFilter(vibrant);
+        trackList.setColorFilter(vibrant);
+        muteSoloButton.setColorFilter(vibrant);
+        repeatButton.setColorFilter(vibrant);
+        timer.setColorFilter(vibrant);
+        controlView.setColorFilter(vibrant, color.getVibrantDark());
+    }
 
     public void play() {
         audioPlayer.play();

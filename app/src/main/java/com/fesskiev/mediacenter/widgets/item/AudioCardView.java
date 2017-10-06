@@ -28,6 +28,7 @@ public class AudioCardView extends CardView {
     private View footer;
     private ImageView popupMenu;
     private ImageView coverView;
+    private ImageView selectFolder;
     private TextView albumName;
     private boolean menuVisible;
 
@@ -54,6 +55,7 @@ public class AudioCardView extends CardView {
         popupMenu = view.findViewById(R.id.popupMenu);
         albumName = view.findViewById(R.id.audioName);
         coverView = view.findViewById(R.id.audioCover);
+        selectFolder = view.findViewById(R.id.selectFolder);
         footer = view.findViewById(R.id.audioItemFooter);
 
 
@@ -113,12 +115,20 @@ public class AudioCardView extends CardView {
         this.menuVisible = visible;
     }
 
+    public void setAlbumTextColor(int color) {
+        albumName.setTextColor(color);
+    }
+
+    public void setFooterBackgroundColor(int color) {
+        footer.setBackgroundColor(color);
+    }
+
     public void addSelectedFolder() {
-        footer.setBackgroundColor(getResources().getColor(R.color.yellow));
+        selectFolder.setVisibility(VISIBLE);
     }
 
     public void removeSelectedFolder() {
-        footer.setBackgroundColor(getResources().getColor(R.color.color_background));
+        selectFolder.setVisibility(INVISIBLE);
     }
 
 }
