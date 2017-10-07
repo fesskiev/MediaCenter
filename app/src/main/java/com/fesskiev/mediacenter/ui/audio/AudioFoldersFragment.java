@@ -407,6 +407,7 @@ public class AudioFoldersFragment extends HidingPlaybackFragment implements Audi
 
                 if (audioFolder.color == null) {
                     BitmapHelper.getInstance().getAudioFolderPalette(audioFolder)
+                            .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(paletteColor -> setPalette(paletteColor, audioFolder, holder));
                 } else {

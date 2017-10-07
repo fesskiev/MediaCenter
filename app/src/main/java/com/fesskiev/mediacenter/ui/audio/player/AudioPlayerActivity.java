@@ -46,6 +46,7 @@ import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class AudioPlayerActivity extends AnalyticsActivity {
 
@@ -472,29 +473,34 @@ public class AudioPlayerActivity extends AnalyticsActivity {
 
 
     private void setBackdropImage(AudioFile audioFile) {
-        subscription = BitmapHelper.getInstance().loadAudioPlayerArtwork(audioFile, backdrop)
+        BitmapHelper bitmapHelper = BitmapHelper.getInstance();
+        bitmapHelper.loadAudioPlayerArtwork(audioFile, backdrop);
+
+        subscription = bitmapHelper.getAudioFilePalette(audioFile)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::setPalette);
     }
 
     private void setPalette(BitmapHelper.PaletteColor color) {
-        int vibrant = color.getMuted();
-        trackTimeCount.setTextColor(vibrant);
-        trackTimeTotal.setTextColor(vibrant);
-        artist.setTextColor(vibrant);
-        volumeLevel.setTextColor(vibrant);
-        title.setTextColor(vibrant);
-        genre.setTextColor(vibrant);
-        album.setTextColor(vibrant);
-        trackDescription.setTextColor(vibrant);
-        prevTrack.setColorFilter(vibrant);
-        nextTrack.setColorFilter(vibrant);
-        equalizer.setColorFilter(vibrant);
-        trackList.setColorFilter(vibrant);
-        muteSoloButton.setColorFilter(vibrant);
-        repeatButton.setColorFilter(vibrant);
-        timer.setColorFilter(vibrant);
-        controlView.setColorFilter(vibrant, color.getVibrantDark());
+        int muted = color.getMuted();
+        trackTimeCount.setTextColor(muted);
+        trackTimeTotal.setTextColor(muted);
+        artist.setTextColor(muted);
+        volumeLevel.setTextColor(muted);
+        title.setTextColor(muted);
+        genre.setTextColor(muted);
+        album.setTextColor(muted);
+        trackDescription.setTextColor(muted);
+        prevTrack.setColorFilter(muted);
+        nextTrack.setColorFilter(muted);
+        equalizer.setColorFilter(muted);
+        trackList.setColorFilter(muted);
+        muteSoloButton.setColorFilter(muted);
+        repeatButton.setColorFilter(muted);
+        timer.setColorFilter(muted);
+        controlView.setColorFilter(muted, color.getVibrantDark());
     }
 
     public void play() {

@@ -28,6 +28,8 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;;
 
@@ -109,54 +111,57 @@ public class BitmapHelper {
         }
     }
 
-    public Observable<PaletteColor> loadAudioPlayerArtwork(AudioFile audioFile, ImageView imageView) {
-        return Observable.just(audioFile)
-                .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(file -> {
-                    if (file != null) {
-                        String mediaArtworkPath = findMediaFileArtworkPath(file);
-                        if (mediaArtworkPath != null) {
-                            Glide.with(context)
-                                    .load(mediaArtworkPath)
-                                    .listener(loggingListener)
-                                    .override(WIDTH * 3, HEIGHT * 3)
-                                    .centerCrop()
-                                    .into(imageView);
-                            return Observable.just(mediaArtworkPath);
-                        }
-                    } else {
-                        Glide.with(context)
-                                .load(R.drawable.no_cover_player)
-                                .listener(loggingListener)
-                                .fitCenter()
-                                .diskCacheStrategy(DiskCacheStrategy.RESULT)
-                                .into(imageView);
-                        return Observable.empty();
-                    }
-                    return Observable.empty();
-                })
-                .subscribeOn(Schedulers.io())
-                .flatMap(mediaArtworkPath -> {
-                    if (mediaArtworkPath != null && !TextUtils.isEmpty(mediaArtworkPath)) {
-                        return Observable.just(new PaletteColor(context, Palette
-                                .from(getBitmapFromPath(mediaArtworkPath))
-                                .generate()));
-                    }
-                    return Observable.empty();
-                });
+    public void loadAudioPlayerArtwork(AudioFile audioFile, ImageView imageView) {
+        String mediaArtworkPath = findMediaFileArtworkPath(audioFile);
+        if (mediaArtworkPath != null) {
+            Glide.with(context)
+                    .load(mediaArtworkPath)
+                    .listener(loggingListener)
+                    .override(WIDTH * 3, HEIGHT * 3)
+                    .centerCrop()
+                    .into(imageView);
+        } else {
+            Glide.with(context)
+                    .load(R.drawable.no_cover_player)
+                    .listener(loggingListener)
+                    .fitCenter()
+                    .diskCacheStrategy(DiskCacheStrategy.RESULT)
+                    .into(imageView);
+        }
+
 
     }
 
+    public Observable<PaletteColor> getAudioFilePalette(AudioFile audioFile){
+        return Observable.create(e -> {
+            String coverPath = findMediaFileArtworkPath(audioFile);
+            if (coverPath != null) {
+                e.onNext(new PaletteColor(context, Palette
+                        .from(getBitmapFromPath(coverPath))
+                        .generate()));
+            } else {
+                e.onNext(new PaletteColor(context, Palette
+                        .from(getBitmapFromResource(R.drawable.no_cover_player))
+                        .generate()));
+            }
+            e.onComplete();
+        });
+    }
+
     public Observable<PaletteColor> getAudioFolderPalette(AudioFolder audioFolder) {
-        String coverFile = findAudioFolderArtworkPath(audioFolder);
-        if (coverFile != null) {
-            return Observable.just(coverFile)
-                    .subscribeOn(Schedulers.io())
-                    .flatMap(file -> Observable.just(new PaletteColor(context, Palette
-                            .from(getBitmapFromPath(file))
-                            .generate())));
-        }
-        return Observable.empty();
+        return Observable.create(e -> {
+            String coverPath = findAudioFolderArtworkPath(audioFolder);
+            if (coverPath != null) {
+                e.onNext(new PaletteColor(context, Palette
+                        .from(getBitmapFromPath(coverPath))
+                        .generate()));
+            } else {
+                e.onNext(new PaletteColor(context, Palette
+                        .from(getBitmapFromResource(R.drawable.no_cover_folder_icon))
+                        .generate()));
+            }
+            e.onComplete();
+        });
     }
 
     private String findPath(MediaFile mediaFile) {
