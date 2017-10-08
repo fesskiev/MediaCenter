@@ -62,5 +62,6 @@ dependencies {
     implementation "com.google.android.gms:play-services-wearable:$rootProject.playServiceWearable"
     compile "com.android.support:wear:$rootProject.supportLibVersion"
     compile "com.android.support:support-v13:$rootProject.supportLibVersion"
+    compile "com.android.support:palette-v7:$rootProject.supportLibVersion"
     compileOnly "com.google.android.wearable:wearable:$rootProject.wearable"
 }

@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
@@ -13,6 +14,7 @@ import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
+import android.support.v7.graphics.Palette;
 import android.support.wear.widget.drawer.WearableNavigationDrawerView;
 import android.support.wearable.activity.WearableActivity;
 import android.view.ViewGroup;
@@ -128,7 +130,9 @@ public class MainActivity extends WearableActivity {
                                 adapter.getPlaybackFragment().updateCurrentTrack(audioFile);
                                 adapter.getTrackListFragment().updateCurrentTrack(audioFile);
                                 adapter.getControlFragment().updateCurrentTrack(audioFile);
+                                generatePalette(audioFile);
                             }
+
                             break;
                         case ACTION_PLAYBACK:
                             MapPlayback playback =
@@ -143,6 +147,30 @@ public class MainActivity extends WearableActivity {
             }
         }
     };
+
+    private void generatePalette(final MapAudioFile audioFile) {
+        if (audioFile != null) {
+            final Bitmap cover = audioFile.cover;
+            if (cover != null) {
+                new Thread(() -> generatePaletteFromBitmap(cover)).start();
+            }
+        }
+    }
+
+    private void generatePaletteFromBitmap(Bitmap cover) {
+        Palette palette = Palette.from(cover).generate();
+        int defaultValue = ContextCompat.getColor(getApplicationContext(), R.color.secondary_text);
+        int vibrant = palette.getVibrantColor(defaultValue);
+        int vibrantLight = palette.getLightVibrantColor(defaultValue);
+        int vibrantDark = palette.getDarkVibrantColor(defaultValue);
+        int muted = palette.getMutedColor(defaultValue);
+        int mutedLight = palette.getLightMutedColor(defaultValue);
+        int mutedDark = palette.getDarkMutedColor(defaultValue);
+        runOnUiThread(() -> {
+            adapter.getPlaybackFragment().updatePaletteColor(mutedLight);
+            adapter.getControlFragment().updatePaletteColor(mutedLight);
+        });
+    }
 
     private class ViewPagerAdapter extends FragmentStatePagerAdapter {
 

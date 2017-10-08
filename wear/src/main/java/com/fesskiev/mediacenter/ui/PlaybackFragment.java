@@ -171,4 +171,12 @@ public class PlaybackFragment extends Fragment implements
         synchronize = true;
     }
 
+    public void updatePaletteColor(int color) {
+        prevTrack.setColorFilter(color);
+        nextTrack.setColorFilter(color);
+        playPauseButton.setColor(color);
+        albumText.setTextColor(color);
+        titleText.setTextColor(color);
+        durationText.setTextColor(color);
+    }
 }

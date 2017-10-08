@@ -120,4 +120,10 @@ public class ControlFragment extends Fragment implements View.OnClickListener {
     private void showViews() {
         containerViews.setVisibility(View.VISIBLE);
     }
+
+    public void updatePaletteColor(int color) {
+        for (ImageView button : buttons) {
+            button.setColorFilter(color);
+        }
+    }
 }
