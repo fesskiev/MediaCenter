@@ -322,7 +322,7 @@
     <string name="app_guide_audio_next_desc">The next track will be selected</string>
 
     <string name="app_guide_looping_title">Looping</string>
-    <string name="app_guide_looping_desc">With a short press, the automatic repeat mode of the track will be selected. A long press will open the dialog with the selection of the range for looping</string>
+    <string name="app_guide_looping_desc">The first button is responsible for the full loop of the track, the second and third allows you to select the range of the loop</string>
 
     <string name="app_guide_subtitle_title">Subtitles</string>
     <string name="app_guide_subtitle_desc">Opportunity loading subtitles from the file system</string>
@@ -349,6 +349,11 @@
 
     <string name="notification_skip">Skip</string>
     <string name="notification_add">Add</string>
+
+    <string name="repeat_button_on">On</string>
+    <string name="repeat_button_off">Off</string>
+    <string name="repeat_loop_off">n/a</string>
+
 
     <string name="last_fm_api_key">adc1430e56411c85fadf04c03b54068f</string>
 

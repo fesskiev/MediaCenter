@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:name="back"
-    android:width="200dp"
-    android:height="200dp"
+    android:width="42dp"
+    android:height="42dp"
     android:tint="@color/player_primary"
     android:viewportHeight="200"
     android:viewportWidth="200">

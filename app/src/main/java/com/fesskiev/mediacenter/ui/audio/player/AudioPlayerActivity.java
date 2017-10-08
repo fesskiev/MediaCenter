@@ -291,8 +291,12 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         transaction.addToBackStack(null);
         LoopingDialog dialog = LoopingDialog.newInstance(lastDurationSeconds);
         dialog.show(transaction, LoopingDialog.class.getName());
-        dialog.setLoopingBetweenListener((start, end) ->
-                PlaybackService.startLooping(getApplicationContext(), start, end));
+        dialog.setLoopingBetweenListener(this::setLoopBetween);
+    }
+
+    private void setLoopBetween(int start, int end) {
+        PlaybackService.startLooping(getApplicationContext(), start, end);
+        repeatButton.setLoopBetweenTime(start, end);
     }
 
     @Override

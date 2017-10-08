@@ -296,7 +296,7 @@
     <string name="app_guide_audio_next_desc">Будет выбран следующий трек по списку</string>
 
     <string name="app_guide_looping_title">Зацикливание</string>
-    <string name="app_guide_looping_desc">При коротком нажатии будет выбран режим автоматического повтора трека.При длинном нажатии откроется диалог с выбором промежутка для зацикливания</string>
+    <string name="app_guide_looping_desc">Первая кнопка отвечает за полный повтор трека, вторая и третья позволяет выбрать диапазон зацикливания</string>
 
     <string name="app_guide_subtitle_title">Субтитры</string>
     <string name="app_guide_subtitle_desc">Возможность загрузить субтитры из файловой системы</string>
@@ -323,5 +323,9 @@
 
     <string name="notification_skip">Пропустить</string>
     <string name="notification_add">Добавить</string>
+
+    <string name="repeat_button_on">Вкл</string>
+    <string name="repeat_button_off">Выкл</string>
+    <string name="repeat_loop_off">н/а</string>
 
 </resources>

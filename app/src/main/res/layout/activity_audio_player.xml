@@ -19,8 +19,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/track_background"
-            app:statusBarScrim="@android:color/transparent"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            app:statusBarScrim="@android:color/transparent"
             app:titleEnabled="false">
 
             <ImageView
@@ -111,7 +111,6 @@
                             android:gravity="center"
                             android:maxLines="1"
                             tools:text="Overture" />
-
 
                     </LinearLayout>
 
@@ -252,8 +251,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:layout_below="@+id/trackTimeControl"
-                        android:layout_marginBottom="10dp"
-                        android:layout_marginTop="10dp" />
+                        android:layout_marginBottom="5dp"
+                        android:layout_marginTop="5dp" />
 
                     <LinearLayout
                         android:id="@+id/trackIndicators"
@@ -264,49 +263,57 @@
 
                         <ImageView
                             android:id="@+id/previousTrack"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
+                            android:layout_weight="1"
                             android:contentDescription="@string/app_name"
                             android:scaleType="fitCenter"
                             android:src="@drawable/avd_music_previous" />
+
+                        <View
+                            style="@style/DividerStyle"
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent" />
 
                         <ImageView
                             android:id="@+id/equalizer"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
-                            android:layout_weight="0.5"
+                            android:layout_weight="1"
                             android:clickable="true"
                             android:contentDescription="@string/app_name"
                             android:foreground="?android:attr/selectableItemBackground"
                             android:src="@drawable/icon_effects" />
+
+                        <View
+                            style="@style/DividerStyle"
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent" />
 
                         <ImageView
                             android:id="@+id/trackList"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
-                            android:layout_weight="0.5"
+                            android:layout_weight="1"
                             android:clickable="true"
                             android:contentDescription="@string/app_name"
                             android:foreground="?android:attr/selectableItemBackground"
                             android:src="@drawable/icon_track_list" />
 
-                        <com.fesskiev.mediacenter.widgets.buttons.RepeatButton
-                            android:id="@+id/repeatButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_vertical"
-                            android:layout_weight="0.5"
-                            android:contentDescription="@string/app_name"
-                            android:src="@drawable/icon_repeat_off" />
+                        <View
+                            style="@style/DividerStyle"
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent" />
 
                         <ImageView
                             android:id="@+id/nextTrack"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
+                            android:layout_weight="1"
                             android:contentDescription="@string/app_name"
                             android:scaleType="fitCenter"
                             android:src="@drawable/avd_music_next" />
@@ -319,14 +326,38 @@
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:layout_below="@+id/trackIndicators"
+                        android:layout_marginBottom="10dp"
+                        android:layout_marginTop="5dp" />
+
+                    <LinearLayout
+                        android:id="@+id/loopControl"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/divider2"
+                        android:orientation="horizontal">
+
+                        <com.fesskiev.mediacenter.widgets.buttons.RepeatButton
+                            android:id="@+id/repeatButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            android:contentDescription="@string/app_name" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:id="@+id/divider3"
+                        style="@style/DividerStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_below="@+id/loopControl"
                         android:layout_marginTop="10dp" />
 
                     <RelativeLayout
                         android:id="@+id/controlTrack"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/divider2"
-                        android:layout_marginTop="15dp">
+                        android:layout_below="@+id/divider3">
 
                         <com.fesskiev.mediacenter.widgets.controls.AudioControlView
                             android:id="@+id/audioControl"

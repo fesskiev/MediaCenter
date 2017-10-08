@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:baselineAligned="false"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <ImageView
+            android:id="@+id/repeatButtonState"
+            android:layout_width="0dp"
+            android:layout_height="34dp"
+            android:layout_weight="1"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/icon_repeat_off" />
+
+        <TextView
+            android:id="@+id/repeatState"
+            style="@style/AudioPlayerTextAppearance"
+            android:layout_width="0dp"
+            android:layout_height="34dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:maxLines="1"
+            android:text="@string/repeat_button_off" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <ImageView
+            android:id="@+id/loopStartImage"
+            android:layout_width="0dp"
+            android:layout_height="34dp"
+            android:layout_weight="1"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/icon_loop_start" />
+
+        <TextView
+            android:id="@+id/loopStartTime"
+            style="@style/AudioPlayerTextAppearance"
+            android:layout_width="0dp"
+            android:layout_height="34dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:maxLines="1"
+            android:text="@string/repeat_loop_off" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <ImageView
+            android:id="@+id/loopEndImage"
+            android:layout_width="0dp"
+            android:layout_height="34dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="1"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/icon_loop_end" />
+
+        <TextView
+            android:id="@+id/loopEndTime"
+            style="@style/AudioPlayerTextAppearance"
+            android:layout_width="0dp"
+            android:layout_height="34dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:maxLines="1"
+            android:text="@string/repeat_loop_off" />
+
+    </LinearLayout>
+
+</LinearLayout>
