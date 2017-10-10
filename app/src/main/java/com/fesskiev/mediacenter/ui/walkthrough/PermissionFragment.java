@@ -95,11 +95,13 @@ public class PermissionFragment extends Fragment implements View.OnClickListener
         switch (requestCode) {
             case PERMISSION_REQ: {
                 if (grantResults != null && grantResults.length > 0) {
-                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (checkPermissionsResultGranted(grantResults)) {
                         showSuccessPermissions();
-                    } else if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                    } else  {
                         boolean showRationale =
-                                shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                                shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE) ||
+                                        shouldShowRequestPermissionRationale(Manifest.permission.MODIFY_AUDIO_SETTINGS) ||
+                                                shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO);
                         if (showRationale) {
                             permissionsDenied();
                         } else {
@@ -110,6 +112,15 @@ public class PermissionFragment extends Fragment implements View.OnClickListener
                 break;
             }
         }
+    }
+
+    private boolean checkPermissionsResultGranted(int[] grantResults) {
+        for (int result : grantResults) {
+            if (result != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void showSuccessPermissions() {
