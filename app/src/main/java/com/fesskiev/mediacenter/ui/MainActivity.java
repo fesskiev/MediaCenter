@@ -1,6 +1,7 @@
 package com.fesskiev.mediacenter.ui;
 
 
+import android.Manifest;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
@@ -9,11 +10,17 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
@@ -59,6 +66,8 @@ import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
 
 import static com.fesskiev.mediacenter.services.FileSystemService.ACTION_REFRESH_AUDIO_FRAGMENT;
 import static com.fesskiev.mediacenter.services.FileSystemService.ACTION_REFRESH_VIDEO_FRAGMENT;
+import static com.fesskiev.mediacenter.ui.walkthrough.PermissionFragment.PERMISSION_REQ;
+import static com.fesskiev.mediacenter.ui.walkthrough.PermissionFragment.checkPermissionsResultGranted;
 
 
 public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -84,6 +93,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private AppGuide appGuide;
 
     private int selectedState;
+    private boolean recordingState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -502,16 +512,85 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
             @Override
             public void onRecordStateChanged(boolean recording) {
-                if (recording) {
-                    PlaybackService.startRecording(getApplicationContext());
-                } else {
-                    PlaybackService.stopRecording(getApplicationContext());
-                }
+                recordingState = recording;
+                checkPermissionsRecordProcess();
             }
         });
 
         mediaNavigationView.setNavigationItemSelectedListener(this);
 
+    }
+
+    private void checkPermissionsRecordProcess() {
+        if (Utils.isMarshmallow() && !checkPermissions()) {
+            requestPermissions();
+        } else {
+            processRecording();
+        }
+    }
+
+    private void processRecording() {
+        if (recordingState) {
+            PlaybackService.startRecording(getApplicationContext());
+        } else {
+            PlaybackService.stopRecording(getApplicationContext());
+        }
+    }
+
+    private boolean checkPermissions() {
+        return PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(
+                this, Manifest.permission.MODIFY_AUDIO_SETTINGS) &&
+                PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(
+                        this, Manifest.permission.RECORD_AUDIO);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void requestPermissions() {
+        requestPermissions(new String[]{
+                        Manifest.permission.MODIFY_AUDIO_SETTINGS,
+                        Manifest.permission.RECORD_AUDIO},
+                PERMISSION_REQ);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case PERMISSION_REQ: {
+                if (grantResults != null && grantResults.length > 0) {
+                    if (checkPermissionsResultGranted(grantResults)) {
+                        processRecording();
+                    } else {
+                        boolean showRationale = shouldShowRequestPermissionRationale(Manifest.permission.MODIFY_AUDIO_SETTINGS) ||
+                                shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO);
+                        if (showRationale) {
+                            permissionsDenied();
+                        } else {
+                            createExplanationPermissionDialog();
+                        }
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    private void createExplanationPermissionDialog() {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.addToBackStack(null);
+        SimpleDialog dialog = SimpleDialog.newInstance(getString(R.string.dialog_permission_title),
+                getString(R.string.dialog_permission_message), R.drawable.icon_permission_settings);
+        dialog.show(transaction, SimpleDialog.class.getName());
+        dialog.setPositiveListener(() -> Utils.startSettingsActivity(getApplicationContext()));
+        dialog.setNegativeListener(this::finish);
+    }
+
+    private void permissionsDenied() {
+        Utils.showCustomSnackbar(getCurrentFocus(), getApplicationContext(),
+                getString(R.string.snackbar_permission_title), Snackbar.LENGTH_INDEFINITE)
+                .setAction(R.string.snackbar_permission_button, v -> requestPermissions())
+                .show();
     }
 
     @Override

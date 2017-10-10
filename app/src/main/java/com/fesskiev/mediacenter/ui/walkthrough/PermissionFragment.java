@@ -27,7 +27,7 @@ public class PermissionFragment extends Fragment implements View.OnClickListener
         return new PermissionFragment();
     }
 
-    private static final int PERMISSION_REQ = 0;
+    public static final int PERMISSION_REQ = 0;
 
     private TextView permissionText;
     private Button[] buttons;
@@ -70,7 +70,7 @@ public class PermissionFragment extends Fragment implements View.OnClickListener
         }
     }
 
-    public boolean checkPermissions() {
+    private boolean checkPermissions() {
         return PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(
                 getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) &&
                 PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(
@@ -91,17 +91,16 @@ public class PermissionFragment extends Fragment implements View.OnClickListener
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
         switch (requestCode) {
             case PERMISSION_REQ: {
                 if (grantResults != null && grantResults.length > 0) {
                     if (checkPermissionsResultGranted(grantResults)) {
                         showSuccessPermissions();
-                    } else  {
+                    } else {
                         boolean showRationale =
                                 shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE) ||
                                         shouldShowRequestPermissionRationale(Manifest.permission.MODIFY_AUDIO_SETTINGS) ||
-                                                shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO);
+                                        shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO);
                         if (showRationale) {
                             permissionsDenied();
                         } else {
@@ -114,7 +113,7 @@ public class PermissionFragment extends Fragment implements View.OnClickListener
         }
     }
 
-    private boolean checkPermissionsResultGranted(int[] grantResults) {
+    public static boolean checkPermissionsResultGranted(int[] grantResults) {
         for (int result : grantResults) {
             if (result != PackageManager.PERMISSION_GRANTED) {
                 return false;

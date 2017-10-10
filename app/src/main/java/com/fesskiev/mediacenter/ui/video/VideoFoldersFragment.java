@@ -1,9 +1,12 @@
 package com.fesskiev.mediacenter.ui.video;
 
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -25,6 +28,7 @@ import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.services.FileSystemService;
+import com.fesskiev.mediacenter.ui.walkthrough.PermissionFragment;
 import com.fesskiev.mediacenter.utils.AppAnimationUtils;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
@@ -52,6 +56,8 @@ import io.reactivex.Observable;;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.android.schedulers.AndroidSchedulers;;
 import io.reactivex.schedulers.Schedulers;
+
+import static com.fesskiev.mediacenter.ui.walkthrough.PermissionFragment.PERMISSION_REQ;
 
 
 public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -185,10 +191,69 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
             subscription = RxUtils.fromCallable(repository.resetVideoContentDatabase())
                     .subscribeOn(Schedulers.io())
                     .doOnNext(integer -> CacheManager.clearVideoImagesCache())
-                    .subscribe(aVoid -> FileSystemService.startFetchVideo(getActivity()));
+                    .subscribe(aVoid -> checkPermissionAndFetch());
         });
         dialog.setNegativeListener(() -> swipeRefreshLayout.setRefreshing(false));
     }
+
+    private void checkPermissionAndFetch() {
+        if (Utils.isMarshmallow() && !checkPermission()) {
+            requestPermission();
+        } else {
+            FileSystemService.startFetchVideo(getActivity());
+        }
+    }
+
+    public boolean checkPermission() {
+        return PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(
+                getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    }
+
+    private void requestPermission() {
+        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                PERMISSION_REQ);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case PERMISSION_REQ: {
+                if (grantResults != null && grantResults.length > 0) {
+                    if (PermissionFragment.checkPermissionsResultGranted(grantResults)) {
+                        FileSystemService.startFetchVideo(getActivity());
+                    } else  {
+                        boolean showRationale =
+                                shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                        if (showRationale) {
+                            permissionsDenied();
+                        } else {
+                            createExplanationPermissionDialog();
+                        }
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    private void createExplanationPermissionDialog() {
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        transaction.addToBackStack(null);
+        SimpleDialog dialog = SimpleDialog.newInstance(getString(R.string.dialog_permission_title),
+                getString(R.string.dialog_permission_message), R.drawable.icon_permission_settings);
+        dialog.show(transaction, SimpleDialog.class.getName());
+        dialog.setPositiveListener(() -> Utils.startSettingsActivity(getContext()));
+        dialog.setNegativeListener(() -> getActivity().finish());
+    }
+
+    private void permissionsDenied() {
+        Utils.showCustomSnackbar(getView(), getContext(),
+                getString(R.string.snackbar_permission_title), Snackbar.LENGTH_INDEFINITE)
+                .setAction(R.string.snackbar_permission_button, v -> requestPermission())
+                .show();
+    }
+
 
     public void refreshVideoContent() {
         swipeRefreshLayout.setRefreshing(false);
