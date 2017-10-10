@@ -69,7 +69,7 @@ import static com.fesskiev.mediacenter.services.FileSystemService.ACTION_REFRESH
 import static com.fesskiev.mediacenter.ui.walkthrough.PermissionFragment.PERMISSION_REQ;
 import static com.fesskiev.mediacenter.ui.walkthrough.PermissionFragment.checkPermissionsResultGranted;
 
-
+@RequiresApi(api = Build.VERSION_CODES.M)
 public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final int SELECTED_AUDIO = 0;
@@ -544,7 +544,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                         this, Manifest.permission.RECORD_AUDIO);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
+
     private void requestPermissions() {
         requestPermissions(new String[]{
                         Manifest.permission.MODIFY_AUDIO_SETTINGS,
@@ -552,7 +552,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                 PERMISSION_REQ);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
