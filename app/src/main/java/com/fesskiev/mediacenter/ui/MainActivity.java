@@ -524,6 +524,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private void checkPermissionsRecordProcess() {
         if (Utils.isMarshmallow() && !checkPermissions()) {
             requestPermissions();
+            mediaNavigationView.setRecordEnable(false);
         } else {
             processRecording();
         }
@@ -531,6 +532,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
     private void processRecording() {
         if (recordingState) {
+            mediaNavigationView.setRecordEnable(true);
             PlaybackService.startRecording(getApplicationContext());
         } else {
             PlaybackService.stopRecording(getApplicationContext());
@@ -587,7 +589,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     }
 
     private void permissionsDenied() {
-        Utils.showCustomSnackbar(getCurrentFocus(), getApplicationContext(),
+        Utils.showCustomSnackbar(getWindow().getDecorView().findViewById(android.R.id.content),
+                getApplicationContext(),
                 getString(R.string.snackbar_permission_title), Snackbar.LENGTH_INDEFINITE)
                 .setAction(R.string.snackbar_permission_button, v -> requestPermissions())
                 .show();

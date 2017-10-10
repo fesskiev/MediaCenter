@@ -185,23 +185,25 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
         SimpleDialog dialog = SimpleDialog.newInstance(getString(R.string.dialog_refresh_video_title),
                 getString(R.string.dialog_refresh_video_message), R.drawable.icon_refresh);
         dialog.show(transaction, SimpleDialog.class.getName());
-        dialog.setPositiveListener(() -> {
-            swipeRefreshLayout.setRefreshing(false);
-            RxUtils.unsubscribe(subscription);
-            subscription = RxUtils.fromCallable(repository.resetVideoContentDatabase())
-                    .subscribeOn(Schedulers.io())
-                    .doOnNext(integer -> CacheManager.clearVideoImagesCache())
-                    .subscribe(aVoid -> checkPermissionAndFetch());
-        });
+        dialog.setPositiveListener(this::checkPermissionAndFetch);
         dialog.setNegativeListener(() -> swipeRefreshLayout.setRefreshing(false));
     }
 
     private void checkPermissionAndFetch() {
+        swipeRefreshLayout.setRefreshing(false);
         if (Utils.isMarshmallow() && !checkPermission()) {
             requestPermission();
         } else {
-            FileSystemService.startFetchVideo(getActivity());
+           fetchFileSystemVideo();
         }
+    }
+
+    private void fetchFileSystemVideo() {
+        RxUtils.unsubscribe(subscription);
+        subscription = RxUtils.fromCallable(repository.resetVideoContentDatabase())
+                .subscribeOn(Schedulers.io())
+                .doOnNext(integer -> CacheManager.clearVideoImagesCache())
+                .subscribe(aVoid -> FileSystemService.startFetchVideo(getActivity()));
     }
 
     public boolean checkPermission() {
@@ -221,7 +223,7 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
             case PERMISSION_REQ: {
                 if (grantResults != null && grantResults.length > 0) {
                     if (PermissionFragment.checkPermissionsResultGranted(grantResults)) {
-                        FileSystemService.startFetchVideo(getActivity());
+                        fetchFileSystemVideo();
                     } else  {
                         boolean showRationale =
                                 shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -248,7 +250,8 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
     }
 
     private void permissionsDenied() {
-        Utils.showCustomSnackbar(getView(), getContext(),
+        Utils.showCustomSnackbar(getActivity().getWindow().getDecorView().findViewById(android.R.id.content),
+                getContext().getApplicationContext(),
                 getString(R.string.snackbar_permission_title), Snackbar.LENGTH_INDEFINITE)
                 .setAction(R.string.snackbar_permission_button, v -> requestPermission())
                 .show();

@@ -196,23 +196,26 @@ public class AudioFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         SimpleDialog dialog = SimpleDialog.newInstance(getString(R.string.dialog_refresh_folders_title),
                 getString(R.string.dialog_refresh_folders_message), R.drawable.icon_refresh);
         dialog.show(transaction, SimpleDialog.class.getName());
-        dialog.setPositiveListener(() -> {
-            swipeRefreshLayout.setRefreshing(false);
-            subscription = RxUtils
-                    .fromCallable(repository.resetAudioContentDatabase())
-                    .subscribeOn(Schedulers.io())
-                    .doOnNext(integer -> CacheManager.clearAudioImagesCache())
-                    .subscribe(integer -> checkPermissionAndFetch());
-        });
+        dialog.setPositiveListener(this::checkPermissionAndFetch);
         dialog.setNegativeListener(() -> swipeRefreshLayout.setRefreshing(false));
     }
 
     private void checkPermissionAndFetch() {
+        swipeRefreshLayout.setRefreshing(false);
         if (Utils.isMarshmallow() && !checkPermission()) {
             requestPermission();
         } else {
-            FileSystemService.startFetchAudio(getActivity());
+            fetchFileSystemAudio();
+
         }
+    }
+
+    private void fetchFileSystemAudio() {
+        subscription = RxUtils
+                .fromCallable(repository.resetAudioContentDatabase())
+                .subscribeOn(Schedulers.io())
+                .doOnNext(integer -> CacheManager.clearAudioImagesCache())
+                .subscribe(integer -> FileSystemService.startFetchAudio(getActivity()));
     }
 
     public boolean checkPermission() {
@@ -232,7 +235,7 @@ public class AudioFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             case PERMISSION_REQ: {
                 if (grantResults != null && grantResults.length > 0) {
                     if (PermissionFragment.checkPermissionsResultGranted(grantResults)) {
-                        FileSystemService.startFetchAudio(getActivity());
+                        fetchFileSystemAudio();
                     } else {
                         boolean showRationale =
                                 shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -259,7 +262,8 @@ public class AudioFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     }
 
     private void permissionsDenied() {
-        Utils.showCustomSnackbar(getView(), getContext(),
+        Utils.showCustomSnackbar(getActivity().getWindow().getDecorView().findViewById(android.R.id.content),
+                getContext().getApplicationContext(),
                 getString(R.string.snackbar_permission_title), Snackbar.LENGTH_INDEFINITE)
                 .setAction(R.string.snackbar_permission_button, v -> requestPermission())
                 .show();

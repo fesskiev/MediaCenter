@@ -192,6 +192,10 @@ public class MediaNavigationView extends NavigationView implements View.OnClickL
         switchCompats[3].setChecked(enable);
     }
 
+    public void setRecordEnable(boolean enable) {
+        switchCompats[4].setChecked(enable);
+    }
+
     public View getSettingsView() {
         return findViewById(R.id.effectsTitle);
     }
