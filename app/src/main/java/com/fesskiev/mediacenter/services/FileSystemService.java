@@ -95,6 +95,8 @@ public class FileSystemService extends JobService {
     public static final String ACTION_REFRESH_AUDIO_FRAGMENT = "com.fesskiev.player.action.ACTION_REFRESH_AUDIO_FRAGMENT";
     public static final String ACTION_REFRESH_VIDEO_FRAGMENT = "com.fesskiev.player.action.ACTION_REFRESH_VIDEO_FRAGMENT";
 
+    private int notificationId;
+
     private DataRepository repository;
 
     private Handler handler;
@@ -313,7 +315,7 @@ public class FileSystemService extends JobService {
                     observer.removeMediaFolderByPath(path);
                 })
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(path -> NotificationHelper.removeNotificationAndCloseBar(getApplicationContext()));
+                .subscribe(path -> NotificationHelper.removeNotificationAndCloseBar(getApplicationContext(), -1));
     }
 
     private void refreshVideoFragment() {
@@ -527,7 +529,6 @@ public class FileSystemService extends JobService {
 
     private class MediaObserver extends ContentObserver {
 
-        private Disposable subscription;
 
         private Set<MediaFile> mediaFiles;
         private Map<MediaFolder, List<MediaFile>> mediaFolders;
@@ -557,35 +558,30 @@ public class FileSystemService extends JobService {
                     if (cursor != null) {
                         if (cursor.moveToLast()) {
                             String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA));
+                            AppLog.ERROR("FIND PATH: " + path);
+                            File file = new File(path);
+                            File parent = file.getParentFile();
+                            if (parent.isDirectory()) {
+                                if (!containsMediaFolder(parent.getAbsolutePath())) {
+                                    File[] audioPaths = parent.listFiles(audioFilter());
+                                    if (audioPaths != null && audioPaths.length > 0) {
+                                        addAudioFolderToCache(parent, audioPaths);
+                                    }
+                                    File[] videoPaths = parent.listFiles(videoFilter());
+                                    if (videoPaths != null && videoPaths.length > 0) {
+                                        addVideoFolderToCache(parent, videoPaths);
+                                    }
+                                }
+                            } else if (file.isFile()) {
+                                if (!containMediaFile(path)) {
+                                    if (isAudioFile(path)) {
+                                        addAudioFileToCache(file);
+                                    } else if (isVideoFile(path)) {
+                                        addVideoFileToCache(file);
+                                    }
+                                }
+                            }
 
-                            RxUtils.unsubscribe(subscription);
-                            subscription = Observable.just(path)
-                                    .delay(5, TimeUnit.SECONDS)
-                                    .doOnNext(pth -> {
-                                        AppLog.ERROR("FIND PATH: " + pth);
-                                        File file = new File(pth);
-                                        File parent = file.getParentFile();
-                                        if (parent.isDirectory()) {
-                                            if (!containsMediaFolder(parent.getAbsolutePath())) {
-                                                File[] audioPaths = parent.listFiles(audioFilter());
-                                                if (audioPaths != null && audioPaths.length > 0) {
-                                                    addAudioFolderToCache(parent, audioPaths);
-                                                }
-                                                File[] videoPaths = parent.listFiles(videoFilter());
-                                                if (videoPaths != null && videoPaths.length > 0) {
-                                                    addVideoFolderToCache(parent, videoPaths);
-                                                }
-                                            }
-                                        } else if (file.isFile()) {
-                                            if (!containMediaFile(path)) {
-                                                if (isAudioFile(path)) {
-                                                    addAudioFileToCache(file);
-                                                } else if (isVideoFile(path)) {
-                                                    addVideoFileToCache(file);
-                                                }
-                                            }
-                                        }
-                                    }).subscribe();
                         }
                     }
                 } finally {
@@ -611,9 +607,9 @@ public class FileSystemService extends JobService {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(videoFile -> {
                         if (videoFile != null) {
+                            notificationId++;
                             NotificationHelper.getInstance()
-                                    .createMediaFileNotification(videoFile,
-                                            NotificationHelper.NOTIFICATION_MEDIA_ID);
+                                    .createMediaFileNotification(videoFile, notificationId);
                             mediaFiles.add(videoFile);
                         }
                     });
@@ -634,9 +630,9 @@ public class FileSystemService extends JobService {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(audioFile -> {
                         if (audioFile != null) {
+                            notificationId++;
                             NotificationHelper.getInstance()
-                                    .createMediaFileNotification(audioFile,
-                                            NotificationHelper.NOTIFICATION_MEDIA_ID);
+                                    .createMediaFileNotification(audioFile, notificationId);
                             mediaFiles.add(audioFile);
                         }
                     });
@@ -664,9 +660,9 @@ public class FileSystemService extends JobService {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(videoFolder -> {
                         if (videoFolder != null) {
+                            notificationId++;
                             NotificationHelper.getInstance()
-                                    .createMediaFolderNotification(videoFolder,
-                                            NotificationHelper.NOTIFICATION_MEDIA_ID);
+                                    .createMediaFolderNotification(videoFolder, notificationId);
                         }
                     });
         }
@@ -704,9 +700,9 @@ public class FileSystemService extends JobService {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(audioFolder -> {
                         if (audioFolder != null) {
+                            notificationId++;
                             NotificationHelper.getInstance()
-                                    .createMediaFolderNotification(audioFolder,
-                                            NotificationHelper.NOTIFICATION_MEDIA_ID);
+                                    .createMediaFolderNotification(audioFolder, notificationId);
                         }
                     });
         }
@@ -986,5 +982,51 @@ public class FileSystemService extends JobService {
             return type;
         }
     }
+
+    private class MediaFileNotification {
+
+        private int notificationId;
+        private MediaFile mediaFile;
+
+        public MediaFileNotification(int notificationId, MediaFile mediaFile) {
+            this.notificationId = notificationId;
+            this.mediaFile = mediaFile;
+        }
+
+        public int getNotificationId() {
+            return notificationId;
+        }
+
+        public MediaFile getMediaFile() {
+            return mediaFile;
+        }
+    }
+
+    private class MediaFolderNotification {
+
+        private int notificationId;
+        private MediaFolder mediaFolder;
+        private List<MediaFile> mediaFiles;
+
+        public MediaFolderNotification(int notificationId, MediaFolder mediaFolder,
+                                       List<MediaFile> mediaFiles) {
+            this.notificationId = notificationId;
+            this.mediaFolder = mediaFolder;
+            this.mediaFiles = mediaFiles;
+        }
+
+        public int getNotificationId() {
+            return notificationId;
+        }
+
+        public MediaFolder getMediaFolder() {
+            return mediaFolder;
+        }
+
+        public List<MediaFile> getMediaFiles() {
+            return mediaFiles;
+        }
+    }
+
 
 }

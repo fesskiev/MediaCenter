@@ -33,7 +33,6 @@ public class NotificationHelper {
 
     public static final int NOTIFICATION_ID = 412;
     public static final int NOTIFICATION_FETCH_ID = 411;
-    public static final int NOTIFICATION_MEDIA_ID = 413;
 
 
     public static final String ACTION_MEDIA_CONTROL_PLAY = "com.fesskiev.player.action.ACTION_MEDIA_CONTROL_PLAY";
@@ -180,15 +179,16 @@ public class NotificationHelper {
         notificationManager.cancel(NOTIFICATION_ID);
     }
 
-    public static void removeNotificationAndCloseBar(Context context){
+    public static void removeNotificationAndCloseBar(Context context, int notificationId) {
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {
-            notificationManager.cancel(NOTIFICATION_MEDIA_ID);
+            notificationManager.cancel(notificationId);
             closeNotificationBar(context);
         }
     }
-    private static void closeNotificationBar(Context context){
+
+    private static void closeNotificationBar(Context context) {
         Intent it = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
         context.sendBroadcast(it);
     }
