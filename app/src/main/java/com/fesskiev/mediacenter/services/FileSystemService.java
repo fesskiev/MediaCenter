@@ -50,17 +50,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 import static com.fesskiev.mediacenter.utils.NotificationHelper.EXTRA_ACTION_BUTTON;
@@ -280,20 +274,19 @@ public class FileSystemService extends JobService {
         Observable.just(extrasPath)
                 .subscribeOn(Schedulers.io())
                 .doOnNext(path -> {
-                    MediaFile mediaFile = observer.getMediaFileByPath(path);
-                    if (mediaFile != null) {
+                    MediaFileNotification mediaFileNotification = observer.getMediaFileByPath(path);
+                    if (mediaFileNotification != null) {
+                        MediaFile mediaFile = mediaFileNotification.getMediaFile();
                         if (mediaFile instanceof AudioFile) {
                             repository.insertAudioFile((AudioFile) mediaFile);
                         } else if (mediaFile instanceof VideoFile) {
                             repository.insertVideoFile((VideoFile) mediaFile);
                         }
                     } else {
-                        Map.Entry<MediaFolder, List<MediaFile>> mediaFolderEntry =
-                                observer.getMediaFolderByPath(path);
-                        if (mediaFolderEntry != null) {
-                            MediaFolder mediaFolder = mediaFolderEntry.getKey();
-                            List<MediaFile> mediaFiles = mediaFolderEntry.getValue();
-
+                        MediaFolderNotification mediaFolderNotification = observer.getMediaFolderByPath(path);
+                        if (mediaFolderNotification != null) {
+                            MediaFolder mediaFolder = mediaFolderNotification.getMediaFolder();
+                            List<MediaFile> mediaFiles = mediaFolderNotification.getMediaFiles();
                             if (mediaFolder instanceof AudioFolder) {
                                 repository.insertAudioFolder((AudioFolder) mediaFolder);
                                 for (MediaFile audioFile : mediaFiles) {
@@ -310,12 +303,19 @@ public class FileSystemService extends JobService {
                         }
                     }
                 })
-                .doOnNext(path -> {
-                    observer.removeMediaFileByPath(path);
-                    observer.removeMediaFolderByPath(path);
+                .flatMap(path -> {
+                    MediaFileNotification mediaFileNotification = observer.removeMediaFileByPath(path);
+                    if (mediaFileNotification != null) {
+                        return Observable.just(mediaFileNotification.getNotificationId());
+                    }
+                    MediaFolderNotification mediaFolderNotification = observer.removeMediaFolderByPath(path);
+                    if (mediaFolderNotification != null) {
+                        return Observable.just(mediaFolderNotification.getNotificationId());
+                    }
+                    return Observable.empty();
                 })
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(path -> NotificationHelper.removeNotificationAndCloseBar(getApplicationContext(), -1));
+                .subscribe(notificationId -> NotificationHelper.removeNotificationAndCloseBar(getApplicationContext(), notificationId));
     }
 
     private void refreshVideoFragment() {
@@ -530,8 +530,8 @@ public class FileSystemService extends JobService {
     private class MediaObserver extends ContentObserver {
 
 
-        private Set<MediaFile> mediaFiles;
-        private Map<MediaFolder, List<MediaFile>> mediaFolders;
+        private List<MediaFileNotification> mediaFiles;
+        private List<MediaFolderNotification> mediaFolders;
 
         private long lastTimeCall = 0L;
         private long lastTimeUpdate = 0L;
@@ -539,8 +539,8 @@ public class FileSystemService extends JobService {
 
         public MediaObserver(Handler handler) {
             super(handler);
-            mediaFiles = new TreeSet<>();
-            mediaFolders = new TreeMap<>();
+            mediaFiles = new ArrayList<>();
+            mediaFolders = new ArrayList<>();
         }
 
         @Override
@@ -610,7 +610,7 @@ public class FileSystemService extends JobService {
                             notificationId++;
                             NotificationHelper.getInstance()
                                     .createMediaFileNotification(videoFile, notificationId);
-                            mediaFiles.add(videoFile);
+                            mediaFiles.add(new MediaFileNotification(notificationId, videoFile));
                         }
                     });
         }
@@ -633,7 +633,7 @@ public class FileSystemService extends JobService {
                             notificationId++;
                             NotificationHelper.getInstance()
                                     .createMediaFileNotification(audioFile, notificationId);
-                            mediaFiles.add(audioFile);
+                            mediaFiles.add(new MediaFileNotification(notificationId, audioFile));
                         }
                     });
         }
@@ -653,16 +653,20 @@ public class FileSystemService extends JobService {
                             VideoFile videoFile = new VideoFile(p, videoFolder.id);
                             videoFiles.add(videoFile);
                         }
-                        mediaFolders.put(videoFolder, videoFiles);
+                        MediaFolderNotification mediaFolderNotification =
+                                new MediaFolderNotification(videoFolder, videoFiles);
+                        mediaFolders.add(mediaFolderNotification);
 
-                        return Observable.just(videoFolder);
+                        return Observable.just(mediaFolderNotification);
                     })
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(videoFolder -> {
-                        if (videoFolder != null) {
+                    .subscribe(mediaFolderNotification -> {
+                        if (mediaFolderNotification != null) {
                             notificationId++;
+                            mediaFolderNotification.setNotificationId(notificationId);
                             NotificationHelper.getInstance()
-                                    .createMediaFolderNotification(videoFolder, notificationId);
+                                    .createMediaFolderNotification(mediaFolderNotification.getMediaFolder(),
+                                            notificationId);
                         }
                     });
         }
@@ -692,25 +696,28 @@ public class FileSystemService extends JobService {
                             }
                             audioFiles.add(audioFile);
                         }
-                        mediaFolders.put(audioFolder, audioFiles);
+                        MediaFolderNotification mediaFolderNotification
+                                = new MediaFolderNotification(audioFolder, audioFiles);
+                        mediaFolders.add(mediaFolderNotification);
 
-                        return Observable.just(audioFolder);
+                        return Observable.just(mediaFolderNotification);
 
                     })
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(audioFolder -> {
-                        if (audioFolder != null) {
+                    .subscribe(mediaFolderNotification -> {
+                        if (mediaFolderNotification != null) {
                             notificationId++;
+                            mediaFolderNotification.setNotificationId(notificationId);
                             NotificationHelper.getInstance()
-                                    .createMediaFolderNotification(audioFolder, notificationId);
+                                    .createMediaFolderNotification(mediaFolderNotification.getMediaFolder(),
+                                            notificationId);
                         }
                     });
         }
 
         private boolean containsMediaFolder(String path) {
-            for (Map.Entry<MediaFolder, List<MediaFile>> entry : mediaFolders.entrySet()) {
-                MediaFolder mediaFolder = entry.getKey();
-                if (mediaFolder.getPath().equals(path)) {
+            for (MediaFolderNotification mediaFolder : mediaFolders) {
+                if (mediaFolder.getMediaFolder().getPath().equals(path)) {
                     return true;
                 }
             }
@@ -718,48 +725,48 @@ public class FileSystemService extends JobService {
         }
 
         private boolean containMediaFile(String path) {
-            for (MediaFile mediaFile : mediaFiles) {
-                if (mediaFile.getFilePath().equals(path)) {
+            for (MediaFileNotification mediaFile : mediaFiles) {
+                if (mediaFile.getMediaFile().getFilePath().equals(path)) {
                     return true;
                 }
             }
             return false;
         }
 
-        public MediaFile getMediaFileByPath(String path) {
-            for (MediaFile mediaFile : mediaFiles) {
-                if (mediaFile.getFilePath().equals(path)) {
+        public MediaFileNotification getMediaFileByPath(String path) {
+            for (MediaFileNotification mediaFile : mediaFiles) {
+                if (mediaFile.getMediaFile().getFilePath().equals(path)) {
                     return mediaFile;
                 }
             }
             return null;
         }
 
-        public void removeMediaFileByPath(String path) {
-            for (MediaFile mediaFile : mediaFiles) {
-                if (mediaFile.getFilePath().equals(path)) {
+        public MediaFileNotification removeMediaFileByPath(String path) {
+            for (MediaFileNotification mediaFile : mediaFiles) {
+                if (mediaFile.getMediaFile().getFilePath().equals(path)) {
                     mediaFiles.remove(mediaFile);
-                    break;
+                    return mediaFile;
                 }
             }
+            return null;
         }
 
-        public void removeMediaFolderByPath(String path) {
-            for (Iterator<Map.Entry<MediaFolder, List<MediaFile>>> it = mediaFolders.entrySet().iterator(); it.hasNext(); ) {
-                Map.Entry<MediaFolder, List<MediaFile>> entry = it.next();
-                MediaFolder mediaFolder = entry.getKey();
-                if (mediaFolder.getPath().equals(path)) {
+        public MediaFolderNotification removeMediaFolderByPath(String path) {
+            for (Iterator<MediaFolderNotification> it = mediaFolders.listIterator(); it.hasNext(); ) {
+                MediaFolderNotification mediaFolder = it.next();
+                if (mediaFolder.getMediaFolder().getPath().equals(path)) {
                     it.remove();
-                    break;
+                    return mediaFolder;
                 }
             }
+            return null;
         }
 
-        public Map.Entry<MediaFolder, List<MediaFile>> getMediaFolderByPath(String path) {
-            for (Map.Entry<MediaFolder, List<MediaFile>> entry : mediaFolders.entrySet()) {
-                MediaFolder mediaFolder = entry.getKey();
-                if (mediaFolder.getPath().equals(path)) {
-                    return entry;
+        public MediaFolderNotification getMediaFolderByPath(String path) {
+            for (MediaFolderNotification mediaFolder : mediaFolders) {
+                if (mediaFolder.getMediaFolder().getPath().equals(path)) {
+                    return mediaFolder;
                 }
             }
             return null;
@@ -1008,11 +1015,15 @@ public class FileSystemService extends JobService {
         private MediaFolder mediaFolder;
         private List<MediaFile> mediaFiles;
 
-        public MediaFolderNotification(int notificationId, MediaFolder mediaFolder,
+        public MediaFolderNotification(MediaFolder mediaFolder,
                                        List<MediaFile> mediaFiles) {
             this.notificationId = notificationId;
             this.mediaFolder = mediaFolder;
             this.mediaFiles = mediaFiles;
+        }
+
+        public void setNotificationId(int notificationId) {
+            this.notificationId = notificationId;
         }
 
         public int getNotificationId() {
