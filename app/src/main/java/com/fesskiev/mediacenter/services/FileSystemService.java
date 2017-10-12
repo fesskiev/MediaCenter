@@ -1017,7 +1017,6 @@ public class FileSystemService extends JobService {
 
         public MediaFolderNotification(MediaFolder mediaFolder,
                                        List<MediaFile> mediaFiles) {
-            this.notificationId = notificationId;
             this.mediaFolder = mediaFolder;
             this.mediaFiles = mediaFiles;
         }

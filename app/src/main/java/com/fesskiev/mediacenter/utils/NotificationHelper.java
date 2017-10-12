@@ -205,8 +205,8 @@ public class NotificationHelper {
                 .setSmallIcon(R.drawable.icon_notification_player)
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
                 .setContentIntent(createContentIntent())
-                .setContentTitle("Fetch content start")
-                .setContentText("Job schedule start fetching content")
+                .setContentTitle(context.getString(R.string.job_scheduler_notification_title))
+                .setContentText(context.getString(R.string.job_scheduler_notification_message))
                 .setWhen(System.currentTimeMillis())
                 .setShowWhen(true);
 

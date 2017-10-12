@@ -101,8 +101,6 @@
     <string name="context_menu_video_delete">Delete video</string>
     <string name="context_menu_video_add_playlist">To playlist</string>
     <string name="context_menu_cancel">Cancel</string>
-    <string name="context_menu_converter_text">Waiting...Convert from FLAC to WAV</string>
-
 
     <string name="dialog_bass_boost_title">Select level:</string>
 
@@ -354,6 +352,8 @@
     <string name="repeat_button_off">Off</string>
     <string name="repeat_loop_off">n/a</string>
 
+    <string name="job_scheduler_notification_title">Solo Player</string>
+    <string name="job_scheduler_notification_message">Time to fetching content</string>
 
     <string name="last_fm_api_key">adc1430e56411c85fadf04c03b54068f</string>
 
