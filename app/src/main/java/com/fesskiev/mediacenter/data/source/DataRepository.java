@@ -257,6 +257,14 @@ public class DataRepository {
         return localSource.containAudioTrack(path);
     }
 
+    public boolean containAudioFolder(String path) {
+        return localSource.containAudioFolder(path);
+    }
+
+    public boolean containVideoFolder(String path) {
+        return localSource.containVideoFolder(path);
+    }
+
     public MemoryDataSource getMemorySource() {
         return memorySource;
     }

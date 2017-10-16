@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
@@ -279,6 +280,32 @@ public class LocalDataSource implements LocalSource {
         return contain;
     }
 
+    @Override
+    public boolean containAudioFolder(String path) {
+
+        String sql = String.format("SELECT * FROM %s WHERE %s",
+                DatabaseHelper.AUDIO_FOLDERS_TABLE_NAME,
+                DatabaseHelper.FOLDER_PATH + "=" + "'" + path.replaceAll("'", "''") + "'");
+        Cursor cursor = briteDatabase.query(sql);
+
+        boolean contain = cursor.getCount() > 0;
+        cursor.close();
+
+        return contain;
+    }
+
+    @Override
+    public boolean containVideoFolder(String path) {
+        String sql = String.format("SELECT * FROM %s WHERE %s",
+                DatabaseHelper.VIDEO_FOLDERS_TABLE_NAME,
+                DatabaseHelper.FOLDER_PATH + "=" + "'" + path.replaceAll("'", "''") + "'");
+        Cursor cursor = briteDatabase.query(sql);
+
+        boolean contain = cursor.getCount() > 0;
+        cursor.close();
+
+        return contain;
+    }
 
     @Override
     public void updateSelectedAudioFile(AudioFile audioFile) {
@@ -577,10 +604,10 @@ public class LocalDataSource implements LocalSource {
     public Observable<VideoFolder> getVideoFolderByPath(String path) {
 
         String sql = String.format("SELECT * FROM %s WHERE %s",
-                DatabaseHelper.VIDEO_FILES_TABLE_NAME,
+                DatabaseHelper.VIDEO_FOLDERS_TABLE_NAME,
                 DatabaseHelper.FOLDER_PATH + "=" + "'" + path + "'");
 
-        return briteDatabase.createQuery(DatabaseHelper.VIDEO_FILES_TABLE_NAME, sql)
+        return briteDatabase.createQuery(DatabaseHelper.VIDEO_FOLDERS_TABLE_NAME, sql)
                 .mapToOne(VideoFolder::new);
     }
 

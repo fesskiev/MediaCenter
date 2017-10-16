@@ -51,6 +51,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 
 import io.reactivex.Observable;
@@ -261,6 +262,7 @@ public class FileSystemService extends JobService {
                 final String extrasPath = intent.getStringExtra(EXTRA_ACTION_BUTTON);
                 switch (action) {
                     case NotificationHelper.ACTION_SKIP_BUTTON:
+                        removeMediaFromCache(extrasPath);
                         break;
                     case NotificationHelper.ACTION_ADD_BUTTON:
                         addMedia(extrasPath);
@@ -269,6 +271,19 @@ public class FileSystemService extends JobService {
             }
         }
     };
+
+    private void removeMediaFromCache(String path) {
+        MediaFileNotification mediaFileNotification = observer.removeMediaFileByPath(path);
+        if (mediaFileNotification != null) {
+            NotificationHelper.removeNotificationAndCloseBar(getApplicationContext(),
+                    mediaFileNotification.getNotificationId());
+        }
+        MediaFolderNotification mediaFolderNotification = observer.removeMediaFolderByPath(path);
+        if (mediaFolderNotification != null) {
+            NotificationHelper.removeNotificationAndCloseBar(getApplicationContext(),
+                    mediaFolderNotification.getNotificationId());
+        }
+    }
 
     private void addMedia(String extrasPath) {
         Observable.just(extrasPath)
@@ -529,9 +544,10 @@ public class FileSystemService extends JobService {
 
     private class MediaObserver extends ContentObserver {
 
-
         private List<MediaFileNotification> mediaFiles;
         private List<MediaFolderNotification> mediaFolders;
+        private List<String> folderPaths;
+        private List<String> filePaths;
 
         private long lastTimeCall = 0L;
         private long lastTimeUpdate = 0L;
@@ -541,6 +557,8 @@ public class FileSystemService extends JobService {
             super(handler);
             mediaFiles = new ArrayList<>();
             mediaFolders = new ArrayList<>();
+            folderPaths = new ArrayList<>();
+            filePaths = new ArrayList<>();
         }
 
         @Override
@@ -563,17 +581,36 @@ public class FileSystemService extends JobService {
                             File parent = file.getParentFile();
                             if (parent.isDirectory()) {
                                 if (!containsMediaFolder(parent.getAbsolutePath())) {
+                                    folderPaths.add(parent.getAbsolutePath());
                                     File[] audioPaths = parent.listFiles(audioFilter());
                                     if (audioPaths != null && audioPaths.length > 0) {
-                                        addAudioFolderToCache(parent, audioPaths);
+                                        if (!repository.containAudioFolder(parent.getAbsolutePath())) {
+                                            addAudioFolderToCache(parent);
+                                        } else {
+                                            if (!containMediaFile(path)) {
+                                                filePaths.add(path);
+
+                                                addAudioFileToCache(file);
+                                            }
+                                        }
                                     }
                                     File[] videoPaths = parent.listFiles(videoFilter());
                                     if (videoPaths != null && videoPaths.length > 0) {
-                                        addVideoFolderToCache(parent, videoPaths);
+                                        if (!repository.containVideoFolder(parent.getAbsolutePath())) {
+                                            addVideoFolderToCache(parent);
+                                        } else {
+                                            if (!containMediaFile(path)) {
+                                                filePaths.add(path);
+
+                                                addVideoFileToCache(file);
+                                            }
+                                        }
                                     }
                                 }
                             } else if (file.isFile()) {
                                 if (!containMediaFile(path)) {
+                                    filePaths.add(path);
+
                                     if (isAudioFile(path)) {
                                         addAudioFileToCache(file);
                                     } else if (isVideoFile(path)) {
@@ -581,7 +618,6 @@ public class FileSystemService extends JobService {
                                     }
                                 }
                             }
-
                         }
                     }
                 } finally {
@@ -638,10 +674,12 @@ public class FileSystemService extends JobService {
                     });
         }
 
-        private void addVideoFolderToCache(File parent, File[] videoPaths) {
-            Observable.just(videoPaths)
+        private void addVideoFolderToCache(File parent) {
+            Observable.just(parent)
+                    .delay(40, TimeUnit.SECONDS)
                     .subscribeOn(Schedulers.io())
-                    .flatMap(files -> {
+                    .flatMap(pt -> {
+
                         VideoFolder videoFolder = new VideoFolder();
                         videoFolder.folderPath = parent;
                         videoFolder.folderName = parent.getName();
@@ -649,6 +687,7 @@ public class FileSystemService extends JobService {
                         videoFolder.timestamp = System.currentTimeMillis();
 
                         List<MediaFile> videoFiles = new ArrayList<>();
+                        File[] videoPaths = parent.listFiles(videoFilter());
                         for (File p : videoPaths) {
                             VideoFile videoFile = new VideoFile(p, videoFolder.id);
                             videoFiles.add(videoFile);
@@ -671,10 +710,12 @@ public class FileSystemService extends JobService {
                     });
         }
 
-        private void addAudioFolderToCache(File parent, File[] audioPaths) {
-            Observable.just(audioPaths)
+        private void addAudioFolderToCache(File parent) {
+            Observable.just(parent)
+                    .delay(20, TimeUnit.SECONDS)
                     .subscribeOn(Schedulers.io())
-                    .flatMap(files -> {
+                    .flatMap(pt -> {
+
                         AudioFolder audioFolder = new AudioFolder();
                         File[] filterImages = parent.listFiles(folderImageFilter());
                         if (filterImages != null && filterImages.length > 0) {
@@ -686,6 +727,7 @@ public class FileSystemService extends JobService {
                         audioFolder.timestamp = System.currentTimeMillis();
 
                         List<MediaFile> audioFiles = new ArrayList<>();
+                        File[] audioPaths = parent.listFiles(audioFilter());
                         for (File p : audioPaths) {
                             AudioFile audioFile = new AudioFile(getApplicationContext(), p,
                                     audioFolder.id);
@@ -716,8 +758,8 @@ public class FileSystemService extends JobService {
         }
 
         private boolean containsMediaFolder(String path) {
-            for (MediaFolderNotification mediaFolder : mediaFolders) {
-                if (mediaFolder.getMediaFolder().getPath().equals(path)) {
+            for (String p : folderPaths) {
+                if (p.equals(path)) {
                     return true;
                 }
             }
@@ -725,8 +767,8 @@ public class FileSystemService extends JobService {
         }
 
         private boolean containMediaFile(String path) {
-            for (MediaFileNotification mediaFile : mediaFiles) {
-                if (mediaFile.getMediaFile().getFilePath().equals(path)) {
+            for (String p : filePaths) {
+                if (p.equals(path)) {
                     return true;
                 }
             }

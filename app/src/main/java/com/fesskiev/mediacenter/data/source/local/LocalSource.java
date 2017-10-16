@@ -92,4 +92,8 @@ public interface LocalSource {
 
     boolean containAudioTrack(String path);
 
+    boolean containAudioFolder(String path);
+
+    boolean containVideoFolder(String path);
+
 }
