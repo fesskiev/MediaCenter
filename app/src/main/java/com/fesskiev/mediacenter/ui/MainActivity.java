@@ -94,6 +94,7 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
 
     private int selectedState;
     private boolean recordingState;
+    private float angle = 360f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -298,8 +299,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
                     getString(R.string.app_guide_welcome_desc));
         }
     }
-
-    float angle = 360f;
 
     private void animateHeaderViews() {
         ViewCompat.animate(appIcon)
