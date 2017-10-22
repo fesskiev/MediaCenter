@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.fesskiev.mediacenter">
 
-    <uses-feature android:name="android.hardware.type.watch" />
+    <uses-feature android:name="android.hardware.type.Watch" />
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 

@@ -14,7 +14,7 @@ android {
         applicationId = "com.fesskiev.mediacenter"
         minSdkVersion rootProject.minSdkVersion
         targetSdkVersion rootProject.targetSdkVersion
-        versionCode rootProject.versionCode
+        versionCode rootProject.versionCodeApp
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
 

@@ -9,7 +9,7 @@ android {
         applicationId "com.fesskiev.mediacenter"
         minSdkVersion rootProject.minSdkVersionWear
         targetSdkVersion rootProject.targetSdkVersion
-        versionCode rootProject.versionCode
+        versionCode rootProject.versionCodeWear
         versionName rootProject.versionName
     }
 
@@ -50,6 +50,10 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    lintOptions {
+        disable 'MissingTranslation'
     }
 }
 

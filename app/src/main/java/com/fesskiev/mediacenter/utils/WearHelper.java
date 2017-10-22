@@ -73,11 +73,10 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
         MessageApi.MessageListener,
         CapabilityApi.CapabilityListener {
 
-    // TODO: Replace with your links/packages.
     private static final String PLAY_STORE_APP_URI =
-            "market://details?id=com.example.android.wearable.wear.wearverifyremoteapp";
+            "https://play.google.com/store/apps/details?id=com.fesskiev.mediacenter";
 
-    private static final String CAPABILITY_WEAR_APP = "verify_remote_example_wear_app";
+    private static final String CAPABILITY_WEAR_APP = "verify_remote_wear_app";
 
     private Context context;
     private Set<Node> wearNodesWithApp;
@@ -349,7 +348,6 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     @Override
     public void onCapabilityChanged(CapabilityInfo capabilityInfo) {
-
         wearNodesWithApp = capabilityInfo.getNodes();
 
         findAllWearDevices();
