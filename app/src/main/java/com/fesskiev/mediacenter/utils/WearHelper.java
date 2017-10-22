@@ -120,8 +120,16 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
         void onAllDeviceWithApp();
     }
 
+    public interface OnPlayStoreResultListener {
+
+        void onRequestSuccessful();
+
+        void onRequestFailed();
+    }
+
     private OnWearControlListener controlListener;
     private OnWearConnectionListener connectionListener;
+    private OnPlayStoreResultListener playStoreResultListener;
 
     private GoogleApiClient googleApiClient;
     private CompositeDisposable subscription;
@@ -436,9 +444,13 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
             if (resultCode == RemoteIntent.RESULT_OK) {
-
+                if (playStoreResultListener != null) {
+                    playStoreResultListener.onRequestSuccessful();
+                }
             } else if (resultCode == RemoteIntent.RESULT_FAILED) {
-
+                if (playStoreResultListener != null) {
+                    playStoreResultListener.onRequestFailed();
+                }
             }
         }
     };
@@ -510,6 +522,10 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     public void setOnWearConnectionListener(OnWearConnectionListener connectionListener) {
         this.connectionListener = connectionListener;
+    }
+
+    public void setPlayStoreResultListener(OnPlayStoreResultListener playStoreResultListener) {
+        this.playStoreResultListener = playStoreResultListener;
     }
 
     public boolean isPlaying() {

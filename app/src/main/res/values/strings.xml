@@ -344,6 +344,8 @@
     <string name="wear_open_app">Wear app installed on all your devices. To open the wear app, please click on the button below</string>
     <string name="wear_without_app">You are missing the wear app on all your wear devices, please click on the button below to install it on those device(s)</string>
     <string name="wear_some_devices">Wear app installed on some your device(s). To install the Wear app on the other devices, please click on the button below</string>
+    <string name="wear_play_store_request_success">Play Store request to wear device successful</string>
+    <string name="wear_play_store_request_failed">"Play Store request failed. Wear device(s) may not support Play Store</string>
 
     <string name="notification_skip">Skip</string>
     <string name="notification_add">Add</string>

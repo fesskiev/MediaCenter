@@ -2,6 +2,7 @@ package com.fesskiev.mediacenter.ui.wear;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.WearHelper;
 
 
@@ -66,8 +68,19 @@ public class WearFragment extends Fragment {
                 openApp();
             }
         });
+        wearHelper.setPlayStoreResultListener(new WearHelper.OnPlayStoreResultListener() {
+            @Override
+            public void onRequestSuccessful() {
+                showPlayStoreSuccess();
+            }
 
-        if(wearHelper.isAvailable()) {
+            @Override
+            public void onRequestFailed() {
+                showPlayStoreFailed();
+            }
+        });
+
+        if (wearHelper.isAvailable()) {
             wearHelper.connect();
         } else {
             googlePlayServicesNotAvailable();
@@ -113,5 +126,17 @@ public class WearFragment extends Fragment {
         installAppButton.setVisibility(View.INVISIBLE);
         connectionState.setText(getString(R.string.wear_open_app));
         connectionState.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.icon_wear_connected, 0, 0);
+    }
+
+    private void showPlayStoreFailed() {
+        Utils.showCustomSnackbar(getView(), getActivity().getApplicationContext(),
+                getString(R.string.wear_play_store_request_success), Snackbar.LENGTH_LONG)
+                .show();
+    }
+
+    private void showPlayStoreSuccess() {
+        Utils.showCustomSnackbar(getView(), getActivity().getApplicationContext(),
+                getString(R.string.wear_play_store_request_failed), Snackbar.LENGTH_LONG)
+                .show();
     }
 }

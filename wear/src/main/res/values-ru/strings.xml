@@ -1,4 +1,5 @@
 <resources>
+    <string name="app_name">SoloPlayer</string>
 
     <string name="drawer_item_playback">Проигрывание</string>
     <string name="drawer_item_control">Управление</string>
