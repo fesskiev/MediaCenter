@@ -6,7 +6,7 @@ buildscript {
         maven { url 'https://maven.google.com'  }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0-rc1'
+        classpath 'com.android.tools.build:gradle:3.0.0-rc2'
         classpath 'com.google.gms:google-services:3.1.0'
     }
 }
@@ -27,6 +27,12 @@ task clean(type: Delete) {
 }
 
 ext {
+
+    //app versions
+    versionCode = 14
+    versionName = '2.0'
+    versionNamePro = '2.0-pro'
+
     // Sdk and tools
     minSdkVersion = 21
     minSdkVersionWear = 23
@@ -58,6 +64,6 @@ ext {
     retrofit = '2.3.0'
     gson = '2.0.2'
     commons = '2.5'
-    architectureComponents = "1.0.0-beta2"
+    architectureComponents = "1.0.0-rc1"
 }
 

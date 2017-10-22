@@ -6,14 +6,15 @@ def superpowered_sdk_path = properties.getProperty('superpowered.dir')
 
 android {
 
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdkVersion rootProject.compileSdkVersion
+    buildToolsVersion rootProject.buildToolsVersion
+
     defaultConfig {
 
         applicationId = "com.fesskiev.mediacenter"
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode = 13
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion rootProject.targetSdkVersion
+        versionCode rootProject.versionCode
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
 
@@ -63,12 +64,12 @@ android {
     productFlavors {
         free {
             dimension "default"
-            versionName = "2.0.0"
+            versionName rootProject.versionName
         }
 
         pro {
             dimension "default"
-            versionName = "2.0.0-pro"
+            versionName rootProject.versionNamePro
         }
     }
 

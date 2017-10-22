@@ -167,8 +167,8 @@ public class MainActivity extends WearableActivity {
         int mutedLight = palette.getLightMutedColor(defaultValue);
         int mutedDark = palette.getDarkMutedColor(defaultValue);
         runOnUiThread(() -> {
-            adapter.getPlaybackFragment().updatePaletteColor(mutedLight);
-            adapter.getControlFragment().updatePaletteColor(mutedLight);
+            adapter.getPlaybackFragment().updatePaletteColor(muted);
+            adapter.getControlFragment().updatePaletteColor(vibrantDark);
         });
     }
 
