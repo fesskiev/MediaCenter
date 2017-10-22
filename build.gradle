@@ -29,10 +29,10 @@ task clean(type: Delete) {
 ext {
 
     //app versions
-    versionCodeApp = 15
+    versionCodeApp = 17
     versionCodeWear = 16
-    versionName = '2.0'
-    versionNamePro = '2.0-pro'
+    versionName = '2.0.1'
+    versionNamePro = '2.0.1-pro'
 
     // Sdk and tools
     minSdkVersion = 21
