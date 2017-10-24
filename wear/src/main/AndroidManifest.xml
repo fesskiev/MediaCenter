@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.fesskiev.mediacenter">
 
-    <uses-feature android:name="android.hardware.type.Watch" />
+    <uses-feature android:name="android.hardware.type.watch"/>
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
@@ -18,7 +18,7 @@
 
         <meta-data
             android:name="com.google.android.wearable.standalone"
-            android:value="false" />
+            android:value="true" />
 
         <activity
             android:name=".ui.MainActivity"

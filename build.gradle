@@ -29,8 +29,8 @@ task clean(type: Delete) {
 ext {
 
     //app versions
-    versionCodeApp = 17
-    versionCodeWear = 16
+    versionCodeApp = 19
+    versionCodeWear = 20
     versionName = '2.0.1'
     versionNamePro = '2.0.1-pro'
 
