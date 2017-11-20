@@ -7,9 +7,7 @@ import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.MediaApplication;
@@ -17,14 +15,12 @@ import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.MediaFile;
-import com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.mediacenter.ui.chooser.FileSystemChooserActivity;
-import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
-import com.fesskiev.mediacenter.widgets.MaterialProgressBar;
+import com.fesskiev.mediacenter.widgets.progress.MaterialProgressBar;
 import com.fesskiev.mediacenter.widgets.seekbar.RangeSeekBar;
 
 import java.io.File;

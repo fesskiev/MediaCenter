@@ -39,7 +39,7 @@ import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
-import com.fesskiev.mediacenter.widgets.MaterialProgressBar;
+import com.fesskiev.mediacenter.widgets.progress.MaterialProgressBar;
 import com.fesskiev.mediacenter.widgets.dialogs.SelectImageDialog;
 import com.fesskiev.mediacenter.widgets.recycleview.ScrollingLinearLayoutManager;
 

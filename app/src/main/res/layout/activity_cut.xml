@@ -128,7 +128,7 @@
 
     </LinearLayout>
 
-    <com.fesskiev.mediacenter.widgets.MaterialProgressBar
+    <com.fesskiev.mediacenter.widgets.progress.MaterialProgressBar
         android:id="@+id/progressBar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/progress_bar_height"

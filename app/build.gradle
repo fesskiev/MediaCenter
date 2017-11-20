@@ -140,14 +140,29 @@ dependencies {
     compile "org.greenrobot:eventbus:$rootProject.eventbus"
     compile "com.thoughtbot:expandablecheckrecyclerview:$rootProject.expandablecheckrecyclerview"
 
-    testCompile "junit:junit:$rootProject.junitVersion"
+    implementation "android.arch.lifecycle:common-java8:$rootProject.archComponents"
+    implementation "android.arch.lifecycle:extensions:$rootProject.archComponents"
+    testImplementation "android.arch.core:core-testing:$rootProject.archComponents"
+    implementation "android.arch.lifecycle:reactivestreams:$rootProject.archComponents"
+    implementation "android.arch.persistence.room:runtime:$rootProject.archComponents"
+    annotationProcessor "android.arch.persistence.room:compiler:$rootProject.archComponents"
+    implementation "android.arch.persistence.room:rxjava2:$rootProject.archComponents"
 
-    compile "android.arch.lifecycle:runtime:$rootProject.architectureComponents"
-    compile "android.arch.lifecycle:extensions:$rootProject.architectureComponents"
-    annotationProcessor "android.arch.lifecycle:compiler:$rootProject.architectureComponents"
+    compile "com.google.dagger:dagger-android:$rootProject.dagger"
+    compile "com.google.dagger:dagger-android-support:$rootProject.dagger"
+    annotationProcessor "com.google.dagger:dagger-android-processor:$rootProject.dagger"
+    annotationProcessor "com.google.dagger:dagger-compiler:$rootProject.dagger"
+
+    testCompile "junit:junit:$rootProject.ext.junitVersion"
+    testCompile "org.mockito:mockito-all:$rootProject.ext.mockitoVersion"
+    testCompile "org.hamcrest:hamcrest-all:$rootProject.ext.hamcrestVersion"
+    testCompile "org.powermock:powermock-module-junit4:$rootProject.ext.powerMockito"
+    testCompile "org.powermock:powermock-api-mockito:$rootProject.ext.powerMockito"
 
     androidTestCompile "com.android.support.test:runner:$rootProject.runnerVersion"
     androidTestCompile "com.android.support.test:rules:$rootProject.rulesVersion"
+
+    testImplementation "org.robolectric:robolectric:$rootProject.robolectric"
 
     androidTestCompile "com.android.support.test.espresso:espresso-core:$rootProject.espressoVersion"
     androidTestCompile "com.android.support.test.espresso:espresso-contrib:$rootProject.espressoVersion"

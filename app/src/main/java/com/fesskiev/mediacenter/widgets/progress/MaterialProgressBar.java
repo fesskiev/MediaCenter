@@ -1,4 +1,4 @@
-package com.fesskiev.mediacenter.widgets;
+package com.fesskiev.mediacenter.widgets.progress;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;

@@ -13,7 +13,7 @@ import com.fesskiev.mediacenter.ui.chooser.FileSystemChooserActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.ffmpeg.Format;
-import com.fesskiev.mediacenter.widgets.MaterialProgressBar;
+import com.fesskiev.mediacenter.widgets.progress.MaterialProgressBar;
 
 
 public class ConverterFragment extends Fragment {
