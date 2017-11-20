@@ -1,4 +1,4 @@
-package com.fesskiev.mediacenter.ui.playback;
+package com.fesskiev.mediacenter.ui;
 
 
 import com.fesskiev.mediacenter.data.model.MediaFile;

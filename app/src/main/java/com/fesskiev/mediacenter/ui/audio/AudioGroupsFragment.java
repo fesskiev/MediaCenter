@@ -20,7 +20,7 @@ import com.fesskiev.mediacenter.data.model.Group;
 import com.fesskiev.mediacenter.data.model.GroupItem;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity;
-import com.fesskiev.mediacenter.ui.playback.HidingPlaybackFragment;
+import com.fesskiev.mediacenter.ui.HidingPlaybackFragment;
 import com.fesskiev.mediacenter.utils.AppAnimationUtils;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.widgets.recycleview.HidingScrollListener;

@@ -6,15 +6,21 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.ActivityOptions;
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.OnLifecycleEvent;
+import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -27,23 +33,30 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
+import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.source.DataRepository;
+import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.about.AboutActivity;
 import com.fesskiev.mediacenter.ui.audio.AudioFragment;
+import com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.mediacenter.ui.billing.InAppBillingActivity;
 import com.fesskiev.mediacenter.ui.effects.EffectsActivity;
-import com.fesskiev.mediacenter.ui.playback.PlaybackActivity;
 import com.fesskiev.mediacenter.ui.playlist.PlayListActivity;
 import com.fesskiev.mediacenter.ui.converter.ConverterActivity;
 import com.fesskiev.mediacenter.ui.search.SearchActivity;
@@ -55,14 +68,23 @@ import com.fesskiev.mediacenter.utils.AppAnimationUtils;
 import com.fesskiev.mediacenter.utils.AppGuide;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
+import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
+import com.fesskiev.mediacenter.widgets.buttons.PlayPauseFloatingButton;
 import com.fesskiev.mediacenter.widgets.dialogs.SimpleDialog;
 import com.fesskiev.mediacenter.widgets.fetch.FetchContentScreen;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.fesskiev.mediacenter.services.FileSystemService.ACTION_REFRESH_AUDIO_FRAGMENT;
 import static com.fesskiev.mediacenter.services.FileSystemService.ACTION_REFRESH_VIDEO_FRAGMENT;
@@ -70,7 +92,7 @@ import static com.fesskiev.mediacenter.ui.walkthrough.PermissionFragment.PERMISS
 import static com.fesskiev.mediacenter.ui.walkthrough.PermissionFragment.checkPermissionsResultGranted;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
-public class MainActivity extends PlaybackActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AnalyticsActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final int SELECTED_AUDIO = 0;
     private static final int SELECTED_VIDEO = 1;
@@ -81,6 +103,10 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private FetchMediaFilesManager fetchMediaFilesManager;
     private FetchContentScreen fetchContentScreen;
 
+    private AudioPlayer audioPlayer;
+    private List<AudioFile> currentTrackList;
+    private AudioFile currentTrack;
+
     private Toolbar toolbar;
     private MediaNavigationView mediaNavigationView;
     private NavigationView navigationViewMain;
@@ -90,11 +116,37 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
     private TextView appName;
     private TextView appPromo;
 
+    private View bottomSheet;
+    private BottomSheetBehavior bottomSheetBehavior;
+    private TrackListAdapter adapter;
+    private PlayPauseFloatingButton playPauseButton;
+    private TextView durationText;
+    private TextView track;
+    private TextView artist;
+    private ImageView cover;
+    private View emptyFolder;
+    private View emptyTrack;
+    private View peakView;
+
     private AppGuide appGuide;
 
     private int selectedState;
     private boolean recordingState;
     private float angle = 360f;
+
+    private int height;
+
+    private boolean startForeground;
+    private boolean isShow = true;
+
+    private boolean lastLoadSuccess;
+    private boolean lastConvertStart;
+    private boolean lastPlaying;
+    private int lastPositionSeconds = -1;
+    private boolean lastEnableEQ;
+    private boolean lastEnableReverb;
+    private boolean lastEnableWhoosh;
+    private boolean lastEnableEcho;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,12 +156,76 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         selectedState = SELECTED_AUDIO;
 
         settingsManager = AppSettingsManager.getInstance();
+        audioPlayer = MediaApplication.getInstance().getAudioPlayer();
+
         FileSystemService.startFileSystemService(getApplicationContext());
+
+        AppAnimationUtils.getInstance().animateToolbar(toolbar);
+
+        EventBus.getDefault().register(this);
+        addProcessLifecycleObserver();
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        AppAnimationUtils.getInstance().animateToolbar(toolbar);
+        track = findViewById(R.id.track);
+        artist = findViewById(R.id.artist);
+        cover = findViewById(R.id.cover);
+        durationText = findViewById(R.id.duration);
+
+        emptyTrack = findViewById(R.id.emptyTrackCard);
+        emptyFolder = findViewById(R.id.emptyFolderCard);
+
+        RecyclerView recyclerView = findViewById(R.id.trackListControl);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new TrackListAdapter();
+        recyclerView.setAdapter(adapter);
+
+        playPauseButton = findViewById(R.id.playPauseFAB);
+        playPauseButton.setOnClickListener(v -> {
+            if (checkTrackSelected() && !lastConvertStart) {
+                if (lastPlaying) {
+                    audioPlayer.pause();
+                } else {
+                    audioPlayer.play();
+                }
+                togglePlayPause();
+            }
+        });
+        playPauseButton.setPlay(lastPlaying);
+
+        bottomSheet = findViewById(R.id.bottom_sheet);
+        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_SETTLING);
+        if (bottomSheetBehavior != null) {
+            bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+                @Override
+                public void onStateChanged(View bottomSheet, int newState) {
+                    switch (newState) {
+                        case BottomSheetBehavior.STATE_HIDDEN:
+                            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                            break;
+                    }
+                }
+
+                @Override
+                public void onSlide(View bottomSheet, float slideOffset) {
+
+                }
+            });
+
+            peakView = findViewById(R.id.basicNavPlayerContainer);
+            peakView.setOnClickListener(v -> {
+                if (checkTrackSelected() && !lastConvertStart) {
+                    AudioPlayerActivity.startPlayerActivity(MainActivity.this);
+                }
+            });
+            peakView.post(() -> {
+                int marginTop = getResources().getDimensionPixelSize(R.dimen.bottom_sheet_margin_top);
+                height = peakView.getHeight() + marginTop;
+                bottomSheetBehavior.setPeekHeight(height);
+            });
+        }
 
         drawer = findViewById(R.id.drawer_layout);
         if (!Utils.isTablet()) {
@@ -154,15 +270,18 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         setMainNavView();
         setFetchManager();
 
+        registerRefreshFragmentsReceiver();
+
         if (savedInstanceState == null) {
             addAudioFragment();
             checkAudioContentItem();
+            currentTrackList = new ArrayList<>();
+            showEmptyFolderCard();
+            showEmptyTrackCard();
+            audioPlayer.getCurrentTrackAndTrackList();
         } else {
             restoreState(savedInstanceState);
         }
-
-        registerRefreshFragmentsReceiver();
-
     }
 
     @Override
@@ -208,8 +327,323 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         super.onDestroy();
         fetchMediaFilesManager.unregister();
         unregisterRefreshFragmentsReceiver();
+        EventBus.getDefault().unregister(this);
     }
 
+    @Override
+    public String getActivityName() {
+        return this.getLocalClassName();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("startForeground", startForeground);
+        outState.putInt("selectedState", selectedState);
+    }
+
+    private void restoreState(Bundle savedInstanceState) {
+        if (fetchMediaFilesManager.isFetchStart()) {
+            fetchContentScreen.disableTouchActivity();
+        }
+        selectedState = savedInstanceState.getInt("selectedState");
+        checkSelectedFragment();
+
+        startForeground = savedInstanceState.getBoolean("startForeground");
+
+        currentTrack = audioPlayer.getCurrentTrack();
+        if (currentTrack != null) {
+            hideEmptyTrackCard();
+            setTrackInfo(currentTrack);
+            startForegroundService();
+        } else {
+            showEmptyTrackCard();
+        }
+
+        currentTrackList = audioPlayer.getCurrentTrackList();
+        if (currentTrackList == null) {
+            currentTrackList = new ArrayList<>();
+            showEmptyFolderCard();
+        } else {
+            hideEmptyFolderCard();
+            adapter.refreshAdapter();
+        }
+    }
+
+    private boolean checkTrackSelected() {
+        if (currentTrack == null) {
+            AppAnimationUtils.getInstance().errorAnimation(playPauseButton);
+            return false;
+        }
+        return true;
+    }
+
+    private void togglePlayPause() {
+        lastPlaying = !lastPlaying;
+        playPauseButton.setPlay(lastPlaying);
+
+        adapter.notifyDataSetChanged();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onPlaybackStateEvent(PlaybackService playbackState) {
+        if (playbackState.isFinish()) {
+            processFinishPlayback();
+            return;
+        }
+
+        boolean isConvertStart = playbackState.isConvertStart();
+        if (lastConvertStart != isConvertStart) {
+            lastConvertStart = isConvertStart;
+            playPauseButton.startLoading();
+        }
+
+        boolean isLoadSuccess = playbackState.isLoadSuccess();
+        if (lastLoadSuccess != isLoadSuccess) {
+            lastLoadSuccess = isLoadSuccess;
+            if (!lastLoadSuccess) {
+                playPauseButton.startLoading();
+            } else {
+                playPauseButton.finishLoading();
+            }
+        }
+
+        boolean playing = playbackState.isPlaying();
+        if (lastPlaying != playing) {
+            lastPlaying = playing;
+            playPauseButton.setPlay(playing);
+
+            adapter.notifyDataSetChanged();
+
+        }
+
+        int positionSeconds = playbackState.getPosition();
+        if (lastPositionSeconds != positionSeconds) {
+            lastPositionSeconds = positionSeconds;
+            durationText.setText(Utils.getPositionSecondsString(lastPositionSeconds));
+        }
+
+        boolean enableEq = playbackState.isEnableEQ();
+        if (lastEnableEQ != enableEq) {
+            lastEnableEQ = enableEq;
+            AppSettingsManager.getInstance().setEQEnable(lastEnableEQ);
+            mediaNavigationView.setEQEnable(lastEnableEQ);
+        }
+
+        boolean enableReverb = playbackState.isEnableReverb();
+        if (lastEnableReverb != enableReverb) {
+            lastEnableReverb = enableReverb;
+            AppSettingsManager.getInstance().setReverbEnable(lastEnableReverb);
+            mediaNavigationView.setReverbEnable(lastEnableReverb);
+        }
+
+        boolean enableWhoosh = playbackState.isEnableWhoosh();
+        if (lastEnableWhoosh != enableWhoosh) {
+            lastEnableWhoosh = enableWhoosh;
+            AppSettingsManager.getInstance().setWhooshEnable(lastEnableWhoosh);
+            mediaNavigationView.setWhooshEnable(lastEnableWhoosh);
+        }
+
+        boolean enableEcho = playbackState.isEnableEcho();
+        if (lastEnableEcho != enableEcho) {
+            lastEnableEcho = enableEcho;
+            AppSettingsManager.getInstance().setEchoEnable(lastEnableEcho);
+            mediaNavigationView.setEchoEnable(lastEnableEcho);
+        }
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onCurrentTrackEvent(AudioFile currentTrack) {
+        this.currentTrack = currentTrack;
+        if (currentTrack != null) {
+            setTrackInfo(currentTrack);
+            hideEmptyTrackCard();
+
+            adapter.notifyDataSetChanged();
+        }
+        startForegroundService();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onCurrentTrackListEvent(List<AudioFile> currentTrackList) {
+        this.currentTrackList = currentTrackList;
+        if (currentTrackList != null) {
+            adapter.refreshAdapter();
+            hideEmptyFolderCard();
+        }
+    }
+
+
+    private void setTrackInfo(AudioFile audioFile) {
+        track.setText(audioFile.title);
+        artist.setText(audioFile.artist);
+        clearDuration();
+
+        BitmapHelper.getInstance().loadTrackListArtwork(audioFile, cover);
+
+    }
+
+    private void startForegroundService() {
+        if (!startForeground) {
+            startForeground = true;
+            PlaybackService.startPlaybackForegroundService(getApplicationContext());
+        }
+    }
+
+    public void showPlayback() {
+        if (!isShow) {
+            bottomSheetBehavior.setPeekHeight(height);
+            isShow = true;
+        }
+    }
+
+    public void hidePlayback() {
+        if (isShow) {
+            bottomSheetBehavior.setPeekHeight(0);
+            isShow = false;
+        }
+    }
+
+    private class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.ViewHolder> {
+
+        public class ViewHolder extends RecyclerView.ViewHolder {
+
+            ImageView playEq;
+            TextView title;
+            TextView duration;
+            TextView filePath;
+
+            public ViewHolder(View v) {
+                super(v);
+                v.setOnClickListener(view -> {
+                    AudioFile audioFile = currentTrackList.get(getAdapterPosition());
+                    if (audioFile != null && !lastConvertStart) {
+                        if (audioFile.exists()) {
+                            audioPlayer.setCurrentAudioFileAndPlay(audioFile);
+                        } else {
+                            Utils.showCustomSnackbar(getCurrentFocus(),
+                                    getApplicationContext(), getString(R.string.snackbar_file_not_exist),
+                                    Snackbar.LENGTH_LONG)
+                                    .show();
+                        }
+                    }
+                });
+
+                playEq = v.findViewById(R.id.playEq);
+                title = v.findViewById(R.id.title);
+                duration = v.findViewById(R.id.duration);
+                filePath = v.findViewById(R.id.filePath);
+                filePath.setSelected(true);
+
+            }
+        }
+
+        @Override
+        public TrackListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_track_playback, parent, false);
+
+            return new TrackListAdapter.ViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(TrackListAdapter.ViewHolder holder, int position) {
+            AudioFile audioFile = currentTrackList.get(position);
+            if (audioFile != null) {
+                holder.title.setText(audioFile.title);
+                holder.filePath.setText(audioFile.getFilePath());
+                holder.duration.setText(Utils.getDurationString(audioFile.length));
+
+                if (currentTrack != null) {
+                    if (currentTrack.equals(audioFile) && lastPlaying) {
+                        holder.playEq.setVisibility(View.VISIBLE);
+
+                        AnimationDrawable animation = (AnimationDrawable) ContextCompat.
+                                getDrawable(getApplicationContext(), R.drawable.ic_equalizer);
+                        holder.playEq.setImageDrawable(animation);
+                        if (animation != null) {
+                            if (lastPlaying) {
+                                animation.start();
+                            } else {
+                                animation.stop();
+                            }
+                        }
+                    } else {
+                        holder.playEq.setVisibility(View.INVISIBLE);
+                    }
+                }
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return currentTrackList.size();
+        }
+
+        public void refreshAdapter() {
+            notifyDataSetChanged();
+        }
+
+        public void clearAdapter() {
+            currentTrackList.clear();
+            notifyDataSetChanged();
+        }
+    }
+
+    public void clearPlayback() {
+        adapter.clearAdapter();
+        showEmptyFolderCard();
+
+        lastPlaying = false;
+        playPauseButton.setPlay(false);
+
+        adapter.notifyDataSetChanged();
+    }
+
+    private void showEmptyFolderCard() {
+        emptyFolder.setVisibility(View.VISIBLE);
+    }
+
+    private void showEmptyTrackCard() {
+        emptyTrack.setVisibility(View.VISIBLE);
+    }
+
+    private void hideEmptyFolderCard() {
+        emptyFolder.setVisibility(View.GONE);
+    }
+
+    private void hideEmptyTrackCard() {
+        emptyTrack.setVisibility(View.GONE);
+    }
+
+    private void clearDuration() {
+        durationText.setText("");
+    }
+
+
+    private void addProcessLifecycleObserver() {
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(new ProcessLifecycleObserver());
+    }
+
+    public class ProcessLifecycleObserver implements LifecycleObserver {
+
+        @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+        public void resumed() {
+            if (startForeground) {
+                PlaybackService.goForeground(getApplicationContext());
+                AppLog.ERROR("Lifecycle.Event.ON_RESUME");
+            }
+        }
+
+        @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+        public void paused() {
+            if (startForeground && !lastPlaying) {
+                PlaybackService.goBackground(getApplicationContext());
+                AppLog.ERROR("Lifecycle.Event.ON_PAUSE");
+            }
+        }
+    }
 
     private void registerRefreshFragmentsReceiver() {
         IntentFilter filter = new IntentFilter();
@@ -341,21 +775,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         colorAnim1.start();
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt("selectedState", selectedState);
-    }
-
-    private void restoreState(Bundle savedInstanceState) {
-        if (fetchMediaFilesManager.isFetchStart()) {
-            fetchContentScreen.disableTouchActivity();
-        }
-
-        selectedState = savedInstanceState.getInt("selectedState");
-        checkSelectedFragment();
-    }
-
     private void checkSelectedFragment() {
         clearItems();
         switch (selectedState) {
@@ -399,13 +818,6 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
             videoFragment.clearVideoContent();
         }
     }
-
-
-    @Override
-    public MediaNavigationView getMediaNavigationView() {
-        return mediaNavigationView;
-    }
-
 
     private void setFetchManager() {
         fetchContentScreen = new FetchContentScreen(this);
@@ -716,9 +1128,8 @@ public class MainActivity extends PlaybackActivity implements NavigationView.OnN
         exitDialog.setPositiveListener(this::processFinishPlayback);
     }
 
-    @Override
-    public void processFinishPlayback() {
 
+    private void processFinishPlayback() {
         if (fetchMediaFilesManager.isFetchStart()) {
             stopFetchFiles();
         }

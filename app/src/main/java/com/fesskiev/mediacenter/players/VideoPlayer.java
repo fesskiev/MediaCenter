@@ -3,7 +3,7 @@ package com.fesskiev.mediacenter.players;
 
 import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.data.model.VideoFile;
-import com.fesskiev.mediacenter.ui.playback.Playable;
+import com.fesskiev.mediacenter.ui.Playable;
 
 import org.greenrobot.eventbus.EventBus;
 

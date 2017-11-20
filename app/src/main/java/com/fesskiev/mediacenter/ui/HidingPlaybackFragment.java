@@ -1,4 +1,4 @@
-package com.fesskiev.mediacenter.ui.playback;
+package com.fesskiev.mediacenter.ui;
 
 
 import android.support.v4.app.Fragment;

@@ -20,9 +20,9 @@ import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.source.DataRepository;
+import com.fesskiev.mediacenter.ui.MainActivity;
 import com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity;
-import com.fesskiev.mediacenter.ui.playback.HidingPlaybackFragment;
-import com.fesskiev.mediacenter.ui.playback.PlaybackActivity;
+import com.fesskiev.mediacenter.ui.HidingPlaybackFragment;
 import com.fesskiev.mediacenter.ui.search.AlbumSearchActivity;
 import com.fesskiev.mediacenter.utils.AppAnimationUtils;
 import com.fesskiev.mediacenter.utils.AppLog;
@@ -347,7 +347,7 @@ public class AudioFoldersFragment extends HidingPlaybackFragment implements Audi
                                     .subscribe(integer -> {
                                         if (MediaApplication.getInstance().getAudioPlayer()
                                                 .isDeletedFolderSelect(audioFolder)) {
-                                            ((PlaybackActivity) act).clearPlayback();
+                                            ((MainActivity) act).clearPlayback();
                                         }
                                         removeFolder(position);
                                         refreshAudioContent(act);

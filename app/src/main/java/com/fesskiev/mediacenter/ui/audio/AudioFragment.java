@@ -300,6 +300,7 @@ public class AudioFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     }
 
     private class ViewPagerAdapter extends FragmentStatePagerAdapter {
+
         private List<Fragment> fragmentList = new ArrayList<>();
         private List<Fragment> registeredFragments = new ArrayList<>();
         private List<TextView> titleTextViews = new ArrayList<>();
@@ -362,12 +363,6 @@ public class AudioFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             img.setSupportBackgroundTintList(ColorStateList.valueOf(tabTextColor));
             titleImageViews.add(img);
             return v;
-        }
-
-        public void setTitleTextSize(int size) {
-            for (TextView title : titleTextViews) {
-                title.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
-            }
         }
     }
 
