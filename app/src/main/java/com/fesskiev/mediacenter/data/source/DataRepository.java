@@ -10,7 +10,6 @@ import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
 import com.fesskiev.mediacenter.data.model.search.AlbumResponse;
 import com.fesskiev.mediacenter.data.source.local.db.LocalDataSource;
-import com.fesskiev.mediacenter.data.source.memory.MemoryDataSource;
 import com.fesskiev.mediacenter.data.source.remote.RemoteDataSource;
 
 import java.util.List;
@@ -26,78 +25,39 @@ public class DataRepository {
     private static DataRepository INSTANCE;
 
     private LocalDataSource localSource;
-    private MemoryDataSource memorySource;
     private RemoteDataSource remoteSource;
 
-    private DataRepository(RemoteDataSource remoteSource, LocalDataSource localSource, MemoryDataSource memorySource) {
-        this.memorySource = memorySource;
+    private DataRepository(RemoteDataSource remoteSource, LocalDataSource localSource) {
         this.localSource = localSource;
         this.remoteSource = remoteSource;
 
     }
 
-    public static DataRepository getInstance(RemoteDataSource remoteSource, LocalDataSource localSource,
-                                             MemoryDataSource memorySource) {
+    public static DataRepository getInstance(RemoteDataSource remoteSource, LocalDataSource localSource) {
         if (INSTANCE == null) {
-            INSTANCE = new DataRepository(remoteSource, localSource, memorySource);
+            INSTANCE = new DataRepository(remoteSource, localSource);
         }
         return INSTANCE;
     }
 
     public Observable<List<String>> getArtistsList() {
-        if (!memorySource.isCacheArtistsDirty() && !memorySource.isArtistsEmpty()) {
-            Log.w(TAG, "get memory cached artists");
-            return memorySource.getArtistsLis();
-        }
-
         Log.w(TAG, "get local cached artists");
-        return localSource.getArtistsList().flatMap(artists -> {
-            memorySource.addArtists(artists);
-            memorySource.setCacheArtistsDirty(false);
-            return Observable.just(artists);
-        });
+        return localSource.getArtistsList();
     }
 
     public Observable<List<String>> getGenresList() {
-        if (!memorySource.isCacheGenresDirty() && !memorySource.isGenresEmpty()) {
-            Log.w(TAG, "get memory cached genres");
-            return memorySource.getGenresList();
-        }
-
         Log.w(TAG, "get local cached genres");
-        return localSource.getGenresList().flatMap(genres -> {
-            memorySource.addGenres(genres);
-            memorySource.setCacheGenresDirty(false);
-            return Observable.just(genres);
-        });
+        return localSource.getGenresList();
     }
 
     public Observable<List<AudioFolder>> getAudioFolders() {
-        if (!memorySource.isCacheFoldersDirty() && !memorySource.isFoldersEmpty()) {
-            Log.w(TAG, "get memory cached audio folders");
-            return memorySource.getAudioFolders();
-        }
-
         Log.w(TAG, "get local cached audio folders");
-        return localSource.getAudioFolders().flatMap(audioFolders -> {
-            memorySource.addAudioFolders(audioFolders);
-            memorySource.setCacheFoldersDirty(false);
-            return Observable.just(audioFolders);
-        });
+        return localSource.getAudioFolders();
     }
 
     public Observable<List<VideoFolder>> getVideoFolders() {
-        if (!memorySource.isCacheVideoFoldersDirty() && !memorySource.isVideoFoldersEmpty()) {
-            Log.w(TAG, "get memory cached video");
-            return memorySource.getVideoFolders();
-        }
-
         Log.w(TAG, "get local cached video");
-        return localSource.getVideoFolders().flatMap(videoFolders -> {
-            memorySource.addVideoFolders(videoFolders);
-            memorySource.setCacheVideoFoldersDirty(false);
-            return Observable.just(videoFolders);
-        });
+        return localSource.getVideoFolders();
     }
 
     public Observable<List<String>> getFolderFilePaths(String name) {
@@ -263,10 +223,6 @@ public class DataRepository {
 
     public boolean containVideoFolder(String path) {
         return localSource.containVideoFolder(path);
-    }
-
-    public MemoryDataSource getMemorySource() {
-        return memorySource;
     }
 
 

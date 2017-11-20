@@ -436,7 +436,6 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                         if (selectedTrack == null || !selectedTrack.equals(audioFile)) {
                             audioPlayer.setCurrentAudioFileAndPlay(audioFile);
                         }
-                        repository.getMemorySource().setCacheFoldersDirty(true);
                         AudioPlayerActivity.startPlayerActivity(TrackListActivity.this);
 
                     } else {

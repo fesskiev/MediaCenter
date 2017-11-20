@@ -8,7 +8,6 @@ import android.util.Log;
 import com.bumptech.glide.Glide;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.data.source.local.db.LocalDataSource;
-import com.fesskiev.mediacenter.data.source.memory.MemoryDataSource;
 import com.fesskiev.mediacenter.data.source.remote.RemoteDataSource;
 import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.players.VideoPlayer;
@@ -49,8 +48,7 @@ public class MediaApplication extends MultiDexApplication {
         super.onCreate();
         INSTANCE = this;
 
-        repository = DataRepository.getInstance(RemoteDataSource.getInstance(),
-                LocalDataSource.getInstance(), MemoryDataSource.getInstance());
+        repository = DataRepository.getInstance(RemoteDataSource.getInstance(), LocalDataSource.getInstance());
 
         audioPlayer = new AudioPlayer(repository);
         videoPlayer = new VideoPlayer();
@@ -97,7 +95,6 @@ public class MediaApplication extends MultiDexApplication {
             case ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL:
                 AppLog.INFO("TRIM_MEMORY_RUNNING_CRITICAL");
                 Glide.get(getApplicationContext()).trimMemory(ComponentCallbacks2.TRIM_MEMORY_MODERATE);
-                repository.getMemorySource().clearCache();
                 break;
             case ComponentCallbacks2.TRIM_MEMORY_COMPLETE:
                 AppLog.INFO("TRIM_MEMORY_COMPLETE");

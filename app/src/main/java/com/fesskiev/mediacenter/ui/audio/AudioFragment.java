@@ -167,10 +167,6 @@ public class AudioFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     public void refreshAudioContent() {
         swipeRefreshLayout.setRefreshing(false);
 
-        repository.getMemorySource().setCacheArtistsDirty(true);
-        repository.getMemorySource().setCacheGenresDirty(true);
-        repository.getMemorySource().setCacheFoldersDirty(true);
-
         List<Fragment> fragments = adapter.getRegisteredFragments();
         for (Fragment fragment : fragments) {
             ((AudioContent) fragment).fetch();

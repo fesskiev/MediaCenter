@@ -168,11 +168,6 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
         RxUtils.unsubscribe(subscription);
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        repository.getMemorySource().setCacheVideoFoldersDirty(true);
-    }
 
     @Override
     public void onRefresh() {
@@ -260,8 +255,6 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
 
     public void refreshVideoContent() {
         swipeRefreshLayout.setRefreshing(false);
-
-        repository.getMemorySource().setCacheVideoFoldersDirty(true);
 
         fetchVideoFolders();
     }
@@ -390,7 +383,6 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
                             .flatMap(result -> {
                                 if (result) {
                                     DataRepository repository = MediaApplication.getInstance().getRepository();
-                                    repository.getMemorySource().setCacheVideoFoldersDirty(true);
                                     return RxUtils.fromCallable(repository.deleteVideoFolder(videoFolder));
                                 }
                                 return Observable.empty();

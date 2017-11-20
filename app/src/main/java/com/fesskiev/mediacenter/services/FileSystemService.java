@@ -29,7 +29,6 @@ import com.fesskiev.mediacenter.data.model.MediaFolder;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
 import com.fesskiev.mediacenter.data.source.DataRepository;
-import com.fesskiev.mediacenter.data.source.memory.MemoryDataSource;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.CacheManager;
@@ -849,7 +848,6 @@ public class FileSystemService extends JobService {
                 (integer, integer2) -> Observable.empty())
                 .firstOrError()
                 .toObservable()
-                .doOnNext(observable -> refreshRepository())
                 .doOnNext(observable -> clearImagesCache())
                 .subscribe(observable -> {
                     JobParameters jobParameters = (JobParameters) msg.obj;
@@ -875,14 +873,6 @@ public class FileSystemService extends JobService {
     private void clearImagesCache() {
         CacheManager.clearVideoImagesCache();
         CacheManager.clearAudioImagesCache();
-    }
-
-    private void refreshRepository() {
-        MemoryDataSource memoryDataSource = repository.getMemorySource();
-        memoryDataSource.setCacheArtistsDirty(true);
-        memoryDataSource.setCacheGenresDirty(true);
-        memoryDataSource.setCacheFoldersDirty(true);
-        memoryDataSource.setCacheVideoFoldersDirty(true);
     }
 
     @Override

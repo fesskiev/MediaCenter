@@ -16,9 +16,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.ui.chooser.FileSystemChooserActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
@@ -147,19 +145,11 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
                 break;
             case R.id.showHiddenFilesSwitch:
                 appSettingsManager.setShowHiddenFiles(isChecked);
-                refreshRepository();
                 break;
             case R.id.enableAppGuideSwitch:
                 appSettingsManager.setNeedGuide(isChecked);
                 break;
         }
-    }
-
-    private void refreshRepository() {
-        DataRepository repository = MediaApplication.getInstance().getRepository();
-        repository.getMemorySource().setCacheArtistsDirty(true);
-        repository.getMemorySource().setCacheGenresDirty(true);
-        repository.getMemorySource().setCacheFoldersDirty(true);
     }
 
     private void startBackgroundJob(int periodic) {

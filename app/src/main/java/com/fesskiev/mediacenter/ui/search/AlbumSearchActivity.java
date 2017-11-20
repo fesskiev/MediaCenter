@@ -416,8 +416,6 @@ public class AlbumSearchActivity extends AnalyticsActivity {
             audioFolder.folderImage = path;
 
             repository.updateAudioFolder(audioFolder);
-            repository.getMemorySource().setCacheFoldersDirty(true);
-
 
         } catch (IOException e) {
             e.printStackTrace();

@@ -126,21 +126,13 @@ public class AudioFoldersFragment extends HidingPlaybackFragment implements Audi
     @Override
     public void onResume() {
         super.onResume();
-        if (repository.getMemorySource().isCacheFoldersDirty()) {
-            fetch();
-        }
+        fetch();
     }
 
     @Override
     public void onPause() {
         super.onPause();
         RxUtils.unsubscribe(subscription);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        repository.getMemorySource().setCacheFoldersDirty(true);
     }
 
 
@@ -340,7 +332,6 @@ public class AudioFoldersFragment extends HidingPlaybackFragment implements Audi
                                     .subscribeOn(Schedulers.io())
                                     .flatMap(result -> {
                                         DataRepository repository = MediaApplication.getInstance().getRepository();
-                                        repository.getMemorySource().setCacheFoldersDirty(true);
                                         return RxUtils.fromCallable(repository.deleteAudioFolder(audioFolder));
                                     })
                                     .observeOn(AndroidSchedulers.mainThread())

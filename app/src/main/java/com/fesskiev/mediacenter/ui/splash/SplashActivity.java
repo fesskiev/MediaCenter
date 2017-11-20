@@ -218,7 +218,7 @@ public class SplashActivity extends AppCompatActivity {
                     public void onAnimationEnd(View view) {
                         if (ended) {
                             ended = false;
-                            loadMediaFiles(fromAction);
+                            startMainActivity(fromAction);
                         }
                     }
 
@@ -238,18 +238,6 @@ public class SplashActivity extends AppCompatActivity {
         }
     }
 
-    private void loadMediaFiles(boolean fromAction) {
-        subscription = Observable.zip(
-                repository.getAudioFolders(),
-                repository.getGenresList(),
-                repository.getArtistsList(),
-                repository.getVideoFolders(),
-                (audioFolders, genres, artists, videoFolders) -> Observable.empty())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(o -> startMainActivity(fromAction));
-    }
-
     private void startMainActivity(boolean fromAction) {
         Intent intent = new Intent(this, MainActivity.class);
         if (fromAction) {
@@ -258,7 +246,6 @@ public class SplashActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
-
 
     @Override
     public void onDestroy() {

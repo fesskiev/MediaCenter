@@ -160,13 +160,12 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
 
         FileSystemService.startFileSystemService(getApplicationContext());
 
-        AppAnimationUtils.getInstance().animateToolbar(toolbar);
-
         EventBus.getDefault().register(this);
         addProcessLifecycleObserver();
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        AppAnimationUtils.getInstance().animateToolbar(toolbar);
 
         track = findViewById(R.id.track);
         artist = findViewById(R.id.artist);
@@ -1130,10 +1129,6 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
 
 
     private void processFinishPlayback() {
-        if (fetchMediaFilesManager.isFetchStart()) {
-            stopFetchFiles();
-        }
-
         if (startForeground) {
             PlaybackService.stopPlaybackForegroundService(getApplicationContext());
             startForeground = false;
@@ -1156,14 +1151,6 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
-    }
-
-    private void stopFetchFiles() {
-        DataRepository repository = MediaApplication.getInstance().getRepository();
-        repository.getMemorySource().setCacheArtistsDirty(true);
-        repository.getMemorySource().setCacheGenresDirty(true);
-        repository.getMemorySource().setCacheFoldersDirty(true);
-        repository.getMemorySource().setCacheVideoFoldersDirty(true);
     }
 
     private void addAudioFragment() {
