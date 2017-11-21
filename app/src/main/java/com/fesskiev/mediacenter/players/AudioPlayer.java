@@ -4,30 +4,22 @@ package com.fesskiev.mediacenter.players;
 import android.content.Context;
 import android.util.Log;
 
-import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.Playable;
-import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.comparators.SortByDuration;
 import com.fesskiev.mediacenter.utils.comparators.SortByFileSize;
 import com.fesskiev.mediacenter.utils.comparators.SortByTimestamp;
 import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
-
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 
 public class AudioPlayer implements Playable {
 
@@ -47,58 +39,10 @@ public class AudioPlayer implements Playable {
     private int position;
 
 
-    public AudioPlayer(DataRepository repository) {
+    public AudioPlayer(Context context, DataRepository repository) {
+        this.context = context;
         this.repository = repository;
-
-        context = MediaApplication.getInstance().getApplicationContext();
         trackListIterator = new TrackListIterator();
-    }
-
-    public void updateCurrentTrackAndTrackList() {
-        repository.getSelectedFolderAudioFiles()
-                .subscribeOn(Schedulers.io())
-                .flatMap(audioFiles -> Observable.just(sortAudioFiles(AppSettingsManager.getInstance()
-                        .getSortType(), audioFiles)))
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(audioFiles -> {
-                    currentTrackList = audioFiles;
-                    notifyCurrentTrackList();
-                })
-                .subscribeOn(Schedulers.io())
-                .flatMap(audioFiles -> repository.getSelectedAudioFile())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(audioFile -> {
-                    currentTrack = audioFile;
-                    notifyCurrentTrack();
-                })
-                .firstOrError()
-                .subscribe(object -> Log.e(TAG, "UPDATE: " + AudioPlayer.this.toString()),
-                        Throwable::printStackTrace);
-    }
-
-
-    public void getCurrentTrackAndTrackList() {
-        repository.getSelectedFolderAudioFiles()
-                .subscribeOn(Schedulers.io())
-                .flatMap(audioFiles -> Observable.just(sortAudioFiles(AppSettingsManager.getInstance()
-                        .getSortType(), audioFiles)))
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(audioFiles -> {
-                    currentTrackList = audioFiles;
-                    notifyCurrentTrackList();
-                })
-                .subscribeOn(Schedulers.io())
-                .flatMap(audioFiles -> repository.getSelectedAudioFile())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(audioFile -> {
-                    currentTrack = audioFile;
-                    openAudioFile(false);
-                    if (audioFile != null) {
-                        trackListIterator.findPosition();
-                    }
-                })
-                .firstOrError()
-                .subscribe(object -> Log.e(TAG, "GET: " + AudioPlayer.this.toString()), Throwable::printStackTrace);
     }
 
     @Override
@@ -107,7 +51,6 @@ public class AudioPlayer implements Playable {
             PlaybackService.openFile(context, audioFile.getFilePath());
         }
     }
-
 
     @Override
     public void play() {
@@ -129,7 +72,7 @@ public class AudioPlayer implements Playable {
                 audioFile.isSelected = true;
                 repository.updateSelectedAudioFile(audioFile);
 
-                openAudioFile(true);
+                openAudioFile();
             }
         }
     }
@@ -144,7 +87,7 @@ public class AudioPlayer implements Playable {
                 audioFile.isSelected = true;
                 repository.updateSelectedAudioFile(audioFile);
 
-                openAudioFile(true);
+                openAudioFile();
             }
         }
     }
@@ -160,8 +103,7 @@ public class AudioPlayer implements Playable {
     }
 
 
-    private void openAudioFile(boolean startPlayback) {
-        notifyCurrentTrack();
+    private void openAudioFile() {
         Log.e(TAG, AudioPlayer.this.toString());
 
         FFmpegHelper FFmpeg = FFmpegHelper.getInstance();
@@ -183,9 +125,7 @@ public class AudioPlayer implements Playable {
                 public void onSuccess(AudioFile audioFile) {
                     Log.e(TAG, "onSuccess convert");
                     open(currentTrack);
-                    if (startPlayback) {
-                        play();
-                    }
+                    play();
                 }
 
                 @Override
@@ -195,9 +135,7 @@ public class AudioPlayer implements Playable {
             });
         } else {
             open(currentTrack);
-            if (startPlayback) {
-                play();
-            }
+            play();
         }
     }
 
@@ -209,30 +147,19 @@ public class AudioPlayer implements Playable {
         audioFile.isSelected = true;
         repository.updateSelectedAudioFile(audioFile);
 
-        openAudioFile(true);
+        openAudioFile();
     }
 
 
     public void setCurrentTrackList(AudioFolder audioFolder, List<AudioFile> audioFiles) {
-        if (audioFiles == null || audioFiles.isEmpty()) {
-            return;
+        if (audioFiles != null) {
+            currentTrackList = audioFiles;
         }
-        currentTrackList = audioFiles;
 
-        audioFolder.isSelected = true;
-        repository.updateSelectedAudioFolder(audioFolder);
-
-        notifyCurrentTrackList();
-
-        Log.e(TAG, AudioPlayer.this.toString());
-    }
-
-    public void setCurrentTrackList(List<AudioFile> audioFiles) {
-        currentTrackList = audioFiles;
-
-        notifyCurrentTrackList();
-
-        Log.e(TAG, AudioPlayer.this.toString());
+        if (audioFolder != null) {
+            audioFolder.isSelected = true;
+            repository.updateSelectedAudioFolder(audioFolder);
+        }
     }
 
     public void setSortingTrackList(List<AudioFile> audioFiles) {
@@ -243,31 +170,12 @@ public class AudioPlayer implements Playable {
             currentTrackList = audioFiles;
             trackListIterator.findPosition();
 
-            notifyCurrentTrackList();
-
-            Log.e(TAG, AudioPlayer.this.toString());
-        }
-    }
-
-
-    private void notifyCurrentTrackList() {
-        if (currentTrackList != null) {
-            EventBus.getDefault().post(currentTrackList);
-        }
-    }
-
-    private void notifyCurrentTrack() {
-        if (currentTrack != null) {
-            EventBus.getDefault().post(currentTrack);
         }
     }
 
 
     private boolean isSortingCurrentTrackList(List<AudioFile> audioFiles) {
-        if (currentTrackList == null) {
-            return false;
-        }
-        return currentTrackList.containsAll(audioFiles);
+        return currentTrackList != null && currentTrackList.containsAll(audioFiles);
     }
 
     public AudioFile getCurrentTrack() {
@@ -299,7 +207,7 @@ public class AudioPlayer implements Playable {
         }
     }
 
-    public List<AudioFile> sortAudioFiles(int type, List<AudioFile> unsortedList) {
+    public static List<AudioFile> sortAudioFiles(int type, List<AudioFile> unsortedList) {
         List<AudioFile> sortedList = new ArrayList<>(unsortedList);
         switch (type) {
             case SORT_DURATION:

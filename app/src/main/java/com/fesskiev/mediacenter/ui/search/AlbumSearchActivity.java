@@ -396,15 +396,10 @@ public class AlbumSearchActivity extends AnalyticsActivity {
                         repository.updateAudioFile(audioFile);
                     }
                 })
-                .doOnNext(audioFiles -> updateAudioPlayer())
                 .firstOrError()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(audioFiles -> showSuccessSaveBitmap(),
                         throwable -> showErrorSaveBitmap());
-    }
-
-    private void updateAudioPlayer() {
-        audioPlayer.updateCurrentTrackAndTrackList();
     }
 
     private void saveArtworkAndUpdateFolder(Bitmap bitmap) {

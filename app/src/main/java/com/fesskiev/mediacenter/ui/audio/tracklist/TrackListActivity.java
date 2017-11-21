@@ -431,7 +431,7 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                         if (contentType == CONTENT_TYPE.FOLDERS) {
                             MediaApplication.getInstance().getAudioPlayer().setCurrentTrackList(audioFolder, audioFiles);
                         } else {
-                            MediaApplication.getInstance().getAudioPlayer().setCurrentTrackList(audioFiles);
+                            MediaApplication.getInstance().getAudioPlayer().setCurrentTrackList(null, audioFiles);
                         }
                         if (selectedTrack == null || !selectedTrack.equals(audioFile)) {
                             audioPlayer.setCurrentAudioFileAndPlay(audioFile);

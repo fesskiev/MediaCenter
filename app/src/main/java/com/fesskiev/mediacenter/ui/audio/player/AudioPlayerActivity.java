@@ -38,10 +38,6 @@ import com.fesskiev.mediacenter.widgets.controls.AudioControlView;
 import com.fesskiev.mediacenter.widgets.dialogs.LoopingDialog;
 import com.fesskiev.mediacenter.widgets.utils.DisabledScrollView;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -207,8 +203,6 @@ public class AudioPlayerActivity extends AnalyticsActivity {
         controlView.setPlay(lastPlaying);
         setAudioTrackValues(audioPlayer.getCurrentTrack());
 
-        EventBus.getDefault().register(this);
-
         PlaybackService.requestPlaybackStateIfNeed(getApplicationContext());
 
         checkFirstOrLastTrack();
@@ -232,7 +226,6 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        EventBus.getDefault().unregister(this);
         RxUtils.unsubscribe(subscription);
     }
 
