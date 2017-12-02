@@ -20,7 +20,7 @@ public class TrackListCardView extends FrameLayout {
 
         void onEditClick();
 
-        void onPlaylistClick();
+        void onPlayListClick();
 
         void onClick();
 
@@ -78,7 +78,7 @@ public class TrackListCardView extends FrameLayout {
             if (isOpen) {
                 if (isPointInsideView(e.getRawX(), e.getRawY(), addPlaylist)) {
                     if (listener != null) {
-                        listener.onPlaylistClick();
+                        listener.onPlayListClick();
                     }
                     return true;
                 }

@@ -14,7 +14,7 @@ public class RxBusModule {
 
     @Provides
     @Singleton
-    RxBus provideApplication() {
+    RxBus provideRxBus() {
         return new RxBus();
     }
 }

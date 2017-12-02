@@ -18,6 +18,8 @@ import com.fesskiev.mediacenter.players.VideoPlayer;
 import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
 import com.fesskiev.mediacenter.utils.ffmpeg.Format;
 
+import javax.inject.Inject;
+
 
 public class ConverterVideoFragment extends ConverterFragment implements RadioGroup.OnCheckedChangeListener {
 
@@ -25,13 +27,15 @@ public class ConverterVideoFragment extends ConverterFragment implements RadioGr
         return new ConverterVideoFragment();
     }
 
-
-    private VideoPlayer videoPlayer;
+    @Inject
+    VideoPlayer videoPlayer;
+    @Inject
+    FFmpegHelper fFmpegHelper;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        videoPlayer = MediaApplication.getInstance().getVideoPlayer();
+        MediaApplication.getInstance().getAppComponent().inject(this);
     }
 
     @Override
@@ -78,7 +82,7 @@ public class ConverterVideoFragment extends ConverterFragment implements RadioGr
 
         String saveFolder = saveFolderPath.getText().toString();
 
-        FFmpegHelper.getInstance().convertVideoFile(convertFile, saveFolder, format,
+        fFmpegHelper.convertVideoFile(convertFile, saveFolder, format,
                 new FFmpegHelper.OnConvertProcessListener() {
                     @Override
                     public void onStart() {

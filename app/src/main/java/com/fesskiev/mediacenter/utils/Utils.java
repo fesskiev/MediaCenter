@@ -73,8 +73,8 @@ public class Utils {
         return snack;
     }
 
-    public static Snackbar showInternetErrorCustomSnackbar(View view, Context context, int stringRes, int duration) {
-        Snackbar snack = Snackbar.make(view, stringRes, duration);
+    public static Snackbar showInternetErrorCustomSnackbar(View view, Context context, String text, int duration) {
+        Snackbar snack = Snackbar.make(view, text, duration);
         Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout) snack.getView();
         layout.setBackgroundColor(ContextCompat.getColor(context, R.color.colorSnackBarError));
         snack.setActionTextColor(ContextCompat.getColor(context, R.color.accent));

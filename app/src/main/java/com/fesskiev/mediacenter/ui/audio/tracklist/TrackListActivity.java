@@ -1,5 +1,7 @@
 package com.fesskiev.mediacenter.ui.audio.tracklist;
 
+import android.arch.lifecycle.ViewModelProviders;
+import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -15,21 +17,15 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
+import com.fesskiev.mediacenter.ui.analytics.AnalyticsActivity;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
-import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.players.AudioPlayer;
-import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.mediacenter.ui.audio.CONTENT_TYPE;
 import com.fesskiev.mediacenter.utils.AppAnimationUtils;
 import com.fesskiev.mediacenter.utils.AppGuide;
-import com.fesskiev.mediacenter.utils.AppSettingsManager;
-import com.fesskiev.mediacenter.utils.BitmapHelper;
-import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.cards.TrackListCardView;
 import com.fesskiev.mediacenter.widgets.dialogs.EditTrackDialog;
@@ -39,18 +35,11 @@ import com.fesskiev.mediacenter.widgets.recycleview.ScrollingLinearLayoutManager
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Observable;;
-import io.reactivex.android.schedulers.AndroidSchedulers;;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.Observable;
 
 public class TrackListActivity extends AnalyticsActivity implements View.OnClickListener {
 
@@ -58,42 +47,27 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
     public static final String EXTRA_CONTENT_TYPE_VALUE = "com.fesskiev.player.EXTRA_CONTENT_TYPE_VALUE";
     public static final String EXTRA_AUDIO_FOLDER = "com.fesskiev.player.EXTRA_AUDIO_FOLDER";
 
-    private FloatingActionMenu actionMenu;
+    private AudioFolder audioFolder;
+
     private AppGuide appGuide;
-
-    private Disposable subscription;
-    private DataRepository repository;
-
-    private AppSettingsManager settingsManager;
-
+    private FloatingActionMenu actionMenu;
     private RecyclerView recyclerView;
     private TrackListAdapter adapter;
-    private AudioPlayer audioPlayer;
-    private List<TrackListCardView> openCards;
 
-    private AudioFolder audioFolder;
     private CONTENT_TYPE contentType;
     private String contentValue;
 
-    private boolean lastPlaying;
+    private TrackListViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_track_list);
-
-        audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-        repository = MediaApplication.getInstance().getRepository();
-        settingsManager = AppSettingsManager.getInstance();
-        openCards = new ArrayList<>();
-
-        EventBus.getDefault().register(this);
-
+        contentType =
+                (CONTENT_TYPE) getIntent().getSerializableExtra(EXTRA_CONTENT_TYPE);
         Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
             String title = null;
-            contentType =
-                    (CONTENT_TYPE) getIntent().getSerializableExtra(EXTRA_CONTENT_TYPE);
             switch (contentType) {
                 case GENRE:
                 case ARTIST:
@@ -111,121 +85,218 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
             toolbar.setTitle(title);
             setSupportActionBar(toolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
-            actionMenu = findViewById(R.id.menuSorting);
-            actionMenu.setIconAnimated(true);
+        actionMenu = findViewById(R.id.menuSorting);
+        actionMenu.setIconAnimated(true);
 
-            FloatingActionButton[] sortButtons = new FloatingActionButton[]{
-                    findViewById(R.id.menuSortDuration),
-                    findViewById(R.id.menuSortFileSize),
-                    findViewById(R.id.menuSortTrackNumber),
-                    findViewById(R.id.menuSortTimestamp)
-            };
+        FloatingActionButton[] sortButtons = new FloatingActionButton[]{
+                findViewById(R.id.menuSortDuration),
+                findViewById(R.id.menuSortFileSize),
+                findViewById(R.id.menuSortTrackNumber),
+                findViewById(R.id.menuSortTimestamp)
+        };
 
-            for (FloatingActionButton sortButton : sortButtons) {
-                sortButton.setOnClickListener(this);
+        for (FloatingActionButton sortButton : sortButtons) {
+            sortButton.setOnClickListener(this);
+        }
+
+        recyclerView = findViewById(R.id.recycleView);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(this,
+                LinearLayoutManager.VERTICAL, false, 1000));
+        adapter = new TrackListAdapter(this);
+        recyclerView.setAdapter(adapter);
+        recyclerView.addOnScrollListener(new HidingScrollListener() {
+            @Override
+            public void onHide() {
+                hideViews();
             }
 
-            recyclerView = findViewById(R.id.recycleView);
-            recyclerView.setHasFixedSize(true);
-            recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(this,
-                    LinearLayoutManager.VERTICAL, false, 1000));
-            adapter = new TrackListAdapter();
-            recyclerView.setAdapter(adapter);
-            recyclerView.addOnScrollListener(new HidingScrollListener() {
+            @Override
+            public void onShow() {
+                showViews();
+            }
+
+            @Override
+            public void onItemPosition(int position) {
+                adapter.closeOpenCards();
+            }
+        });
+
+        observeData();
+    }
+
+    private void observeData() {
+        viewModel = ViewModelProviders.of(this).get(TrackListViewModel.class);
+        viewModel.fetchContentByType(contentType, contentValue, audioFolder);
+        viewModel.getCurrentTrackListLiveData().observe(this, audioFiles -> adapter.refreshAdapter(audioFiles));
+        viewModel.getPlayingLiveData().observe(this, playing -> adapter.setPlaying(playing));
+        viewModel.getCurrentTrackLiveData().observe(this, currentTrack -> adapter.setCurrentTrack(currentTrack));
+        viewModel.getAddToPlayListAudioFileLiveData().observe(this, Void -> showAddAudioFileToPlayListSnackBar());
+        viewModel.getNotExistsAudioFileLiveData().observe(this, Void -> showAudioFileNotExistsSnackBar());
+        viewModel.getDeletedAudioFileLiveData().observe(this, position -> {
+            adapter.removeItem(position);
+            showAudioFileDeletedSnackBar();
+        });
+    }
+
+    private void addToAudioFilePlayList(AudioFile audioFile) {
+        viewModel.updateAudioFile(audioFile);
+    }
+
+    private void showEditAudioFileDialog(AudioFile audioFile, int position) {
+        if (viewModel.checkAudioFileExist(audioFile)) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.addToBackStack(null);
+            EditTrackDialog dialog = EditTrackDialog.newInstance(audioFile);
+            dialog.show(transaction, EditTrackDialog.class.getName());
+            dialog.setOnEditTrackChangedListener(new EditTrackDialog.OnEditTrackChangedListener() {
                 @Override
-                public void onHide() {
-                    hideViews();
+                public void onEditTrackChanged(AudioFile audioFile) {
+                    adapter.updateItem(position, audioFile);
                 }
 
                 @Override
-                public void onShow() {
-                    showViews();
-                }
+                public void onEditTrackError() {
 
-                @Override
-                public void onItemPosition(int position) {
-                    closeOpenCards();
                 }
             });
         }
     }
 
+    private void deleteAudioFile(AudioFile audioFile, int position) {
+        if (viewModel.checkAudioFileExist(audioFile)) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.addToBackStack(null);
+            SimpleDialog dialog = SimpleDialog.newInstance(getString(R.string.dialog_delete_file_title),
+                    getString(R.string.dialog_delete_file_message), R.drawable.icon_trash);
+            dialog.show(transaction, SimpleDialog.class.getName());
+            dialog.setPositiveListener(() -> viewModel.deleteAudioFile(audioFile, position));
+        }
+    }
+
+    private void startAudioPlayerActivity(AudioFile audioFile, AudioFile currentTrack, List<AudioFile> audioFiles) {
+        if (viewModel.checkAudioFileExist(audioFile)) {
+            if (contentType == CONTENT_TYPE.FOLDERS) {
+                viewModel.setCurrentTrackList(audioFolder, audioFiles);
+            } else {
+                viewModel.setCurrentTrackList(null, audioFiles);
+            }
+            if (currentTrack == null || !currentTrack.equals(audioFile)) {
+                viewModel.setCurrentAudioFileAndPlay(audioFile);
+            }
+            AudioPlayerActivity.startPlayerActivity(TrackListActivity.this);
+        }
+    }
+
+    private void showAudioFileDeletedSnackBar() {
+        Utils.showCustomSnackbar(getCurrentFocus(),
+                getApplicationContext(),
+                getString(R.string.shackbar_delete_audio_file),
+                Snackbar.LENGTH_LONG).addCallback(new Snackbar.Callback() {
+
+            @Override
+            public void onShown(Snackbar snackbar) {
+                super.onShown(snackbar);
+                closeMenu();
+                AppAnimationUtils.getInstance().translateMenu(actionMenu,
+                        -snackbar.getView().getHeight());
+            }
+
+            @Override
+            public void onDismissed(Snackbar snackbar, int event) {
+                super.onDismissed(snackbar, event);
+                AppAnimationUtils.getInstance().translateMenu(actionMenu, 0);
+            }
+        }).show();
+    }
+
+    private void showAudioFileNotExistsSnackBar() {
+        Utils.showCustomSnackbar(getCurrentFocus(),
+                getApplicationContext(), getString(R.string.snackbar_file_not_exist),
+                Snackbar.LENGTH_LONG).addCallback(new Snackbar.Callback() {
+
+            @Override
+            public void onShown(Snackbar snackbar) {
+                super.onShown(snackbar);
+                closeMenu();
+                AppAnimationUtils.getInstance().translateMenu(actionMenu,
+                        -snackbar.getView().getHeight());
+            }
+
+            @Override
+            public void onDismissed(Snackbar snackbar, int event) {
+                super.onDismissed(snackbar, event);
+                AppAnimationUtils.getInstance().translateMenu(actionMenu, 0);
+            }
+        }).show();
+    }
+
+    private Observable<Bitmap> getTrackListArtwork(AudioFile audioFile) {
+        return viewModel.getTrackListArtwork(audioFile);
+    }
+
+    private void showAddAudioFileToPlayListSnackBar() {
+        Utils.showCustomSnackbar(getCurrentFocus(),
+                getApplicationContext(),
+                getString(R.string.add_to_playlist_text),
+                Snackbar.LENGTH_SHORT).addCallback(new Snackbar.Callback() {
+
+            @Override
+            public void onShown(Snackbar snackbar) {
+                super.onShown(snackbar);
+                closeMenu();
+                AppAnimationUtils.getInstance().translateMenu(actionMenu,
+                        -snackbar.getView().getHeight());
+            }
+
+            @Override
+            public void onDismissed(Snackbar snackbar, int event) {
+                super.onDismissed(snackbar, event);
+                AppAnimationUtils.getInstance().translateMenu(actionMenu, 0);
+                adapter.closeOpenCards();
+            }
+        }).show();
+    }
+
+
     @Override
     protected void onStart() {
         super.onStart();
-        fetchContentByType();
+        recyclerView.postDelayed(this::makeGuideIfNeed, 1000);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        RxUtils.unsubscribe(subscription);
         if (appGuide != null) {
             appGuide.clear();
         }
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
-    }
-
-    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.menuSortDuration:
-                adapter.sortTracks(AudioPlayer.SORT_DURATION);
+                viewModel.sortTracks(AudioPlayer.SORT_DURATION);
                 break;
             case R.id.menuSortFileSize:
-                adapter.sortTracks(AudioPlayer.SORT_FILE_SIZE);
+                viewModel.sortTracks(AudioPlayer.SORT_FILE_SIZE);
                 break;
             case R.id.menuSortTrackNumber:
-                adapter.sortTracks(AudioPlayer.SORT_TRACK_NUMBER);
+                viewModel.sortTracks(AudioPlayer.SORT_TRACK_NUMBER);
                 break;
             case R.id.menuSortTimestamp:
-                adapter.sortTracks(AudioPlayer.SORT_TIMESTAMP);
+                viewModel.sortTracks(AudioPlayer.SORT_TIMESTAMP);
                 break;
         }
+        actionMenu.close(true);
     }
 
-    private void fetchContentByType() {
-        Observable<List<AudioFile>> audioFilesObservable = null;
-
-        switch (contentType) {
-            case FOLDERS:
-                audioFilesObservable = repository.getAudioTracks(audioFolder.id);
-                break;
-            case ARTIST:
-                audioFilesObservable = repository.getArtistTracks(contentValue);
-                break;
-            case GENRE:
-                audioFilesObservable = repository.getGenreTracks(contentValue);
-                break;
-        }
-
-        if (audioFilesObservable != null) {
-            subscription = audioFilesObservable
-                    .firstOrError()
-                    .toObservable()
-                    .subscribeOn(Schedulers.io())
-                    .flatMap(Observable::fromIterable)
-                    .filter(audioFile -> AppSettingsManager.getInstance().isShowHiddenFiles() || !audioFile.isHidden)
-                    .toList()
-                    .toObservable()
-                    .map(unsortedList -> audioPlayer.sortAudioFiles(settingsManager.getSortType(), unsortedList))
-                    .doOnNext(sortedList -> audioPlayer.setSortingTrackList(sortedList))
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doOnNext(audioFiles -> adapter.refreshAdapter(audioFiles))
-                    .delay(1000, TimeUnit.MILLISECONDS)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(audioFiles -> makeGuideIfNeed());
-        }
-    }
 
     private void makeGuideIfNeed() {
-        if (settingsManager.isNeedTrackListActivityGuide()) {
+        if (viewModel.isNeedTrackListActivityGuide()) {
             TrackListAdapter.ViewHolder viewHolder
                     = (TrackListAdapter.ViewHolder) recyclerView.findViewHolderForAdapterPosition(0);
             if (viewHolder != null) {
@@ -261,35 +332,14 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
 
                     @Override
                     public void watched() {
-                        settingsManager.setNeedTrackListActivityGuide(false);
-                        closeOpenCards();
+                        viewModel.setNeedTrackListActivityGuide(false);
+                        adapter.closeOpenCards();
                     }
                 });
                 appGuide.makeGuide(addToPlaylist, getString(R.string.app_guide_add_playlist_title),
                         getString(R.string.app_guide_add_playlist_desc));
             }
         }
-    }
-
-    private void notifyTrackStateChanged() {
-        if (adapter != null) {
-            adapter.notifyDataSetChanged();
-        }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onPlaybackStateEvent(PlaybackService playbackState) {
-        boolean playing = playbackState.isPlaying();
-        if (lastPlaying != playing) {
-            lastPlaying = playing;
-            notifyTrackStateChanged();
-        }
-
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onCurrentTrackEvent(AudioFile currentTrack) {
-        notifyTrackStateChanged();
     }
 
     @Override
@@ -303,16 +353,6 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
         return this.getLocalClassName();
     }
 
-    private void closeOpenCards() {
-        if (!openCards.isEmpty()) {
-            for (TrackListCardView cardView : openCards) {
-                if (cardView.isOpen()) {
-                    cardView.close();
-                }
-            }
-            openCards.clear();
-        }
-    }
 
     private void closeMenu() {
         if (actionMenu.isOpened()) {
@@ -333,12 +373,18 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
     }
 
 
-    private class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.ViewHolder> {
+    private static class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.ViewHolder> {
 
+        private WeakReference<TrackListActivity> activity;
         private List<AudioFile> audioFiles;
+        private List<TrackListCardView> openCards;
+        private AudioFile currentTrack;
+        private boolean playing;
 
-        public TrackListAdapter() {
+        public TrackListAdapter(TrackListActivity activity) {
+            this.activity = new WeakReference<>(activity);
             this.audioFiles = new ArrayList<>();
+            this.openCards = new ArrayList<>();
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
@@ -369,7 +415,7 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
 
                             @Override
                             public void onEditClick() {
-                                showEditDialog(getAdapterPosition());
+                                showEditAudioFileDialog(getAdapterPosition());
                             }
 
                             @Override
@@ -378,8 +424,8 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                             }
 
                             @Override
-                            public void onPlaylistClick() {
-                                addToPlaylist(getAdapterPosition());
+                            public void onPlayListClick() {
+                                addAudioFileToPlaylist(getAdapterPosition());
                             }
 
                             @Override
@@ -392,130 +438,47 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                             }
                         });
             }
+
         }
 
-        private void addToPlaylist(int position) {
-            AudioFile audioFile = audioFiles.get(position);
-            if (audioFile != null) {
-                audioFile.inPlayList = true;
-                repository.updateAudioFile(audioFile);
-                Utils.showCustomSnackbar(getCurrentFocus(),
-                        getApplicationContext(),
-                        getString(R.string.add_to_playlist_text),
-                        Snackbar.LENGTH_SHORT).addCallback(new Snackbar.Callback() {
-
-                    @Override
-                    public void onShown(Snackbar snackbar) {
-                        super.onShown(snackbar);
-                        closeMenu();
-                        AppAnimationUtils.getInstance().translateMenu(actionMenu,
-                                -snackbar.getView().getHeight());
-                    }
-
-                    @Override
-                    public void onDismissed(Snackbar snackbar, int event) {
-                        super.onDismissed(snackbar, event);
-                        AppAnimationUtils.getInstance().translateMenu(actionMenu, 0);
-                        closeOpenCards();
-                    }
-                }).show();
+        private void addAudioFileToPlaylist(int position) {
+            TrackListActivity act = activity.get();
+            if (act != null) {
+                AudioFile audioFile = audioFiles.get(position);
+                if (audioFile != null) {
+                    act.addToAudioFilePlayList(audioFile);
+                }
             }
         }
 
         private void startPlayerActivity(int position) {
-            if (position != -1) {
+            TrackListActivity act = activity.get();
+            if (act != null) {
                 AudioFile audioFile = audioFiles.get(position);
                 if (audioFile != null) {
-                    if (audioFile.exists()) {
-                        AudioFile selectedTrack = audioPlayer.getCurrentTrack();
-                        if (contentType == CONTENT_TYPE.FOLDERS) {
-                            MediaApplication.getInstance().getAudioPlayer().setCurrentTrackList(audioFolder, audioFiles);
-                        } else {
-                            MediaApplication.getInstance().getAudioPlayer().setCurrentTrackList(null, audioFiles);
-                        }
-                        if (selectedTrack == null || !selectedTrack.equals(audioFile)) {
-                            audioPlayer.setCurrentAudioFileAndPlay(audioFile);
-                        }
-                        AudioPlayerActivity.startPlayerActivity(TrackListActivity.this);
-
-                    } else {
-                        Utils.showCustomSnackbar(getCurrentFocus(),
-                                getApplicationContext(), getString(R.string.snackbar_file_not_exist),
-                                Snackbar.LENGTH_LONG).addCallback(new Snackbar.Callback() {
-
-                            @Override
-                            public void onShown(Snackbar snackbar) {
-                                super.onShown(snackbar);
-                                closeMenu();
-                                AppAnimationUtils.getInstance().translateMenu(actionMenu,
-                                        -snackbar.getView().getHeight());
-                            }
-
-                            @Override
-                            public void onDismissed(Snackbar snackbar, int event) {
-                                super.onDismissed(snackbar, event);
-                                AppAnimationUtils.getInstance().translateMenu(actionMenu, 0);
-                            }
-                        }).show();
-                    }
+                    act.startAudioPlayerActivity(audioFile, currentTrack, audioFiles);
                 }
             }
         }
 
-        private void showEditDialog(final int position) {
-            AudioFile audioFile = audioFiles.get(position);
-            if (audioFile != null) {
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.addToBackStack(null);
-                EditTrackDialog dialog = EditTrackDialog.newInstance(audioFile);
-                dialog.show(transaction, EditTrackDialog.class.getName());
-                dialog.setOnEditTrackChangedListener(new EditTrackDialog.OnEditTrackChangedListener() {
-                    @Override
-                    public void onEditTrackChanged(AudioFile audioFile) {
-                        adapter.updateItem(position, audioFile);
-                    }
-
-                    @Override
-                    public void onEditTrackError() {
-
-                    }
-                });
+        private void showEditAudioFileDialog(final int position) {
+            TrackListActivity act = activity.get();
+            if (act != null) {
+                AudioFile audioFile = audioFiles.get(position);
+                if (audioFile != null) {
+                    act.showEditAudioFileDialog(audioFile, position);
+                }
             }
         }
 
         private void deleteFile(final int position) {
-            final AudioFile audioFile = audioFiles.get(position);
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.addToBackStack(null);
-            SimpleDialog dialog = SimpleDialog.newInstance(getString(R.string.dialog_delete_file_title),
-                    getString(R.string.dialog_delete_file_message), R.drawable.icon_trash);
-            dialog.show(transaction, SimpleDialog.class.getName());
-            dialog.setPositiveListener(() -> {
-                if (!audioFile.filePath.exists() || audioFile.filePath.delete()) {
-                    Utils.showCustomSnackbar(getCurrentFocus(),
-                            getApplicationContext(),
-                            getString(R.string.shackbar_delete_audio_file),
-                            Snackbar.LENGTH_LONG).addCallback(new Snackbar.Callback() {
-
-                        @Override
-                        public void onShown(Snackbar snackbar) {
-                            super.onShown(snackbar);
-                            closeMenu();
-                            AppAnimationUtils.getInstance().translateMenu(actionMenu,
-                                    -snackbar.getView().getHeight());
-                        }
-
-                        @Override
-                        public void onDismissed(Snackbar snackbar, int event) {
-                            super.onDismissed(snackbar, event);
-                            AppAnimationUtils.getInstance().translateMenu(actionMenu, 0);
-                        }
-                    }).show();
-
-                    repository.deleteAudioFile(audioFile.getFilePath());
-                    adapter.removeItem(position);
+            TrackListActivity act = activity.get();
+            if (act != null) {
+                AudioFile audioFile = audioFiles.get(position);
+                if (audioFile != null) {
+                    act.deleteAudioFile(audioFile, position);
                 }
-            });
+            }
         }
 
         @Override
@@ -537,17 +500,19 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
                 holder.title.setText(audioFile.title);
                 holder.filePath.setText(audioFile.filePath.getName());
 
-                BitmapHelper.getInstance().loadTrackListArtwork(audioFile, holder.cover);
-
-                AudioFile selectedTrack = audioPlayer.getCurrentTrack();
-                if (selectedTrack != null && selectedTrack.equals(audioFile) && lastPlaying) {
+                TrackListActivity act = activity.get();
+                if (act != null) {
+                    act.getTrackListArtwork(audioFile)
+                            .subscribe(bitmap -> holder.cover.setImageBitmap(bitmap));
+                }
+                if (currentTrack != null && currentTrack.equals(audioFile) && playing) {
                     holder.playEq.setVisibility(View.VISIBLE);
 
                     AnimationDrawable animation = (AnimationDrawable) ContextCompat.
-                            getDrawable(getApplicationContext(), R.drawable.ic_equalizer);
+                            getDrawable(holder.itemView.getContext(), R.drawable.ic_equalizer);
                     holder.playEq.setImageDrawable(animation);
                     if (animation != null) {
-                        if (lastPlaying) {
+                        if (playing) {
                             animation.start();
                         } else {
                             animation.stop();
@@ -580,16 +545,25 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
             notifyItemChanged(position);
         }
 
-        public void sortTracks(int type) {
-            subscription = Observable.just(audioFiles)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .map(unsortedList -> audioPlayer.sortAudioFiles(type, unsortedList))
-                    .doOnNext(sortedList -> audioPlayer.setSortingTrackList(sortedList))
-                    .doOnNext(sortedList -> settingsManager.setSortType(type))
-                    .doOnNext(sortedList -> actionMenu.close(true))
-                    .subscribe(this::refreshAdapter);
+        private void closeOpenCards() {
+            if (!openCards.isEmpty()) {
+                for (TrackListCardView cardView : openCards) {
+                    if (cardView.isOpen()) {
+                        cardView.close();
+                    }
+                }
+                openCards.clear();
+            }
         }
 
+        public void setPlaying(boolean playing) {
+            this.playing = playing;
+            notifyDataSetChanged();
+        }
+
+        public void setCurrentTrack(AudioFile currentTrack) {
+            this.currentTrack = currentTrack;
+            notifyDataSetChanged();
+        }
     }
 }

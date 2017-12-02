@@ -139,18 +139,18 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
 
 
     public WearHelper(Context context) {
-        this(context, null);
+        this(context, null, null);
     }
 
-    public WearHelper(Context context, PlaybackService service) {
+    public WearHelper(Context context, AudioPlayer audioPlayer, PlaybackService service) {
         this.context = context;
+        this.audioPlayer = audioPlayer;
         if (!isGooglePlayServicesAvailable()) {
             return;
         } else {
             available = true;
         }
         this.service = service;
-        this.audioPlayer = MediaApplication.getInstance().getAudioPlayer();
         this.subscription = new CompositeDisposable();
 
         googleApiClient = new GoogleApiClient.Builder(context)

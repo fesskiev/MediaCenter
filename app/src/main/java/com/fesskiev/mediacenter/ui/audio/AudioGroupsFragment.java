@@ -1,5 +1,6 @@
 package com.fesskiev.mediacenter.ui.audio;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,15 +15,12 @@ import android.widget.CheckedTextView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.Group;
 import com.fesskiev.mediacenter.data.model.GroupItem;
-import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity;
 import com.fesskiev.mediacenter.ui.HidingPlaybackFragment;
 import com.fesskiev.mediacenter.utils.AppAnimationUtils;
-import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.widgets.recycleview.HidingScrollListener;
 import com.thoughtbot.expandablecheckrecyclerview.CheckableChildRecyclerViewAdapter;
 import com.thoughtbot.expandablecheckrecyclerview.models.CheckedExpandableGroup;
@@ -33,11 +31,6 @@ import com.thoughtbot.expandablerecyclerview.viewholders.GroupViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import io.reactivex.Observable;;
-import io.reactivex.android.schedulers.AndroidSchedulers;;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
 
 import static com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity.EXTRA_CONTENT_TYPE;
 import static com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity.EXTRA_CONTENT_TYPE_VALUE;
@@ -54,11 +47,9 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
     private RecyclerView recyclerView;
     private GroupsAdapter adapter;
 
-    private Disposable subscription;
-    private DataRepository repository;
-
     private ArrayList<Integer> expandedGroupIds;
 
+    private AudioGroupsViewModel viewModel;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -70,7 +61,7 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
         } else {
             expandedGroupIds = savedInstanceState.getIntegerArrayList(BUNDLE_EXPANDED_IDS);
         }
-        repository = MediaApplication.getInstance().getRepository();
+        observeData();
     }
 
     @Nullable
@@ -104,16 +95,15 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
         });
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        fetch();
+    private void observeData() {
+        viewModel = ViewModelProviders.of(this).get(AudioGroupsViewModel.class);
+        viewModel.getGroupsLiveData().observe(this, this::makeExpandAdapter);
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        RxUtils.unsubscribe(subscription);
+    public void onResume() {
+        super.onResume();
+        fetch();
     }
 
     @Override
@@ -124,13 +114,7 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
 
     @Override
     public void fetch() {
-        subscription = Observable.zip(repository.getGenresList(), repository.getArtistsList(),
-                (genres, artists) -> Group.makeGroups(getContext(), genres, artists))
-                .firstOrError()
-                .toObservable()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::makeExpandAdapter);
+      viewModel.getGroups();
     }
 
 
@@ -225,7 +209,8 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
     }
 
 
-    public class GroupsAdapter extends CheckableChildRecyclerViewAdapter<GroupsAdapter.CustomGroupViewHolder, GroupsAdapter.GroupItemViewHolder> {
+    private class GroupsAdapter extends CheckableChildRecyclerViewAdapter<GroupsAdapter.CustomGroupViewHolder,
+            GroupsAdapter.GroupItemViewHolder> {
 
 
         public class GroupItemViewHolder extends CheckableChildViewHolder {

@@ -28,8 +28,8 @@ import android.widget.TextView;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.video.RendererState;
 import com.fesskiev.mediacenter.ui.cut.CutMediaActivity;
+import com.fesskiev.mediacenter.ui.video.player.ExoPlayerWrapper;
 import com.fesskiev.mediacenter.utils.AppAnimationUtils;
-import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.buttons.PlayPauseButton;
 import com.google.android.exoplayer2.C;
@@ -90,6 +90,7 @@ public class VideoControlView extends FrameLayout {
     private ImageView pipButton;
     private ImageView nextVideo;
     private ImageView previousVideo;
+    private ImageView cutVideoButton;
     private TextView audioTrackView;
     private TextView videoTrackView;
     private TextView subTrackView;
@@ -193,12 +194,8 @@ public class VideoControlView extends FrameLayout {
         videoLockScreen = view.findViewById(R.id.videoLockScreen);
         videoLockScreen.setOnClickListener(v -> toggleLockScreen());
 
-        ImageView cutVideoButton = view.findViewById(R.id.cutVideoButton);
+        cutVideoButton = view.findViewById(R.id.cutVideoButton);
         cutVideoButton.setOnClickListener(v -> startCutActivity());
-        boolean isProUser = AppSettingsManager.getInstance().isUserPro();
-        if (!isProUser) {
-            cutVideoButton.setVisibility(INVISIBLE);
-        }
 
         pipButton = view.findViewById(R.id.pipButton);
         pipButton.setOnClickListener(v -> {
@@ -269,6 +266,11 @@ public class VideoControlView extends FrameLayout {
         CutMediaActivity.startCutMediaActivity((Activity) getContext(), CutMediaActivity.CUT_VIDEO);
     }
 
+    public void setProFutures(boolean pro) {
+        if (!pro) {
+            cutVideoButton.setVisibility(INVISIBLE);
+        }
+    }
 
     private void setSubTrack(int index) {
         AppAnimationUtils.getInstance().scaleToSmallViews(audioTrackView, videoTrackView);
@@ -372,10 +374,10 @@ public class VideoControlView extends FrameLayout {
     }
 
 
-    public void setVideoTrackInfo(SimpleExoPlayer player, MappingTrackSelector selector,
-                                  TrackSelection.Factory adaptiveVideoTrackSelectionFactory) {
-        this.selector = selector;
-        this.adaptiveVideoTrackSelectionFactory = adaptiveVideoTrackSelectionFactory;
+    public void setVideoTrackInfo(ExoPlayerWrapper exoPlayerWrapper, Set<RendererState> rendererStates) {
+        SimpleExoPlayer player = exoPlayerWrapper.getPlayer();
+        this.selector = exoPlayerWrapper.getTrackSelector();
+        this.adaptiveVideoTrackSelectionFactory = exoPlayerWrapper.getTrackSelectionFactory();
 
         MappingTrackSelector.MappedTrackInfo trackInfo = selector.getCurrentMappedTrackInfo();
         if (trackInfo == null) {
@@ -402,7 +404,7 @@ public class VideoControlView extends FrameLayout {
             }
         }
 
-        restoreTracksState();
+        restoreTracksState(rendererStates);
     }
 
     @Override
@@ -467,10 +469,7 @@ public class VideoControlView extends FrameLayout {
         updateViews();
     }
 
-    private void restoreTracksState() {
-
-        Set<RendererState> rendererStates = AppSettingsManager.getInstance().getRendererState();
-
+    private void restoreTracksState(Set<RendererState> rendererStates) {
         if (restoreRenderer) {
             MappingTrackSelector.MappedTrackInfo trackInfo = selector.getCurrentMappedTrackInfo();
             if (rendererStates != null && !rendererStates.isEmpty()) {
@@ -616,7 +615,6 @@ public class VideoControlView extends FrameLayout {
 
     private void selectTrack() {
         Log.e("test", "selectTrack disabled? " + isDisabled);
-
         selector.setRendererDisabled(rendererIndex, isDisabled);
 
         RendererState rendererState;
@@ -640,15 +638,9 @@ public class VideoControlView extends FrameLayout {
         rendererStates.add(rendererState);
     }
 
-    public void saveRendererState() {
-        AppSettingsManager.getInstance().setRendererState(rendererStates);
-        Log.e("test", "save renderer state");
+    public Set<RendererState> getRendererState() {
         restoreRenderer = true;
-    }
-
-    public void clearRendererState() {
-        AppSettingsManager.getInstance().clearRendererState();
-        Log.e("test", "clear renderer state");
+        return rendererStates;
     }
 
     private void updateViews() {

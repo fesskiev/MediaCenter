@@ -16,11 +16,14 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.ui.chooser.FileSystemChooserActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.widgets.settings.MediaContentUpdateTimeView;
+
+import javax.inject.Inject;
 
 
 public class SettingsFragment extends Fragment implements CompoundButton.OnCheckedChangeListener {
@@ -30,14 +33,15 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
         return new SettingsFragment();
     }
 
-    private AppSettingsManager appSettingsManager;
     private TextView recordSavePath;
+
+    @Inject
+    AppSettingsManager settingsManager;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        appSettingsManager = AppSettingsManager.getInstance();
+        MediaApplication.getInstance().getAppComponent().inject(this);
     }
 
     @Override
@@ -64,12 +68,13 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
         }
 
         recordSavePath = view.findViewById(R.id.recordPathToSave);
-        recordSavePath.setText(appSettingsManager.getRecordPath());
+        recordSavePath.setText(settingsManager.getRecordPath());
 
         view.findViewById(R.id.recordContainer).setOnClickListener(v -> startChooserActivity());
 
         MediaContentUpdateTimeView contentUpdateTimeView
                 = view.findViewById(R.id.mediaContentUpdateTime);
+        contentUpdateTimeView.setSelectedUpdateTimeType(settingsManager);
         contentUpdateTimeView.setOnMediaContentTimeUpdateListener(new MediaContentUpdateTimeView
                 .OnMediaContentTimeUpdateListener() {
             @Override
@@ -111,7 +116,7 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
     }
 
     private void setRecordPath(String recordPath) {
-        appSettingsManager.setRecordPath(recordPath);
+        settingsManager.setRecordPath(recordPath);
         recordSavePath.setText(recordPath);
     }
 
@@ -119,16 +124,16 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
         for (SwitchCompat switchCompat : switches) {
             switch (switchCompat.getId()) {
                 case R.id.playHeadsetPlugInSwitch:
-                    switchCompat.setChecked(appSettingsManager.isPlayPlugInHeadset());
+                    switchCompat.setChecked(settingsManager.isPlayPlugInHeadset());
                     break;
                 case R.id.showHiddenFilesSwitch:
-                    switchCompat.setChecked(appSettingsManager.isShowHiddenFiles());
+                    switchCompat.setChecked(settingsManager.isShowHiddenFiles());
                     break;
                 case R.id.fullScreenSwitch:
-                    switchCompat.setChecked(appSettingsManager.isFullScreenMode());
+                    switchCompat.setChecked(settingsManager.isFullScreenMode());
                     break;
                 case R.id.enableAppGuideSwitch:
-                    switchCompat.setChecked(appSettingsManager.isNeedGuide());
+                    switchCompat.setChecked(settingsManager.isNeedGuide());
                     break;
             }
         }
@@ -138,25 +143,25 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
     public void onCheckedChanged(CompoundButton switchCompat, boolean isChecked) {
         switch (switchCompat.getId()) {
             case R.id.fullScreenSwitch:
-                appSettingsManager.setFullScreenMode(isChecked);
+                settingsManager.setFullScreenMode(isChecked);
                 break;
             case R.id.playHeadsetPlugInSwitch:
-                appSettingsManager.setPlayPlugInHeadset(isChecked);
+                settingsManager.setPlayPlugInHeadset(isChecked);
                 break;
             case R.id.showHiddenFilesSwitch:
-                appSettingsManager.setShowHiddenFiles(isChecked);
+                settingsManager.setShowHiddenFiles(isChecked);
                 break;
             case R.id.enableAppGuideSwitch:
-                appSettingsManager.setNeedGuide(isChecked);
+                settingsManager.setNeedGuide(isChecked);
                 break;
         }
     }
 
     private void startBackgroundJob(int periodic) {
-        FileSystemService.scheduleJob(getContext().getApplicationContext(), periodic);
+//        FileSystemService.scheduleJob(getContext().getApplicationContext(), periodic);
     }
 
     private void stopBackgroundJob() {
-        FileSystemService.cancelJob(getContext().getApplicationContext());
+//        FileSystemService.cancelJob(getContext().getApplicationContext());
     }
 }

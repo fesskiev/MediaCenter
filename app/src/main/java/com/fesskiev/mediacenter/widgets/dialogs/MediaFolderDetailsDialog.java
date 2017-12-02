@@ -20,7 +20,10 @@ import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.players.AudioPlayer;
+import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxUtils;
+
+import javax.inject.Inject;
 
 import io.reactivex.disposables.Disposable;
 
@@ -54,9 +57,14 @@ public abstract class MediaFolderDetailsDialog extends DialogFragment implements
     protected CheckBox hideFolder;
     protected Button saveFolderNameButton;
 
-    protected Disposable subscription;
-    protected DataRepository repository;
-    protected AudioPlayer audioPlayer;
+    @Inject
+    DataRepository repository;
+    @Inject
+    AudioPlayer audioPlayer;
+    @Inject
+    BitmapHelper bitmapHelper;
+
+    protected Disposable disposable;
 
     protected long folderSize = 0L;
     protected long folderLength = 0L;
@@ -67,9 +75,7 @@ public abstract class MediaFolderDetailsDialog extends DialogFragment implements
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NO_TITLE, R.style.CustomFragmentDialog);
-
-        repository = MediaApplication.getInstance().getRepository();
-        audioPlayer = MediaApplication.getInstance().getAudioPlayer();
+        MediaApplication.getInstance().getAppComponent().inject(this);
     }
 
     @Nullable
@@ -110,7 +116,7 @@ public abstract class MediaFolderDetailsDialog extends DialogFragment implements
     @Override
     public void onDestroy() {
         super.onDestroy();
-        RxUtils.unsubscribe(subscription);
+        RxUtils.unsubscribe(disposable);
     }
 
     @Override

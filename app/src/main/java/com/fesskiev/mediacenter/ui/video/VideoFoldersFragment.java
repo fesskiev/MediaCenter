@@ -1,16 +1,14 @@
 package com.fesskiev.mediacenter.ui.video;
 
-
-import android.Manifest;
-import android.app.Activity;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
+
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -23,17 +21,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
-import com.fesskiev.mediacenter.data.source.DataRepository;
-import com.fesskiev.mediacenter.services.FileSystemService;
-import com.fesskiev.mediacenter.ui.walkthrough.PermissionFragment;
+import com.fesskiev.mediacenter.ui.MainActivity;
 import com.fesskiev.mediacenter.utils.AppAnimationUtils;
 import com.fesskiev.mediacenter.utils.AppLog;
-import com.fesskiev.mediacenter.utils.AppSettingsManager;
-import com.fesskiev.mediacenter.utils.CacheManager;
-import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.dialogs.MediaFolderDetailsDialog;
 import com.fesskiev.mediacenter.widgets.dialogs.SimpleDialog;
@@ -52,13 +44,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import io.reactivex.Observable;;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.android.schedulers.AndroidSchedulers;;
-import io.reactivex.schedulers.Schedulers;
-
-import static com.fesskiev.mediacenter.ui.walkthrough.PermissionFragment.PERMISSION_REQ;
-
+import io.reactivex.Observable;
 
 public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -68,9 +54,6 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
 
     public static final String EXTRA_VIDEO_FOLDER = "com.fesskiev.player.extra.EXTRA_VIDEO_FOLDER";
 
-    private Disposable subscription;
-    private DataRepository repository;
-
     private VideoFoldersAdapter adapter;
     private RecyclerView recyclerView;
     private CardView emptyVideoContent;
@@ -78,12 +61,20 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
 
     private boolean layoutAnimate;
 
+    private VideoFoldersViewModel viewModel;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        observeData();
+    }
 
-        repository = MediaApplication.getInstance().getRepository();
-
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null) {
+            layoutAnimate = savedInstanceState.getBoolean("layoutAnimate");
+        }
     }
 
     @Override
@@ -102,7 +93,7 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
 
         recyclerView = view.findViewById(R.id.foldersGridView);
         recyclerView.setLayoutManager(gridLayoutManager);
-        adapter = new VideoFoldersAdapter(getActivity());
+        adapter = new VideoFoldersAdapter(this);
         recyclerView.setAdapter(adapter);
         recyclerView.addItemDecoration(new ItemOffsetDecoration(spacing));
 
@@ -121,57 +112,72 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
     }
 
     @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("layoutAnimate", layoutAnimate);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         fetchVideoFolders();
     }
 
+    @Override
+    public void onRefresh() {
+        makeRefreshDialog();
+    }
+
     private void fetchVideoFolders() {
-        RxUtils.unsubscribe(subscription);
-        subscription = repository.getVideoFolders()
-                .firstOrError()
-                .toObservable()
-                .subscribeOn(Schedulers.io())
-                .flatMap(Observable::fromIterable)
-                .filter(folder -> AppSettingsManager.getInstance().isShowHiddenFiles() || !folder.isHidden)
-                .toList()
-                .toObservable()
-                .flatMap(videoFolders -> {
-                    if (videoFolders != null && !videoFolders.isEmpty()) {
-                        Collections.sort(videoFolders);
-                    }
-                    return videoFolders != null ? Observable.just(videoFolders) : Observable.empty();
-                })
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(videoFolders -> {
-                    if (videoFolders != null) {
-                        if (!videoFolders.isEmpty()) {
-                            hideEmptyContentCard();
-                        } else {
-                            showEmptyContentCard();
-                        }
-                        adapter.refresh(videoFolders);
-                        animateLayout();
-                    } else {
-                        showEmptyContentCard();
-                    }
-                    AppLog.INFO("onNext:video folders: " + (videoFolders == null ? "null" : videoFolders.size()));
-                });
+        viewModel.fetchVideoFolders();
         if (swipeRefreshLayout.isRefreshing()) {
             swipeRefreshLayout.setRefreshing(false);
         }
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        RxUtils.unsubscribe(subscription);
+    private void observeData() {
+        viewModel = ViewModelProviders.of(this).get(VideoFoldersViewModel.class);
+        viewModel.getVideoFoldersLiveData().observe(this, this::refreshAdapter);
+        viewModel.getDeletedFolderLiveData().observe(this, position -> {
+            adapter.removeFolder(position);
+            showVideoFolderDeletedShackBar();
+        });
+        viewModel.getEmptyFoldersLiveData().observe(this, Void -> showEmptyContentCard());
+        viewModel.getUpdatedFolderIndexesLiveData().observe(this, Void -> adapter.notifyDataSetChanged());
+        viewModel.getNotExistFolderLiveData().observe(this, Void -> showVideoFolderNotExistSnackBar());
     }
 
+    public void updateVideoFoldersIndexes(List<VideoFolder> videoFolders) {
+        viewModel.updateVideoFoldersIndexes(videoFolders);
+    }
 
-    @Override
-    public void onRefresh() {
-        makeRefreshDialog();
+    public Observable<List<Bitmap>> getVideoFilesFrame(VideoFolder videoFolder) {
+        return viewModel.getVideoFilesFrame(videoFolder);
+    }
+
+    public void deleteVideoFolder(VideoFolder videoFolder, int position) {
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        transaction.addToBackStack(null);
+        SimpleDialog dialog = SimpleDialog.newInstance(getString(R.string.dialog_delete_file_title),
+                getString(R.string.dialog_delete_folder_message), R.drawable.icon_trash);
+        dialog.show(transaction, SimpleDialog.class.getName());
+        dialog.setPositiveListener(() -> viewModel.deleteVideoFolder(videoFolder, position));
+    }
+
+    public void showVideoFolderDetails(VideoFolder videoFolder) {
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        transaction.addToBackStack(null);
+        MediaFolderDetailsDialog dialog = VideoFolderDetailsDialog.newInstance(videoFolder);
+        dialog.setOnMediaFolderDetailsDialogListener(this::refreshVideoContent);
+        dialog.show(transaction, VideoFolderDetailsDialog.class.getName());
+    }
+
+    public void startVideoFilesActivity(VideoFolder videoFolder) {
+        if (viewModel.checkVideoFolderExist(videoFolder)) {
+            Intent i = new Intent(getContext(), VideoFilesActivity.class);
+            i.putExtra(EXTRA_VIDEO_FOLDER, videoFolder);
+            startActivity(i);
+        }
     }
 
     private void makeRefreshDialog() {
@@ -184,78 +190,31 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
         dialog.setNegativeListener(() -> swipeRefreshLayout.setRefreshing(false));
     }
 
+    private void showVideoFolderDeletedShackBar() {
+        Utils.showCustomSnackbar(getView(), getContext(), getString(R.string.shackbar_delete_folder),
+                Snackbar.LENGTH_LONG).show();
+    }
+
+    private void showVideoFolderNotExistSnackBar() {
+        Utils.showCustomSnackbar(getView(), getContext(),
+                getString(R.string.snackbar_folder_not_exist), Snackbar.LENGTH_LONG).show();
+    }
+
+    private void refreshAdapter(List<VideoFolder> videoFolders) {
+        adapter.refresh(videoFolders);
+        animateLayout();
+        hideEmptyContentCard();
+        AppLog.INFO("onNext:video folders: " + (videoFolders == null ? "null" : videoFolders.size()));
+    }
+
+
     private void checkPermissionAndFetch() {
         swipeRefreshLayout.setRefreshing(false);
-        if (Utils.isMarshmallow() && !checkPermission()) {
-            requestPermission();
-        } else {
-           fetchFileSystemVideo();
-        }
+        ((MainActivity) getActivity()).checkPermissionAndFetchVideo();
     }
-
-    private void fetchFileSystemVideo() {
-        RxUtils.unsubscribe(subscription);
-        subscription = RxUtils.fromCallable(repository.resetVideoContentDatabase())
-                .subscribeOn(Schedulers.io())
-                .doOnNext(integer -> CacheManager.clearVideoImagesCache())
-                .subscribe(aVoid -> FileSystemService.startFetchVideo(getActivity()));
-    }
-
-    public boolean checkPermission() {
-        return PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(
-                getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
-    }
-
-    private void requestPermission() {
-        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                PERMISSION_REQ);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case PERMISSION_REQ: {
-                if (grantResults != null && grantResults.length > 0) {
-                    if (PermissionFragment.checkPermissionsResultGranted(grantResults)) {
-                        fetchFileSystemVideo();
-                    } else  {
-                        boolean showRationale =
-                                shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                        if (showRationale) {
-                            permissionsDenied();
-                        } else {
-                            createExplanationPermissionDialog();
-                        }
-                    }
-                }
-                break;
-            }
-        }
-    }
-
-    private void createExplanationPermissionDialog() {
-        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-        transaction.addToBackStack(null);
-        SimpleDialog dialog = SimpleDialog.newInstance(getString(R.string.dialog_permission_title),
-                getString(R.string.dialog_permission_message), R.drawable.icon_permission_settings);
-        dialog.show(transaction, SimpleDialog.class.getName());
-        dialog.setPositiveListener(() -> Utils.startSettingsActivity(getContext()));
-        dialog.setNegativeListener(() -> getActivity().finish());
-    }
-
-    private void permissionsDenied() {
-        Utils.showCustomSnackbar(getActivity().getWindow().getDecorView().findViewById(android.R.id.content),
-                getContext().getApplicationContext(),
-                getString(R.string.snackbar_permission_title), Snackbar.LENGTH_INDEFINITE)
-                .setAction(R.string.snackbar_permission_button, v -> requestPermission())
-                .show();
-    }
-
 
     public void refreshVideoContent() {
         swipeRefreshLayout.setRefreshing(false);
-
         fetchVideoFolders();
     }
 
@@ -275,17 +234,24 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
         }
     }
 
+    private void showEmptyContentCard() {
+        emptyVideoContent.setVisibility(View.VISIBLE);
+    }
+
+    private void hideEmptyContentCard() {
+        emptyVideoContent.setVisibility(View.GONE);
+    }
+
+
     private static class VideoFoldersAdapter extends RecyclerView.Adapter<VideoFoldersAdapter.ViewHolder> implements ItemTouchHelperAdapter {
 
-        private WeakReference<Activity> activity;
+        private WeakReference<VideoFoldersFragment> fragment;
         private List<VideoFolder> videoFolders;
 
-
-        public VideoFoldersAdapter(Activity activity) {
-            this.activity = new WeakReference<>(activity);
+        public VideoFoldersAdapter(VideoFoldersFragment fragment) {
+            this.fragment = new WeakReference<>(fragment);
             this.videoFolders = new ArrayList<>();
         }
-
 
         public class ViewHolder extends RecyclerView.ViewHolder implements ItemTouchHelperViewHolder {
 
@@ -318,18 +284,16 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
             public void onItemClear(int position) {
                 itemView.setAlpha(1.0f);
                 changeSwipeRefreshState(true);
-                updateVideoFoldersIndexes();
+                VideoFoldersFragment frg = fragment.get();
+                if (frg != null) {
+                    frg.updateVideoFoldersIndexes(videoFolders);
+                }
             }
 
             private void changeSwipeRefreshState(boolean enable) {
-                Activity act = activity.get();
-                if (act != null) {
-                    VideoFoldersFragment videoFoldersFragment
-                            = (VideoFoldersFragment) ((FragmentActivity) act).getSupportFragmentManager().
-                            findFragmentByTag(VideoFoldersFragment.class.getName());
-                    if (videoFoldersFragment != null) {
-                        videoFoldersFragment.getSwipeRefreshLayout().setEnabled(enable);
-                    }
+                VideoFoldersFragment frg = fragment.get();
+                if (frg != null) {
+                    frg.getSwipeRefreshLayout().setEnabled(enable);
                 }
             }
         }
@@ -354,7 +318,6 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
                             deleteVideoFolder(position);
                         }
 
-
                         @Override
                         public void onDetailsFolder() {
                             showDetailsVideoFolder(position);
@@ -368,76 +331,34 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
         }
 
         private void deleteVideoFolder(int position) {
-            Activity act = activity.get();
-            if (act != null) {
+            VideoFoldersFragment frg = fragment.get();
+            if (frg != null) {
                 VideoFolder videoFolder = videoFolders.get(position);
                 if (videoFolder != null) {
-                    FragmentTransaction transaction =
-                            ((FragmentActivity) act).getSupportFragmentManager().beginTransaction();
-                    transaction.addToBackStack(null);
-                    SimpleDialog dialog = SimpleDialog.newInstance(act.getString(R.string.dialog_delete_file_title),
-                            act.getString(R.string.dialog_delete_folder_message), R.drawable.icon_trash);
-                    dialog.show(transaction, SimpleDialog.class.getName());
-                    dialog.setPositiveListener(() -> Observable.just(CacheManager.deleteDirectoryWithFiles(videoFolder.folderPath))
-                            .subscribeOn(Schedulers.io())
-                            .flatMap(result -> {
-                                if (result) {
-                                    DataRepository repository = MediaApplication.getInstance().getRepository();
-                                    return RxUtils.fromCallable(repository.deleteVideoFolder(videoFolder));
-                                }
-                                return Observable.empty();
-                            })
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(integer -> {
-                                removeFolder(position);
-                                refreshVideoContent(act);
-                                Utils.showCustomSnackbar(act.getCurrentFocus(),
-                                        act,
-                                        act.getString(R.string.shackbar_delete_folder),
-                                        Snackbar.LENGTH_LONG)
-                                        .show();
-
-                            }));
+                    frg.deleteVideoFolder(videoFolder, position);
                 }
             }
         }
 
         private void showDetailsVideoFolder(int position) {
-            Activity act = activity.get();
-            if (act != null) {
+            VideoFoldersFragment frg = fragment.get();
+            if (frg != null) {
                 VideoFolder videoFolder = videoFolders.get(position);
                 if (videoFolder != null) {
-                    FragmentTransaction transaction =
-                            ((FragmentActivity) act).getSupportFragmentManager().beginTransaction();
-                    transaction.addToBackStack(null);
-                    MediaFolderDetailsDialog dialog = VideoFolderDetailsDialog.newInstance(videoFolder);
-                    dialog.setOnMediaFolderDetailsDialogListener(() -> refreshVideoContent(act));
-                    dialog.show(transaction, VideoFolderDetailsDialog.class.getName());
+                    frg.showVideoFolderDetails(videoFolder);
                 }
             }
         }
-
-        private void refreshVideoContent(Activity act) {
-            VideoFoldersFragment videoFoldersFragment = (VideoFoldersFragment) ((FragmentActivity) act)
-                    .getSupportFragmentManager().findFragmentByTag(VideoFoldersFragment.class.getName());
-            if (videoFoldersFragment != null) {
-                videoFoldersFragment.refreshVideoContent();
-            }
-        }
-
 
         private void startVideoFilesActivity(int position) {
-            final VideoFolder videoFolder = videoFolders.get(position);
-            if (videoFolder != null) {
-                Activity act = activity.get();
-                if (act != null) {
-                    Intent i = new Intent(act, VideoFilesActivity.class);
-                    i.putExtra(EXTRA_VIDEO_FOLDER, videoFolder);
-                    act.startActivity(i);
+            VideoFoldersFragment frg = fragment.get();
+            if (frg != null) {
+                VideoFolder videoFolder = videoFolders.get(position);
+                if (videoFolder != null) {
+                    frg.startVideoFilesActivity(videoFolder);
                 }
             }
         }
-
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -448,25 +369,18 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            Activity act = activity.get();
-            if (act != null) {
+            final VideoFolder videoFolder = videoFolders.get(position);
+            if (videoFolder != null) {
+                holder.folderCard.setDescription(videoFolder.folderName);
 
-                final VideoFolder videoFolder = videoFolders.get(position);
-                if (videoFolder != null) {
-
-                    holder.folderCard.setDescription(videoFolder.folderName);
-
-                    MediaApplication.getInstance().getRepository().getVideoFilesFrame(videoFolder.id)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .take(4)
-                            .subscribe(paths -> holder.folderCard.setFrameViewPaths(paths));
-
-                    if (videoFolder.isHidden) {
-                        holder.folderCard.setAlpha(0.35f);
-                    } else {
-                        holder.folderCard.setAlpha(1f);
-                    }
+                VideoFoldersFragment frg = fragment.get();
+                if (frg != null) {
+                    frg.getVideoFilesFrame(videoFolder).subscribe(bitmaps -> holder.folderCard.setFrameBitmaps(bitmaps));
+                }
+                if (videoFolder.isHidden) {
+                    holder.folderCard.setAlpha(0.35f);
+                } else {
+                    holder.folderCard.setAlpha(1f);
                 }
             }
         }
@@ -492,24 +406,5 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
             notifyItemRemoved(position);
             notifyItemRangeChanged(position, getItemCount());
         }
-
-        private void updateVideoFoldersIndexes() {
-            RxUtils.fromCallable(MediaApplication.getInstance().getRepository()
-                    .updateVideoFoldersIndex(videoFolders))
-                    .firstOrError()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(integer -> notifyDataSetChanged());
-
-        }
     }
-
-    private void showEmptyContentCard() {
-        emptyVideoContent.setVisibility(View.VISIBLE);
-    }
-
-    private void hideEmptyContentCard() {
-        emptyVideoContent.setVisibility(View.GONE);
-    }
-
 }

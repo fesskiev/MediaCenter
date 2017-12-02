@@ -196,6 +196,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         android:clickable="true"
-        android:src="@drawable/icon_menu_search" />
+        android:src="@drawable/icon_menu_search"
+        app:fabSize="normal" />
 
 </android.support.design.widget.CoordinatorLayout>

@@ -4,21 +4,21 @@ package com.fesskiev.mediacenter.players;
 import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.ui.Playable;
-
-import org.greenrobot.eventbus.EventBus;
+import com.fesskiev.mediacenter.utils.RxBus;
 
 import java.util.List;
 import java.util.ListIterator;
 
 public class VideoPlayer implements Playable {
 
-
     private VideoFilesIterator videoFilesIterator;
     private List<VideoFile> videoFiles;
     private VideoFile currentVideoFile;
     private int position;
+    private RxBus rxBus;
 
-    public VideoPlayer() {
+    public VideoPlayer(RxBus rxBus) {
+        this.rxBus = rxBus;
         videoFilesIterator = new VideoFilesIterator();
     }
 
@@ -44,7 +44,7 @@ public class VideoPlayer implements Playable {
             VideoFile videoFile = videoFilesIterator.next();
             if (videoFile != null) {
                 currentVideoFile = videoFile;
-                EventBus.getDefault().post(currentVideoFile);
+                notifyCurrentVideoFile();
             }
         }
     }
@@ -55,9 +55,13 @@ public class VideoPlayer implements Playable {
             VideoFile videoFile = videoFilesIterator.previous();
             if (videoFile != null) {
                 currentVideoFile = videoFile;
-                EventBus.getDefault().post(currentVideoFile);
+                notifyCurrentVideoFile();
             }
         }
+    }
+
+    private void notifyCurrentVideoFile(){
+        rxBus.send(currentVideoFile);
     }
 
     @Override

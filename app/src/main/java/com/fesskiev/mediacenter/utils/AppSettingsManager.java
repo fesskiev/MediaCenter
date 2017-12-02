@@ -3,7 +3,6 @@ package com.fesskiev.mediacenter.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.text.TextUtils;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
@@ -61,21 +60,11 @@ public class AppSettingsManager {
     private static final String KEY_GUIDE_VIDEO_PLAYER_ACTIVITY = "com.fesskiev.player.KEY_GUIDE_VIDEO_PLAYER_ACTIVITY";
 
     private SharedPreferences sharedPreferences;
-    private static AppSettingsManager INSTANCE;
 
-
-    private AppSettingsManager(Context context) {
+    public AppSettingsManager(Context context) {
         sharedPreferences =
                 context.getSharedPreferences(APP_SETTINGS_PREFERENCES, Context.MODE_PRIVATE);
     }
-
-    public static synchronized AppSettingsManager getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new AppSettingsManager(MediaApplication.getInstance().getApplicationContext());
-        }
-        return INSTANCE;
-    }
-
 
     public boolean isFirstStartApp() {
         return sharedPreferences.getBoolean(KEY_FIRST_START_APP, true);

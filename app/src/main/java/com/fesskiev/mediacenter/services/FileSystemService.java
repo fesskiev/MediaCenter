@@ -1,5 +1,6 @@
 package com.fesskiev.mediacenter.services;
 
+import android.app.Service;
 import android.app.job.JobInfo;
 import android.app.job.JobParameters;
 import android.app.job.JobScheduler;
@@ -12,12 +13,15 @@ import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.IBinder;
 import android.os.Message;
 import android.os.Process;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -33,13 +37,13 @@ import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.NotificationHelper;
+import com.fesskiev.mediacenter.utils.RxBus;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.StorageUtils;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -53,6 +57,8 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 
+import javax.inject.Inject;
+
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -60,7 +66,7 @@ import io.reactivex.schedulers.Schedulers;
 import static com.fesskiev.mediacenter.utils.NotificationHelper.EXTRA_ACTION_BUTTON;
 
 
-public class FileSystemService extends JobService {
+public class FileSystemService extends Service {
 
     public enum SCAN_TYPE {
         AUDIO, VIDEO, BOTH
@@ -91,7 +97,16 @@ public class FileSystemService extends JobService {
 
     private int notificationId;
 
-    private DataRepository repository;
+    @Inject
+    DataRepository repository;
+    @Inject
+    NotificationHelper notificationHelper;
+    @Inject
+    AppSettingsManager settingsManager;
+    @Inject
+    RxBus rxBus;
+
+    private IBinder binder = new FileSystemLocalBinder();
 
     private Handler handler;
     private FetchContentThread fetchContentThread;
@@ -99,11 +114,6 @@ public class FileSystemService extends JobService {
 
     private SCAN_TYPE scanType;
     private SCAN_STATE scanState;
-
-    public static void startFileSystemService(Context context) {
-        Intent intent = new Intent(context, FileSystemService.class);
-        context.startService(intent);
-    }
 
     public static void stopFileSystemService(Context context) {
         Intent intent = new Intent(context, FileSystemService.class);
@@ -135,63 +145,62 @@ public class FileSystemService extends JobService {
     }
 
 
-    public static void scheduleJob(Context context, int periodic) {
+//    public static void scheduleJob(Context context, int periodic) {
+//
+//        JobScheduler js = (JobScheduler)
+//                context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+//
+//        JobInfo.Builder builder = new JobInfo.Builder(MEDIA_CONTENT_JOB,
+//                new ComponentName(context, FileSystemService.class));
+//
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//            builder.setMinimumLatency(periodic);
+//        } else {
+//            builder.setPeriodic(periodic);
+//        }
+//        builder.setOverrideDeadline(periodic);
+//        builder.setRequiresDeviceIdle(false);
+//        builder.setRequiresCharging(false);
+//
+//        if (js != null) {
+//            int jobValue = js.schedule(builder.build());
+//            if (jobValue == JobScheduler.RESULT_FAILURE) {
+//                Log.w(TAG, "JobScheduler launch the task failure");
+//            } else {
+//                Log.w(TAG, "JobScheduler launch the task success: " + jobValue);
+//            }
+//            Log.i(TAG, "JOB SCHEDULED!");
+//        }
+//    }
 
-        JobScheduler js = (JobScheduler)
-                context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+//    public static boolean isScheduled(Context context) {
+//        JobScheduler js = (JobScheduler)
+//                context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+//        if (js != null) {
+//            List<JobInfo> jobs = js.getAllPendingJobs();
+//            for (int i = 0; i < jobs.size(); i++) {
+//                if (jobs.get(i).getId() == MEDIA_CONTENT_JOB) {
+//                    return true;
+//                }
+//            }
+//        }
+//        return false;
+//    }
 
-        JobInfo.Builder builder = new JobInfo.Builder(MEDIA_CONTENT_JOB,
-                new ComponentName(context, FileSystemService.class));
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            builder.setMinimumLatency(periodic);
-        } else {
-            builder.setPeriodic(periodic);
-        }
-        builder.setOverrideDeadline(periodic);
-        builder.setRequiresDeviceIdle(false);
-        builder.setRequiresCharging(false);
-
-        if (js != null) {
-            int jobValue = js.schedule(builder.build());
-            if (jobValue == JobScheduler.RESULT_FAILURE) {
-                Log.w(TAG, "JobScheduler launch the task failure");
-            } else {
-                Log.w(TAG, "JobScheduler launch the task success: " + jobValue);
-            }
-            Log.i(TAG, "JOB SCHEDULED!");
-        }
-    }
-
-    public static boolean isScheduled(Context context) {
-        JobScheduler js = (JobScheduler)
-                context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        if (js != null) {
-            List<JobInfo> jobs = js.getAllPendingJobs();
-            for (int i = 0; i < jobs.size(); i++) {
-                if (jobs.get(i).getId() == MEDIA_CONTENT_JOB) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public static void cancelJob(Context context) {
-        JobScheduler js = (JobScheduler)
-                context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        if (js != null) {
-            js.cancel(MEDIA_CONTENT_JOB);
-            Log.i(TAG, "JOB SCHEDULED? " + isScheduled(context));
-        }
-    }
+//    public static void cancelJob(Context context) {
+//        JobScheduler js = (JobScheduler)
+//                context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+//        if (js != null) {
+//            js.cancel(MEDIA_CONTENT_JOB);
+//            Log.i(TAG, "JOB SCHEDULED? " + isScheduled(context));
+//        }
+//    }
 
     @Override
     public void onCreate() {
         super.onCreate();
         Log.i(TAG, "File System Service created");
-
-        repository = MediaApplication.getInstance().getRepository();
+        MediaApplication.getInstance().getAppComponent().inject(this);
 
         fetchContentThread = new FetchContentThread();
         fetchContentThread.start();
@@ -239,6 +248,18 @@ public class FileSystemService extends JobService {
             }
         }
         return START_NOT_STICKY;
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;
+    }
+
+    public class FileSystemLocalBinder extends Binder {
+        public FileSystemService getService() {
+            return FileSystemService.this;
+        }
     }
 
     private void registerNotificationReceiver() {
@@ -340,23 +361,39 @@ public class FileSystemService extends JobService {
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(ACTION_REFRESH_AUDIO_FRAGMENT));
     }
 
+    private void sendFetchEvent() {
+        rxBus.send(FileSystemService.this);
+    }
+
+    private void sendProgressEvent(float progress) {
+        rxBus.send(progress);
+    }
+
+    private void sendDescriptionEvent(FetchDescription description) {
+        rxBus.send(description);
+    }
+
+    private void sendFolderCreateEvent(FetchFolderCreate folderCreate) {
+        rxBus.send(folderCreate);
+    }
+
     private void sendFetchState() {
-        EventBus.getDefault().post(FileSystemService.this);
+        sendFetchEvent();
     }
 
     private void prepareScan() {
         scanState = SCAN_STATE.PREPARE;
-        EventBus.getDefault().post(FileSystemService.this);
+        sendFetchEvent();
     }
 
     private void startScanAll() {
         scanState = SCAN_STATE.SCANNING_ALL;
-        EventBus.getDefault().post(FileSystemService.this);
+        sendFetchEvent();
     }
 
     private void finishScan() {
         scanState = SCAN_STATE.FINISHED;
-        EventBus.getDefault().post(FileSystemService.this);
+        sendFetchEvent();
     }
 
     private void startScan(SCAN_TYPE scanType) {
@@ -416,7 +453,7 @@ public class FileSystemService extends JobService {
                 } else {
                     checkFile(n, scanType);
                 }
-                EventBus.getDefault().post(+(count / (float) size) * 100);
+                sendProgressEvent(+(count / (float) size) * 100);
                 count++;
             }
         } catch (IOException e) {
@@ -465,15 +502,15 @@ public class FileSystemService extends JobService {
     }
 
     private void sendFileDescription(String name) {
-        EventBus.getDefault().post(new FetchDescription(null, name));
+        sendDescriptionEvent(new FetchDescription(null, name));
     }
 
     private void sendFolderDescription(String name) {
-        EventBus.getDefault().post(new FetchDescription(name, null));
+        sendDescriptionEvent(new FetchDescription(name, null));
     }
 
     private void sendFolderCreated(int type) {
-        EventBus.getDefault().post(new FetchFolderCreate(type));
+        sendFolderCreateEvent(new FetchFolderCreate(type));
     }
 
     private void filterVideoFolders(File directoryFile) {
@@ -643,8 +680,7 @@ public class FileSystemService extends JobService {
                     .subscribe(videoFile -> {
                         if (videoFile != null) {
                             notificationId++;
-                            NotificationHelper.getInstance()
-                                    .createMediaFileNotification(videoFile, notificationId);
+                            notificationHelper.createMediaFileNotification(videoFile, notificationId);
                             mediaFiles.add(new MediaFileNotification(notificationId, videoFile));
                         }
                     });
@@ -666,8 +702,7 @@ public class FileSystemService extends JobService {
                     .subscribe(audioFile -> {
                         if (audioFile != null) {
                             notificationId++;
-                            NotificationHelper.getInstance()
-                                    .createMediaFileNotification(audioFile, notificationId);
+                            notificationHelper.createMediaFileNotification(audioFile, notificationId);
                             mediaFiles.add(new MediaFileNotification(notificationId, audioFile));
                         }
                     });
@@ -702,9 +737,8 @@ public class FileSystemService extends JobService {
                         if (mediaFolderNotification != null) {
                             notificationId++;
                             mediaFolderNotification.setNotificationId(notificationId);
-                            NotificationHelper.getInstance()
-                                    .createMediaFolderNotification(mediaFolderNotification.getMediaFolder(),
-                                            notificationId);
+                            notificationHelper.createMediaFolderNotification(mediaFolderNotification.getMediaFolder(),
+                                    notificationId);
                         }
                     });
         }
@@ -749,9 +783,8 @@ public class FileSystemService extends JobService {
                         if (mediaFolderNotification != null) {
                             notificationId++;
                             mediaFolderNotification.setNotificationId(notificationId);
-                            NotificationHelper.getInstance()
-                                    .createMediaFolderNotification(mediaFolderNotification.getMediaFolder(),
-                                            notificationId);
+                            notificationHelper.createMediaFolderNotification(mediaFolderNotification.getMediaFolder(),
+                                    notificationId);
                         }
                     });
         }
@@ -846,27 +879,25 @@ public class FileSystemService extends JobService {
         Observable.zip(RxUtils.fromCallable(repository.resetAudioContentDatabase()),
                 RxUtils.fromCallable(repository.resetVideoContentDatabase()),
                 (integer, integer2) -> Observable.empty())
-                .firstOrError()
-                .toObservable()
                 .doOnNext(observable -> clearImagesCache())
                 .subscribe(observable -> {
-                    JobParameters jobParameters = (JobParameters) msg.obj;
-
-                    if (jobParameters != null) {
-                        NotificationHelper.getInstance().createFetchNotification();
-                    }
+//                    JobParameters jobParameters = (JobParameters) msg.obj;
+//
+//                    if (jobParameters != null) {
+//                        notificationHelper.createFetchNotification();
+//                    }
 
                     getMediaContent();
 
-                    if (jobParameters != null) {
-                        int interval = (int) AppSettingsManager.getInstance().getMediaContentUpdateTime();
-                        if (interval > 0) {
-                            scheduleJob(getApplicationContext(), interval);
-                            jobFinished(jobParameters, false);
-                        } else {
-                            jobFinished(jobParameters, true);
-                        }
-                    }
+//                    if (jobParameters != null) {
+//                        int interval = (int) settingsManager.getMediaContentUpdateTime();
+//                        if (interval > 0) {
+//                            scheduleJob(getApplicationContext(), interval);
+//                            jobFinished(jobParameters, false);
+//                        } else {
+//                            jobFinished(jobParameters, true);
+//                        }
+//                    }
                 }, throwable -> finishScan());
     }
 
@@ -875,24 +906,24 @@ public class FileSystemService extends JobService {
         CacheManager.clearAudioImagesCache();
     }
 
-    @Override
-    public boolean onStartJob(JobParameters params) {
-        Log.i(TAG, "onStartJob");
-        if (handler != null) {
-            Message msg = handler.obtainMessage();
-            msg.obj = params;
-            msg.what = HANDLE_MEDIA;
-            handler.sendMessage(msg);
-            Log.i(TAG, "Send job...");
-        }
-        return true;
-    }
-
-    @Override
-    public boolean onStopJob(JobParameters params) {
-        Log.i(TAG, "onStopJob");
-        return false;
-    }
+//    @Override
+//    public boolean onStartJob(JobParameters params) {
+//        Log.i(TAG, "onStartJob");
+//        if (handler != null) {
+//            Message msg = handler.obtainMessage();
+//            msg.obj = params;
+//            msg.what = HANDLE_MEDIA;
+//            handler.sendMessage(msg);
+//            Log.i(TAG, "Send job...");
+//        }
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onStopJob(JobParameters params) {
+//        Log.i(TAG, "onStopJob");
+//        return false;
+//    }
 
 
     private void getAudioContent() {

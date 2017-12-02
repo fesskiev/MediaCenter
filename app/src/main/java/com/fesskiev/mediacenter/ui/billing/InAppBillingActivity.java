@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.RxUtils;
@@ -19,6 +20,8 @@ import com.fesskiev.mediacenter.utils.billing.Billing;
 import com.fesskiev.mediacenter.utils.billing.Inventory;
 import com.fesskiev.mediacenter.utils.billing.Product;
 import com.fesskiev.mediacenter.utils.billing.Purchase;
+
+import javax.inject.Inject;
 
 import io.reactivex.Observable;;
 import io.reactivex.android.schedulers.AndroidSchedulers;;
@@ -35,10 +38,14 @@ public class InAppBillingActivity extends AppCompatActivity {
     private FloatingActionButton purchaseButton;
     private ProgressBar progressBar;
 
+    @Inject
+    AppSettingsManager settingsManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_in_app_billing);
+        MediaApplication.getInstance().getAppComponent().inject(this);
 
         TypedValue typedValue = new TypedValue();
         getResources().getValue(R.dimen.activity_window_height_middle, typedValue, true);
@@ -106,7 +113,7 @@ public class InAppBillingActivity extends AppCompatActivity {
                             return Observable.zip(billing.getProducts(), billing.getPurchases(), Inventory::new);
                         } else {
                             showBillingNotSupportedView();
-                            return Observable.just(null);
+                            return Observable.empty();
                         }
                     }).subscribe(this::checkInventory, this::showThrowable);
         } else {
@@ -134,7 +141,7 @@ public class InAppBillingActivity extends AppCompatActivity {
     }
 
     private void showSuccessPurchaseView() {
-        AppSettingsManager.getInstance().setUserPro(true);
+        settingsManager.setUserPro(true);
         hideFab();
         Utils.showCustomSnackbar(findViewById(R.id.billingRoot), getApplicationContext(),
                 getString(R.string.ad_mob_remove_success), Snackbar.LENGTH_INDEFINITE)

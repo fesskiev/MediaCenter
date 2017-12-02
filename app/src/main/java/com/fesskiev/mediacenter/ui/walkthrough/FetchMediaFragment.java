@@ -1,7 +1,13 @@
 package com.fesskiev.mediacenter.ui.walkthrough;
 
 
+import android.arch.lifecycle.ViewModelProviders;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -10,10 +16,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.services.FileSystemService;
-import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
-import com.fesskiev.mediacenter.utils.Utils;
+import com.fesskiev.mediacenter.ui.fetch.FetchContentViewModel;
 import com.fesskiev.mediacenter.widgets.fetch.FetchContentView;
 
 
@@ -23,16 +29,14 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
         return new FetchMediaFragment();
     }
 
-    private FetchMediaFilesManager fetchMediaFilesManager;
+    private FetchContentView fetchContentView;
 
     private TextView fetchText;
     private Button[] buttons;
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        FileSystemService.startFileSystemService(getContext().getApplicationContext());
-    }
+    private FileSystemService boundService;
+    private boolean serviceBound;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -55,64 +59,80 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
             button.setOnClickListener(this);
         }
 
-        FetchContentView fetchContentView = view.findViewById(R.id.fetchContentView);
+        fetchContentView = view.findViewById(R.id.fetchContentView);
+        observeData();
+    }
 
-        fetchMediaFilesManager = FetchMediaFilesManager.getInstance();
-        fetchMediaFilesManager.setFetchContentView(fetchContentView);
-        fetchMediaFilesManager.setTextWhite();
-        fetchMediaFilesManager.setOnFetchMediaFilesListener(new FetchMediaFilesManager.OnFetchMediaFilesListener() {
 
-            @Override
-            public void onFetchMediaPrepare() {
-                fetchText.setVisibility(View.GONE);
-                hideButtons();
+    private void observeData() {
+        FetchContentViewModel viewModel = ViewModelProviders.of(this).get(FetchContentViewModel.class);
+        viewModel.getPrepareFetchLiveData().observe(this, Void -> {
+            fetchContentView.setVisibleContent();
+            fetchContentView.showTimer();
+
+            fetchText.setVisibility(View.GONE);
+            hideButtons();
+        });
+        viewModel.getFinishFetchLiveData().observe(this, Void -> {
+            fetchContentView.setInvisibleContent();
+            fetchContentView.hideTimer();
+            fetchContentView.clear();
+
+            fetchMediaFilesSuccess();
+        });
+        viewModel.getPercentLiveData().observe(this, percent -> {
+            fetchContentView.setProgress(percent);
+        });
+        viewModel.getFetchDescriptionLiveData().observe(this, description -> {
+            String folderName = description.getFolderName();
+            if (folderName != null) {
+                fetchContentView.setFolderName(folderName);
             }
-
-            @Override
-            public void onFetchAudioContentStart() {
-
-            }
-
-            @Override
-            public void onFetchVideoContentStart() {
-
-            }
-
-            @Override
-            public void onFetchMediaContentFinish() {
-                fetchMediaFilesSuccess();
-            }
-
-            @Override
-            public void onAudioFolderCreated() {
-
-            }
-
-            @Override
-            public void onVideoFolderCreated() {
-
+            String fileName = description.getFileName();
+            if (fileName != null) {
+                fetchContentView.setFileName(fileName);
             }
         });
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        fetchMediaFilesManager.register();
-        if (fetchMediaFilesManager.isFetchStart()) {
-            fetchText.setVisibility(View.GONE);
-            fetchMediaFilesManager.visibleContent();
-            hideButtons();
-        } else if (fetchMediaFilesManager.isFetchComplete()) {
-            hideButtons();
-            fetchMediaFilesSuccess();
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            serviceBound = false;
         }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            FileSystemService.FileSystemLocalBinder binder = (FileSystemService.FileSystemLocalBinder) service;
+            boundService = binder.getService();
+            if (boundService.getScanState() == FileSystemService.SCAN_STATE.SCANNING_ALL) {
+                fetchText.setVisibility(View.GONE);
+                fetchContentView.setVisibleContent();
+                fetchContentView.showTimer();
+            } else if (boundService.getScanState() == FileSystemService.SCAN_STATE.FINISHED) {
+                hideButtons();
+                fetchMediaFilesSuccess();
+            }
+            serviceBound = true;
+        }
+    };
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Intent intent = new Intent(getActivity(), FileSystemService.class);
+        getActivity().startService(intent);
+        getActivity().bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        fetchMediaFilesManager.unregister();
+    public void onStop() {
+        super.onStop();
+        if (serviceBound) {
+            getActivity().unbindService(serviceConnection);
+            serviceBound = false;
+        }
     }
 
     @Override
@@ -128,7 +148,11 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
     }
 
     private void fetchMediaFiles() {
-        FileSystemService.startFetchMedia(getContext().getApplicationContext());
+        FileSystemService.startFetchMedia(getContext());
+    }
+
+    private void stopFetchFiles() {
+        FileSystemService.stopFileSystemService(getContext());
     }
 
     private void skipFetchMediaFiles() {
@@ -161,17 +185,12 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
     }
 
     public boolean isFetchMediaStart() {
-        return fetchMediaFilesManager.isFetchStart();
-    }
-
-    private void stopFetchFiles() {
-        FileSystemService.stopFileSystemService(getContext().getApplicationContext());
+        return serviceBound && boundService.getScanState() == FileSystemService.SCAN_STATE.SCANNING_ALL;
     }
 
     public void stopFetchMedia() {
-        if (fetchMediaFilesManager.isFetchStart()) {
+        if (isFetchMediaStart()) {
             stopFetchFiles();
         }
-        fetchMediaFilesManager.unregister();
     }
 }

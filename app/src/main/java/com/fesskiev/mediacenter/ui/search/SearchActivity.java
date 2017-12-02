@@ -1,10 +1,11 @@
 package com.fesskiev.mediacenter.ui.search;
 
-
-import android.app.Activity;
 import android.app.SearchManager;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,15 +20,10 @@ import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
-import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.data.model.AudioFile;
-import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity;
-import com.fesskiev.mediacenter.utils.BitmapHelper;
-import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.recycleview.ScrollingLinearLayoutManager;
 
@@ -35,15 +31,14 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.Observable;
 
 public class SearchActivity extends AppCompatActivity {
 
-    private Disposable subscription;
     private SearchView searchView;
     private SearchAdapter adapter;
+
+    private SearchViewModel viewModel;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -60,6 +55,14 @@ public class SearchActivity extends AppCompatActivity {
 
         setupSearchView();
         setupTransitions();
+        observeData();
+    }
+
+    private void observeData() {
+        viewModel = ViewModelProviders.of(this).get(SearchViewModel.class);
+        viewModel.getSearchAudioFilesLiveData().observe(this, audioFiles -> adapter.refreshSearchAdapter(audioFiles));
+        viewModel.getResultAudioFilesLiveData().observe(this, audioFiles -> adapter.refreshResultAdapter(audioFiles));
+        viewModel.getNotExistsAudioFileLiveData().observe(this, Void -> showAudioFileNotExistSnackBar());
     }
 
 
@@ -73,13 +76,6 @@ public class SearchActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        RxUtils.unsubscribe(subscription);
-    }
-
-
     private void setupSearchView() {
         searchView = findViewById(R.id.searchView);
         SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
@@ -91,14 +87,14 @@ public class SearchActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                querySearch(query, false);
+                viewModel.querySearch(query, false);
                 Utils.hideKeyboard(SearchActivity.this);
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String query) {
-                querySearch(query, true);
+                viewModel.querySearch(query, true);
                 return true;
             }
         });
@@ -107,16 +103,16 @@ public class SearchActivity extends AppCompatActivity {
         });
     }
 
-    private void querySearch(String query, boolean search) {
-        DataRepository repository = MediaApplication.getInstance().getRepository();
-        RxUtils.unsubscribe(subscription);
-        subscription = repository
-                .getSearchAudioFiles(query)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(audioFiles -> adapter.refreshAdapter(audioFiles, search));
+    private void startAudioPlayerActivity(AudioFile audioFile) {
+        if (viewModel.checkAudioFileExist(audioFile)) {
+            viewModel.setCurrentAudioFileAndPlay(audioFile);
+            AudioPlayerActivity.startPlayerActivity(this);
+        }
     }
 
+    private Observable<Bitmap> getTrackListArtwork(AudioFile audioFile) {
+        return viewModel.getTrackListArtwork(audioFile);
+    }
 
     private void setupTransitions() {
         getWindow().getEnterTransition()
@@ -148,17 +144,22 @@ public class SearchActivity extends AppCompatActivity {
                 });
     }
 
+    private void showAudioFileNotExistSnackBar() {
+        Utils.showCustomSnackbar(getCurrentFocus(), getApplicationContext(),
+                getString(R.string.snackbar_file_not_exist), Snackbar.LENGTH_LONG).show();
+    }
+
     private static class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         private static final int VIEW_TYPE_SEARCH = 0;
         private static final int VIEW_TYPE_RESULT = 1;
 
-        private WeakReference<Activity> activity;
+        private WeakReference<SearchActivity> activity;
         private List<MediaFile> mediaFiles;
         private boolean search;
 
 
-        public SearchAdapter(Activity activity) {
+        public SearchAdapter(SearchActivity activity) {
             this.activity = new WeakReference<>(activity);
             this.mediaFiles = new ArrayList<>();
         }
@@ -226,12 +227,9 @@ public class SearchActivity extends AppCompatActivity {
                     case VIDEO:
                         break;
                     case AUDIO:
-                        Activity act = activity.get();
+                        SearchActivity act = activity.get();
                         if (act != null) {
-                            AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-
-                            audioPlayer.setCurrentAudioFileAndPlay((AudioFile) mediaFile);
-                            AudioPlayerActivity.startPlayerActivity(act);
+                            act.startAudioPlayerActivity((AudioFile) mediaFile);
                         }
                         break;
                 }
@@ -241,12 +239,15 @@ public class SearchActivity extends AppCompatActivity {
         private void createResultItem(ResultViewHolder holder, int position) {
             MediaFile mediaFile = mediaFiles.get(position);
             if (mediaFile != null) {
-
-                BitmapHelper.getInstance().loadTrackListArtwork(mediaFile, holder.cover);
-
                 holder.duration.setText(Utils.getDurationString(mediaFile.getLength()));
                 holder.title.setText(mediaFile.getTitle());
                 holder.filePath.setText(mediaFile.getFilePath());
+
+                SearchActivity act = activity.get();
+                if (act != null) {
+                    act.getTrackListArtwork((AudioFile) mediaFile)
+                            .subscribe(bitmap -> holder.cover.setImageBitmap(bitmap));
+                }
             }
         }
 
@@ -270,8 +271,15 @@ public class SearchActivity extends AppCompatActivity {
             return mediaFiles.size();
         }
 
-        public void refreshAdapter(List<AudioFile> queryResult, boolean search) {
-            this.search = search;
+        public void refreshSearchAdapter(List<AudioFile> queryResult) {
+            this.search = true;
+            mediaFiles.clear();
+            mediaFiles.addAll(queryResult);
+            notifyDataSetChanged();
+        }
+
+        public void refreshResultAdapter(List<AudioFile> queryResult) {
+            this.search = false;
             mediaFiles.clear();
             mediaFiles.addAll(queryResult);
             notifyDataSetChanged();

@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.ui.billing.InAppBillingActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
@@ -21,7 +22,9 @@ import com.fesskiev.mediacenter.utils.billing.Billing;
 import com.fesskiev.mediacenter.utils.billing.Inventory;
 import com.fesskiev.mediacenter.utils.billing.Purchase;
 
-import io.reactivex.Observable;;
+import javax.inject.Inject;
+
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -33,11 +36,20 @@ public class ProUserFragment extends Fragment implements View.OnClickListener {
         return new ProUserFragment();
     }
 
+    @Inject
+    AppSettingsManager settingsManager;
+
     private Disposable subscription;
     private Billing billing;
 
     private TextView proUserText;
     private Button[] buttons;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        MediaApplication.getInstance().getAppComponent().inject(this);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -82,7 +94,7 @@ public class ProUserFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onResume() {
         super.onResume();
-        if (AppSettingsManager.getInstance().isUserPro()) {
+        if (settingsManager.isUserPro()) {
             showSuccessPurchase();
         }
     }
@@ -111,7 +123,7 @@ public class ProUserFragment extends Fragment implements View.OnClickListener {
             Purchase purchase = inventory.isProductPurchased(Billing.PRODUCT_SKU);
             if (purchase != null) {
                 showSuccessPurchase();
-                AppSettingsManager.getInstance().setUserPro(true);
+                settingsManager.setUserPro(true);
             }
         }
     }

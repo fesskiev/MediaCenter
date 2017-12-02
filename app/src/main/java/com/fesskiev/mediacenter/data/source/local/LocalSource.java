@@ -52,7 +52,7 @@ public interface LocalSource {
 
     Observable<List<AudioFile>> getSelectedFolderAudioFiles(AudioFolder audioFolder);
 
-    void updateAudioFile(AudioFile audioFile);
+    Callable<Integer> updateAudioFile(AudioFile audioFile);
 
     void insertAudioFolder(AudioFolder audioFolder);
 
@@ -70,7 +70,7 @@ public interface LocalSource {
 
     void insertVideoFile(VideoFile videoFile);
 
-    void updateVideoFile(VideoFile videoFile);
+    Callable<Integer> updateVideoFile(VideoFile videoFile);
 
     void updateSelectedAudioFolder(AudioFolder audioFolder);
 
@@ -80,11 +80,11 @@ public interface LocalSource {
 
     void updateSelectedAudioFile(AudioFile audioFile);
 
-    void deleteAudioFile(String path);
+    Callable<Integer> deleteAudioFile(String path);
 
     Callable<Integer> deleteVideoFile(String path);
 
-    void clearPlaylist();
+    Callable<Integer> clearPlaylist();
 
     Callable<Integer> resetVideoContentDatabase();
 

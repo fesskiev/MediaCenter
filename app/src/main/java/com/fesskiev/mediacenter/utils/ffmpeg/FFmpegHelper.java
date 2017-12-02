@@ -7,6 +7,7 @@ import android.text.TextUtils;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.AudioFile;
+import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
 import com.github.hiteshsondhi88.libffmpeg.FFmpegExecuteResponseHandler;
@@ -37,20 +38,13 @@ public class FFmpegHelper {
     }
 
 
-    private static FFmpegHelper INSTANCE;
-
     private Context context;
+    private DataRepository repository;
     private boolean libraryLoaded;
 
-    public static FFmpegHelper getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new FFmpegHelper();
-        }
-        return INSTANCE;
-    }
-
-    private FFmpegHelper() {
-        context = MediaApplication.getInstance().getApplicationContext();
+    public FFmpegHelper(Context context, DataRepository repository) {
+        this.context = context;
+        this.repository = repository;
     }
 
     public void loadFFmpegLibrary(final OnConverterLibraryLoadListener listener) {
@@ -235,7 +229,7 @@ public class FFmpegHelper {
 
 
     public void convertAudioIfNeed(AudioFile audioFile, OnConvertProcessListener listener) {
-        MediaApplication.getInstance().getRepository().getFolderFilePaths("Temp")
+        repository.getFolderFilePaths("Temp")
                 .firstOrError()
                 .toObservable()
                 .observeOn(AndroidSchedulers.mainThread())

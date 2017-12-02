@@ -6,7 +6,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
+import com.fesskiev.mediacenter.ui.analytics.AnalyticsActivity;
 import com.fesskiev.mediacenter.utils.Utils;
 
 

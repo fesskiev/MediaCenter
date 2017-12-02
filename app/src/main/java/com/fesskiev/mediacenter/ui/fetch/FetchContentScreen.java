@@ -1,4 +1,4 @@
-package com.fesskiev.mediacenter.widgets.fetch;
+package com.fesskiev.mediacenter.ui.fetch;
 
 
 import android.animation.Animator;
@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.utils.AppAnimationUtils;
+import com.fesskiev.mediacenter.widgets.fetch.FetchContentView;
 
 public class FetchContentScreen {
 
@@ -21,10 +22,9 @@ public class FetchContentScreen {
     private FastOutSlowInInterpolator interpolator;
     private FetchContentView fetchContentView;
 
-    public FetchContentScreen(Activity activity) {
+    public FetchContentScreen(Activity activity, AppAnimationUtils animationUtils) {
         this.activity = activity;
-        this.interpolator = AppAnimationUtils.getInstance().getFastOutSlowInInterpolator();
-
+        this.interpolator = animationUtils.getFastOutSlowInInterpolator();
 
         linearLayout = new LinearLayout(activity.getApplicationContext());
         linearLayout.setBackgroundColor(activity.getResources().getColor(R.color.colorFabBackground));
@@ -36,13 +36,12 @@ public class FetchContentScreen {
         linearLayout.addView(view);
     }
 
-    public void disableTouchActivity() {
+    public void showContentScreen() {
         activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
-        FrameLayout.LayoutParams layoutParams =
-                new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT);
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT);
         ViewGroup contentArea = activity.getWindow()
                 .getDecorView().findViewById(android.R.id.content);
         int[] pos = new int[2];
@@ -63,7 +62,7 @@ public class FetchContentScreen {
         fetchContentView.setProgress(0f);
     }
 
-    public void enableTouchActivity() {
+    public void hideContentScreen() {
         linearLayout.animate()
                 .alpha(0f)
                 .setDuration(800)
@@ -94,7 +93,26 @@ public class FetchContentScreen {
 
     }
 
-    public FetchContentView getFetchContentView() {
-        return fetchContentView;
+    public void prepareFetch() {
+        fetchContentView.setVisibleContent();
+        fetchContentView.showTimer();
+    }
+
+    public void finishFetch() {
+        fetchContentView.setInvisibleContent();
+        fetchContentView.hideTimer();
+        fetchContentView.clear();
+    }
+
+    public void setProgress(float percent) {
+        fetchContentView.setProgress(percent);
+    }
+
+    public void setFolderName(String folderName) {
+        fetchContentView.setFolderName(folderName);
+    }
+
+    public void setFileName(String fileName) {
+        fetchContentView.setFileName(fileName);
     }
 }

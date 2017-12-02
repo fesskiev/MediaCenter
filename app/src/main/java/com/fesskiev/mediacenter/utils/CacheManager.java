@@ -7,6 +7,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.Callable;
 
 public class CacheManager {
 
@@ -41,6 +42,7 @@ public class CacheManager {
             e.printStackTrace();
         }
     }
+
     public static File getRecordTempPath() {
         File temp = new File(TEMP_PATH);
         if (!temp.exists()) {
@@ -49,38 +51,49 @@ public class CacheManager {
         return new File(temp.getAbsolutePath(), "record_temp.wav");
     }
 
-    public static File getRecordDestPath() {
-        File dest = new File(AppSettingsManager.getInstance().getRecordPath());
+    public static File getRecordDestPath(AppSettingsManager settingsManager) {
+        File dest = new File(settingsManager.getRecordPath());
         if (!dest.exists()) {
             dest.mkdirs();
         }
         return new File(dest.getAbsolutePath(), String.valueOf(System.currentTimeMillis()));
     }
 
-    public static File getCutFolderPath() {
-        File dest = new File(AppSettingsManager.getInstance().getCutFolderPath());
+    public static File getCutFolderPath(AppSettingsManager settingsManager) {
+        File dest = new File(settingsManager.getCutFolderPath());
         if (!dest.exists()) {
             dest.mkdirs();
         }
         return dest;
     }
 
-    public static boolean deleteDirectoryWithFiles(File directory) {
-        if (directory.exists()) {
-            File[] files = directory.listFiles();
-            boolean containDirs = false;
-            if (files != null) {
-                for (File file : files) {
-                    if (file.isFile()) {
-                        file.delete();
-                    } else {
-                        containDirs = true;
+    public static Callable<Boolean> deleteDirectoryWithFiles(File directory) {
+        return () -> {
+            if (directory.exists()) {
+                File[] files = directory.listFiles();
+                boolean containDirs = false;
+                if (files != null) {
+                    for (File file : files) {
+                        if (file.isFile()) {
+                            file.delete();
+                        } else {
+                            containDirs = true;
+                        }
                     }
                 }
+                return containDirs || directory.delete();
             }
-            return containDirs || directory.delete();
-        }
-        return false;
+            return false;
+        };
+    }
+
+    public static Callable<Boolean> deleteFile(File file) {
+        return () -> {
+            if (file.exists()) {
+                return file.delete();
+            }
+            return false;
+        };
     }
 
 

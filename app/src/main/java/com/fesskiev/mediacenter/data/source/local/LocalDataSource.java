@@ -1,45 +1,30 @@
-package com.fesskiev.mediacenter.data.source.local.db;
+package com.fesskiev.mediacenter.data.source.local;
 
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-
-import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
-import com.fesskiev.mediacenter.data.source.local.LocalSource;
+import com.fesskiev.mediacenter.data.source.local.db.DatabaseHelper;
 import com.squareup.sqlbrite2.BriteDatabase;
-import com.squareup.sqlbrite2.SqlBrite;
 
 
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import io.reactivex.Observable;
-import io.reactivex.schedulers.Schedulers;
 
 public class LocalDataSource implements LocalSource {
 
-    private static LocalDataSource INSTANCE;
-    private final BriteDatabase briteDatabase;
+    private BriteDatabase briteDatabase;
 
-    public static LocalDataSource getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new LocalDataSource();
-        }
-        return INSTANCE;
-    }
-
-    private LocalDataSource() {
-        DatabaseHelper dbHelper
-                = new DatabaseHelper(MediaApplication.getInstance().getApplicationContext());
-        SqlBrite sqlBrite = new SqlBrite.Builder().build();
-        briteDatabase = sqlBrite.wrapDatabaseHelper(dbHelper, Schedulers.io());
+    public LocalDataSource(BriteDatabase briteDatabase) {
+        this.briteDatabase = briteDatabase;
     }
 
     @Override
@@ -109,32 +94,35 @@ public class LocalDataSource implements LocalSource {
     }
 
     @Override
-    public void updateAudioFile(AudioFile audioFile) {
+    public Callable<Integer> updateAudioFile(AudioFile audioFile) {
+        return () -> {
 
-        ContentValues values = new ContentValues();
+            ContentValues values = new ContentValues();
 
-        values.put(DatabaseHelper.AUDIO_FOLDER_ID, audioFile.folderId);
-        values.put(DatabaseHelper.AUDIO_FILE_ID, audioFile.fileId);
-        values.put(DatabaseHelper.TRACK_ARTIST, audioFile.artist);
-        values.put(DatabaseHelper.TRACK_TITLE, audioFile.title);
-        values.put(DatabaseHelper.TRACK_ALBUM, audioFile.album);
-        values.put(DatabaseHelper.TRACK_GENRE, audioFile.genre);
-        values.put(DatabaseHelper.TRACK_PATH, audioFile.getFilePath());
-        values.put(DatabaseHelper.TRACK_BITRATE, audioFile.bitrate);
-        values.put(DatabaseHelper.TRACK_LENGTH, audioFile.length);
-        values.put(DatabaseHelper.TRACK_SIZE, audioFile.size);
-        values.put(DatabaseHelper.TRACK_TIMESTAMP, audioFile.timestamp);
-        values.put(DatabaseHelper.TRACK_NUMBER, audioFile.trackNumber);
-        values.put(DatabaseHelper.TRACK_SAMPLE_RATE, audioFile.sampleRate);
-        values.put(DatabaseHelper.TRACK_IN_PLAY_LIST, audioFile.inPlayList ? 1 : 0);
-        values.put(DatabaseHelper.TRACK_SELECTED, audioFile.isSelected ? 1 : 0);
-        values.put(DatabaseHelper.TRACK_HIDDEN, audioFile.isHidden ? 1 : 0);
-        values.put(DatabaseHelper.TRACK_COVER, audioFile.artworkPath);
-        values.put(DatabaseHelper.TRACK_FOLDER_COVER, audioFile.folderArtworkPath);
+            values.put(DatabaseHelper.AUDIO_FOLDER_ID, audioFile.folderId);
+            values.put(DatabaseHelper.AUDIO_FILE_ID, audioFile.fileId);
+            values.put(DatabaseHelper.TRACK_ARTIST, audioFile.artist);
+            values.put(DatabaseHelper.TRACK_TITLE, audioFile.title);
+            values.put(DatabaseHelper.TRACK_ALBUM, audioFile.album);
+            values.put(DatabaseHelper.TRACK_GENRE, audioFile.genre);
+            values.put(DatabaseHelper.TRACK_PATH, audioFile.getFilePath());
+            values.put(DatabaseHelper.TRACK_BITRATE, audioFile.bitrate);
+            values.put(DatabaseHelper.TRACK_LENGTH, audioFile.length);
+            values.put(DatabaseHelper.TRACK_SIZE, audioFile.size);
+            values.put(DatabaseHelper.TRACK_TIMESTAMP, audioFile.timestamp);
+            values.put(DatabaseHelper.TRACK_NUMBER, audioFile.trackNumber);
+            values.put(DatabaseHelper.TRACK_SAMPLE_RATE, audioFile.sampleRate);
+            values.put(DatabaseHelper.TRACK_IN_PLAY_LIST, audioFile.inPlayList ? 1 : 0);
+            values.put(DatabaseHelper.TRACK_SELECTED, audioFile.isSelected ? 1 : 0);
+            values.put(DatabaseHelper.TRACK_HIDDEN, audioFile.isHidden ? 1 : 0);
+            values.put(DatabaseHelper.TRACK_COVER, audioFile.artworkPath);
+            values.put(DatabaseHelper.TRACK_FOLDER_COVER, audioFile.folderArtworkPath);
 
-        briteDatabase.update(
-                DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
-                values, DatabaseHelper.AUDIO_FILE_ID + "=" + "'" + audioFile.fileId + "'");
+            return briteDatabase.update(
+                    DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
+                    values, DatabaseHelper.AUDIO_FILE_ID + "=" + "'" + audioFile.fileId + "'");
+
+        };
     }
 
     @Override
@@ -211,26 +199,29 @@ public class LocalDataSource implements LocalSource {
 
 
     @Override
-    public void updateVideoFile(VideoFile videoFile) {
+    public Callable<Integer> updateVideoFile(VideoFile videoFile) {
+        return () -> {
 
-        ContentValues values = new ContentValues();
+            ContentValues values = new ContentValues();
 
-        values.put(DatabaseHelper.VIDEO_FOLDER_ID, videoFile.folderId);
-        values.put(DatabaseHelper.VIDEO_FILE_ID, videoFile.fileId);
-        values.put(DatabaseHelper.VIDEO_FILE_PATH, videoFile.getFilePath());
-        values.put(DatabaseHelper.VIDEO_FRAME_PATH, videoFile.framePath);
-        values.put(DatabaseHelper.VIDEO_RESOLUTION, videoFile.resolution);
-        values.put(DatabaseHelper.VIDEO_DESCRIPTION, videoFile.description);
-        values.put(DatabaseHelper.VIDEO_LENGTH, videoFile.length);
-        values.put(DatabaseHelper.VIDEO_SIZE, videoFile.size);
-        values.put(DatabaseHelper.VIDEO_TIMESTAMP, videoFile.timestamp);
-        values.put(DatabaseHelper.VIDEO_IN_PLAY_LIST, videoFile.inPlayList ? 1 : 0);
-        values.put(DatabaseHelper.VIDEO_HIDDEN, videoFile.isHidden ? 1 : 0);
+            values.put(DatabaseHelper.VIDEO_FOLDER_ID, videoFile.folderId);
+            values.put(DatabaseHelper.VIDEO_FILE_ID, videoFile.fileId);
+            values.put(DatabaseHelper.VIDEO_FILE_PATH, videoFile.getFilePath());
+            values.put(DatabaseHelper.VIDEO_FRAME_PATH, videoFile.framePath);
+            values.put(DatabaseHelper.VIDEO_RESOLUTION, videoFile.resolution);
+            values.put(DatabaseHelper.VIDEO_DESCRIPTION, videoFile.description);
+            values.put(DatabaseHelper.VIDEO_LENGTH, videoFile.length);
+            values.put(DatabaseHelper.VIDEO_SIZE, videoFile.size);
+            values.put(DatabaseHelper.VIDEO_TIMESTAMP, videoFile.timestamp);
+            values.put(DatabaseHelper.VIDEO_IN_PLAY_LIST, videoFile.inPlayList ? 1 : 0);
+            values.put(DatabaseHelper.VIDEO_HIDDEN, videoFile.isHidden ? 1 : 0);
 
-        briteDatabase.update(
-                DatabaseHelper.VIDEO_FILES_TABLE_NAME,
-                values,
-                DatabaseHelper.VIDEO_FILE_ID + "=" + "'" + videoFile.fileId + "'");
+            return briteDatabase.update(
+                    DatabaseHelper.VIDEO_FILES_TABLE_NAME,
+                    values,
+                    DatabaseHelper.VIDEO_FILE_ID + "=" + "'" + videoFile.fileId + "'");
+
+        };
     }
 
     @Override
@@ -363,9 +354,8 @@ public class LocalDataSource implements LocalSource {
     }
 
     @Override
-    public void deleteAudioFile(String path) {
-
-        briteDatabase.delete(
+    public Callable<Integer> deleteAudioFile(String path) {
+        return () -> briteDatabase.delete(
                 DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
                 DatabaseHelper.TRACK_PATH + "=" + "'" + path + "'");
     }
@@ -432,26 +422,27 @@ public class LocalDataSource implements LocalSource {
     }
 
     @Override
-    public void clearPlaylist() {
+    public Callable<Integer> clearPlaylist() {
+        return () -> {
+            ContentValues contentValues;
 
-        ContentValues contentValues;
+            contentValues = new ContentValues();
+            contentValues.put(DatabaseHelper.TRACK_IN_PLAY_LIST, 0);
 
-        contentValues = new ContentValues();
-        contentValues.put(DatabaseHelper.TRACK_IN_PLAY_LIST, 0);
+            briteDatabase.update(
+                    DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
+                    contentValues,
+                    null);
 
-        briteDatabase.update(
-                DatabaseHelper.AUDIO_TRACKS_TABLE_NAME,
-                contentValues,
-                null);
-
-        contentValues = new ContentValues();
-        contentValues.put(DatabaseHelper.VIDEO_IN_PLAY_LIST, 0);
+            contentValues = new ContentValues();
+            contentValues.put(DatabaseHelper.VIDEO_IN_PLAY_LIST, 0);
 
 
-        briteDatabase.update(
-                DatabaseHelper.VIDEO_FILES_TABLE_NAME,
-                contentValues,
-                null);
+            return briteDatabase.update(
+                    DatabaseHelper.VIDEO_FILES_TABLE_NAME,
+                    contentValues,
+                    null);
+        };
     }
 
     @Override

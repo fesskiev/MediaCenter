@@ -117,7 +117,7 @@ public class VideoFile implements MediaFile, Parcelable {
             }
             File path = File.createTempFile(UUID.randomUUID().toString(), ".jpg", dir);
 
-            BitmapHelper.getInstance().saveBitmap(bitmap, path);
+            BitmapHelper.saveBitmap(bitmap, path);
 
             framePath = path.getAbsolutePath();
 

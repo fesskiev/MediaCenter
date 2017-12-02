@@ -1,13 +1,14 @@
 package com.fesskiev.mediacenter.ui.video;
 
-
-import android.app.Activity;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -16,19 +17,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
 import com.fesskiev.mediacenter.data.model.VideoFile;
+import com.fesskiev.mediacenter.ui.analytics.AnalyticsActivity;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
-import com.fesskiev.mediacenter.data.source.DataRepository;
-import com.fesskiev.mediacenter.players.VideoPlayer;
-import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.video.player.VideoExoPlayerActivity;
 import com.fesskiev.mediacenter.utils.AppAnimationUtils;
-import com.fesskiev.mediacenter.utils.AppSettingsManager;
-import com.fesskiev.mediacenter.utils.BitmapHelper;
-import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.dialogs.SimpleDialog;
 import com.fesskiev.mediacenter.widgets.dialogs.VideoFileDetailsDialog;
@@ -37,19 +31,11 @@ import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.menu.VideoContextMenu;
 import com.fesskiev.mediacenter.widgets.recycleview.ItemOffsetDecoration;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.Observable;;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.android.schedulers.AndroidSchedulers;;
-import io.reactivex.schedulers.Schedulers;
-
+import io.reactivex.Observable;
 
 public class VideoFilesActivity extends AnalyticsActivity {
 
@@ -59,44 +45,65 @@ public class VideoFilesActivity extends AnalyticsActivity {
 
     private VideoFilesAdapter adapter;
     private RecyclerView recyclerView;
+    private CardView emptyVideoContent;
 
     private VideoFolder videoFolder;
 
-    private Disposable subscription;
-    private DataRepository repository;
-
     private boolean layoutAnimate;
 
+    private VideoFilesViewModel viewModel;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_files);
+        videoFolder = getIntent().getExtras().getParcelable(VideoFoldersFragment.EXTRA_VIDEO_FOLDER);
+        emptyVideoContent = findViewById(R.id.emptyVideoContentCard);
+        setupToolbar();
+        setupRecyclerView();
+        observeData();
+    }
 
-        EventBus.getDefault().register(this);
-
-        repository = MediaApplication.getInstance().getRepository();
-
-        videoFolder =
-                getIntent().getExtras().getParcelable(VideoFoldersFragment.EXTRA_VIDEO_FOLDER);
-
+    private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
-
         if (videoFolder != null) {
             toolbar.setTitle(videoFolder.folderName);
             setSupportActionBar(toolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+    }
 
+    private void setupRecyclerView() {
         final GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
-
         final int spacing = getResources().getDimensionPixelOffset(R.dimen.default_spacing_small);
-
         recyclerView = findViewById(R.id.foldersGridView);
         recyclerView.setLayoutManager(gridLayoutManager);
         adapter = new VideoFilesAdapter(this);
         recyclerView.setAdapter(adapter);
         recyclerView.addItemDecoration(new ItemOffsetDecoration(spacing));
+    }
+
+    private void observeData() {
+        viewModel = ViewModelProviders.of(this).get(VideoFilesViewModel.class);
+        viewModel.getVideoFilesLiveData().observe(this, this::refreshAdapter);
+        viewModel.getDeletedFileLiveData().observe(this, position -> {
+            adapter.removeItem(position);
+            showDeletedVideoFileSnackBar();
+        });
+        viewModel.getNotExistFileLiveData().observe(this, Void -> showVideoFileNotExistSnackBar());
+        viewModel.getEmptyFilesLiveData().observe(this, Void -> showEmptyContentCard());
+    }
+
+    private void refreshAdapter(List<VideoFile> videoFiles) {
+        adapter.refresh(videoFiles);
+        hideEmptyContentCard();
+        animateLayout();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        viewModel.fetchVideoFolderFiles(videoFolder);
     }
 
     @Override
@@ -110,53 +117,33 @@ public class VideoFilesActivity extends AnalyticsActivity {
         return true;
     }
 
-
-    public void fetchVideoFolderFiles(VideoFolder videoFolder) {
-        subscription = repository.getVideoFiles(videoFolder.id)
-                .firstOrError()
-                .toObservable()
-                .subscribeOn(Schedulers.io())
-                .flatMap(Observable::fromIterable)
-                .filter(file -> {
-                    if (AppSettingsManager.getInstance().isShowHiddenFiles()) {
-                        return true;
-                    }
-                    return !file.isHidden;
-                })
-                .toList()
-                .toObservable()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(videoFiles -> {
-                    adapter.refresh(videoFiles);
-                    animateLayout();
-                });
-    }
-
-    public void refreshVideoContent() {
-        fetchVideoFolderFiles(videoFolder);
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("layoutAnimate", layoutAnimate);
+        outState.putParcelable("videoFolder", videoFolder);
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        fetchVideoFolderFiles(videoFolder);
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        layoutAnimate = savedInstanceState.getBoolean("layoutAnimate");
+        videoFolder = savedInstanceState.getParcelable("videoFolder");
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        RxUtils.unsubscribe(subscription);
+    private void showAddToPlayListSnackBar() {
+        Utils.showCustomSnackbar(getCurrentFocus(), getApplicationContext(),
+                getString(R.string.add_to_playlist_video_text), Snackbar.LENGTH_SHORT).show();
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
+    private void showDeletedVideoFileSnackBar() {
+        Utils.showCustomSnackbar(getCurrentFocus(), getApplicationContext(),
+                getString(R.string.shackbar_delete_file), Snackbar.LENGTH_LONG).show();
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onPlaybackStateEvent(PlaybackService playbackState) {
-        adapter.setPlaying(playbackState.isPlaying());
+    private void showVideoFileNotExistSnackBar() {
+        Utils.showCustomSnackbar(getCurrentFocus(), getApplicationContext(),
+                getString(R.string.snackbar_file_not_exist), Snackbar.LENGTH_LONG).show();
     }
 
     private void animateLayout() {
@@ -167,13 +154,63 @@ public class VideoFilesActivity extends AnalyticsActivity {
         }
     }
 
+    public void addVideoFileToPlayList(VideoFile videoFile) {
+        if (viewModel.checkVideoFileExist(videoFile)) {
+            viewModel.addVideoFileToPlayList(videoFile);
+            showAddToPlayListSnackBar();
+        }
+    }
+
+    public void deleteVideoFile(VideoFile videoFile, int position) {
+        if (viewModel.checkVideoFileExist(videoFile)) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.addToBackStack(null);
+            SimpleDialog dialog = SimpleDialog.newInstance(getString(R.string.dialog_delete_file_title),
+                    getString(R.string.dialog_delete_file_message), R.drawable.icon_trash);
+            dialog.show(transaction, SimpleDialog.class.getName());
+            dialog.setPositiveListener(() -> viewModel.deleteVideoFile(videoFile, position));
+        }
+    }
+
+    public void videoFileDetails(VideoFile videoFile) {
+        if (viewModel.checkVideoFileExist(videoFile)) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.addToBackStack(null);
+            VideoFileDetailsDialog dialog = VideoFileDetailsDialog.newInstance(videoFile);
+            dialog.setOnVideoFileDetailsDialogListener(() -> viewModel.fetchVideoFolderFiles(videoFolder));
+            dialog.show(transaction, VideoFileDetailsDialog.class.getName());
+        }
+    }
+
+    public void startExoPlayerActivity(VideoFile videoFile) {
+        if (viewModel.checkVideoFileExist(videoFile)) {
+            Intent intent = new Intent(this, VideoExoPlayerActivity.class);
+            intent.putExtra(VideoExoPlayerActivity.URI_EXTRA, videoFile.getFilePath());
+            intent.putExtra(VideoExoPlayerActivity.VIDEO_NAME_EXTRA, videoFile.getFileName());
+            intent.setAction(VideoExoPlayerActivity.ACTION_VIEW_URI);
+            startActivity(intent);
+        }
+    }
+
+    public Observable<Bitmap> getVideoFileFrame(String path) {
+        return viewModel.getVideoFileFrame(path);
+    }
+
+    private void showEmptyContentCard() {
+        emptyVideoContent.setVisibility(View.VISIBLE);
+    }
+
+    private void hideEmptyContentCard() {
+        emptyVideoContent.setVisibility(View.GONE);
+    }
+
+
     private static class VideoFilesAdapter extends RecyclerView.Adapter<VideoFilesAdapter.ViewHolder> {
 
-        private WeakReference<Activity> activity;
+        private WeakReference<VideoFilesActivity> activity;
         private List<VideoFile> videoFiles;
-        private boolean isPlaying;
 
-        public VideoFilesAdapter(Activity activity) {
+        public VideoFilesAdapter(VideoFilesActivity activity) {
             this.activity = new WeakReference<>(activity);
             this.videoFiles = new ArrayList<>();
         }
@@ -203,39 +240,13 @@ public class VideoFilesActivity extends AnalyticsActivity {
         }
 
         private void startVideoPlayer(int position) {
-            Activity act = activity.get();
+            VideoFilesActivity act = activity.get();
             if (act != null) {
                 VideoFile videoFile = videoFiles.get(position);
                 if (videoFile != null) {
-                    if (videoFile.exists()) {
-                        VideoPlayer videoPlayer = MediaApplication.getInstance().getVideoPlayer();
-                        videoPlayer.setVideoFiles(videoFiles);
-                        videoPlayer.setCurrentVideoFile(videoFile);
-
-                        checkNeedStopAudioPlaying();
-                        startExoPlayerActivity(act, videoFile);
-                    } else {
-                        Utils.showCustomSnackbar(act.getCurrentFocus(), act,
-                                act.getString(R.string.snackbar_file_not_exist),
-                                Snackbar.LENGTH_LONG)
-                                .show();
-                    }
+                    act.startExoPlayerActivity(videoFile);
                 }
             }
-        }
-
-        private void checkNeedStopAudioPlaying() {
-            if (isPlaying) {
-                MediaApplication.getInstance().getAudioPlayer().pause();
-            }
-        }
-
-        private void startExoPlayerActivity(Activity act, VideoFile videoFile) {
-            Intent intent = new Intent(act, VideoExoPlayerActivity.class);
-            intent.putExtra(VideoExoPlayerActivity.URI_EXTRA, videoFile.getFilePath());
-            intent.putExtra(VideoExoPlayerActivity.VIDEO_NAME_EXTRA, videoFile.getFileName());
-            intent.setAction(VideoExoPlayerActivity.ACTION_VIEW_URI);
-            act.startActivity(intent);
         }
 
         private void showVideoContextMenu(View view, int position) {
@@ -259,69 +270,34 @@ public class VideoFilesActivity extends AnalyticsActivity {
         }
 
         private void videoFileDetails(int position) {
-            Activity act = activity.get();
+            VideoFilesActivity act = activity.get();
             if (act != null) {
-                final VideoFile videoFile = videoFiles.get(position);
+                VideoFile videoFile = videoFiles.get(position);
                 if (videoFile != null) {
-                    FragmentTransaction transaction =
-                            ((FragmentActivity) act).getSupportFragmentManager().beginTransaction();
-                    transaction.addToBackStack(null);
-                    VideoFileDetailsDialog dialog = VideoFileDetailsDialog.newInstance(videoFile);
-                    dialog.setOnVideoFileDetailsDialogListener(() -> refreshVideoFiles(act));
-                    dialog.show(transaction, VideoFileDetailsDialog.class.getName());
-
+                    act.videoFileDetails(videoFile);
                 }
             }
         }
 
-        private void refreshVideoFiles(Activity act) {
-            ((VideoFilesActivity) act).refreshVideoContent();
-        }
-
         private void deleteVideo(final int position) {
-            Activity act = activity.get();
+            VideoFilesActivity act = activity.get();
             if (act != null) {
-                final VideoFile videoFile = videoFiles.get(position);
+                VideoFile videoFile = videoFiles.get(position);
                 if (videoFile != null) {
-                    FragmentTransaction transaction =
-                            ((FragmentActivity) act).getSupportFragmentManager().beginTransaction();
-                    transaction.addToBackStack(null);
-                    SimpleDialog dialog = SimpleDialog.newInstance(act.getString(R.string.dialog_delete_file_title),
-                            act.getString(R.string.dialog_delete_file_message), R.drawable.icon_trash);
-                    dialog.show(transaction, SimpleDialog.class.getName());
-                    dialog.setPositiveListener(() ->
-                            Observable.just(videoFile.filePath.delete())
-                                    .subscribeOn(Schedulers.io())
-                                    .flatMap(result -> {
-                                        DataRepository repository = MediaApplication.getInstance().getRepository();
-                                        return RxUtils.fromCallable(repository.deleteVideoFile(videoFile.getFilePath()));
-                                    })
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(integer -> {
-                                        Utils.showCustomSnackbar(act.getCurrentFocus(),
-                                                act, act.getString(R.string.shackbar_delete_file),
-                                                Snackbar.LENGTH_LONG)
-                                                .show();
-                                        removeItem(position);
-                                    }));
+                    act.deleteVideoFile(videoFile, position);
                 }
             }
         }
 
         private void addToPlaylist(int position) {
-            Activity act = activity.get();
+            VideoFilesActivity act = activity.get();
             if (act != null) {
                 VideoFile videoFile = videoFiles.get(position);
                 if (videoFile != null) {
-                    videoFile.inPlayList = true;
-                    MediaApplication.getInstance().getRepository().updateVideoFile(videoFile);
-                    Utils.showCustomSnackbar(act.getCurrentFocus(), act,
-                            act.getString(R.string.add_to_playlist_video_text), Snackbar.LENGTH_SHORT)
-                            .show();
+                    act.addVideoFileToPlayList(videoFile);
                 }
             }
         }
-
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -332,26 +308,24 @@ public class VideoFilesActivity extends AnalyticsActivity {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            Activity act = activity.get();
-            if (act != null) {
-                final VideoFile videoFile = videoFiles.get(position);
-                if (videoFile != null) {
-                    holder.videoCard.setDescription(videoFile.description);
+            final VideoFile videoFile = videoFiles.get(position);
+            if (videoFile != null) {
+                holder.videoCard.setDescription(videoFile.description);
 
-                    ImageView frameView = holder.videoCard.getFrameView();
-                    String framePath = videoFile.framePath;
-                    if (framePath != null) {
-                        BitmapHelper.getInstance().loadVideoFileCover(framePath, frameView);
-                    } else {
-                        frameView.setImageResource(0);
-                        frameView.setBackgroundColor(ContextCompat.getColor(act, R.color.search_background));
-                    }
-
-                    if (videoFile.isHidden) {
-                        holder.videoCard.setAlpha(0.35f);
-                    } else {
-                        holder.videoCard.setAlpha(1f);
-                    }
+                ImageView frameView = holder.videoCard.getFrameView();
+                String framePath = videoFile.framePath;
+                VideoFilesActivity act = activity.get();
+                if (framePath != null && act != null) {
+                    act.getVideoFileFrame(framePath).subscribe(frameView::setImageBitmap);
+                } else {
+                    frameView.setImageResource(0);
+                    frameView.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(),
+                            R.color.search_background));
+                }
+                if (videoFile.isHidden) {
+                    holder.videoCard.setAlpha(0.35f);
+                } else {
+                    holder.videoCard.setAlpha(1f);
                 }
             }
         }
@@ -371,11 +345,6 @@ public class VideoFilesActivity extends AnalyticsActivity {
             videoFiles.remove(position);
             notifyItemRemoved(position);
             notifyItemRangeChanged(position, getItemCount());
-        }
-
-
-        public void setPlaying(boolean playing) {
-            isPlaying = playing;
         }
     }
 }

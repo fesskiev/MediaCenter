@@ -5,17 +5,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v7.graphics.Palette;
-import android.text.TextUtils;
 import android.util.Log;
-import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
-import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
@@ -25,114 +21,127 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;;
 
 public class BitmapHelper {
 
     private static LoggingListener loggingListener = new LoggingListener();
 
-    public interface OnBitmapLoadListener {
-        void onLoaded(Bitmap bitmap);
-
-        void onFailed();
-    }
-
     private static final int WIDTH = 140;
     private static final int HEIGHT = 140;
 
-    private static BitmapHelper INSTANCE;
     private Context context;
 
-    public static BitmapHelper getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new BitmapHelper();
-        }
-        return INSTANCE;
+    public BitmapHelper(Context context) {
+        this.context = context;
     }
 
-    private BitmapHelper() {
-        context = MediaApplication.getInstance().getApplicationContext();
-    }
-
-    public Observable<Bitmap> getBitmapFromURL(String url) {
-        return Observable.create(subscriber -> {
-            Bitmap bitmap = null;
-            try {
-                bitmap = Glide.with(context)
+    public Observable<Bitmap> getCoverBitmapFromURL(String url) {
+        return Observable.create(e -> {
+            if (url != null) {
+                Glide.with(context)
                         .load(url)
                         .asBitmap()
-                        .into(WIDTH * 3, HEIGHT * 3)
-                        .get();
-            } catch (InterruptedException | ExecutionException e) {
-                subscriber.onError(e);
+                        .override(WIDTH * 3, HEIGHT * 3)
+                        .centerCrop()
+                        .listener(loggingListener)
+                        .error(R.drawable.no_cover_track_icon)
+                        .into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                e.onNext(resource);
+                            }
+                        });
+            } else {
+                Glide.with(context)
+                        .load(R.drawable.no_cover_track_icon)
+                        .asBitmap()
+                        .override(WIDTH * 3, HEIGHT * 3)
+                        .centerCrop()
+                        .listener(loggingListener)
+                        .into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                e.onNext(resource);
+                            }
+                        });
             }
-            subscriber.onNext(bitmap);
+            e.onComplete();
         });
     }
 
-    public void loadBitmap(MediaFile mediaFile, final OnBitmapLoadListener listener) {
+    public Observable<Bitmap> loadBitmap(MediaFile mediaFile) {
         String path = findPath(mediaFile);
-        if (path != null) {
-            Glide.with(context)
-                    .load(path)
-                    .asBitmap()
-                    .override(WIDTH, HEIGHT)
-                    .centerCrop()
-                    .listener(loggingListener)
-                    .into(new SimpleTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                            if (listener != null) {
-                                listener.onLoaded(resource);
+        return Observable.create(e -> {
+            if (path != null) {
+                Glide.with(context)
+                        .load(path)
+                        .asBitmap()
+                        .override(WIDTH, HEIGHT)
+                        .centerCrop()
+                        .listener(loggingListener)
+                        .into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                e.onNext(resource);
                             }
-                        }
-                    });
-        } else {
-            Glide.with(context)
-                    .load(R.drawable.no_cover_track_icon)
-                    .asBitmap()
-                    .override(WIDTH, HEIGHT)
-                    .centerCrop()
-                    .listener(loggingListener)
-                    .into(new SimpleTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                            if (listener != null) {
-                                listener.onLoaded(resource);
+                        });
+            } else {
+                Glide.with(context)
+                        .load(R.drawable.no_cover_track_icon)
+                        .asBitmap()
+                        .override(WIDTH, HEIGHT)
+                        .centerCrop()
+                        .listener(loggingListener)
+                        .into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                e.onNext(resource);
                             }
-                        }
-                    });
-        }
+                        });
+            }
+            e.onComplete();
+        });
+
     }
 
-    public void loadAudioPlayerArtwork(AudioFile audioFile, ImageView imageView) {
+    public Observable<Bitmap> loadAudioPlayerArtwork(AudioFile audioFile) {
         String mediaArtworkPath = findMediaFileArtworkPath(audioFile);
-        if (mediaArtworkPath != null) {
-            Glide.with(context)
-                    .load(mediaArtworkPath)
-                    .listener(loggingListener)
-                    .override(WIDTH * 3, HEIGHT * 3)
-                    .centerCrop()
-                    .into(imageView);
-        } else {
-            Glide.with(context)
-                    .load(R.drawable.no_cover_player)
-                    .listener(loggingListener)
-                    .fitCenter()
-                    .diskCacheStrategy(DiskCacheStrategy.RESULT)
-                    .into(imageView);
-        }
-
+        return Observable.create(e -> {
+            if (mediaArtworkPath != null) {
+                Glide.with(context)
+                        .load(mediaArtworkPath)
+                        .asBitmap()
+                        .override(WIDTH, HEIGHT)
+                        .centerCrop()
+                        .listener(loggingListener)
+                        .into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                e.onNext(resource);
+                            }
+                        });
+            } else {
+                Glide.with(context)
+                        .load(R.drawable.no_cover_player)
+                        .asBitmap()
+                        .override(WIDTH, HEIGHT)
+                        .centerCrop()
+                        .listener(loggingListener)
+                        .into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                e.onNext(resource);
+                            }
+                        });
+            }
+            e.onComplete();
+        });
 
     }
 
-    public Observable<PaletteColor> getAudioFilePalette(AudioFile audioFile){
+    public Observable<PaletteColor> getAudioFilePalette(AudioFile audioFile) {
         return Observable.create(e -> {
             String coverPath = findMediaFileArtworkPath(audioFile);
             if (coverPath != null) {
@@ -174,33 +183,42 @@ public class BitmapHelper {
         return null;
     }
 
-    public void loadTrackListArtwork(MediaFile mediaFile, ImageView imageView) {
-
+    public Observable<Bitmap> getTrackListArtwork(MediaFile mediaFile) {
         String mediaArtworkPath = findMediaFileArtworkPath(mediaFile);
-        if (mediaArtworkPath != null) {
-            Glide.with(context)
-                    .load(mediaArtworkPath)
-                    .override(WIDTH, HEIGHT)
-                    .crossFade()
-                    .centerCrop()
-                    .listener(loggingListener)
-                    .error(R.drawable.no_cover_track_icon)
-                    .transform(new CircleTransform(context))
-                    .into(imageView);
-            return;
-        }
-
-        if (mediaFile instanceof AudioFile) {
-            Glide.with(context)
-                    .load(R.drawable.no_cover_track_icon)
-                    .override(WIDTH, HEIGHT)
-                    .crossFade()
-                    .fitCenter()
-                    .listener(loggingListener)
-                    .error(R.drawable.no_cover_track_icon)
-                    .transform(new CircleTransform(context))
-                    .into(imageView);
-        }
+        return Observable.create(e -> {
+            if (mediaArtworkPath != null) {
+                Glide.with(context)
+                        .load(mediaArtworkPath)
+                        .override(WIDTH, HEIGHT)
+                        .crossFade()
+                        .centerCrop()
+                        .listener(loggingListener)
+                        .error(R.drawable.no_cover_track_icon)
+                        .transform(new CircleTransform(context))
+                        .into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                e.onNext(resource);
+                            }
+                        });
+            } else {
+                Glide.with(context)
+                        .load(R.drawable.no_cover_track_icon)
+                        .override(WIDTH, HEIGHT)
+                        .crossFade()
+                        .fitCenter()
+                        .listener(loggingListener)
+                        .error(R.drawable.no_cover_track_icon)
+                        .transform(new CircleTransform(context))
+                        .into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                e.onNext(resource);
+                            }
+                        });
+            }
+            e.onComplete();
+        });
     }
 
     private String findMediaFileArtworkPath(MediaFile mediaFile) {
@@ -221,48 +239,79 @@ public class BitmapHelper {
         return null;
     }
 
-    public void loadAudioFolderArtwork(AudioFolder audioFolder, ImageView placeholder) {
+    public Observable<Bitmap> getAudioFolderArtwork(AudioFolder audioFolder) {
+        return Observable.create(e -> {
+            String coverFile = findAudioFolderArtworkPath(audioFolder);
+            if (coverFile != null) {
+                Glide.with(context)
+                        .load(coverFile)
+                        .override(WIDTH * 3, HEIGHT * 3)
+                        .crossFade()
+                        .centerCrop()
+                        .listener(loggingListener)
+                        .error(R.drawable.no_cover_folder_icon)
+                        .into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                e.onNext(resource);
+                            }
+                        });
+            } else {
+                Glide.with(context)
+                        .load(R.drawable.no_cover_folder_icon)
+                        .override(WIDTH * 3, HEIGHT * 3)
+                        .crossFade()
+                        .centerCrop()
+                        .listener(loggingListener)
+                        .error(R.drawable.no_cover_folder_icon)
+                        .into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                e.onNext(resource);
+                            }
+                        });
+            }
+            e.onComplete();
+        });
+    }
 
-        String coverFile = findAudioFolderArtworkPath(audioFolder);
-        if (coverFile != null) {
+    public Observable<Bitmap> loadVideoFileFrame(String path) {
+        return Observable.create(e -> {
             Glide.with(context)
-                    .load(coverFile)
+                    .load(path)
                     .override(WIDTH * 3, HEIGHT * 3)
                     .crossFade()
                     .centerCrop()
                     .listener(loggingListener)
-                    .error(R.drawable.no_cover_folder_icon)
-                    .into(placeholder);
-        } else {
+                    .error(R.drawable.no_cover_track_icon)
+                    .into(new SimpleTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                            e.onNext(resource);
+                        }
+                    });
+            e.onComplete();
+        });
+
+    }
+
+    public Observable<Bitmap> loadVideoFolderFrame(String path) {
+        return Observable.create(e -> {
             Glide.with(context)
-                    .load(R.drawable.no_cover_folder_icon)
-                    .override(WIDTH * 3, HEIGHT * 3)
+                    .load(path)
+                    .override(WIDTH, HEIGHT)
                     .crossFade()
                     .centerCrop()
-                    .into(placeholder);
-        }
-    }
-
-    public void loadVideoFileCover(String path, ImageView placeholder) {
-        Glide.with(context)
-                .load(path)
-                .override(WIDTH * 3, HEIGHT * 3)
-                .crossFade()
-                .centerCrop()
-                .listener(loggingListener)
-                .error(R.drawable.no_cover_track_icon)
-                .into(placeholder);
-    }
-
-    public void loadVideoFolderFrame(String path, ImageView placeholder) {
-        Glide.with(context)
-                .load(path)
-                .override(WIDTH, HEIGHT)
-                .crossFade()
-                .centerCrop()
-                .listener(loggingListener)
-                .error(R.drawable.no_cover_folder_icon)
-                .into(placeholder);
+                    .listener(loggingListener)
+                    .error(R.drawable.no_cover_folder_icon)
+                    .into(new SimpleTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                            e.onNext(resource);
+                        }
+                    });
+            e.onComplete();
+        });
     }
 
 
@@ -281,25 +330,7 @@ public class BitmapHelper {
         }
     }
 
-    public void saveBitmapPng(Bitmap bitmap, File path) {
-        FileOutputStream out = null;
-        try {
-            out = new FileOutputStream(path);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void saveBitmap(Bitmap bitmap, File path) {
+    public static void saveBitmap(Bitmap bitmap, File path) {
         FileOutputStream out = null;
         try {
             out = new FileOutputStream(path);
@@ -317,7 +348,7 @@ public class BitmapHelper {
         }
     }
 
-    public void saveBitmap(byte[] data, File path) {
+    public static void saveBitmap(byte[] data, File path) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inMutable = true;
         Bitmap bitmap =

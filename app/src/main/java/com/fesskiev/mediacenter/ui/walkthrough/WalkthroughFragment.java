@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.ui.MainActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
@@ -24,12 +25,17 @@ import com.fesskiev.mediacenter.widgets.pager.DisableSwipingViewPager;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 
 public class WalkthroughFragment extends Fragment {
 
     public static WalkthroughFragment newInstance() {
         return new WalkthroughFragment();
     }
+
+    @Inject
+    AppSettingsManager settingsManager;
 
     private DisableSwipingViewPager viewPager;
     private WalkthroughPagerAdapter adapter;
@@ -39,6 +45,13 @@ public class WalkthroughFragment extends Fragment {
     private boolean permissionGranted;
     private boolean fetchMediaGranted;
     private boolean proUserGranted;
+
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        MediaApplication.getInstance().getAppComponent().inject(this);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -58,7 +71,7 @@ public class WalkthroughFragment extends Fragment {
         enterAppButton = view.findViewById(R.id.enterAppButton);
         enterAppButton.setOnClickListener(v -> {
 
-            AppSettingsManager.getInstance().setFirstStartApp();
+            settingsManager.setFirstStartApp();
             startMainActivity();
         });
 

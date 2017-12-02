@@ -1,6 +1,7 @@
 package com.fesskiev.mediacenter.widgets.item;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -11,7 +12,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.utils.BitmapHelper;
 
 import java.util.List;
 
@@ -103,17 +103,17 @@ public class VideoFolderCardView extends CardView {
         return true;
     }
 
-    public void setFrameViewPaths(List<String> paths) {
+    public void setFrameBitmaps(List<Bitmap> bitmaps) {
         for(ImageView imageView : frameViews){
             imageView.setImageBitmap(null);
         }
-        for (int i = 0; i < paths.size(); i++) {
+        for (int i = 0; i < bitmaps.size(); i++) {
             if (i == frameViews.length) {
                 break;
             }
             ImageView frameView = frameViews[i];
-            String path = paths.get(i);
-            BitmapHelper.getInstance().loadVideoFolderFrame(path, frameView);
+            Bitmap bitmap = bitmaps.get(i);
+            frameView.setImageBitmap(bitmap);
         }
     }
 

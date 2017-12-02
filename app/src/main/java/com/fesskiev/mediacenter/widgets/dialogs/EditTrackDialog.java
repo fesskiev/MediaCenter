@@ -15,6 +15,8 @@ import android.widget.EditText;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.AudioFile;
+import com.fesskiev.mediacenter.data.source.DataRepository;
+import com.fesskiev.mediacenter.utils.RxUtils;
 
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
@@ -28,6 +30,12 @@ import org.jaudiotagger.tag.TagOptionSingleton;
 import org.jaudiotagger.tag.id3.ID3v23Tag;
 
 import java.io.IOException;
+
+import javax.inject.Inject;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class EditTrackDialog extends DialogFragment implements View.OnClickListener, TextWatcher {
 
@@ -55,11 +63,16 @@ public class EditTrackDialog extends DialogFragment implements View.OnClickListe
     private EditText editAlbum;
     private EditText editGenre;
 
+    @Inject
+    DataRepository repository;
+
+    protected Disposable disposable;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NO_TITLE, R.style.CustomFragmentDialog);
+        MediaApplication.getInstance().getAppComponent().inject(this);
 
         audioFile = getArguments().getParcelable(AUDIO_FILE);
     }
@@ -93,6 +106,12 @@ public class EditTrackDialog extends DialogFragment implements View.OnClickListe
         setDialogFields();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        RxUtils.unsubscribe(disposable);
+    }
+
     private void setDialogFields() {
         if (!audioFile.artist.equals(getContext().getString(R.string.empty_music_file_artist))) {
             editArtist.setText(audioFile.artist);
@@ -109,7 +128,13 @@ public class EditTrackDialog extends DialogFragment implements View.OnClickListe
     }
 
     private void updateAudioFileDatabase(AudioFile audioFile) {
-        MediaApplication.getInstance().getRepository().updateAudioFile(audioFile);
+        disposable = RxUtils.fromCallable(repository.updateAudioFile(audioFile))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(integer -> {
+                    listener.onEditTrackChanged(this.audioFile);
+                    dismiss();
+                });
     }
 
     @Override
@@ -131,18 +156,13 @@ public class EditTrackDialog extends DialogFragment implements View.OnClickListe
                 audioFile.commit();
 
                 updateAudioFileDatabase(this.audioFile);
-
-                listener.onEditTrackChanged(this.audioFile);
             } else {
                 listener.onEditTrackError();
             }
         } catch (CannotReadException | IOException | TagException |
                 ReadOnlyFileException | InvalidAudioFrameException | CannotWriteException e) {
             e.printStackTrace();
-
             listener.onEditTrackError();
-        } finally {
-            dismiss();
         }
     }
 

@@ -8,12 +8,15 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 import android.widget.TextView;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.ui.chooser.FileSystemChooserActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.utils.ffmpeg.Format;
 import com.fesskiev.mediacenter.widgets.progress.MaterialProgressBar;
+
+import javax.inject.Inject;
 
 
 public class ConverterFragment extends Fragment {
@@ -25,14 +28,15 @@ public class ConverterFragment extends Fragment {
     protected TextView saveFolderPath;
     protected TextView convertFilePath;
 
-    protected AppSettingsManager settingsManager;
-
     protected Format format;
+
+    @Inject
+    AppSettingsManager settingsManager;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        settingsManager = AppSettingsManager.getInstance();
+        MediaApplication.getInstance().getAppComponent().inject(this);
     }
 
     @Override

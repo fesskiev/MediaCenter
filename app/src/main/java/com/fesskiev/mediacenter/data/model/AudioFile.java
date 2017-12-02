@@ -108,7 +108,7 @@ public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
                     File path = File.createTempFile(UUID.randomUUID().toString(),
                             ".jpg", new File(CacheManager.IMAGES_AUDIO_CACHE_PATH));
 
-                    BitmapHelper.getInstance().saveBitmap(artwork.getBinaryData(), path);
+                    BitmapHelper.saveBitmap(artwork.getBinaryData(), path);
 
                     artworkPath = path.getAbsolutePath();
                 } catch (IOException e) {

@@ -7,7 +7,7 @@ import android.util.TypedValue;
 import android.view.ViewGroup;
 
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
+import com.fesskiev.mediacenter.ui.analytics.AnalyticsActivity;
 
 
 public class WearActivity extends AnalyticsActivity {

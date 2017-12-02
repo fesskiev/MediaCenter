@@ -6,20 +6,21 @@ import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
 import com.bumptech.glide.Glide;
-import com.fesskiev.mediacenter.data.source.DataRepository;
-import com.fesskiev.mediacenter.data.source.local.db.LocalDataSource;
-import com.fesskiev.mediacenter.data.source.remote.RemoteDataSource;
-import com.fesskiev.mediacenter.players.AudioPlayer;
-import com.fesskiev.mediacenter.players.VideoPlayer;
+import com.fesskiev.mediacenter.di.AppComponent;
+import com.fesskiev.mediacenter.di.AppModule;
+import com.fesskiev.mediacenter.di.AppSettingsModule;
+import com.fesskiev.mediacenter.di.DaggerAppComponent;
+import com.fesskiev.mediacenter.di.DataSourceModule;
+import com.fesskiev.mediacenter.di.DatabaseModule;
+import com.fesskiev.mediacenter.di.NetworkModule;
+import com.fesskiev.mediacenter.di.RepositoryModule;
+import com.fesskiev.mediacenter.di.RxBusModule;
+import com.fesskiev.mediacenter.di.UtilsModule;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.exoplayer2.upstream.HttpDataSource;
-import com.google.android.exoplayer2.util.Util;
 import com.google.firebase.crash.FirebaseCrash;
+
+import javax.inject.Inject;
 
 import io.reactivex.plugins.RxJavaPlugins;
 
@@ -38,38 +39,47 @@ public class MediaApplication extends MultiDexApplication {
     }
 
     private static MediaApplication INSTANCE;
-    private AudioPlayer audioPlayer;
-    private VideoPlayer videoPlayer;
-    private DataRepository repository;
-    private String userAgent;
+    private AppComponent appComponent;
+    @Inject
+    FFmpegHelper fFmpegHelper;
 
     @Override
     public void onCreate() {
         super.onCreate();
         INSTANCE = this;
+        appComponent = buildComponent();
 
-        repository = DataRepository.getInstance(RemoteDataSource.getInstance(), LocalDataSource.getInstance());
+        appComponent.inject(this);
 
-        audioPlayer = new AudioPlayer(repository);
-        videoPlayer = new VideoPlayer();
+        fFmpegHelper.loadFFmpegLibrary(new FFmpegHelper.OnConverterLibraryLoadListener() {
+            @Override
+            public void onSuccess() {
+                Log.e("ffmpef", "FFMPEG LOAD");
+            }
 
-        FFmpegHelper.getInstance()
-                .loadFFmpegLibrary(new FFmpegHelper.OnConverterLibraryLoadListener() {
-                    @Override
-                    public void onSuccess() {
-                        Log.e("ffmpef", "FFMPEG LOAD");
-                    }
-
-                    @Override
-                    public void onFailure() {
-                        Log.e("ffmpef", "FFMPEG FAIL");
-                    }
-                });
-
-
+            @Override
+            public void onFailure() {
+                Log.e("ffmpef", "FFMPEG FAIL");
+            }
+        });
         RxJavaPlugins.setErrorHandler(FirebaseCrash::report);
+    }
 
-        userAgent = Util.getUserAgent(this, "ExoPlayer");
+    protected AppComponent buildComponent() {
+        return DaggerAppComponent.builder()
+                .appModule(new AppModule(getApplicationContext()))
+                .repositoryModule(new RepositoryModule())
+                .dataSourceModule(new DataSourceModule())
+                .databaseModule(new DatabaseModule())
+                .networkModule(new NetworkModule("http://ws.audioscrobbler.com/2.0/"))
+                .utilsModule(new UtilsModule())
+                .rxBusModule(new RxBusModule())
+                .appSettingsModule((new AppSettingsModule()))
+                .build();
+    }
+
+    public AppComponent getAppComponent() {
+        return appComponent;
     }
 
 
@@ -100,26 +110,5 @@ public class MediaApplication extends MultiDexApplication {
                 AppLog.INFO("TRIM_MEMORY_COMPLETE");
                 break;
         }
-    }
-
-    public DataSource.Factory buildDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {
-        return new DefaultDataSourceFactory(this, bandwidthMeter,
-                buildHttpDataSourceFactory(bandwidthMeter));
-    }
-
-    public HttpDataSource.Factory buildHttpDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {
-        return new DefaultHttpDataSourceFactory(userAgent, bandwidthMeter);
-    }
-
-    public AudioPlayer getAudioPlayer() {
-        return audioPlayer;
-    }
-
-    public VideoPlayer getVideoPlayer() {
-        return videoPlayer;
-    }
-
-    public DataRepository getRepository() {
-        return repository;
     }
 }

@@ -1,8 +1,10 @@
 package com.fesskiev.mediacenter.ui.playlist;
 
-import android.app.Activity;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,19 +16,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
+import com.fesskiev.mediacenter.ui.analytics.AnalyticsActivity;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.MediaFile;
-import com.fesskiev.mediacenter.data.model.VideoFile;
-import com.fesskiev.mediacenter.data.source.DataRepository;
-import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.mediacenter.ui.video.player.VideoExoPlayerActivity;
-import com.fesskiev.mediacenter.utils.AppLog;
-import com.fesskiev.mediacenter.utils.BitmapHelper;
-import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.cards.PlayListCardView;
 import com.fesskiev.mediacenter.widgets.recycleview.HidingScrollListener;
@@ -36,15 +31,9 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.Observable;;
-import io.reactivex.android.schedulers.AndroidSchedulers;;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.Observable;
 
 public class PlayListActivity extends AnalyticsActivity {
-
-    private Disposable subscription;
-    private DataRepository repository;
 
     private AudioTracksAdapter adapter;
     private CardView emptyPlaylistCard;
@@ -52,23 +41,25 @@ public class PlayListActivity extends AnalyticsActivity {
 
     private List<PlayListCardView> openCards;
 
+    private PlayListViewModel viewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playlist);
-
-        repository = MediaApplication.getInstance().getRepository();
-        openCards = new ArrayList<>();
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
             toolbar.setTitle(getString(R.string.title_playlist_activity));
             setSupportActionBar(toolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-
         emptyPlaylistCard = findViewById(R.id.emptyPlaylistCard);
+        openCards = new ArrayList<>();
+        setupRecyclerView();
+        observeData();
+    }
 
+    private void setupRecyclerView() {
         RecyclerView recyclerView = findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false, 1000));
@@ -92,15 +83,34 @@ public class PlayListActivity extends AnalyticsActivity {
         });
     }
 
+    private void observeData() {
+        viewModel = ViewModelProviders.of(this).get(PlayListViewModel.class);
+        viewModel.getPlayListFilesLiveData().observe(this, this::setPlayListFiles);
+        viewModel.getEmptyPlaListLiveData().observe(this, Void -> setEmptyPlayList());
+        viewModel.getNotExistsMediaFileLiveData().observe(this, Void -> showMediaFileNotExistsSnackBar());
+    }
+
+    private void setPlayListFiles(List<MediaFile> mediaFiles) {
+        adapter.refreshAdapter(mediaFiles);
+        hideEmptyCardPlaylist();
+        showMenu();
+    }
+
+    private void setEmptyPlayList() {
+        adapter.clearAdapter();
+        showEmptyCardPlaylist();
+        hideMenu();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
         getMenuInflater().inflate(R.menu.menu_playlist, menu);
         View actionView = menu.findItem(R.id.action_clear_playlist).getActionView();
-        actionView.setOnClickListener(v -> clearPlaylist());
+        actionView.setOnClickListener(v -> viewModel.clearPlaylist());
         hideMenu();
 
-        fetchPlayListFiles();
+        viewModel.fetchPlayListFiles();
         return true;
     }
 
@@ -115,18 +125,30 @@ public class PlayListActivity extends AnalyticsActivity {
         return this.getLocalClassName();
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        RxUtils.unsubscribe(subscription);
+    private Observable<Bitmap> getPlayListArtwork(MediaFile mediaFile) {
+        return viewModel.getPlayListArtwork(mediaFile);
     }
 
+    private void removeFromPlayList(MediaFile mediaFile) {
+        viewModel.removeFromPlayList(mediaFile);
+    }
 
-    private void clearPlaylist() {
-        repository.clearPlaylist();
-        adapter.clearAdapter();
-        showEmptyCardPlaylist();
-        hideMenu();
+    private void startPlayerActivity(MediaFile mediaFile) {
+        if (viewModel.checkMediaFileExist(mediaFile)) {
+            switch (mediaFile.getMediaType()) {
+                case VIDEO:
+                    Intent intent = new Intent(this, VideoExoPlayerActivity.class);
+                    intent.putExtra(VideoExoPlayerActivity.URI_EXTRA, mediaFile.getFilePath());
+                    intent.putExtra(VideoExoPlayerActivity.VIDEO_NAME_EXTRA, mediaFile.getFileName());
+                    intent.setAction(VideoExoPlayerActivity.ACTION_VIEW_URI);
+                    startActivity(intent);
+                    break;
+                case AUDIO:
+                    viewModel.setCurrentAudioFileAndPlay((AudioFile) mediaFile);
+                    AudioPlayerActivity.startPlayerActivity(this);
+                    break;
+            }
+        }
     }
 
     private void closeOpenCards() {
@@ -140,30 +162,13 @@ public class PlayListActivity extends AnalyticsActivity {
         }
     }
 
-    public void fetchPlayListFiles() {
-        subscription = Observable.zip(repository.getAudioFilePlaylist(),
-                repository.getVideoFilePlaylist(),
-                (audioFiles, videoFiles) -> {
-                    List<MediaFile> mediaFiles = new ArrayList<>();
-                    mediaFiles.addAll(audioFiles);
-                    mediaFiles.addAll(videoFiles);
-                    return mediaFiles;
-                })
-                .firstOrError()
-                .toObservable()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(mediaFiles -> {
-                    AppLog.DEBUG("playlist size: " + mediaFiles.size());
-                    adapter.refreshAdapter(mediaFiles);
-                    if (!mediaFiles.isEmpty()) {
-                        hideEmptyCardPlaylist();
-                        showMenu();
-                    } else {
-                        showEmptyCardPlaylist();
-                        hideMenu();
-                    }
-                });
+    private void showMediaFileNotExistsSnackBar() {
+        Utils.showCustomSnackbar(getCurrentFocus(), getApplicationContext(),
+                getString(R.string.snackbar_file_not_exist), Snackbar.LENGTH_LONG).show();
+    }
+
+    public List<PlayListCardView> getOpenCards() {
+        return openCards;
     }
 
     private void hideMenu() {
@@ -174,14 +179,6 @@ public class PlayListActivity extends AnalyticsActivity {
         menu.findItem(R.id.action_clear_playlist).setVisible(true);
     }
 
-    public DataRepository getRepository() {
-        return repository;
-    }
-
-    public List<PlayListCardView> getOpenCards() {
-        return openCards;
-    }
-
     private void showEmptyCardPlaylist() {
         emptyPlaylistCard.setVisibility(View.VISIBLE);
     }
@@ -190,13 +187,12 @@ public class PlayListActivity extends AnalyticsActivity {
         emptyPlaylistCard.setVisibility(View.GONE);
     }
 
-
     private static class AudioTracksAdapter extends RecyclerView.Adapter<AudioTracksAdapter.ViewHolder> {
 
-        private WeakReference<Activity> activity;
+        private WeakReference<PlayListActivity> activity;
         private List<MediaFile> mediaFiles;
 
-        public AudioTracksAdapter(Activity activity) {
+        public AudioTracksAdapter(PlayListActivity activity) {
             this.activity = new WeakReference<>(activity);
             this.mediaFiles = new ArrayList<>();
         }
@@ -221,7 +217,7 @@ public class PlayListActivity extends AnalyticsActivity {
                         new PlayListCardView.OnPlayListCardListener() {
                             @Override
                             public void onDeleteClick() {
-                                removeFromPlaylist(getAdapterPosition());
+                                removeFromPlayList(getAdapterPosition());
                             }
 
                             @Override
@@ -231,7 +227,7 @@ public class PlayListActivity extends AnalyticsActivity {
 
                             @Override
                             public void onAnimateChanged(PlayListCardView cardView, boolean open) {
-                                PlayListActivity act = (PlayListActivity) activity.get();
+                                PlayListActivity act = activity.get();
                                 if (act != null) {
                                     if (open) {
                                         act.getOpenCards().add(cardView);
@@ -241,6 +237,26 @@ public class PlayListActivity extends AnalyticsActivity {
                                 }
                             }
                         });
+            }
+        }
+
+        private void removeFromPlayList(int position) {
+            PlayListActivity act = activity.get();
+            if (act != null) {
+                MediaFile mediaFile = mediaFiles.get(position);
+                if (mediaFile != null) {
+                    act.removeFromPlayList(mediaFile);
+                }
+            }
+        }
+
+        private void startPlayerActivity(int position) {
+            PlayListActivity act = activity.get();
+            if (act != null) {
+                MediaFile mediaFile = mediaFiles.get(position);
+                if (mediaFile != null) {
+                    act.startPlayerActivity(mediaFile);
+                }
             }
         }
 
@@ -257,9 +273,6 @@ public class PlayListActivity extends AnalyticsActivity {
 
             MediaFile mediaFile = mediaFiles.get(position);
             if (mediaFile != null) {
-
-                BitmapHelper.getInstance().loadTrackListArtwork(mediaFile, holder.cover);
-
                 switch (mediaFile.getMediaType()) {
                     case VIDEO:
                         holder.duration.setText(Utils.getVideoFileTimeFormat(mediaFile.getLength()));
@@ -270,6 +283,11 @@ public class PlayListActivity extends AnalyticsActivity {
                 }
                 holder.title.setText(mediaFile.getTitle());
                 holder.filePath.setText(mediaFile.getFilePath());
+
+                PlayListActivity act = activity.get();
+                if (act != null) {
+                    act.getPlayListArtwork(mediaFile).subscribe(bitmap -> holder.cover.setImageBitmap(bitmap));
+                }
             }
         }
 
@@ -288,48 +306,7 @@ public class PlayListActivity extends AnalyticsActivity {
             mediaFiles.clear();
             notifyDataSetChanged();
         }
-
-        private void removeFromPlaylist(int position) {
-            PlayListActivity act = (PlayListActivity) activity.get();
-            if (act != null) {
-                MediaFile mediaFile = mediaFiles.get(position);
-                if (mediaFile != null) {
-                    mediaFile.setToPlayList(false);
-                    DataRepository repository = act.getRepository();
-                    switch (mediaFile.getMediaType()) {
-                        case VIDEO:
-                            repository.updateVideoFile((VideoFile) mediaFile);
-                            break;
-                        case AUDIO:
-                            repository.updateAudioFile((AudioFile) mediaFile);
-                            break;
-                    }
-                    act.fetchPlayListFiles();
-                }
-            }
-        }
-
-        private void startPlayerActivity(int position) {
-            Activity act = activity.get();
-            if (act != null) {
-                MediaFile mediaFile = mediaFiles.get(position);
-                if (mediaFile != null) {
-                    switch (mediaFile.getMediaType()) {
-                        case VIDEO:
-                            Intent intent = new Intent(act, VideoExoPlayerActivity.class);
-                            intent.putExtra(VideoExoPlayerActivity.URI_EXTRA, mediaFile.getFilePath());
-                            intent.putExtra(VideoExoPlayerActivity.VIDEO_NAME_EXTRA, mediaFile.getFileName());
-                            intent.setAction(VideoExoPlayerActivity.ACTION_VIEW_URI);
-                            act.startActivity(intent);
-                            break;
-                        case AUDIO:
-                            AudioPlayer audioPlayer = MediaApplication.getInstance().getAudioPlayer();
-                            audioPlayer.setCurrentAudioFileAndPlay((AudioFile) mediaFile);
-                            AudioPlayerActivity.startPlayerActivity(act);
-                            break;
-                    }
-                }
-            }
-        }
     }
+
+
 }

@@ -10,12 +10,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.effects.ReverbState;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.widgets.effects.DialerView;
 import com.fesskiev.mediacenter.widgets.effects.ReverbControlView;
+
+import javax.inject.Inject;
 
 
 public class ReverbFragment extends Fragment implements DialerView.OnDialerViewListener,
@@ -30,15 +33,15 @@ public class ReverbFragment extends Fragment implements DialerView.OnDialerViewL
         return new ReverbFragment();
     }
 
-    private Context context;
-    private AppSettingsManager settingsManager;
     private ReverbState state;
+
+    @Inject
+    AppSettingsManager settingsManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        context = getContext().getApplicationContext();
-        settingsManager = AppSettingsManager.getInstance();
+        MediaApplication.getInstance().getAppComponent().inject(this);
 
         state = settingsManager.getReverbState();
         if (state == null) {
@@ -60,7 +63,7 @@ public class ReverbFragment extends Fragment implements DialerView.OnDialerViewL
         switchEQState.setOnClickListener(v -> {
             boolean checked = ((SwitchCompat) v).isChecked();
 
-            PlaybackService.changeReverbEnable(context, checked);
+            PlaybackService.changeReverbEnable(getContext(), checked);
 
         });
         switchEQState.setChecked(settingsManager.isReverbEnable());
@@ -124,7 +127,7 @@ public class ReverbFragment extends Fragment implements DialerView.OnDialerViewL
                 state.setRoomSize(level);
                 break;
         }
-        PlaybackService.changeReverbLevel(context, state);
+        PlaybackService.changeReverbLevel(getContext(), state);
 
     }
 }

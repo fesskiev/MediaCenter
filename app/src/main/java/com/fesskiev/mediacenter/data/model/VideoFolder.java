@@ -73,6 +73,11 @@ public class VideoFolder implements Comparable<VideoFolder>, Parcelable, MediaFo
     }
 
     @Override
+    public boolean exists() {
+        return folderPath.exists();
+    }
+
+    @Override
     public int compareTo(VideoFolder another) {
         if (this.index < another.index) {
             return -1;

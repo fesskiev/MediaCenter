@@ -14,8 +14,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
+import com.fesskiev.mediacenter.ui.analytics.AnalyticsActivity;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.chooser.FileSystemChooserActivity;
 import com.fesskiev.mediacenter.utils.AppAnimationUtils;
@@ -33,18 +34,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 
 public class CueActivity extends AnalyticsActivity {
 
     private CueAdapter adapter;
-    private AppSettingsManager settingsManager;
-
     private FloatingActionButton addCueFab;
+
+    @Inject
+    AppSettingsManager settingsManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cue);
+        MediaApplication.getInstance().getAppComponent().inject(this);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
@@ -79,7 +84,6 @@ public class CueActivity extends AnalyticsActivity {
         addCueFab = findViewById(R.id.addCueFileFab);
         addCueFab.setOnClickListener(v -> startChooserActivity());
 
-        settingsManager = AppSettingsManager.getInstance();
         tryLoadCue();
     }
 

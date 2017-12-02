@@ -6,10 +6,10 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
-import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
 
 import org.apache.commons.io.FileUtils;
@@ -39,9 +39,11 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
     private String folderNameChanged;
     private String fromDir;
 
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MediaApplication.getInstance().getAppComponent().inject(this);
 
         videoFolder = getArguments().getParcelable(DETAIL_MEDIA_FOLDER);
     }
@@ -67,22 +69,22 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
 
     @Override
     public void fetchFolderFiles() {
-        subscription = repository.getVideoFiles(videoFolder.getId())
+        disposable = repository.getVideoFiles(videoFolder.getId())
                 .subscribeOn(Schedulers.io())
-                .firstOrError()
-                .toObservable()
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(this::calculateValues)
+                .subscribeOn(Schedulers.io())
                 .flatMap(videoFiles -> {
                     for (VideoFile videoFile : videoFiles) {
                         String path = videoFile.framePath;
                         if (path != null) {
-                            BitmapHelper.getInstance().loadVideoFileCover(path, cover);
-                            break;
+                            return bitmapHelper.loadVideoFileFrame(path);
                         }
                     }
-                    return Observable.just(videoFiles);
+                    return Observable.empty();
                 })
-                .subscribe(this::calculateValues);
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(bitmap -> cover.setImageBitmap(bitmap));
     }
 
     @Override
@@ -98,15 +100,13 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
     private void saveVideoFolderName() {
         if (!TextUtils.isEmpty(folderNameChanged)) {
             if (!TextUtils.isEmpty(folderNameChanged)) {
-                subscription = Observable.just(folderNameChanged)
+                disposable = Observable.just(folderNameChanged)
                         .subscribeOn(Schedulers.io())
                         .flatMap(toDir -> Observable.just(renameFolder(toDir)))
                         .observeOn(AndroidSchedulers.mainThread())
                         .doOnNext(this::updateFolderPath)
                         .subscribeOn(Schedulers.io())
                         .flatMap(toDir -> repository.getVideoFiles(videoFolder.getId())
-                                .firstOrError()
-                                .toObservable()
                                 .doOnNext(audioFiles -> renameFiles(audioFiles, toDir))
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .doOnNext(audioFiles -> refreshCache()))
@@ -164,10 +164,8 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
     }
 
     private void changeHiddenFolderState(boolean hidden) {
-        subscription = repository.getVideoFiles(videoFolder.getId())
+        disposable = repository.getVideoFiles(videoFolder.getId())
                 .subscribeOn(Schedulers.io())
-                .firstOrError()
-                .toObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(videoFiles -> updateHiddenVideoFolder(hidden))
                 .doOnNext(videoFiles -> updateHiddenVideoFiles(videoFiles, hidden))

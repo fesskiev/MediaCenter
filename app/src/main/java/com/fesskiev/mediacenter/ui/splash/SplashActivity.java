@@ -29,6 +29,8 @@ import com.fesskiev.mediacenter.utils.Utils;
 import java.io.File;
 import java.util.UUID;
 
+import javax.inject.Inject;
+
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;;
 import io.reactivex.disposables.Disposable;
@@ -43,15 +45,19 @@ public class SplashActivity extends AppCompatActivity {
     private static final int ANIM_ITEM_DURATION = 1000;
     private static final int ITEM_DELAY = 300;
 
-    private DataRepository repository;
+    @Inject
+    DataRepository repository;
+    @Inject
+    AppSettingsManager settingsManager;
+
     private Disposable subscription;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+        MediaApplication.getInstance().getAppComponent().inject(this);
 
-        AppSettingsManager settingsManager = AppSettingsManager.getInstance();
         if (settingsManager.isFirstStartApp()) {
             startWalkthroughActivity();
         } else {
@@ -74,8 +80,6 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void startApplication() {
-        repository = MediaApplication.getInstance().getRepository();
-
         Intent intent = getIntent();
         String action = intent.getAction();
         String type = intent.getType();

@@ -68,12 +68,10 @@ public class MediaContentUpdateTimeView extends AnimateStateShow implements Radi
         for(RadioButton radioButton : radioButtons){
             radioButton.setTypeface(ResourcesCompat.getFont(getContext(), R.font.ubuntu));
         }
-
-        settingsManager = AppSettingsManager.getInstance();
-        setSelectedUpdateTimeType();
     }
 
-    private void setSelectedUpdateTimeType() {
+    public void setSelectedUpdateTimeType(AppSettingsManager settingsManager) {
+        this.settingsManager = settingsManager;
         long updateTime = settingsManager.getMediaContentUpdateTime();
         if (updateTime == HALF_HOUR) {
             radioButtons[1].setChecked(true);

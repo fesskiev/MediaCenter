@@ -32,6 +32,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
 import io.reactivex.Observable;;
 import io.reactivex.android.schedulers.AndroidSchedulers;;
 import io.reactivex.disposables.Disposable;
@@ -58,7 +60,11 @@ public class VideoFileDetailsDialog extends DialogFragment implements TextWatche
     private OnVideoFileDetailsDialogListener listener;
 
     private Disposable subscription;
-    private DataRepository repository;
+
+    @Inject
+    DataRepository repository;
+    @Inject
+    BitmapHelper bitmapHelper;
 
     private VideoFile videoFile;
 
@@ -78,8 +84,7 @@ public class VideoFileDetailsDialog extends DialogFragment implements TextWatche
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NO_TITLE, R.style.CustomFragmentDialog);
-
-        repository = MediaApplication.getInstance().getRepository();
+        MediaApplication.getInstance().getAppComponent().inject(this);
 
         videoFile = getArguments().getParcelable(DETAIL_VIDEO_FILE);
     }
@@ -210,7 +215,10 @@ public class VideoFileDetailsDialog extends DialogFragment implements TextWatche
         } else {
             hideFolder.setChecked(false);
         }
-        BitmapHelper.getInstance().loadVideoFileCover(videoFile.framePath, cover);
+        subscription = bitmapHelper.loadVideoFileFrame(videoFile.framePath)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(bitmap -> cover.setImageBitmap(bitmap));
     }
 
     private void changeHiddenFleState(boolean hide) {

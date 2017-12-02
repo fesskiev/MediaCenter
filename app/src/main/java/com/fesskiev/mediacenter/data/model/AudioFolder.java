@@ -79,6 +79,11 @@ public class AudioFolder implements Comparable<AudioFolder>, Parcelable, MediaFo
     }
 
     @Override
+    public boolean exists() {
+        return folderPath.exists();
+    }
+
+    @Override
     public int compareTo(AudioFolder another) {
         if (this.index < another.index) {
             return -1;

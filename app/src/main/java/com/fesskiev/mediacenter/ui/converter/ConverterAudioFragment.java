@@ -17,6 +17,8 @@ import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
 import com.fesskiev.mediacenter.utils.ffmpeg.Format;
 
+import javax.inject.Inject;
+
 
 public class ConverterAudioFragment extends ConverterFragment implements RadioGroup.OnCheckedChangeListener {
 
@@ -24,13 +26,15 @@ public class ConverterAudioFragment extends ConverterFragment implements RadioGr
         return new ConverterAudioFragment();
     }
 
-
-    private AudioPlayer audioPlayer;
+    @Inject
+    AudioPlayer audioPlayer;
+    @Inject
+    FFmpegHelper fFmpegHelper;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        audioPlayer = MediaApplication.getInstance().getAudioPlayer();
+        MediaApplication.getInstance().getAppComponent().inject(this);
     }
 
     @Override
@@ -77,7 +81,7 @@ public class ConverterAudioFragment extends ConverterFragment implements RadioGr
 
         String saveFolder = saveFolderPath.getText().toString();
 
-        FFmpegHelper.getInstance().convertAudioPlayerFLAC(convertFile, saveFolder,
+        fFmpegHelper.convertAudioPlayerFLAC(convertFile, saveFolder,
                 format,
                 new FFmpegHelper.OnConvertProcessListener() {
                     @Override

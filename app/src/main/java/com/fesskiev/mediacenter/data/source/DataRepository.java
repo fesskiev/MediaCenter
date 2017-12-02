@@ -9,35 +9,25 @@ import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
 import com.fesskiev.mediacenter.data.model.search.AlbumResponse;
-import com.fesskiev.mediacenter.data.source.local.db.LocalDataSource;
+import com.fesskiev.mediacenter.data.source.local.LocalDataSource;
 import com.fesskiev.mediacenter.data.source.remote.RemoteDataSource;
 
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import io.reactivex.Observable;;
+import io.reactivex.Observable;
 
 
 public class DataRepository {
 
     private static final String TAG = DataRepository.class.getSimpleName();
 
-    private static DataRepository INSTANCE;
-
     private LocalDataSource localSource;
     private RemoteDataSource remoteSource;
 
-    private DataRepository(RemoteDataSource remoteSource, LocalDataSource localSource) {
+    public DataRepository(RemoteDataSource remoteSource, LocalDataSource localSource) {
         this.localSource = localSource;
         this.remoteSource = remoteSource;
-
-    }
-
-    public static DataRepository getInstance(RemoteDataSource remoteSource, LocalDataSource localSource) {
-        if (INSTANCE == null) {
-            INSTANCE = new DataRepository(remoteSource, localSource);
-        }
-        return INSTANCE;
     }
 
     public Observable<List<String>> getArtistsList() {
@@ -98,16 +88,16 @@ public class DataRepository {
         return localSource.updateVideoFoldersIndex(videoFolders);
     }
 
-    public void updateAudioFile(AudioFile audioFile) {
-        localSource.updateAudioFile(audioFile);
+    public Callable<Integer> updateAudioFile(AudioFile audioFile) {
+        return localSource.updateAudioFile(audioFile);
     }
 
     public void updateSelectedAudioFile(AudioFile audioFile) {
         localSource.updateSelectedAudioFile(audioFile);
     }
 
-    public void deleteAudioFile(String path) {
-        localSource.deleteAudioFile(path);
+    public Callable<Integer> deleteAudioFile(String path) {
+        return localSource.deleteAudioFile(path);
     }
 
     public Observable<AudioFile> getAudioFileByPath(String path) {
@@ -153,8 +143,8 @@ public class DataRepository {
         return localSource.deleteVideoFolderWithFiles(videoFolder);
     }
 
-    public void clearPlaylist() {
-        localSource.clearPlaylist();
+    public Callable<Integer> clearPlaylist() {
+        return localSource.clearPlaylist();
     }
 
     public Observable<List<MediaFile>> getAudioFilePlaylist() {
@@ -177,8 +167,8 @@ public class DataRepository {
         return localSource.deleteVideoFile(path);
     }
 
-    public void updateVideoFile(VideoFile videoFile) {
-        localSource.updateVideoFile(videoFile);
+    public Callable<Integer> updateVideoFile(VideoFile videoFile) {
+        return localSource.updateVideoFile(videoFile);
     }
 
     public Observable<List<AudioFile>> getSearchAudioFiles(String query) {

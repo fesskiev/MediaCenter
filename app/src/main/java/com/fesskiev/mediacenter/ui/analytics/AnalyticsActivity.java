@@ -1,4 +1,5 @@
-package com.fesskiev.mediacenter.analytics;
+package com.fesskiev.mediacenter.ui.analytics;
+
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;

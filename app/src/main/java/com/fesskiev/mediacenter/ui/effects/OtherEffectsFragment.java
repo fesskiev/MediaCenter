@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.effects.EchoState;
 import com.fesskiev.mediacenter.data.model.effects.WhooshState;
@@ -18,6 +19,8 @@ import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.widgets.effects.DialerView;
 import com.fesskiev.mediacenter.widgets.effects.EchoControlView;
 import com.fesskiev.mediacenter.widgets.effects.WhooshControlView;
+
+import javax.inject.Inject;
 
 
 public class OtherEffectsFragment extends Fragment implements EchoControlView.OnEchoControlListener,
@@ -31,16 +34,16 @@ public class OtherEffectsFragment extends Fragment implements EchoControlView.On
     private static final String WHOOSH_FREQUENCY = "Frequency";
     private static final String WHOOSH_MIX = "Mix";
 
-    private Context context;
-    private AppSettingsManager settingsManager;
     private WhooshState whooshState;
     private EchoState echoState;
+
+    @Inject
+    AppSettingsManager settingsManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        context = getContext().getApplicationContext();
-        settingsManager = AppSettingsManager.getInstance();
+        MediaApplication.getInstance().getAppComponent().inject(this);
 
         whooshState = settingsManager.getWhooshState();
         if (whooshState == null) {
@@ -68,7 +71,7 @@ public class OtherEffectsFragment extends Fragment implements EchoControlView.On
         switchEchoState.setOnClickListener(v -> {
             boolean checked = ((SwitchCompat) v).isChecked();
 
-            PlaybackService.changeEchoEnable(context, checked);
+            PlaybackService.changeEchoEnable(getContext(), checked);
 
         });
         switchEchoState.setChecked(settingsManager.isEchoEnable());
@@ -78,7 +81,7 @@ public class OtherEffectsFragment extends Fragment implements EchoControlView.On
         switchWhooshState.setOnClickListener(v -> {
             boolean checked = ((SwitchCompat) v).isChecked();
 
-            PlaybackService.changeWhooshEnable(context, checked);
+            PlaybackService.changeWhooshEnable(getContext(), checked);
 
         });
         switchWhooshState.setChecked(settingsManager.isWhooshEnable());
@@ -146,7 +149,7 @@ public class OtherEffectsFragment extends Fragment implements EchoControlView.On
                 break;
 
         }
-        PlaybackService.changeWhooshLevel(context, whooshState);
+        PlaybackService.changeWhooshLevel(getContext(), whooshState);
     }
 
     @Override
@@ -155,6 +158,6 @@ public class OtherEffectsFragment extends Fragment implements EchoControlView.On
         echoState.setLevel(level);
         echoState.setLevelValues(values);
 
-        PlaybackService.changeEchoLevel(context, echoState);
+        PlaybackService.changeEchoLevel(getContext(), echoState);
     }
 }

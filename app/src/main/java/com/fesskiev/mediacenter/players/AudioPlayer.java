@@ -10,6 +10,7 @@ import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.Playable;
+import com.fesskiev.mediacenter.utils.RxBus;
 import com.fesskiev.mediacenter.utils.comparators.SortByDuration;
 import com.fesskiev.mediacenter.utils.comparators.SortByFileSize;
 import com.fesskiev.mediacenter.utils.comparators.SortByTimestamp;
@@ -32,6 +33,9 @@ public class AudioPlayer implements Playable {
 
     private Context context;
     private DataRepository repository;
+    private RxBus rxBus;
+    private FFmpegHelper fFmpegHelper;
+
 
     private TrackListIterator trackListIterator;
     private List<AudioFile> currentTrackList;
@@ -39,9 +43,12 @@ public class AudioPlayer implements Playable {
     private int position;
 
 
-    public AudioPlayer(Context context, DataRepository repository) {
+    public AudioPlayer(Context context, RxBus rxBus,
+                       DataRepository repository, FFmpegHelper fFmpegHelper) {
         this.context = context;
+        this.rxBus = rxBus;
         this.repository = repository;
+        this.fFmpegHelper = fFmpegHelper;
         trackListIterator = new TrackListIterator();
     }
 
@@ -73,6 +80,7 @@ public class AudioPlayer implements Playable {
                 repository.updateSelectedAudioFile(audioFile);
 
                 openAudioFile();
+                notifyCurrentTrack();
             }
         }
     }
@@ -88,6 +96,7 @@ public class AudioPlayer implements Playable {
                 repository.updateSelectedAudioFile(audioFile);
 
                 openAudioFile();
+                notifyCurrentTrack();
             }
         }
     }
@@ -105,14 +114,12 @@ public class AudioPlayer implements Playable {
 
     private void openAudioFile() {
         Log.e(TAG, AudioPlayer.this.toString());
-
-        FFmpegHelper FFmpeg = FFmpegHelper.getInstance();
-        if (FFmpeg.isCommandRunning()) {
-            FFmpeg.killRunningProcesses();
+        if (fFmpegHelper.isCommandRunning()) {
+            fFmpegHelper.killRunningProcesses();
         }
 
         if (FFmpegHelper.isAudioFileFLAC(currentTrack)) {
-            FFmpeg.convertAudioIfNeed(currentTrack, new FFmpegHelper.OnConvertProcessListener() {
+            fFmpegHelper.convertAudioIfNeed(currentTrack, new FFmpegHelper.OnConvertProcessListener() {
 
                 @Override
                 public void onStart() {
@@ -141,13 +148,13 @@ public class AudioPlayer implements Playable {
 
     public void setCurrentAudioFileAndPlay(AudioFile audioFile) {
         currentTrack = audioFile;
-
         trackListIterator.findPosition();
 
         audioFile.isSelected = true;
         repository.updateSelectedAudioFile(audioFile);
 
         openAudioFile();
+        notifyCurrentTrack();
     }
 
 
@@ -160,6 +167,7 @@ public class AudioPlayer implements Playable {
             audioFolder.isSelected = true;
             repository.updateSelectedAudioFolder(audioFolder);
         }
+        notifyCurrentTrackList();
     }
 
     public void setSortingTrackList(List<AudioFile> audioFiles) {
@@ -169,7 +177,6 @@ public class AudioPlayer implements Playable {
         if (isSortingCurrentTrackList(audioFiles)) {
             currentTrackList = audioFiles;
             trackListIterator.findPosition();
-
         }
     }
 
@@ -205,6 +212,14 @@ public class AudioPlayer implements Playable {
         if (!last()) {
             next();
         }
+    }
+
+    private void notifyCurrentTrack(){
+        rxBus.send(currentTrack);
+    }
+
+    private void notifyCurrentTrackList(){
+        rxBus.send(currentTrackList);
     }
 
     public static List<AudioFile> sortAudioFiles(int type, List<AudioFile> unsortedList) {

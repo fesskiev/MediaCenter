@@ -116,6 +116,7 @@
     <string name="snackbar_vk_auth_error">Auth error</string>
 
     <string name="snackbar_file_not_exist">File not exist</string>
+    <string name="snackbar_folder_not_exist">Folder not exist</string>
 
     <string name="preset_spinner_none">NONE</string>
     <string name="preset_spinner_custom">CUSTOM</string>
@@ -162,7 +163,7 @@
     <string name="search_artist_enter_error">Enter correct artist name</string>
     <string name="search_album_enter_error">Enter correct album name</string>
     <string name="search_load_album_success">The album data has been loaded success. Save cover?</string>
-    <string name="search_load_album_error">Album loaded error</string>
+    <string name="ssearch_load_album_not_found">Album has not found</string>
     <string name="search_save_bitmap_error">Cover save error</string>
     <string name="search_save_bitmap_success">The cover has been saved</string>
 

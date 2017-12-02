@@ -72,9 +72,9 @@ public class Purchase {
     @Expose
     private String token;
 
-    // Indicates whether the subscription renews automatically. If true, the subscription is active,
+    // Indicates whether the disposable renews automatically. If true, the disposable is active,
     // and will automatically renew on the next billing date. If false, indicates that the user has
-    // canceled the subscription. The user has access to subscription content until the next billing
+    // canceled the disposable. The user has access to disposable content until the next billing
     // date and will lose access at that time unless they re-enable automatic renewal
     @SerializedName("autoRenewing")
     @Expose

@@ -21,8 +21,6 @@ import com.fesskiev.mediacenter.ui.MainActivity;
 
 public class NotificationHelper {
 
-    private static NotificationHelper INSTANCE;
-
     private static final String CONTROL_CHANNEL = "notification_channel_control";
     private static final String MEDIA_CHANNEL = "notification_channel_media";
 
@@ -48,11 +46,9 @@ public class NotificationHelper {
     private NotificationManager notificationManager;
     private Notification notification;
 
-    private NotificationHelper() {
-        this.context = MediaApplication.getInstance().getApplicationContext();
-        this.notificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
+    public NotificationHelper(Context context) {
+        this.context = context;
+        this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (Utils.isOreo()) {
             NotificationChannel channelControl = new NotificationChannel(CONTROL_CHANNEL,
                     context.getString(R.string.app_name), NotificationManager.IMPORTANCE_DEFAULT);
@@ -72,14 +68,6 @@ public class NotificationHelper {
             notificationManager.createNotificationChannel(channelMedia);
         }
     }
-
-    public static NotificationHelper getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new NotificationHelper();
-        }
-        return INSTANCE;
-    }
-
 
     public void updateNotification(AudioFile audioFile, Bitmap bitmap, boolean isPlaying) {
         this.playing = isPlaying;

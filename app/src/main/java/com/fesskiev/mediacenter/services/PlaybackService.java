@@ -1,11 +1,14 @@
 package com.fesskiev.mediacenter.services;
 
 import android.app.Service;
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.OnLifecycleEvent;
+import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.os.IBinder;
 import android.support.annotation.Keep;
@@ -19,15 +22,19 @@ import com.fesskiev.mediacenter.data.model.effects.EchoState;
 import com.fesskiev.mediacenter.data.model.effects.ReverbState;
 import com.fesskiev.mediacenter.data.model.effects.WhooshState;
 import com.fesskiev.mediacenter.players.AudioPlayer;
+import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.AudioFocusManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.CountDownTimer;
 import com.fesskiev.mediacenter.utils.NotificationHelper;
+import com.fesskiev.mediacenter.utils.RxBus;
 import com.fesskiev.mediacenter.utils.WearHelper;
 
 import java.util.List;
+
+import javax.inject.Inject;
 
 public class PlaybackService extends Service {
 
@@ -90,12 +97,6 @@ public class PlaybackService extends Service {
     public static final String ACTION_START_CONVERT =
             "com.fesskiev.player.action.ACTION_START_CONVERT";
 
-    public static final String ACTION_GO_BACKGROUND =
-            "com.fesskiev.player.action.ACTION_GO_BACKGROUND";
-    public static final String ACTION_GO_FOREGROUND =
-            "com.fesskiev.player.action.ACTION_GO_FOREGROUND";
-
-
     public static final String PLAYBACK_EXTRA_MUSIC_FILE_PATH
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_MUSIC_FILE_PATH";
     public static final String PLAYBACK_EXTRA_SEEK
@@ -138,16 +139,23 @@ public class PlaybackService extends Service {
     public static final String PLAYBACK_EXTRA_LOOPING_END
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_LOOPING_END";
 
-    private AppSettingsManager settingsManager;
+    @Inject
+    AppSettingsManager settingsManager;
+    @Inject
+    AudioPlayer audioPlayer;
+    @Inject
+    RxBus rxBus;
+    @Inject
+    BitmapHelper bitmapHelper;
+    @Inject
+    NotificationHelper notificationHelper;
 
-    private NotificationHelper notificationHelper;
     private WearHelper wearHelper;
 
     private AudioFocusManager audioFocusManager;
     private CountDownTimer timer;
 
     private AudioFile currentTrack;
-    private AudioPlayer audioPlayer;
 
     private int duration;
     private int position;
@@ -337,30 +345,18 @@ public class PlaybackService extends Service {
         context.startService(intent);
     }
 
-    public static void goBackground(Context context) {
-        Intent intent = new Intent(context, PlaybackService.class);
-        intent.setAction(ACTION_GO_BACKGROUND);
-        context.startService(intent);
-    }
-
-    public static void goForeground(Context context) {
-        Intent intent = new Intent(context, PlaybackService.class);
-        intent.setAction(ACTION_GO_FOREGROUND);
-        context.startService(intent);
-    }
-
-
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "Create playback service!");
 
-        settingsManager = AppSettingsManager.getInstance();
+        MediaApplication.getInstance().getAppComponent().inject(this);
+        addProcessLifecycleObserver();
+
+        observeEvents();
 
         volume = settingsManager.getAudioPlayerVolume();
         position = settingsManager.getAudioPlayerPosition();
-
-        EventBus.getDefault().register(this);
 
         timer = new CountDownTimer(500);
         timer.pause();
@@ -389,7 +385,7 @@ public class PlaybackService extends Service {
             }
 
 //            Log.d("event", PlaybackService.this.toString());
-            EventBus.getDefault().post(PlaybackService.this);
+            sendPlaybackEvent();
         });
 
         audioFocusManager = new AudioFocusManager();
@@ -425,7 +421,7 @@ public class PlaybackService extends Service {
         registerCallback();
 
         createPlayer();
-        EventBus.getDefault().post(PlaybackService.this);
+        sendPlaybackEvent();
     }
 
     private void next() {
@@ -440,12 +436,6 @@ public class PlaybackService extends Service {
             if (action != null) {
                 Log.d(TAG, "playback service handle intent: " + action);
                 switch (action) {
-                    case ACTION_GO_BACKGROUND:
-                        onBackground();
-                        break;
-                    case ACTION_GO_FOREGROUND:
-                        onForeground();
-                        break;
                     case ACTION_START_FOREGROUND:
                         tryStartForeground();
                         makeWearModule();
@@ -475,7 +465,7 @@ public class PlaybackService extends Service {
                     case ACTION_PLAYBACK_EQ_STATE:
                         boolean eqEnable = intent.getBooleanExtra(PLAYBACK_EXTRA_EQ_ENABLE, false);
                         enableEQ(eqEnable);
-                        EventBus.getDefault().post(PlaybackService.this);
+                        sendPlaybackEvent();
                         break;
                     case ACTION_PLAYBACK_LOOPING_STATE:
                         boolean looping =
@@ -490,7 +480,7 @@ public class PlaybackService extends Service {
                     case ACTION_PLAYBACK_REVERB_STATE:
                         boolean reverbEnable = intent.getBooleanExtra(PLAYBACK_EXTRA_REVERB_ENABLE, false);
                         enableReverb(reverbEnable);
-                        EventBus.getDefault().post(PlaybackService.this);
+                        sendPlaybackEvent();
                         break;
                     case ACTION_PLAYBACK_REVERB_LEVEL:
                         ReverbState reverbState = intent.getParcelableExtra(PLAYBACK_EXTRA_REVERB_LEVEL);
@@ -501,7 +491,7 @@ public class PlaybackService extends Service {
                     case ACTION_PLAYBACK_ECHO_STATE:
                         boolean echoEnable = intent.getBooleanExtra(PLAYBACK_EXTRA_ECHO_ENABLE, false);
                         enableEcho(echoEnable);
-                        EventBus.getDefault().post(PlaybackService.this);
+                        sendPlaybackEvent();
                         break;
                     case ACTION_PLAYBACK_ECHO_LEVEL:
                         EchoState echoState = intent.getParcelableExtra(PLAYBACK_EXTRA_ECHO_LEVEL);
@@ -531,7 +521,7 @@ public class PlaybackService extends Service {
                         sendPlaybackStateIfNeed();
                         break;
                     case ACTION_START_RECORDING:
-                        startRecording(CacheManager.getRecordDestPath().getAbsolutePath());
+                        startRecording(CacheManager.getRecordDestPath(settingsManager).getAbsolutePath());
                         break;
                     case ACTION_STOP_RECORDING:
                         stopRecording();
@@ -554,7 +544,7 @@ public class PlaybackService extends Service {
     }
 
     private void makeWearModule() {
-        wearHelper = new WearHelper(getApplicationContext(), this);
+        wearHelper = new WearHelper(getApplicationContext(), audioPlayer, this);
         wearHelper.connect();
         wearHelper.setOnWearControlListener(new WearHelper.OnWearControlListener() {
 
@@ -619,42 +609,28 @@ public class PlaybackService extends Service {
     }
 
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onCurrentTrackEvent(AudioFile currentTrack) {
-        this.currentTrack = currentTrack;
-        updateNotification(currentTrack);
-        updateWearTrack(currentTrack);
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onCurrentTrackListEvent(List<AudioFile> currentTrackList) {
-        updateWearTrackList(currentTrackList);
-    }
-
-    private void updateWearTrackList(List<AudioFile> currentTrackList) {
-        wearHelper.updateTrackList(currentTrackList);
-    }
-
-
-    private void updateWearTrack(AudioFile currentTrack) {
-        wearHelper.updateTrack(currentTrack);
+    private void observeEvents() {
+        rxBus.toObservable()
+                .doOnNext(object -> {
+                    if (object instanceof AudioFile) {
+                        this.currentTrack = (AudioFile) object;
+                        updateNotification(currentTrack);
+                        wearHelper.updateTrack(currentTrack);
+                    } else if (object instanceof List<?>) {
+                        List<?> list = (List<?>) object;
+                        if (!list.isEmpty() && list.get(0) instanceof AudioFile) {
+                            wearHelper.updateTrackList((List<AudioFile>) object);
+                        }
+                    }
+                }).subscribe();
     }
 
     private void updateNotification(AudioFile audioFile) {
-        BitmapHelper.getInstance().loadBitmap(audioFile, new BitmapHelper.OnBitmapLoadListener() {
-            @Override
-            public void onLoaded(Bitmap bitmap) {
-                if (notificationHelper != null) {
-                    notificationHelper.updateNotification(audioFile, bitmap, playing);
-
-                    //TODO start foreground
-                    startForeground(NotificationHelper.NOTIFICATION_ID, notificationHelper.getNotification());
-                }
-            }
-
-            @Override
-            public void onFailed() {
-
+        bitmapHelper.loadBitmap(audioFile).subscribe(bitmap -> {
+            if (notificationHelper != null) {
+                notificationHelper.updateNotification(audioFile, bitmap, playing);
+                //TODO start foreground
+                startForeground(NotificationHelper.NOTIFICATION_ID, notificationHelper.getNotification());
             }
         });
     }
@@ -667,7 +643,6 @@ public class PlaybackService extends Service {
         filter.addAction(NotificationHelper.ACTION_MEDIA_CONTROL_PREVIOUS);
         filter.addAction(NotificationHelper.ACTION_CLOSE_APP);
         registerReceiver(notificationReceiver, filter);
-
     }
 
     private void unregisterNotificationReceiver() {
@@ -679,22 +654,24 @@ public class PlaybackService extends Service {
         public void onReceive(Context context, Intent intent) {
             if (currentTrack != null) {
                 final String action = intent.getAction();
-                switch (action) {
-                    case NotificationHelper.ACTION_MEDIA_CONTROL_PLAY:
-                        audioPlayer.play();
-                        break;
-                    case NotificationHelper.ACTION_MEDIA_CONTROL_PAUSE:
-                        audioPlayer.pause();
-                        break;
-                    case NotificationHelper.ACTION_MEDIA_CONTROL_PREVIOUS:
-                        audioPlayer.previous();
-                        break;
-                    case NotificationHelper.ACTION_MEDIA_CONTROL_NEXT:
-                        audioPlayer.next();
-                        break;
-                    case NotificationHelper.ACTION_CLOSE_APP:
-                        closeApp();
-                        break;
+                if (action != null) {
+                    switch (action) {
+                        case NotificationHelper.ACTION_MEDIA_CONTROL_PLAY:
+                            audioPlayer.play();
+                            break;
+                        case NotificationHelper.ACTION_MEDIA_CONTROL_PAUSE:
+                            audioPlayer.pause();
+                            break;
+                        case NotificationHelper.ACTION_MEDIA_CONTROL_PREVIOUS:
+                            audioPlayer.previous();
+                            break;
+                        case NotificationHelper.ACTION_MEDIA_CONTROL_NEXT:
+                            audioPlayer.next();
+                            break;
+                        case NotificationHelper.ACTION_CLOSE_APP:
+                            closeApp();
+                            break;
+                    }
                 }
             }
         }
@@ -702,7 +679,7 @@ public class PlaybackService extends Service {
 
     private void closeApp() {
         finish = true;
-        EventBus.getDefault().post(PlaybackService.this);
+        sendPlaybackEvent();
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
@@ -713,25 +690,20 @@ public class PlaybackService extends Service {
 
 
     private void tryStartForeground() {
-        notificationHelper = NotificationHelper.getInstance();
-        audioPlayer = MediaApplication.getInstance().getAudioPlayer();
         currentTrack = audioPlayer.getCurrentTrack();
-
         updateNotification(currentTrack);
     }
 
     private void sendPlaybackStateIfNeed() {
         if (!playing) {
-            EventBus.getDefault().post(PlaybackService.this);
+            sendPlaybackEvent();
         }
     }
-
 
     private void registerHeadsetReceiver() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_HEADSET_PLUG);
-        registerReceiver(headsetReceiver,
-                intentFilter);
+        registerReceiver(headsetReceiver, intentFilter);
     }
 
     private void unregisterHeadsetReceiver() {
@@ -754,7 +726,7 @@ public class PlaybackService extends Service {
                         } else if (!headsetConnected && intent.getIntExtra("state", 0) == 1) {
                             if (!isInitialStickyBroadcast()) {
                                 Log.w(TAG, "PLUG IN");
-                                if (AppSettingsManager.getInstance().isPlayPlugInHeadset() && !playing) {
+                                if (settingsManager.isPlayPlugInHeadset() && !playing) {
                                     play();
                                 }
                             }
@@ -768,11 +740,12 @@ public class PlaybackService extends Service {
 
 
     private void createPlayer() {
-
-        String sampleRateString, bufferSizeString;
+        String sampleRateString = null, bufferSizeString = null;
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        sampleRateString = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE);
-        bufferSizeString = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER);
+        if (audioManager != null) {
+            sampleRateString = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE);
+            bufferSizeString = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER);
+        }
         if (sampleRateString == null) {
             sampleRateString = "44100";
         }
@@ -797,7 +770,7 @@ public class PlaybackService extends Service {
     }
 
     private void createEchoIfNeed() {
-        EchoState echoState = AppSettingsManager.getInstance().getEchoState();
+        EchoState echoState = settingsManager.getEchoState();
         if (echoState != null) {
             Log.wtf(TAG, "create Echo state");
             setEchoValue((int) echoState.getLevel());
@@ -805,7 +778,7 @@ public class PlaybackService extends Service {
     }
 
     private void createWhooshIfNeed() {
-        WhooshState whooshState = AppSettingsManager.getInstance().getWhooshState();
+        WhooshState whooshState = settingsManager.getWhooshState();
         if (whooshState != null) {
             Log.wtf(TAG, "create Whoosh state");
             setWhooshValue((int) whooshState.getMix(), (int) whooshState.getFrequency());
@@ -813,7 +786,7 @@ public class PlaybackService extends Service {
     }
 
     private void createReverbStateIfNeed() {
-        ReverbState reverbState = AppSettingsManager.getInstance().getReverbState();
+        ReverbState reverbState = settingsManager.getReverbState();
         if (reverbState != null) {
             Log.wtf(TAG, "create Reverb state");
             setReverbValue((int) reverbState.getMix(), (int) reverbState.getWeight(),
@@ -822,7 +795,7 @@ public class PlaybackService extends Service {
     }
 
     private void createEQStateIfNeed() {
-        EQState eqState = AppSettingsManager.getInstance().getEQState();
+        EQState eqState = settingsManager.getEQState();
         if (eqState != null) {
             Log.wtf(TAG, "create EQ state: " + eqState.toString());
             for (int i = 0; i < 3; i++) {
@@ -845,8 +818,7 @@ public class PlaybackService extends Service {
         loadSuccess = false;
         loadError = false;
         convertStart = true;
-
-        EventBus.getDefault().post(PlaybackService.this);
+        sendPlaybackEvent();
     }
 
     private void openFile(String path) {
@@ -854,9 +826,7 @@ public class PlaybackService extends Service {
         loadSuccess = false;
         loadError = false;
         convertStart = false;
-
         openAudioFile(path);
-
     }
 
 
@@ -865,7 +835,6 @@ public class PlaybackService extends Service {
         togglePlayback();
         audioFocusManager.tryToGetAudioFocus();
         timer.tick();
-
     }
 
 
@@ -881,7 +850,6 @@ public class PlaybackService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "Destroy playback service");
-
         if (playing) {
             stop();
         }
@@ -899,13 +867,33 @@ public class PlaybackService extends Service {
         unregisterCallback();
         onDestroyAudioPlayer();
 
-        EventBus.getDefault().unregister(this);
-
         if (settingsManager != null) {
             settingsManager.setAudioPlayerPosition(position);
             settingsManager.setAudioPlayerVolume(volume);
         }
     }
+
+    private void addProcessLifecycleObserver() {
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(new ProcessLifecycleObserver());
+    }
+
+    public class ProcessLifecycleObserver implements LifecycleObserver {
+
+        @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+        public void resumed() {
+            onForeground();
+            AppLog.ERROR("Lifecycle.Event.ON_RESUME");
+        }
+
+        @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+        public void paused() {
+            if (!playing) {
+                onBackground();
+                AppLog.ERROR("Lifecycle.Event.ON_PAUSE");
+            }
+        }
+    }
+
 
     @Nullable
     @Override
@@ -1016,16 +1004,21 @@ public class PlaybackService extends Service {
         loadSuccess = true;
         loadError = false;
         convertStart = false;
-        EventBus.getDefault().post(PlaybackService.this);
+        sendPlaybackEvent();
     }
 
     private void loadError() {
         loadSuccess = false;
         loadError = true;
         convertStart = false;
-        EventBus.getDefault().post(PlaybackService.this);
+        sendPlaybackEvent();
     }
 
+    private void sendPlaybackEvent() {
+        if (rxBus.hasObservers()) {
+            rxBus.send(PlaybackService.this);
+        }
+    }
 
     public float getPositionPercent() {
         return positionPercent;

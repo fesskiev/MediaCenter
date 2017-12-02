@@ -47,8 +47,10 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
 
     @Override
     public void fillFolderData() {
-
-        BitmapHelper.getInstance().loadAudioFolderArtwork(audioFolder, cover);
+        disposable = bitmapHelper.getAudioFolderArtwork(audioFolder)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(bitmap -> cover.setImageBitmap(bitmap));
 
         saveFolderNameButton.setOnClickListener(v -> saveAudioFolderName());
 
@@ -68,10 +70,8 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
 
     @Override
     public void fetchFolderFiles() {
-        subscription = repository.getAudioTracks(audioFolder.getId())
+        disposable = repository.getAudioTracks(audioFolder.getId())
                 .subscribeOn(Schedulers.io())
-                .firstOrError()
-                .toObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::calculateValues);
     }
@@ -88,7 +88,7 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
 
     private void saveAudioFolderName() {
         if (!TextUtils.isEmpty(folderNameChanged)) {
-            subscription = Observable.just(folderNameChanged)
+            disposable = Observable.just(folderNameChanged)
                     .subscribeOn(Schedulers.io())
                     .flatMap(toDir -> Observable.just(renameFolder(toDir)))
                     .observeOn(AndroidSchedulers.mainThread())
@@ -167,10 +167,8 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
     }
 
     private void changeHiddenFolderState(boolean hidden) {
-        subscription = repository.getAudioTracks(audioFolder.getId())
+        disposable = repository.getAudioTracks(audioFolder.getId())
                 .subscribeOn(Schedulers.io())
-                .firstOrError()
-                .toObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(audioFiles -> updateHiddenAudioFolder(hidden))
                 .doOnNext(audioFiles -> updateHiddenAudioFiles(audioFiles, hidden))

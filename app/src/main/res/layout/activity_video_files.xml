@@ -21,7 +21,7 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <FrameLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="?android:attr/actionBarSize">
@@ -33,6 +33,47 @@
             android:layout_height="match_parent"
             tools:listitem="@layout/item_video_file" />
 
-    </FrameLayout>
+        <android.support.v7.widget.CardView
+            android:id="@+id/emptyVideoContentCard"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/card_view_empty_content_height"
+            android:layout_centerInParent="true"
+            android:layout_marginBottom="@dimen/card_view_margin_bottom_big"
+            android:layout_marginEnd="@dimen/card_view_margin_end"
+            android:layout_marginStart="@dimen/card_view_margin_start"
+            android:layout_marginTop="@dimen/card_view_margin_top"
+            android:visibility="gone"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="@dimen/card_view_corner_radius"
+            app:cardElevation="@dimen/card_view_elevation"
+            app:contentPadding="@dimen/activity_horizontal_margin">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/contentNotFound"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:layout_centerVertical="true"
+                    android:contentDescription="@string/app_name"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/icon_not_found" />
+
+                <TextView
+                    style="@style/EmptyPlaylistTextAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_toEndOf="@id/contentNotFound"
+                    android:text="@string/content_empty" />
+
+            </RelativeLayout>
+
+        </android.support.v7.widget.CardView>
+
+    </RelativeLayout>
 
 </android.support.design.widget.CoordinatorLayout>

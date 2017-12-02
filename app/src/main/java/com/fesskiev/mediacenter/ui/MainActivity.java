@@ -6,19 +6,19 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.ActivityOptions;
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
-import android.arch.lifecycle.OnLifecycleEvent;
-import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.BottomSheetBehavior;
@@ -46,7 +46,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
+import com.fesskiev.mediacenter.ui.analytics.AnalyticsActivity;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.services.PlaybackService;
@@ -55,6 +55,7 @@ import com.fesskiev.mediacenter.ui.audio.AudioFragment;
 import com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity;
 import com.fesskiev.mediacenter.ui.billing.InAppBillingActivity;
 import com.fesskiev.mediacenter.ui.effects.EffectsActivity;
+import com.fesskiev.mediacenter.ui.fetch.FetchContentViewModel;
 import com.fesskiev.mediacenter.ui.playlist.PlayListActivity;
 import com.fesskiev.mediacenter.ui.converter.ConverterActivity;
 import com.fesskiev.mediacenter.ui.search.SearchActivity;
@@ -65,15 +66,11 @@ import com.fesskiev.mediacenter.ui.wear.WearActivity;
 import com.fesskiev.mediacenter.utils.AppAnimationUtils;
 import com.fesskiev.mediacenter.utils.AppGuide;
 import com.fesskiev.mediacenter.utils.AppLog;
-import com.fesskiev.mediacenter.utils.AppSettingsManager;
-import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
-import com.fesskiev.mediacenter.utils.FetchMediaFilesManager;
 import com.fesskiev.mediacenter.utils.Utils;
-import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
 import com.fesskiev.mediacenter.widgets.buttons.PlayPauseFloatingButton;
 import com.fesskiev.mediacenter.widgets.dialogs.SimpleDialog;
-import com.fesskiev.mediacenter.widgets.fetch.FetchContentScreen;
+import com.fesskiev.mediacenter.ui.fetch.FetchContentScreen;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
 
@@ -82,18 +79,19 @@ import java.util.List;
 
 import static com.fesskiev.mediacenter.services.FileSystemService.ACTION_REFRESH_AUDIO_FRAGMENT;
 import static com.fesskiev.mediacenter.services.FileSystemService.ACTION_REFRESH_VIDEO_FRAGMENT;
-import static com.fesskiev.mediacenter.ui.walkthrough.PermissionFragment.PERMISSION_REQ;
 import static com.fesskiev.mediacenter.ui.walkthrough.PermissionFragment.checkPermissionsResultGranted;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class MainActivity extends AnalyticsActivity implements NavigationView.OnNavigationItemSelectedListener {
+
+    private final static int PERMISSION_RECORD = 1;
+    private final static int PERMISSION_STORAGE = 2;
 
     private static final int SELECTED_AUDIO = 0;
     private static final int SELECTED_VIDEO = 1;
 
     private Class<? extends Activity> selectedActivity;
 
-    private FetchMediaFilesManager fetchMediaFilesManager;
     private FetchContentScreen fetchContentScreen;
 
     private Toolbar toolbar;
@@ -128,16 +126,10 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
     private boolean startForeground;
     private boolean isShow = true;
 
-    private boolean lastLoadSuccess;
-    private boolean lastConvertStart;
-    private boolean lastPlaying;
-    private int lastPositionSeconds = -1;
-    private boolean lastEnableEQ;
-    private boolean lastEnableReverb;
-    private boolean lastEnableWhoosh;
-    private boolean lastEnableEcho;
+    private FileSystemService boundService;
+    private boolean serviceBound;
 
-    private MainViewModel viewModel;
+    private MainViewModel mainViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,13 +138,11 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
 
         selectedState = SELECTED_AUDIO;
 
-        FileSystemService.startFileSystemService(getApplicationContext());
-
-        addProcessLifecycleObserver();
-
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         AppAnimationUtils.getInstance().animateToolbar(toolbar);
+
+        fetchContentScreen = new FetchContentScreen(this, AppAnimationUtils.getInstance());
 
         track = findViewById(R.id.track);
         artist = findViewById(R.id.artist);
@@ -169,18 +159,12 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
 
         playPauseButton = findViewById(R.id.playPauseFAB);
         playPauseButton.setOnClickListener(v -> {
-            if (viewModel.isTrackSelected() && !lastConvertStart) {
-                if (lastPlaying) {
-                    viewModel.pause();
-                } else {
-                    viewModel.play();
-                }
-                togglePlayPause();
+            if (mainViewModel.isTrackSelected() && !mainViewModel.getConvertingLiveData().getValue()) {
+                mainViewModel.playStateChanged();
             } else {
                 AppAnimationUtils.getInstance().errorAnimation(playPauseButton);
             }
         });
-        playPauseButton.setPlay(lastPlaying);
 
         bottomSheet = findViewById(R.id.bottom_sheet);
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
@@ -204,7 +188,7 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
 
             peakView = findViewById(R.id.basicNavPlayerContainer);
             peakView.setOnClickListener(v -> {
-                if (viewModel.isTrackSelected() && !lastConvertStart) {
+                if (mainViewModel.isTrackSelected() && !!mainViewModel.getConvertingLiveData().getValue()) {
                     AudioPlayerActivity.startPlayerActivity(MainActivity.this);
                 } else {
                     AppAnimationUtils.getInstance().errorAnimation(playPauseButton);
@@ -256,29 +240,91 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
 
         setEffectsNavView();
         setMainNavView();
-        setFetchManager();
-
         registerRefreshFragmentsReceiver();
 
         addAudioFragment();
         checkAudioContentItem();
 
-
         showEmptyTrackCard();
         showEmptyFolderCard();
-        viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
-        viewModel.getCurrentTrackListLiveData().observe(this, audioFiles -> {
+        observeData();
+        observeFetchData();
+    }
+
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            serviceBound = false;
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            FileSystemService.FileSystemLocalBinder binder = (FileSystemService.FileSystemLocalBinder) service;
+            boundService = binder.getService();
+            if (boundService.getScanState() == FileSystemService.SCAN_STATE.SCANNING_ALL) {
+                fetchContentScreen.showContentScreen();
+            } else if (boundService.getScanState() == FileSystemService.SCAN_STATE.FINISHED) {
+                fetchContentScreen.hideContentScreen();
+            }
+            serviceBound = true;
+        }
+    };
+
+    private void observeData() {
+        mainViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        mainViewModel.getCurrentTrackListLiveData().observe(this, audioFiles -> {
             adapter.refreshAdapter(audioFiles);
             hideEmptyFolderCard();
 
 
         });
-        viewModel.getCurrentTrackLiveData().observe(this, audioFile -> {
+        mainViewModel.getCurrentTrackLiveData().observe(this, audioFile -> {
             setTrackInfo(audioFile);
             adapter.notifyDataSetChanged();
             hideEmptyTrackCard();
             startForegroundService();
         });
+
+        mainViewModel.getConvertingLiveData().observe(this, this::setConvertingView);
+        mainViewModel.getLoadingSuccessLiveData().observe(this, this::setLoadingSuccessView);
+        mainViewModel.getPositionLiveData().observe(this, this::setPositionView);
+        mainViewModel.getPlayingLiveData().observe(this, this::setPlayingView);
+        mainViewModel.getEQLiveData().observe(this, this::setEQStateView);
+        mainViewModel.getReverbLiveData().observe(this, this::setReverbStateView);
+        mainViewModel.getWhooshLiveData().observe(this, this::setWhooshStateView);
+        mainViewModel.getEchoLiveData().observe(this, this::setEchoStateView);
+        mainViewModel.getFinishPlaybackLiveData().observe(this, Void -> processFinishPlayback());
+        mainViewModel.getCoverLiveData().observe(this, this::setCoverView);
+    }
+
+    private void observeFetchData() {
+        FetchContentViewModel viewModel = ViewModelProviders.of(this).get(FetchContentViewModel.class);
+        viewModel.getPrepareFetchLiveData().observe(this, Void -> fetchContentScreen.prepareFetch());
+        viewModel.getFinishFetchLiveData().observe(this, Void -> {
+            fetchContentScreen.hideContentScreen();
+            AppAnimationUtils.getInstance().animateBottomSheet(bottomSheet, true);
+
+        });
+        viewModel.getPercentLiveData().observe(this, percent -> fetchContentScreen.setProgress(percent));
+        viewModel.getFetchDescriptionLiveData().observe(this, description -> {
+            String folderName = description.getFolderName();
+            if (folderName != null) {
+                fetchContentScreen.setFolderName(folderName);
+            }
+            String fileName = description.getFileName();
+            if (fileName != null) {
+                fetchContentScreen.setFileName(fileName);
+            }
+        });
+        viewModel.getFetchAudioStartLiveData().observe(this, Void -> {
+            clearPlayback();
+            AppAnimationUtils.getInstance().animateBottomSheet(bottomSheet, false);
+            clearAudioFragment();
+        });
+        viewModel.getFetchVideoStartLiveData().observe(this, Void -> clearVideoFragment());
+        viewModel.getAudioFoldersCreatedLiveData().observe(this, Void -> refreshAudioFragment());
+        viewModel.getVideoFoldersCreatedLiveData().observe(this, Void -> refreshVideoFragment());
     }
 
     @Override
@@ -295,7 +341,22 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
     @Override
     protected void onStart() {
         super.onStart();
+        Intent intent = new Intent(this, FileSystemService.class);
+        startService(intent);
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+
         mediaNavigationView.postDelayed(this::makeGuideIfNeed, 1500);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkSelectedFragment();
+        if (!mainViewModel.isUserPro()) {
+            hideDrawerConverterItem();
+        } else {
+            hideDrawerPurchaseItem();
+        }
     }
 
     @Override
@@ -307,21 +368,17 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        checkSelectedFragment();
-        if (!viewModel.isUserPro()) {
-            hideDrawerConverterItem();
-        } else {
-            hideDrawerPurchaseItem();
+    protected void onStop() {
+        super.onStop();
+        if (serviceBound) {
+            unbindService(serviceConnection);
+            serviceBound = false;
         }
     }
-
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        fetchMediaFilesManager.unregister();
         unregisterRefreshFragmentsReceiver();
     }
 
@@ -345,88 +402,11 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
         checkSelectedFragment();
     }
 
-    private void togglePlayPause() {
-        lastPlaying = !lastPlaying;
-        playPauseButton.setPlay(lastPlaying);
-
-        adapter.notifyDataSetChanged();
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onPlaybackStateEvent(PlaybackService playbackState) {
-        if (playbackState.isFinish()) {
-            processFinishPlayback();
-            return;
-        }
-
-        boolean isConvertStart = playbackState.isConvertStart();
-        if (lastConvertStart != isConvertStart) {
-            lastConvertStart = isConvertStart;
-            playPauseButton.startLoading();
-        }
-
-        boolean isLoadSuccess = playbackState.isLoadSuccess();
-        if (lastLoadSuccess != isLoadSuccess) {
-            lastLoadSuccess = isLoadSuccess;
-            if (!lastLoadSuccess) {
-                playPauseButton.startLoading();
-            } else {
-                playPauseButton.finishLoading();
-            }
-        }
-
-        boolean playing = playbackState.isPlaying();
-        if (lastPlaying != playing) {
-            lastPlaying = playing;
-            playPauseButton.setPlay(playing);
-
-            adapter.notifyDataSetChanged();
-
-        }
-
-        int positionSeconds = playbackState.getPosition();
-        if (lastPositionSeconds != positionSeconds) {
-            lastPositionSeconds = positionSeconds;
-            durationText.setText(Utils.getPositionSecondsString(lastPositionSeconds));
-        }
-
-        boolean enableEq = playbackState.isEnableEQ();
-        if (lastEnableEQ != enableEq) {
-            lastEnableEQ = enableEq;
-            AppSettingsManager.getInstance().setEQEnable(lastEnableEQ);
-            mediaNavigationView.setEQEnable(lastEnableEQ);
-        }
-
-        boolean enableReverb = playbackState.isEnableReverb();
-        if (lastEnableReverb != enableReverb) {
-            lastEnableReverb = enableReverb;
-            AppSettingsManager.getInstance().setReverbEnable(lastEnableReverb);
-            mediaNavigationView.setReverbEnable(lastEnableReverb);
-        }
-
-        boolean enableWhoosh = playbackState.isEnableWhoosh();
-        if (lastEnableWhoosh != enableWhoosh) {
-            lastEnableWhoosh = enableWhoosh;
-            AppSettingsManager.getInstance().setWhooshEnable(lastEnableWhoosh);
-            mediaNavigationView.setWhooshEnable(lastEnableWhoosh);
-        }
-
-        boolean enableEcho = playbackState.isEnableEcho();
-        if (lastEnableEcho != enableEcho) {
-            lastEnableEcho = enableEcho;
-            AppSettingsManager.getInstance().setEchoEnable(lastEnableEcho);
-            mediaNavigationView.setEchoEnable(lastEnableEcho);
-        }
-    }
-
 
     private void setTrackInfo(AudioFile audioFile) {
         track.setText(audioFile.title);
         artist.setText(audioFile.artist);
         clearDuration();
-
-        BitmapHelper.getInstance().loadTrackListArtwork(audioFile, cover);
-
     }
 
     private void startForegroundService() {
@@ -450,151 +430,6 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
         }
     }
 
-    private class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.ViewHolder> {
-
-        private List<AudioFile> currentTrackList;
-
-        public TrackListAdapter() {
-            currentTrackList = new ArrayList<>();
-        }
-
-        public class ViewHolder extends RecyclerView.ViewHolder {
-
-            ImageView playEq;
-            TextView title;
-            TextView duration;
-            TextView filePath;
-
-            public ViewHolder(View v) {
-                super(v);
-                v.setOnClickListener(view -> {
-                    AudioFile audioFile = currentTrackList.get(getAdapterPosition());
-                    if (audioFile != null && !lastConvertStart) {
-                        if (audioFile.exists()) {
-                            viewModel.setCurrentAudioFileAndPlay(audioFile);
-                        } else {
-                            Utils.showCustomSnackbar(getCurrentFocus(),
-                                    getApplicationContext(), getString(R.string.snackbar_file_not_exist),
-                                    Snackbar.LENGTH_LONG)
-                                    .show();
-                        }
-                    }
-                });
-
-                playEq = v.findViewById(R.id.playEq);
-                title = v.findViewById(R.id.title);
-                duration = v.findViewById(R.id.duration);
-                filePath = v.findViewById(R.id.filePath);
-                filePath.setSelected(true);
-
-            }
-        }
-
-        @Override
-        public TrackListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_track_playback, parent, false);
-
-            return new TrackListAdapter.ViewHolder(v);
-        }
-
-        @Override
-        public void onBindViewHolder(TrackListAdapter.ViewHolder holder, int position) {
-            AudioFile audioFile = currentTrackList.get(position);
-            if (audioFile != null) {
-                holder.title.setText(audioFile.title);
-                holder.filePath.setText(audioFile.getFilePath());
-                holder.duration.setText(Utils.getDurationString(audioFile.length));
-
-                if (viewModel.isEqualsToCurrentTrack(audioFile) && lastPlaying) {
-                    holder.playEq.setVisibility(View.VISIBLE);
-
-                    AnimationDrawable animation = (AnimationDrawable) ContextCompat.
-                            getDrawable(getApplicationContext(), R.drawable.ic_equalizer);
-                    holder.playEq.setImageDrawable(animation);
-                    if (animation != null) {
-                        if (lastPlaying) {
-                            animation.start();
-                        } else {
-                            animation.stop();
-                        }
-                    }
-                } else {
-                    holder.playEq.setVisibility(View.INVISIBLE);
-                }
-            }
-        }
-
-        @Override
-        public int getItemCount() {
-            return currentTrackList.size();
-        }
-
-        public void refreshAdapter(List<AudioFile> audioFiles) {
-            currentTrackList.clear();
-            currentTrackList.addAll(audioFiles);
-            notifyDataSetChanged();
-        }
-
-        public void clearAdapter() {
-            currentTrackList.clear();
-            notifyDataSetChanged();
-        }
-    }
-
-    public void clearPlayback() {
-        adapter.clearAdapter();
-        showEmptyFolderCard();
-
-        lastPlaying = false;
-        playPauseButton.setPlay(false);
-
-        adapter.notifyDataSetChanged();
-    }
-
-    private void showEmptyFolderCard() {
-        emptyFolder.setVisibility(View.VISIBLE);
-    }
-
-    private void showEmptyTrackCard() {
-        emptyTrack.setVisibility(View.VISIBLE);
-    }
-
-    private void hideEmptyFolderCard() {
-        emptyFolder.setVisibility(View.GONE);
-    }
-
-    private void hideEmptyTrackCard() {
-        emptyTrack.setVisibility(View.GONE);
-    }
-
-    private void clearDuration() {
-        durationText.setText("");
-    }
-
-
-    private void addProcessLifecycleObserver() {
-        ProcessLifecycleOwner.get().getLifecycle().addObserver(new ProcessLifecycleObserver());
-    }
-
-    public class ProcessLifecycleObserver implements LifecycleObserver {
-
-        @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-        public void resumed() {
-            if (startForeground) {
-                PlaybackService.goForeground(getApplicationContext());
-                AppLog.ERROR("Lifecycle.Event.ON_RESUME");
-            }
-        }
-
-        @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-        public void paused() {
-            if (startForeground && !lastPlaying) {
-                PlaybackService.goBackground(getApplicationContext());
-                AppLog.ERROR("Lifecycle.Event.ON_PAUSE");
-            }
-        }
-    }
 
     private void registerRefreshFragmentsReceiver() {
         IntentFilter filter = new IntentFilter();
@@ -626,7 +461,7 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
     };
 
     private void makeGuideIfNeed() {
-        if (viewModel.isNeedMainActivityGuide()) {
+        if (mainViewModel.isNeedMainActivityGuide()) {
             drawer.openDrawer(GravityCompat.START);
 
             appGuide = new AppGuide(this, 3);
@@ -646,7 +481,7 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
 
                 @Override
                 public void watched() {
-                    viewModel.setMainActivityGuideWatched();
+                    mainViewModel.setMainActivityGuideWatched();
                 }
             });
         }
@@ -769,61 +604,6 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
         }
     }
 
-    private void setFetchManager() {
-        fetchContentScreen = new FetchContentScreen(this);
-
-        fetchMediaFilesManager = FetchMediaFilesManager.getInstance();
-        fetchMediaFilesManager.setFetchContentView(fetchContentScreen.getFetchContentView());
-        fetchMediaFilesManager.register();
-        fetchMediaFilesManager.setTextWhite();
-        fetchMediaFilesManager.setOnFetchMediaFilesListener(new FetchMediaFilesManager.OnFetchMediaFilesListener() {
-
-            @Override
-            public void onFetchMediaPrepare() {
-                AppLog.INFO("PREPARE!");
-                fetchContentScreen.disableTouchActivity();
-            }
-
-            @Override
-            public void onFetchAudioContentStart() {
-                AppLog.INFO("onFetchAudioContentStart");
-                clearPlayback();
-                AppAnimationUtils.getInstance().animateBottomSheet(bottomSheet, false);
-                clearAudioFragment();
-            }
-
-            @Override
-            public void onFetchVideoContentStart() {
-                AppLog.INFO("onFetchVideoContentStart");
-                clearVideoFragment();
-            }
-
-            @Override
-            public void onFetchMediaContentFinish() {
-                AppLog.INFO("onFetchMediaContentFinish");
-
-                AppAnimationUtils.getInstance().animateBottomSheet(bottomSheet, true);
-                fetchContentScreen.enableTouchActivity();
-            }
-
-            @Override
-            public void onAudioFolderCreated() {
-                AppLog.INFO("onAudioFolderCreated");
-                refreshAudioFragment();
-            }
-
-            @Override
-            public void onVideoFolderCreated() {
-                AppLog.INFO("onVideoFolderCreated");
-                refreshVideoFragment();
-
-            }
-        });
-        if (fetchMediaFilesManager.isFetchStart()) {
-            fetchContentScreen.disableTouchActivity();
-        }
-    }
-
     private void setMainNavView() {
         navigationViewMain = findViewById(R.id.nav_view_main);
         navigationViewMain.setNavigationItemSelectedListener(this);
@@ -851,26 +631,22 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
 
             @Override
             public void onEQStateChanged(boolean enable) {
-                PlaybackService.changeEQEnable(getApplicationContext(), enable);
-                AppSettingsManager.getInstance().setEQEnable(enable);
+                mainViewModel.setEQEnable(enable);
             }
 
             @Override
             public void onReverbStateChanged(boolean enable) {
-                PlaybackService.changeReverbEnable(getApplicationContext(), enable);
-                AppSettingsManager.getInstance().setReverbEnable(enable);
+                mainViewModel.setReverbEnable(enable);
             }
 
             @Override
             public void onWhooshStateChanged(boolean enable) {
-                PlaybackService.changeWhooshEnable(getApplicationContext(), enable);
-                AppSettingsManager.getInstance().setWhooshEnable(enable);
+                mainViewModel.setWhooshEnable(enable);
             }
 
             @Override
             public void onEchoStateChanged(boolean enable) {
-                PlaybackService.changeEchoEnable(getApplicationContext(), enable);
-                AppSettingsManager.getInstance().setEchoEnable(enable);
+                mainViewModel.setEchoEnable(enable);
             }
 
             @Override
@@ -884,9 +660,25 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
 
     }
 
+    public void checkPermissionAndFetchAudio() {
+        if (Utils.isMarshmallow() && !checkPermissionsStorage()) {
+            requestPermissionsStorage();
+        } else {
+            mainViewModel.fetchFileSystemAudio();
+        }
+    }
+
+    public void checkPermissionAndFetchVideo() {
+        if (Utils.isMarshmallow() && !checkPermissionsStorage()) {
+            requestPermissionsStorage();
+        } else {
+            mainViewModel.fetchFileSystemVideo();
+        }
+    }
+
     private void checkPermissionsRecordProcess() {
-        if (Utils.isMarshmallow() && !checkPermissions()) {
-            requestPermissions();
+        if (Utils.isMarshmallow() && !checkPermissionsRecords()) {
+            requestPermissionsRecords();
             mediaNavigationView.setRecordEnable(false);
         } else {
             processRecording();
@@ -902,19 +694,28 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
         }
     }
 
-    private boolean checkPermissions() {
+    private boolean checkPermissionsStorage() {
+        return PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(
+                this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    }
+
+    private boolean checkPermissionsRecords() {
         return PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(
                 this, Manifest.permission.MODIFY_AUDIO_SETTINGS) &&
                 PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(
                         this, Manifest.permission.RECORD_AUDIO);
     }
 
-
-    private void requestPermissions() {
+    private void requestPermissionsRecords() {
         requestPermissions(new String[]{
                         Manifest.permission.MODIFY_AUDIO_SETTINGS,
                         Manifest.permission.RECORD_AUDIO},
-                PERMISSION_REQ);
+                PERMISSION_RECORD);
+    }
+
+    private void requestPermissionsStorage() {
+        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                PERMISSION_STORAGE);
     }
 
 
@@ -922,22 +723,40 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case PERMISSION_REQ: {
-                if (grantResults != null && grantResults.length > 0) {
+            case PERMISSION_RECORD:
+                if (grantResults.length > 0) {
                     if (checkPermissionsResultGranted(grantResults)) {
                         processRecording();
                     } else {
                         boolean showRationale = shouldShowRequestPermissionRationale(Manifest.permission.MODIFY_AUDIO_SETTINGS) ||
                                 shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO);
                         if (showRationale) {
-                            permissionsDenied();
+                            showPermissionsDeniedRecordsSnackBar();
                         } else {
                             createExplanationPermissionDialog();
                         }
                     }
                 }
                 break;
-            }
+            case PERMISSION_STORAGE:
+                if (grantResults.length > 0) {
+                    if (checkPermissionsResultGranted(grantResults)) {
+                        if (selectedState == SELECTED_AUDIO) {
+                            mainViewModel.fetchFileSystemAudio();
+                        } else if (selectedState == SELECTED_VIDEO) {
+                            mainViewModel.fetchFileSystemVideo();
+                        }
+                    } else {
+                        boolean showRationale =
+                                shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                        if (showRationale) {
+                            showPermissionsDeniedStorageSnackBar();
+                        } else {
+                            createExplanationPermissionDialog();
+                        }
+                    }
+                }
+                break;
         }
     }
 
@@ -951,11 +770,19 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
         dialog.setNegativeListener(this::finish);
     }
 
-    private void permissionsDenied() {
+    private void showPermissionsDeniedRecordsSnackBar() {
         Utils.showCustomSnackbar(getWindow().getDecorView().findViewById(android.R.id.content),
                 getApplicationContext(),
                 getString(R.string.snackbar_permission_title), Snackbar.LENGTH_INDEFINITE)
-                .setAction(R.string.snackbar_permission_button, v -> requestPermissions())
+                .setAction(R.string.snackbar_permission_button, v -> requestPermissionsRecords())
+                .show();
+    }
+
+    private void showPermissionsDeniedStorageSnackBar() {
+        Utils.showCustomSnackbar(getWindow().getDecorView().findViewById(android.R.id.content),
+                getApplicationContext(),
+                getString(R.string.snackbar_permission_title), Snackbar.LENGTH_INDEFINITE)
+                .setAction(R.string.snackbar_permission_button, v -> requestPermissionsStorage())
                 .show();
     }
 
@@ -969,7 +796,7 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_search:
-                if (!fetchMediaFilesManager.isFetchStart()) {
+                if (!isFetchMediaStart()) {
                     View searchMenuView = toolbar.findViewById(R.id.menu_search);
                     Bundle options = ActivityOptions.makeSceneTransitionAnimation(this, searchMenuView,
                             getString(R.string.shared_search_back)).toBundle();
@@ -980,6 +807,9 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
         return true;
     }
 
+    private boolean isFetchMediaStart() {
+        return serviceBound && boundService.getScanState() == FileSystemService.SCAN_STATE.SCANNING_ALL;
+    }
 
     private void clearItems() {
         int size = navigationViewMain.getMenu().size();
@@ -1065,9 +895,8 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
     private void processExit() {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.addToBackStack(null);
-
         SimpleDialog exitDialog;
-        if (fetchMediaFilesManager.isFetchStart()) {
+        if (isFetchMediaStart()) {
             exitDialog = SimpleDialog.newInstance(getString(R.string.dialog_exit_title),
                     getString(R.string.dialog_text_stop_fetch),
                     R.drawable.icon_exit);
@@ -1087,15 +916,11 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
             startForeground = false;
         }
 
-        FFmpegHelper FFmpeg = FFmpegHelper.getInstance();
-        if (FFmpeg.isCommandRunning()) {
-            FFmpeg.killRunningProcesses();
-        }
-
         FileSystemService.stopFileSystemService(getApplicationContext());
         CacheManager.clearTempDir();
 
-        viewModel.dropEffects();
+        mainViewModel.dropEffects();
+        mainViewModel.killFFmpeg();
 
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -1153,4 +978,163 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
         }
     }
 
+    public void clearPlayback() {
+        adapter.clearAdapter();
+        showEmptyFolderCard();
+        playPauseButton.setPlay(false);
+        adapter.notifyDataSetChanged();
+    }
+
+    public void setCoverView(Bitmap bitmap) {
+        cover.setImageBitmap(bitmap);
+    }
+
+    private void setEchoStateView(boolean enable) {
+        mediaNavigationView.setEchoEnable(enable);
+    }
+
+    private void setWhooshStateView(boolean enable) {
+        mediaNavigationView.setWhooshEnable(enable);
+    }
+
+    private void setReverbStateView(boolean enable) {
+        mediaNavigationView.setReverbEnable(enable);
+    }
+
+    private void setEQStateView(boolean enable) {
+        mediaNavigationView.setEQEnable(enable);
+    }
+
+    private void setPlayingView(boolean playing) {
+        playPauseButton.setPlay(playing);
+        adapter.notifyDataSetChanged();
+    }
+
+    private void setPositionView(int position) {
+        durationText.setText(Utils.getPositionSecondsString(position));
+    }
+
+    private void setLoadingSuccessView(boolean success) {
+        if (!success) {
+            playPauseButton.startLoading();
+        } else {
+            playPauseButton.finishLoading();
+        }
+    }
+
+    private void setConvertingView(boolean converting) {
+        playPauseButton.startLoading();
+    }
+
+    private void showEmptyFolderCard() {
+        emptyFolder.setVisibility(View.VISIBLE);
+    }
+
+    private void showEmptyTrackCard() {
+        emptyTrack.setVisibility(View.VISIBLE);
+    }
+
+    private void hideEmptyFolderCard() {
+        emptyFolder.setVisibility(View.GONE);
+    }
+
+    private void hideEmptyTrackCard() {
+        emptyTrack.setVisibility(View.GONE);
+    }
+
+    private void clearDuration() {
+        durationText.setText("");
+    }
+
+    private class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.ViewHolder> {
+
+        private List<AudioFile> currentTrackList;
+
+        public TrackListAdapter() {
+            currentTrackList = new ArrayList<>();
+        }
+
+        public class ViewHolder extends RecyclerView.ViewHolder {
+
+            ImageView playEq;
+            TextView title;
+            TextView duration;
+            TextView filePath;
+
+            public ViewHolder(View v) {
+                super(v);
+                v.setOnClickListener(view -> {
+                    AudioFile audioFile = currentTrackList.get(getAdapterPosition());
+                    if (audioFile != null && !mainViewModel.getConvertingLiveData().getValue()) {
+                        if (audioFile.exists()) {
+                            mainViewModel.setCurrentAudioFileAndPlay(audioFile);
+                        } else {
+                            Utils.showCustomSnackbar(getCurrentFocus(),
+                                    getApplicationContext(), getString(R.string.snackbar_file_not_exist),
+                                    Snackbar.LENGTH_LONG)
+                                    .show();
+                        }
+                    }
+                });
+
+                playEq = v.findViewById(R.id.playEq);
+                title = v.findViewById(R.id.title);
+                duration = v.findViewById(R.id.duration);
+                filePath = v.findViewById(R.id.filePath);
+                filePath.setSelected(true);
+
+            }
+        }
+
+        @Override
+        public TrackListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_track_playback, parent, false);
+
+            return new TrackListAdapter.ViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(TrackListAdapter.ViewHolder holder, int position) {
+            AudioFile audioFile = currentTrackList.get(position);
+            if (audioFile != null) {
+                holder.title.setText(audioFile.title);
+                holder.filePath.setText(audioFile.getFilePath());
+                holder.duration.setText(Utils.getDurationString(audioFile.length));
+
+                if (mainViewModel.isEqualsToCurrentTrack(audioFile) && mainViewModel.getPlayingLiveData().getValue()) {
+                    holder.playEq.setVisibility(View.VISIBLE);
+
+                    AnimationDrawable animation = (AnimationDrawable) ContextCompat.
+                            getDrawable(getApplicationContext(), R.drawable.ic_equalizer);
+                    holder.playEq.setImageDrawable(animation);
+                    if (animation != null) {
+                        if (mainViewModel.getPlayingLiveData().getValue()) {
+                            animation.start();
+                        } else {
+                            animation.stop();
+                        }
+                    }
+                } else {
+                    holder.playEq.setVisibility(View.INVISIBLE);
+                }
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return currentTrackList.size();
+        }
+
+        public void refreshAdapter(List<AudioFile> audioFiles) {
+            currentTrackList.clear();
+            currentTrackList.addAll(audioFiles);
+            notifyDataSetChanged();
+        }
+
+        public void clearAdapter() {
+            currentTrackList.clear();
+            notifyDataSetChanged();
+        }
+    }
 }

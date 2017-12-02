@@ -11,5 +11,8 @@ public interface MediaFolder {
 
     boolean isHidden();
 
+    boolean exists();
+
     long getTimestamp();
+
 }

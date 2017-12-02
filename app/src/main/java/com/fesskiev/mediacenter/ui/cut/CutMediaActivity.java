@@ -12,7 +12,9 @@ import android.widget.TextView;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.analytics.AnalyticsActivity;
+import com.fesskiev.mediacenter.players.AudioPlayer;
+import com.fesskiev.mediacenter.players.VideoPlayer;
+import com.fesskiev.mediacenter.ui.analytics.AnalyticsActivity;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.ui.chooser.FileSystemChooserActivity;
@@ -24,6 +26,8 @@ import com.fesskiev.mediacenter.widgets.progress.MaterialProgressBar;
 import com.fesskiev.mediacenter.widgets.seekbar.RangeSeekBar;
 
 import java.io.File;
+
+import javax.inject.Inject;
 
 
 public class CutMediaActivity extends AnalyticsActivity {
@@ -41,7 +45,14 @@ public class CutMediaActivity extends AnalyticsActivity {
 
     private final static int REQUEST_FOLDER = 0;
 
-    private AppSettingsManager settingsManager;
+    @Inject
+    AppSettingsManager settingsManager;
+    @Inject
+    AudioPlayer audioPlayer;
+    @Inject
+    VideoPlayer videoPlayer;
+    @Inject
+    FFmpegHelper fFmpegHelper;
 
     private TextView saveFolderPath;
     private TextInputEditText fileName;
@@ -58,6 +69,7 @@ public class CutMediaActivity extends AnalyticsActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cut);
+        MediaApplication.getInstance().getAppComponent().inject(this);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
@@ -66,16 +78,14 @@ public class CutMediaActivity extends AnalyticsActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-
-        settingsManager = AppSettingsManager.getInstance();
         cutType = getIntent().getIntExtra(EXTRA_CUT_TYPE, -1);
         if (cutType != -1) {
             switch (cutType) {
                 case CUT_AUDIO:
-                    mediaFile = MediaApplication.getInstance().getAudioPlayer().getCurrentTrack();
+                    mediaFile = audioPlayer.getCurrentTrack();
                     break;
                 case CUT_VIDEO:
-                    mediaFile = MediaApplication.getInstance().getVideoPlayer().getCurrentVideoFile();
+                    mediaFile = videoPlayer.getCurrentVideoFile();
                     break;
             }
         }
@@ -101,7 +111,7 @@ public class CutMediaActivity extends AnalyticsActivity {
         if (mediaFile != null) {
             fileName.setText(mediaFile.getFileName());
         }
-        setSaveFolderPath(CacheManager.getCutFolderPath().getAbsolutePath());
+        setSaveFolderPath(CacheManager.getCutFolderPath(settingsManager).getAbsolutePath());
 
     }
 
@@ -138,9 +148,9 @@ public class CutMediaActivity extends AnalyticsActivity {
 
 
         String trackPath = mediaFile.getFilePath();
-        File savePath = new File(CacheManager.getCutFolderPath(), fileNm);
+        File savePath = new File(CacheManager.getCutFolderPath(settingsManager), fileNm);
 
-        FFmpegHelper.getInstance().cutMedia(trackPath, savePath.getAbsolutePath(), start, end, new FFmpegHelper.OnConvertProcessListener() {
+        fFmpegHelper.cutMedia(trackPath, savePath.getAbsolutePath(), start, end, new FFmpegHelper.OnConvertProcessListener() {
             @Override
             public void onStart() {
                 showProgressBar();
