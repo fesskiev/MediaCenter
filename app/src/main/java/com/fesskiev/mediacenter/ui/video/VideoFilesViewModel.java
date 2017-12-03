@@ -53,6 +53,8 @@ public class VideoFilesViewModel extends ViewModel {
 
     public void fetchVideoFolderFiles(VideoFolder videoFolder) {
         disposables.add(repository.getVideoFiles(videoFolder.id)
+                .firstOrError()
+                .toObservable()
                 .subscribeOn(Schedulers.io())
                 .flatMap(Observable::fromIterable)
                 .filter(file -> settingsManager.isShowHiddenFiles() || !file.isHidden)

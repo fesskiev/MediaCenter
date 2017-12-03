@@ -72,9 +72,9 @@ public class TrackListViewModel extends ViewModel {
 
     private void notifyPlayback(PlaybackService playbackService) {
         boolean playing = playbackService.isPlaying();
-        boolean lastPlaying = playingLiveData.getValue();
+        boolean lastPlaying = isPlaying();
         if (lastPlaying != playing) {
-            playingLiveData.setValue(lastPlaying);
+            playingLiveData.setValue(playing);
         }
     }
 
@@ -98,6 +98,8 @@ public class TrackListViewModel extends ViewModel {
 
         if (audioFilesObservable != null) {
             disposables.add(audioFilesObservable
+                    .firstOrError()
+                    .toObservable()
                     .subscribeOn(Schedulers.io())
                     .flatMap(Observable::fromIterable)
                     .filter(audioFile -> settingsManager.isShowHiddenFiles() || !audioFile.isHidden)
@@ -111,7 +113,7 @@ public class TrackListViewModel extends ViewModel {
     }
 
     public void sortTracks(int type) {
-        disposables.add(Observable.just(currentTrackListLiveData.getValue())
+        disposables.add(Observable.just(audioPlayer.getCurrentTrackList())
                 .subscribeOn(Schedulers.io())
                 .map(unsortedList -> AudioPlayer.sortAudioFiles(type, unsortedList))
                 .doOnNext(sortedList -> audioPlayer.setSortingTrackList(sortedList))
@@ -210,4 +212,12 @@ public class TrackListViewModel extends ViewModel {
     public SingleLiveEvent<Integer> getDeletedAudioFileLiveData() {
         return deletedAudioFileLiveData;
     }
+    public boolean isPlaying() {
+        Boolean playing = playingLiveData.getValue();
+        if (playing == null) {
+            return false;
+        }
+        return playing;
+    }
+
 }

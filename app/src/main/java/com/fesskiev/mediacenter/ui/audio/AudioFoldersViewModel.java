@@ -8,6 +8,7 @@ import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.players.AudioPlayer;
+import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
@@ -60,6 +61,8 @@ public class AudioFoldersViewModel extends ViewModel {
 
     public void getAudioFolders() {
         disposables.add(repository.getAudioFolders()
+                .firstOrError()
+                .toObservable()
                 .subscribeOn(Schedulers.io())
                 .flatMap(Observable::fromIterable)
                 .filter(folder -> settingsManager.isShowHiddenFiles() || !folder.isHidden)
@@ -97,6 +100,8 @@ public class AudioFoldersViewModel extends ViewModel {
 
     public Observable<Bitmap> getAudioFolderArtwork(AudioFolder audioFolder) {
         return bitmapHelper.getAudioFolderArtwork(audioFolder)
+                .firstOrError()
+                .toObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }

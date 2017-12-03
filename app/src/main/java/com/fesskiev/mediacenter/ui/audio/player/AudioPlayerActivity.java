@@ -155,6 +155,7 @@ public class AudioPlayerActivity extends AnalyticsActivity {
                 scrollView.setEnableScrolling(!change);
             }
         });
+        setPlayingView(false);
         observeData();
     }
 

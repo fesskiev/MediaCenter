@@ -12,11 +12,13 @@ import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.services.PlaybackService;
+import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.RxBus;
 import com.fesskiev.mediacenter.utils.RxUtils;
+import com.fesskiev.mediacenter.utils.events.SingleLiveEvent;
 import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
 
 import java.util.List;
@@ -47,7 +49,7 @@ public class MainViewModel extends ViewModel {
     private final MutableLiveData<Boolean> echoLiveData = new MutableLiveData<>();
 
     private final MutableLiveData<Bitmap> coverLiveData = new MutableLiveData<>();
-    private final MutableLiveData<Void> finishPlaybackLiveData = new MutableLiveData<>();
+    private final SingleLiveEvent<Void> finishPlaybackLiveData = new SingleLiveEvent<>();
 
     @Inject
     AudioPlayer audioPlayer;
@@ -84,7 +86,7 @@ public class MainViewModel extends ViewModel {
                 .flatMap(audioFiles -> repository.getSelectedAudioFile())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(this::notifyCurrentTrack)
-                .firstOrError()
+                .doOnNext(this::notifyCoverImage)
                 .subscribe(object -> {
                 }, Throwable::printStackTrace));
 
@@ -92,8 +94,10 @@ public class MainViewModel extends ViewModel {
 
     private void subscribeToPlayback() {
         disposables.add(rxBus.toObservable()
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object -> {
                     if (object instanceof PlaybackService) {
+                        AppLog.ERROR("observeEvents main PlaybackService");
                         notifyPlayback((PlaybackService) object);
                     } else if (object instanceof AudioFile) {
                         AudioFile audioFile = (AudioFile) object;
@@ -105,7 +109,7 @@ public class MainViewModel extends ViewModel {
                             notifyCurrentTrackList((List<AudioFile>) object);
                         }
                     }
-                }));
+                }, Throwable::printStackTrace));
     }
 
     public void fetchFileSystemAudio() {
@@ -124,59 +128,61 @@ public class MainViewModel extends ViewModel {
 
     private void notifyCoverImage(AudioFile audioFile) {
         disposables.add(bitmapHelper.getTrackListArtwork(audioFile)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(coverLiveData::setValue));
     }
 
     private void notifyPlayback(PlaybackService playbackService) {
         if (playbackService.isFinish()) {
-            finishPlaybackLiveData.setValue(null);
+            finishPlaybackLiveData.call();
             return;
         }
 
         boolean converting = playbackService.isConvertStart();
-        boolean lastConverting = convertingLiveData.getValue();
+        boolean lastConverting = isConverting();
         if (lastConverting != converting) {
             convertingLiveData.setValue(converting);
         }
 
         boolean loadingSuccess = playbackService.isLoadSuccess();
-        boolean lastLoadingSuccess = loadingSuccessLiveData.getValue();
+        boolean lastLoadingSuccess = isLoadingSuccess();
         if (lastLoadingSuccess != loadingSuccess) {
             loadingSuccessLiveData.setValue(loadingSuccess);
         }
 
         boolean playing = playbackService.isPlaying();
-        boolean lastPlaying = playingLiveData.getValue();
+        boolean lastPlaying = isPlaying();
         if (lastPlaying != playing) {
-            playingLiveData.setValue(lastPlaying);
+            playingLiveData.setValue(playing);
         }
 
         int position = playbackService.getPosition();
-        int lastPosition = positionLiveData.getValue();
+        int lastPosition = getPosition();
         if (lastPosition != position) {
             positionLiveData.setValue(position);
         }
 
         boolean enableEq = playbackService.isEnableEQ();
-        boolean lastEnableEQ = EQLiveData.getValue();
+        boolean lastEnableEQ = isEQEnable();
         if (lastEnableEQ != enableEq) {
             EQLiveData.setValue(enableEq);
         }
 
         boolean enableReverb = playbackService.isEnableReverb();
-        boolean lastEnableReverb = reverbLiveData.getValue();
+        boolean lastEnableReverb = isReverbEnable();
         if (lastEnableReverb != enableReverb) {
             reverbLiveData.setValue(enableReverb);
         }
 
         boolean enableWhoosh = playbackService.isEnableWhoosh();
-        boolean lastEnableWhoosh = whooshLiveData.getValue();
+        boolean lastEnableWhoosh = isWhooshEnable();
         if (lastEnableWhoosh != enableWhoosh) {
             whooshLiveData.setValue(enableWhoosh);
         }
 
         boolean enableEcho = playbackService.isEnableEcho();
-        boolean lastEnableEcho = echoLiveData.getValue();
+        boolean lastEnableEcho = isEchoEnable();
         if (lastEnableEcho != enableEcho) {
             echoLiveData.setValue(enableEcho);
         }
@@ -189,10 +195,14 @@ public class MainViewModel extends ViewModel {
     }
 
     private void notifyCurrentTrack(AudioFile audioFile) {
+        AppLog.ERROR("notifyCurrentTrack: " + (audioFile == null));
+        audioPlayer.setCurrentAudioFile(audioFile);
         currentTrackLiveData.setValue(audioFile);
     }
 
     private void notifyCurrentTrackList(List<AudioFile> audioFiles) {
+        AppLog.ERROR("notifyCurrentTrackList: " + (audioFiles == null));
+        audioPlayer.setCurrentTrackList(audioFiles);
         currentTrackListLiveData.setValue(audioFiles);
     }
 
@@ -205,10 +215,13 @@ public class MainViewModel extends ViewModel {
     }
 
     public void playStateChanged() {
-        if (!convertingLiveData.getValue()) {
-            if (playingLiveData.getValue()) {
+        AppLog.ERROR("playStateChanged()");
+        if (!isConverting()) {
+            if (isPlaying()) {
+                AppLog.ERROR("pause");
                 pause();
             } else {
+                AppLog.ERROR("play");
                 play();
             }
         }
@@ -322,4 +335,68 @@ public class MainViewModel extends ViewModel {
         return coverLiveData;
     }
 
+
+    public boolean isPlaying() {
+        Boolean playing = playingLiveData.getValue();
+        if (playing == null) {
+            return false;
+        }
+        return playing;
+    }
+
+    public boolean isConverting() {
+        Boolean converting = convertingLiveData.getValue();
+        if (converting == null) {
+            return false;
+        }
+        return converting;
+    }
+
+    public boolean isLoadingSuccess() {
+        Boolean success = loadingSuccessLiveData.getValue();
+        if (success == null) {
+            return false;
+        }
+        return success;
+    }
+
+    public boolean isEQEnable() {
+        Boolean enable = EQLiveData.getValue();
+        if (enable == null) {
+            return false;
+        }
+        return enable;
+    }
+
+    public boolean isReverbEnable() {
+        Boolean enable = reverbLiveData.getValue();
+        if (enable == null) {
+            return false;
+        }
+        return enable;
+    }
+
+    public boolean isWhooshEnable() {
+        Boolean enable = whooshLiveData.getValue();
+        if (enable == null) {
+            return false;
+        }
+        return enable;
+    }
+
+    public boolean isEchoEnable() {
+        Boolean enable = echoLiveData.getValue();
+        if (enable == null) {
+            return false;
+        }
+        return enable;
+    }
+
+    public int getPosition() {
+        Integer position = positionLiveData.getValue();
+        if (position == null) {
+            return -1;
+        }
+        return position;
+    }
 }

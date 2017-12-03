@@ -123,13 +123,9 @@ public class DataRepository {
 
     public Observable<List<AudioFile>> getSelectedFolderAudioFiles() {
         return getSelectedAudioFolder()
-                .firstOrError()
-                .toObservable()
                 .flatMap(audioFolder -> {
                     if (audioFolder != null) {
-                        return localSource.getSelectedFolderAudioFiles(audioFolder)
-                                .firstOrError()
-                                .toObservable();
+                        return localSource.getSelectedFolderAudioFiles(audioFolder);
                     }
                     return Observable.empty();
                 });

@@ -21,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
 import com.fesskiev.mediacenter.ui.MainActivity;
@@ -44,6 +45,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import io.reactivex.Observable;
 
 public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -53,6 +56,9 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
     }
 
     public static final String EXTRA_VIDEO_FOLDER = "com.fesskiev.player.extra.EXTRA_VIDEO_FOLDER";
+
+    @Inject
+    AppAnimationUtils animationUtils;
 
     private VideoFoldersAdapter adapter;
     private RecyclerView recyclerView;
@@ -66,6 +72,7 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MediaApplication.getInstance().getAppComponent().inject(this);
         observeData();
     }
 
@@ -228,7 +235,7 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
 
     private void animateLayout() {
         if (!layoutAnimate) {
-            AppAnimationUtils.getInstance().loadGridRecyclerItemAnimation(recyclerView);
+            animationUtils.loadGridRecyclerItemAnimation(recyclerView);
             recyclerView.scheduleLayoutAnimation();
             layoutAnimate = true;
         }
@@ -375,7 +382,12 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
 
                 VideoFoldersFragment frg = fragment.get();
                 if (frg != null) {
-                    frg.getVideoFilesFrame(videoFolder).subscribe(bitmaps -> holder.folderCard.setFrameBitmaps(bitmaps));
+                    if (videoFolder.frames == null) {
+                        holder.folderCard.clearFrames();
+                        frg.getVideoFilesFrame(videoFolder).subscribe(bitmaps -> setBitmaps(bitmaps, videoFolder, holder));
+                    } else {
+                        holder.folderCard.setFrameBitmaps(videoFolder.frames);
+                    }
                 }
                 if (videoFolder.isHidden) {
                     holder.folderCard.setAlpha(0.35f);
@@ -383,6 +395,11 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
                     holder.folderCard.setAlpha(1f);
                 }
             }
+        }
+
+        private void setBitmaps(List<Bitmap> bitmaps, VideoFolder videoFolder, ViewHolder holder) {
+            holder.folderCard.setFrameBitmaps(bitmaps);
+            videoFolder.frames = bitmaps;
         }
 
         @Override

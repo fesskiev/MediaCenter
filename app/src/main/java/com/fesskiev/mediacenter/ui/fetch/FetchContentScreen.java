@@ -94,14 +94,11 @@ public class FetchContentScreen {
     }
 
     public void prepareFetch() {
-        fetchContentView.setVisibleContent();
-        fetchContentView.showTimer();
+        fetchContentView.fetchStart();
     }
 
     public void finishFetch() {
-        fetchContentView.setInvisibleContent();
-        fetchContentView.hideTimer();
-        fetchContentView.clear();
+        fetchContentView.fetchFinish();
     }
 
     public void setProgress(float percent) {

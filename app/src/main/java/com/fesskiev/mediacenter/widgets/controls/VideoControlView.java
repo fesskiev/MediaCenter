@@ -75,6 +75,7 @@ public class VideoControlView extends FrameLayout {
     }
 
     private OnVideoPlayerControlListener listener;
+    private AppAnimationUtils animationUtils;
 
     private View trackSelectionPanel;
     private View videoControlPanel;
@@ -140,6 +141,7 @@ public class VideoControlView extends FrameLayout {
     }
 
     private void init(Context context, AttributeSet attrs, int defStyle) {
+        animationUtils = new AppAnimationUtils(context);
 
         final TypedArray a = getContext().obtainStyledAttributes(
                 attrs, R.styleable.VideoControlView, defStyle, 0);
@@ -273,28 +275,28 @@ public class VideoControlView extends FrameLayout {
     }
 
     private void setSubTrack(int index) {
-        AppAnimationUtils.getInstance().scaleToSmallViews(audioTrackView, videoTrackView);
-        AppAnimationUtils.getInstance().scaleToOriginalView(subTrackView);
+        animationUtils.scaleToSmallViews(audioTrackView, videoTrackView);
+        animationUtils.scaleToOriginalView(subTrackView);
         rendererIndex = index;
         setTrack();
     }
 
     private void setVideoTrack(int index) {
-        AppAnimationUtils.getInstance().scaleToSmallViews(audioTrackView, subTrackView);
-        AppAnimationUtils.getInstance().scaleToOriginalView(videoTrackView);
+        animationUtils.scaleToSmallViews(audioTrackView, subTrackView);
+        animationUtils.scaleToOriginalView(videoTrackView);
         rendererIndex = index;
         setTrack();
     }
 
     private void setAudioTrack(int index) {
-        AppAnimationUtils.getInstance().scaleToSmallViews(subTrackView, videoTrackView);
-        AppAnimationUtils.getInstance().scaleToOriginalView(audioTrackView);
+        animationUtils.scaleToSmallViews(subTrackView, videoTrackView);
+        animationUtils.scaleToOriginalView(audioTrackView);
         rendererIndex = index;
         setTrack();
     }
 
     private void changeResizeMode() {
-        AppAnimationUtils.getInstance().errorAnimation(resizeModeState);
+        animationUtils.errorAnimation(resizeModeState);
         switch (resizeMode) {
             case RESIZE_MODE_FIT:
                 resizeModeState.setText(getResources().getString(R.string.resize_mode_fill));
@@ -780,7 +782,7 @@ public class VideoControlView extends FrameLayout {
     }
 
     private void togglePanel(ImageView settingsButton) {
-        AppAnimationUtils.getInstance().rotateAnimation(settingsButton);
+        animationUtils.rotateAnimation(settingsButton);
         if (showPanel) {
             hidePanel();
         } else {
@@ -797,7 +799,7 @@ public class VideoControlView extends FrameLayout {
     }
 
     private void toggleLockScreen() {
-        AppAnimationUtils.getInstance().errorAnimation(videoLockScreen);
+        animationUtils.errorAnimation(videoLockScreen);
         lockScreen = !lockScreen;
         if (lockScreen) {
             videoLockScreen.setImageResource(R.drawable.icon_video_lock_screen);

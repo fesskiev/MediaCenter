@@ -63,26 +63,18 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
         observeData();
     }
 
-
     private void observeData() {
         FetchContentViewModel viewModel = ViewModelProviders.of(this).get(FetchContentViewModel.class);
         viewModel.getPrepareFetchLiveData().observe(this, Void -> {
-            fetchContentView.setVisibleContent();
-            fetchContentView.showTimer();
-
+            fetchContentView.fetchStart();
             fetchText.setVisibility(View.GONE);
             hideButtons();
         });
         viewModel.getFinishFetchLiveData().observe(this, Void -> {
-            fetchContentView.setInvisibleContent();
-            fetchContentView.hideTimer();
-            fetchContentView.clear();
-
+            fetchContentView.fetchFinish();
             fetchMediaFilesSuccess();
         });
-        viewModel.getPercentLiveData().observe(this, percent -> {
-            fetchContentView.setProgress(percent);
-        });
+        viewModel.getPercentLiveData().observe(this, percent -> fetchContentView.setProgress(percent));
         viewModel.getFetchDescriptionLiveData().observe(this, description -> {
             String folderName = description.getFolderName();
             if (folderName != null) {
@@ -107,12 +99,13 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
             FileSystemService.FileSystemLocalBinder binder = (FileSystemService.FileSystemLocalBinder) service;
             boundService = binder.getService();
             if (boundService.getScanState() == FileSystemService.SCAN_STATE.SCANNING_ALL) {
+                hideButtons();
                 fetchText.setVisibility(View.GONE);
-                fetchContentView.setVisibleContent();
-                fetchContentView.showTimer();
+                fetchContentView.fetchStart();
             } else if (boundService.getScanState() == FileSystemService.SCAN_STATE.FINISHED) {
                 hideButtons();
                 fetchMediaFilesSuccess();
+                fetchContentView.fetchFinish();
             }
             serviceBound = true;
         }

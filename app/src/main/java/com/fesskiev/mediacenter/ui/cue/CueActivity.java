@@ -44,6 +44,8 @@ public class CueActivity extends AnalyticsActivity {
 
     @Inject
     AppSettingsManager settingsManager;
+    @Inject
+    AppAnimationUtils animationUtils;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -264,13 +266,11 @@ public class CueActivity extends AnalyticsActivity {
     private void hideViews() {
         CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) addCueFab.getLayoutParams();
         int fabBottomMargin = lp.bottomMargin;
-        AppAnimationUtils.getInstance().translate(addCueFab, addCueFab.getHeight()
-                + fabBottomMargin);
-
+        animationUtils.translate(addCueFab, addCueFab.getHeight() + fabBottomMargin);
     }
 
     private void showViews() {
-        AppAnimationUtils.getInstance().translate(addCueFab, 0);
+        animationUtils.translate(addCueFab, 0);
     }
 
     private static class SelectableTrackData {

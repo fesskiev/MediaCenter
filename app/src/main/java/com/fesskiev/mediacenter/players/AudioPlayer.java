@@ -146,6 +146,16 @@ public class AudioPlayer implements Playable {
         }
     }
 
+    public void setCurrentAudioFile(AudioFile audioFile) {
+        currentTrack = audioFile;
+        trackListIterator.findPosition();
+    }
+
+    public void setCurrentTrackList(List<AudioFile> audioFiles) {
+        currentTrackList = audioFiles;
+        trackListIterator.findPosition();
+    }
+
     public void setCurrentAudioFileAndPlay(AudioFile audioFile) {
         currentTrack = audioFile;
         trackListIterator.findPosition();
@@ -156,7 +166,6 @@ public class AudioPlayer implements Playable {
         openAudioFile();
         notifyCurrentTrack();
     }
-
 
     public void setCurrentTrackList(AudioFolder audioFolder, List<AudioFile> audioFiles) {
         if (audioFiles != null) {

@@ -15,6 +15,7 @@ import android.widget.CheckedTextView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.Group;
 import com.fesskiev.mediacenter.data.model.GroupItem;
@@ -32,6 +33,8 @@ import com.thoughtbot.expandablerecyclerview.viewholders.GroupViewHolder;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import static com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity.EXTRA_CONTENT_TYPE;
 import static com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity.EXTRA_CONTENT_TYPE_VALUE;
 
@@ -44,6 +47,9 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
 
     private final static String BUNDLE_EXPANDED_IDS = "com.fesskiev.player.BUNDLE_EXPANDED_IDS";
 
+    @Inject
+    AppAnimationUtils animationUtils;
+
     private RecyclerView recyclerView;
     private GroupsAdapter adapter;
 
@@ -54,6 +60,7 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MediaApplication.getInstance().getAppComponent().inject(this);
         if (savedInstanceState == null) {
             expandedGroupIds = new ArrayList<>();
             expandedGroupIds.add(Group.GROUP_ARTIST);
@@ -114,7 +121,7 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
 
     @Override
     public void fetch() {
-      viewModel.getGroups();
+        viewModel.getGroups();
     }
 
 
@@ -272,11 +279,11 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
             }
 
             private void animateExpand() {
-                AppAnimationUtils.getInstance().rotateExpand(arrow);
+                animationUtils.rotateExpand(arrow);
             }
 
             private void animateCollapse() {
-                AppAnimationUtils.getInstance().rotateCollapse(arrow);
+                animationUtils.rotateCollapse(arrow);
             }
         }
 

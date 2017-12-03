@@ -139,6 +139,8 @@ public class PlaybackService extends Service {
     public static final String PLAYBACK_EXTRA_LOOPING_END
             = "com.fesskiev.player.extra.PLAYBACK_EXTRA_LOOPING_END";
 
+    private ProcessLifecycleObserver processLifecycleObserver = new ProcessLifecycleObserver();
+
     @Inject
     AppSettingsManager settingsManager;
     @Inject
@@ -151,7 +153,6 @@ public class PlaybackService extends Service {
     NotificationHelper notificationHelper;
 
     private WearHelper wearHelper;
-
     private AudioFocusManager audioFocusManager;
     private CountDownTimer timer;
 
@@ -178,6 +179,10 @@ public class PlaybackService extends Service {
     private boolean finish;
     private boolean restorePosition;
 
+    public static void startPlaybackService(Context context) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        context.startService(intent);
+    }
 
     public static void startPlaybackForegroundService(Context context) {
         Intent intent = new Intent(context, PlaybackService.class);
@@ -351,8 +356,6 @@ public class PlaybackService extends Service {
         Log.d(TAG, "Create playback service!");
 
         MediaApplication.getInstance().getAppComponent().inject(this);
-        addProcessLifecycleObserver();
-
         observeEvents();
 
         volume = settingsManager.getAudioPlayerVolume();
@@ -384,7 +387,7 @@ public class PlaybackService extends Service {
                 }
             }
 
-//            Log.d("event", PlaybackService.this.toString());
+            AppLog.DEBUG("playback: " + PlaybackService.this.toString());
             sendPlaybackEvent();
         });
 
@@ -421,6 +424,7 @@ public class PlaybackService extends Service {
         registerCallback();
 
         createPlayer();
+        addProcessLifecycleObserver();
         sendPlaybackEvent();
     }
 
@@ -607,7 +611,6 @@ public class PlaybackService extends Service {
             }
         });
     }
-
 
     private void observeEvents() {
         rxBus.toObservable()
@@ -845,11 +848,12 @@ public class PlaybackService extends Service {
         timer.pause();
     }
 
-
     @Override
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "Destroy playback service");
+
+        removeProcessLifecycleObserver();
         if (playing) {
             stop();
         }
@@ -874,10 +878,14 @@ public class PlaybackService extends Service {
     }
 
     private void addProcessLifecycleObserver() {
-        ProcessLifecycleOwner.get().getLifecycle().addObserver(new ProcessLifecycleObserver());
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(processLifecycleObserver);
     }
 
-    public class ProcessLifecycleObserver implements LifecycleObserver {
+    private void removeProcessLifecycleObserver() {
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(processLifecycleObserver);
+    }
+
+    private class ProcessLifecycleObserver implements LifecycleObserver {
 
         @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
         public void resumed() {
@@ -893,7 +901,6 @@ public class PlaybackService extends Service {
             }
         }
     }
-
 
     @Nullable
     @Override
@@ -1015,9 +1022,7 @@ public class PlaybackService extends Service {
     }
 
     private void sendPlaybackEvent() {
-        if (rxBus.hasObservers()) {
-            rxBus.send(PlaybackService.this);
-        }
+        rxBus.send(PlaybackService.this);
     }
 
     public float getPositionPercent() {

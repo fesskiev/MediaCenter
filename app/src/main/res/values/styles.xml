@@ -259,12 +259,14 @@
     </style>
 
     <style name="FetchDialogTitleTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/white_text</item>
         <item name="android:textSize">@dimen/text_fetch_dialog_title</item>
         <item name="android:textStyle">bold</item>
         <item name="android:fontFamily">@font/ubuntu</item>
     </style>
 
     <style name="FetchDialogDescTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/white_text</item>
         <item name="android:textSize">@dimen/text_fetch_dialog_desc</item>
         <item name="android:fontFamily">@font/ubuntu</item>
     </style>

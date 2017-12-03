@@ -5,12 +5,14 @@ import android.arch.lifecycle.ViewModel;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.services.FileSystemService;
+import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.RxBus;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.events.SingleLiveEvent;
 
 import javax.inject.Inject;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
 import static com.fesskiev.mediacenter.services.FileSystemService.FetchFolderCreate.AUDIO;
@@ -52,7 +54,9 @@ public class FetchContentViewModel extends ViewModel {
 
     private void observeEvents() {
         disposable = rxBus.toObservable()
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object -> {
+                    AppLog.WTF("observeEvents FETCH");
                     if (object instanceof FileSystemService) {
                         onPlaybackStateEvent((FileSystemService) object);
                     } else if (object instanceof Float) {
@@ -62,7 +66,7 @@ public class FetchContentViewModel extends ViewModel {
                     } else if (object instanceof FileSystemService.FetchFolderCreate) {
                         onFetchFolderCreated((FileSystemService.FetchFolderCreate) object);
                     }
-                });
+                }, Throwable::printStackTrace);
     }
 
     public void onPlaybackStateEvent(FileSystemService fileSystemService) {

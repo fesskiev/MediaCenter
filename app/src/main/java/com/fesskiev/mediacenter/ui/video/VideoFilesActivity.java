@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.ui.analytics.AnalyticsActivity;
@@ -35,6 +36,8 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import io.reactivex.Observable;
 
 public class VideoFilesActivity extends AnalyticsActivity {
@@ -42,6 +45,9 @@ public class VideoFilesActivity extends AnalyticsActivity {
     public static VideoFilesActivity newInstance() {
         return new VideoFilesActivity();
     }
+
+    @Inject
+    AppAnimationUtils animationUtils;
 
     private VideoFilesAdapter adapter;
     private RecyclerView recyclerView;
@@ -57,6 +63,8 @@ public class VideoFilesActivity extends AnalyticsActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_files);
+        MediaApplication.getInstance().getAppComponent().inject(this);
+
         videoFolder = getIntent().getExtras().getParcelable(VideoFoldersFragment.EXTRA_VIDEO_FOLDER);
         emptyVideoContent = findViewById(R.id.emptyVideoContentCard);
         setupToolbar();
@@ -148,7 +156,7 @@ public class VideoFilesActivity extends AnalyticsActivity {
 
     private void animateLayout() {
         if (!layoutAnimate) {
-            AppAnimationUtils.getInstance().loadGridRecyclerItemAnimation(recyclerView);
+            animationUtils.loadGridRecyclerItemAnimation(recyclerView);
             recyclerView.scheduleLayoutAnimation();
             layoutAnimate = true;
         }

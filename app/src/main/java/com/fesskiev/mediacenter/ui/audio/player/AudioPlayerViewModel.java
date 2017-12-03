@@ -63,24 +63,28 @@ public class AudioPlayerViewModel extends ViewModel {
         disposables = new CompositeDisposable();
         subscribeToEvents();
 
-        currentTrackLiveData.setValue(audioPlayer.getCurrentTrack());
+        setCurrentTrack(audioPlayer.getCurrentTrack());
         PlaybackService.requestPlaybackStateIfNeed(context);
     }
 
     private void subscribeToEvents() {
         disposables.add(rxBus.toObservable()
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object -> {
                     if (object instanceof PlaybackService) {
                         notifyPlayback((PlaybackService) object);
                     } else if (object instanceof AudioFile) {
-                        AudioFile audioFile = (AudioFile) object;
-                        notifyCurrentTrack(audioFile);
-                        notifyFirstOtLastTack();
-                        notifyCoverImage(audioFile);
-                        notifyPalette(audioFile);
+                        setCurrentTrack((AudioFile) object);
                     }
                 }));
 
+    }
+
+    private void setCurrentTrack(AudioFile audioFile) {
+        notifyCurrentTrack(audioFile);
+        notifyFirstOtLastTack();
+        notifyCoverImage(audioFile);
+        notifyPalette(audioFile);
     }
 
     private void notifyPalette(AudioFile audioFile) {
@@ -92,6 +96,8 @@ public class AudioPlayerViewModel extends ViewModel {
 
     private void notifyCoverImage(AudioFile audioFile) {
         disposables.add(bitmapHelper.loadAudioPlayerArtwork(audioFile)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(coverLiveData::setValue));
     }
 
@@ -114,55 +120,55 @@ public class AudioPlayerViewModel extends ViewModel {
 
     private void notifyPlayback(PlaybackService playbackService) {
         boolean converting = playbackService.isConvertStart();
-        boolean lastConverting = convertingLiveData.getValue();
+        boolean lastConverting = isConverting();
         if (lastConverting != converting) {
             convertingLiveData.setValue(converting);
         }
 
         boolean loadingSuccess = playbackService.isLoadSuccess();
-        boolean lastLoadingSuccess = loadingSuccessLiveData.getValue();
+        boolean lastLoadingSuccess = isLoadingSuccess();
         if (lastLoadingSuccess != loadingSuccess) {
             loadingSuccessLiveData.setValue(loadingSuccess);
         }
 
         boolean loadingError = playbackService.isLoadError();
-        boolean lastLoadingError = loadingErrorLiveData.getValue();
+        boolean lastLoadingError = isLoadingError();
         if (lastLoadingError != loadingError) {
             loadingErrorLiveData.setValue(loadingError);
         }
 
         boolean playing = playbackService.isPlaying();
-        boolean lastPlaying = playingLiveData.getValue();
+        boolean lastPlaying = isPlaying();
         if (lastPlaying != playing) {
-            playingLiveData.setValue(lastPlaying);
+            playingLiveData.setValue(playing);
         }
 
         boolean looping = playbackService.isLooping();
-        boolean lastLooping = loopingLiveData.getValue();
+        boolean lastLooping = isLooping();
         if (lastLooping != looping) {
-            loopingLiveData.setValue(lastLooping);
+            loopingLiveData.setValue(looping);
         }
 
         int duration = playbackService.getDuration();
-        int lastDuration = durationLiveData.getValue();
+        int lastDuration = getDuration();
         if (lastDuration != duration) {
             durationLiveData.setValue(duration);
         }
 
         int position = playbackService.getPosition();
-        int lastPosition = positionLiveData.getValue();
+        int lastPosition = getPosition();
         if (lastPosition != position) {
             positionLiveData.setValue(position);
         }
 
         float positionPercent = playbackService.getPositionPercent();
-        float lastPositionPercent = positionPercentLiveData.getValue();
+        float lastPositionPercent = getPositionPercent();
         if (lastPositionPercent != positionPercent) {
             positionPercentLiveData.setValue(positionPercent);
         }
 
         float volume = playbackService.getVolume();
-        float lastVolume = volumeLiveData.getValue();
+        float lastVolume = getVolume();
         if (lastVolume != volume) {
             volumeLiveData.setValue(volume);
         }
@@ -185,8 +191,8 @@ public class AudioPlayerViewModel extends ViewModel {
     }
 
     public void playStateChanged() {
-        if (!convertingLiveData.getValue()) {
-            if (playingLiveData.getValue()) {
+        if (!isConverting()) {
+            if (isPlaying()) {
                 pause();
             } else {
                 play();
@@ -203,14 +209,14 @@ public class AudioPlayerViewModel extends ViewModel {
     }
 
     public void next() {
-        if (!loopingLiveData.getValue() && !convertingLiveData.getValue()) {
+        if (!isLooping() && !isConverting()) {
             audioPlayer.next();
             nextTrackLiveData.setValue(null);
         }
     }
 
     public void previous() {
-        if (!loopingLiveData.getValue() && !convertingLiveData.getValue()) {
+        if (!isLooping() && !isConverting()) {
             audioPlayer.previous();
             previousTrackLiveData.setValue(null);
         }
@@ -302,6 +308,78 @@ public class AudioPlayerViewModel extends ViewModel {
 
     public MutableLiveData<Void> getPreviousTrackLiveData() {
         return previousTrackLiveData;
+    }
+
+    public boolean isPlaying() {
+        Boolean playing = playingLiveData.getValue();
+        if (playing == null) {
+            return false;
+        }
+        return playing;
+    }
+
+    public boolean isConverting() {
+        Boolean converting = convertingLiveData.getValue();
+        if (converting == null) {
+            return false;
+        }
+        return converting;
+    }
+
+    public boolean isLooping() {
+        Boolean looping = loopingLiveData.getValue();
+        if (looping == null) {
+            return false;
+        }
+        return looping;
+    }
+
+    public float getPositionPercent() {
+        Float position = positionPercentLiveData.getValue();
+        if (position == null) {
+            return -1;
+        }
+        return position;
+    }
+
+    public int getPosition() {
+        Integer position = positionLiveData.getValue();
+        if (position == null) {
+            return -1;
+        }
+        return position;
+    }
+
+    public int getDuration() {
+        Integer duration = durationLiveData.getValue();
+        if (duration == null) {
+            return -1;
+        }
+        return duration;
+    }
+
+    public float getVolume() {
+        Float volume = volumeLiveData.getValue();
+        if (volume == null) {
+            return -1;
+        }
+        return volume;
+    }
+
+    public boolean isLoadingSuccess() {
+        Boolean success = loadingSuccessLiveData.getValue();
+        if (success == null) {
+            return false;
+        }
+        return success;
+    }
+
+    public boolean isLoadingError() {
+        Boolean error = loadingErrorLiveData.getValue();
+        if (error == null) {
+            return false;
+        }
+        return error;
     }
 
 }

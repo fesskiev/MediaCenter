@@ -27,26 +27,14 @@ public class AppAnimationUtils {
     private static final int DURATION_SLOW = 1800;
     private static final int STARTUP_DELAY = 600;
 
-    private static AppAnimationUtils INSTANCE;
-
     private Context context;
     private FastOutSlowInInterpolator fastOutSlowInInterpolator;
     private LayoutAnimationController scaleRandomAnimation;
 
-    public static AppAnimationUtils getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new AppAnimationUtils();
-        }
-        return INSTANCE;
-    }
-
-    private AppAnimationUtils() {
-        context = MediaApplication.getInstance().getApplicationContext();
-
+    public AppAnimationUtils(Context context) {
+        this.context = context;
         fastOutSlowInInterpolator = new FastOutSlowInInterpolator();
-        scaleRandomAnimation =
-                AnimationUtils.loadLayoutAnimation(context, R.anim.grid_layout_animation_scale_random);
-
+        scaleRandomAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.grid_layout_animation_scale_random);
     }
 
     public void animateToolbar(Toolbar toolbar) {
@@ -154,7 +142,6 @@ public class AppAnimationUtils {
         view.setAnimation(rotate);
 
     }
-
 
     public FastOutSlowInInterpolator getFastOutSlowInInterpolator() {
         return fastOutSlowInInterpolator;

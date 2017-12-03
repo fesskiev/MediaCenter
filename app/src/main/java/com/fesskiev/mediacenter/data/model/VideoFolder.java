@@ -2,12 +2,14 @@ package com.fesskiev.mediacenter.data.model;
 
 
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.fesskiev.mediacenter.data.source.local.db.DatabaseHelper;
 
 import java.io.File;
+import java.util.List;
 
 public class VideoFolder implements Comparable<VideoFolder>, Parcelable, MediaFolder {
 
@@ -18,6 +20,7 @@ public class VideoFolder implements Comparable<VideoFolder>, Parcelable, MediaFo
     public long timestamp;
     public boolean isSelected;
     public boolean isHidden;
+    public List<Bitmap> frames;
 
 
     public VideoFolder() {

@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.ui.MainActivity;
@@ -44,6 +45,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import io.reactivex.Observable;
 
 import static com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity.EXTRA_AUDIO_FOLDER;
@@ -56,6 +59,9 @@ public class AudioFoldersFragment extends HidingPlaybackFragment implements Audi
         return new AudioFoldersFragment();
     }
 
+    @Inject
+    AppAnimationUtils animationUtils;
+
     private AudioFoldersAdapter adapter;
     private RecyclerView recyclerView;
     private CardView emptyAudioContent;
@@ -64,10 +70,10 @@ public class AudioFoldersFragment extends HidingPlaybackFragment implements Audi
 
     private AudioFoldersViewModel viewModel;
 
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MediaApplication.getInstance().getAppComponent().inject(this);
         observeData();
     }
 
@@ -147,7 +153,6 @@ public class AudioFoldersFragment extends HidingPlaybackFragment implements Audi
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean("layoutAnimate", layoutAnimate);
-
     }
 
     @Override
@@ -186,7 +191,7 @@ public class AudioFoldersFragment extends HidingPlaybackFragment implements Audi
 
     private void animateLayout() {
         if (!layoutAnimate) {
-            AppAnimationUtils.getInstance().loadGridRecyclerItemAnimation(recyclerView);
+            animationUtils.loadGridRecyclerItemAnimation(recyclerView);
             recyclerView.scheduleLayoutAnimation();
             layoutAnimate = true;
         }
@@ -415,7 +420,7 @@ public class AudioFoldersFragment extends HidingPlaybackFragment implements Audi
                 AudioFoldersFragment frg = fragment.get();
                 if (frg != null) {
                     frg.getAudioFolderArtwork(audioFolder)
-                            .subscribe(bitmap -> holder.audioCardView.getCoverView().setImageBitmap(bitmap));
+                            .subscribe(bitmap -> holder.audioCardView.getCoverView().setImageBitmap(bitmap), Throwable::printStackTrace);
                     if (audioFolder.color == null) {
                         frg.getAudioFolderPalette(audioFolder)
                                 .subscribe(paletteColor -> setPalette(paletteColor, audioFolder, holder));

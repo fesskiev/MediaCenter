@@ -45,6 +45,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.ui.analytics.AnalyticsActivity;
 import com.fesskiev.mediacenter.data.model.AudioFile;
@@ -77,6 +78,8 @@ import com.fesskiev.mediacenter.widgets.nav.MediaNavigationView;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import static com.fesskiev.mediacenter.services.FileSystemService.ACTION_REFRESH_AUDIO_FRAGMENT;
 import static com.fesskiev.mediacenter.services.FileSystemService.ACTION_REFRESH_VIDEO_FRAGMENT;
 import static com.fesskiev.mediacenter.ui.walkthrough.PermissionFragment.checkPermissionsResultGranted;
@@ -90,6 +93,9 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
     private static final int SELECTED_AUDIO = 0;
     private static final int SELECTED_VIDEO = 1;
 
+    @Inject
+    AppAnimationUtils animationUtils;
+
     private Class<? extends Activity> selectedActivity;
 
     private FetchContentScreen fetchContentScreen;
@@ -98,11 +104,9 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
     private MediaNavigationView mediaNavigationView;
     private NavigationView navigationViewMain;
     private DrawerLayout drawer;
-
     private ImageView appIcon;
     private TextView appName;
     private TextView appPromo;
-
     private View bottomSheet;
     private BottomSheetBehavior bottomSheetBehavior;
     private TrackListAdapter adapter;
@@ -135,14 +139,15 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        MediaApplication.getInstance().getAppComponent().inject(this);
 
         selectedState = SELECTED_AUDIO;
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        AppAnimationUtils.getInstance().animateToolbar(toolbar);
+        animationUtils.animateToolbar(toolbar);
 
-        fetchContentScreen = new FetchContentScreen(this, AppAnimationUtils.getInstance());
+        fetchContentScreen = new FetchContentScreen(this, animationUtils);
 
         track = findViewById(R.id.track);
         artist = findViewById(R.id.artist);
@@ -159,12 +164,13 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
 
         playPauseButton = findViewById(R.id.playPauseFAB);
         playPauseButton.setOnClickListener(v -> {
-            if (mainViewModel.isTrackSelected() && !mainViewModel.getConvertingLiveData().getValue()) {
+            if (mainViewModel.isTrackSelected() && !mainViewModel.isConverting()) {
                 mainViewModel.playStateChanged();
             } else {
-                AppAnimationUtils.getInstance().errorAnimation(playPauseButton);
+                animationUtils.errorAnimation(playPauseButton);
             }
         });
+        playPauseButton.setPlay(false);
 
         bottomSheet = findViewById(R.id.bottom_sheet);
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
@@ -188,10 +194,10 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
 
             peakView = findViewById(R.id.basicNavPlayerContainer);
             peakView.setOnClickListener(v -> {
-                if (mainViewModel.isTrackSelected() && !!mainViewModel.getConvertingLiveData().getValue()) {
+                if (mainViewModel.isTrackSelected() && !mainViewModel.isConverting()) {
                     AudioPlayerActivity.startPlayerActivity(MainActivity.this);
                 } else {
-                    AppAnimationUtils.getInstance().errorAnimation(playPauseButton);
+                    animationUtils.errorAnimation(playPauseButton);
                 }
             });
             peakView.post(() -> {
@@ -249,6 +255,7 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
         showEmptyFolderCard();
         observeData();
         observeFetchData();
+//        PlaybackService.startPlaybackService(getApplicationContext());
     }
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
@@ -303,7 +310,8 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
         viewModel.getPrepareFetchLiveData().observe(this, Void -> fetchContentScreen.prepareFetch());
         viewModel.getFinishFetchLiveData().observe(this, Void -> {
             fetchContentScreen.hideContentScreen();
-            AppAnimationUtils.getInstance().animateBottomSheet(bottomSheet, true);
+            fetchContentScreen.finishFetch();
+            animationUtils.animateBottomSheet(bottomSheet, true);
 
         });
         viewModel.getPercentLiveData().observe(this, percent -> fetchContentScreen.setProgress(percent));
@@ -319,7 +327,7 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
         });
         viewModel.getFetchAudioStartLiveData().observe(this, Void -> {
             clearPlayback();
-            AppAnimationUtils.getInstance().animateBottomSheet(bottomSheet, false);
+            animationUtils.animateBottomSheet(bottomSheet, false);
             clearAudioFragment();
         });
         viewModel.getFetchVideoStartLiveData().observe(this, Void -> clearVideoFragment());
@@ -524,7 +532,7 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
                 .rotationX(angle)
                 .rotationY(angle)
                 .setDuration(1800)
-                .setInterpolator(AppAnimationUtils.getInstance().getFastOutSlowInInterpolator())
+                .setInterpolator(animationUtils.getFastOutSlowInInterpolator())
                 .setListener(new ViewPropertyAnimatorListener() {
                     @Override
                     public void onAnimationStart(View view) {
@@ -1065,7 +1073,7 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
                 super(v);
                 v.setOnClickListener(view -> {
                     AudioFile audioFile = currentTrackList.get(getAdapterPosition());
-                    if (audioFile != null && !mainViewModel.getConvertingLiveData().getValue()) {
+                    if (audioFile != null && !mainViewModel.isConverting()) {
                         if (audioFile.exists()) {
                             mainViewModel.setCurrentAudioFileAndPlay(audioFile);
                         } else {
@@ -1102,14 +1110,14 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
                 holder.filePath.setText(audioFile.getFilePath());
                 holder.duration.setText(Utils.getDurationString(audioFile.length));
 
-                if (mainViewModel.isEqualsToCurrentTrack(audioFile) && mainViewModel.getPlayingLiveData().getValue()) {
+                if (mainViewModel.isEqualsToCurrentTrack(audioFile) && mainViewModel.isPlaying()) {
                     holder.playEq.setVisibility(View.VISIBLE);
 
                     AnimationDrawable animation = (AnimationDrawable) ContextCompat.
                             getDrawable(getApplicationContext(), R.drawable.ic_equalizer);
                     holder.playEq.setImageDrawable(animation);
                     if (animation != null) {
-                        if (mainViewModel.getPlayingLiveData().getValue()) {
+                        if (mainViewModel.isPlaying()) {
                             animation.start();
                         } else {
                             animation.stop();

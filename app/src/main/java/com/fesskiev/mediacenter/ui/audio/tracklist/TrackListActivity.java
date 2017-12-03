@@ -17,6 +17,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.ui.analytics.AnalyticsActivity;
 import com.fesskiev.mediacenter.data.model.AudioFile;
@@ -39,6 +40,8 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import io.reactivex.Observable;
 
 public class TrackListActivity extends AnalyticsActivity implements View.OnClickListener {
@@ -46,6 +49,9 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
     public static final String EXTRA_CONTENT_TYPE = "com.fesskiev.player.EXTRA_CONTENT_TYPE";
     public static final String EXTRA_CONTENT_TYPE_VALUE = "com.fesskiev.player.EXTRA_CONTENT_TYPE_VALUE";
     public static final String EXTRA_AUDIO_FOLDER = "com.fesskiev.player.EXTRA_AUDIO_FOLDER";
+
+    @Inject
+    AppAnimationUtils animationUtils;
 
     private AudioFolder audioFolder;
 
@@ -63,6 +69,8 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_track_list);
+        MediaApplication.getInstance().getAppComponent().inject(this);
+
         contentType =
                 (CONTENT_TYPE) getIntent().getSerializableExtra(EXTRA_CONTENT_TYPE);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -200,14 +208,13 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
             public void onShown(Snackbar snackbar) {
                 super.onShown(snackbar);
                 closeMenu();
-                AppAnimationUtils.getInstance().translateMenu(actionMenu,
-                        -snackbar.getView().getHeight());
+                animationUtils.translateMenu(actionMenu, -snackbar.getView().getHeight());
             }
 
             @Override
             public void onDismissed(Snackbar snackbar, int event) {
                 super.onDismissed(snackbar, event);
-                AppAnimationUtils.getInstance().translateMenu(actionMenu, 0);
+                animationUtils.translateMenu(actionMenu, 0);
             }
         }).show();
     }
@@ -221,14 +228,13 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
             public void onShown(Snackbar snackbar) {
                 super.onShown(snackbar);
                 closeMenu();
-                AppAnimationUtils.getInstance().translateMenu(actionMenu,
-                        -snackbar.getView().getHeight());
+                animationUtils.translateMenu(actionMenu, -snackbar.getView().getHeight());
             }
 
             @Override
             public void onDismissed(Snackbar snackbar, int event) {
                 super.onDismissed(snackbar, event);
-                AppAnimationUtils.getInstance().translateMenu(actionMenu, 0);
+                animationUtils.translateMenu(actionMenu, 0);
             }
         }).show();
     }
@@ -247,14 +253,13 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
             public void onShown(Snackbar snackbar) {
                 super.onShown(snackbar);
                 closeMenu();
-                AppAnimationUtils.getInstance().translateMenu(actionMenu,
-                        -snackbar.getView().getHeight());
+                animationUtils.translateMenu(actionMenu, -snackbar.getView().getHeight());
             }
 
             @Override
             public void onDismissed(Snackbar snackbar, int event) {
                 super.onDismissed(snackbar, event);
-                AppAnimationUtils.getInstance().translateMenu(actionMenu, 0);
+                animationUtils.translateMenu(actionMenu, 0);
                 adapter.closeOpenCards();
             }
         }).show();
@@ -363,13 +368,13 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
     private void hideViews() {
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) actionMenu.getLayoutParams();
         int fabBottomMargin = lp.bottomMargin;
-        AppAnimationUtils.getInstance().translate(actionMenu, actionMenu.getHeight()
+        animationUtils.translate(actionMenu, actionMenu.getHeight()
                 + fabBottomMargin);
 
     }
 
     private void showViews() {
-        AppAnimationUtils.getInstance().translate(actionMenu, 0);
+        animationUtils.translate(actionMenu, 0);
     }
 
 

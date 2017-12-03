@@ -107,6 +107,17 @@ public class FetchContentView extends FrameLayout {
     public void setProgress(float percent) {
         progressBar.setProgress((int) percent);
     }
+
+    public void fetchStart(){
+        setVisibleContent();
+        showTimer();
+    }
+
+    public void fetchFinish(){
+        setInvisibleContent();
+        hideTimer();
+        clear();
+    }
 }
 
 

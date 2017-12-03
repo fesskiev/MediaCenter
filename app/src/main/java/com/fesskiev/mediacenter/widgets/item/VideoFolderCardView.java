@@ -96,17 +96,19 @@ public class VideoFolderCardView extends CardView {
                 (y > viewY && y < (viewY + view.getHeight()));
     }
 
-
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         detector.onTouchEvent(ev);
         return true;
     }
 
-    public void setFrameBitmaps(List<Bitmap> bitmaps) {
+    public void clearFrames() {
         for(ImageView imageView : frameViews){
             imageView.setImageBitmap(null);
         }
+    }
+
+    public void setFrameBitmaps(List<Bitmap> bitmaps) {
         for (int i = 0; i < bitmaps.size(); i++) {
             if (i == frameViews.length) {
                 break;
