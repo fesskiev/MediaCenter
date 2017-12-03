@@ -94,10 +94,12 @@ public class FetchContentScreen {
     }
 
     public void prepareFetch() {
+        showContentScreen();
         fetchContentView.fetchStart();
     }
 
     public void finishFetch() {
+        hideContentScreen();
         fetchContentView.fetchFinish();
     }
 

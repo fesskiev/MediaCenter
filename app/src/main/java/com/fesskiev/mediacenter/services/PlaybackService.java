@@ -36,6 +36,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+
 public class PlaybackService extends Service {
 
     private static final String TAG = PlaybackService.class.getSimpleName();
@@ -178,11 +181,6 @@ public class PlaybackService extends Service {
 
     private boolean finish;
     private boolean restorePosition;
-
-    public static void startPlaybackService(Context context) {
-        Intent intent = new Intent(context, PlaybackService.class);
-        context.startService(intent);
-    }
 
     public static void startPlaybackForegroundService(Context context) {
         Intent intent = new Intent(context, PlaybackService.class);
@@ -387,7 +385,7 @@ public class PlaybackService extends Service {
                 }
             }
 
-            AppLog.DEBUG("playback: " + PlaybackService.this.toString());
+//            AppLog.DEBUG("playback: " + PlaybackService.this.toString());
             sendPlaybackEvent();
         });
 
@@ -614,6 +612,7 @@ public class PlaybackService extends Service {
 
     private void observeEvents() {
         rxBus.toObservable()
+                .subscribeOn(Schedulers.io())
                 .doOnNext(object -> {
                     if (object instanceof AudioFile) {
                         this.currentTrack = (AudioFile) object;
@@ -629,13 +628,14 @@ public class PlaybackService extends Service {
     }
 
     private void updateNotification(AudioFile audioFile) {
-        bitmapHelper.loadBitmap(audioFile).subscribe(bitmap -> {
-            if (notificationHelper != null) {
-                notificationHelper.updateNotification(audioFile, bitmap, playing);
-                //TODO start foreground
-                startForeground(NotificationHelper.NOTIFICATION_ID, notificationHelper.getNotification());
-            }
-        });
+        bitmapHelper.loadBitmap(audioFile)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(bitmap -> {
+                    if (notificationHelper != null) {
+                        notificationHelper.updateNotification(audioFile, bitmap, playing);
+                    }
+                });
     }
 
     private void registerNotificationReceiver() {
@@ -694,7 +694,16 @@ public class PlaybackService extends Service {
 
     private void tryStartForeground() {
         currentTrack = audioPlayer.getCurrentTrack();
-        updateNotification(currentTrack);
+        bitmapHelper.loadBitmap(currentTrack)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(bitmap -> {
+                    if (notificationHelper != null) {
+                        notificationHelper.updateNotification(currentTrack, bitmap, playing);
+                        startForeground(NotificationHelper.NOTIFICATION_ID, notificationHelper.getNotification());
+                        openFile(currentTrack.getFilePath());
+                    }
+                });
     }
 
     private void sendPlaybackStateIfNeed() {

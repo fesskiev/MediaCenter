@@ -111,21 +111,29 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
         }
     };
 
-    @Override
-    public void onStart() {
-        super.onStart();
+    private void bindFileSystemService() {
         Intent intent = new Intent(getActivity(), FileSystemService.class);
         getActivity().startService(intent);
         getActivity().bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
+    private void unbindFileSystemService() {
         if (serviceBound) {
             getActivity().unbindService(serviceConnection);
             serviceBound = false;
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        bindFileSystemService();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+       unbindFileSystemService();
     }
 
     @Override
@@ -153,7 +161,6 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
         fetchMediaFilesSuccess();
         notifyFetchMediaGranted();
     }
-
 
     private void fetchMediaFilesSuccess() {
         fetchText.setVisibility(View.VISIBLE);

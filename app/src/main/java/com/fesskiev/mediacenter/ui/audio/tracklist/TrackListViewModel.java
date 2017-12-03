@@ -55,10 +55,12 @@ public class TrackListViewModel extends ViewModel {
         MediaApplication.getInstance().getAppComponent().inject(this);
         disposables = new CompositeDisposable();
         subscribeToEvents();
+        notifyCurrentTrack(audioPlayer.getCurrentTrack());
     }
 
     private void subscribeToEvents() {
         disposables.add(rxBus.toObservable()
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object -> {
                     if (object instanceof PlaybackService) {
                         notifyPlayback((PlaybackService) object);

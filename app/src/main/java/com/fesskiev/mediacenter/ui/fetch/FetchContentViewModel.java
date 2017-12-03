@@ -56,7 +56,6 @@ public class FetchContentViewModel extends ViewModel {
         disposable = rxBus.toObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object -> {
-                    AppLog.WTF("observeEvents FETCH");
                     if (object instanceof FileSystemService) {
                         onPlaybackStateEvent((FileSystemService) object);
                     } else if (object instanceof Float) {

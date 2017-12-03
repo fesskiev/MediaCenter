@@ -112,7 +112,7 @@ public class AudioPlayer implements Playable {
     }
 
 
-    private void openAudioFile() {
+    public void openAudioFile() {
         Log.e(TAG, AudioPlayer.this.toString());
         if (fFmpegHelper.isCommandRunning()) {
             fFmpegHelper.killRunningProcesses();

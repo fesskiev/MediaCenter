@@ -255,36 +255,13 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
         showEmptyFolderCard();
         observeData();
         observeFetchData();
-//        PlaybackService.startPlaybackService(getApplicationContext());
     }
-
-    private ServiceConnection serviceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            serviceBound = false;
-        }
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            FileSystemService.FileSystemLocalBinder binder = (FileSystemService.FileSystemLocalBinder) service;
-            boundService = binder.getService();
-            if (boundService.getScanState() == FileSystemService.SCAN_STATE.SCANNING_ALL) {
-                fetchContentScreen.showContentScreen();
-            } else if (boundService.getScanState() == FileSystemService.SCAN_STATE.FINISHED) {
-                fetchContentScreen.hideContentScreen();
-            }
-            serviceBound = true;
-        }
-    };
 
     private void observeData() {
         mainViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
         mainViewModel.getCurrentTrackListLiveData().observe(this, audioFiles -> {
             adapter.refreshAdapter(audioFiles);
             hideEmptyFolderCard();
-
-
         });
         mainViewModel.getCurrentTrackLiveData().observe(this, audioFile -> {
             setTrackInfo(audioFile);
@@ -308,8 +285,7 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
     private void observeFetchData() {
         FetchContentViewModel viewModel = ViewModelProviders.of(this).get(FetchContentViewModel.class);
         viewModel.getPrepareFetchLiveData().observe(this, Void -> fetchContentScreen.prepareFetch());
-        viewModel.getFinishFetchLiveData().observe(this, Void -> {
-            fetchContentScreen.hideContentScreen();
+        viewModel.getFinishFetchLiveData().observe(this, Void -> {;
             fetchContentScreen.finishFetch();
             animationUtils.animateBottomSheet(bottomSheet, true);
 
@@ -349,11 +325,42 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
     @Override
     protected void onStart() {
         super.onStart();
+        bindFileSystemService();
+        mediaNavigationView.postDelayed(this::makeGuideIfNeed, 1500);
+    }
+
+
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            serviceBound = false;
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            FileSystemService.FileSystemLocalBinder binder = (FileSystemService.FileSystemLocalBinder) service;
+            boundService = binder.getService();
+            if (boundService.getScanState() == FileSystemService.SCAN_STATE.SCANNING_ALL) {
+                fetchContentScreen.showContentScreen();
+            } else if (boundService.getScanState() == FileSystemService.SCAN_STATE.FINISHED) {
+                fetchContentScreen.hideContentScreen();
+            }
+            serviceBound = true;
+        }
+    };
+
+    private void bindFileSystemService() {
         Intent intent = new Intent(this, FileSystemService.class);
         startService(intent);
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+    }
 
-        mediaNavigationView.postDelayed(this::makeGuideIfNeed, 1500);
+    private void unbindFileSystemService() {
+        if (serviceBound) {
+            unbindService(serviceConnection);
+            serviceBound = false;
+        }
     }
 
     @Override
@@ -378,10 +385,7 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
     @Override
     protected void onStop() {
         super.onStop();
-        if (serviceBound) {
-            unbindService(serviceConnection);
-            serviceBound = false;
-        }
+        unbindFileSystemService();
     }
 
     @Override
@@ -437,7 +441,6 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
             isShow = false;
         }
     }
-
 
     private void registerRefreshFragmentsReceiver() {
         IntentFilter filter = new IntentFilter();

@@ -81,11 +81,17 @@ public class MainViewModel extends ViewModel {
                 .subscribeOn(Schedulers.io())
                 .flatMap(audioFiles -> Observable.just(sortAudioFiles(settingsManager.getSortType(), audioFiles)))
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(this::notifyCurrentTrackList)
-                .subscribeOn(Schedulers.io())
+                .doOnNext(audioFiles -> {
+                    audioPlayer.setCurrentTrackList(audioFiles);
+                    notifyCurrentTrackList(audioFiles);
+                })
                 .flatMap(audioFiles -> repository.getSelectedAudioFile())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(this::notifyCurrentTrack)
+                .doOnNext(audioFile -> {
+                    audioPlayer.setCurrentAudioFile(audioFile);
+                    notifyCurrentTrack(audioFile);
+                })
                 .doOnNext(this::notifyCoverImage)
                 .subscribe(object -> {
                 }, Throwable::printStackTrace));
@@ -97,7 +103,6 @@ public class MainViewModel extends ViewModel {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object -> {
                     if (object instanceof PlaybackService) {
-                        AppLog.ERROR("observeEvents main PlaybackService");
                         notifyPlayback((PlaybackService) object);
                     } else if (object instanceof AudioFile) {
                         AudioFile audioFile = (AudioFile) object;
@@ -106,6 +111,7 @@ public class MainViewModel extends ViewModel {
                     } else if (object instanceof List<?>) {
                         List<?> list = (List<?>) object;
                         if (!list.isEmpty() && list.get(0) instanceof AudioFile) {
+                            AppLog.VERBOSE("LIST SIZE:" + list.size());
                             notifyCurrentTrackList((List<AudioFile>) object);
                         }
                     }
@@ -195,14 +201,10 @@ public class MainViewModel extends ViewModel {
     }
 
     private void notifyCurrentTrack(AudioFile audioFile) {
-        AppLog.ERROR("notifyCurrentTrack: " + (audioFile == null));
-        audioPlayer.setCurrentAudioFile(audioFile);
         currentTrackLiveData.setValue(audioFile);
     }
 
     private void notifyCurrentTrackList(List<AudioFile> audioFiles) {
-        AppLog.ERROR("notifyCurrentTrackList: " + (audioFiles == null));
-        audioPlayer.setCurrentTrackList(audioFiles);
         currentTrackListLiveData.setValue(audioFiles);
     }
 
@@ -215,13 +217,10 @@ public class MainViewModel extends ViewModel {
     }
 
     public void playStateChanged() {
-        AppLog.ERROR("playStateChanged()");
         if (!isConverting()) {
             if (isPlaying()) {
-                AppLog.ERROR("pause");
                 pause();
             } else {
-                AppLog.ERROR("play");
                 play();
             }
         }
