@@ -98,7 +98,7 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
         public void onServiceConnected(ComponentName name, IBinder service) {
             FileSystemService.FileSystemLocalBinder binder = (FileSystemService.FileSystemLocalBinder) service;
             boundService = binder.getService();
-            if (boundService.getScanState() == FileSystemService.SCAN_STATE.SCANNING_ALL) {
+            if (boundService.getScanState() == FileSystemService.SCAN_STATE.SCANNING) {
                 hideButtons();
                 fetchText.setVisibility(View.GONE);
                 fetchContentView.fetchStart();
@@ -185,7 +185,7 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
     }
 
     public boolean isFetchMediaStart() {
-        return serviceBound && boundService.getScanState() == FileSystemService.SCAN_STATE.SCANNING_ALL;
+        return serviceBound && boundService.getScanState() == FileSystemService.SCAN_STATE.SCANNING;
     }
 
     public void stopFetchMedia() {

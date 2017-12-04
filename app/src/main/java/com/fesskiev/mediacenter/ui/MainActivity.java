@@ -341,7 +341,7 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
         public void onServiceConnected(ComponentName name, IBinder service) {
             FileSystemService.FileSystemLocalBinder binder = (FileSystemService.FileSystemLocalBinder) service;
             boundService = binder.getService();
-            if (boundService.getScanState() == FileSystemService.SCAN_STATE.SCANNING_ALL) {
+            if (boundService.getScanState() == FileSystemService.SCAN_STATE.SCANNING) {
                 fetchContentScreen.showContentScreen();
             } else if (boundService.getScanState() == FileSystemService.SCAN_STATE.FINISHED) {
                 fetchContentScreen.hideContentScreen();
@@ -819,7 +819,7 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
     }
 
     private boolean isFetchMediaStart() {
-        return serviceBound && boundService.getScanState() == FileSystemService.SCAN_STATE.SCANNING_ALL;
+        return serviceBound && boundService.getScanState() == FileSystemService.SCAN_STATE.SCANNING;
     }
 
     private void clearItems() {

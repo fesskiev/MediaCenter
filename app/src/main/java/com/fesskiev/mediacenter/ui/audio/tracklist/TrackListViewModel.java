@@ -54,22 +54,18 @@ public class TrackListViewModel extends ViewModel {
     public TrackListViewModel() {
         MediaApplication.getInstance().getAppComponent().inject(this);
         disposables = new CompositeDisposable();
-        subscribeToEvents();
+        observeEvents();
         notifyCurrentTrack(audioPlayer.getCurrentTrack());
     }
 
-    private void subscribeToEvents() {
-        disposables.add(rxBus.toObservable()
+    private void observeEvents() {
+        disposables.add(rxBus.toCurrentTrackObservable()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object -> {
-                    if (object instanceof PlaybackService) {
-                        notifyPlayback((PlaybackService) object);
-                    } else if (object instanceof AudioFile) {
-                        AudioFile audioFile = (AudioFile) object;
-                        notifyCurrentTrack(audioFile);
-                    }
-                }));
+                .subscribe(this::notifyCurrentTrack, Throwable::printStackTrace));
 
+        disposables.add(rxBus.toPlaybackObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::notifyPlayback, Throwable::printStackTrace));
     }
 
     private void notifyPlayback(PlaybackService playbackService) {

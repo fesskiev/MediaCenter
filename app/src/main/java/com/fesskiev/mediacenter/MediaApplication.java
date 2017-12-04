@@ -62,7 +62,14 @@ public class MediaApplication extends MultiDexApplication {
                 Log.e("ffmpef", "FFMPEG FAIL");
             }
         });
-        RxJavaPlugins.setErrorHandler(FirebaseCrash::report);
+
+        addFirebaseCrash();
+    }
+
+    private void addFirebaseCrash() {
+        if (!BuildConfig.DEBUG) {
+            RxJavaPlugins.setErrorHandler(FirebaseCrash::report);
+        }
     }
 
     protected AppComponent buildComponent() {

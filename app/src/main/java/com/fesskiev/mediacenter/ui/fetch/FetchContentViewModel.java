@@ -15,8 +15,8 @@ import javax.inject.Inject;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
-import static com.fesskiev.mediacenter.services.FileSystemService.FetchFolderCreate.AUDIO;
-import static com.fesskiev.mediacenter.services.FileSystemService.FetchFolderCreate.VIDEO;
+import static com.fesskiev.mediacenter.services.FileSystemService.FetchFolderCreated.AUDIO;
+import static com.fesskiev.mediacenter.services.FileSystemService.FetchFolderCreated.VIDEO;
 
 
 public class FetchContentViewModel extends ViewModel {
@@ -27,10 +27,10 @@ public class FetchContentViewModel extends ViewModel {
     private final SingleLiveEvent<Void> finishFetchLiveData = new SingleLiveEvent<>();
     private final SingleLiveEvent<Void> fetchAudioStartLiveData = new SingleLiveEvent<>();
     private final SingleLiveEvent<Void> fetchVideoStartLiveData = new SingleLiveEvent<>();
-    private final SingleLiveEvent<Void> audioFoldersCreatedLiveData = new SingleLiveEvent<>();
-    private final SingleLiveEvent<Void> videoFoldersCreatedLiveData = new SingleLiveEvent<>();
+    private final SingleLiveEvent<FileSystemService.FetchFolderCreated> audioFoldersCreatedLiveData = new SingleLiveEvent<>();
+    private final SingleLiveEvent<FileSystemService.FetchFolderCreated> videoFoldersCreatedLiveData = new SingleLiveEvent<>();
 
-    private final static int DELAY = 2;
+    private final static int DELAY = 3;
 
     @Inject
     RxBus rxBus;
@@ -53,30 +53,20 @@ public class FetchContentViewModel extends ViewModel {
     }
 
     private void observeEvents() {
-        disposable = rxBus.toObservable()
+        disposable = rxBus.toFileSystemObservable()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object -> {
-                    if (object instanceof FileSystemService) {
-                        onPlaybackStateEvent((FileSystemService) object);
-                    } else if (object instanceof Float) {
-                        onFetchPercent((Float) object);
-                    } else if (object instanceof FileSystemService.FetchDescription) {
-                        onFetchObjectEvent((FileSystemService.FetchDescription) object);
-                    } else if (object instanceof FileSystemService.FetchFolderCreate) {
-                        onFetchFolderCreated((FileSystemService.FetchFolderCreate) object);
-                    }
-                }, Throwable::printStackTrace);
+                .subscribe(this::notifyFetchState, Throwable::printStackTrace);
     }
 
-    public void onPlaybackStateEvent(FileSystemService fileSystemService) {
+    private void notifyFetchState(FileSystemService fileSystemService) {
         FileSystemService.SCAN_STATE scanState = fileSystemService.getScanState();
         if (scanState != null) {
             switch (scanState) {
                 case PREPARE:
-                    prepare();
+                    prepare(fileSystemService);
                     break;
-                case SCANNING_ALL:
-                    scanning(fileSystemService.getScanType());
+                case SCANNING:
+                    scanning(fileSystemService);
                     break;
                 case FINISHED:
                     finish();
@@ -85,36 +75,61 @@ public class FetchContentViewModel extends ViewModel {
         }
     }
 
-    public void onFetchPercent(Float percent) {
-        percentLiveData.setValue(percent);
-    }
+    private void scanning(FileSystemService fileSystemService) {
 
-    public void onFetchObjectEvent(FileSystemService.FetchDescription fetchDescription) {
-        fetchDescriptionLiveData.setValue(fetchDescription);
-    }
-
-    public void onFetchFolderCreated(FileSystemService.FetchFolderCreate fetchFolderCreate) {
-        int type = fetchFolderCreate.getType();
-        switch (type) {
-            case AUDIO:
-                folderAudioCount++;
-                if (folderAudioCount == DELAY) {
-                    folderAudioCount = 0;
-                    audioFoldersCreatedLiveData.call();
-                }
-                break;
-            case VIDEO:
-                folderVideoCount++;
-                if (folderVideoCount == DELAY) {
-                    folderVideoCount = 0;
-                    videoFoldersCreatedLiveData.call();
-                }
-                break;
+        FileSystemService.FetchDescription fetchDescription = fileSystemService.getFetchDescription();
+        if (fetchDescription != null) {
+            FileSystemService.FetchDescription lastFetchDescription = fetchDescriptionLiveData.getValue();
+            if (lastFetchDescription == null || lastFetchDescription != fetchDescription) {
+                fetchDescriptionLiveData.setValue(fetchDescription);
+            }
         }
 
+        FileSystemService.FetchFolderCreated fetchFolderCreated = fileSystemService.getFolderCreated();
+        if (fetchFolderCreated != null) {
+            int type = fetchFolderCreated.getType();
+            switch (type) {
+                case AUDIO:
+                    FileSystemService.FetchFolderCreated lastAudioFetchFolderCreated = audioFoldersCreatedLiveData.getValue();
+                    if (lastAudioFetchFolderCreated == null || lastAudioFetchFolderCreated != fetchFolderCreated) {
+                        audioFoldersCreatedLiveData.setValue(fetchFolderCreated);
+                        folderAudioCount++;
+                        if (folderAudioCount == DELAY) {
+                            folderAudioCount = 0;
+                            audioFoldersCreatedLiveData.call();
+                        }
+                    }
+                    break;
+                case VIDEO:
+                    FileSystemService.FetchFolderCreated lastVideoFetchFolderCreated = audioFoldersCreatedLiveData.getValue();
+                    if (lastVideoFetchFolderCreated == null || lastVideoFetchFolderCreated != fetchFolderCreated) {
+                        videoFoldersCreatedLiveData.setValue(fetchFolderCreated);
+                        folderVideoCount++;
+                        if (folderVideoCount == DELAY) {
+                            folderVideoCount = 0;
+                            videoFoldersCreatedLiveData.call();
+                        }
+                    }
+                    break;
+            }
+        }
+
+        float progress = fileSystemService.getProgress();
+        float lastProgress = getProgress();
+        if (lastProgress != progress) {
+            percentLiveData.setValue(progress);
+        }
     }
 
-    private void scanning(FileSystemService.SCAN_TYPE scanType) {
+    private void finish() {
+        folderVideoCount = 0;
+        folderAudioCount = 0;
+        finishFetchLiveData.call();
+    }
+
+    private void prepare(FileSystemService fileSystemService) {
+        prepareFetchLiveData.call();
+        FileSystemService.SCAN_TYPE scanType = fileSystemService.getScanType();
         switch (scanType) {
             case AUDIO:
                 fetchAudioStartLiveData.call();
@@ -127,16 +142,6 @@ public class FetchContentViewModel extends ViewModel {
                 fetchAudioStartLiveData.call();
                 break;
         }
-    }
-
-    private void finish() {
-        folderVideoCount = 0;
-        folderAudioCount = 0;
-        finishFetchLiveData.call();
-    }
-
-    private void prepare() {
-        prepareFetchLiveData.call();
     }
 
     public MutableLiveData<Float> getPercentLiveData() {
@@ -163,11 +168,19 @@ public class FetchContentViewModel extends ViewModel {
         return fetchVideoStartLiveData;
     }
 
-    public SingleLiveEvent<Void> getAudioFoldersCreatedLiveData() {
+    public SingleLiveEvent<FileSystemService.FetchFolderCreated> getAudioFoldersCreatedLiveData() {
         return audioFoldersCreatedLiveData;
     }
 
-    public SingleLiveEvent<Void> getVideoFoldersCreatedLiveData() {
+    public SingleLiveEvent<FileSystemService.FetchFolderCreated> getVideoFoldersCreatedLiveData() {
         return videoFoldersCreatedLiveData;
+    }
+
+    private float getProgress() {
+        Float progress = percentLiveData.getValue();
+        if (progress == null) {
+            return 0f;
+        }
+        return progress;
     }
 }

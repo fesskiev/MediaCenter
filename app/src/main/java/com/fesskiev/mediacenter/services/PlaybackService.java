@@ -32,8 +32,6 @@ import com.fesskiev.mediacenter.utils.NotificationHelper;
 import com.fesskiev.mediacenter.utils.RxBus;
 import com.fesskiev.mediacenter.utils.WearHelper;
 
-import java.util.List;
-
 import javax.inject.Inject;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -611,20 +609,18 @@ public class PlaybackService extends Service {
     }
 
     private void observeEvents() {
-        rxBus.toObservable()
-                .subscribeOn(Schedulers.io())
-                .doOnNext(object -> {
-                    if (object instanceof AudioFile) {
-                        this.currentTrack = (AudioFile) object;
-                        updateNotification(currentTrack);
-                        wearHelper.updateTrack(currentTrack);
-                    } else if (object instanceof List<?>) {
-                        List<?> list = (List<?>) object;
-                        if (!list.isEmpty() && list.get(0) instanceof AudioFile) {
-                            wearHelper.updateTrackList((List<AudioFile>) object);
-                        }
-                    }
-                }).subscribe();
+        rxBus.toCurrentTrackObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(audioFile -> {
+                    this.currentTrack = audioFile;
+                    updateNotification(currentTrack);
+                    wearHelper.updateTrack(currentTrack);
+                }, Throwable::printStackTrace);
+
+        rxBus.toCurrentTrackListObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(audioFiles -> wearHelper.updateTrackList(audioFiles), Throwable::printStackTrace);
+
     }
 
     private void updateNotification(AudioFile audioFile) {
@@ -750,7 +746,6 @@ public class PlaybackService extends Service {
         }
     };
 
-
     private void createPlayer() {
         String sampleRateString = null, bufferSizeString = null;
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -772,7 +767,6 @@ public class PlaybackService extends Service {
         setEffects();
         setVolume(settingsManager.getAudioPlayerVolume());
     }
-
 
     private void setEffects() {
         createEQStateIfNeed();
@@ -841,14 +835,12 @@ public class PlaybackService extends Service {
         openAudioFile(path);
     }
 
-
     private void play() {
         Log.d(TAG, "start playback");
         togglePlayback();
         audioFocusManager.tryToGetAudioFocus();
         timer.tick();
     }
-
 
     private void stop() {
         Log.d(TAG, "stop playback");
@@ -861,7 +853,6 @@ public class PlaybackService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "Destroy playback service");
-
         removeProcessLifecycleObserver();
         if (playing) {
             stop();
@@ -879,7 +870,6 @@ public class PlaybackService extends Service {
         unregisterHeadsetReceiver();
         unregisterCallback();
         onDestroyAudioPlayer();
-
         if (settingsManager != null) {
             settingsManager.setAudioPlayerPosition(position);
             settingsManager.setAudioPlayerVolume(volume);
@@ -1031,7 +1021,7 @@ public class PlaybackService extends Service {
     }
 
     private void sendPlaybackEvent() {
-        rxBus.send(PlaybackService.this);
+        rxBus.sendPlaybackEvent(PlaybackService.this);
     }
 
     public float getPositionPercent() {

@@ -14,6 +14,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 
 
@@ -40,13 +41,11 @@ public class VideoExoPlayerViewModel extends ViewModel {
     }
 
     private void subscribeToEvents() {
-        disposables.add(rxBus.toObservable()
-                .subscribe(object -> {
-                    if (object instanceof VideoFile) {
-                        VideoFile videoFile = (VideoFile) object;
+        disposables.add(rxBus.toCurrentVideoFileObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(videoFile -> {
                         notifyCurrentVideoFile(videoFile);
                         notifyFirstOtLastTack();
-                    }
                 }));
     }
 

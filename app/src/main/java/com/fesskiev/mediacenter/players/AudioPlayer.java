@@ -224,11 +224,11 @@ public class AudioPlayer implements Playable {
     }
 
     private void notifyCurrentTrack(){
-        rxBus.send(currentTrack);
+        rxBus.sendCurrentTrackEvent(currentTrack);
     }
 
     private void notifyCurrentTrackList(){
-        rxBus.send(currentTrackList);
+        rxBus.sendCurrentTrackListEvent(currentTrackList);
     }
 
     public static List<AudioFile> sortAudioFiles(int type, List<AudioFile> unsortedList) {

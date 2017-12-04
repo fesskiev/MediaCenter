@@ -48,6 +48,7 @@ public class FetchContentScreen {
         contentArea.getLocationOnScreen(pos);
         layoutParams.setMargins(0, -pos[1], 0, 0);
 
+        contentArea.removeView(linearLayout);
         contentArea.addView(linearLayout, layoutParams);
 
         linearLayout.setAlpha(0f);

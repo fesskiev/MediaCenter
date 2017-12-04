@@ -112,7 +112,7 @@ public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
 
                     artworkPath = path.getAbsolutePath();
                 } catch (IOException e) {
-                    e.printStackTrace();
+//                    e.printStackTrace();
                 }
                 break;
             }

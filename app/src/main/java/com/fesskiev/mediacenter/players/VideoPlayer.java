@@ -61,7 +61,7 @@ public class VideoPlayer implements Playable {
     }
 
     private void notifyCurrentVideoFile(){
-        rxBus.send(currentVideoFile);
+        rxBus.sendCurrentVideoFileEvent(currentVideoFile);
     }
 
     @Override

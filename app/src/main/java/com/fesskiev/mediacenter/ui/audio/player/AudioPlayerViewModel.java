@@ -61,22 +61,20 @@ public class AudioPlayerViewModel extends ViewModel {
     public AudioPlayerViewModel() {
         MediaApplication.getInstance().getAppComponent().inject(this);
         disposables = new CompositeDisposable();
-        subscribeToEvents();
+        observeEvents();
 
         setCurrentTrack(audioPlayer.getCurrentTrack());
         PlaybackService.requestPlaybackStateIfNeed(context);
     }
 
-    private void subscribeToEvents() {
-        disposables.add(rxBus.toObservable()
+    private void observeEvents() {
+        disposables.add(rxBus.toCurrentTrackObservable()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object -> {
-                    if (object instanceof PlaybackService) {
-                        notifyPlayback((PlaybackService) object);
-                    } else if (object instanceof AudioFile) {
-                        setCurrentTrack((AudioFile) object);
-                    }
-                }));
+                .subscribe(this::setCurrentTrack, Throwable::printStackTrace));
+
+        disposables.add(rxBus.toPlaybackObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::notifyPlayback, Throwable::printStackTrace));
 
     }
 

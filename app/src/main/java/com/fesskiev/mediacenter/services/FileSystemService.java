@@ -1,12 +1,7 @@
 package com.fesskiev.mediacenter.services;
 
 import android.app.Service;
-import android.app.job.JobInfo;
-import android.app.job.JobParameters;
-import android.app.job.JobScheduler;
-import android.app.job.JobService;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -14,7 +9,6 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -73,15 +67,13 @@ public class FileSystemService extends Service {
     }
 
     public enum SCAN_STATE {
-        PREPARE, SCANNING_ALL, FINISHED
+        PREPARE, SCANNING, FINISHED
     }
 
 
     private static final String TAG = FileSystemService.class.getSimpleName();
 
     private static Uri MEDIA_URI = Uri.parse("content://" + MediaStore.AUTHORITY + "/");
-
-    private static final int MEDIA_CONTENT_JOB = 31;
 
     private static final int HANDLE_MEDIA = 0;
     private static final int HANDLE_VIDEO = 1;
@@ -90,7 +82,6 @@ public class FileSystemService extends Service {
     private static final String ACTION_START_FETCH_MEDIA = "com.fesskiev.player.action.FETCH_MEDIA";
     private static final String ACTION_START_FETCH_AUDIO = "com.fesskiev.player.action.START_FETCH_AUDIO";
     private static final String ACTION_START_FETCH_VIDEO = "com.fesskiev.player.action.START_FETCH_VIDEO";
-    private static final String ACTION_FETCH_STATE = "com.fesskiev.player.action.ACTION_FETCH_STATE";
 
     public static final String ACTION_REFRESH_AUDIO_FRAGMENT = "com.fesskiev.player.action.ACTION_REFRESH_AUDIO_FRAGMENT";
     public static final String ACTION_REFRESH_VIDEO_FRAGMENT = "com.fesskiev.player.action.ACTION_REFRESH_VIDEO_FRAGMENT";
@@ -115,6 +106,10 @@ public class FileSystemService extends Service {
     private SCAN_TYPE scanType;
     private SCAN_STATE scanState;
 
+    private float progress;
+    private FetchFolderCreated folderCreated;
+    private FetchDescription fetchDescription;
+
     public static void stopFileSystemService(Context context) {
         Intent intent = new Intent(context, FileSystemService.class);
         context.stopService(intent);
@@ -137,64 +132,6 @@ public class FileSystemService extends Service {
         intent.setAction(ACTION_START_FETCH_VIDEO);
         context.startService(intent);
     }
-
-    public static void requestFetchState(Context context) {
-        Intent intent = new Intent(context, FileSystemService.class);
-        intent.setAction(ACTION_FETCH_STATE);
-        context.startService(intent);
-    }
-
-
-//    public static void scheduleJob(Context context, int periodic) {
-//
-//        JobScheduler js = (JobScheduler)
-//                context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-//
-//        JobInfo.Builder builder = new JobInfo.Builder(MEDIA_CONTENT_JOB,
-//                new ComponentName(context, FileSystemService.class));
-//
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-//            builder.setMinimumLatency(periodic);
-//        } else {
-//            builder.setPeriodic(periodic);
-//        }
-//        builder.setOverrideDeadline(periodic);
-//        builder.setRequiresDeviceIdle(false);
-//        builder.setRequiresCharging(false);
-//
-//        if (js != null) {
-//            int jobValue = js.schedule(builder.build());
-//            if (jobValue == JobScheduler.RESULT_FAILURE) {
-//                Log.w(TAG, "JobScheduler launch the task failure");
-//            } else {
-//                Log.w(TAG, "JobScheduler launch the task success: " + jobValue);
-//            }
-//            Log.i(TAG, "JOB SCHEDULED!");
-//        }
-//    }
-
-//    public static boolean isScheduled(Context context) {
-//        JobScheduler js = (JobScheduler)
-//                context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-//        if (js != null) {
-//            List<JobInfo> jobs = js.getAllPendingJobs();
-//            for (int i = 0; i < jobs.size(); i++) {
-//                if (jobs.get(i).getId() == MEDIA_CONTENT_JOB) {
-//                    return true;
-//                }
-//            }
-//        }
-//        return false;
-//    }
-
-//    public static void cancelJob(Context context) {
-//        JobScheduler js = (JobScheduler)
-//                context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-//        if (js != null) {
-//            js.cancel(MEDIA_CONTENT_JOB);
-//            Log.i(TAG, "JOB SCHEDULED? " + isScheduled(context));
-//        }
-//    }
 
     @Override
     public void onCreate() {
@@ -240,9 +177,6 @@ public class FileSystemService extends Service {
                         break;
                     case ACTION_START_FETCH_AUDIO:
                         handler.sendEmptyMessage(HANDLE_AUDIO);
-                        break;
-                    case ACTION_FETCH_STATE:
-                        sendFetchState();
                         break;
                 }
             }
@@ -362,23 +296,7 @@ public class FileSystemService extends Service {
     }
 
     private void sendFetchEvent() {
-        rxBus.send(FileSystemService.this);
-    }
-
-    private void sendProgressEvent(float progress) {
-        rxBus.send(progress);
-    }
-
-    private void sendDescriptionEvent(FetchDescription description) {
-        rxBus.send(description);
-    }
-
-    private void sendFolderCreateEvent(FetchFolderCreate folderCreate) {
-        rxBus.send(folderCreate);
-    }
-
-    private void sendFetchState() {
-        sendFetchEvent();
+        rxBus.sendFileSystemEvent(FileSystemService.this);
     }
 
     private void prepareScan() {
@@ -386,12 +304,15 @@ public class FileSystemService extends Service {
         sendFetchEvent();
     }
 
-    private void startScanAll() {
-        scanState = SCAN_STATE.SCANNING_ALL;
+    private void scanning() {
+        scanState = SCAN_STATE.SCANNING;
         sendFetchEvent();
     }
 
     private void finishScan() {
+        progress = 0f;
+        fetchDescription = null;
+        folderCreated = null;
         scanState = SCAN_STATE.FINISHED;
         sendFetchEvent();
     }
@@ -399,20 +320,19 @@ public class FileSystemService extends Service {
     private void startScan(SCAN_TYPE scanType) {
         prepareScan();
         try {
-            Thread.sleep(500);
+            Thread.sleep(800);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
         String[] storagePaths = StorageUtils.getStorageDirectories(getApplicationContext());
         if (storagePaths.length > 0) {
-            startScanAll();
+            scanning();
             for (String path : storagePaths) {
                 Log.e(TAG, "path: " + path);
                 fileWalk(path, scanType);
             }
         }
-
         finishScan();
     }
 
@@ -453,14 +373,14 @@ public class FileSystemService extends Service {
                 } else {
                     checkFile(n, scanType);
                 }
-                sendProgressEvent(+(count / (float) size) * 100);
+                progress = (+(count / (float) size) * 100);
+                sendFetchEvent();
                 count++;
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 
     private void checkFile(File file, SCAN_TYPE scanType) {
         switch (scanType) {
@@ -502,15 +422,18 @@ public class FileSystemService extends Service {
     }
 
     private void sendFileDescription(String name) {
-        sendDescriptionEvent(new FetchDescription(null, name));
+        fetchDescription = new FetchDescription(null, name);
+        sendFetchEvent();
     }
 
     private void sendFolderDescription(String name) {
-        sendDescriptionEvent(new FetchDescription(name, null));
+        fetchDescription = new FetchDescription(name, null);
+        sendFetchEvent();
     }
 
     private void sendFolderCreated(int type) {
-        sendFolderCreateEvent(new FetchFolderCreate(type));
+        folderCreated = new FetchFolderCreated(type);
+        sendFetchEvent();
     }
 
     private void filterVideoFolders(File directoryFile) {
@@ -528,17 +451,14 @@ public class FileSystemService extends Service {
             sendFolderDescription(videoFolder.folderName);
 
             for (File path : videoPaths) {
-
                 VideoFile videoFile = new VideoFile(path, videoFolder.id);
 
                 repository.insertVideoFile(videoFile);
-
                 sendFileDescription(videoFile.description);
             }
 
             repository.insertVideoFolder(videoFolder);
-
-            sendFolderCreated(FetchFolderCreate.VIDEO);
+            sendFolderCreated(FetchFolderCreated.VIDEO);
 
         }
     }
@@ -567,14 +487,13 @@ public class FileSystemService extends Service {
                 if (folderImage != null) {
                     audioFile.folderArtworkPath = folderImage.getAbsolutePath();
                 }
-                repository.insertAudioFile(audioFile);
 
+                repository.insertAudioFile(audioFile);
                 sendFileDescription(audioFile.artist + "-" + audioFile.title);
             }
 
             repository.insertAudioFolder(audioFolder);
-
-            sendFolderCreated(FetchFolderCreate.AUDIO);
+            sendFolderCreated(FetchFolderCreated.AUDIO);
         }
     }
 
@@ -880,51 +799,13 @@ public class FileSystemService extends Service {
                 RxUtils.fromCallable(repository.resetVideoContentDatabase()),
                 (integer, integer2) -> Observable.empty())
                 .doOnNext(observable -> clearImagesCache())
-                .subscribe(observable -> {
-//                    JobParameters jobParameters = (JobParameters) msg.obj;
-//
-//                    if (jobParameters != null) {
-//                        notificationHelper.createFetchNotification();
-//                    }
-
-                    getMediaContent();
-
-//                    if (jobParameters != null) {
-//                        int interval = (int) settingsManager.getMediaContentUpdateTime();
-//                        if (interval > 0) {
-//                            scheduleJob(getApplicationContext(), interval);
-//                            jobFinished(jobParameters, false);
-//                        } else {
-//                            jobFinished(jobParameters, true);
-//                        }
-//                    }
-                }, throwable -> finishScan());
+                .subscribe(observable -> getMediaContent(), throwable -> finishScan());
     }
 
     private void clearImagesCache() {
         CacheManager.clearVideoImagesCache();
         CacheManager.clearAudioImagesCache();
     }
-
-//    @Override
-//    public boolean onStartJob(JobParameters params) {
-//        Log.i(TAG, "onStartJob");
-//        if (handler != null) {
-//            Message msg = handler.obtainMessage();
-//            msg.obj = params;
-//            msg.what = HANDLE_MEDIA;
-//            handler.sendMessage(msg);
-//            Log.i(TAG, "Send job...");
-//        }
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onStopJob(JobParameters params) {
-//        Log.i(TAG, "onStopJob");
-//        return false;
-//    }
-
 
     private void getAudioContent() {
         scanType = SCAN_TYPE.AUDIO;
@@ -940,7 +821,6 @@ public class FileSystemService extends Service {
         scanType = SCAN_TYPE.BOTH;
         startScan(scanType);
     }
-
 
     public static FilenameFilter audioFilter() {
         return (dir, name) -> {
@@ -963,7 +843,6 @@ public class FileSystemService extends Service {
             return (lowercaseName.endsWith(".mp4") || lowercaseName.endsWith(".ts") || lowercaseName.endsWith(".mkv"));
         };
     }
-
 
     /**
      * Determine if {@code file} is a directory and is not a symbolic link.
@@ -1000,12 +879,8 @@ public class FileSystemService extends Service {
         return !canon.getCanonicalFile().equals(canon.getAbsoluteFile());
     }
 
-    public SCAN_TYPE getScanType() {
-        return scanType;
-    }
-
-    public SCAN_STATE getScanState() {
-        return scanState;
+    public FetchDescription getFetchDescription() {
+        return fetchDescription;
     }
 
     public static class FetchDescription {
@@ -1037,14 +912,14 @@ public class FileSystemService extends Service {
         return mimeType != null && mimeType.startsWith("audio");
     }
 
-    public static class FetchFolderCreate {
+    public static class FetchFolderCreated {
 
         public static final int AUDIO = 0;
         public static final int VIDEO = 1;
 
         private int type;
 
-        public FetchFolderCreate(int type) {
+        public FetchFolderCreated(int type) {
             this.type = type;
         }
 
@@ -1101,5 +976,19 @@ public class FileSystemService extends Service {
         }
     }
 
+    public SCAN_TYPE getScanType() {
+        return scanType;
+    }
 
+    public SCAN_STATE getScanState() {
+        return scanState;
+    }
+
+    public float getProgress() {
+        return progress;
+    }
+
+    public FetchFolderCreated getFolderCreated() {
+        return folderCreated;
+    }
 }

@@ -12,7 +12,6 @@ import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.services.PlaybackService;
-import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
@@ -72,7 +71,7 @@ public class MainViewModel extends ViewModel {
     public MainViewModel() {
         MediaApplication.getInstance().getAppComponent().inject(this);
         disposables = new CompositeDisposable();
-        subscribeToPlayback();
+        observeEvents();
         getCurrentTrackAndTrackList();
     }
 
@@ -98,24 +97,21 @@ public class MainViewModel extends ViewModel {
 
     }
 
-    private void subscribeToPlayback() {
-        disposables.add(rxBus.toObservable()
+    private void observeEvents() {
+        disposables.add(rxBus.toPlaybackObservable()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object -> {
-                    if (object instanceof PlaybackService) {
-                        notifyPlayback((PlaybackService) object);
-                    } else if (object instanceof AudioFile) {
-                        AudioFile audioFile = (AudioFile) object;
-                        notifyCurrentTrack(audioFile);
-                        notifyCoverImage(audioFile);
-                    } else if (object instanceof List<?>) {
-                        List<?> list = (List<?>) object;
-                        if (!list.isEmpty() && list.get(0) instanceof AudioFile) {
-                            AppLog.VERBOSE("LIST SIZE:" + list.size());
-                            notifyCurrentTrackList((List<AudioFile>) object);
-                        }
-                    }
+                .subscribe(this::notifyPlayback, Throwable::printStackTrace));
+
+        disposables.add(rxBus.toCurrentTrackObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(audioFile -> {
+                    notifyCurrentTrack(audioFile);
+                    notifyCoverImage(audioFile);
                 }, Throwable::printStackTrace));
+
+        disposables.add(rxBus.toCurrentTrackListObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::notifyCurrentTrackList, Throwable::printStackTrace));
     }
 
     public void fetchFileSystemAudio() {
