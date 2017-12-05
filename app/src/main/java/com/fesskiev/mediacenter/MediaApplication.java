@@ -5,7 +5,6 @@ import android.content.ComponentCallbacks2;
 import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
-import com.bumptech.glide.Glide;
 import com.fesskiev.mediacenter.di.AppComponent;
 import com.fesskiev.mediacenter.di.AppModule;
 import com.fesskiev.mediacenter.di.AppSettingsModule;
@@ -17,6 +16,7 @@ import com.fesskiev.mediacenter.di.RepositoryModule;
 import com.fesskiev.mediacenter.di.RxBusModule;
 import com.fesskiev.mediacenter.di.UtilsModule;
 import com.fesskiev.mediacenter.utils.AppLog;
+import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
 import com.google.firebase.crash.FirebaseCrash;
 
@@ -40,8 +40,11 @@ public class MediaApplication extends MultiDexApplication {
 
     private static MediaApplication INSTANCE;
     private AppComponent appComponent;
+
     @Inject
     FFmpegHelper fFmpegHelper;
+    @Inject
+    BitmapHelper bitmapHelper;
 
     @Override
     public void onCreate() {
@@ -111,7 +114,7 @@ public class MediaApplication extends MultiDexApplication {
                 break;
             case ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL:
                 AppLog.INFO("TRIM_MEMORY_RUNNING_CRITICAL");
-                Glide.get(getApplicationContext()).trimMemory(ComponentCallbacks2.TRIM_MEMORY_MODERATE);
+                bitmapHelper.clearCache();
                 break;
             case ComponentCallbacks2.TRIM_MEMORY_COMPLETE:
                 AppLog.INFO("TRIM_MEMORY_COMPLETE");

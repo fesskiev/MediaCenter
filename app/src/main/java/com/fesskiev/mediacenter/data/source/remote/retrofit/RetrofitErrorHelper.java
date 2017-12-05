@@ -11,7 +11,7 @@ import com.fesskiev.mediacenter.data.source.remote.exceptions.RetrofitException;
 public class RetrofitErrorHelper {
 
     public static String getErrorDescription(Context context, Throwable throwable) {
-        int stringRes = 0;
+        int stringRes;
         if (throwable instanceof RetrofitException) {
             RetrofitException exception = (RetrofitException) throwable;
             switch (exception.getKind()) {
@@ -37,6 +37,8 @@ public class RetrofitErrorHelper {
                     break;
             }
 
+        } else {
+            stringRes = R.string.snackbar_unexpected_error;
         }
         return context.getString(stringRes);
     }

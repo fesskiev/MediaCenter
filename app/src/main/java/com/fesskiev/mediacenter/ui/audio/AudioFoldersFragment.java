@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -100,6 +101,7 @@ public class AudioFoldersFragment extends HidingPlaybackFragment implements Audi
 
         recyclerView = view.findViewById(R.id.foldersGridView);
         recyclerView.setLayoutManager(gridLayoutManager);
+        ((DefaultItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
         adapter = new AudioFoldersAdapter(this);
         recyclerView.setAdapter(adapter);
         recyclerView.addItemDecoration(new ItemOffsetDecoration(spacing));
@@ -298,10 +300,12 @@ public class AudioFoldersFragment extends HidingPlaybackFragment implements Audi
                             public void onDeleteFolder() {
                                 deleteAudioFolder(position);
                             }
+
                             @Override
                             public void onDetailsFolder() {
                                 showDetailsAudioFolder(position);
                             }
+
                             @Override
                             public void onSearchAlbum() {
                                 startSearchAlbumActivity(position);

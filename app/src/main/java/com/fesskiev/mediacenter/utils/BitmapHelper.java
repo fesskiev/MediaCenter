@@ -2,12 +2,15 @@ package com.fesskiev.mediacenter.utils;
 
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.support.v7.graphics.Palette;
+import android.util.LruCache;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.FutureTarget;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
@@ -16,38 +19,113 @@ import com.fesskiev.mediacenter.data.model.MediaFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import io.reactivex.Observable;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class BitmapHelper {
 
-    private static final int WIDTH = 140;
-    private static final int HEIGHT = 140;
+    private static final String KEY_NO_COVER_FOLDER_ICON = "KEY_FOLDER";
+    private static final String KEY_NO_COVER_TRACK_ICON = "KEY_TRACK";
+    private static final String KEY_NO_COVER_PLAYER_ICON = "KEY_PLAYER";
+
+    private static final int WIDTH = 140 * 3;
+    private static final int HEIGHT = 140 * 3;
 
     private Context context;
+    private Resources resources;
+    private LruCache<String, Bitmap> bitmapLruCache;
+    private OkHttpClient okHttpClient;
 
-    public BitmapHelper(Context context) {
+    public BitmapHelper(Context context, OkHttpClient okHttpClient) {
         this.context = context;
+        this.okHttpClient = okHttpClient;
+        this.resources = context.getResources();
+
+        final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+        final int cacheSize = maxMemory / 4;
+        bitmapLruCache = new LruCache<String, Bitmap>(cacheSize) {
+            @Override
+            protected int sizeOf(String key, Bitmap bitmap) {
+                return bitmap.getByteCount() / 1024;
+            }
+        };
+    }
+
+    private Bitmap getNoCoverTrackBitmap() {
+        Bitmap bitmap = getBitmapFromMemCache(KEY_NO_COVER_TRACK_ICON);
+        if (bitmap == null) {
+            Bitmap decodeBitmap = decodeBitmapFromResource(R.drawable.no_cover_track_icon);
+            addBitmapToMemoryCache(KEY_NO_COVER_TRACK_ICON, decodeBitmap);
+            return decodeBitmap;
+        }
+        return bitmap;
+    }
+
+    private Bitmap getNoCoverFolderBitmap() {
+        Bitmap bitmap = getBitmapFromMemCache(KEY_NO_COVER_FOLDER_ICON);
+        if (bitmap == null) {
+            Bitmap decodeBitmap = decodeBitmapFromResource(R.drawable.no_cover_folder_icon);
+            addBitmapToMemoryCache(KEY_NO_COVER_FOLDER_ICON, decodeBitmap);
+            return decodeBitmap;
+        }
+        return bitmap;
+    }
+
+    private Bitmap getNoCoverAudioPlayer() {
+        Bitmap bitmap = getBitmapFromMemCache(KEY_NO_COVER_PLAYER_ICON);
+        if (bitmap == null) {
+            Bitmap decodeBitmap = decodeBitmapFromResource(R.drawable.no_cover_player);
+            addBitmapToMemoryCache(KEY_NO_COVER_PLAYER_ICON, decodeBitmap);
+            return decodeBitmap;
+        }
+        return bitmap;
+    }
+
+    private Bitmap getBitmapFromPath(String path) {
+        Bitmap bitmap = getBitmapFromMemCache(path);
+        if (bitmap == null) {
+            Bitmap decodeBitmap = decodeBitmapFromFile(path);
+            addBitmapToMemoryCache(path, decodeBitmap);
+            return decodeBitmap;
+        }
+        return bitmap;
+    }
+
+    public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+        if (getBitmapFromMemCache(key) == null) {
+            bitmapLruCache.put(key, bitmap);
+        }
+    }
+
+    public Bitmap getBitmapFromMemCache(String key) {
+        return bitmapLruCache.get(key);
     }
 
     public Observable<Bitmap> getCoverBitmapFromURL(String url) {
         return Observable.create(e -> {
             if (url != null) {
-                FutureTarget<Bitmap> target = Glide.with(context)
-                        .load(url)
-                        .asBitmap()
-                        .into(WIDTH * 3, HEIGHT * 3);
-                Bitmap bitmap = target.get();
-                e.onNext(bitmap);
-                Glide.clear(target);
+                Request request = new Request.Builder().url(url).build();
+                okHttpClient.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException ex) {
+                        e.onError(ex);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        Bitmap bitmap = decodeBitmapFromInputStream(response.body().byteStream());
+                        e.onNext(bitmap);
+                    }
+                });
             } else {
-                FutureTarget<Bitmap> target = Glide.with(context)
-                        .load(R.drawable.no_cover_track_icon)
-                        .asBitmap()
-                        .into(WIDTH * 3, HEIGHT * 3);
-                Bitmap bitmap = target.get();
+                Bitmap bitmap = getNoCoverTrackBitmap();
                 e.onNext(bitmap);
-                Glide.clear(target);
             }
             e.onComplete();
         });
@@ -57,22 +135,11 @@ public class BitmapHelper {
         String path = findPath(mediaFile);
         return Observable.create(e -> {
             if (path != null) {
-                FutureTarget<Bitmap> target = Glide.with(context)
-                        .load(path)
-                        .asBitmap()
-                        .into(WIDTH, HEIGHT);
-                Bitmap bitmap = target.get();
+                Bitmap bitmap = getBitmapFromPath(path);
                 e.onNext(bitmap);
-                Glide.clear(target);
             } else {
-                FutureTarget<Bitmap> target = Glide.with(context)
-                        .load(R.drawable.no_cover_track_icon)
-                        .asBitmap()
-                        .error(R.drawable.no_cover_track_icon)
-                        .into(WIDTH, HEIGHT);
-                Bitmap bitmap = target.get();
+                Bitmap bitmap = getNoCoverTrackBitmap();
                 e.onNext(bitmap);
-                Glide.clear(target);
             }
             e.onComplete();
         });
@@ -83,81 +150,26 @@ public class BitmapHelper {
         String mediaArtworkPath = findMediaFileArtworkPath(audioFile);
         return Observable.create(e -> {
             if (mediaArtworkPath != null) {
-                FutureTarget<Bitmap> target = Glide.with(context)
-                        .load(mediaArtworkPath)
-                        .asBitmap()
-                        .into(WIDTH, HEIGHT);
-                Bitmap bitmap = target.get();
+                Bitmap bitmap = getBitmapFromPath(mediaArtworkPath);
                 e.onNext(bitmap);
-                Glide.clear(target);
             } else {
-                FutureTarget<Bitmap> target = Glide.with(context)
-                        .load(R.drawable.no_cover_player)
-                        .asBitmap()
-                        .into(WIDTH, HEIGHT);
-                Bitmap bitmap = target.get();
+                Bitmap bitmap = getNoCoverAudioPlayer();
                 e.onNext(bitmap);
-                Glide.clear(target);
             }
             e.onComplete();
         });
 
     }
-
-    public Observable<PaletteColor> getAudioFilePalette(AudioFile audioFile) {
-        return Observable.create(e -> {
-            String coverPath = findMediaFileArtworkPath(audioFile);
-            if (coverPath != null) {
-                e.onNext(new PaletteColor(context, Palette
-                        .from(getBitmapFromPath(coverPath))
-                        .generate()));
-            } else {
-                e.onNext(new PaletteColor(context, Palette
-                        .from(getBitmapFromResource(R.drawable.no_cover_player))
-                        .generate()));
-            }
-            e.onComplete();
-        });
-    }
-
-    public Observable<PaletteColor> getAudioFolderPalette(AudioFolder audioFolder) {
-        return Observable.create(e -> {
-            String coverPath = findAudioFolderArtworkPath(audioFolder);
-            if (coverPath != null) {
-                e.onNext(new PaletteColor(context, Palette
-                        .from(getBitmapFromPath(coverPath))
-                        .generate()));
-            } else {
-                e.onNext(new PaletteColor(context, Palette
-                        .from(getBitmapFromResource(R.drawable.no_cover_folder_icon))
-                        .generate()));
-            }
-            e.onComplete();
-        });
-    }
-
 
     public Observable<Bitmap> getTrackListArtwork(MediaFile mediaFile) {
         String mediaArtworkPath = findMediaFileArtworkPath(mediaFile);
         return Observable.create(e -> {
             if (mediaArtworkPath != null) {
-                FutureTarget<Bitmap> target = Glide.with(context)
-                        .load(mediaArtworkPath)
-                        .asBitmap()
-                        .transform(new CircleTransform(context))
-                        .into(WIDTH * 3, HEIGHT * 3);
-                Bitmap bitmap = target.get();
+                Bitmap bitmap = getBitmapFromPath(mediaArtworkPath);
                 e.onNext(bitmap);
-                Glide.clear(target);
             } else {
-                FutureTarget<Bitmap> target = Glide.with(context)
-                        .load(R.drawable.no_cover_track_icon)
-                        .asBitmap()
-                        .transform(new CircleTransform(context))
-                        .into(WIDTH * 3, HEIGHT * 3);
-                Bitmap bitmap = target.get();
+                Bitmap bitmap = getNoCoverTrackBitmap();
                 e.onNext(bitmap);
-                Glide.clear(target);
             }
             e.onComplete();
         });
@@ -167,21 +179,11 @@ public class BitmapHelper {
         return Observable.create(e -> {
             String coverFile = findAudioFolderArtworkPath(audioFolder);
             if (coverFile != null) {
-                FutureTarget<Bitmap> target = Glide.with(context)
-                        .load(coverFile)
-                        .asBitmap()
-                        .into(WIDTH * 3, HEIGHT * 3);
-                Bitmap bitmap = target.get();
+                Bitmap bitmap = getBitmapFromPath(coverFile);
                 e.onNext(bitmap);
-                Glide.clear(target);
             } else {
-                FutureTarget<Bitmap> target = Glide.with(context)
-                        .load(R.drawable.no_cover_folder_icon)
-                        .asBitmap()
-                        .into(WIDTH * 3, HEIGHT * 3);
-                Bitmap bitmap = target.get();
+                Bitmap bitmap = getNoCoverFolderBitmap();
                 e.onNext(bitmap);
-                Glide.clear(target);
             }
             e.onComplete();
         });
@@ -190,21 +192,11 @@ public class BitmapHelper {
     public Observable<Bitmap> loadVideoFileFrame(String path) {
         return Observable.create(e -> {
             if (path != null) {
-                FutureTarget<Bitmap> target = Glide.with(context)
-                        .load(path)
-                        .asBitmap()
-                        .into(WIDTH * 3, HEIGHT * 3);
-                Bitmap bitmap = target.get();
+                Bitmap bitmap = getBitmapFromPath(path);
                 e.onNext(bitmap);
-                Glide.clear(target);
             } else {
-                FutureTarget<Bitmap> target = Glide.with(context)
-                        .load(R.drawable.no_cover_track_icon)
-                        .asBitmap()
-                        .into(WIDTH * 3, HEIGHT * 3);
-                Bitmap bitmap = target.get();
+                Bitmap bitmap = getNoCoverTrackBitmap();
                 e.onNext(bitmap);
-                Glide.clear(target);
             }
             e.onComplete();
         });
@@ -214,21 +206,11 @@ public class BitmapHelper {
     public Observable<Bitmap> loadVideoFolderFrame(String path) {
         return Observable.create(e -> {
             if (path != null) {
-                FutureTarget<Bitmap> target = Glide.with(context)
-                        .load(path)
-                        .asBitmap()
-                        .into(WIDTH * 3, HEIGHT * 3);
-                Bitmap bitmap = target.get();
+                Bitmap bitmap = getBitmapFromPath(path);
                 e.onNext(bitmap);
-                Glide.clear(target);
             } else {
-                FutureTarget<Bitmap> target = Glide.with(context)
-                        .load(R.drawable.no_cover_folder_icon)
-                        .asBitmap()
-                        .into(WIDTH * 3, HEIGHT * 3);
-                Bitmap bitmap = target.get();
+                Bitmap bitmap = getNoCoverFolderBitmap();
                 e.onNext(bitmap);
-                Glide.clear(target);
             }
             e.onComplete();
         });
@@ -283,20 +265,117 @@ public class BitmapHelper {
     public static void saveBitmap(byte[] data, File path) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inMutable = true;
-        Bitmap bitmap =
-                BitmapFactory.decodeByteArray(data, 0, data.length, options);
+        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, options);
         saveBitmap(bitmap, path);
 
     }
 
-    public Bitmap getBitmapFromPath(String path) {
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+    public Observable<PaletteColor> getAudioFilePalette(AudioFile audioFile) {
+        return Observable.create(e -> {
+            String coverPath = findMediaFileArtworkPath(audioFile);
+            if (coverPath != null) {
+                e.onNext(new PaletteColor(context, Palette
+                        .from(decodeBitmapFromFile(coverPath))
+                        .generate()));
+            } else {
+                Bitmap bitmap = getNoCoverAudioPlayer();
+                e.onNext(new PaletteColor(context, Palette
+                        .from(bitmap)
+                        .generate()));
+            }
+            e.onComplete();
+        });
+    }
+
+    public Observable<PaletteColor> getAudioFolderPalette(AudioFolder audioFolder) {
+        return Observable.create(e -> {
+            String coverPath = findAudioFolderArtworkPath(audioFolder);
+            if (coverPath != null) {
+                e.onNext(new PaletteColor(context, Palette
+                        .from(decodeBitmapFromFile(coverPath))
+                        .generate()));
+            } else {
+                Bitmap bitmap = getNoCoverFolderBitmap();
+                e.onNext(new PaletteColor(context, Palette
+                        .from(bitmap)
+                        .generate()));
+            }
+            e.onComplete();
+        });
+    }
+
+    public Bitmap decodeBitmapFromInputStream(InputStream inputStream) {
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeStream(inputStream, null, options);
+
+        options.inSampleSize = calculateInSampleSize(options, WIDTH, HEIGHT);
+
+        options.inMutable = true;
+        options.inJustDecodeBounds = false;
+
+        return BitmapFactory.decodeStream(inputStream, null, options);
+    }
+
+    public Bitmap decodeBitmapFromResource(int drawable) {
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeResource(resources, drawable, options);
+
+        options.inSampleSize = calculateInSampleSize(options, WIDTH, HEIGHT);
+
+        options.inMutable = true;
+        options.inJustDecodeBounds = false;
+
+        return BitmapFactory.decodeResource(resources, drawable, options);
+    }
+
+    public static Bitmap decodeBitmapFromFile(String path) {
+
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(path, options);
+
+        options.inSampleSize = calculateInSampleSize(options, WIDTH, HEIGHT);
+
+        options.inMutable = true;
+        options.inJustDecodeBounds = false;
+
         return BitmapFactory.decodeFile(path, options);
     }
 
-    public Bitmap getBitmapFromResource(int resource) {
-        return BitmapFactory.decodeResource(context.getResources(), resource);
+    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) > reqHeight
+                    && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+            // This offers some additional logic in case the image has a strange
+            // aspect ratio. For example, a panorama may have a much larger
+            // width than height. In these cases the total pixels might still
+            // end up being too large to fit comfortably in memory, so we should
+            // be more aggressive with sample down the image (=larger inSampleSize).
+
+            long totalPixels = width * height / inSampleSize;
+
+            // Anything more than 2x the requested pixels we'll sample down further
+            final long totalReqPixelsCap = reqWidth * reqHeight * 2;
+
+            while (totalPixels > totalReqPixelsCap) {
+                inSampleSize *= 2;
+                totalPixels /= 2;
+            }
+        }
+        return inSampleSize;
     }
 
 
@@ -356,4 +435,22 @@ public class BitmapHelper {
         }
     }
 
+    private Bitmap drawCircleBitmap(Bitmap source) {
+        int size = Math.min(source.getWidth(), source.getHeight());
+        int x = (source.getWidth() - size) / 2;
+        int y = (source.getHeight() - size) / 2;
+
+        Bitmap squared = Bitmap.createBitmap(source, x, y, size, size);
+        Canvas canvas = new Canvas(source);
+        Paint paint = new Paint();
+        paint.setShader(new BitmapShader(squared, BitmapShader.TileMode.CLAMP, BitmapShader.TileMode.CLAMP));
+        paint.setAntiAlias(true);
+        float r = size / 2f;
+        canvas.drawCircle(r, r, r, paint);
+        return source;
+    }
+
+    public void clearCache() {
+        bitmapLruCache.evictAll();
+    }
 }

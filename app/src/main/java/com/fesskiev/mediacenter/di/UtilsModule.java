@@ -12,14 +12,15 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import okhttp3.OkHttpClient;
 
 @Module
 public class UtilsModule {
 
     @Provides
     @Singleton
-    public BitmapHelper provideBitmapHelper(Context context) {
-        return new BitmapHelper(context);
+    public BitmapHelper provideBitmapHelper(Context context, OkHttpClient okHttpClient) {
+        return new BitmapHelper(context, okHttpClient);
     }
 
     @Provides
