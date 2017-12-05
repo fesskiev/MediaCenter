@@ -414,7 +414,6 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
         checkSelectedFragment();
     }
 
-
     private void setTrackInfo(AudioFile audioFile) {
         track.setText(audioFile.title);
         artist.setText(audioFile.artist);
@@ -425,6 +424,13 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
         if (!startForeground) {
             startForeground = true;
             PlaybackService.startPlaybackForegroundService(getApplicationContext());
+        }
+    }
+
+    private void stopPlayBackService(){
+        if (startForeground) {
+            PlaybackService.stopPlaybackForegroundService(getApplicationContext());
+            startForeground = false;
         }
     }
 
@@ -867,7 +873,6 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
         } else if (selectedActivity != null) {
             startSelectedActivity();
         }
-
         return true;
     }
 
@@ -920,14 +925,9 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
         exitDialog.setPositiveListener(this::processFinishPlayback);
     }
 
-
     private void processFinishPlayback() {
-        if (startForeground) {
-            PlaybackService.stopPlaybackForegroundService(getApplicationContext());
-            startForeground = false;
-        }
+        stopPlayBackService();
 
-        FileSystemService.stopFileSystemService(getApplicationContext());
         CacheManager.clearTempDir();
 
         mainViewModel.dropEffects();

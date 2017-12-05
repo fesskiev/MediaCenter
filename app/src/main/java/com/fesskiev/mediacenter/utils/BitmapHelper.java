@@ -5,9 +5,8 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BitmapShader;
 import android.graphics.Canvas;
-import android.graphics.Paint;
+import android.graphics.Path;
 import android.support.v7.graphics.Palette;
 import android.util.LruCache;
 
@@ -165,10 +164,10 @@ public class BitmapHelper {
         String mediaArtworkPath = findMediaFileArtworkPath(mediaFile);
         return Observable.create(e -> {
             if (mediaArtworkPath != null) {
-                Bitmap bitmap = getBitmapFromPath(mediaArtworkPath);
+                Bitmap bitmap = getCircularBitmap(getBitmapFromPath(mediaArtworkPath));
                 e.onNext(bitmap);
             } else {
-                Bitmap bitmap = getNoCoverTrackBitmap();
+                Bitmap bitmap = getCircularBitmap(getNoCoverTrackBitmap());
                 e.onNext(bitmap);
             }
             e.onComplete();
@@ -435,19 +434,18 @@ public class BitmapHelper {
         }
     }
 
-    private Bitmap drawCircleBitmap(Bitmap source) {
-        int size = Math.min(source.getWidth(), source.getHeight());
-        int x = (source.getWidth() - size) / 2;
-        int y = (source.getHeight() - size) / 2;
+    public static Bitmap getCircularBitmap(Bitmap bitmap) {
+        final int width = bitmap.getWidth();
+        final int height = bitmap.getHeight();
+        final Bitmap outputBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
-        Bitmap squared = Bitmap.createBitmap(source, x, y, size, size);
-        Canvas canvas = new Canvas(source);
-        Paint paint = new Paint();
-        paint.setShader(new BitmapShader(squared, BitmapShader.TileMode.CLAMP, BitmapShader.TileMode.CLAMP));
-        paint.setAntiAlias(true);
-        float r = size / 2f;
-        canvas.drawCircle(r, r, r, paint);
-        return source;
+        final Path path = new Path();
+        path.addCircle((float) (width / 2), (float) (height / 2), (float) Math.min(width, (height / 2)), Path.Direction.CCW);
+
+        final Canvas canvas = new Canvas(outputBitmap);
+        canvas.clipPath(path);
+        canvas.drawBitmap(bitmap, 0, 0, null);
+        return outputBitmap;
     }
 
     public void clearCache() {

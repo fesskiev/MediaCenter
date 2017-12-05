@@ -27,14 +27,17 @@ import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.AudioFocusManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
-import com.fesskiev.mediacenter.utils.CountDownTimer;
 import com.fesskiev.mediacenter.utils.NotificationHelper;
 import com.fesskiev.mediacenter.utils.RxBus;
 import com.fesskiev.mediacenter.utils.WearHelper;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.inject.Inject;
 
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 public class PlaybackService extends Service {
@@ -153,9 +156,10 @@ public class PlaybackService extends Service {
     @Inject
     NotificationHelper notificationHelper;
 
+    private Disposable disposable;
+
     private WearHelper wearHelper;
     private AudioFocusManager audioFocusManager;
-    private CountDownTimer timer;
 
     private AudioFile currentTrack;
 
@@ -346,6 +350,39 @@ public class PlaybackService extends Service {
         context.startService(intent);
     }
 
+    private void addTimer() {
+        disposable = Observable.interval(0, 500, TimeUnit.MILLISECONDS)
+                .subscribe(interval -> {
+                    updatePlaybackState();
+                    if (duration > 0) {
+                        durationScale = duration / 100;
+                        positionPercent = positionPercent * 100;
+                        volume *= 100f;
+                    }
+                    if (notificationHelper != null) {
+                        boolean notificationPlaying = notificationHelper.isPlaying();
+                        if (playing != notificationPlaying) {
+                            notificationHelper.updatePlayingState(currentTrack, playing);
+                        }
+                    }
+                    if (wearHelper != null) {
+                        boolean wearPlaying = wearHelper.isPlaying();
+                        boolean wearLooping = wearHelper.isLooping();
+                        if (playing != wearPlaying || looping != wearLooping) {
+                            wearHelper.updatePlayingState();
+                        }
+                    }
+//                  AppLog.DEBUG("playback: " + PlaybackService.this.toString());
+                    sendPlaybackEvent();
+                }, Throwable::printStackTrace);
+    }
+
+    private void stopTimer() {
+        if (disposable != null && !disposable.isDisposed()) {
+            disposable.dispose();
+        }
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -356,36 +393,7 @@ public class PlaybackService extends Service {
 
         volume = settingsManager.getAudioPlayerVolume();
         position = settingsManager.getAudioPlayerPosition();
-
-        timer = new CountDownTimer(500);
-        timer.pause();
-        timer.setOnCountDownListener(() -> {
-            updatePlaybackState();
-
-            if (duration > 0) {
-                durationScale = duration / 100;
-                positionPercent = positionPercent * 100;
-                volume *= 100f;
-            }
-
-            if (notificationHelper != null) {
-                boolean notificationPlaying = notificationHelper.isPlaying();
-                if (playing != notificationPlaying) {
-                    notificationHelper.updatePlayingState(currentTrack, playing);
-                }
-            }
-
-            if (wearHelper != null) {
-                boolean wearPlaying = wearHelper.isPlaying();
-                boolean wearLooping = wearHelper.isLooping();
-                if (playing != wearPlaying || looping != wearLooping) {
-                    wearHelper.updatePlayingState();
-                }
-            }
-
-//            AppLog.DEBUG("playback: " + PlaybackService.this.toString());
-            sendPlaybackEvent();
-        });
+        Log.d(TAG, "VOLUME: " + volume + " POSITION: " + position);
 
         audioFocusManager = new AudioFocusManager();
         audioFocusManager.setOnAudioFocusManagerListener(
@@ -839,27 +847,26 @@ public class PlaybackService extends Service {
         Log.d(TAG, "start playback");
         togglePlayback();
         audioFocusManager.tryToGetAudioFocus();
-        timer.tick();
+        addTimer();
     }
 
     private void stop() {
         Log.d(TAG, "stop playback");
         togglePlayback();
         audioFocusManager.giveUpAudioFocus();
-        timer.pause();
+        stopTimer();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "Destroy playback service");
+
         removeProcessLifecycleObserver();
         if (playing) {
             stop();
         }
-        if (timer != null) {
-            timer.stop();
-        }
+        stopTimer();
         if (notificationHelper != null) {
             notificationHelper.stopNotification();
         }
@@ -877,27 +884,37 @@ public class PlaybackService extends Service {
     }
 
     private void addProcessLifecycleObserver() {
+        processLifecycleObserver.setNeedNotify(true);
         ProcessLifecycleOwner.get().getLifecycle().addObserver(processLifecycleObserver);
     }
 
     private void removeProcessLifecycleObserver() {
+        processLifecycleObserver.setNeedNotify(false);
         ProcessLifecycleOwner.get().getLifecycle().addObserver(processLifecycleObserver);
     }
 
     private class ProcessLifecycleObserver implements LifecycleObserver {
 
+        private boolean needNotify;
+
         @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
         public void resumed() {
-            onForeground();
-            AppLog.ERROR("Lifecycle.Event.ON_RESUME");
+            if (needNotify) {
+                AppLog.ERROR("Lifecycle.Event.ON_RESUME");
+                onForeground();
+            }
         }
 
         @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
         public void paused() {
-            if (!playing) {
-                onBackground();
+            if (!playing && needNotify) {
                 AppLog.ERROR("Lifecycle.Event.ON_PAUSE");
+                onBackground();
             }
+        }
+
+        public void setNeedNotify(boolean needNotify) {
+            this.needNotify = needNotify;
         }
     }
 
@@ -1108,5 +1125,4 @@ public class PlaybackService extends Service {
                 ", convertStart=" + convertStart +
                 '}';
     }
-
 }
