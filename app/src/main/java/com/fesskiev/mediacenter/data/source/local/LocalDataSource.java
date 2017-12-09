@@ -19,7 +19,7 @@ import io.reactivex.Observable;
 
 public class LocalDataSource implements LocalSource {
 
-    enum Irrelevant { INSTANCE; }
+    enum Irrelevant { INSTANCE }
 
     private MediaDao mediaDao;
 

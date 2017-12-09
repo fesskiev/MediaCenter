@@ -6,6 +6,7 @@ import android.animation.AnimatorSet;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
@@ -83,6 +84,7 @@ public class PlayPauseButton extends AppCompatImageView {
 
     public void setColor(int color) {
         drawable.setColor(color);
+        timerDrawable.setColorFilter(color, PorterDuff.Mode.MULTIPLY);
     }
 
     public void startLoading() {
@@ -95,7 +97,7 @@ public class PlayPauseButton extends AppCompatImageView {
     public void finishLoading() {
         showTimer = false;
         AnimatedVectorDrawable drawable = ((AnimatedVectorDrawable) getDrawable());
-        if(drawable != null){
+        if (drawable != null) {
             drawable.stop();
             setImageDrawable(null);
         }
