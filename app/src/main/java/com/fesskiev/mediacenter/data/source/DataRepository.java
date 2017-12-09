@@ -67,9 +67,8 @@ public class DataRepository {
         return localSource.getArtistTracks(artistName);
     }
 
-
-    public void updateSelectedAudioFolder(AudioFolder audioFolder) {
-        localSource.updateSelectedAudioFolder(audioFolder);
+    public Callable<Object> updateSelectedAudioFolder(AudioFolder audioFolder) {
+        return localSource.updateSelectedAudioFolder(audioFolder);
     }
 
     public void updateAudioFolder(AudioFolder audioFolder) {
@@ -92,12 +91,12 @@ public class DataRepository {
         return localSource.updateAudioFile(audioFile);
     }
 
-    public void updateSelectedAudioFile(AudioFile audioFile) {
-        localSource.updateSelectedAudioFile(audioFile);
+    public Callable<Object> updateSelectedAudioFile(AudioFile audioFile) {
+        return localSource.updateSelectedAudioFile(audioFile);
     }
 
-    public Callable<Integer> deleteAudioFile(String path) {
-        return localSource.deleteAudioFile(path);
+    public Callable<Integer> deleteAudioFile(AudioFile audioFile) {
+        return localSource.deleteAudioFile(audioFile);
     }
 
     public Observable<AudioFile> getAudioFileByPath(String path) {
@@ -143,11 +142,11 @@ public class DataRepository {
         return localSource.clearPlaylist();
     }
 
-    public Observable<List<MediaFile>> getAudioFilePlaylist() {
+    public Observable<List<AudioFile>> getAudioFilePlaylist() {
         return localSource.getAudioFilePlaylist();
     }
 
-    public Observable<List<MediaFile>> getVideoFilePlaylist() {
+    public Observable<List<VideoFile>> getVideoFilePlaylist() {
         return localSource.getVideoFilePlaylist();
     }
 
@@ -159,8 +158,8 @@ public class DataRepository {
         return localSource.resetAudioContentDatabase();
     }
 
-    public Callable<Integer> deleteVideoFile(String path) {
-        return localSource.deleteVideoFile(path);
+    public Callable<Integer> deleteVideoFile(VideoFile videoFile) {
+        return localSource.deleteVideoFile(videoFile);
     }
 
     public Callable<Integer> updateVideoFile(VideoFile videoFile) {

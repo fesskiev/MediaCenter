@@ -55,8 +55,6 @@ public class VideoFoldersViewModel extends ViewModel {
 
     public void fetchVideoFolders() {
         disposables.add(repository.getVideoFolders()
-                .firstOrError()
-                .toObservable()
                 .subscribeOn(Schedulers.io())
                 .flatMap(Observable::fromIterable)
                 .filter(folder -> settingsManager.isShowHiddenFiles() || !folder.isHidden)
@@ -95,8 +93,6 @@ public class VideoFoldersViewModel extends ViewModel {
 
     public Observable<List<Bitmap>> getVideoFilesFrame(VideoFolder videoFolder) {
         return repository.getVideoFilesFrame(videoFolder.id)
-                .firstOrError()
-                .toObservable()
                 .flatMap(Observable::fromIterable)
                 .flatMap(path -> bitmapHelper.loadVideoFolderFrame(path))
                 .toList()

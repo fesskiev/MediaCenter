@@ -230,8 +230,7 @@ public class FFmpegHelper {
 
     public void convertAudioIfNeed(AudioFile audioFile, OnConvertProcessListener listener) {
         repository.getFolderFilePaths("Temp")
-                .firstOrError()
-                .toObservable()
+
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(paths -> {
                     String path = needConvert(paths, audioFile);

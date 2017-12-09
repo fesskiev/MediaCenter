@@ -285,7 +285,8 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
     private void observeFetchData() {
         FetchContentViewModel viewModel = ViewModelProviders.of(this).get(FetchContentViewModel.class);
         viewModel.getPrepareFetchLiveData().observe(this, Void -> fetchContentScreen.prepareFetch());
-        viewModel.getFinishFetchLiveData().observe(this, Void -> {;
+        viewModel.getFinishFetchLiveData().observe(this, Void -> {
+            ;
             fetchContentScreen.finishFetch();
             animationUtils.animateBottomSheet(bottomSheet, true);
 
@@ -352,7 +353,6 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
 
     private void bindFileSystemService() {
         Intent intent = new Intent(this, FileSystemService.class);
-        startService(intent);
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
@@ -427,7 +427,7 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
         }
     }
 
-    private void stopPlayBackService(){
+    private void stopPlayBackService() {
         if (startForeground) {
             PlaybackService.stopPlaybackForegroundService(getApplicationContext());
             startForeground = false;

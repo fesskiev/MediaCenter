@@ -7,6 +7,7 @@ import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.players.VideoPlayer;
 import com.fesskiev.mediacenter.utils.RxBus;
 import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
+import com.fesskiev.mediacenter.utils.schedulers.SchedulerProvider;
 
 import javax.inject.Singleton;
 
@@ -19,8 +20,10 @@ public class PlayersModule {
     @Provides
     @Singleton
     AudioPlayer provideAudioPlayer(Context context, RxBus rxBus,
-                                   DataRepository dataRepository, FFmpegHelper fFmpegHelper) {
-        return new AudioPlayer(context, rxBus, dataRepository, fFmpegHelper);
+                                   DataRepository dataRepository,
+                                   SchedulerProvider schedulerProvider,
+                                   FFmpegHelper fFmpegHelper) {
+        return new AudioPlayer(context, rxBus, dataRepository, schedulerProvider, fFmpegHelper);
     }
 
     @Provides

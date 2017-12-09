@@ -135,7 +135,6 @@ dependencies {
     compile "com.squareup.retrofit2:retrofit:$rootProject.retrofit"
     compile "com.squareup.retrofit2:converter-gson:$rootProject.gson"
     compile "com.squareup.retrofit2:adapter-rxjava2:$rootProject.rxjavaAdapter"
-    compile "com.squareup.sqlbrite2:sqlbrite:$rootProject.sqlbrite"
     compile "com.thoughtbot:expandablecheckrecyclerview:$rootProject.expandablecheckrecyclerview"
 
     implementation "android.arch.lifecycle:common-java8:$rootProject.archComponents"

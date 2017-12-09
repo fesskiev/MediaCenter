@@ -110,8 +110,6 @@ public class SplashActivity extends AppCompatActivity {
                     }
                     return parseAudioFolder(path);
                 })
-                .firstOrError()
-                .toObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(audioFolder -> animateAndFetchData(true));
     }
@@ -119,8 +117,6 @@ public class SplashActivity extends AppCompatActivity {
 
     private Observable<AudioFolder> selectAudioFolderAndFile(String path) {
         return repository.getAudioFileByPath(path)
-                .firstOrError()
-                .toObservable()
                 .flatMap(audioFile -> {
                     if (audioFile != null) {
                         audioFile.isSelected = true;
@@ -129,15 +125,13 @@ public class SplashActivity extends AppCompatActivity {
                     return audioFile != null ? Observable.just(audioFile) : Observable.empty();
                 })
                 .flatMap(audioFile -> repository.getAudioFolderByPath(new File(path).getParent())
-                        .firstOrError()
-                        .toObservable())
                 .flatMap(audioFolder -> {
                     if (audioFolder != null) {
                         audioFolder.isSelected = true;
                         repository.updateSelectedAudioFolder(audioFolder);
                     }
                     return audioFolder != null ? Observable.just(audioFolder) : Observable.empty();
-                });
+                }));
     }
 
     private Observable<AudioFolder> parseAudioFolder(String path) {
@@ -175,7 +169,7 @@ public class SplashActivity extends AppCompatActivity {
 
         if (audioPaths != null && audioPaths.length > 0) {
             for (File p : audioPaths) {
-                AudioFile audioFile = new AudioFile(getApplicationContext(), p, audioFolder.id);
+                AudioFile audioFile = new AudioFile(p, audioFolder.id);
                 repository.insertAudioFile(audioFile);
                 if (p.getAbsolutePath().equals(path)) {
                     Log.d("test", "parse select file: " + audioFile.toString());

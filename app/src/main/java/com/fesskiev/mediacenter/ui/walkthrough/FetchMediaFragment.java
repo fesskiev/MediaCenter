@@ -113,7 +113,6 @@ public class FetchMediaFragment extends Fragment implements View.OnClickListener
 
     private void bindFileSystemService() {
         Intent intent = new Intent(getActivity(), FileSystemService.class);
-        getActivity().startService(intent);
         getActivity().bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 

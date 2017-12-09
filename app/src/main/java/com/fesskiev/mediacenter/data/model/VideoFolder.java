@@ -1,25 +1,32 @@
 package com.fesskiev.mediacenter.data.model;
 
 
-import android.database.Cursor;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
 import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import com.fesskiev.mediacenter.data.source.local.db.DatabaseHelper;
+import android.support.annotation.NonNull;
 
 import java.io.File;
 import java.util.List;
 
+@Entity(tableName = "VideoFolders")
 public class VideoFolder implements Comparable<VideoFolder>, Parcelable, MediaFolder {
 
-    public File folderPath;
+    @NonNull
+    @PrimaryKey()
     public String id;
+
+    public File folderPath;
     public String folderName;
-    public int index;
+    public int folderIndex;
     public long timestamp;
     public boolean isSelected;
     public boolean isHidden;
+
+    @Ignore
     public List<Bitmap> frames;
 
 
@@ -27,24 +34,11 @@ public class VideoFolder implements Comparable<VideoFolder>, Parcelable, MediaFo
 
     }
 
-    public VideoFolder(Cursor cursor) {
-
-        id = cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_FOLDER_ID));
-        folderName = cursor.getString(cursor.getColumnIndex(DatabaseHelper.FOLDER_NAME));
-        folderPath = new File(cursor.getString(cursor.getColumnIndex(DatabaseHelper.FOLDER_PATH)));
-
-        index = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.FOLDER_INDEX));
-        isSelected = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.FOLDER_SELECTED)) == 1;
-        isHidden = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.FOLDER_HIDDEN)) == 1;
-        timestamp = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.FOLDER_TIMESTAMP));
-
-    }
-
     protected VideoFolder(Parcel in) {
         this.folderPath = (File) in.readSerializable();
         this.id = in.readString();
         this.folderName = in.readString();
-        this.index = in.readInt();
+        this.folderIndex = in.readInt();
         this.timestamp = in.readLong();
         this.isSelected = in.readByte() != 0;
         this.isHidden = in.readByte() != 0;
@@ -82,10 +76,10 @@ public class VideoFolder implements Comparable<VideoFolder>, Parcelable, MediaFo
 
     @Override
     public int compareTo(VideoFolder another) {
-        if (this.index < another.index) {
+        if (this.folderIndex < another.folderIndex) {
             return -1;
         }
-        if (this.index == another.index) {
+        if (this.folderIndex == another.folderIndex) {
             return 0;
         }
         return 1;
@@ -101,7 +95,7 @@ public class VideoFolder implements Comparable<VideoFolder>, Parcelable, MediaFo
         dest.writeSerializable(this.folderPath);
         dest.writeString(this.id);
         dest.writeString(this.folderName);
-        dest.writeInt(this.index);
+        dest.writeInt(this.folderIndex);
         dest.writeLong(this.timestamp);
         dest.writeByte(this.isSelected ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isHidden ? (byte) 1 : (byte) 0);
@@ -125,7 +119,7 @@ public class VideoFolder implements Comparable<VideoFolder>, Parcelable, MediaFo
                 "folderPath=" + folderPath +
                 ", id='" + id + '\'' +
                 ", folderName='" + folderName + '\'' +
-                ", index=" + index +
+                ", folderIndex=" + folderIndex +
                 ", timestamp=" + timestamp +
                 ", isSelected=" + isSelected +
                 ", isHidden=" + isHidden +

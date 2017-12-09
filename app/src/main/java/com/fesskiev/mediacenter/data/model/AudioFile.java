@@ -1,13 +1,18 @@
 package com.fesskiev.mediacenter.data.model;
 
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.Index;
+import android.arch.persistence.room.PrimaryKey;
 import android.content.Context;
-import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.data.source.local.db.DatabaseHelper;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.Utils;
@@ -30,11 +35,23 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+import static android.arch.persistence.room.ForeignKey.CASCADE;
+
+@Entity(tableName = "AudioFiles",
+        foreignKeys = @ForeignKey(
+                entity = AudioFolder.class, parentColumns = "id",
+                childColumns = "folderId",
+                onDelete = CASCADE),
+        indices = @Index("folderId"))
 public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
 
-    public String folderId;
+    @NonNull
+    @PrimaryKey()
     public String fileId;
+    public String folderId;
+
     public File filePath;
+    @Ignore
     public File convertedPath;
     public String artist;
     public String title;
@@ -52,42 +69,16 @@ public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
     public boolean isSelected;
     public boolean isHidden;
 
-    private Context context;
-
     public AudioFile() {
         fillEmptyFields();
     }
 
-    public AudioFile(Context context, File filePath, String folderId) {
+    public AudioFile(File filePath, String folderId) {
         this.folderId = folderId;
         this.fileId = UUID.randomUUID().toString();
-        this.context = context;
         this.filePath = filePath;
         renameFileCorrect();
         parseMetadataTagger();
-    }
-
-    public AudioFile(Cursor cursor) {
-
-        folderId = cursor.getString(cursor.getColumnIndex(DatabaseHelper.AUDIO_FOLDER_ID));
-        fileId = cursor.getString(cursor.getColumnIndex(DatabaseHelper.AUDIO_FILE_ID));
-        filePath = new File(cursor.getString(cursor.getColumnIndex(DatabaseHelper.TRACK_PATH)));
-        artist = cursor.getString(cursor.getColumnIndex(DatabaseHelper.TRACK_ARTIST));
-        title = cursor.getString(cursor.getColumnIndex(DatabaseHelper.TRACK_TITLE));
-        album = cursor.getString(cursor.getColumnIndex(DatabaseHelper.TRACK_ALBUM));
-        genre = cursor.getString(cursor.getColumnIndex(DatabaseHelper.TRACK_GENRE));
-        bitrate = cursor.getString(cursor.getColumnIndex(DatabaseHelper.TRACK_BITRATE));
-        sampleRate = cursor.getString(cursor.getColumnIndex(DatabaseHelper.TRACK_SAMPLE_RATE));
-        artworkPath = cursor.getString(cursor.getColumnIndex(DatabaseHelper.TRACK_COVER));
-        folderArtworkPath = cursor.getString(cursor.getColumnIndex(DatabaseHelper.TRACK_FOLDER_COVER));
-        trackNumber = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_NUMBER));
-        inPlayList = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_IN_PLAY_LIST)) == 1;
-        isSelected = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_SELECTED)) == 1;
-        isHidden = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TRACK_HIDDEN)) == 1;
-        length = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.TRACK_LENGTH));
-        size = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.TRACK_SIZE));
-        timestamp = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.TRACK_TIMESTAMP));
-
     }
 
     private void renameFileCorrect() {
@@ -120,6 +111,7 @@ public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
     }
 
     private void fillEmptyFields() {
+        Context context = MediaApplication.getInstance().getApplicationContext();
         if (artist == null || TextUtils.isEmpty(artist)) {
             artist = context.getString(R.string.empty_music_file_artist);
         }

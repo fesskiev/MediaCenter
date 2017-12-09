@@ -1,25 +1,33 @@
 package com.fesskiev.mediacenter.data.model;
 
 
-import android.database.Cursor;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
-import com.fesskiev.mediacenter.data.source.local.db.DatabaseHelper;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 
 import java.io.File;
 
+@Entity(tableName = "AudioFolders")
 public class AudioFolder implements Comparable<AudioFolder>, Parcelable, MediaFolder {
+
+    @NonNull
+    @PrimaryKey()
+    public String id;
 
     public File folderPath;
     public File folderImage;
-    public String id;
     public String folderName;
-    public int index;
+    public int folderIndex;
     public long timestamp;
     public boolean isSelected;
     public boolean isHidden;
+
+    @Ignore
     public BitmapHelper.PaletteColor color;
 
 
@@ -27,27 +35,12 @@ public class AudioFolder implements Comparable<AudioFolder>, Parcelable, MediaFo
 
     }
 
-    public AudioFolder(Cursor cursor) {
-
-        id = cursor.getString(cursor.getColumnIndex(DatabaseHelper.AUDIO_FOLDER_ID));
-        folderName = cursor.getString(cursor.getColumnIndex(DatabaseHelper.FOLDER_NAME));
-        folderPath = new File(cursor.getString(cursor.getColumnIndex(DatabaseHelper.FOLDER_PATH)));
-
-        String imagePath = cursor.getString(cursor.getColumnIndex(DatabaseHelper.FOLDER_COVER));
-        folderImage = imagePath != null ? new File(imagePath) : null;
-
-        index = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.FOLDER_INDEX));
-        isSelected = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.FOLDER_SELECTED)) == 1;
-        isHidden = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.FOLDER_HIDDEN)) == 1;
-        timestamp = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.FOLDER_TIMESTAMP));
-    }
-
     protected AudioFolder(Parcel in) {
         this.folderPath = (File) in.readSerializable();
         this.folderImage = (File) in.readSerializable();
         this.id = in.readString();
         this.folderName = in.readString();
-        this.index = in.readInt();
+        this.folderIndex = in.readInt();
         this.timestamp = in.readLong();
         this.isSelected = in.readByte() != 0;
         this.isHidden = in.readByte() != 0;
@@ -85,10 +78,10 @@ public class AudioFolder implements Comparable<AudioFolder>, Parcelable, MediaFo
 
     @Override
     public int compareTo(AudioFolder another) {
-        if (this.index < another.index) {
+        if (this.folderIndex < another.folderIndex) {
             return -1;
         }
-        if (this.index == another.index) {
+        if (this.folderIndex == another.folderIndex) {
             return 0;
         }
         return 1;
@@ -102,7 +95,7 @@ public class AudioFolder implements Comparable<AudioFolder>, Parcelable, MediaFo
                 ", folderImage=" + folderImage +
                 ", id='" + id + '\'' +
                 ", folderName='" + folderName + '\'' +
-                ", index=" + index +
+                ", folderIndex=" + folderIndex +
                 ", timestamp=" + timestamp +
                 ", isSelected=" + isSelected +
                 ", isHidden=" + isHidden +
@@ -120,7 +113,7 @@ public class AudioFolder implements Comparable<AudioFolder>, Parcelable, MediaFo
         dest.writeSerializable(this.folderImage);
         dest.writeString(this.id);
         dest.writeString(this.folderName);
-        dest.writeInt(this.index);
+        dest.writeInt(this.folderIndex);
         dest.writeLong(this.timestamp);
         dest.writeByte(this.isSelected ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isHidden ? (byte) 1 : (byte) 0);

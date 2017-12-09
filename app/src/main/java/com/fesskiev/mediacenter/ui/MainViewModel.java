@@ -12,6 +12,7 @@ import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.services.PlaybackService;
+import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
@@ -84,10 +85,10 @@ public class MainViewModel extends ViewModel {
                     audioPlayer.setCurrentTrackList(audioFiles);
                     notifyCurrentTrackList(audioFiles);
                 })
-                .flatMap(audioFiles -> repository.getSelectedAudioFile())
-                .subscribeOn(Schedulers.io())
+                .flatMap(audioFiles -> repository.getSelectedAudioFile().subscribeOn(Schedulers.io()))
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(audioFile -> {
+                    AppLog.ERROR("current track : " + audioFile.toString());
                     audioPlayer.setCurrentAudioFile(audioFile);
                     notifyCurrentTrack(audioFile);
                 })

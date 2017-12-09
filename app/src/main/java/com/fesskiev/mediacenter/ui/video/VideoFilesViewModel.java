@@ -53,8 +53,6 @@ public class VideoFilesViewModel extends ViewModel {
 
     public void fetchVideoFolderFiles(VideoFolder videoFolder) {
         disposables.add(repository.getVideoFiles(videoFolder.id)
-                .firstOrError()
-                .toObservable()
                 .subscribeOn(Schedulers.io())
                 .flatMap(Observable::fromIterable)
                 .filter(file -> settingsManager.isShowHiddenFiles() || !file.isHidden)
@@ -86,7 +84,7 @@ public class VideoFilesViewModel extends ViewModel {
     public void deleteVideoFile(VideoFile videoFile, int position) {
         disposables.add(RxUtils.fromCallable(CacheManager.deleteFile(videoFile.filePath))
                 .subscribeOn(Schedulers.io())
-                .flatMap(result -> RxUtils.fromCallable(repository.deleteVideoFile(videoFile.getFilePath())))
+                .flatMap(result -> RxUtils.fromCallable(repository.deleteVideoFile(videoFile)))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(integer -> notifyDeletedFile(position)));
 

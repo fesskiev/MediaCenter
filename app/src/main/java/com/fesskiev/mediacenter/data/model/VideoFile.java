@@ -1,12 +1,15 @@
 package com.fesskiev.mediacenter.data.model;
 
-import android.database.Cursor;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.Index;
+import android.arch.persistence.room.PrimaryKey;
 import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
-import com.fesskiev.mediacenter.data.source.local.db.DatabaseHelper;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.Utils;
@@ -16,11 +19,21 @@ import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static android.arch.persistence.room.ForeignKey.CASCADE;
 
+@Entity(tableName = "VideoFiles",
+        foreignKeys = @ForeignKey(
+                entity = VideoFolder.class, parentColumns = "id",
+                childColumns = "folderId",
+                onDelete = CASCADE),
+        indices = @Index("folderId"))
 public class VideoFile implements MediaFile, Parcelable {
 
-    public String folderId;
+    @NonNull
+    @PrimaryKey()
     public String fileId;
+    public String folderId;
+
     public File filePath;
     public String framePath;
     public String description;
@@ -31,19 +44,8 @@ public class VideoFile implements MediaFile, Parcelable {
     public long timestamp;
     public long length;
 
-    public VideoFile(Cursor cursor) {
+    public VideoFile() {
 
-        folderId = cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_FOLDER_ID));
-        fileId = cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_FILE_ID));
-        filePath = new File(cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_FILE_PATH)));
-        framePath = cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_FRAME_PATH));
-        resolution = cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_RESOLUTION));
-        description = cursor.getString(cursor.getColumnIndex(DatabaseHelper.VIDEO_DESCRIPTION));
-        inPlayList = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.VIDEO_IN_PLAY_LIST)) == 1;
-        isHidden = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.VIDEO_HIDDEN)) == 1;
-        length = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.VIDEO_LENGTH));
-        size = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.VIDEO_SIZE));
-        timestamp = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.VIDEO_TIMESTAMP));
     }
 
     public VideoFile(File path, String folderId) {

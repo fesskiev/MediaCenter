@@ -61,8 +61,6 @@ public class AudioFoldersViewModel extends ViewModel {
 
     public void getAudioFolders() {
         disposables.add(repository.getAudioFolders()
-                .firstOrError()
-                .toObservable()
                 .subscribeOn(Schedulers.io())
                 .flatMap(Observable::fromIterable)
                 .filter(folder -> settingsManager.isShowHiddenFiles() || !folder.isHidden)
@@ -100,8 +98,6 @@ public class AudioFoldersViewModel extends ViewModel {
 
     public Observable<Bitmap> getAudioFolderArtwork(AudioFolder audioFolder) {
         return bitmapHelper.getAudioFolderArtwork(audioFolder)
-                .firstOrError()
-                .toObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }

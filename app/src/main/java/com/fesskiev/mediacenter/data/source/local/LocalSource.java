@@ -3,7 +3,6 @@ package com.fesskiev.mediacenter.data.source.local;
 
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
-import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
 
@@ -14,25 +13,50 @@ import io.reactivex.Observable;;
 
 public interface LocalSource {
 
-    Observable<List<String>> getArtistsList();
-
-    Observable<List<String>> getGenresList();
-
+    /**
+     * Audio folders methods
+     */
     Observable<List<AudioFolder>> getAudioFolders();
 
+    void insertAudioFolder(AudioFolder audioFolder);
+
+    void updateAudioFolder(AudioFolder audioFolder);
+
+    Callable<Integer> deleteAudioFolderWithFiles(AudioFolder audioFolder);
+
+    Observable<AudioFolder> getAudioFolderByPath(String path);
+
+    Observable<AudioFolder> getSelectedAudioFolder();
+
+    Observable<List<AudioFile>> getSelectedFolderAudioFiles(AudioFolder audioFolder);
+
+    Callable<Object> updateSelectedAudioFolder(AudioFolder audioFolder);
+
+    Callable<Integer> updateAudioFoldersIndex(List<AudioFolder> audioFolders);
+
+    /**
+     * Video folders methods
+     */
     Observable<List<VideoFolder>> getVideoFolders();
 
-    Observable<List<VideoFile>> getVideoFiles(String id);
+    void insertVideoFolder(VideoFolder videoFolder);
 
-    Observable<List<MediaFile>> getAudioFilePlaylist();
+    void updateVideoFolder(VideoFolder videoFolder);
 
-    Observable<List<MediaFile>> getVideoFilePlaylist();
-
-    Observable<AudioFile> getAudioFileByPath(String path);
+    Callable<Integer> deleteVideoFolderWithFiles(VideoFolder videoFolder);
 
     Observable<VideoFolder> getVideoFolderByPath(String path);
 
-    Observable<AudioFolder> getAudioFolderByPath(String path);
+    Callable<Integer> updateVideoFoldersIndex(List<VideoFolder> videoFolders);
+
+    /**
+     * Audio files methods
+     */
+    void insertAudioFile(AudioFile audioFile);
+
+    Callable<Object> updateSelectedAudioFile(AudioFile audioFile);
+
+    Observable<AudioFile> getAudioFileByPath(String path);
 
     Observable<List<AudioFile>> getSearchAudioFiles(String query);
 
@@ -42,58 +66,50 @@ public interface LocalSource {
 
     Observable<List<AudioFile>> getAudioTracks(String id);
 
-    Observable<AudioFolder> getSelectedAudioFolder();
-
     Observable<AudioFile> getSelectedAudioFile();
-
-    Observable<List<String>> getVideoFilesFrame(String id);
-
-    Observable<List<String>> getFolderFilePaths(String name);
-
-    Observable<List<AudioFile>> getSelectedFolderAudioFiles(AudioFolder audioFolder);
 
     Callable<Integer> updateAudioFile(AudioFile audioFile);
 
-    void insertAudioFolder(AudioFolder audioFolder);
+    Callable<Integer> deleteAudioFile(AudioFile audioFile);
 
-    void updateAudioFolder(AudioFolder audioFolder);
-
-    Callable<Integer> deleteAudioFolderWithFiles(AudioFolder audioFolder);
-
-    void insertVideoFolder(VideoFolder videoFolder);
-
-    void updateVideoFolder(VideoFolder videoFolder);
-
-    Callable<Integer> deleteVideoFolderWithFiles(VideoFolder videoFolder);
-
-    void insertAudioFile(AudioFile audioFile);
-
+    /**
+     * Video files methods
+     */
     void insertVideoFile(VideoFile videoFile);
 
     Callable<Integer> updateVideoFile(VideoFile videoFile);
 
-    void updateSelectedAudioFolder(AudioFolder audioFolder);
+    Observable<List<VideoFile>> getVideoFiles(String id);
 
-    Callable<Integer> updateAudioFoldersIndex(List<AudioFolder> audioFolders);
+    Observable<List<String>> getVideoFilesFrame(String id);
 
-    Callable<Integer> updateVideoFoldersIndex(List<VideoFolder> videoFolders);
+    Callable<Integer> deleteVideoFile(VideoFile videoFile);
 
-    void updateSelectedAudioFile(AudioFile audioFile);
+    Observable<List<AudioFile>> getAudioFilePlaylist();
 
-    Callable<Integer> deleteAudioFile(String path);
-
-    Callable<Integer> deleteVideoFile(String path);
+    Observable<List<VideoFile>> getVideoFilePlaylist();
 
     Callable<Integer> clearPlaylist();
 
+    /**
+     * drop database
+     */
     Callable<Integer> resetVideoContentDatabase();
 
     Callable<Integer> resetAudioContentDatabase();
+
+
+    Observable<List<String>> getArtistsList();
+
+    Observable<List<String>> getGenresList();
+
 
     boolean containAudioTrack(String path);
 
     boolean containAudioFolder(String path);
 
     boolean containVideoFolder(String path);
+
+    Observable<List<String>> getFolderFilePaths(String name);
 
 }

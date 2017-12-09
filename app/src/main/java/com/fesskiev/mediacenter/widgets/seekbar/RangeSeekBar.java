@@ -335,7 +335,7 @@ public class RangeSeekBar<T extends Number> extends AppCompatImageView {
                 break;
             case MotionEvent.ACTION_POINTER_DOWN: {
                 final int index = event.getPointerCount() - 1;
-                // final int index = ev.getActionIndex();
+                // final int folderIndex = ev.getActionIndex();
                 downMotionX = event.getX(index);
                 activePointerId = event.getPointerId(index);
                 invalidate();

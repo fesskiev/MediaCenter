@@ -166,9 +166,9 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
     private void changeHiddenFolderState(boolean hidden) {
         disposable = repository.getVideoFiles(videoFolder.getId())
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(videoFiles -> updateHiddenVideoFolder(hidden))
                 .doOnNext(videoFiles -> updateHiddenVideoFiles(videoFiles, hidden))
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(videoFiles -> refreshCache());
     }
 

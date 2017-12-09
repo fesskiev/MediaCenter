@@ -95,8 +95,6 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
                     .doOnNext(this::updateFolderPath)
                     .subscribeOn(Schedulers.io())
                     .flatMap(toDir -> repository.getAudioTracks(audioFolder.getId())
-                            .firstOrError()
-                            .toObservable()
                             .doOnNext(audioFiles -> renameFiles(audioFiles, toDir))
                             .observeOn(AndroidSchedulers.mainThread())
                             .doOnNext(audioFiles -> refreshCache()))
@@ -169,9 +167,9 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
     private void changeHiddenFolderState(boolean hidden) {
         disposable = repository.getAudioTracks(audioFolder.getId())
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(audioFiles -> updateHiddenAudioFolder(hidden))
                 .doOnNext(audioFiles -> updateHiddenAudioFiles(audioFiles, hidden))
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(audioFiles -> refreshCache());
     }
 

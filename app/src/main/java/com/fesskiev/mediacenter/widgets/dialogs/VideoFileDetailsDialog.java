@@ -223,10 +223,10 @@ public class VideoFileDetailsDialog extends DialogFragment implements TextWatche
 
     private void changeHiddenFleState(boolean hide) {
         subscription = Observable.just(hide)
-                .doOnNext(this::updateHiddenVideoFilesState)
                 .subscribeOn(Schedulers.io())
+                .doOnNext(this::updateHiddenVideoFilesState)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(aBoolean -> refreshCache());
+                .subscribe(aBoolean -> refreshCache(), Throwable::printStackTrace);
     }
 
     private void refreshCache() {

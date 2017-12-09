@@ -97,15 +97,19 @@ public class CacheManager {
     }
 
 
-    public static void clearTempDir() {
-        File folder = new File(TEMP_PATH);
-        if (!folder.exists()) {
-            return;
-        }
-        try {
-            FileUtils.cleanDirectory(folder);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public static Callable<Boolean> clearTempDir() {
+        return () -> {
+            File folder = new File(TEMP_PATH);
+            if (!folder.exists()) {
+                return false;
+            }
+            try {
+                FileUtils.cleanDirectory(folder);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+            return true;
+        };
     }
 }

@@ -7,6 +7,8 @@ import com.fesskiev.mediacenter.utils.AppAnimationUtils;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.NotificationHelper;
 import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
+import com.fesskiev.mediacenter.utils.schedulers.BaseSchedulerProvider;
+import com.fesskiev.mediacenter.utils.schedulers.SchedulerProvider;
 
 import javax.inject.Singleton;
 
@@ -39,6 +41,12 @@ public class UtilsModule {
     @Singleton
     public AppAnimationUtils provideAppAnimationUtils(Context context) {
         return new AppAnimationUtils(context);
+    }
+
+    @Provides
+    @Singleton
+    public SchedulerProvider schedulerProvider(){
+        return new SchedulerProvider();
     }
 
 }

@@ -5,8 +5,8 @@ import android.content.Context;
 
 
 import com.fesskiev.mediacenter.data.source.local.LocalDataSource;
+import com.fesskiev.mediacenter.data.source.local.room.MediaCenterDb;
 import com.fesskiev.mediacenter.data.source.remote.RemoteDataSource;
-import com.squareup.sqlbrite2.BriteDatabase;
 
 import javax.inject.Singleton;
 
@@ -25,7 +25,7 @@ public class DataSourceModule {
 
     @Provides
     @Singleton
-    public LocalDataSource provideLocalDataSource(BriteDatabase database) {
+    public LocalDataSource provideLocalDataSource(MediaCenterDb database) {
         return new LocalDataSource(database);
     }
 

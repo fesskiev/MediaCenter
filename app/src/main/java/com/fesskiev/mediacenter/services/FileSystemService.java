@@ -450,14 +450,13 @@ public class FileSystemService extends Service {
 
             sendFolderDescription(videoFolder.folderName);
 
+            repository.insertVideoFolder(videoFolder);
             for (File path : videoPaths) {
                 VideoFile videoFile = new VideoFile(path, videoFolder.id);
 
                 repository.insertVideoFile(videoFile);
                 sendFileDescription(videoFile.description);
             }
-
-            repository.insertVideoFolder(videoFolder);
             sendFolderCreated(FetchFolderCreated.VIDEO);
 
         }
@@ -481,8 +480,9 @@ public class FileSystemService extends Service {
 
             sendFolderDescription(audioFolder.folderName);
 
+            repository.insertAudioFolder(audioFolder);
             for (File path : audioPaths) {
-                AudioFile audioFile = new AudioFile(getApplicationContext(), path, audioFolder.id);
+                AudioFile audioFile = new AudioFile(path, audioFolder.id);
                 File folderImage = audioFolder.folderImage;
                 if (folderImage != null) {
                     audioFile.folderArtworkPath = folderImage.getAbsolutePath();
@@ -491,8 +491,6 @@ public class FileSystemService extends Service {
                 repository.insertAudioFile(audioFile);
                 sendFileDescription(audioFile.artist + "-" + audioFile.title);
             }
-
-            repository.insertAudioFolder(audioFolder);
             sendFolderCreated(FetchFolderCreated.AUDIO);
         }
     }
@@ -586,8 +584,6 @@ public class FileSystemService extends Service {
 
         private void addVideoFileToCache(File file) {
             repository.getVideoFolderByPath(file.getParent())
-                    .firstOrError()
-                    .toObservable()
                     .subscribeOn(Schedulers.io())
                     .flatMap(videoFolder -> {
                         if (videoFolder != null) {
@@ -607,13 +603,10 @@ public class FileSystemService extends Service {
 
         private void addAudioFileToCache(File file) {
             repository.getAudioFolderByPath(file.getParent())
-                    .firstOrError()
-                    .toObservable()
                     .subscribeOn(Schedulers.io())
                     .flatMap(audioFolder -> {
                         if (audioFolder != null) {
-                            return Observable.just(new AudioFile(getApplicationContext(), file,
-                                    audioFolder.id));
+                            return Observable.just(new AudioFile(file, audioFolder.id));
                         }
                         return Observable.empty();
                     })
@@ -681,8 +674,7 @@ public class FileSystemService extends Service {
                         List<MediaFile> audioFiles = new ArrayList<>();
                         File[] audioPaths = parent.listFiles(audioFilter());
                         for (File p : audioPaths) {
-                            AudioFile audioFile = new AudioFile(getApplicationContext(), p,
-                                    audioFolder.id);
+                            AudioFile audioFile = new AudioFile(p, audioFolder.id);
                             File folderImage = audioFolder.folderImage;
                             if (folderImage != null) {
                                 audioFile.folderArtworkPath =

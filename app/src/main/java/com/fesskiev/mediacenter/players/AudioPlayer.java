@@ -11,10 +11,12 @@ import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.Playable;
 import com.fesskiev.mediacenter.utils.RxBus;
+import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.comparators.SortByDuration;
 import com.fesskiev.mediacenter.utils.comparators.SortByFileSize;
 import com.fesskiev.mediacenter.utils.comparators.SortByTimestamp;
 import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
+import com.fesskiev.mediacenter.utils.schedulers.SchedulerProvider;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +36,7 @@ public class AudioPlayer implements Playable {
     private Context context;
     private DataRepository repository;
     private RxBus rxBus;
+    private SchedulerProvider provider;
     private FFmpegHelper fFmpegHelper;
 
 
@@ -43,11 +46,12 @@ public class AudioPlayer implements Playable {
     private int position;
 
 
-    public AudioPlayer(Context context, RxBus rxBus,
-                       DataRepository repository, FFmpegHelper fFmpegHelper) {
+    public AudioPlayer(Context context, RxBus rxBus, DataRepository repository, SchedulerProvider provider,
+                       FFmpegHelper fFmpegHelper) {
         this.context = context;
         this.rxBus = rxBus;
         this.repository = repository;
+        this.provider = provider;
         this.fFmpegHelper = fFmpegHelper;
         trackListIterator = new TrackListIterator();
     }
@@ -77,10 +81,13 @@ public class AudioPlayer implements Playable {
                 currentTrack = audioFile;
 
                 audioFile.isSelected = true;
-                repository.updateSelectedAudioFile(audioFile);
-
-                openAudioFile();
-                notifyCurrentTrack();
+                RxUtils.fromCallable(repository.updateSelectedAudioFile(audioFile))
+                        .subscribeOn(provider.computation())
+                        .observeOn(provider.ui())
+                        .subscribe(Void -> {
+                            openAudioFile();
+                            notifyCurrentTrack();
+                        });
             }
         }
     }
@@ -93,10 +100,13 @@ public class AudioPlayer implements Playable {
                 currentTrack = audioFile;
 
                 audioFile.isSelected = true;
-                repository.updateSelectedAudioFile(audioFile);
-
-                openAudioFile();
-                notifyCurrentTrack();
+                RxUtils.fromCallable(repository.updateSelectedAudioFile(audioFile))
+                        .subscribeOn(provider.computation())
+                        .observeOn(provider.ui())
+                        .subscribe(Void -> {
+                            openAudioFile();
+                            notifyCurrentTrack();
+                        });
             }
         }
     }
@@ -161,22 +171,26 @@ public class AudioPlayer implements Playable {
         trackListIterator.findPosition();
 
         audioFile.isSelected = true;
-        repository.updateSelectedAudioFile(audioFile);
-
-        openAudioFile();
-        notifyCurrentTrack();
+        RxUtils.fromCallable(repository.updateSelectedAudioFile(audioFile))
+                .subscribeOn(provider.computation())
+                .observeOn(provider.ui())
+                .subscribe(Void -> {
+                    openAudioFile();
+                    notifyCurrentTrack();
+                });
     }
 
     public void setCurrentTrackList(AudioFolder audioFolder, List<AudioFile> audioFiles) {
         if (audioFiles != null) {
             currentTrackList = audioFiles;
         }
-
         if (audioFolder != null) {
             audioFolder.isSelected = true;
-            repository.updateSelectedAudioFolder(audioFolder);
+            RxUtils.fromCallable(repository.updateSelectedAudioFolder(audioFolder))
+                    .subscribeOn(provider.computation())
+                    .observeOn(provider.ui())
+                    .subscribe(Void -> notifyCurrentTrackList());
         }
-        notifyCurrentTrackList();
     }
 
     public void setSortingTrackList(List<AudioFile> audioFiles) {
@@ -223,11 +237,11 @@ public class AudioPlayer implements Playable {
         }
     }
 
-    private void notifyCurrentTrack(){
+    private void notifyCurrentTrack() {
         rxBus.sendCurrentTrackEvent(currentTrack);
     }
 
-    private void notifyCurrentTrackList(){
+    private void notifyCurrentTrackList() {
         rxBus.sendCurrentTrackListEvent(currentTrackList);
     }
 

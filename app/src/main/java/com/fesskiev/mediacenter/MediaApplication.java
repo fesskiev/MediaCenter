@@ -80,7 +80,7 @@ public class MediaApplication extends MultiDexApplication {
                 .appModule(new AppModule(getApplicationContext()))
                 .repositoryModule(new RepositoryModule())
                 .dataSourceModule(new DataSourceModule())
-                .databaseModule(new DatabaseModule())
+                .databaseModule(new DatabaseModule("MediaCenterDb"))
                 .networkModule(new NetworkModule("http://ws.audioscrobbler.com/2.0/"))
                 .utilsModule(new UtilsModule())
                 .rxBusModule(new RxBusModule())

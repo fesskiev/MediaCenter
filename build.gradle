@@ -53,7 +53,6 @@ ext {
     junitVersion = '4.12'
     uiautomator = '2.1.2'
     expandablecheckrecyclerview = '1.4'
-    sqlbrite = '2.0.0'
     fab = '1.6.4'
     exoplayer = 'r2.5.1'
     rxandroid = '2.0.1'

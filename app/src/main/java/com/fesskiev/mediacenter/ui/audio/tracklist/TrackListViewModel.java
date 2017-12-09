@@ -96,8 +96,6 @@ public class TrackListViewModel extends ViewModel {
 
         if (audioFilesObservable != null) {
             disposables.add(audioFilesObservable
-                    .firstOrError()
-                    .toObservable()
                     .subscribeOn(Schedulers.io())
                     .flatMap(Observable::fromIterable)
                     .filter(audioFile -> settingsManager.isShowHiddenFiles() || !audioFile.isHidden)
@@ -137,7 +135,7 @@ public class TrackListViewModel extends ViewModel {
     public void deleteAudioFile(AudioFile audioFile, int position) {
         disposables.add(RxUtils.fromCallable(CacheManager.deleteFile(audioFile.filePath))
                 .subscribeOn(Schedulers.io())
-                .flatMap(result -> RxUtils.fromCallable(repository.deleteAudioFile(audioFile.getFilePath())))
+                .flatMap(result -> RxUtils.fromCallable(repository.deleteAudioFile(audioFile)))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(integer -> notifyDeleteAudioFile(position)));
     }

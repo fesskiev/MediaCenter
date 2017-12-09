@@ -1,26 +1,27 @@
 package com.fesskiev.mediacenter.di;
 
+import android.arch.persistence.room.Room;
 import android.content.Context;
 
-import com.fesskiev.mediacenter.data.source.local.db.DatabaseHelper;
-import com.squareup.sqlbrite2.BriteDatabase;
-import com.squareup.sqlbrite2.SqlBrite;
+import com.fesskiev.mediacenter.data.source.local.room.MediaCenterDb;
 
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import io.reactivex.schedulers.Schedulers;
 
 @Module
 public class DatabaseModule {
+    private String databaseName;
+
+    public DatabaseModule(String databaseName) {
+        this.databaseName = databaseName;
+    }
 
     @Provides
     @Singleton
-    public BriteDatabase provideRoomDatabase(Context context) {
-        DatabaseHelper dbHelper = new DatabaseHelper(context);
-        SqlBrite sqlBrite = new SqlBrite.Builder().build();
-        return sqlBrite.wrapDatabaseHelper(dbHelper, Schedulers.io());
+    public MediaCenterDb provideRoomDatabase(Context context) {
+        return Room.databaseBuilder(context, MediaCenterDb.class, databaseName).build();
     }
 
 }
