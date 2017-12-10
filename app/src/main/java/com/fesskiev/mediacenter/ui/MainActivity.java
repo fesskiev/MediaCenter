@@ -128,7 +128,6 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
     private int height;
 
     private boolean startForeground;
-    private boolean isShow = true;
 
     private FileSystemService boundService;
     private boolean serviceBound;
@@ -255,6 +254,7 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
         showEmptyFolderCard();
         observeData();
         observeFetchData();
+        bindFileSystemService();
     }
 
     private void observeData() {
@@ -326,7 +326,6 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
     @Override
     protected void onStart() {
         super.onStart();
-        bindFileSystemService();
         mediaNavigationView.postDelayed(this::makeGuideIfNeed, 1500);
     }
 
@@ -385,12 +384,12 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
     @Override
     protected void onStop() {
         super.onStop();
-        unbindFileSystemService();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unbindFileSystemService();
         unregisterRefreshFragmentsReceiver();
     }
 
@@ -431,20 +430,6 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
         if (startForeground) {
             PlaybackService.stopPlaybackForegroundService(getApplicationContext());
             startForeground = false;
-        }
-    }
-
-    public void showPlayback() {
-        if (!isShow) {
-            bottomSheetBehavior.setPeekHeight(height);
-            isShow = true;
-        }
-    }
-
-    public void hidePlayback() {
-        if (isShow) {
-            bottomSheetBehavior.setPeekHeight(0);
-            isShow = false;
         }
     }
 
@@ -859,12 +844,10 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
             case R.id.audio_content:
                 checkAudioContentItem();
                 addAudioFragment();
-                showPlayback();
                 break;
             case R.id.video_content:
                 checkVideoContentItem();
                 addVideoFragment();
-                hidePlayback();
                 break;
         }
 
@@ -933,9 +916,6 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
         mainViewModel.dropEffects();
         mainViewModel.killFFmpeg();
 
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
         finish();
     }
 

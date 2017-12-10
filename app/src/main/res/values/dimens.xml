@@ -50,4 +50,6 @@
 
     <dimen name="default_spacing_small">4dp</dimen>
 
+    <dimen name="from_bottom_sheet_padding">80dp</dimen>
+
 </resources>

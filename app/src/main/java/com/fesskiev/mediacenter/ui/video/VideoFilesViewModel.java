@@ -95,7 +95,7 @@ public class VideoFilesViewModel extends ViewModel {
             videoPlayer.setVideoFiles(videoFilesLiveData.getValue());
             videoPlayer.setCurrentVideoFile(videoFile);
 
-            audioPlayer.pause();
+//            audioPlayer.pause();
             return true;
         }
         notExistFileLiveData.call();

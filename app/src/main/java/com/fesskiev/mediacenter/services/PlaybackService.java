@@ -548,7 +548,7 @@ public class PlaybackService extends Service {
                 }
             }
         }
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     private void makeWearModule() {
@@ -1038,7 +1038,7 @@ public class PlaybackService extends Service {
     }
 
     private void sendPlaybackEvent() {
-        rxBus.sendPlaybackEvent(PlaybackService.this);
+        rxBus.sendAudioPlaybackEvent(PlaybackService.this);
     }
 
     public float getPositionPercent() {

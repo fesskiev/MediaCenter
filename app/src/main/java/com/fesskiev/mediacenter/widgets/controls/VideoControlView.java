@@ -377,7 +377,7 @@ public class VideoControlView extends FrameLayout {
 
 
     public void setVideoTrackInfo(ExoPlayerWrapper exoPlayerWrapper, Set<RendererState> rendererStates) {
-        SimpleExoPlayer player = exoPlayerWrapper.getPlayer();
+        SimpleExoPlayer player = exoPlayerWrapper.getExoPlayer();
         this.selector = exoPlayerWrapper.getTrackSelector();
         this.adaptiveVideoTrackSelectionFactory = exoPlayerWrapper.getTrackSelectionFactory();
 
@@ -854,6 +854,7 @@ public class VideoControlView extends FrameLayout {
         audioTrackView.setVisibility(INVISIBLE);
         videoTrackView.setVisibility(INVISIBLE);
         subTrackView.setVisibility(INVISIBLE);
+        cutVideoButton.setVisibility(INVISIBLE);
     }
 
     public void showControls() {
@@ -875,6 +876,7 @@ public class VideoControlView extends FrameLayout {
         audioTrackView.setVisibility(VISIBLE);
         videoTrackView.setVisibility(VISIBLE);
         subTrackView.setVisibility(VISIBLE);
+        cutVideoButton.setVisibility(VISIBLE);
     }
 
     private void showControl() {

@@ -5,6 +5,7 @@ import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.services.PlaybackService;
+import com.fesskiev.mediacenter.services.VideoPlaybackService;
 
 import java.util.List;
 
@@ -13,7 +14,8 @@ import io.reactivex.subjects.PublishSubject;
 
 public final class RxBus {
 
-    private final PublishSubject<PlaybackService> busPlayback = PublishSubject.create();
+    private final PublishSubject<PlaybackService> busAudioPlayback = PublishSubject.create();
+    private final PublishSubject<VideoPlaybackService> busVideoPlayback = PublishSubject.create();
     private final PublishSubject<FileSystemService> busFileSystem = PublishSubject.create();
 
     private final PublishSubject<List<AudioFile>> busCurrentTrackList = PublishSubject.create();
@@ -27,9 +29,15 @@ public final class RxBus {
         }
     }
 
-    public void sendPlaybackEvent(final PlaybackService event) {
-        if (busPlayback.hasObservers()) {
-            busPlayback.onNext(event);
+    public void sendAudioPlaybackEvent(final PlaybackService event) {
+        if (busAudioPlayback.hasObservers()) {
+            busAudioPlayback.onNext(event);
+        }
+    }
+
+    public void sendVideoPlaybackEvent(final VideoPlaybackService event) {
+        if (busVideoPlayback.hasObservers()) {
+            busVideoPlayback.onNext(event);
         }
     }
 
@@ -51,8 +59,12 @@ public final class RxBus {
         }
     }
 
-    public Observable<PlaybackService> toPlaybackObservable() {
-        return busPlayback;
+    public Observable<PlaybackService> toAudioPlaybackObservable() {
+        return busAudioPlayback;
+    }
+
+    public Observable<VideoPlaybackService> toVideoPlaybackObservable() {
+        return busVideoPlayback;
     }
 
     public Observable<FileSystemService> toFileSystemObservable() {

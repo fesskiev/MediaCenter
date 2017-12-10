@@ -43,7 +43,6 @@ public class AppSettingsManager {
 
     private static final String KEY_RENDERER_STATE = "com.fesskiev.player.KEY_RENDERER_STATE";
 
-    private static final String KEY_MEDIA_CONTENT_UPDATE_TIME = "com.fesskiev.player.KEY_MEDIA_CONTENT_UPDATE_TIME";
     private static final String KEY_SHOW_HIDDEN_FILES = "com.fesskiev.player.KEY_SHOW_HIDDEN_FILES";
     private static final String KEY_RECORD_PATH = "com.fesskiev.player.KEY_RECORD_PATH";
     private static final String KEY_CUE_PATH = "com.fesskiev.player.KEY_CUE_PATH";
@@ -58,6 +57,7 @@ public class AppSettingsManager {
     private static final String KEY_GUIDE_TRACK_LIST_ACTIVITY = "com.fesskiev.player.KEY_GUIDE_TRACK_LIST_ACTIVITY";
     private static final String KEY_GUIDE_AUDIO_PLAYER_ACTIVITY = "com.fesskiev.player.KEY_GUIDE_AUDIO_PLAYER_ACTIVITY";
     private static final String KEY_GUIDE_VIDEO_PLAYER_ACTIVITY = "com.fesskiev.player.KEY_GUIDE_VIDEO_PLAYER_ACTIVITY";
+    private static final String KEY_BACKGROUND_AUDIO = "com.fesskiev.player.KEY_BACKGROUND_AUDIO";
 
     private SharedPreferences sharedPreferences;
 
@@ -203,15 +203,6 @@ public class AppSettingsManager {
         editor.apply();
     }
 
-    public long getMediaContentUpdateTime() {
-        return sharedPreferences.getInt(KEY_MEDIA_CONTENT_UPDATE_TIME, 0);
-    }
-
-    public void setMediaContentUpdateTime(int update) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt(KEY_MEDIA_CONTENT_UPDATE_TIME, update);
-        editor.apply();
-    }
 
     public int getSortType() {
         return sharedPreferences.getInt(KEY_SORT_TYPE, 3);
@@ -323,6 +314,16 @@ public class AppSettingsManager {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(KEY_GUIDE_VIDEO_PLAYER_ACTIVITY, need);
         editor.apply();
+    }
+
+    public void setAudioBackgroundPlayback(boolean play) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_BACKGROUND_AUDIO, play);
+        editor.apply();
+    }
+
+    public boolean isAudioBackgroundPlayback() {
+        return sharedPreferences.getBoolean(KEY_BACKGROUND_AUDIO, false);
     }
 
     public boolean isNeedGuide() {

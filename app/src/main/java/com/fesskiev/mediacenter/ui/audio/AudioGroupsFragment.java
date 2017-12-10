@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -20,9 +21,7 @@ import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.Group;
 import com.fesskiev.mediacenter.data.model.GroupItem;
 import com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity;
-import com.fesskiev.mediacenter.ui.HidingPlaybackFragment;
 import com.fesskiev.mediacenter.utils.AppAnimationUtils;
-import com.fesskiev.mediacenter.widgets.recycleview.HidingScrollListener;
 import com.thoughtbot.expandablecheckrecyclerview.CheckableChildRecyclerViewAdapter;
 import com.thoughtbot.expandablecheckrecyclerview.models.CheckedExpandableGroup;
 import com.thoughtbot.expandablecheckrecyclerview.viewholders.CheckableChildViewHolder;
@@ -39,7 +38,7 @@ import static com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity.EXTR
 import static com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity.EXTRA_CONTENT_TYPE_VALUE;
 
 
-public class AudioGroupsFragment extends HidingPlaybackFragment implements AudioContent {
+public class AudioGroupsFragment extends Fragment implements AudioContent {
 
     public static AudioGroupsFragment newInstance() {
         return new AudioGroupsFragment();
@@ -84,22 +83,6 @@ public class AudioGroupsFragment extends HidingPlaybackFragment implements Audio
 
         recyclerView = view.findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new NpaLinearLayoutManager(getContext()));
-        recyclerView.addOnScrollListener(new HidingScrollListener() {
-            @Override
-            public void onHide() {
-                hidePlaybackControl();
-            }
-
-            @Override
-            public void onShow() {
-                showPlaybackControl();
-            }
-
-            @Override
-            public void onItemPosition(int position) {
-
-            }
-        });
     }
 
     private void observeData() {

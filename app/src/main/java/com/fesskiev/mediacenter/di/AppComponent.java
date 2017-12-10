@@ -4,6 +4,7 @@ package com.fesskiev.mediacenter.di;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.services.PlaybackService;
+import com.fesskiev.mediacenter.services.VideoPlaybackService;
 import com.fesskiev.mediacenter.ui.MainActivity;
 import com.fesskiev.mediacenter.ui.MainViewModel;
 
@@ -108,6 +109,7 @@ public interface AppComponent {
     void inject(EditTrackDialog dialog);
 
     void inject(PlaybackService service);
+    void inject(VideoPlaybackService service);
     void inject(FileSystemService service);
 
     void inject(MediaApplication application);

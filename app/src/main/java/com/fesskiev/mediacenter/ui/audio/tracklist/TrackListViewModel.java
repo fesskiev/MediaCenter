@@ -63,7 +63,7 @@ public class TrackListViewModel extends ViewModel {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::notifyCurrentTrack, Throwable::printStackTrace));
 
-        disposables.add(rxBus.toPlaybackObservable()
+        disposables.add(rxBus.toAudioPlaybackObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::notifyPlayback, Throwable::printStackTrace));
     }

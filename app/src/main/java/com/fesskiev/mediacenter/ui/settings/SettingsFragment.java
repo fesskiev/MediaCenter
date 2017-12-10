@@ -3,7 +3,6 @@ package com.fesskiev.mediacenter.ui.settings;
 
 import android.content.Intent;
 import android.graphics.Typeface;
-import android.graphics.drawable.Animatable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,15 +12,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.ui.chooser.FileSystemChooserActivity;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
-import com.fesskiev.mediacenter.widgets.settings.MediaContentUpdateTimeView;
 
 import javax.inject.Inject;
 
@@ -57,6 +53,7 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
 
         SwitchCompat[] switches = new SwitchCompat[]{
                 view.findViewById(R.id.playHeadsetPlugInSwitch),
+                view.findViewById(R.id.audioBackgroundPlaybackSwitch),
                 view.findViewById(R.id.showHiddenFilesSwitch),
                 view.findViewById(R.id.fullScreenSwitch),
                 view.findViewById(R.id.enableAppGuideSwitch)
@@ -71,28 +68,6 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
         recordSavePath.setText(settingsManager.getRecordPath());
 
         view.findViewById(R.id.recordContainer).setOnClickListener(v -> startChooserActivity());
-
-        MediaContentUpdateTimeView contentUpdateTimeView
-                = view.findViewById(R.id.mediaContentUpdateTime);
-        contentUpdateTimeView.setSelectedUpdateTimeType(settingsManager);
-        contentUpdateTimeView.setOnMediaContentTimeUpdateListener(new MediaContentUpdateTimeView
-                .OnMediaContentTimeUpdateListener() {
-            @Override
-            public void onUpdateByTime(int time) {
-                startBackgroundJob(time);
-            }
-
-            @Override
-            public void onCancelUpdateByTime() {
-                stopBackgroundJob();
-            }
-        });
-
-        ImageView timerView = view.findViewById(R.id.timerView);
-        view.findViewById(R.id.searchFilesTitleContainer).setOnClickListener(v -> {
-            ((Animatable) timerView.getDrawable()).start();
-            contentUpdateTimeView.toggleWithAnimate();
-        });
 
         setSettingsState(switches);
         for (SwitchCompat switchCompat : switches) {
@@ -135,6 +110,9 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
                 case R.id.enableAppGuideSwitch:
                     switchCompat.setChecked(settingsManager.isNeedGuide());
                     break;
+                case R.id.audioBackgroundPlaybackSwitch:
+                    settingsManager.isAudioBackgroundPlayback();
+                    break;
             }
         }
     }
@@ -148,6 +126,9 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
             case R.id.playHeadsetPlugInSwitch:
                 settingsManager.setPlayPlugInHeadset(isChecked);
                 break;
+            case R.id.audioBackgroundPlaybackSwitch:
+                settingsManager.setAudioBackgroundPlayback(isChecked);
+                break;
             case R.id.showHiddenFilesSwitch:
                 settingsManager.setShowHiddenFiles(isChecked);
                 break;
@@ -155,13 +136,5 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
                 settingsManager.setNeedGuide(isChecked);
                 break;
         }
-    }
-
-    private void startBackgroundJob(int periodic) {
-//        FileSystemService.scheduleJob(getContext().getApplicationContext(), periodic);
-    }
-
-    private void stopBackgroundJob() {
-//        FileSystemService.cancelJob(getContext().getApplicationContext());
     }
 }

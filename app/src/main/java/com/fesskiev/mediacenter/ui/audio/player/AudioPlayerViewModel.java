@@ -72,7 +72,7 @@ public class AudioPlayerViewModel extends ViewModel {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::setCurrentTrack, Throwable::printStackTrace));
 
-        disposables.add(rxBus.toPlaybackObservable()
+        disposables.add(rxBus.toAudioPlaybackObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::notifyPlayback, Throwable::printStackTrace));
 

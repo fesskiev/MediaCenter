@@ -4,13 +4,10 @@
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="com.android.vending.BILLING" />
 
@@ -37,19 +34,16 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Player">
-
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity
-            android:name=".ui.splash.SplashActivity">
+        <activity android:name=".ui.splash.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -60,9 +54,7 @@
                 <data android:scheme="file" />
                 <data android:mimeType="audio/*" />
             </intent-filter>
-
         </activity>
-
         <activity
             android:name=".ui.search.SearchActivity"
             android:theme="@style/Base.Theme.Player.Search">
@@ -82,13 +74,10 @@
 
         <activity
             android:name=".ui.video.player.VideoExoPlayerActivity"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:supportsPictureInPicture="true"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
             android:theme="@style/Base.Theme.Player.VideoExoPlayer">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.fesskiev.mediacenter.ui.MainActivity" />
 
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -98,93 +87,87 @@
 
                 <data android:scheme="http" />
                 <data android:scheme="https" />
-
                 <data android:scheme="content" />
                 <data android:scheme="file" />
                 <data android:mimeType="video/*" />
-
                 <data android:pathPattern=".*mkv" />
                 <data android:pathPattern=".*MKV" />
-
                 <data android:pathPattern=".*ts" />
                 <data android:pathPattern=".*TS" />
-
             </intent-filter>
 
         </activity>
 
         <activity
             android:name=".ui.MainActivity"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTop" />
 
-        <activity
-            android:name=".ui.walkthrough.WalkthroughActivity"/>
+        <activity android:name=".ui.walkthrough.WalkthroughActivity" />
 
         <activity
             android:name=".ui.audio.tracklist.TrackListActivity"
-            android:windowSoftInputMode="adjustResize"/>
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".ui.wear.WearActivity"
-            android:theme="@style/ActivityDialog.Theme.MediaCenter"/>
+            android:theme="@style/ActivityDialog.Theme.MediaCenter" />
 
         <activity
             android:name=".ui.cue.CueActivity"
-            android:windowSoftInputMode="adjustResize"/>
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".ui.video.VideoFilesActivity"
-            android:windowSoftInputMode="adjustResize"/>
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".ui.audio.player.AudioPlayerActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
 
-        <activity
-            android:name=".ui.effects.EffectsActivity"/>
+        <activity android:name=".ui.effects.EffectsActivity" />
 
         <activity
             android:name=".ui.about.AboutActivity"
-            android:theme="@style/ActivityDialog.Theme.MediaCenter"/>
+            android:theme="@style/ActivityDialog.Theme.MediaCenter" />
 
-        <activity
-            android:name=".ui.settings.SettingsActivity"/>
+        <activity android:name=".ui.settings.SettingsActivity" />
 
-        <activity
-            android:name=".ui.playlist.PlayListActivity"/>
+        <activity android:name=".ui.playlist.PlayListActivity" />
 
         <activity
             android:name=".ui.converter.ConverterActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
 
         <activity
             android:name=".ui.search.AlbumSearchActivity"
-            android:theme="@style/ActivitySearchAlbum.Theme"/>
+            android:theme="@style/ActivitySearchAlbum.Theme" />
 
         <activity
             android:name=".ui.audio.tracklist.PlayerTrackListActivity"
-            android:theme="@style/ActivityDialog.Theme.MediaCenter"/>
+            android:theme="@style/ActivityDialog.Theme.MediaCenter" />
 
         <activity
             android:name=".ui.cut.CutMediaActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"/>
+            android:configChanges="keyboardHidden|orientation|screenSize" />
 
         <activity
             android:name=".ui.chooser.FileSystemChooserActivity"
-            android:theme="@style/ActivityDialog.Theme.MediaCenter"/>
+            android:theme="@style/ActivityDialog.Theme.MediaCenter" />
 
         <activity
             android:name=".ui.billing.InAppBillingActivity"
-            android:theme="@style/ActivityDialog.Theme.MediaCenter"/>
+            android:theme="@style/ActivityDialog.Theme.MediaCenter" />
 
         <service
             android:name=".services.FileSystemService"
-            android:exported="false"/>
-
+            android:exported="false" />
         <service
             android:name=".services.PlaybackService"
             android:exported="false" />
+        <service
+            android:name=".services.VideoPlaybackService"
+            android:exported="false"/>
 
     </application>
 

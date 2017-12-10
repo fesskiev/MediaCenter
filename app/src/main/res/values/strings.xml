@@ -128,7 +128,7 @@
     <string name="settings_media_title">Media</string>
     <string name="settings_download_title">Downloading</string>
     <string name="settings_play_music">Play music when headphone plugged</string>
-    <string name="settings_searching_files">Background file search</string>
+    <string name="settings_background_audio">Play audio in background</string>
     <string name="settings_view_title">View</string>
     <string name="settings_view_full_scree_enable">Enable full screen mode for audio player</string>
     <string name="settings_view_enable_app_guide">Enable app guide</string>
@@ -224,12 +224,6 @@
 
     <string name="dialog_text_stop_fetch">Are you sure yo want stop searching and exit from app ?</string>
 
-    <string name="update_no_period">Do not search files</string>
-    <string name="update_period_30_minutes">30 minutes</string>
-    <string name="update_period_1_hour">1 hours</string>
-    <string name="update_period_3_hours">3 hours</string>
-    <string name="update_period_6_hours">6 hours</string>
-    <string name="update_period_24_hours">24 hours</string>
 
     <string name="sort_by_duration">Duration</string>
     <string name="sort_by_file_size">File size</string>

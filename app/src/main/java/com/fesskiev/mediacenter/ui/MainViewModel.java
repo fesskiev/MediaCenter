@@ -99,7 +99,7 @@ public class MainViewModel extends ViewModel {
     }
 
     private void observeEvents() {
-        disposables.add(rxBus.toPlaybackObservable()
+        disposables.add(rxBus.toAudioPlaybackObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::notifyPlayback, Throwable::printStackTrace));
 

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -22,7 +23,6 @@ import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.ui.MainActivity;
-import com.fesskiev.mediacenter.ui.HidingPlaybackFragment;
 import com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity;
 import com.fesskiev.mediacenter.ui.search.AlbumSearchActivity;
 import com.fesskiev.mediacenter.utils.AppAnimationUtils;
@@ -35,7 +35,6 @@ import com.fesskiev.mediacenter.widgets.dialogs.SimpleDialog;
 import com.fesskiev.mediacenter.widgets.item.AudioCardView;
 import com.fesskiev.mediacenter.widgets.menu.ContextMenuManager;
 import com.fesskiev.mediacenter.widgets.menu.FolderContextMenu;
-import com.fesskiev.mediacenter.widgets.recycleview.HidingScrollListener;
 import com.fesskiev.mediacenter.widgets.recycleview.ItemOffsetDecoration;
 import com.fesskiev.mediacenter.widgets.recycleview.helper.ItemTouchHelperAdapter;
 import com.fesskiev.mediacenter.widgets.recycleview.helper.ItemTouchHelperViewHolder;
@@ -54,7 +53,7 @@ import static com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity.EXTR
 import static com.fesskiev.mediacenter.ui.audio.tracklist.TrackListActivity.EXTRA_CONTENT_TYPE;
 
 
-public class AudioFoldersFragment extends HidingPlaybackFragment implements AudioContent {
+public class AudioFoldersFragment extends Fragment implements AudioContent {
 
     public static AudioFoldersFragment newInstance() {
         return new AudioFoldersFragment();
@@ -105,24 +104,6 @@ public class AudioFoldersFragment extends HidingPlaybackFragment implements Audi
         adapter = new AudioFoldersAdapter(this);
         recyclerView.setAdapter(adapter);
         recyclerView.addItemDecoration(new ItemOffsetDecoration(spacing));
-
-        recyclerView.addOnScrollListener(new HidingScrollListener() {
-            @Override
-            public void onHide() {
-                hidePlaybackControl();
-            }
-
-            @Override
-            public void onShow() {
-                showPlaybackControl();
-            }
-
-            @Override
-            public void onItemPosition(int position) {
-
-            }
-        });
-
 
         emptyAudioContent = view.findViewById(R.id.emptyAudioContentCard);
 

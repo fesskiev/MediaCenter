@@ -7,9 +7,11 @@ import android.app.PictureInPictureParams;
 import android.app.RemoteAction;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.drawable.Icon;
@@ -17,8 +19,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
+import android.os.IBinder;
 import android.provider.DocumentsContract;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -30,29 +31,19 @@ import android.view.View;
 
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.VideoFile;
+import com.fesskiev.mediacenter.services.VideoPlaybackService;
 import com.fesskiev.mediacenter.utils.AppGuide;
 import com.fesskiev.mediacenter.utils.Utils;
 import com.fesskiev.mediacenter.widgets.controls.VideoControlView;
-import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
-import com.google.android.exoplayer2.util.Util;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 
 @TargetApi(Build.VERSION_CODES.O)
 public class VideoExoPlayerActivity extends AppCompatActivity {
 
     private static final String TAG = VideoExoPlayerActivity.class.getSimpleName();
-
-    private Handler handler = new Handler() {
-        public void handleMessage(Message msg) {
-            updateProgressControls();
-        }
-    };
-
 
     private static final int CONTROL_TYPE_PLAY = 1;
     private static final int CONTROL_TYPE_PAUSE = 2;
@@ -63,16 +54,12 @@ public class VideoExoPlayerActivity extends AppCompatActivity {
     private static final String ACTION_MEDIA_CONTROL = "com.fesskiev.player.ACTION_MEDIA_CONTROL";
     private static final String EXTRA_CONTROL_TYPE = "com.fesskiev.player.EXTRA_CONTROL_TYPE";
 
-    public static final String BUNDLE_PLAYER_POSITION = "com.fesskiev.player.BUNDLE_PLAYER_POSITION";
-    public static final String BUNDLE_AUTO_PLAY = "com.fesskiev.player.BUNDLE_AUTO_PLAY";
-
     public static final String ACTION_VIEW_URI = "com.fesskiev.player.action.VIEW_LIST";
     public static final String URI_EXTRA = "com.fesskiev.player.URI_EXTRA";
     public static final String VIDEO_NAME_EXTRA = "com.fesskiev.player.VIDEO_NAME_EXTRA";
     public static final String SUB_EXTRA = "com.fesskiev.player.SUB_EXTRA";
 
     private VideoExoPlayerViewModel viewModel;
-    private ExoPlayerWrapper player;
 
     private AppGuide appGuide;
 
@@ -81,13 +68,13 @@ public class VideoExoPlayerActivity extends AppCompatActivity {
 
     private SimpleExoPlayerView simpleExoPlayerView;
 
-    private Timer timer;
-
     private String currentVideoPath;
     private String currentVideoName;
 
     private BroadcastReceiver pictureInPictureReceiver;
-    private int durationScale;
+
+    private VideoPlaybackService playbackService;
+    private boolean serviceBound;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,29 +82,14 @@ public class VideoExoPlayerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_video_exo_player);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 
-        player = new ExoPlayerWrapper(getApplicationContext());
-        player.setErrorListener(this::showErrorShackBar);
-        player.setPlaybackStateChangedListener(playbackState -> {
-            if (playbackState == Player.STATE_READY) {
-                videoControlView.setVideoTimeTotal(Utils.getVideoFileTimeFormat(player.getDuration()));
-                updateProgressControls();
-                startUpdateTimer();
-                videoControlView.setVideoTrackInfo(player, viewModel.getRendererState());
-            }
-        });
-
-        if (savedInstanceState != null) {
-            player.setPlayerPosition(savedInstanceState.getLong(BUNDLE_PLAYER_POSITION));
-            player.setShouldAutoPlay(savedInstanceState.getBoolean(BUNDLE_AUTO_PLAY));
-        }
-
         gestureDetector = new GestureDetector(getApplicationContext(), new GestureListener());
 
         videoControlView = findViewById(R.id.videoPlayerControl);
+        videoControlView.setPlay(true);
         videoControlView.setOnVideoPlayerControlListener(new VideoControlView.OnVideoPlayerControlListener() {
             @Override
             public void playPauseButtonClick(boolean isPlaying) {
-                player.setPlayWhenReady(isPlaying);
+                setPlayback(isPlaying);
                 updatePictureInPictureState(isPlaying);
             }
 
@@ -128,7 +100,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity {
 
             @Override
             public void seekVideo(int progress) {
-                player.seekTo(progress * durationScale);
+                seekVideoFile(progress);
             }
 
             @Override
@@ -154,23 +126,99 @@ public class VideoExoPlayerActivity extends AppCompatActivity {
             }
         });
 
-        videoControlView.setPlay(player.isShouldAutoPlay());
-
         simpleExoPlayerView = findViewById(R.id.videoView);
         simpleExoPlayerView.setUseController(false);
         simpleExoPlayerView.requestFocus();
-
         simpleExoPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH);
+
+
         videoControlView.setResizeModeState(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH);
         observeData();
         videoControlView.setProFutures(viewModel.isProUser());
     }
 
+    private void seekVideoFile(int progress) {
+        if (playbackService != null && serviceBound) {
+            playbackService.seekTo(progress);
+        }
+    }
+
+    private void stopPlayback() {
+        if (playbackService != null && serviceBound) {
+            playbackService.stopPlayback();
+        }
+    }
+
+    private void setPlayback(boolean playing) {
+        if (playbackService != null && serviceBound) {
+            playbackService.setPlayback(playing);
+        }
+    }
+
+    private boolean getPlayback() {
+        if (playbackService != null && serviceBound) {
+            return playbackService.getPlayback();
+        }
+        return false;
+    }
+
+    private void bindVideoPlaybackService() {
+        Intent intent = new Intent(this, VideoPlaybackService.class);
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    private void unbindVideoPlaybackService() {
+        if (serviceBound) {
+            unbindService(serviceConnection);
+            serviceBound = false;
+        }
+    }
+
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            serviceBound = false;
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            VideoPlaybackService.VideoPlaybackServiceBinder binder =
+                    (VideoPlaybackService.VideoPlaybackServiceBinder) service;
+            playbackService = binder.getService();
+            serviceBound = true;
+            initializePlayer();
+        }
+    };
+
     private void observeData() {
         viewModel = ViewModelProviders.of(this).get(VideoExoPlayerViewModel.class);
         viewModel.getCurrentVideoFileLiveData().observe(this, this::setCurrentVideoFile);
-        viewModel.getFirstVideoFileLiveData().observe(this, this::setFirstVideoFileView);
-        viewModel.getLastVideoFileLiveData().observe(this, this::setLastVideoFileView);
+        viewModel.getFirstVideoFileLiveData().observe(this, this::setFirstVideoFile);
+        viewModel.getLastVideoFileLiveData().observe(this, this::setLastVideoFile);
+        viewModel.getPositionLiveData().observe(this, this::setPosition);
+        viewModel.getProgressLiveData().observe(this, this::setProgress);
+        viewModel.getPlayingLiveData().observe(this, this::setPlaying);
+        viewModel.getErrorMessageLiveData().observe(this, this::showErrorShackBar);
+        viewModel.getInitLiveData().observe(this, Void -> initVideoTrackInfo());
+    }
+
+    private void initVideoTrackInfo() {
+        ExoPlayerWrapper player = playbackService.getExoPlayerWrapper();
+        videoControlView.setVideoTimeTotal(Utils.getVideoFileTimeFormat(player.getDuration()));
+        videoControlView.setVideoTrackInfo(player, viewModel.getRendererState());
+    }
+
+    private void setPlaying(boolean playing) {
+        videoControlView.setPlay(playing);
+    }
+
+    private void setProgress(long progress) {
+        videoControlView.setProgress((int) progress);
+    }
+
+    private void setPosition(long position) {
+        videoControlView.setVideoTimeCount(Utils.getVideoFileTimeFormat(position));
     }
 
     private void updatePictureInPictureState(boolean isPlaying) {
@@ -188,9 +236,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity {
     private void minimize() {
         videoControlView.hideControls();
         videoControlView.setPlay(false);
-        if (player.getPlayWhenReady()) {
-            player.setPlayWhenReady(false);
-        }
+        stopPlayback();
 
         Rational aspectRatio = new Rational(videoControlView.getHeight(), videoControlView.getWidth());
 
@@ -205,9 +251,8 @@ public class VideoExoPlayerActivity extends AppCompatActivity {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode);
         videoControlView.setPictureInPicture(isInPictureInPictureMode);
         if (isInPictureInPictureMode) {
-            if (player != null) {
-                updatePictureInPictureState(player.getPlayWhenReady());
-            }
+            updatePictureInPictureState(getPlayback());
+
 
             pictureInPictureReceiver = new BroadcastReceiver() {
                 @Override
@@ -218,12 +263,12 @@ public class VideoExoPlayerActivity extends AppCompatActivity {
                     final int controlType = intent.getIntExtra(EXTRA_CONTROL_TYPE, 0);
                     switch (controlType) {
                         case CONTROL_TYPE_PLAY:
-                            player.setPlayWhenReady(true);
+                            setPlayback(true);
                             updatePictureInPictureActions(R.drawable.ic_pause_24dp,
                                     "Pause", CONTROL_TYPE_PAUSE, REQUEST_PAUSE);
                             break;
                         case CONTROL_TYPE_PAUSE:
-                            player.setPlayWhenReady(false);
+                            setPlayback(false);
                             updatePictureInPictureActions(R.drawable.ic_play_24dp,
                                     "Play", CONTROL_TYPE_PLAY, REQUEST_PLAY);
                             break;
@@ -232,11 +277,11 @@ public class VideoExoPlayerActivity extends AppCompatActivity {
             };
             registerReceiver(pictureInPictureReceiver, new IntentFilter(ACTION_MEDIA_CONTROL));
         } else {
-            if (player != null) {
-                boolean shouldAutoPlay = player.getPlayWhenReady();
-                videoControlView.setPlay(shouldAutoPlay);
-                updatePictureInPictureState(shouldAutoPlay);
-            }
+
+            boolean shouldAutoPlay = getPlayback();
+            videoControlView.setPlay(shouldAutoPlay);
+            updatePictureInPictureState(shouldAutoPlay);
+
             videoControlView.showControls();
 
             unregisterReceiver(pictureInPictureReceiver);
@@ -277,8 +322,9 @@ public class VideoExoPlayerActivity extends AppCompatActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         videoControlView.resetIndicators();
-        player.releasePlayer();
+        releasePlayer();
         setIntent(intent);
+        initializePlayer();
     }
 
     @Override
@@ -292,12 +338,14 @@ public class VideoExoPlayerActivity extends AppCompatActivity {
                 final String type = split[0];
 
                 if ("primary".equalsIgnoreCase(type)) {
+                    releasePlayer();
                     Intent intent = new Intent();
                     intent.putExtra(VideoExoPlayerActivity.URI_EXTRA, currentVideoPath);
                     intent.putExtra(VideoExoPlayerActivity.VIDEO_NAME_EXTRA, currentVideoName);
                     intent.putExtra(VideoExoPlayerActivity.SUB_EXTRA, Environment.getExternalStorageDirectory() + "/" + split[1]);
                     intent.setAction(VideoExoPlayerActivity.ACTION_VIEW_URI);
                     setIntent(intent);
+                    initializePlayer();
                 }
             }
         }
@@ -315,12 +363,6 @@ public class VideoExoPlayerActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle out) {
-        out.putLong(BUNDLE_PLAYER_POSITION, player.getPlayerPosition());
-        out.putBoolean(BUNDLE_AUTO_PLAY, player.isShouldAutoPlay());
-        super.onSaveInstanceState(out);
-    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -330,26 +372,13 @@ public class VideoExoPlayerActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        if (Util.SDK_INT > 23) {
-            initializePlayer();
-        }
+        bindVideoPlaybackService();
         videoControlView.postDelayed(this::makeGuideIfNeed, 1000);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if ((Util.SDK_INT <= 23 || player == null)) {
-            initializePlayer();
-        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if (Util.SDK_INT <= 23) {
-            player.releasePlayer();
-        }
         if (appGuide != null) {
             appGuide.clear();
         }
@@ -358,10 +387,7 @@ public class VideoExoPlayerActivity extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
-        if (Util.SDK_INT > 23) {
-            player.releasePlayer();
-        }
-        stopUpdateTimer();
+        unbindVideoPlaybackService();
         viewModel.saveRendererState(videoControlView.getRendererState());
     }
 
@@ -371,44 +397,10 @@ public class VideoExoPlayerActivity extends AppCompatActivity {
         viewModel.clearRendererState();
     }
 
-    private void setCurrentVideoFile(VideoFile videoFile) {
-        videoControlView.resetIndicators();
-
-        player.releasePlayer();
-
-        Intent intent = new Intent();
-        intent.putExtra(VideoExoPlayerActivity.URI_EXTRA, videoFile.getFilePath());
-        intent.putExtra(VideoExoPlayerActivity.VIDEO_NAME_EXTRA, videoFile.getFileName());
-        intent.setAction(VideoExoPlayerActivity.ACTION_VIEW_URI);
-        setIntent(intent);
-
-        initializePlayer();
-    }
-
-    private void setLastVideoFileView(boolean last) {
-        if (last) {
-            videoControlView.disableNextVideoButton();
-        } else {
-            videoControlView.enableNextVideoButton();
-        }
-    }
-
-    private void setFirstVideoFileView(boolean first) {
-        if (first) {
-            videoControlView.disablePreviousVideoButton();
-        } else {
-            videoControlView.enablePreviousVideoButton();
-        }
-    }
-
-    private void showErrorShackBar(String errorString) {
-        Utils.showCustomSnackbar(findViewById(R.id.videoPlayerRoot), getApplicationContext(),
-                errorString, Snackbar.LENGTH_LONG).show();
-    }
-
     private void initializePlayer() {
         Intent intent = getIntent();
         String action = intent.getAction();
+
         Uri uri = null;
         String subPath = null;
         if (ACTION_VIEW_URI.equals(action)) {
@@ -431,37 +423,49 @@ public class VideoExoPlayerActivity extends AppCompatActivity {
         if (intent.hasExtra(SUB_EXTRA)) {
             subPath = intent.getStringExtra(SUB_EXTRA);
         }
-        player.initializePlayer(uri, subPath);
-    }
-
-
-    private void updateProgressControls() {
-        if (player != null) {
-            videoControlView.setVideoTimeCount(Utils.getVideoFileTimeFormat(player.getCurrentPosition()));
-            long playerPosition = player.getCurrentPosition();
-            durationScale = (int) (player.getDuration() / 100);
-            if (durationScale != 0) {
-                videoControlView.setProgress((int) (playerPosition / durationScale));
-            }
+        if (playbackService != null && serviceBound) {
+            simpleExoPlayerView.setPlayer(playbackService.initPlayer(uri, subPath));
         }
     }
 
-    private void startUpdateTimer() {
-        timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                handler.obtainMessage(1).sendToTarget();
-            }
-        }, 0, 1000);
-    }
-
-    private void stopUpdateTimer() {
-        if (timer != null) {
-            timer.cancel();
+    private void releasePlayer() {
+        if (playbackService != null && serviceBound) {
+            playbackService.releasePlayer();
         }
     }
 
+    private void setCurrentVideoFile(VideoFile videoFile) {
+        videoControlView.resetIndicators();
+
+        releasePlayer();
+        Intent intent = new Intent();
+        intent.putExtra(VideoExoPlayerActivity.URI_EXTRA, videoFile.getFilePath());
+        intent.putExtra(VideoExoPlayerActivity.VIDEO_NAME_EXTRA, videoFile.getFileName());
+        intent.setAction(VideoExoPlayerActivity.ACTION_VIEW_URI);
+        setIntent(intent);
+        initializePlayer();
+    }
+
+    private void setLastVideoFile(boolean last) {
+        if (last) {
+            videoControlView.disableNextVideoButton();
+        } else {
+            videoControlView.enableNextVideoButton();
+        }
+    }
+
+    private void setFirstVideoFile(boolean first) {
+        if (first) {
+            videoControlView.disablePreviousVideoButton();
+        } else {
+            videoControlView.enablePreviousVideoButton();
+        }
+    }
+
+    private void showErrorShackBar(String message) {
+        Utils.showCustomSnackbar(findViewById(R.id.videoPlayerRoot), getApplicationContext(),
+                message, Snackbar.LENGTH_LONG).show();
+    }
 
     private void performSubSearch() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);

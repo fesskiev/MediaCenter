@@ -4,7 +4,6 @@ package com.fesskiev.mediacenter.ui.video.player;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
-import android.util.Log;
 
 import com.fesskiev.mediacenter.R;
 import com.google.android.exoplayer2.C;
@@ -54,8 +53,6 @@ public class ExoPlayerWrapper implements Player.EventListener {
         void onPlaybackStateChanged(int playbackState);
     }
 
-    private final static String TAG = ExoPlayerWrapper.class.getSimpleName();
-
     private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
 
     private static final int DEFAULT_MIN_BUFFER_MS = 3000;
@@ -67,22 +64,18 @@ public class ExoPlayerWrapper implements Player.EventListener {
     private OnErrorListener errorListener;
     private OnPlaybackStateChangedListener playbackStateChangedListener;
 
+    private SimpleExoPlayer exoPlayer;
+
     private DataSource.Factory mediaDataSourceFactory;
     private TrackSelection.Factory trackSelectionFactory;
     private EventLogger eventLogger;
-    private Timeline.Window window;
-    private SimpleExoPlayer player;
     private DefaultTrackSelector trackSelector;
 
-    private boolean isTimelineStatic;
     private boolean shouldAutoPlay;
-    private int playerWindow;
-    private long playerPosition;
 
-
-    public ExoPlayerWrapper(Context context) {
+    public ExoPlayerWrapper(Context context, boolean shouldAutoPlay) {
         this.context = context;
-        window = new Timeline.Window();
+        this.shouldAutoPlay = shouldAutoPlay;
         mediaDataSourceFactory = buildDataSourceFactory(true);
     }
 
@@ -105,7 +98,7 @@ public class ExoPlayerWrapper implements Player.EventListener {
         trackSelector = new DefaultTrackSelector(trackSelectionFactory);
         trackSelector.setTunnelingAudioSessionId(C.generateAudioSessionIdV21(context));
 
-        player = ExoPlayerFactory.newSimpleInstance(
+        exoPlayer = ExoPlayerFactory.newSimpleInstance(
                 new CustomRenderersFactory(context),
                 trackSelector,
                 new DefaultLoadControl(
@@ -117,23 +110,14 @@ public class ExoPlayerWrapper implements Player.EventListener {
                 )
         );
 
-        player.addListener(this);
+        exoPlayer.addListener(this);
         eventLogger = new EventLogger(trackSelector);
-        player.addListener(eventLogger);
-        player.setAudioDebugListener(eventLogger);
-        player.setVideoDebugListener(eventLogger);
-
-        if (isTimelineStatic) {
-            if (playerPosition == C.TIME_UNSET) {
-                player.seekToDefaultPosition(playerWindow);
-            } else {
-                player.seekTo(playerWindow, playerPosition);
-            }
-        }
-        player.setPlayWhenReady(shouldAutoPlay);
+        exoPlayer.addListener(eventLogger);
+        exoPlayer.setAudioDebugListener(eventLogger);
+        exoPlayer.setVideoDebugListener(eventLogger);
+        exoPlayer.setPlayWhenReady(shouldAutoPlay);
 
         MediaSource videoSource = buildMediaSource(uri);
-
         if (subtitlePath != null) {
             Format textFormat = Format.createTextSampleFormat(null, MimeTypes.APPLICATION_SUBRIP, null, Format.NO_VALUE,
                     Format.NO_VALUE, "external", null, 0);
@@ -142,32 +126,24 @@ public class ExoPlayerWrapper implements Player.EventListener {
 
             MediaSource mergedSource = new MergingMediaSource(videoSource, textMediaSource);
 
-            player.prepare(mergedSource, !isTimelineStatic, !isTimelineStatic);
+            exoPlayer.prepare(mergedSource);
         } else {
-            player.prepare(videoSource, !isTimelineStatic, !isTimelineStatic);
+            exoPlayer.prepare(videoSource);
         }
-        return player;
+        return exoPlayer;
     }
 
     public void releasePlayer() {
-        if (player != null) {
-            shouldAutoPlay = player.getPlayWhenReady();
-            playerWindow = player.getCurrentWindowIndex();
-            playerPosition = C.TIME_UNSET;
-            Timeline timeline = player.getCurrentTimeline();
-            if (!timeline.isEmpty() && timeline.getWindow(playerWindow, window).isSeekable) {
-                playerPosition = player.getCurrentPosition();
-            }
-            player.release();
-            player = null;
+        if (exoPlayer != null) {
+            exoPlayer.release();
+            exoPlayer = null;
             trackSelector = null;
         }
     }
 
     @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
-        isTimelineStatic = !timeline.isEmpty()
-                && !timeline.getWindow(timeline.getWindowCount() - 1, window).isDynamic;
+
     }
 
     @Override
@@ -182,20 +158,6 @@ public class ExoPlayerWrapper implements Player.EventListener {
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-        switch (playbackState) {
-            case Player.STATE_BUFFERING:
-                Log.wtf(TAG, "buffering");
-                break;
-            case Player.STATE_ENDED:
-                Log.wtf(TAG, "ended");
-                break;
-            case Player.STATE_IDLE:
-                Log.wtf(TAG, "idle");
-                break;
-            case Player.STATE_READY:
-                Log.wtf(TAG, "ready");
-                break;
-        }
         if (playbackStateChangedListener != null) {
             playbackStateChangedListener.onPlaybackStateChanged(playbackState);
         }
@@ -274,40 +236,24 @@ public class ExoPlayerWrapper implements Player.EventListener {
         this.playbackStateChangedListener = listener;
     }
 
-    public void seekTo(int seek) {
-        player.seekTo(seek);
-    }
-
-    public boolean isShouldAutoPlay() {
-        return shouldAutoPlay;
-    }
-
-    public void setShouldAutoPlay(boolean shouldAutoPlay) {
-        this.shouldAutoPlay = shouldAutoPlay;
-    }
-
-    public long getPlayerPosition() {
-        return playerPosition;
-    }
-
-    public void setPlayerPosition(long playerPosition) {
-        this.playerPosition = playerPosition;
+    public void seekTo(long seek) {
+        exoPlayer.seekTo(seek);
     }
 
     public void setPlayWhenReady(boolean isPlaying) {
-        this.player.setPlayWhenReady(isPlaying);
+        exoPlayer.setPlayWhenReady(isPlaying);
     }
 
     public long getDuration() {
-        return player.getDuration();
+        return exoPlayer.getDuration();
     }
 
     public long getCurrentPosition() {
-        return player.getCurrentPosition();
+        return exoPlayer.getCurrentPosition();
     }
 
     public boolean getPlayWhenReady() {
-        return player.getPlayWhenReady();
+        return exoPlayer.getPlayWhenReady();
     }
 
     public TrackSelection.Factory getTrackSelectionFactory() {
@@ -318,7 +264,7 @@ public class ExoPlayerWrapper implements Player.EventListener {
         return trackSelector;
     }
 
-    public SimpleExoPlayer getPlayer() {
-        return player;
+    public SimpleExoPlayer getExoPlayer() {
+        return exoPlayer;
     }
 }
