@@ -10,7 +10,7 @@ import android.graphics.Bitmap;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.players.AudioPlayer;
-import com.fesskiev.mediacenter.services.PlaybackService;
+import com.fesskiev.mediacenter.services.AudioPlaybackService;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.RxBus;
@@ -64,7 +64,7 @@ public class AudioPlayerViewModel extends ViewModel {
         observeEvents();
 
         setCurrentTrack(audioPlayer.getCurrentTrack());
-        PlaybackService.requestPlaybackStateIfNeed(context);
+        AudioPlaybackService.requestPlaybackStateIfNeed(context);
     }
 
     private void observeEvents() {
@@ -116,7 +116,7 @@ public class AudioPlayerViewModel extends ViewModel {
         }
     }
 
-    private void notifyPlayback(PlaybackService playbackService) {
+    private void notifyPlayback(AudioPlaybackService playbackService) {
         boolean converting = playbackService.isConvertStart();
         boolean lastConverting = isConverting();
         if (lastConverting != converting) {
@@ -173,19 +173,19 @@ public class AudioPlayerViewModel extends ViewModel {
     }
 
     public void volumeStateChanged(int volume) {
-        PlaybackService.volumePlayback(context, volume);
+        AudioPlaybackService.volumePlayback(context, volume);
     }
 
     public void seekPlayback(int seek) {
-        PlaybackService.seekPlayback(context, seek);
+        AudioPlaybackService.seekPlayback(context, seek);
     }
 
     public void changeLoopingState(boolean repeat) {
-        PlaybackService.changeLoopingState(context, repeat);
+        AudioPlaybackService.changeLoopingState(context, repeat);
     }
 
     public void startLooping(int start, int end) {
-        PlaybackService.startLooping(context, start, end);
+        AudioPlaybackService.startLooping(context, start, end);
     }
 
     public void playStateChanged() {

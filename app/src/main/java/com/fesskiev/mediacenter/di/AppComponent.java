@@ -3,7 +3,7 @@ package com.fesskiev.mediacenter.di;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.services.FileSystemService;
-import com.fesskiev.mediacenter.services.PlaybackService;
+import com.fesskiev.mediacenter.services.AudioPlaybackService;
 import com.fesskiev.mediacenter.services.VideoPlaybackService;
 import com.fesskiev.mediacenter.ui.MainActivity;
 import com.fesskiev.mediacenter.ui.MainViewModel;
@@ -39,11 +39,9 @@ import com.fesskiev.mediacenter.ui.video.VideoFoldersViewModel;
 import com.fesskiev.mediacenter.ui.video.player.VideoExoPlayerViewModel;
 import com.fesskiev.mediacenter.ui.walkthrough.ProUserFragment;
 import com.fesskiev.mediacenter.ui.walkthrough.WalkthroughFragment;
-import com.fesskiev.mediacenter.widgets.dialogs.AudioFolderDetailsDialog;
 import com.fesskiev.mediacenter.widgets.dialogs.EditTrackDialog;
 import com.fesskiev.mediacenter.widgets.dialogs.MediaFolderDetailsDialog;
 import com.fesskiev.mediacenter.widgets.dialogs.VideoFileDetailsDialog;
-import com.fesskiev.mediacenter.widgets.dialogs.VideoFolderDetailsDialog;
 
 import javax.inject.Singleton;
 
@@ -108,7 +106,7 @@ public interface AppComponent {
     void inject(VideoFileDetailsDialog dialog);
     void inject(EditTrackDialog dialog);
 
-    void inject(PlaybackService service);
+    void inject(AudioPlaybackService service);
     void inject(VideoPlaybackService service);
     void inject(FileSystemService service);
 

@@ -388,14 +388,14 @@ static inline void setBoolField(JNIEnv *javaEnvironment, jobject obj, jclass thi
 
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_onDestroyAudioPlayer(JNIEnv *env,
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_onDestroyAudioPlayer(JNIEnv *env,
                                                                             jobject instance) {
     player->~SuperpoweredPlayer();
     __android_log_print(ANDROID_LOG_DEBUG, "MediaCenter", "DESTROY");
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_updatePlaybackState(JNIEnv *javaEnvironment,
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_updatePlaybackState(JNIEnv *javaEnvironment,
                                                                            jobject obj) {
     jclass thisClass = javaEnvironment->GetObjectClass(obj);
 
@@ -412,32 +412,32 @@ Java_com_fesskiev_mediacenter_services_PlaybackService_updatePlaybackState(JNIEn
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_onBackground(JNIEnv *env, jobject instance) {
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_onBackground(JNIEnv *env, jobject instance) {
     player->onBackground();
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_onForeground(JNIEnv *env, jobject instance) {
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_onForeground(JNIEnv *env, jobject instance) {
     player->onForeground();
 }
 
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_registerCallback(JNIEnv *env,
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_registerCallback(JNIEnv *env,
                                                                         jobject instance) {
     callbackObject = env->NewGlobalRef(instance);
 }
 
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_unregisterCallback(JNIEnv *env,
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_unregisterCallback(JNIEnv *env,
                                                                           jobject instance) {
     env->DeleteGlobalRef(callbackObject);
     callbackObject = NULL;
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_enableEQ(JNIEnv *env, jobject instance,
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_enableEQ(JNIEnv *env, jobject instance,
                                                                 jboolean enable) {
     player->enableEQ(enable);
 }
@@ -445,21 +445,21 @@ Java_com_fesskiev_mediacenter_services_PlaybackService_enableEQ(JNIEnv *env, job
 
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_setEQBands(JNIEnv *javaEnvironment,
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_setEQBands(JNIEnv *javaEnvironment,
                                                                   jobject obj,
                                                                   jint band, jint value) {
     player->setEQBands(band, value);
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_setLooping(JNIEnv *env,
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_setLooping(JNIEnv *env,
                                                                              jobject instance,
                                                                              jboolean isLooping) {
     player->setLooping(isLooping);
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_createAudioPlayer(JNIEnv *env,
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_createAudioPlayer(JNIEnv *env,
                                                                          jobject instance,
                                                                          jint sampleRate,
                                                                          jint bufferSize,
@@ -472,7 +472,7 @@ Java_com_fesskiev_mediacenter_services_PlaybackService_createAudioPlayer(JNIEnv 
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_openAudioFile(JNIEnv *env, jobject instance,
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_openAudioFile(JNIEnv *env, jobject instance,
                                                                      jstring path) {
     const char *str = env->GetStringUTFChars(path, 0);
 
@@ -483,65 +483,65 @@ Java_com_fesskiev_mediacenter_services_PlaybackService_openAudioFile(JNIEnv *env
 
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_togglePlayback(JNIEnv *env,
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_togglePlayback(JNIEnv *env,
                                                                       jobject instance) {
     player->togglePlayback();
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_setVolume(JNIEnv *env,
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_setVolume(JNIEnv *env,
                                                                             jobject instance,
                                                                             jfloat value) {
     player->setVolume(value);
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_setSeek(JNIEnv *env,
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_setSeek(JNIEnv *env,
                                                                           jobject instance,
                                                                           jint value) {
     player->setSeek(value);
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_setEchoValue(JNIEnv *env, jobject instance,
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_setEchoValue(JNIEnv *env, jobject instance,
                                                                     jint value) {
     player->echoValue(value);
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_enableEcho(JNIEnv *env, jobject instance,
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_enableEcho(JNIEnv *env, jobject instance,
                                                                   jboolean enable) {
     player->enableEcho(enable);
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_setReverbValue(JNIEnv *env, jobject instance,
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_setReverbValue(JNIEnv *env, jobject instance,
                                                                       jint mix, jint width,
                                                                       jint damp, jint roomSize) {
     player->reverbValue(mix, width, damp, roomSize);
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_enableReverb(JNIEnv *env, jobject instance,
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_enableReverb(JNIEnv *env, jobject instance,
                                                                     jboolean enable) {
     player->enableReverb(enable);
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_setWhooshValue(JNIEnv *env, jobject instance,
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_setWhooshValue(JNIEnv *env, jobject instance,
                                                                       jint wet, jint frequency) {
     player->whooshValue(wet, frequency);
 
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_enableWhoosh(JNIEnv *env, jobject instance,
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_enableWhoosh(JNIEnv *env, jobject instance,
                                                                     jboolean enable) {
     player->enableWhoosh(enable);
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_startRecording(JNIEnv *env, jobject instance,
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_startRecording__Ljava_lang_String_2(JNIEnv *env, jobject instance,
                                                                       jstring destination) {
     const char *destinationPath = env->GetStringUTFChars(destination, 0);
 
@@ -551,37 +551,37 @@ Java_com_fesskiev_mediacenter_services_PlaybackService_startRecording(JNIEnv *en
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_stopRecording(JNIEnv *env,
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_stopRecording__(JNIEnv *env,
                                                                      jobject instance) {
     player->stopRecording();
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_setPitchShift(JNIEnv *env, jobject instance,
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_setPitchShift__I(JNIEnv *env, jobject instance,
                                                                      jint pitchShift) {
     player->setPitchShift(pitchShift);
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_setTempo(JNIEnv *env, jobject instance,
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_setTempo__D(JNIEnv *env, jobject instance,
                                                                 jdouble tempo) {
     player->setTempo(tempo);
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_setPosition(JNIEnv *env, jobject instance,
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_setPosition(JNIEnv *env, jobject instance,
                                                                    jint value) {
     player->setPosition(value);
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_loopBetween(JNIEnv *env, jobject instance,
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_loopBetween(JNIEnv *env, jobject instance,
                                                                    jdouble startMs, jdouble endMs) {
     player->loopBetween(startMs, endMs);
 }
 
 extern "C" JNIEXPORT void
-Java_com_fesskiev_mediacenter_services_PlaybackService_loopExit(JNIEnv *env, jobject instance) {
+Java_com_fesskiev_mediacenter_services_AudioPlaybackService_loopExit(JNIEnv *env, jobject instance) {
 
     player->loopExit();
 }

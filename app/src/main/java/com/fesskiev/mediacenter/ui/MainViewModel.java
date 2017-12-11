@@ -11,7 +11,7 @@ import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.services.FileSystemService;
-import com.fesskiev.mediacenter.services.PlaybackService;
+import com.fesskiev.mediacenter.services.AudioPlaybackService;
 import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
@@ -136,7 +136,7 @@ public class MainViewModel extends ViewModel {
                 .subscribe(coverLiveData::setValue));
     }
 
-    private void notifyPlayback(PlaybackService playbackService) {
+    private void notifyPlayback(AudioPlaybackService playbackService) {
         if (playbackService.isFinish()) {
             finishPlaybackLiveData.call();
             return;
@@ -272,22 +272,22 @@ public class MainViewModel extends ViewModel {
     }
 
     public void setWhooshEnable(boolean enable) {
-        PlaybackService.changeWhooshEnable(context, enable);
+        AudioPlaybackService.changeWhooshEnable(context, enable);
         settingsManager.setWhooshEnable(enable);
     }
 
     public void setEQEnable(boolean enable) {
-        PlaybackService.changeEQEnable(context, enable);
+        AudioPlaybackService.changeEQEnable(context, enable);
         settingsManager.setEQEnable(enable);
     }
 
     public void setReverbEnable(boolean enable) {
-        PlaybackService.changeReverbEnable(context, enable);
+        AudioPlaybackService.changeReverbEnable(context, enable);
         settingsManager.setReverbEnable(enable);
     }
 
     public void setEchoEnable(boolean enable) {
-        PlaybackService.changeEchoEnable(context, enable);
+        AudioPlaybackService.changeEchoEnable(context, enable);
         settingsManager.setEchoEnable(enable);
     }
 

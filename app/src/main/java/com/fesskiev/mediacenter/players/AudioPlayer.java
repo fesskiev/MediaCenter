@@ -8,7 +8,7 @@ import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.data.source.DataRepository;
-import com.fesskiev.mediacenter.services.PlaybackService;
+import com.fesskiev.mediacenter.services.AudioPlaybackService;
 import com.fesskiev.mediacenter.ui.Playable;
 import com.fesskiev.mediacenter.utils.RxBus;
 import com.fesskiev.mediacenter.utils.RxUtils;
@@ -59,18 +59,18 @@ public class AudioPlayer implements Playable {
     @Override
     public void open(MediaFile audioFile) {
         if (audioFile != null) {
-            PlaybackService.openFile(context, audioFile.getFilePath());
+            AudioPlaybackService.openFile(context, audioFile.getFilePath());
         }
     }
 
     @Override
     public void play() {
-        PlaybackService.startPlayback(context);
+        AudioPlaybackService.startPlayback(context);
     }
 
     @Override
     public void pause() {
-        PlaybackService.stopPlayback(context);
+        AudioPlaybackService.stopPlayback(context);
     }
 
     @Override
@@ -134,7 +134,7 @@ public class AudioPlayer implements Playable {
                 public void onStart() {
                     Log.e(TAG, "onStart() convert");
                     pause();
-                    PlaybackService.startConvert(context);
+                    AudioPlaybackService.startConvert(context);
                 }
 
                 @Override

@@ -1,7 +1,6 @@
 package com.fesskiev.mediacenter.ui.effects;
 
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -14,7 +13,7 @@ import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.effects.EchoState;
 import com.fesskiev.mediacenter.data.model.effects.WhooshState;
-import com.fesskiev.mediacenter.services.PlaybackService;
+import com.fesskiev.mediacenter.services.AudioPlaybackService;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.widgets.effects.DialerView;
 import com.fesskiev.mediacenter.widgets.effects.EchoControlView;
@@ -71,7 +70,7 @@ public class OtherEffectsFragment extends Fragment implements EchoControlView.On
         switchEchoState.setOnClickListener(v -> {
             boolean checked = ((SwitchCompat) v).isChecked();
 
-            PlaybackService.changeEchoEnable(getContext(), checked);
+            AudioPlaybackService.changeEchoEnable(getContext(), checked);
 
         });
         switchEchoState.setChecked(settingsManager.isEchoEnable());
@@ -81,7 +80,7 @@ public class OtherEffectsFragment extends Fragment implements EchoControlView.On
         switchWhooshState.setOnClickListener(v -> {
             boolean checked = ((SwitchCompat) v).isChecked();
 
-            PlaybackService.changeWhooshEnable(getContext(), checked);
+            AudioPlaybackService.changeWhooshEnable(getContext(), checked);
 
         });
         switchWhooshState.setChecked(settingsManager.isWhooshEnable());
@@ -149,7 +148,7 @@ public class OtherEffectsFragment extends Fragment implements EchoControlView.On
                 break;
 
         }
-        PlaybackService.changeWhooshLevel(getContext(), whooshState);
+        AudioPlaybackService.changeWhooshLevel(getContext(), whooshState);
     }
 
     @Override
@@ -158,6 +157,6 @@ public class OtherEffectsFragment extends Fragment implements EchoControlView.On
         echoState.setLevel(level);
         echoState.setLevelValues(values);
 
-        PlaybackService.changeEchoLevel(getContext(), echoState);
+        AudioPlaybackService.changeEchoLevel(getContext(), echoState);
     }
 }

@@ -16,8 +16,8 @@ import android.widget.TextView;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.services.AudioPlaybackService;
 import com.fesskiev.mediacenter.ui.analytics.AnalyticsActivity;
-import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.chooser.FileSystemChooserActivity;
 import com.fesskiev.mediacenter.utils.AppAnimationUtils;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
@@ -187,7 +187,7 @@ public class CueActivity extends AnalyticsActivity {
             if (trackData != null) {
                 List<Index> indices = trackData.getTrackData().getIndices();
                 if (indices != null && !indices.isEmpty()) {
-                    PlaybackService.setPositionPlayback(getApplicationContext(), getTrackDataSecondsPosition(indices));
+                    AudioPlaybackService.setPositionPlayback(getApplicationContext(), getTrackDataSecondsPosition(indices));
                 }
                 trackData.setSelected(true);
                 notifyDataSetChanged();

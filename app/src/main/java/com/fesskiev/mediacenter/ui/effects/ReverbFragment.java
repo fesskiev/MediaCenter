@@ -1,7 +1,6 @@
 package com.fesskiev.mediacenter.ui.effects;
 
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,7 +12,7 @@ import android.view.ViewGroup;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.effects.ReverbState;
-import com.fesskiev.mediacenter.services.PlaybackService;
+import com.fesskiev.mediacenter.services.AudioPlaybackService;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.widgets.effects.DialerView;
 import com.fesskiev.mediacenter.widgets.effects.ReverbControlView;
@@ -63,7 +62,7 @@ public class ReverbFragment extends Fragment implements DialerView.OnDialerViewL
         switchEQState.setOnClickListener(v -> {
             boolean checked = ((SwitchCompat) v).isChecked();
 
-            PlaybackService.changeReverbEnable(getContext(), checked);
+            AudioPlaybackService.changeReverbEnable(getContext(), checked);
 
         });
         switchEQState.setChecked(settingsManager.isReverbEnable());
@@ -127,7 +126,7 @@ public class ReverbFragment extends Fragment implements DialerView.OnDialerViewL
                 state.setRoomSize(level);
                 break;
         }
-        PlaybackService.changeReverbLevel(getContext(), state);
+        AudioPlaybackService.changeReverbLevel(getContext(), state);
 
     }
 }

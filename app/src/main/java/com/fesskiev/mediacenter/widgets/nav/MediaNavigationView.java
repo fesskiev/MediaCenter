@@ -11,7 +11,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.fesskiev.mediacenter.R;
-import com.fesskiev.mediacenter.services.PlaybackService;
+import com.fesskiev.mediacenter.services.AudioPlaybackService;
 
 import java.util.Locale;
 
@@ -79,7 +79,7 @@ public class MediaNavigationView extends NavigationView implements View.OnClickL
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
-                PlaybackService.setTempo(getContext().getApplicationContext(), progress);
+                AudioPlaybackService.setTempo(getContext().getApplicationContext(), progress);
 
                 tempoValue.setText(String.format(Locale.ENGLISH, "%1$.2f X", (float) progress / 50));
             }
@@ -113,7 +113,7 @@ public class MediaNavigationView extends NavigationView implements View.OnClickL
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
-                PlaybackService.setPitchShift(getContext().getApplicationContext(), progress);
+                AudioPlaybackService.setPitchShift(getContext().getApplicationContext(), progress);
 
                 pitchShiftValue.setText(String.format(Locale.ENGLISH, "%1$.2f X", (float) progress / 50));
             }

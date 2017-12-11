@@ -14,10 +14,9 @@ import android.support.annotation.Nullable;
 
 import com.fesskiev.common.data.MapAudioFile;
 import com.fesskiev.common.data.MapPlayback;
-import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.players.AudioPlayer;
-import com.fesskiev.mediacenter.services.PlaybackService;
+import com.fesskiev.mediacenter.services.AudioPlaybackService;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -134,7 +133,7 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
     private CompositeDisposable subscription;
 
     private AudioPlayer audioPlayer;
-    private PlaybackService service;
+    private AudioPlaybackService service;
     private boolean available;
 
 
@@ -142,7 +141,7 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
         this(context, null, null);
     }
 
-    public WearHelper(Context context, AudioPlayer audioPlayer, PlaybackService service) {
+    public WearHelper(Context context, AudioPlayer audioPlayer, AudioPlaybackService service) {
         this.context = context;
         this.audioPlayer = audioPlayer;
         if (!isGooglePlayServicesAvailable()) {

@@ -9,7 +9,7 @@ import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.players.AudioPlayer;
-import com.fesskiev.mediacenter.services.PlaybackService;
+import com.fesskiev.mediacenter.services.AudioPlaybackService;
 import com.fesskiev.mediacenter.ui.audio.CONTENT_TYPE;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
@@ -68,7 +68,7 @@ public class TrackListViewModel extends ViewModel {
                 .subscribe(this::notifyPlayback, Throwable::printStackTrace));
     }
 
-    private void notifyPlayback(PlaybackService playbackService) {
+    private void notifyPlayback(AudioPlaybackService playbackService) {
         boolean playing = playbackService.isPlaying();
         boolean lastPlaying = isPlaying();
         if (lastPlaying != playing) {

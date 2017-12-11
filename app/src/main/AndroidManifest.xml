@@ -163,7 +163,7 @@
             android:name=".services.FileSystemService"
             android:exported="false" />
         <service
-            android:name=".services.PlaybackService"
+            android:name=".services.AudioPlaybackService"
             android:exported="false" />
         <service
             android:name=".services.VideoPlaybackService"

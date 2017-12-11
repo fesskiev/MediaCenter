@@ -1,7 +1,6 @@
 package com.fesskiev.mediacenter.ui.effects;
 
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SwitchCompat;
@@ -12,7 +11,7 @@ import android.view.ViewGroup;
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.effects.EQState;
-import com.fesskiev.mediacenter.services.PlaybackService;
+import com.fesskiev.mediacenter.services.AudioPlaybackService;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.widgets.effects.DialerView;
 import com.fesskiev.mediacenter.widgets.effects.EQBandControlView;
@@ -57,7 +56,7 @@ public class EqualizerFragment extends Fragment implements EQBandControlView.OnB
         switchEQState.setOnClickListener(v -> {
             boolean checked = ((SwitchCompat) v).isChecked();
 
-            PlaybackService.changeEQEnable(getContext(), checked);
+            AudioPlaybackService.changeEQEnable(getContext(), checked);
 
         });
         switchEQState.setChecked(settingsManager.isEQEnable());
@@ -100,7 +99,7 @@ public class EqualizerFragment extends Fragment implements EQBandControlView.OnB
     @Override
     public void onBandLevelChanged(int band, float level, float[] values) {
 
-        PlaybackService.changeEQBandLevel(getContext(), band, (int) level);
+        AudioPlaybackService.changeEQBandLevel(getContext(), band, (int) level);
 
         switch (band) {
             case 0:

@@ -352,13 +352,13 @@ public class AppSettingsManager {
         return sharedPreferences.getInt(KEY_AUDIO_PLAYER_POSITION, 0);
     }
 
-    public void setAudioPlayerVolume(float volume) {
+    public void setAudioPlayerVolume(int volume) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putFloat(KEY_AUDIO_PLAYER_VOLUME, volume);
+        editor.putInt(KEY_AUDIO_PLAYER_VOLUME, volume);
         editor.apply();
     }
 
-    public float getAudioPlayerVolume() {
-        return sharedPreferences.getFloat(KEY_AUDIO_PLAYER_VOLUME, 100f);
+    public int getAudioPlayerVolume() {
+        return sharedPreferences.getInt(KEY_AUDIO_PLAYER_VOLUME, 100);
     }
 }

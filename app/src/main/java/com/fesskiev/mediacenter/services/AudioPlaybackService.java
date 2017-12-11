@@ -27,22 +27,19 @@ import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.AudioFocusManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
+import com.fesskiev.mediacenter.utils.CountDownTimer;
 import com.fesskiev.mediacenter.utils.NotificationHelper;
 import com.fesskiev.mediacenter.utils.RxBus;
 import com.fesskiev.mediacenter.utils.WearHelper;
 
-import java.util.concurrent.TimeUnit;
-
 import javax.inject.Inject;
 
-import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class PlaybackService extends Service {
+public class AudioPlaybackService extends Service {
 
-    private static final String TAG = PlaybackService.class.getSimpleName();
+    private static final String TAG = AudioPlaybackService.class.getSimpleName();
 
     private static final int END_TRACK = 1;
     private static final int LOAD_ERROR = 2;
@@ -156,7 +153,7 @@ public class PlaybackService extends Service {
     @Inject
     NotificationHelper notificationHelper;
 
-    private Disposable disposable;
+    private CountDownTimer timer;
 
     private WearHelper wearHelper;
     private AudioFocusManager audioFocusManager;
@@ -185,98 +182,98 @@ public class PlaybackService extends Service {
     private boolean restorePosition;
 
     public static void startPlaybackForegroundService(Context context) {
-        Intent intent = new Intent(context, PlaybackService.class);
+        Intent intent = new Intent(context, AudioPlaybackService.class);
         intent.setAction(ACTION_START_FOREGROUND);
         context.startService(intent);
     }
 
     public static void stopPlaybackForegroundService(Context context) {
-        context.stopService(new Intent(context, PlaybackService.class));
+        context.stopService(new Intent(context, AudioPlaybackService.class));
     }
 
     public static void setTempo(Context context, double tempo) {
-        Intent intent = new Intent(context, PlaybackService.class);
+        Intent intent = new Intent(context, AudioPlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_TEMPO);
         intent.putExtra(PLAYBACK_EXTRA_TEMPO_LEVEL, tempo);
         context.startService(intent);
     }
 
     public static void setPitchShift(Context context, int pitchShift) {
-        Intent intent = new Intent(context, PlaybackService.class);
+        Intent intent = new Intent(context, AudioPlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_PITCH_SHIFT);
         intent.putExtra(PLAYBACK_EXTRA_PITCH_SHIFT_LEVEL, pitchShift);
         context.startService(intent);
     }
 
     public static void startRecording(Context context) {
-        Intent intent = new Intent(context, PlaybackService.class);
+        Intent intent = new Intent(context, AudioPlaybackService.class);
         intent.setAction(ACTION_START_RECORDING);
         context.startService(intent);
     }
 
     public static void stopRecording(Context context) {
-        Intent intent = new Intent(context, PlaybackService.class);
+        Intent intent = new Intent(context, AudioPlaybackService.class);
         intent.setAction(ACTION_STOP_RECORDING);
         context.startService(intent);
     }
 
     public static void requestPlaybackStateIfNeed(Context context) {
-        Intent intent = new Intent(context, PlaybackService.class);
+        Intent intent = new Intent(context, AudioPlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_STATE);
         context.startService(intent);
     }
 
     public static void changeReverbEnable(Context context, boolean enable) {
-        Intent intent = new Intent(context, PlaybackService.class);
+        Intent intent = new Intent(context, AudioPlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_REVERB_STATE);
         intent.putExtra(PLAYBACK_EXTRA_REVERB_ENABLE, enable);
         context.startService(intent);
     }
 
     public static void changeReverbLevel(Context context, ReverbState state) {
-        Intent intent = new Intent(context, PlaybackService.class);
+        Intent intent = new Intent(context, AudioPlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_REVERB_LEVEL);
         intent.putExtra(PLAYBACK_EXTRA_REVERB_LEVEL, state);
         context.startService(intent);
     }
 
     public static void changeWhooshEnable(Context context, boolean enable) {
-        Intent intent = new Intent(context, PlaybackService.class);
+        Intent intent = new Intent(context, AudioPlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_WHOOSH_STATE);
         intent.putExtra(PLAYBACK_EXTRA_WHOOSH_ENABLE, enable);
         context.startService(intent);
     }
 
     public static void changeWhooshLevel(Context context, WhooshState level) {
-        Intent intent = new Intent(context, PlaybackService.class);
+        Intent intent = new Intent(context, AudioPlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_WHOOSH_LEVEL);
         intent.putExtra(PLAYBACK_EXTRA_WHOOSH_LEVEL, level);
         context.startService(intent);
     }
 
     public static void changeEchoLevel(Context context, EchoState level) {
-        Intent intent = new Intent(context, PlaybackService.class);
+        Intent intent = new Intent(context, AudioPlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_ECHO_LEVEL);
         intent.putExtra(PLAYBACK_EXTRA_ECHO_LEVEL, level);
         context.startService(intent);
     }
 
     public static void changeEchoEnable(Context context, boolean enable) {
-        Intent intent = new Intent(context, PlaybackService.class);
+        Intent intent = new Intent(context, AudioPlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_ECHO_STATE);
         intent.putExtra(PLAYBACK_EXTRA_ECHO_ENABLE, enable);
         context.startService(intent);
     }
 
     public static void changeEQEnable(Context context, boolean enable) {
-        Intent intent = new Intent(context, PlaybackService.class);
+        Intent intent = new Intent(context, AudioPlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_EQ_STATE);
         intent.putExtra(PLAYBACK_EXTRA_EQ_ENABLE, enable);
         context.startService(intent);
     }
 
     public static void changeEQBandLevel(Context context, int band, int level) {
-        Intent intent = new Intent(context, PlaybackService.class);
+        Intent intent = new Intent(context, AudioPlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_EQ_BAND_STATE);
         intent.putExtra(PLAYBACK_EXTRA_EQ_BAND, band);
         intent.putExtra(PLAYBACK_EXTRA_EQ_LEVEL, level);
@@ -284,21 +281,21 @@ public class PlaybackService extends Service {
     }
 
     public static void changeLoopingState(Context context, boolean state) {
-        Intent intent = new Intent(context, PlaybackService.class);
+        Intent intent = new Intent(context, AudioPlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_LOOPING_STATE);
         intent.putExtra(PLAYBACK_EXTRA_LOOPING_STATE, state);
         context.startService(intent);
     }
 
     public static void openFile(Context context, String path) {
-        Intent intent = new Intent(context, PlaybackService.class);
+        Intent intent = new Intent(context, AudioPlaybackService.class);
         intent.setAction(ACTION_OPEN_FILE);
         intent.putExtra(PLAYBACK_EXTRA_MUSIC_FILE_PATH, path);
         context.startService(intent);
     }
 
     public static void startLooping(Context context, double start, double end) {
-        Intent intent = new Intent(context, PlaybackService.class);
+        Intent intent = new Intent(context, AudioPlaybackService.class);
         intent.setAction(ACTION_LOOPING_START);
         intent.putExtra(PLAYBACK_EXTRA_LOOPING_START, start);
         intent.putExtra(PLAYBACK_EXTRA_LOOPING_END, end);
@@ -306,82 +303,74 @@ public class PlaybackService extends Service {
     }
 
     public static void endLooping(Context context) {
-        Intent intent = new Intent(context, PlaybackService.class);
+        Intent intent = new Intent(context, AudioPlaybackService.class);
         intent.setAction(ACTION_LOOPING_END);
         context.startService(intent);
     }
 
     public static void startPlayback(Context context) {
-        Intent intent = new Intent(context, PlaybackService.class);
+        Intent intent = new Intent(context, AudioPlaybackService.class);
         intent.setAction(ACTION_START_PLAYBACK);
         context.startService(intent);
     }
 
     public static void stopPlayback(Context context) {
-        Intent intent = new Intent(context, PlaybackService.class);
+        Intent intent = new Intent(context, AudioPlaybackService.class);
         intent.setAction(ACTION_STOP_PLAYBACK);
         context.startService(intent);
     }
 
     public static void seekPlayback(Context context, int seek) {
-        Intent intent = new Intent(context, PlaybackService.class);
+        Intent intent = new Intent(context, AudioPlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_SEEK);
         intent.putExtra(PLAYBACK_EXTRA_SEEK, seek);
         context.startService(intent);
     }
 
     public static void setPositionPlayback(Context context, int position) {
-        Intent intent = new Intent(context, PlaybackService.class);
+        Intent intent = new Intent(context, AudioPlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_POSITION);
         intent.putExtra(PLAYBACK_EXTRA_POSITION, position);
         context.startService(intent);
     }
 
     public static void volumePlayback(Context context, int volume) {
-        Intent intent = new Intent(context, PlaybackService.class);
+        Intent intent = new Intent(context, AudioPlaybackService.class);
         intent.setAction(ACTION_PLAYBACK_VOLUME);
         intent.putExtra(PLAYBACK_EXTRA_VOLUME, volume);
         context.startService(intent);
     }
 
     public static void startConvert(Context context) {
-        Intent intent = new Intent(context, PlaybackService.class);
+        Intent intent = new Intent(context, AudioPlaybackService.class);
         intent.setAction(ACTION_START_CONVERT);
         context.startService(intent);
     }
 
-    private void addTimer() {
-        disposable = Observable.interval(0, 500, TimeUnit.MILLISECONDS)
-                .subscribe(interval -> {
-                    updatePlaybackState();
-                    if (duration > 0) {
-                        durationScale = duration / 100;
-                        positionPercent = positionPercent * 100;
-                        volume *= 100f;
-                    }
-                    if (notificationHelper != null) {
-                        boolean notificationPlaying = notificationHelper.isPlaying();
-                        if (playing != notificationPlaying) {
-                            notificationHelper.updatePlayingState(currentTrack, playing);
-                        }
-                    }
-                    if (wearHelper != null) {
-                        boolean wearPlaying = wearHelper.isPlaying();
-                        boolean wearLooping = wearHelper.isLooping();
-                        if (playing != wearPlaying || looping != wearLooping) {
-                            wearHelper.updatePlayingState();
-                        }
-                    }
-//                  AppLog.DEBUG("playback: " + PlaybackService.this.toString());
-                    sendPlaybackEvent();
-                }, Throwable::printStackTrace);
+    private void calculateAndSendPlayback() {
+        updatePlaybackState();
+        if (duration > 0) {
+            durationScale = duration / 100;
+            positionPercent = positionPercent * 100;
+            volume *= 100f;
+        }
+        if (notificationHelper != null) {
+            boolean notificationPlaying = notificationHelper.isPlaying();
+            if (playing != notificationPlaying) {
+                notificationHelper.updatePlayingState(currentTrack, playing);
+            }
+        }
+        if (wearHelper != null) {
+            boolean wearPlaying = wearHelper.isPlaying();
+            boolean wearLooping = wearHelper.isLooping();
+            if (playing != wearPlaying || looping != wearLooping) {
+                wearHelper.updatePlayingState();
+            }
+        }
+//        AppLog.DEBUG("playback: " + AudioPlaybackService.this.toString());
+        sendPlaybackEvent();
     }
 
-    private void stopTimer() {
-        if (disposable != null && !disposable.isDisposed()) {
-            disposable.dispose();
-        }
-    }
 
     @Override
     public void onCreate() {
@@ -394,6 +383,10 @@ public class PlaybackService extends Service {
         volume = settingsManager.getAudioPlayerVolume();
         position = settingsManager.getAudioPlayerPosition();
         Log.d(TAG, "VOLUME: " + volume + " POSITION: " + position);
+
+        timer = new CountDownTimer(500);
+        timer.pause();
+        timer.setOnCountDownListener(this::calculateAndSendPlayback);
 
         audioFocusManager = new AudioFocusManager();
         audioFocusManager.setOnAudioFocusManagerListener(
@@ -773,7 +766,7 @@ public class PlaybackService extends Service {
                 CacheManager.getRecordTempPath().getAbsolutePath());
 
         setEffects();
-        setVolume(settingsManager.getAudioPlayerVolume());
+        setVolume(volume);
     }
 
     private void setEffects() {
@@ -847,14 +840,14 @@ public class PlaybackService extends Service {
         Log.d(TAG, "start playback");
         togglePlayback();
         audioFocusManager.tryToGetAudioFocus();
-        addTimer();
+        timer.tick();
     }
 
     private void stop() {
         Log.d(TAG, "stop playback");
         togglePlayback();
         audioFocusManager.giveUpAudioFocus();
-        stopTimer();
+        timer.pause();
     }
 
     @Override
@@ -866,7 +859,9 @@ public class PlaybackService extends Service {
         if (playing) {
             stop();
         }
-        stopTimer();
+        if (timer != null) {
+            timer.stop();
+        }
         if (notificationHelper != null) {
             notificationHelper.stopNotification();
         }
@@ -879,7 +874,7 @@ public class PlaybackService extends Service {
         onDestroyAudioPlayer();
         if (settingsManager != null) {
             settingsManager.setAudioPlayerPosition(position);
-            settingsManager.setAudioPlayerVolume(volume);
+            settingsManager.setAudioPlayerVolume((int) volume);
         }
     }
 
@@ -1038,7 +1033,7 @@ public class PlaybackService extends Service {
     }
 
     private void sendPlaybackEvent() {
-        rxBus.sendAudioPlaybackEvent(PlaybackService.this);
+        rxBus.sendAudioPlaybackEvent(AudioPlaybackService.this);
     }
 
     public float getPositionPercent() {

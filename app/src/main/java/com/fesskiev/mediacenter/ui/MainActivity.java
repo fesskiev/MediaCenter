@@ -47,10 +47,10 @@ import android.widget.TextView;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.R;
+import com.fesskiev.mediacenter.services.AudioPlaybackService;
 import com.fesskiev.mediacenter.ui.analytics.AnalyticsActivity;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.services.FileSystemService;
-import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.ui.about.AboutActivity;
 import com.fesskiev.mediacenter.ui.audio.AudioFragment;
 import com.fesskiev.mediacenter.ui.audio.player.AudioPlayerActivity;
@@ -422,13 +422,13 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
     private void startForegroundService() {
         if (!startForeground) {
             startForeground = true;
-            PlaybackService.startPlaybackForegroundService(getApplicationContext());
+            AudioPlaybackService.startPlaybackForegroundService(getApplicationContext());
         }
     }
 
     private void stopPlayBackService() {
         if (startForeground) {
-            PlaybackService.stopPlaybackForegroundService(getApplicationContext());
+            AudioPlaybackService.stopPlaybackForegroundService(getApplicationContext());
             startForeground = false;
         }
     }
@@ -690,9 +690,9 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
     private void processRecording() {
         if (recordingState) {
             mediaNavigationView.setRecordEnable(true);
-            PlaybackService.startRecording(getApplicationContext());
+            AudioPlaybackService.startRecording(getApplicationContext());
         } else {
-            PlaybackService.stopRecording(getApplicationContext());
+            AudioPlaybackService.stopRecording(getApplicationContext());
         }
     }
 

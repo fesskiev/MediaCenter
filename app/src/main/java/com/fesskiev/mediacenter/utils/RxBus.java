@@ -3,8 +3,8 @@ package com.fesskiev.mediacenter.utils;
 
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.VideoFile;
+import com.fesskiev.mediacenter.services.AudioPlaybackService;
 import com.fesskiev.mediacenter.services.FileSystemService;
-import com.fesskiev.mediacenter.services.PlaybackService;
 import com.fesskiev.mediacenter.services.VideoPlaybackService;
 
 import java.util.List;
@@ -14,7 +14,7 @@ import io.reactivex.subjects.PublishSubject;
 
 public final class RxBus {
 
-    private final PublishSubject<PlaybackService> busAudioPlayback = PublishSubject.create();
+    private final PublishSubject<AudioPlaybackService> busAudioPlayback = PublishSubject.create();
     private final PublishSubject<VideoPlaybackService> busVideoPlayback = PublishSubject.create();
     private final PublishSubject<FileSystemService> busFileSystem = PublishSubject.create();
 
@@ -29,7 +29,7 @@ public final class RxBus {
         }
     }
 
-    public void sendAudioPlaybackEvent(final PlaybackService event) {
+    public void sendAudioPlaybackEvent(final AudioPlaybackService event) {
         if (busAudioPlayback.hasObservers()) {
             busAudioPlayback.onNext(event);
         }
@@ -59,7 +59,7 @@ public final class RxBus {
         }
     }
 
-    public Observable<PlaybackService> toAudioPlaybackObservable() {
+    public Observable<AudioPlaybackService> toAudioPlaybackObservable() {
         return busAudioPlayback;
     }
 
