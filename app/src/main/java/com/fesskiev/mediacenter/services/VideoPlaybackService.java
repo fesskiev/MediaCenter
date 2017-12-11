@@ -24,7 +24,7 @@ import io.reactivex.disposables.Disposable;
 public class VideoPlaybackService extends Service {
 
     public enum VIDEO_PLAYBACK {
-        ERROR, IDLE, BUFFERING, INIT, READY, ENDED
+        ERROR, IDLE, BUFFERING, TRACKS, READY, ENDED
     }
 
     private IBinder binder = new VideoPlaybackServiceBinder();
@@ -69,6 +69,11 @@ public class VideoPlaybackService extends Service {
     public SimpleExoPlayer initPlayer(Uri uri, String subtitlePath) {
         player = new ExoPlayerWrapper(getApplicationContext(), true);
         player.setErrorListener(this::sendErrorMessage);
+        player.setTracksChangedListener(() -> {
+            videoPlaybackState = VIDEO_PLAYBACK.TRACKS;
+            AppLog.WTF("STATE_TRACKS");
+            updateProgressControls();
+        });
         player.setPlaybackStateChangedListener(playbackState -> {
             switch (playbackState) {
                 case Player.STATE_BUFFERING:
@@ -84,8 +89,6 @@ public class VideoPlaybackService extends Service {
                     AppLog.WTF("STATE_IDLE");
                     break;
                 case Player.STATE_READY:
-                    videoPlaybackState = VIDEO_PLAYBACK.INIT;
-                    updateProgressControls();
                     videoPlaybackState = VIDEO_PLAYBACK.READY;
                     AppLog.WTF("STATE_READY");
                     updateProgressControls();

@@ -200,12 +200,13 @@ public class VideoExoPlayerActivity extends AppCompatActivity {
         viewModel.getProgressLiveData().observe(this, this::setProgress);
         viewModel.getPlayingLiveData().observe(this, this::setPlaying);
         viewModel.getErrorMessageLiveData().observe(this, this::showErrorShackBar);
-        viewModel.getInitLiveData().observe(this, Void -> initVideoTrackInfo());
+        viewModel.getTracksInitLiveData().observe(this, Void -> initTracksInfo());
     }
 
-    private void initVideoTrackInfo() {
+    private void initTracksInfo() {
         ExoPlayerWrapper player = playbackService.getExoPlayerWrapper();
         videoControlView.setVideoTimeTotal(Utils.getVideoFileTimeFormat(player.getDuration()));
+
         videoControlView.setVideoTrackInfo(player, viewModel.getRendererState());
     }
 

@@ -22,12 +22,9 @@ import java.io.InputStream;
 import java.util.concurrent.Callable;
 
 import io.reactivex.Observable;
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 public class BitmapHelper {
 

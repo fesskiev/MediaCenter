@@ -32,7 +32,7 @@ public class VideoExoPlayerViewModel extends ViewModel {
     private final MutableLiveData<Boolean> lastVideoFileLiveData = new MutableLiveData<>();
 
     private final SingleLiveEvent<String> errorMessageLiveData = new SingleLiveEvent<>();
-    private final SingleLiveEvent<Void> initLiveData = new SingleLiveEvent<>();
+    private final SingleLiveEvent<Void> tracksInitLiveData = new SingleLiveEvent<>();
 
     @Inject
     AppSettingsManager settingsManager;
@@ -76,8 +76,8 @@ public class VideoExoPlayerViewModel extends ViewModel {
             case ERROR:
                 notifyError(playbackService.getErrorMessage());
                 break;
-            case INIT:
-                notifyInit();
+            case TRACKS:
+                notifyTracksInit();
                 break;
             case READY:
                 updatePlayback(playbackService);
@@ -85,8 +85,8 @@ public class VideoExoPlayerViewModel extends ViewModel {
         }
     }
 
-    private void notifyInit() {
-        initLiveData.call();
+    private void notifyTracksInit() {
+        tracksInitLiveData.call();
     }
 
     private void updatePlayback(VideoPlaybackService playbackService) {
@@ -191,8 +191,8 @@ public class VideoExoPlayerViewModel extends ViewModel {
         return errorMessageLiveData;
     }
 
-    public SingleLiveEvent<Void> getInitLiveData() {
-        return initLiveData;
+    public SingleLiveEvent<Void> getTracksInitLiveData() {
+        return tracksInitLiveData;
     }
 
     public long getPosition() {

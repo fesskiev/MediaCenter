@@ -53,6 +53,10 @@ public class ExoPlayerWrapper implements Player.EventListener {
         void onPlaybackStateChanged(int playbackState);
     }
 
+    public interface OnTracksChangedListener {
+        void onTracksChanged();
+    }
+
     private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
 
     private static final int DEFAULT_MIN_BUFFER_MS = 3000;
@@ -63,6 +67,7 @@ public class ExoPlayerWrapper implements Player.EventListener {
     private Context context;
     private OnErrorListener errorListener;
     private OnPlaybackStateChangedListener playbackStateChangedListener;
+    private OnTracksChangedListener tracksChangedListener;
 
     private SimpleExoPlayer exoPlayer;
 
@@ -148,7 +153,9 @@ public class ExoPlayerWrapper implements Player.EventListener {
 
     @Override
     public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-
+        if (tracksChangedListener != null) {
+            tracksChangedListener.onTracksChanged();
+        }
     }
 
     @Override
@@ -234,6 +241,10 @@ public class ExoPlayerWrapper implements Player.EventListener {
 
     public void setPlaybackStateChangedListener(OnPlaybackStateChangedListener listener) {
         this.playbackStateChangedListener = listener;
+    }
+
+    public void setTracksChangedListener(OnTracksChangedListener listener) {
+        this.tracksChangedListener = listener;
     }
 
     public void seekTo(long seek) {
