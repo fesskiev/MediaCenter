@@ -14,7 +14,9 @@ import com.fesskiev.mediacenter.data.model.search.Image;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.data.source.remote.retrofit.RetrofitErrorHelper;
 import com.fesskiev.mediacenter.services.FileSystemService;
+import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
+import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.events.SingleLiveEvent;
 
 import java.io.File;
@@ -77,11 +79,7 @@ public class AlbumSearchViewModel extends ViewModel {
         disposables.add(repository.getAlbum(artist.trim(), album.trim())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(albumResponse -> parseAlbum(albumResponse.getAlbum()))
-                .observeOn(Schedulers.io())
-                .flatMap(albumResponse -> parseAlbumCover(albumResponse.getAlbum()))
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::notifyAlbumCover, this::notifyResponseError));
+                .subscribe(albumResponse -> parseAlbum(albumResponse.getAlbum()), this::notifyResponseError));
     }
 
     private Observable<Bitmap> parseAlbumCover(Album album) {
@@ -92,7 +90,7 @@ public class AlbumSearchViewModel extends ViewModel {
                     if (image.getSize().equals("large")) {
                         String text = image.getText();
                         if (text != null && text.length() != 0) {
-                            return bitmapHelper.getCoverBitmapFromURL(text);
+                            return RxUtils.fromCallable(bitmapHelper.getCoverBitmapFromURL(text));
                         }
                     }
                 }
@@ -106,20 +104,24 @@ public class AlbumSearchViewModel extends ViewModel {
             notifyAlbumNotFound();
             return;
         }
+        disposables.add(parseAlbumCover(album)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::notifyAlbumCover, Throwable::printStackTrace));
+
         notifyAlbumFound(album);
     }
 
     public void loadSelectedImage(Image image, AudioFolder audioFolder) {
-        disposables.add(bitmapHelper.getCoverBitmapFromURL(image.getText())
+        disposables.add(RxUtils.fromCallable(bitmapHelper.getCoverBitmapFromURL(image.getText()))
                 .subscribeOn(Schedulers.io())
                 .doOnNext(bitmap -> removeFolderImages(audioFolder))
                 .doOnNext(bitmap -> saveArtworkAndUpdateFolder(bitmap, audioFolder))
                 .flatMap(bitmap -> repository.getAudioTracks(audioFolder.id))
-                .doOnNext(audioFiles -> {
-                    for (AudioFile audioFile : audioFiles) {
-                        audioFile.folderArtworkPath = audioFolder.folderImage.getAbsolutePath();
-                        repository.updateAudioFile(audioFile);
-                    }
+                .flatMap(Observable::fromIterable)
+                .flatMap(audioFile -> {
+                    audioFile.folderArtworkPath = audioFolder.folderImage.getAbsolutePath();
+                    return RxUtils.fromCallable(repository.updateAudioFile(audioFile));
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(audioFiles -> notifySuccessSaveBitmap(),
@@ -152,6 +154,7 @@ public class AlbumSearchViewModel extends ViewModel {
     }
 
     private void notifyResponseError(Throwable throwable) {
+        throwable.printStackTrace();
         String message = RetrofitErrorHelper.getErrorDescription(context, throwable);
         responseErrorLiveData.setValue(message);
     }

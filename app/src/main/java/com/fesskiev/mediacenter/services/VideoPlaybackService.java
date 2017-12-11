@@ -114,7 +114,7 @@ public class VideoPlaybackService extends Service {
             playing = player.getPlayWhenReady();
 
             sendPlaybackEvent();
-            AppLog.ERROR("video playback: " + VideoPlaybackService.this.toString());
+//            AppLog.ERROR("video playback: " + VideoPlaybackService.this.toString());
         }
     }
 

@@ -3,6 +3,7 @@ package com.fesskiev.mediacenter.ui.search;
 import android.app.Activity;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
@@ -138,13 +139,24 @@ public class AlbumSearchActivity extends AnalyticsActivity {
             shoAlbumNotFoundError();
             hideProgressBar();
         });
-        viewModel.getResponseErrorLiveData().observe(this, this::createResponseErrorSnackBar);
-        viewModel.getAlbumCoverLiveData().observe(this, bitmap -> albumCover.setImageBitmap(bitmap));
-        viewModel.getSuccessSaveBitmapLiveData().observe(this, Void -> showSuccessSaveBitmap());
-        viewModel.getErrorSaveBitmapLiveData().observe(this, Void -> showErrorSaveBitmap());
-        viewModel.getAlbumLiveData().observe(this, this::setAlbum);
+        viewModel.getResponseErrorLiveData().observe(this, message -> {
+            createResponseErrorSnackBar(message);
+            hideProgressBar();
+        });
+        viewModel.getAlbumCoverLiveData().observe(this, this::setAlbumCover);
+        viewModel.getSuccessSaveBitmapLiveData().observe(this, Void -> {
+            showSuccessSaveBitmap();
+            hideProgressBar();
+        });
+        viewModel.getErrorSaveBitmapLiveData().observe(this, Void -> {
+            showErrorSaveBitmap();
+            hideProgressBar();
+        });
+        viewModel.getAlbumLiveData().observe(this, album -> {
+            setAlbum(album);
+            hideProgressBar();
+        });
     }
-
 
     private void loadAlbum() {
         Utils.hideKeyboard(this);
@@ -192,6 +204,7 @@ public class AlbumSearchActivity extends AnalyticsActivity {
         String artist = album.getArtist();
         String albumName = album.getName();
         String url = album.getUrl();
+        images = album.getImage();
 
         if (artist != null) {
             artistResult.setText(artist);
@@ -253,6 +266,10 @@ public class AlbumSearchActivity extends AnalyticsActivity {
             dialog.show(transaction, SelectImageDialog.class.getName());
             dialog.setOnSelectedImageListener(image -> viewModel.loadSelectedImage(image, audioFolder));
         }
+    }
+
+    private void setAlbumCover(Bitmap bitmap) {
+        albumCover.setImageBitmap(bitmap);
     }
 
     private void openUrl(String url) {

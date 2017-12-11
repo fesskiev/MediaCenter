@@ -19,7 +19,7 @@ import io.reactivex.Observable;
 
 public class LocalDataSource implements LocalSource {
 
-    enum Irrelevant { INSTANCE }
+    enum Irrelevant {INSTANCE}
 
     private MediaDao mediaDao;
 
@@ -73,6 +73,10 @@ public class LocalDataSource implements LocalSource {
     @Override
     public Callable<Integer> updateAudioFoldersIndex(List<AudioFolder> audioFolders) {
         return () -> {
+            for (int i = 0; i < audioFolders.size(); i++) {
+                AudioFolder audioFolder = audioFolders.get(i);
+                audioFolder.folderIndex = i;
+            }
             mediaDao.updateAudioFoldersIndex(audioFolders);
             return 1;
         };
@@ -106,6 +110,10 @@ public class LocalDataSource implements LocalSource {
     @Override
     public Callable<Integer> updateVideoFoldersIndex(List<VideoFolder> videoFolders) {
         return () -> {
+            for (int i = 0; i < videoFolders.size(); i++) {
+                VideoFolder videoFolder = videoFolders.get(i);
+                videoFolder.folderIndex = i;
+            }
             mediaDao.updateVideoFoldersIndex(videoFolders);
             return 1;
         };

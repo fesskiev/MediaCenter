@@ -8,7 +8,6 @@ import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.players.AudioPlayer;
-import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
@@ -90,10 +89,10 @@ public class AudioFoldersViewModel extends ViewModel {
     }
 
     public void updateAudioFolderIndexes(List<AudioFolder> audioFolders) {
-        RxUtils.fromCallable(repository.updateAudioFoldersIndex(audioFolders))
+        disposables.add(RxUtils.fromCallable(repository.updateAudioFoldersIndex(audioFolders))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(integer -> notifyUpdatedIndexes());
+                .subscribe(integer -> notifyUpdatedIndexes()));
     }
 
     public Observable<Bitmap> getAudioFolderArtwork(AudioFolder audioFolder) {

@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.Callable;
 
 import io.reactivex.Observable;
 import okhttp3.Call;
@@ -26,6 +27,7 @@ import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class BitmapHelper {
 
@@ -106,28 +108,16 @@ public class BitmapHelper {
         return bitmapLruCache.get(key);
     }
 
-    public Observable<Bitmap> getCoverBitmapFromURL(String url) {
-        return Observable.create(e -> {
+    public Callable<Bitmap> getCoverBitmapFromURL(String url) {
+        return () -> {
             if (url != null) {
                 Request request = new Request.Builder().url(url).build();
-                okHttpClient.newCall(request).enqueue(new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException ex) {
-                        e.onError(ex);
-                    }
-
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        Bitmap bitmap = decodeBitmapFromInputStream(response.body().byteStream());
-                        e.onNext(bitmap);
-                    }
-                });
+                Response response = okHttpClient.newCall(request).execute();
+                return decodeBitmapFromInputStream(response.body().byteStream());
             } else {
-                Bitmap bitmap = getNoCoverTrackBitmap();
-                e.onNext(bitmap);
+                return getNoCoverTrackBitmap();
             }
-            e.onComplete();
-        });
+        };
     }
 
     public Observable<Bitmap> loadBitmap(MediaFile mediaFile) {
@@ -305,10 +295,6 @@ public class BitmapHelper {
 
     public Bitmap decodeBitmapFromInputStream(InputStream inputStream) {
         final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeStream(inputStream, null, options);
-
-        options.inSampleSize = calculateInSampleSize(options, WIDTH, HEIGHT);
 
         options.inMutable = true;
         options.inJustDecodeBounds = false;

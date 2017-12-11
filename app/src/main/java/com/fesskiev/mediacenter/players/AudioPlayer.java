@@ -127,7 +127,6 @@ public class AudioPlayer implements Playable {
         if (fFmpegHelper.isCommandRunning()) {
             fFmpegHelper.killRunningProcesses();
         }
-
         if (FFmpegHelper.isAudioFileFLAC(currentTrack)) {
             fFmpegHelper.convertAudioIfNeed(currentTrack, new FFmpegHelper.OnConvertProcessListener() {
 

@@ -45,7 +45,7 @@ public abstract class MediaDao {
     @Insert(onConflict = REPLACE)
     public abstract void updateSelectedAudioFolder(SelectedAudioFolder audioFolder);
 
-    @Insert(onConflict = REPLACE)
+    @Update(onConflict = REPLACE)
     public abstract void updateAudioFoldersIndex(List<AudioFolder> audioFolders);
 
 
@@ -64,7 +64,7 @@ public abstract class MediaDao {
     @Query("SELECT * FROM VideoFolders WHERE folderPath LIKE :path")
     public abstract VideoFolder getVideoFolderByPath(String path);
 
-    @Insert(onConflict = REPLACE)
+    @Update(onConflict = REPLACE)
     public abstract void updateVideoFoldersIndex(List<VideoFolder> videoFolders);
 
 
