@@ -49,7 +49,7 @@ public class LocalDataSource implements LocalSource {
 
     @Override
     public Observable<AudioFolder> getAudioFolderByPath(String path) {
-        return RxUtils.fromCallable(() -> mediaDao.getAudioFolderByPath(path.replaceAll("'", "''") + "'"));
+        return RxUtils.fromCallable(() -> mediaDao.getAudioFolderByPath(path));
     }
 
     @Override
@@ -104,7 +104,7 @@ public class LocalDataSource implements LocalSource {
 
     @Override
     public Observable<VideoFolder> getVideoFolderByPath(String path) {
-        return RxUtils.fromCallable(() -> mediaDao.getVideoFolderByPath(path.replaceAll("'", "''") + "'"));
+        return RxUtils.fromCallable(() -> mediaDao.getVideoFolderByPath(path));
     }
 
     @Override
@@ -144,22 +144,22 @@ public class LocalDataSource implements LocalSource {
 
     @Override
     public Observable<AudioFile> getAudioFileByPath(String path) {
-        return RxUtils.fromCallable(() -> mediaDao.getAudioFileByPath(path.replaceAll("'", "''") + "'"));
+        return RxUtils.fromCallable(() -> mediaDao.getAudioFileByPath(path));
     }
 
     @Override
     public Observable<List<AudioFile>> getSearchAudioFiles(String query) {
-        return RxUtils.fromCallable(() -> mediaDao.getSearchAudioFiles(query.replaceAll("'", "''") + "'"));
+        return RxUtils.fromCallable(() -> mediaDao.getSearchAudioFiles(query));
     }
 
     @Override
     public Observable<List<AudioFile>> getGenreTracks(String contentValue) {
-        return RxUtils.fromCallable(() -> mediaDao.getGenreTracks(contentValue.replaceAll("'", "''") + "'"));
+        return RxUtils.fromCallable(() -> mediaDao.getGenreTracks(contentValue));
     }
 
     @Override
     public Observable<List<AudioFile>> getArtistTracks(String contentValue) {
-        return RxUtils.fromCallable(() -> mediaDao.getArtistTracks(contentValue.replaceAll("'", "''") + "'"));
+        return RxUtils.fromCallable(() -> mediaDao.getArtistTracks(contentValue));
     }
 
     @Override
@@ -249,16 +249,16 @@ public class LocalDataSource implements LocalSource {
 
     @Override
     public boolean containAudioTrack(String path) {
-        return mediaDao.getAudioFile(path.replaceAll("'", "''") + "'") == null;
+        return mediaDao.getAudioFile(path) != null;
     }
 
     @Override
     public boolean containAudioFolder(String path) {
-        return mediaDao.getAudioFolder(path.replaceAll("'", "''") + "'") == null;
+        return mediaDao.getAudioFolder(path) != null;
     }
 
     @Override
     public boolean containVideoFolder(String path) {
-        return mediaDao.getVideoFolder(path.replaceAll("'", "''") + "'") == null;
+        return mediaDao.getVideoFolder(path) != null;
     }
 }

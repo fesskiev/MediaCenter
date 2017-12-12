@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
@@ -157,6 +158,7 @@ public class FileSystemService extends Service {
 
         fetchContentThread.quitSafely();
 
+        observer.clearCache();
         getContentResolver().unregisterContentObserver(observer);
         unregisterNotificationReceiver();
     }
@@ -529,7 +531,6 @@ public class FileSystemService extends Service {
                     if (cursor != null) {
                         if (cursor.moveToLast()) {
                             String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA));
-                            AppLog.ERROR("FIND PATH: " + path);
                             File file = new File(path);
                             File parent = file.getParentFile();
                             if (parent.isDirectory()) {
@@ -542,7 +543,6 @@ public class FileSystemService extends Service {
                                         } else {
                                             if (!containMediaFile(path)) {
                                                 filePaths.add(path);
-
                                                 addAudioFileToCache(file);
                                             }
                                         }
@@ -573,6 +573,8 @@ public class FileSystemService extends Service {
                             }
                         }
                     }
+                } catch (SQLiteException e) {
+                    e.printStackTrace();
                 } finally {
                     if (cursor != null) {
                         cursor.close();
@@ -598,7 +600,7 @@ public class FileSystemService extends Service {
                             notificationHelper.createMediaFileNotification(videoFile, notificationId);
                             mediaFiles.add(new MediaFileNotification(notificationId, videoFile));
                         }
-                    });
+                    }, Throwable::printStackTrace);
         }
 
         private void addAudioFileToCache(File file) {
@@ -617,7 +619,7 @@ public class FileSystemService extends Service {
                             notificationHelper.createMediaFileNotification(audioFile, notificationId);
                             mediaFiles.add(new MediaFileNotification(notificationId, audioFile));
                         }
-                    });
+                    }, Throwable::printStackTrace);
         }
 
         private void addVideoFolderToCache(File parent) {
@@ -652,7 +654,7 @@ public class FileSystemService extends Service {
                             notificationHelper.createMediaFolderNotification(mediaFolderNotification.getMediaFolder(),
                                     notificationId);
                         }
-                    });
+                    }, Throwable::printStackTrace);
         }
 
         private void addAudioFolderToCache(File parent) {
@@ -660,7 +662,6 @@ public class FileSystemService extends Service {
                     .delay(20, TimeUnit.SECONDS)
                     .subscribeOn(Schedulers.io())
                     .flatMap(pt -> {
-
                         AudioFolder audioFolder = new AudioFolder();
                         File[] filterImages = parent.listFiles(folderImageFilter());
                         if (filterImages != null && filterImages.length > 0) {
@@ -677,8 +678,7 @@ public class FileSystemService extends Service {
                             AudioFile audioFile = new AudioFile(p, audioFolder.id);
                             File folderImage = audioFolder.folderImage;
                             if (folderImage != null) {
-                                audioFile.folderArtworkPath =
-                                        folderImage.getAbsolutePath();
+                                audioFile.folderArtworkPath = folderImage.getAbsolutePath();
                             }
                             audioFiles.add(audioFile);
                         }
@@ -697,7 +697,7 @@ public class FileSystemService extends Service {
                             notificationHelper.createMediaFolderNotification(mediaFolderNotification.getMediaFolder(),
                                     notificationId);
                         }
-                    });
+                    }, Throwable::printStackTrace);
         }
 
         private boolean containsMediaFolder(String path) {
@@ -755,6 +755,11 @@ public class FileSystemService extends Service {
                 }
             }
             return null;
+        }
+
+        public void clearCache() {
+            mediaFiles.clear();
+            mediaFolders.clear();
         }
     }
 

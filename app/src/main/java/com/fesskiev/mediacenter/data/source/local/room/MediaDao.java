@@ -83,7 +83,7 @@ public abstract class MediaDao {
     @Query("SELECT * FROM AudioFiles WHERE filePath LIKE :path")
     public abstract AudioFile getAudioFileByPath(String path);
 
-    @Query("SELECT * FROM AudioFiles WHERE title LIKE  '%' || :query || '%'")
+    @Query("SELECT * FROM AudioFiles WHERE title LIKE '%' || :query || '%'")
     public abstract List<AudioFile> getSearchAudioFiles(String query);
 
     @Query("SELECT * FROM AudioFiles WHERE genre LIKE :contentValue ORDER BY trackNumber ASC")
