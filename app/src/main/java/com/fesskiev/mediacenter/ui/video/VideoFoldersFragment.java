@@ -101,6 +101,7 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
         recyclerView = view.findViewById(R.id.foldersGridView);
         recyclerView.setLayoutManager(gridLayoutManager);
         adapter = new VideoFoldersAdapter(this);
+        adapter.setHasStableIds(true);
         recyclerView.setAdapter(adapter);
         recyclerView.addItemDecoration(new ItemOffsetDecoration(spacing));
 
@@ -406,6 +407,16 @@ public class VideoFoldersFragment extends Fragment implements SwipeRefreshLayout
         public int getItemCount() {
             return videoFolders.size();
         }
+
+        @Override
+        public long getItemId(int position) {
+            VideoFolder videoFolder = videoFolders.get(position);
+            if(videoFolder != null){
+                return videoFolder.timestamp;
+            }
+            return super.getItemId(position);
+        }
+
 
         public void refresh(List<VideoFolder> receiveVideoFolders) {
             videoFolders.clear();

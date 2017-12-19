@@ -102,6 +102,7 @@ public class AudioFoldersFragment extends Fragment implements AudioContent {
         recyclerView.setLayoutManager(gridLayoutManager);
         ((DefaultItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
         adapter = new AudioFoldersAdapter(this);
+        adapter.setHasStableIds(true);
         recyclerView.setAdapter(adapter);
         recyclerView.addItemDecoration(new ItemOffsetDecoration(spacing));
 
@@ -313,6 +314,15 @@ public class AudioFoldersFragment extends Fragment implements AudioContent {
                 }
             }
 
+        }
+
+        @Override
+        public long getItemId(int position) {
+            AudioFolder audioFolder = audioFolders.get(position);
+            if(audioFolder != null){
+                return audioFolder.timestamp;
+            }
+            return super.getItemId(position);
         }
 
         private void startAudioFilesActivity(int position) {

@@ -272,7 +272,6 @@ public class AudioPlayerActivity extends AnalyticsActivity {
     }
 
     private void setCurrentAudioFileView(AudioFile audioFile) {
-        controlView.startLoading();
         setTrackInformation(audioFile);
     }
 
