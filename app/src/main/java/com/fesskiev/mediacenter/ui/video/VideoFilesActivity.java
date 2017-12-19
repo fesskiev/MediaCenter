@@ -87,6 +87,7 @@ public class VideoFilesActivity extends AnalyticsActivity {
         recyclerView = findViewById(R.id.foldersGridView);
         recyclerView.setLayoutManager(gridLayoutManager);
         adapter = new VideoFilesAdapter(this);
+        adapter.setHasStableIds(true);
         recyclerView.setAdapter(adapter);
         recyclerView.addItemDecoration(new ItemOffsetDecoration(spacing));
     }
@@ -341,6 +342,15 @@ public class VideoFilesActivity extends AnalyticsActivity {
         @Override
         public int getItemCount() {
             return videoFiles.size();
+        }
+
+        @Override
+        public long getItemId(int position) {
+            VideoFile videoFile = videoFiles.get(position);
+            if (videoFile != null) {
+                return videoFile.timestamp;
+            }
+            return super.getItemId(position);
         }
 
         public void refresh(List<VideoFile> receiveVideoFiles) {

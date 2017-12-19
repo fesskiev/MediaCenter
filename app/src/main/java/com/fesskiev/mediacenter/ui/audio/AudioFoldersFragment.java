@@ -319,7 +319,7 @@ public class AudioFoldersFragment extends Fragment implements AudioContent {
         @Override
         public long getItemId(int position) {
             AudioFolder audioFolder = audioFolders.get(position);
-            if(audioFolder != null){
+            if (audioFolder != null) {
                 return audioFolder.timestamp;
             }
             return super.getItemId(position);

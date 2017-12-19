@@ -114,6 +114,7 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
         recyclerView.setLayoutManager(new ScrollingLinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false, 1000));
         adapter = new TrackListAdapter(this);
+        adapter.setHasStableIds(true);
         recyclerView.setAdapter(adapter);
         recyclerView.addOnScrollListener(new HidingScrollListener() {
             @Override
@@ -532,6 +533,15 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
         @Override
         public int getItemCount() {
             return audioFiles.size();
+        }
+
+        @Override
+        public long getItemId(int position) {
+            AudioFile audioFile = audioFiles.get(position);
+            if (audioFile != null) {
+                return audioFile.timestamp;
+            }
+            return super.getItemId(position);
         }
 
         public void refreshAdapter(List<AudioFile> receiverAudioFiles) {

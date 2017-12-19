@@ -45,6 +45,7 @@ public class PlayerTrackListActivity extends AnalyticsActivity {
         recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
                 R.drawable.divider));
         adapter = new TrackListActivityAdapter();
+        adapter.setHasStableIds(true);
         recyclerView.setAdapter(adapter);
 
         observeData();
@@ -119,6 +120,15 @@ public class PlayerTrackListActivity extends AnalyticsActivity {
             return audioFiles.size();
         }
 
+        @Override
+        public long getItemId(int position) {
+            AudioFile audioFile = audioFiles.get(position);
+            if (audioFile != null) {
+                return audioFile.timestamp;
+            }
+            return super.getItemId(position);
+        }
+        
         public void refreshAdapter(List<AudioFile> audioFiles) {
             this.audioFiles.clear();
             this.audioFiles.addAll(audioFiles);

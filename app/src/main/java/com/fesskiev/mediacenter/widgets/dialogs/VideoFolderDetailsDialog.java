@@ -99,19 +99,17 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
 
     private void saveVideoFolderName() {
         if (!TextUtils.isEmpty(folderNameChanged)) {
-            if (!TextUtils.isEmpty(folderNameChanged)) {
-                disposable = Observable.just(folderNameChanged)
-                        .subscribeOn(Schedulers.io())
-                        .flatMap(toDir -> Observable.just(renameFolder(toDir)))
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .doOnNext(this::updateFolderPath)
-                        .subscribeOn(Schedulers.io())
-                        .flatMap(toDir -> repository.getVideoFiles(videoFolder.getId())
-                                .doOnNext(audioFiles -> renameFiles(audioFiles, toDir))
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .doOnNext(audioFiles -> refreshCache()))
-                        .subscribe(audioFiles -> hideSaveButton(), Throwable::printStackTrace);
-            }
+            disposable = Observable.just(folderNameChanged)
+                    .subscribeOn(Schedulers.io())
+                    .flatMap(toDir -> Observable.just(renameFolder(toDir)))
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnNext(this::updateFolderPath)
+                    .subscribeOn(Schedulers.io())
+                    .flatMap(toDir -> repository.getVideoFiles(videoFolder.getId())
+                            .doOnNext(audioFiles -> renameFiles(audioFiles, toDir))
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .doOnNext(audioFiles -> refreshCache()))
+                    .subscribe(audioFiles -> hideSaveButton(), Throwable::printStackTrace);
         }
     }
 
@@ -139,7 +137,6 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
             repository.updateVideoFile(videoFile);
         }
     }
-
 
     private void updateFolderPath(String folderName) {
         folderPath.setText(String.format(Locale.US, "%1$s/%2$s",
