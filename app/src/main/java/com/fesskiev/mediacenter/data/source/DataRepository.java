@@ -120,14 +120,41 @@ public class DataRepository {
     }
 
 
-    public Observable<List<AudioFile>> getSelectedFolderAudioFiles() {
+    public Observable<List<AudioFile>> getSelectedAudioFiles() {
         return getSelectedAudioFolder()
                 .flatMap(audioFolder -> {
                     if (audioFolder != null) {
-                        return localSource.getSelectedFolderAudioFiles(audioFolder);
+                        return localSource.getSelectedAudioFiles(audioFolder);
                     }
                     return Observable.empty();
                 });
+    }
+
+    public Observable<VideoFile> getSelectedVideoFile() {
+        return localSource.getSelectedVideoFile();
+    }
+
+    public Observable<List<VideoFile>> getSelectedVideoFiles() {
+        return getSelectedVideoFolder()
+                .flatMap(videoFolder-> {
+                    if (videoFolder != null) {
+                        return localSource.getSelectedVideoFiles(videoFolder);
+                    }
+                    return Observable.empty();
+                });
+    }
+
+    public Callable<Object> updateSelectedVideoFile(VideoFile videoFile) {
+        return localSource.updateSelectedVideoFile(videoFile);
+    }
+
+    public Callable<Object> updateSelectedVideoFolder(VideoFolder videoFolder) {
+        return localSource.updateSelectedVideoFolder(videoFolder);
+    }
+
+
+    private Observable<VideoFolder> getSelectedVideoFolder() {
+        return localSource.getSelectedVideoFolder();
     }
 
     public Callable<Integer> deleteAudioFolder(AudioFolder audioFolder) {

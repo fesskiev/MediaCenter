@@ -128,12 +128,12 @@ public class AudioPlayer implements Playable {
             fFmpegHelper.killRunningProcesses();
         }
         if (FFmpegHelper.isAudioFileFLAC(currentTrack)) {
+            pause();
             fFmpegHelper.convertAudioIfNeed(currentTrack, new FFmpegHelper.OnConvertProcessListener() {
 
                 @Override
                 public void onStart() {
                     Log.e(TAG, "onStart() convert");
-                    pause();
                     AudioPlaybackService.startConvert(context);
                 }
 

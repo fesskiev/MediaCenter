@@ -382,11 +382,6 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         unbindFileSystemService();

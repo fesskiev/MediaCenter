@@ -76,8 +76,8 @@ public class MainViewModel extends ViewModel {
         getCurrentTrackAndTrackList();
     }
 
-    private void getCurrentTrackAndTrackList() {
-        disposables.add(repository.getSelectedFolderAudioFiles()
+    public void getCurrentTrackAndTrackList() {
+        disposables.add(repository.getSelectedAudioFiles()
                 .subscribeOn(Schedulers.io())
                 .flatMap(audioFiles -> Observable.just(sortAudioFiles(settingsManager.getSortType(), audioFiles)))
                 .observeOn(AndroidSchedulers.mainThread())
@@ -95,6 +95,10 @@ public class MainViewModel extends ViewModel {
                 .doOnNext(this::notifyCoverImage)
                 .subscribe(object -> {
                 }, Throwable::printStackTrace));
+
+    }
+
+    public void getCurrentVideoFileAndVideoFilesList() {
 
     }
 

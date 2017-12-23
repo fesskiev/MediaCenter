@@ -274,6 +274,16 @@ public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
     }
 
     @Override
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    @Override
+    public boolean isHidden() {
+        return isHidden;
+    }
+
+    @Override
     public int compareTo(AudioFile another) {
         if (this.trackNumber > another.trackNumber) {
             return 1;

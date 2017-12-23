@@ -11,6 +11,8 @@ import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.model.SelectedAudioFile;
 import com.fesskiev.mediacenter.data.model.SelectedAudioFolder;
+import com.fesskiev.mediacenter.data.model.SelectedVideoFile;
+import com.fesskiev.mediacenter.data.model.SelectedVideoFolder;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
 
@@ -40,7 +42,7 @@ public abstract class MediaDao {
     public abstract AudioFolder getSelectedAudioFolder();
 
     @Query("SELECT * FROM AudioFiles WHERE folderId LIKE :id")
-    public abstract List<AudioFile> getSelectedFolderAudioFiles(String id);
+    public abstract List<AudioFile> getSelectedAudioFiles(String id);
 
     @Insert(onConflict = REPLACE)
     public abstract void updateSelectedAudioFolder(SelectedAudioFolder audioFolder);
@@ -67,12 +69,18 @@ public abstract class MediaDao {
     @Update(onConflict = REPLACE)
     public abstract void updateVideoFoldersIndex(List<VideoFolder> videoFolders);
 
+    @Query("SELECT VideoFolders.*, SelectedVideoFolder.isSelected FROM VideoFolders INNER JOIN SelectedVideoFolder ON VideoFolders.id = SelectedVideoFolder.videoFolderId")
+    public abstract VideoFolder getSelectedVideoFolder();
+
+    @Insert(onConflict = REPLACE)
+    public abstract void updateSelectedVideoFolder(SelectedVideoFolder videFolder);
+
 
     @Insert(onConflict = REPLACE)
     public abstract void insertAudioFile(AudioFile audioFile);
 
     @Insert(onConflict = REPLACE)
-    public abstract void updateSelectedAudioFile(SelectedAudioFile audioFile);
+    public abstract void updateSelectedAudioFile(SelectedAudioFile selectedAudioFile);
 
     @Query("SELECT AudioFiles.*, SelectedAudioFile.isSelected FROM AudioFiles INNER JOIN SelectedAudioFile ON AudioFiles.fileId = SelectedAudioFile.audioFileId")
     public abstract AudioFile getSelectedAudioFile();
@@ -104,6 +112,15 @@ public abstract class MediaDao {
 
     @Update(onConflict = REPLACE)
     public abstract int updateVideoFile(VideoFile videoFile);
+
+    @Query("SELECT VideoFiles.*, SelectedVideoFile.isSelected FROM VideoFiles INNER JOIN SelectedVideoFile ON VideoFiles.fileId = SelectedVideoFile.videoFileId")
+    public abstract VideoFile getSelectedVideoFile();
+
+    @Insert(onConflict = REPLACE)
+    public abstract void updateSelectedVideoFile(SelectedVideoFile selectedVideoFile);
+
+    @Query("SELECT * FROM VideoFiles WHERE folderId LIKE :id")
+    public abstract List<VideoFile> getSelectedVideoFiles(String id);
 
     @Query("SELECT * FROM VideoFiles WHERE folderId LIKE :id")
     public abstract List<VideoFile> getVideoFiles(String id);

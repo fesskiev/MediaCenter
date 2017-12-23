@@ -40,6 +40,7 @@ public class VideoFile implements MediaFile, Parcelable {
     public String resolution;
     public boolean inPlayList;
     public boolean isHidden;
+    public boolean isSelected;
     public long size;
     public long timestamp;
     public long length;
@@ -69,6 +70,7 @@ public class VideoFile implements MediaFile, Parcelable {
         this.resolution = in.readString();
         this.inPlayList = in.readByte() != 0;
         this.isHidden = in.readByte() != 0;
+        this.isSelected = in.readByte() != 0;
         this.size = in.readLong();
         this.timestamp = in.readLong();
         this.length = in.readLong();
@@ -184,6 +186,16 @@ public class VideoFile implements MediaFile, Parcelable {
     }
 
     @Override
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    @Override
+    public boolean isHidden() {
+        return isHidden;
+    }
+
+    @Override
     public void setToPlayList(boolean inPlaylist) {
         this.inPlayList = inPlaylist;
     }
@@ -221,6 +233,7 @@ public class VideoFile implements MediaFile, Parcelable {
                 ", resolution='" + resolution + '\'' +
                 ", inPlayList=" + inPlayList +
                 ", isHidden=" + isHidden +
+                ", isSelected=" + isSelected +
                 ", size=" + size +
                 ", timestamp=" + timestamp +
                 ", length=" + length +
@@ -242,6 +255,7 @@ public class VideoFile implements MediaFile, Parcelable {
         dest.writeString(this.resolution);
         dest.writeByte(this.inPlayList ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isHidden ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isSelected ? (byte) 1 : (byte) 0);
         dest.writeLong(this.size);
         dest.writeLong(this.timestamp);
         dest.writeLong(this.length);

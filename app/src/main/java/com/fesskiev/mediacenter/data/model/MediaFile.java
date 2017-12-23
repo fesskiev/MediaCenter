@@ -25,6 +25,10 @@ public interface MediaFile {
 
     boolean inPlayList();
 
+    boolean isSelected();
+
+    boolean isHidden();
+
     void setToPlayList(boolean inPlaylist);
 
 }

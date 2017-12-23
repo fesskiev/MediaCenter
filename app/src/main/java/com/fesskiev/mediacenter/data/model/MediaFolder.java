@@ -9,10 +9,11 @@ public interface MediaFolder {
 
     String getFolderName();
 
-    boolean isHidden();
+    long getTimestamp();
 
     boolean exists();
 
-    long getTimestamp();
+    boolean isHidden();
 
+    boolean isSelected();
 }

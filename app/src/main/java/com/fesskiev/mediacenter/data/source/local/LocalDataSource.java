@@ -5,6 +5,8 @@ import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.model.SelectedAudioFile;
 import com.fesskiev.mediacenter.data.model.SelectedAudioFolder;
+import com.fesskiev.mediacenter.data.model.SelectedVideoFile;
+import com.fesskiev.mediacenter.data.model.SelectedVideoFolder;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
 import com.fesskiev.mediacenter.data.source.local.room.MediaCenterDb;
@@ -58,8 +60,8 @@ public class LocalDataSource implements LocalSource {
     }
 
     @Override
-    public Observable<List<AudioFile>> getSelectedFolderAudioFiles(AudioFolder audioFolder) {
-        return RxUtils.fromCallable(() -> mediaDao.getSelectedFolderAudioFiles(audioFolder.id));
+    public Observable<List<AudioFile>> getSelectedAudioFiles(AudioFolder audioFolder) {
+        return RxUtils.fromCallable(() -> mediaDao.getSelectedAudioFiles(audioFolder.id));
     }
 
     @Override
@@ -246,6 +248,36 @@ public class LocalDataSource implements LocalSource {
         return RxUtils.fromCallable(() -> mediaDao.getFolderFilePaths(name));
     }
 
+    @Override
+    public Observable<VideoFolder> getSelectedVideoFolder() {
+        return RxUtils.fromCallable(() -> mediaDao.getSelectedVideoFolder());
+    }
+
+    @Override
+    public Observable<List<VideoFile>> getSelectedVideoFiles(VideoFolder videoFolder) {
+        return RxUtils.fromCallable(() -> mediaDao.getSelectedVideoFiles(videoFolder.id));
+    }
+
+    @Override
+    public Callable<Object> updateSelectedVideoFolder(VideoFolder videoFolder) {
+        return () -> {
+            mediaDao.updateSelectedVideoFolder(new SelectedVideoFolder(videoFolder.id));
+            return Irrelevant.INSTANCE;
+        };
+    }
+
+    @Override
+    public Callable<Object> updateSelectedVideoFile(VideoFile videoFile) {
+        return () -> {
+            mediaDao.updateSelectedVideoFile(new SelectedVideoFile(videoFile.fileId));
+            return Irrelevant.INSTANCE;
+        };
+    }
+
+    @Override
+    public Observable<VideoFile> getSelectedVideoFile() {
+        return RxUtils.fromCallable(() -> mediaDao.getSelectedVideoFile());
+    }
 
     @Override
     public boolean containAudioTrack(String path) {

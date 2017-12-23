@@ -28,7 +28,7 @@ public interface LocalSource {
 
     Observable<AudioFolder> getSelectedAudioFolder();
 
-    Observable<List<AudioFile>> getSelectedFolderAudioFiles(AudioFolder audioFolder);
+    Observable<List<AudioFile>> getSelectedAudioFiles(AudioFolder audioFolder);
 
     Callable<Object> updateSelectedAudioFolder(AudioFolder audioFolder);
 
@@ -46,6 +46,12 @@ public interface LocalSource {
     Callable<Integer> deleteVideoFolderWithFiles(VideoFolder videoFolder);
 
     Observable<VideoFolder> getVideoFolderByPath(String path);
+
+    Observable<VideoFolder> getSelectedVideoFolder();
+
+    Observable<List<VideoFile>> getSelectedVideoFiles(VideoFolder videoFolder);
+
+    Callable<Object> updateSelectedVideoFolder(VideoFolder videoFolder);
 
     Callable<Integer> updateVideoFoldersIndex(List<VideoFolder> videoFolders);
 
@@ -76,6 +82,10 @@ public interface LocalSource {
      * Video files methods
      */
     void insertVideoFile(VideoFile videoFile);
+
+    Callable<Object> updateSelectedVideoFile(VideoFile videoFile);
+
+    Observable<VideoFile> getSelectedVideoFile();
 
     Callable<Integer> updateVideoFile(VideoFile videoFile);
 

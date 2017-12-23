@@ -67,6 +67,11 @@ public class AudioFolder implements Comparable<AudioFolder>, Parcelable, MediaFo
     }
 
     @Override
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    @Override
     public long getTimestamp() {
         return timestamp;
     }
