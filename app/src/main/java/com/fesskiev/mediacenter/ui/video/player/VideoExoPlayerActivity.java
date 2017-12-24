@@ -163,8 +163,10 @@ public class VideoExoPlayerActivity extends AppCompatActivity {
     }
 
     private void bindVideoPlaybackService() {
-        Intent intent = new Intent(this, VideoPlaybackService.class);
-        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+        if (!serviceBound) {
+            Intent intent = new Intent(this, VideoPlaybackService.class);
+            bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+        }
     }
 
     private void unbindVideoPlaybackService() {
@@ -253,7 +255,6 @@ public class VideoExoPlayerActivity extends AppCompatActivity {
         videoControlView.setPictureInPicture(isInPictureInPictureMode);
         if (isInPictureInPictureMode) {
             updatePictureInPictureState(getPlayback());
-
 
             pictureInPictureReceiver = new BroadcastReceiver() {
                 @Override

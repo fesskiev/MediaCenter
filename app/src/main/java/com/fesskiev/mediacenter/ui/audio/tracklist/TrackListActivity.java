@@ -139,7 +139,7 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
     private void observeData() {
         viewModel = ViewModelProviders.of(this).get(TrackListViewModel.class);
         viewModel.fetchContentByType(contentType, contentValue, audioFolder);
-        viewModel.getCurrentTrackListLiveData().observe(this, audioFiles -> adapter.refreshAdapter(audioFiles));
+        viewModel.getTrackListLiveData().observe(this, audioFiles -> adapter.refreshAdapter(audioFiles));
         viewModel.getPlayingLiveData().observe(this, playing -> adapter.setPlaying(playing));
         viewModel.getCurrentTrackLiveData().observe(this, currentTrack -> adapter.setCurrentTrack(currentTrack));
         viewModel.getAddToPlayListAudioFileLiveData().observe(this, Void -> showAddAudioFileToPlayListSnackBar());

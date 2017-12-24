@@ -32,7 +32,7 @@ public class TrackListViewModel extends ViewModel {
 
     private final MutableLiveData<AudioFile> currentTrackLiveData = new MutableLiveData<>();
 
-    private final MutableLiveData<List<AudioFile>> currentTrackListLiveData = new MutableLiveData<>();
+    private final MutableLiveData<List<AudioFile>> trackListLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> playingLiveData = new MutableLiveData<>();
     private final SingleLiveEvent<Void> addToPlayListAudioFileLiveData = new SingleLiveEvent<>();
     private final SingleLiveEvent<Void> notExistsAudioFileLiveData = new SingleLiveEvent<>();
@@ -109,13 +109,16 @@ public class TrackListViewModel extends ViewModel {
     }
 
     public void sortTracks(int type) {
-        disposables.add(Observable.just(audioPlayer.getCurrentTrackList())
-                .subscribeOn(Schedulers.io())
-                .map(unsortedList -> AudioPlayer.sortAudioFiles(type, unsortedList))
-                .doOnNext(sortedList -> audioPlayer.setSortingTrackList(sortedList))
-                .doOnNext(sortedList -> settingsManager.setSortType(type))
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::notifyTrackList));
+        List<AudioFile> trackList = trackListLiveData.getValue();
+        if (trackList != null) {
+            disposables.add(Observable.just(trackList)
+                    .subscribeOn(Schedulers.io())
+                    .map(unsortedList -> AudioPlayer.sortAudioFiles(type, unsortedList))
+                    .doOnNext(sortedList -> audioPlayer.setSortingTrackList(sortedList))
+                    .doOnNext(sortedList -> settingsManager.setSortType(type))
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(this::notifyTrackList));
+        }
     }
 
     @Override
@@ -162,7 +165,7 @@ public class TrackListViewModel extends ViewModel {
     }
 
     private void notifyTrackList(List<AudioFile> audioFiles) {
-        currentTrackListLiveData.setValue(audioFiles);
+        trackListLiveData.setValue(audioFiles);
     }
 
     private void notifyDeleteAudioFile(int position) {
@@ -185,8 +188,8 @@ public class TrackListViewModel extends ViewModel {
         settingsManager.setNeedTrackListActivityGuide(need);
     }
 
-    public MutableLiveData<List<AudioFile>> getCurrentTrackListLiveData() {
-        return currentTrackListLiveData;
+    public MutableLiveData<List<AudioFile>> getTrackListLiveData() {
+        return trackListLiveData;
     }
 
     public MutableLiveData<Boolean> getPlayingLiveData() {
@@ -208,6 +211,7 @@ public class TrackListViewModel extends ViewModel {
     public SingleLiveEvent<Integer> getDeletedAudioFileLiveData() {
         return deletedAudioFileLiveData;
     }
+
     public boolean isPlaying() {
         Boolean playing = playingLiveData.getValue();
         if (playing == null) {

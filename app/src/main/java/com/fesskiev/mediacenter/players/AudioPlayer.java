@@ -196,14 +196,13 @@ public class AudioPlayer implements Playable {
         if (audioFiles == null || audioFiles.isEmpty()) {
             return;
         }
-        if (isSortingCurrentTrackList(audioFiles)) {
+        if (isCurrentTrackList(audioFiles)) {
             currentTrackList = audioFiles;
             trackListIterator.findPosition();
         }
     }
 
-
-    private boolean isSortingCurrentTrackList(List<AudioFile> audioFiles) {
+    public boolean isCurrentTrackList(List<AudioFile> audioFiles) {
         return currentTrackList != null && currentTrackList.containsAll(audioFiles);
     }
 
