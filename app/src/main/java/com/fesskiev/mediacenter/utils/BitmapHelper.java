@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.Callable;
 
 import io.reactivex.Observable;
 import okhttp3.OkHttpClient;
@@ -105,8 +104,8 @@ public class BitmapHelper {
         return bitmapLruCache.get(key);
     }
 
-    public Callable<Bitmap> getCoverBitmapFromURL(String url) {
-        return () -> {
+    public Observable<Bitmap> getCoverBitmapFromURL(String url) {
+        return Observable.fromCallable(() -> {
             if (url != null) {
                 Request request = new Request.Builder().url(url).build();
                 Response response = okHttpClient.newCall(request).execute();
@@ -114,7 +113,7 @@ public class BitmapHelper {
             } else {
                 return getNoCoverTrackBitmap();
             }
-        };
+        });
     }
 
     public Observable<Bitmap> loadBitmap(MediaFile mediaFile) {
@@ -129,7 +128,6 @@ public class BitmapHelper {
             }
             e.onComplete();
         });
-
     }
 
     public Observable<Bitmap> loadAudioPlayerArtwork(AudioFile audioFile) {
@@ -144,7 +142,6 @@ public class BitmapHelper {
             }
             e.onComplete();
         });
-
     }
 
     public Observable<Bitmap> getTrackListArtwork(MediaFile mediaFile) {
@@ -186,7 +183,6 @@ public class BitmapHelper {
             }
             e.onComplete();
         });
-
     }
 
     public Observable<Bitmap> loadVideoFolderFrame(String path) {
@@ -198,7 +194,6 @@ public class BitmapHelper {
                 Bitmap bitmap = getNoCoverFolderBitmap();
                 e.onNext(bitmap);
             }
-            e.onComplete();
         });
     }
 

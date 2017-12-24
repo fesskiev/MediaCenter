@@ -9,7 +9,6 @@ import android.view.View;
 import com.fesskiev.mediacenter.R;
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
-import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.Utils;
 
 import org.apache.commons.io.FileUtils;
@@ -146,11 +145,10 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
         }
     }
 
-
     private void calculateValues(List<AudioFile> audioFiles) {
         for (AudioFile audioFile : audioFiles) {
             folderSize += audioFile.size;
-            folderLength += audioFile.length;
+            folderLength += audioFile.duration;
             folderTrackCount += 1;
         }
 
@@ -185,6 +183,4 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
         audioFolder.isHidden = hidden;
         repository.updateAudioFolder(audioFolder);
     }
-
-
 }

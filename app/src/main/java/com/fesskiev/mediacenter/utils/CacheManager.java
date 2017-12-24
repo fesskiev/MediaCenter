@@ -7,7 +7,8 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.Callable;
+
+import io.reactivex.Observable;
 
 public class CacheManager {
 
@@ -67,8 +68,8 @@ public class CacheManager {
         return dest;
     }
 
-    public static Callable<Boolean> deleteDirectoryWithFiles(File directory) {
-        return () -> {
+    public static Observable<Boolean> deleteDirectoryWithFiles(File directory) {
+        return Observable.fromCallable(() -> {
             if (directory.exists()) {
                 File[] files = directory.listFiles();
                 boolean containDirs = false;
@@ -84,21 +85,21 @@ public class CacheManager {
                 return containDirs || directory.delete();
             }
             return false;
-        };
+        });
     }
 
-    public static Callable<Boolean> deleteFile(File file) {
-        return () -> {
+    public static Observable<Boolean> deleteFile(File file) {
+        return Observable.fromCallable(() -> {
             if (file.exists()) {
                 return file.delete();
             }
             return false;
-        };
+        });
     }
 
 
-    public static Callable<Boolean> clearTempDir() {
-        return () -> {
+    public static Observable<Boolean> clearTempDir() {
+        return Observable.fromCallable(() -> {
             File folder = new File(TEMP_PATH);
             if (!folder.exists()) {
                 return false;
@@ -110,6 +111,6 @@ public class CacheManager {
                 return false;
             }
             return true;
-        };
+        });
     }
 }

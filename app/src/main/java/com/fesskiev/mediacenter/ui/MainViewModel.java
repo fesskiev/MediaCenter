@@ -17,7 +17,6 @@ import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.RxBus;
-import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.events.SingleLiveEvent;
 import com.fesskiev.mediacenter.utils.ffmpeg.FFmpegHelper;
 
@@ -99,6 +98,19 @@ public class MainViewModel extends ViewModel {
     }
 
     public void getCurrentVideoFileAndVideoFilesList() {
+        disposables.add(repository.getSelectedVideoFiles()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(videoFiles -> {
+
+                })
+                .flatMap(videoFiles -> repository.getSelectedVideoFile().subscribeOn(Schedulers.io()))
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(videoFile -> {
+
+                })
+                .subscribe(object -> {
+                }, Throwable::printStackTrace));
 
     }
 
@@ -120,14 +132,14 @@ public class MainViewModel extends ViewModel {
     }
 
     public void fetchFileSystemAudio() {
-        disposables.add(RxUtils.fromCallable(repository.resetAudioContentDatabase())
+        disposables.add(repository.resetAudioContentDatabase()
                 .subscribeOn(Schedulers.io())
                 .doOnNext(integer -> CacheManager.clearAudioImagesCache())
                 .subscribe(integer -> FileSystemService.startFetchAudio(context)));
     }
 
     public void fetchFileSystemVideo() {
-        disposables.add(RxUtils.fromCallable(repository.resetVideoContentDatabase())
+        disposables.add(repository.resetVideoContentDatabase()
                 .subscribeOn(Schedulers.io())
                 .doOnNext(integer -> CacheManager.clearVideoImagesCache())
                 .subscribe(aVoid -> FileSystemService.startFetchVideo(context)));

@@ -1086,7 +1086,7 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
             if (audioFile != null) {
                 holder.title.setText(audioFile.title);
                 holder.filePath.setText(audioFile.getFilePath());
-                holder.duration.setText(Utils.getDurationString(audioFile.length));
+                holder.duration.setText(Utils.getDurationString(audioFile.duration));
 
                 if (mainViewModel.isEqualsToCurrentTrack(audioFile) && mainViewModel.isPlaying()) {
                     holder.playEq.setVisibility(View.VISIBLE);

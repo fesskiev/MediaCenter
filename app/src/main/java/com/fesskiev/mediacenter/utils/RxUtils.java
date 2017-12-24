@@ -5,16 +5,9 @@ package com.fesskiev.mediacenter.utils;
 
 import android.os.Looper;
 
-import java.util.concurrent.Callable;
-
-import io.reactivex.Observable;
-import io.reactivex.disposables.Disposable;;
+import io.reactivex.disposables.Disposable;
 
 public class RxUtils {
-
-    public static <T> Observable<T> fromCallable(Callable<T> callable) {
-        return Observable.fromCallable(callable);
-    }
 
 
     public static void unsubscribe(Disposable subscription) {

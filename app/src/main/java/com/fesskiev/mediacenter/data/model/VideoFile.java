@@ -43,7 +43,7 @@ public class VideoFile implements MediaFile, Parcelable {
     public boolean isSelected;
     public long size;
     public long timestamp;
-    public long length;
+    public long duration;
 
     public VideoFile() {
 
@@ -73,7 +73,7 @@ public class VideoFile implements MediaFile, Parcelable {
         this.isSelected = in.readByte() != 0;
         this.size = in.readLong();
         this.timestamp = in.readLong();
-        this.length = in.readLong();
+        this.duration = in.readLong();
     }
 
     public VideoFile fetchVideoData() {
@@ -89,10 +89,10 @@ public class VideoFile implements MediaFile, Parcelable {
 
             String duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
             if (duration != null) {
-                length = Integer.valueOf(duration);
+                this.duration = Integer.valueOf(duration);
             }
 
-            Bitmap frame = retriever.getFrameAtTime(ThreadLocalRandom.current().nextInt(0, (int) length) * 1000000);
+            Bitmap frame = retriever.getFrameAtTime(ThreadLocalRandom.current().nextInt(0, (int) this.duration) * 1000000);
             if (frame != null) {
                 saveFrame(frame);
             }
@@ -161,8 +161,8 @@ public class VideoFile implements MediaFile, Parcelable {
     }
 
     @Override
-    public long getLength() {
-        return length;
+    public long getDuration() {
+        return duration;
     }
 
     @Override
@@ -209,7 +209,7 @@ public class VideoFile implements MediaFile, Parcelable {
 
         if (size != videoFile.size) return false;
         if (timestamp != videoFile.timestamp) return false;
-        if (length != videoFile.length) return false;
+        if (duration != videoFile.duration) return false;
         return fileId != null ? fileId.equals(videoFile.fileId) : videoFile.fileId == null;
     }
 
@@ -218,7 +218,7 @@ public class VideoFile implements MediaFile, Parcelable {
         int result = fileId != null ? fileId.hashCode() : 0;
         result = 31 * result + (int) (size ^ (size >>> 32));
         result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
-        result = 31 * result + (int) (length ^ (length >>> 32));
+        result = 31 * result + (int) (duration ^ (duration >>> 32));
         return result;
     }
 
@@ -236,7 +236,7 @@ public class VideoFile implements MediaFile, Parcelable {
                 ", isSelected=" + isSelected +
                 ", size=" + size +
                 ", timestamp=" + timestamp +
-                ", length=" + length +
+                ", duration=" + duration +
                 '}';
     }
 
@@ -258,7 +258,7 @@ public class VideoFile implements MediaFile, Parcelable {
         dest.writeByte(this.isSelected ? (byte) 1 : (byte) 0);
         dest.writeLong(this.size);
         dest.writeLong(this.timestamp);
-        dest.writeLong(this.length);
+        dest.writeLong(this.duration);
     }
 
     public static final Creator<VideoFile> CREATOR = new Creator<VideoFile>() {

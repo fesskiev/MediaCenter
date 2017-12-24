@@ -15,7 +15,6 @@ import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.RxBus;
-import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.events.SingleLiveEvent;
 
 import java.util.List;
@@ -136,9 +135,9 @@ public class TrackListViewModel extends ViewModel {
     }
 
     public void deleteAudioFile(AudioFile audioFile, int position) {
-        disposables.add(RxUtils.fromCallable(CacheManager.deleteFile(audioFile.filePath))
+        disposables.add(CacheManager.deleteFile(audioFile.filePath)
                 .subscribeOn(Schedulers.io())
-                .flatMap(result -> RxUtils.fromCallable(repository.deleteAudioFile(audioFile)))
+                .flatMap(result -> repository.deleteAudioFile(audioFile))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(integer -> notifyDeleteAudioFile(position)));
     }
@@ -146,7 +145,7 @@ public class TrackListViewModel extends ViewModel {
 
     public void updateAudioFile(AudioFile audioFile) {
         audioFile.inPlayList = true;
-        disposables.add(RxUtils.fromCallable(repository.updateAudioFile(audioFile))
+        disposables.add(repository.updateAudioFile(audioFile)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(integer -> notifyAddAudioFileToPlayList()));

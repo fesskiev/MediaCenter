@@ -275,10 +275,10 @@ public class PlayListActivity extends AnalyticsActivity {
             if (mediaFile != null) {
                 switch (mediaFile.getMediaType()) {
                     case VIDEO:
-                        holder.duration.setText(Utils.getVideoFileTimeFormat(mediaFile.getLength()));
+                        holder.duration.setText(Utils.getVideoFileTimeFormat(mediaFile.getDuration()));
                         break;
                     case AUDIO:
-                        holder.duration.setText(Utils.getDurationString(mediaFile.getLength()));
+                        holder.duration.setText(Utils.getDurationString(mediaFile.getDuration()));
                         break;
                 }
                 holder.title.setText(mediaFile.getTitle());

@@ -97,7 +97,7 @@ public class CutMediaActivity extends AnalyticsActivity {
 
         RangeSeekBar<Integer> rangeSeekBar = findViewById(R.id.rangeSeekBar);
         if (mediaFile != null) {
-            rangeSeekBar.setRangeValues(0, (int) mediaFile.getLength());
+            rangeSeekBar.setRangeValues(0, (int) mediaFile.getDuration());
         }
         rangeSeekBar.setCutType(cutType);
         rangeSeekBar.setOnRangeSeekBarChangeListener((bar, minValue, maxValue) -> {

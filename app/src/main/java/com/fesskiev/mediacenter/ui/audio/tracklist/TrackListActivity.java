@@ -501,7 +501,7 @@ public class TrackListActivity extends AnalyticsActivity implements View.OnClick
             AudioFile audioFile = audioFiles.get(position);
             if (audioFile != null) {
 
-                holder.duration.setText(Utils.getDurationString(audioFile.length));
+                holder.duration.setText(Utils.getDurationString(audioFile.duration));
                 holder.size.setText(Utils.humanReadableByteCount(audioFile.size, false));
                 holder.title.setText(audioFile.title);
                 holder.filePath.setText(audioFile.filePath.getName());

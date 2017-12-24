@@ -252,7 +252,7 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
                                 .withId(audioFile.fileId)
                                 .withGenre(audioFile.genre)
                                 .withArtist(audioFile.artist)
-                                .withLength(audioFile.length)
+                                .withLength(audioFile.duration)
                                 .withTrackNumber(audioFile.trackNumber)
                                 .build();
                         dataMap.putLong("Time", System.currentTimeMillis());
@@ -291,7 +291,7 @@ public class WearHelper implements GoogleApiClient.ConnectionCallbacks, GoogleAp
                             .withId(audioFile.fileId)
                             .withGenre(audioFile.genre)
                             .withArtist(audioFile.artist)
-                            .withLength(audioFile.length)
+                            .withLength(audioFile.duration)
                             .withTrackNumber(audioFile.trackNumber)
                             .build();
                     mapAudioFile.toDataMap(dataMap).putAsset(COVER, toAsset(audioFile.getArtworkPath()));

@@ -109,7 +109,7 @@ public class PlayerTrackListActivity extends AnalyticsActivity {
             AudioFile audioFile = audioFiles.get(position);
             if (audioFile != null) {
                 holder.trackNumber.setText(String.valueOf(audioFile.trackNumber));
-                holder.duration.setText(Utils.getDurationString(audioFile.length));
+                holder.duration.setText(Utils.getDurationString(audioFile.duration));
                 holder.title.setText(audioFile.title);
                 holder.filePath.setText(audioFile.getFilePath());
             }

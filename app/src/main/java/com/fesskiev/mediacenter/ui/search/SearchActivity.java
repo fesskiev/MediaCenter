@@ -239,7 +239,7 @@ public class SearchActivity extends AppCompatActivity {
         private void createResultItem(ResultViewHolder holder, int position) {
             MediaFile mediaFile = mediaFiles.get(position);
             if (mediaFile != null) {
-                holder.duration.setText(Utils.getDurationString(mediaFile.getLength()));
+                holder.duration.setText(Utils.getDurationString(mediaFile.getDuration()));
                 holder.title.setText(mediaFile.getTitle());
                 holder.filePath.setText(mediaFile.getFilePath());
 

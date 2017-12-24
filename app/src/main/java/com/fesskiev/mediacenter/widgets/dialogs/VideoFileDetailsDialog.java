@@ -204,7 +204,7 @@ public class VideoFileDetailsDialog extends DialogFragment implements TextWatche
         fileSize.setText(String.format(Locale.US, "%1$s %2$s", getString(R.string.folder_details_size),
                 Utils.humanReadableByteCount(videoFile.size, false)));
         fileLength.setText(String.format(Locale.US, "%1$s %2$s", getString(R.string.folder_details_duration),
-                Utils.getVideoFileTimeFormat(videoFile.length)));
+                Utils.getVideoFileTimeFormat(videoFile.duration)));
         fileResolution.setText(String.format(Locale.US, "%1$s %2$s", getString(R.string.video_resolution),
                 videoFile.resolution));
         fileTimestamp.setText(String.format("%1$s %2$s", getString(R.string.folder_details_timestamp),

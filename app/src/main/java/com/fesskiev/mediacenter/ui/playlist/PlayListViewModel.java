@@ -11,7 +11,6 @@ import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
-import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.events.SingleLiveEvent;
 
 import java.util.ArrayList;
@@ -67,7 +66,7 @@ public class PlayListViewModel extends ViewModel {
     }
 
     public void clearPlaylist() {
-        disposables.add(RxUtils.fromCallable(repository.clearPlaylist())
+        disposables.add(repository.clearPlaylist()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(integer -> notifyEmptyList()));
@@ -77,7 +76,7 @@ public class PlayListViewModel extends ViewModel {
         mediaFile.setToPlayList(false);
         switch (mediaFile.getMediaType()) {
             case VIDEO:
-                disposables.add(RxUtils.fromCallable(repository.updateVideoFile((VideoFile) mediaFile))
+                disposables.add(repository.updateVideoFile((VideoFile) mediaFile)
                         .subscribeOn(Schedulers.io())
                         .flatMap(integer -> Observable.zip(repository.getAudioFilePlaylist(),
                                 repository.getVideoFilePlaylist(),
@@ -91,7 +90,7 @@ public class PlayListViewModel extends ViewModel {
                         .subscribe(this::notifyPlayListFiles));
                 break;
             case AUDIO:
-                disposables.add(RxUtils.fromCallable(repository.updateAudioFile((AudioFile) mediaFile))
+                disposables.add(repository.updateAudioFile((AudioFile) mediaFile)
                         .subscribeOn(Schedulers.io())
                         .flatMap(integer -> Observable.zip(repository.getAudioFilePlaylist(),
                                 repository.getVideoFilePlaylist(),

@@ -147,7 +147,7 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
     private void calculateValues(List<VideoFile> videoFiles) {
         for (VideoFile videoFile : videoFiles) {
             folderSize += videoFile.size;
-            folderLength += videoFile.length;
+            folderLength += videoFile.duration;
             folderTrackCount += 1;
         }
 

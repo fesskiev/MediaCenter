@@ -15,7 +15,7 @@ public interface MediaFile {
 
     String getArtworkPath();
 
-    long getLength();
+    long getDuration();
 
     long getSize();
 
@@ -30,5 +30,4 @@ public interface MediaFile {
     boolean isHidden();
 
     void setToPlayList(boolean inPlaylist);
-
 }

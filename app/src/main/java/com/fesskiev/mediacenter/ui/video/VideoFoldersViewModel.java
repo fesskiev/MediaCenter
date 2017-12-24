@@ -71,11 +71,11 @@ public class VideoFoldersViewModel extends ViewModel {
     }
 
     public void deleteVideoFolder(VideoFolder videoFolder, int position) {
-        disposables.add(RxUtils.fromCallable(CacheManager.deleteDirectoryWithFiles(videoFolder.folderPath))
+        disposables.add(CacheManager.deleteDirectoryWithFiles(videoFolder.folderPath)
                 .subscribeOn(Schedulers.io())
                 .flatMap(result -> {
                     if (result) {
-                        return RxUtils.fromCallable(repository.deleteVideoFolder(videoFolder));
+                        return repository.deleteVideoFolder(videoFolder);
                     }
                     return Observable.empty();
                 })
@@ -84,7 +84,7 @@ public class VideoFoldersViewModel extends ViewModel {
     }
 
     public void updateVideoFoldersIndexes(List<VideoFolder> videoFolders) {
-        disposables.add(RxUtils.fromCallable(repository.updateVideoFoldersIndex(videoFolders))
+        disposables.add(repository.updateVideoFoldersIndex(videoFolders)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(integer -> notifyUpdatedIndexes()));

@@ -11,12 +11,11 @@ import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
 import com.fesskiev.mediacenter.data.source.local.room.MediaCenterDb;
 import com.fesskiev.mediacenter.data.source.local.room.MediaDao;
-import com.fesskiev.mediacenter.utils.RxUtils;
 
 
 import java.util.List;
-import java.util.concurrent.Callable;
 
+import io.reactivex.Observable;
 import io.reactivex.Observable;
 
 public class LocalDataSource implements LocalSource {
@@ -31,7 +30,7 @@ public class LocalDataSource implements LocalSource {
 
     @Override
     public Observable<List<AudioFolder>> getAudioFolders() {
-        return RxUtils.fromCallable(() -> mediaDao.getAudioFolders());
+        return Observable.fromCallable(() -> mediaDao.getAudioFolders());
     }
 
     @Override
@@ -40,53 +39,56 @@ public class LocalDataSource implements LocalSource {
     }
 
     @Override
-    public void updateAudioFolder(AudioFolder audioFolder) {
-        mediaDao.updateAudioFolder(audioFolder);
+    public Observable<Object> updateAudioFolder(AudioFolder audioFolder) {
+        return Observable.fromCallable(() -> {
+            mediaDao.updateAudioFolder(audioFolder);
+            return Irrelevant.INSTANCE;
+        });
     }
 
     @Override
-    public Callable<Integer> deleteAudioFolderWithFiles(AudioFolder audioFolder) {
-        return () -> mediaDao.deleteAudioFolderWithFiles(audioFolder);
+    public Observable<Integer> deleteAudioFolderWithFiles(AudioFolder audioFolder) {
+        return Observable.fromCallable(() -> mediaDao.deleteAudioFolderWithFiles(audioFolder));
     }
 
     @Override
     public Observable<AudioFolder> getAudioFolderByPath(String path) {
-        return RxUtils.fromCallable(() -> mediaDao.getAudioFolderByPath(path));
+        return Observable.fromCallable(() -> mediaDao.getAudioFolderByPath(path));
     }
 
     @Override
     public Observable<AudioFolder> getSelectedAudioFolder() {
-        return RxUtils.fromCallable(() -> mediaDao.getSelectedAudioFolder());
+        return Observable.fromCallable(() -> mediaDao.getSelectedAudioFolder());
     }
 
     @Override
     public Observable<List<AudioFile>> getSelectedAudioFiles(AudioFolder audioFolder) {
-        return RxUtils.fromCallable(() -> mediaDao.getSelectedAudioFiles(audioFolder.id));
+        return Observable.fromCallable(() -> mediaDao.getSelectedAudioFiles(audioFolder.id));
     }
 
     @Override
-    public Callable<Object> updateSelectedAudioFolder(AudioFolder audioFolder) {
-        return () -> {
+    public Observable<Object> updateSelectedAudioFolder(AudioFolder audioFolder) {
+        return Observable.fromCallable(() -> {
             mediaDao.updateSelectedAudioFolder(new SelectedAudioFolder(audioFolder.id));
             return Irrelevant.INSTANCE;
-        };
+        });
     }
 
     @Override
-    public Callable<Integer> updateAudioFoldersIndex(List<AudioFolder> audioFolders) {
-        return () -> {
+    public Observable<Integer> updateAudioFoldersIndex(List<AudioFolder> audioFolders) {
+        return Observable.fromCallable(() -> {
             for (int i = 0; i < audioFolders.size(); i++) {
                 AudioFolder audioFolder = audioFolders.get(i);
                 audioFolder.folderIndex = i;
             }
             mediaDao.updateAudioFoldersIndex(audioFolders);
             return 1;
-        };
+        });
     }
 
     @Override
     public Observable<List<VideoFolder>> getVideoFolders() {
-        return RxUtils.fromCallable(() -> mediaDao.getVideoFolders());
+        return Observable.fromCallable(() -> mediaDao.getVideoFolders());
     }
 
     @Override
@@ -95,30 +97,33 @@ public class LocalDataSource implements LocalSource {
     }
 
     @Override
-    public void updateVideoFolder(VideoFolder videoFolder) {
-        mediaDao.updateVideoFolder(videoFolder);
+    public Observable<Object> updateVideoFolder(VideoFolder videoFolder) {
+        return Observable.fromCallable(() -> {
+            mediaDao.updateVideoFolder(videoFolder);
+            return Irrelevant.INSTANCE;
+        });
     }
 
     @Override
-    public Callable<Integer> deleteVideoFolderWithFiles(VideoFolder videoFolder) {
-        return () -> mediaDao.deleteVideoFolderWithFiles(videoFolder);
+    public Observable<Integer> deleteVideoFolderWithFiles(VideoFolder videoFolder) {
+        return Observable.fromCallable(() -> mediaDao.deleteVideoFolderWithFiles(videoFolder));
     }
 
     @Override
     public Observable<VideoFolder> getVideoFolderByPath(String path) {
-        return RxUtils.fromCallable(() -> mediaDao.getVideoFolderByPath(path));
+        return Observable.fromCallable(() -> mediaDao.getVideoFolderByPath(path));
     }
 
     @Override
-    public Callable<Integer> updateVideoFoldersIndex(List<VideoFolder> videoFolders) {
-        return () -> {
+    public Observable<Integer> updateVideoFoldersIndex(List<VideoFolder> videoFolders) {
+        return Observable.fromCallable(() -> {
             for (int i = 0; i < videoFolders.size(); i++) {
                 VideoFolder videoFolder = videoFolders.get(i);
                 videoFolder.folderIndex = i;
             }
             mediaDao.updateVideoFoldersIndex(videoFolders);
             return 1;
-        };
+        });
     }
 
     @Override
@@ -127,51 +132,54 @@ public class LocalDataSource implements LocalSource {
     }
 
     @Override
-    public Callable<Integer> updateAudioFile(AudioFile audioFile) {
-        return () -> mediaDao.updateAudioFile(audioFile);
+    public Observable<Object> updateAudioFile(AudioFile audioFile) {
+        return Observable.fromCallable(() -> {
+            mediaDao.updateAudioFile(audioFile);
+            return Irrelevant.INSTANCE;
+        });
     }
 
     @Override
-    public Callable<Object> updateSelectedAudioFile(AudioFile audioFile) {
-        return () -> {
+    public Observable<Object> updateSelectedAudioFile(AudioFile audioFile) {
+        return Observable.fromCallable(() -> {
             mediaDao.updateSelectedAudioFile(new SelectedAudioFile(audioFile.fileId));
             return Irrelevant.INSTANCE;
-        };
+        });
     }
 
     @Override
     public Observable<AudioFile> getSelectedAudioFile() {
-        return RxUtils.fromCallable(() -> mediaDao.getSelectedAudioFile());
+        return Observable.fromCallable(() -> mediaDao.getSelectedAudioFile());
     }
 
     @Override
     public Observable<AudioFile> getAudioFileByPath(String path) {
-        return RxUtils.fromCallable(() -> mediaDao.getAudioFileByPath(path));
+        return Observable.fromCallable(() -> mediaDao.getAudioFileByPath(path));
     }
 
     @Override
     public Observable<List<AudioFile>> getSearchAudioFiles(String query) {
-        return RxUtils.fromCallable(() -> mediaDao.getSearchAudioFiles(query));
+        return Observable.fromCallable(() -> mediaDao.getSearchAudioFiles(query));
     }
 
     @Override
     public Observable<List<AudioFile>> getGenreTracks(String contentValue) {
-        return RxUtils.fromCallable(() -> mediaDao.getGenreTracks(contentValue));
+        return Observable.fromCallable(() -> mediaDao.getGenreTracks(contentValue));
     }
 
     @Override
     public Observable<List<AudioFile>> getArtistTracks(String contentValue) {
-        return RxUtils.fromCallable(() -> mediaDao.getArtistTracks(contentValue));
+        return Observable.fromCallable(() -> mediaDao.getArtistTracks(contentValue));
     }
 
     @Override
     public Observable<List<AudioFile>> getAudioTracks(String id) {
-        return RxUtils.fromCallable(() -> mediaDao.getAudioTracks(id));
+        return Observable.fromCallable(() -> mediaDao.getAudioTracks(id));
     }
 
     @Override
-    public Callable<Integer> deleteAudioFile(AudioFile audioFile) {
-        return () -> mediaDao.deleteAudioFile(audioFile);
+    public Observable<Integer> deleteAudioFile(AudioFile audioFile) {
+        return Observable.fromCallable(() -> mediaDao.deleteAudioFile(audioFile));
     }
 
     @Override
@@ -180,103 +188,106 @@ public class LocalDataSource implements LocalSource {
     }
 
     @Override
-    public Callable<Integer> updateVideoFile(VideoFile videoFile) {
-        return () -> mediaDao.updateVideoFile(videoFile);
+    public Observable<Object> updateVideoFile(VideoFile videoFile) {
+        return Observable.fromCallable(() -> {
+            mediaDao.updateVideoFile(videoFile);
+            return Irrelevant.INSTANCE;
+        });
     }
 
     @Override
     public Observable<List<VideoFile>> getVideoFiles(String id) {
-        return RxUtils.fromCallable(() -> mediaDao.getVideoFiles(id));
+        return Observable.fromCallable(() -> mediaDao.getVideoFiles(id));
     }
 
     @Override
     public Observable<List<String>> getVideoFilesFrame(String id) {
-        return RxUtils.fromCallable(() -> mediaDao.getVideoFilesFrame(id));
+        return Observable.fromCallable(() -> mediaDao.getVideoFilesFrame(id));
     }
 
     @Override
-    public Callable<Integer> deleteVideoFile(VideoFile videoFile) {
-        return () -> mediaDao.deleteVideoFile(videoFile);
+    public Observable<Integer> deleteVideoFile(VideoFile videoFile) {
+        return Observable.fromCallable(() -> mediaDao.deleteVideoFile(videoFile));
     }
 
     @Override
     public Observable<List<AudioFile>> getAudioFilePlaylist() {
-        return RxUtils.fromCallable(() -> mediaDao.getAudioFilePlaylist());
+        return Observable.fromCallable(() -> mediaDao.getAudioFilePlaylist());
     }
 
     @Override
     public Observable<List<VideoFile>> getVideoFilePlaylist() {
-        return RxUtils.fromCallable(() -> mediaDao.getVideoFilePlaylist());
+        return Observable.fromCallable(() -> mediaDao.getVideoFilePlaylist());
     }
 
     @Override
-    public Callable<Integer> clearPlaylist() {
-        return () -> {
+    public Observable<Integer> clearPlaylist() {
+        return Observable.fromCallable(() -> {
             mediaDao.clearAudioFilesPlaylist();
             return mediaDao.clearVideoFilesPlaylist();
-        };
+        });
     }
 
     @Override
-    public Callable<Integer> resetVideoContentDatabase() {
-        return () -> {
+    public Observable<Integer> resetVideoContentDatabase() {
+        return Observable.fromCallable(() -> {
             mediaDao.dropVideoFolders();
             return mediaDao.dropVideoFiles();
-        };
+        });
     }
 
     @Override
-    public Callable<Integer> resetAudioContentDatabase() {
-        return () -> {
+    public Observable<Integer> resetAudioContentDatabase() {
+        return Observable.fromCallable(() -> {
             mediaDao.dropAudioFolders();
             return mediaDao.dropAudioFiles();
-        };
+        });
     }
 
     @Override
     public Observable<List<String>> getArtistsList() {
-        return RxUtils.fromCallable(() -> mediaDao.getArtistsList());
+        return Observable.fromCallable(() -> mediaDao.getArtistsList());
     }
 
     @Override
     public Observable<List<String>> getGenresList() {
-        return RxUtils.fromCallable(() -> mediaDao.getGenresList());
+        return Observable.fromCallable(() -> mediaDao.getGenresList());
     }
 
     @Override
     public Observable<List<String>> getFolderFilePaths(String name) {
-        return RxUtils.fromCallable(() -> mediaDao.getFolderFilePaths(name));
+        return Observable.fromCallable(() -> mediaDao.getFolderFilePaths(name));
     }
 
     @Override
     public Observable<VideoFolder> getSelectedVideoFolder() {
-        return RxUtils.fromCallable(() -> mediaDao.getSelectedVideoFolder());
+        return Observable.fromCallable(() -> mediaDao.getSelectedVideoFolder());
     }
 
     @Override
     public Observable<List<VideoFile>> getSelectedVideoFiles(VideoFolder videoFolder) {
-        return RxUtils.fromCallable(() -> mediaDao.getSelectedVideoFiles(videoFolder.id));
+        return Observable.fromCallable(() -> mediaDao.getSelectedVideoFiles(videoFolder.id));
     }
 
     @Override
-    public Callable<Object> updateSelectedVideoFolder(VideoFolder videoFolder) {
-        return () -> {
+    public Observable<Object> updateSelectedVideoFolder(VideoFolder videoFolder) {
+        return Observable.fromCallable(() -> {
             mediaDao.updateSelectedVideoFolder(new SelectedVideoFolder(videoFolder.id));
             return Irrelevant.INSTANCE;
-        };
+        });
     }
 
     @Override
-    public Callable<Object> updateSelectedVideoFile(VideoFile videoFile) {
-        return () -> {
+    public Observable<Object> updateSelectedVideoFile(VideoFile videoFile) {
+        return Observable.fromCallable(() -> {
             mediaDao.updateSelectedVideoFile(new SelectedVideoFile(videoFile.fileId));
             return Irrelevant.INSTANCE;
-        };
+        });
     }
 
     @Override
     public Observable<VideoFile> getSelectedVideoFile() {
-        return RxUtils.fromCallable(() -> mediaDao.getSelectedVideoFile());
+        return Observable.fromCallable(() -> mediaDao.getSelectedVideoFile());
     }
 
     @Override

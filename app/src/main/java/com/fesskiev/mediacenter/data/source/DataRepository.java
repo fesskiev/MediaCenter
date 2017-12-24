@@ -5,7 +5,6 @@ import android.util.Log;
 
 import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
-import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
 import com.fesskiev.mediacenter.data.model.search.AlbumResponse;
@@ -13,10 +12,8 @@ import com.fesskiev.mediacenter.data.source.local.LocalDataSource;
 import com.fesskiev.mediacenter.data.source.remote.RemoteDataSource;
 
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import io.reactivex.Observable;
-
 
 public class DataRepository {
 
@@ -67,35 +64,35 @@ public class DataRepository {
         return localSource.getArtistTracks(artistName);
     }
 
-    public Callable<Object> updateSelectedAudioFolder(AudioFolder audioFolder) {
+    public Observable<Object> updateSelectedAudioFolder(AudioFolder audioFolder) {
         return localSource.updateSelectedAudioFolder(audioFolder);
     }
 
-    public void updateAudioFolder(AudioFolder audioFolder) {
-        localSource.updateAudioFolder(audioFolder);
+    public Observable<Object> updateAudioFolder(AudioFolder audioFolder) {
+        return localSource.updateAudioFolder(audioFolder);
     }
 
-    public void updateVideoFolder(VideoFolder videoFolder) {
-        localSource.updateVideoFolder(videoFolder);
+    public Observable<Object> updateVideoFolder(VideoFolder videoFolder) {
+        return localSource.updateVideoFolder(videoFolder);
     }
 
-    public Callable<Integer> updateAudioFoldersIndex(List<AudioFolder> audioFolders) {
+    public Observable<Integer> updateAudioFoldersIndex(List<AudioFolder> audioFolders) {
         return localSource.updateAudioFoldersIndex(audioFolders);
     }
 
-    public Callable<Integer> updateVideoFoldersIndex(List<VideoFolder> videoFolders) {
+    public Observable<Integer> updateVideoFoldersIndex(List<VideoFolder> videoFolders) {
         return localSource.updateVideoFoldersIndex(videoFolders);
     }
 
-    public Callable<Integer> updateAudioFile(AudioFile audioFile) {
+    public Observable<Object> updateAudioFile(AudioFile audioFile) {
         return localSource.updateAudioFile(audioFile);
     }
 
-    public Callable<Object> updateSelectedAudioFile(AudioFile audioFile) {
+    public Observable<Object> updateSelectedAudioFile(AudioFile audioFile) {
         return localSource.updateSelectedAudioFile(audioFile);
     }
 
-    public Callable<Integer> deleteAudioFile(AudioFile audioFile) {
+    public Observable<Integer> deleteAudioFile(AudioFile audioFile) {
         return localSource.deleteAudioFile(audioFile);
     }
 
@@ -119,14 +116,13 @@ public class DataRepository {
         return localSource.getSelectedAudioFile();
     }
 
-
     public Observable<List<AudioFile>> getSelectedAudioFiles() {
         return getSelectedAudioFolder()
                 .flatMap(audioFolder -> {
                     if (audioFolder != null) {
                         return localSource.getSelectedAudioFiles(audioFolder);
                     }
-                    return Observable.empty();
+                    return Observable.never();
                 });
     }
 
@@ -140,32 +136,31 @@ public class DataRepository {
                     if (videoFolder != null) {
                         return localSource.getSelectedVideoFiles(videoFolder);
                     }
-                    return Observable.empty();
+                    return Observable.never();
                 });
     }
 
-    public Callable<Object> updateSelectedVideoFile(VideoFile videoFile) {
+    public Observable<Object> updateSelectedVideoFile(VideoFile videoFile) {
         return localSource.updateSelectedVideoFile(videoFile);
     }
 
-    public Callable<Object> updateSelectedVideoFolder(VideoFolder videoFolder) {
+    public Observable<Object> updateSelectedVideoFolder(VideoFolder videoFolder) {
         return localSource.updateSelectedVideoFolder(videoFolder);
     }
-
 
     private Observable<VideoFolder> getSelectedVideoFolder() {
         return localSource.getSelectedVideoFolder();
     }
 
-    public Callable<Integer> deleteAudioFolder(AudioFolder audioFolder) {
+    public Observable<Integer> deleteAudioFolder(AudioFolder audioFolder) {
         return localSource.deleteAudioFolderWithFiles(audioFolder);
     }
 
-    public Callable<Integer> deleteVideoFolder(VideoFolder videoFolder) {
+    public Observable<Integer> deleteVideoFolder(VideoFolder videoFolder) {
         return localSource.deleteVideoFolderWithFiles(videoFolder);
     }
 
-    public Callable<Integer> clearPlaylist() {
+    public Observable<Integer> clearPlaylist() {
         return localSource.clearPlaylist();
     }
 
@@ -177,19 +172,19 @@ public class DataRepository {
         return localSource.getVideoFilePlaylist();
     }
 
-    public Callable<Integer> resetVideoContentDatabase() {
+    public Observable<Integer> resetVideoContentDatabase() {
         return localSource.resetVideoContentDatabase();
     }
 
-    public Callable<Integer> resetAudioContentDatabase() {
+    public Observable<Integer> resetAudioContentDatabase() {
         return localSource.resetAudioContentDatabase();
     }
 
-    public Callable<Integer> deleteVideoFile(VideoFile videoFile) {
+    public Observable<Integer> deleteVideoFile(VideoFile videoFile) {
         return localSource.deleteVideoFile(videoFile);
     }
 
-    public Callable<Integer> updateVideoFile(VideoFile videoFile) {
+    public Observable<Object> updateVideoFile(VideoFile videoFile) {
         return localSource.updateVideoFile(videoFile);
     }
 
@@ -236,6 +231,4 @@ public class DataRepository {
     public boolean containVideoFolder(String path) {
         return localSource.containVideoFolder(path);
     }
-
-
 }

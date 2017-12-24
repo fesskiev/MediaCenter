@@ -28,12 +28,10 @@ import com.fesskiev.mediacenter.data.model.MediaFolder;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
 import com.fesskiev.mediacenter.data.source.DataRepository;
-import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.CacheManager;
 import com.fesskiev.mediacenter.utils.NotificationHelper;
 import com.fesskiev.mediacenter.utils.RxBus;
-import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.StorageUtils;
 
 import org.apache.commons.io.FileUtils;
@@ -792,8 +790,7 @@ public class FileSystemService extends Service {
     }
 
     private void getMediaContent(Message msg) {
-        Observable.zip(RxUtils.fromCallable(repository.resetAudioContentDatabase()),
-                RxUtils.fromCallable(repository.resetVideoContentDatabase()),
+        Observable.zip(repository.resetAudioContentDatabase(), repository.resetVideoContentDatabase(),
                 (integer, integer2) -> Observable.empty())
                 .doOnNext(observable -> clearImagesCache())
                 .subscribe(observable -> getMediaContent(), throwable -> finishScan());

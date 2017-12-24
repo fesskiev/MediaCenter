@@ -7,16 +7,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 
 import com.fesskiev.mediacenter.MediaApplication;
-import com.fesskiev.mediacenter.data.model.AudioFile;
 import com.fesskiev.mediacenter.data.model.AudioFolder;
 import com.fesskiev.mediacenter.data.model.search.Album;
 import com.fesskiev.mediacenter.data.model.search.Image;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.data.source.remote.retrofit.RetrofitErrorHelper;
 import com.fesskiev.mediacenter.services.FileSystemService;
-import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
-import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.events.SingleLiveEvent;
 
 import java.io.File;
@@ -90,7 +87,7 @@ public class AlbumSearchViewModel extends ViewModel {
                     if (image.getSize().equals("large")) {
                         String text = image.getText();
                         if (text != null && text.length() != 0) {
-                            return RxUtils.fromCallable(bitmapHelper.getCoverBitmapFromURL(text));
+                            return bitmapHelper.getCoverBitmapFromURL(text);
                         }
                     }
                 }
@@ -113,7 +110,7 @@ public class AlbumSearchViewModel extends ViewModel {
     }
 
     public void loadSelectedImage(Image image, AudioFolder audioFolder) {
-        disposables.add(RxUtils.fromCallable(bitmapHelper.getCoverBitmapFromURL(image.getText()))
+        disposables.add(bitmapHelper.getCoverBitmapFromURL(image.getText())
                 .subscribeOn(Schedulers.io())
                 .doOnNext(bitmap -> removeFolderImages(audioFolder))
                 .doOnNext(bitmap -> saveArtworkAndUpdateFolder(bitmap, audioFolder))
@@ -121,7 +118,7 @@ public class AlbumSearchViewModel extends ViewModel {
                 .flatMap(Observable::fromIterable)
                 .flatMap(audioFile -> {
                     audioFile.folderArtworkPath = audioFolder.folderImage.getAbsolutePath();
-                    return RxUtils.fromCallable(repository.updateAudioFile(audioFile));
+                    return repository.updateAudioFile(audioFile);
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(audioFiles -> notifySuccessSaveBitmap(),

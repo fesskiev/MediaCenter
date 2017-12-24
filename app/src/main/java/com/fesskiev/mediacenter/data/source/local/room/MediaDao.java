@@ -86,7 +86,7 @@ public abstract class MediaDao {
     public abstract AudioFile getSelectedAudioFile();
 
     @Update(onConflict = REPLACE)
-    public abstract int updateAudioFile(AudioFile audioFile);
+    public abstract void updateAudioFile(AudioFile audioFile);
 
     @Query("SELECT * FROM AudioFiles WHERE filePath LIKE :path")
     public abstract AudioFile getAudioFileByPath(String path);
@@ -111,7 +111,7 @@ public abstract class MediaDao {
     public abstract void insertVideoFile(VideoFile videoFile);
 
     @Update(onConflict = REPLACE)
-    public abstract int updateVideoFile(VideoFile videoFile);
+    public abstract void updateVideoFile(VideoFile videoFile);
 
     @Query("SELECT VideoFiles.*, SelectedVideoFile.isSelected FROM VideoFiles INNER JOIN SelectedVideoFile ON VideoFiles.fileId = SelectedVideoFile.videoFileId")
     public abstract VideoFile getSelectedVideoFile();

@@ -128,7 +128,7 @@ public class EditTrackDialog extends DialogFragment implements View.OnClickListe
     }
 
     private void updateAudioFileDatabase(AudioFile audioFile) {
-        disposable = RxUtils.fromCallable(repository.updateAudioFile(audioFile))
+        disposable = repository.updateAudioFile(audioFile)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(integer -> {

@@ -62,7 +62,7 @@ public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
     public String artworkPath;
     public String folderArtworkPath;
     public int trackNumber;
-    public long length;
+    public long duration;
     public long size;
     public long timestamp;
     public boolean inPlayList;
@@ -127,7 +127,6 @@ public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
     }
 
     private void parseMetadataTagger() {
-
         size = filePath.length();
         timestamp = System.currentTimeMillis();
 
@@ -138,7 +137,7 @@ public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
 
             bitrate = audioHeader.getBitRate() + " kbps " + (audioHeader.isVariableBitRate() ? "(VBR)" : "(CBR)");
             sampleRate = audioHeader.getSampleRateAsNumber() + " Hz";
-            length = audioHeader.getTrackLength();
+            duration = audioHeader.getTrackLength();
 
             if (audioHeader.isLossless()) {
                 parseLossless(file);
@@ -244,8 +243,8 @@ public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
     }
 
     @Override
-    public long getLength() {
-        return length;
+    public long getDuration() {
+        return duration;
     }
 
     @Override
@@ -329,7 +328,7 @@ public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
                 ", artworkPath='" + artworkPath + "\n" +
                 ", folderArtworkPath='" + folderArtworkPath + "\n" +
                 ", trackNumber=" + trackNumber + "\n" +
-                ", length=" + length + "\n" +
+                ", duration=" + duration + "\n" +
                 ", size=" + size + "\n" +
                 ", timestamp=" + timestamp + "\n" +
                 ", inPlayList=" + inPlayList + "\n" +
@@ -358,7 +357,7 @@ public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
         dest.writeString(this.artworkPath);
         dest.writeString(this.folderArtworkPath);
         dest.writeInt(this.trackNumber);
-        dest.writeLong(this.length);
+        dest.writeLong(this.duration);
         dest.writeLong(this.size);
         dest.writeLong(this.timestamp);
         dest.writeByte(this.inPlayList ? (byte) 1 : (byte) 0);
@@ -380,7 +379,7 @@ public class AudioFile implements Comparable<AudioFile>, Parcelable, MediaFile {
         this.artworkPath = in.readString();
         this.folderArtworkPath = in.readString();
         this.trackNumber = in.readInt();
-        this.length = in.readLong();
+        this.duration = in.readLong();
         this.size = in.readLong();
         this.timestamp = in.readLong();
         this.inPlayList = in.readByte() != 0;

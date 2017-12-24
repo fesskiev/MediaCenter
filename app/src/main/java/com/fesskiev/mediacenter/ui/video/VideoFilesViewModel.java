@@ -13,7 +13,6 @@ import com.fesskiev.mediacenter.players.VideoPlayer;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
-import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.events.SingleLiveEvent;
 
 import java.util.List;
@@ -82,9 +81,9 @@ public class VideoFilesViewModel extends ViewModel {
     }
 
     public void deleteVideoFile(VideoFile videoFile, int position) {
-        disposables.add(RxUtils.fromCallable(CacheManager.deleteFile(videoFile.filePath))
+        disposables.add(CacheManager.deleteFile(videoFile.filePath)
                 .subscribeOn(Schedulers.io())
-                .flatMap(result -> RxUtils.fromCallable(repository.deleteVideoFile(videoFile)))
+                .flatMap(result -> repository.deleteVideoFile(videoFile))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(integer -> notifyDeletedFile(position)));
 

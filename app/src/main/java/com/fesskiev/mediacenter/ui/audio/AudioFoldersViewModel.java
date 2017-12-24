@@ -11,7 +11,6 @@ import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
-import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.events.SingleLiveEvent;
 
 import java.util.Collections;
@@ -78,9 +77,9 @@ public class AudioFoldersViewModel extends ViewModel {
     }
 
     public void deleteAudioFolder(AudioFolder audioFolder, int position) {
-        disposables.add(RxUtils.fromCallable(CacheManager.deleteDirectoryWithFiles(audioFolder.folderPath))
+        disposables.add(CacheManager.deleteDirectoryWithFiles(audioFolder.folderPath)
                 .subscribeOn(Schedulers.io())
-                .flatMap(result -> RxUtils.fromCallable(repository.deleteAudioFolder(audioFolder)))
+                .flatMap(result -> repository.deleteAudioFolder(audioFolder))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(integer -> {
                     notifyDeletedFolder(position);
@@ -89,7 +88,7 @@ public class AudioFoldersViewModel extends ViewModel {
     }
 
     public void updateAudioFolderIndexes(List<AudioFolder> audioFolders) {
-        disposables.add(RxUtils.fromCallable(repository.updateAudioFoldersIndex(audioFolders))
+        disposables.add(repository.updateAudioFoldersIndex(audioFolders)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(integer -> notifyUpdatedIndexes()));

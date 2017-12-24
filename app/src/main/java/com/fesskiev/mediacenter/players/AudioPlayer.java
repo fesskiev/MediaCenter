@@ -11,7 +11,6 @@ import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.services.AudioPlaybackService;
 import com.fesskiev.mediacenter.ui.Playable;
 import com.fesskiev.mediacenter.utils.RxBus;
-import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.comparators.SortByDuration;
 import com.fesskiev.mediacenter.utils.comparators.SortByFileSize;
 import com.fesskiev.mediacenter.utils.comparators.SortByTimestamp;
@@ -81,7 +80,7 @@ public class AudioPlayer implements Playable {
                 currentTrack = audioFile;
 
                 audioFile.isSelected = true;
-                RxUtils.fromCallable(repository.updateSelectedAudioFile(audioFile))
+                repository.updateSelectedAudioFile(audioFile)
                         .subscribeOn(provider.computation())
                         .observeOn(provider.ui())
                         .subscribe(Void -> {
@@ -100,7 +99,7 @@ public class AudioPlayer implements Playable {
                 currentTrack = audioFile;
 
                 audioFile.isSelected = true;
-                RxUtils.fromCallable(repository.updateSelectedAudioFile(audioFile))
+                repository.updateSelectedAudioFile(audioFile)
                         .subscribeOn(provider.computation())
                         .observeOn(provider.ui())
                         .subscribe(Void -> {
@@ -170,7 +169,7 @@ public class AudioPlayer implements Playable {
         trackListIterator.findPosition();
 
         audioFile.isSelected = true;
-        RxUtils.fromCallable(repository.updateSelectedAudioFile(audioFile))
+        repository.updateSelectedAudioFile(audioFile)
                 .subscribeOn(provider.computation())
                 .observeOn(provider.ui())
                 .subscribe(Void -> {
@@ -185,7 +184,7 @@ public class AudioPlayer implements Playable {
         }
         if (audioFolder != null) {
             audioFolder.isSelected = true;
-            RxUtils.fromCallable(repository.updateSelectedAudioFolder(audioFolder))
+            repository.updateSelectedAudioFolder(audioFolder)
                     .subscribeOn(provider.computation())
                     .observeOn(provider.ui())
                     .subscribe(Void -> notifyCurrentTrackList());
