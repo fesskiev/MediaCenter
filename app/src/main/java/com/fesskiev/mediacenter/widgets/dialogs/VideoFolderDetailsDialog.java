@@ -54,6 +54,7 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
         saveFolderNameButton.setOnClickListener(v -> saveVideoFolderName());
 
         folderName.setText(videoFolder.getFolderName());
+        folderName.setSelection(videoFolder.getFolderName().length());
 
         folderPath.setText(String.format(Locale.US, "%1$s %2$s", getString(R.string.folder_details_path), videoFolder.getPath()));
         folderPath.setSelected(true);

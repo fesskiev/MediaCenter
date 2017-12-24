@@ -122,7 +122,6 @@
         <item name="android:textAllCaps">true</item>
     </style>
 
-
     <style name="CustomFragmentDialog" parent="@android:style/Theme.Dialog">
         <item name="android:windowBackground">@color/primary</item>
         <item name="android:windowIsFloating">true</item>
@@ -171,7 +170,6 @@
         <item name="android:buttonTint">@color/white</item>
     </style>
 
-
     <style name="DividerStyle" parent="@android:style/TextAppearance">
         <item name="android:background">@color/divider</item>
     </style>
@@ -204,14 +202,12 @@
         <item name="android:fontFamily">@font/ubuntu</item>
     </style>
 
-
     <style name="FoldersNameTextAppearance" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/secondary_text</item>
         <item name="android:textSize">@dimen/text_folder_name</item>
         <item name="android:textStyle">bold</item>
         <item name="android:fontFamily">@font/ubuntu</item>
     </style>
-
 
     <style name="PlaybackTitleTextAppearance" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/secondary_text</item>

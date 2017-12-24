@@ -23,7 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/hint_artist"
-            android:textColor="@color/white_text"
+            android:textCursorDrawable="@drawable/color_cursor"
             app:backgroundTint="@color/white_text" />
 
     </android.support.design.widget.TextInputLayout>
@@ -43,7 +43,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/hint_title"
-            android:textColor="@color/white_text"
+            android:textCursorDrawable="@drawable/color_cursor"
             app:backgroundTint="@color/white_text" />
 
     </android.support.design.widget.TextInputLayout>
@@ -63,7 +63,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/hint_album"
-            android:textColor="@color/white_text"
+            android:textCursorDrawable="@drawable/color_cursor"
             app:backgroundTint="@color/white_text" />
 
     </android.support.design.widget.TextInputLayout>
@@ -83,7 +83,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/hint_genre"
-            android:textColor="@color/white_text"
+            android:textCursorDrawable="@drawable/color_cursor"
             app:backgroundTint="@color/white_text" />
 
     </android.support.design.widget.TextInputLayout>

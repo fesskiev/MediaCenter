@@ -55,6 +55,7 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
         saveFolderNameButton.setOnClickListener(v -> saveAudioFolderName());
 
         folderName.setText(audioFolder.getFolderName());
+        folderName.setSelection(audioFolder.getFolderName().length());
 
         folderPath.setText(String.format(Locale.US, "%1$s %2$s", getString(R.string.folder_details_path), audioFolder.getPath()));
         folderPath.setSelected(true);
