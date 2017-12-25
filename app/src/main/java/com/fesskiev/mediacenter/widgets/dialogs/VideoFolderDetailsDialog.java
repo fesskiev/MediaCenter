@@ -106,6 +106,8 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
                     .flatMap(object -> repository.getVideoFiles(videoFolder.getId()))
                     .flatMap(Observable::fromIterable)
                     .flatMap(videoFile -> renameFile(videoFile, folderNameChanged))
+                    .toList()
+                    .toObservable()
                     .observeOn(AndroidSchedulers.mainThread())
                     .doOnNext(object -> updateFolderPath())
                     .doOnNext(audioFiles -> refreshCache())
@@ -161,6 +163,8 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
                 .flatMap(object -> repository.getVideoFiles(videoFolder.getId()))
                 .flatMap(Observable::fromIterable)
                 .flatMap(videoFile -> updateHiddenVideoFile(videoFile, hidden))
+                .toList()
+                .toObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(videoFiles -> refreshCache());
     }

@@ -96,6 +96,8 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
                     .flatMap(object -> repository.getAudioTracks(audioFolder.getId()))
                     .flatMap(Observable::fromIterable)
                     .flatMap(audioFiles -> renameFiles(audioFiles, folderNameChanged))
+                    .toList()
+                    .toObservable()
                     .observeOn(AndroidSchedulers.mainThread())
                     .doOnNext(object -> updateFolderPath())
                     .doOnNext(audioFiles -> refreshCache())
@@ -171,6 +173,8 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
                 .flatMap(audioFiles -> repository.getAudioTracks(audioFolder.getId()))
                 .flatMap(Observable::fromIterable)
                 .flatMap(audioFile -> updateHiddenAudioFiles(audioFile, hidden))
+                .toList()
+                .toObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(audioFiles -> refreshCache());
     }
