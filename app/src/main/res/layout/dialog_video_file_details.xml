@@ -46,7 +46,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/video_details_name"
-                android:textColor="@color/white_text"
+                android:textCursorDrawable="@drawable/color_cursor"
                 app:backgroundTint="@color/white_text" />
 
         </android.support.design.widget.TextInputLayout>

@@ -24,6 +24,8 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.fesskiev.mediacenter.services.FileSystemService.folderImageFilter;
+
 public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
 
     public static MediaFolderDetailsDialog newInstance(AudioFolder audioFolder) {
@@ -90,24 +92,22 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
         if (!TextUtils.isEmpty(folderNameChanged)) {
             disposable = Observable.just(folderNameChanged)
                     .subscribeOn(Schedulers.io())
-                    .flatMap(toDir -> Observable.just(renameFolder(toDir)))
+                    .flatMap(this::renameFolder)
+                    .flatMap(object -> repository.getAudioTracks(audioFolder.getId()))
+                    .flatMap(Observable::fromIterable)
+                    .flatMap(audioFiles -> renameFiles(audioFiles, folderNameChanged))
                     .observeOn(AndroidSchedulers.mainThread())
-                    .doOnNext(this::updateFolderPath)
-                    .subscribeOn(Schedulers.io())
-                    .flatMap(toDir -> repository.getAudioTracks(audioFolder.getId())
-                            .doOnNext(audioFiles -> renameFiles(audioFiles, toDir))
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .doOnNext(audioFiles -> refreshCache()))
+                    .doOnNext(object -> updateFolderPath())
+                    .doOnNext(audioFiles -> refreshCache())
                     .subscribe(audioFiles -> hideSaveButton(), Throwable::printStackTrace);
         }
     }
 
-    private void updateFolderPath(String folderName) {
-        folderPath.setText(String.format(Locale.US, "%1$s/%2$s",
-                audioFolder.folderPath.getParent(), folderName));
+    private void updateFolderPath() {
+        folderPath.setText(audioFolder.getPath());
     }
 
-    private String renameFolder(String toDir) {
+    private Observable<Object> renameFolder(String toDir) {
         File toPath = new File(audioFolder.folderPath.getParent() + "/" + toDir);
         try {
             FileUtils.moveDirectory(audioFolder.folderPath, toPath);
@@ -116,33 +116,35 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
 
             audioFolder.folderPath = toPath;
             audioFolder.folderName = toPath.getName();
-            File folderImage = audioFolder.folderImage;
-            if (folderImage != null) {
-                audioFolder.folderImage = new File(folderImage.getAbsolutePath().replace(fromDir, toDir));
-            }
-            repository.updateAudioFolder(audioFolder);
 
+            if (audioFolder.folderImage != null) {
+                File[] filterImages = toPath.listFiles(folderImageFilter());
+                if (filterImages != null && filterImages.length > 0) {
+                    audioFolder.folderImage = filterImages[0];
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return toDir;
+        return repository.updateAudioFolder(audioFolder);
     }
 
-    private void renameFiles(List<AudioFile> audioFiles, String toDir) {
-        for (AudioFile audioFile : audioFiles) {
+    private Observable<Object> renameFiles(AudioFile audioFile, String toDir) {
 
-            audioFile.filePath = new File(audioFile.getFilePath().replace(fromDir, toDir));
+        audioFile.filePath = new File(audioFile.getFilePath().replace(fromDir, toDir));
 
-            String artworkPath = audioFile.artworkPath;
-            if (artworkPath != null) {
-                audioFile.artworkPath = artworkPath.replace(fromDir, toDir);
-            }
-            String folderArtworkPath = audioFile.folderArtworkPath;
-            if (folderArtworkPath != null) {
-                audioFile.folderArtworkPath = folderArtworkPath.replace(fromDir, toDir);
-            }
-            repository.updateAudioFile(audioFile);
+        String artworkPath = audioFile.artworkPath;
+        if (artworkPath != null) {
+            audioFile.artworkPath = artworkPath.replace(fromDir, toDir);
         }
+
+        if (audioFile.folderArtworkPath != null) {
+            File[] filterImages = audioFile.filePath.getParentFile().listFiles(folderImageFilter());
+            if (filterImages != null && filterImages.length > 0) {
+                audioFile.folderArtworkPath = filterImages[0].getAbsolutePath();
+            }
+        }
+        return repository.updateAudioFile(audioFile);
     }
 
     private void calculateValues(List<AudioFile> audioFiles) {
@@ -164,23 +166,22 @@ public class AudioFolderDetailsDialog extends MediaFolderDetailsDialog {
     }
 
     private void changeHiddenFolderState(boolean hidden) {
-        disposable = repository.getAudioTracks(audioFolder.getId())
+        disposable = updateHiddenAudioFolder(hidden)
                 .subscribeOn(Schedulers.io())
-                .doOnNext(audioFiles -> updateHiddenAudioFolder(hidden))
-                .doOnNext(audioFiles -> updateHiddenAudioFiles(audioFiles, hidden))
+                .flatMap(audioFiles -> repository.getAudioTracks(audioFolder.getId()))
+                .flatMap(Observable::fromIterable)
+                .flatMap(audioFile -> updateHiddenAudioFiles(audioFile, hidden))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(audioFiles -> refreshCache());
     }
 
-    private void updateHiddenAudioFiles(List<AudioFile> audioFiles, boolean hidden) {
-        for (AudioFile audioFile : audioFiles) {
-            audioFile.isHidden = hidden;
-            repository.updateAudioFile(audioFile);
-        }
+    private Observable<Object> updateHiddenAudioFiles(AudioFile audioFile, boolean hidden) {
+        audioFile.isHidden = hidden;
+        return repository.updateAudioFile(audioFile);
     }
 
-    private void updateHiddenAudioFolder(boolean hidden) {
+    private Observable<Object> updateHiddenAudioFolder(boolean hidden) {
         audioFolder.isHidden = hidden;
-        repository.updateAudioFolder(audioFolder);
+        return repository.updateAudioFolder(audioFolder);
     }
 }

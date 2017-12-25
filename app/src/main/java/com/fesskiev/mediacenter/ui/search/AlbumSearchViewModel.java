@@ -113,8 +113,8 @@ public class AlbumSearchViewModel extends ViewModel {
         disposables.add(bitmapHelper.getCoverBitmapFromURL(image.getText())
                 .subscribeOn(Schedulers.io())
                 .doOnNext(bitmap -> removeFolderImages(audioFolder))
-                .doOnNext(bitmap -> saveArtworkAndUpdateFolder(bitmap, audioFolder))
-                .flatMap(bitmap -> repository.getAudioTracks(audioFolder.id))
+                .flatMap(bitmap -> saveArtworkAndUpdateFolder(bitmap, audioFolder))
+                .flatMap(object -> repository.getAudioTracks(audioFolder.id))
                 .flatMap(Observable::fromIterable)
                 .flatMap(audioFile -> {
                     audioFile.folderArtworkPath = audioFolder.folderImage.getAbsolutePath();
@@ -125,7 +125,7 @@ public class AlbumSearchViewModel extends ViewModel {
                         throwable -> notifyErrorSaveBitmap()));
     }
 
-    private void saveArtworkAndUpdateFolder(Bitmap bitmap, AudioFolder audioFolder) {
+    private Observable<Object> saveArtworkAndUpdateFolder(Bitmap bitmap, AudioFolder audioFolder) {
         try {
             File path = File.createTempFile(audioFolder.folderName, ".jpg", audioFolder.folderPath);
 
@@ -133,12 +133,11 @@ public class AlbumSearchViewModel extends ViewModel {
 
             audioFolder.folderImage = path;
 
-            repository.updateAudioFolder(audioFolder);
-
         } catch (IOException e) {
             e.printStackTrace();
             notifyErrorSaveBitmap();
         }
+        return repository.updateAudioFolder(audioFolder);
     }
 
     private void removeFolderImages(AudioFolder audioFolder) {

@@ -102,19 +102,18 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
         if (!TextUtils.isEmpty(folderNameChanged)) {
             disposable = Observable.just(folderNameChanged)
                     .subscribeOn(Schedulers.io())
-                    .flatMap(toDir -> Observable.just(renameFolder(toDir)))
+                    .flatMap(this::renameFolder)
+                    .flatMap(object -> repository.getVideoFiles(videoFolder.getId()))
+                    .flatMap(Observable::fromIterable)
+                    .flatMap(videoFile -> renameFile(videoFile, folderNameChanged))
                     .observeOn(AndroidSchedulers.mainThread())
-                    .doOnNext(this::updateFolderPath)
-                    .subscribeOn(Schedulers.io())
-                    .flatMap(toDir -> repository.getVideoFiles(videoFolder.getId())
-                            .doOnNext(audioFiles -> renameFiles(audioFiles, toDir))
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .doOnNext(audioFiles -> refreshCache()))
+                    .doOnNext(object -> updateFolderPath())
+                    .doOnNext(audioFiles -> refreshCache())
                     .subscribe(audioFiles -> hideSaveButton(), Throwable::printStackTrace);
         }
     }
 
-    private String renameFolder(String toDir) {
+    private Observable<Object> renameFolder(String toDir) {
         File toPath = new File(videoFolder.folderPath.getParent() + "/" + toDir);
         try {
             FileUtils.moveDirectory(videoFolder.folderPath, toPath);
@@ -124,24 +123,19 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
             videoFolder.folderPath = toPath;
             videoFolder.folderName = toPath.getName();
 
-            repository.updateVideoFolder(videoFolder);
-
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return toDir;
+        return repository.updateVideoFolder(videoFolder);
     }
 
-    private void renameFiles(List<VideoFile> videoFiles, String toDir) {
-        for (VideoFile videoFile : videoFiles) {
-            videoFile.filePath = new File(videoFile.getFilePath().replace(fromDir, toDir));
-            repository.updateVideoFile(videoFile);
-        }
+    private Observable<Object> renameFile(VideoFile videoFile, String toDir) {
+        videoFile.filePath = new File(videoFile.getFilePath().replace(fromDir, toDir));
+        return repository.updateVideoFile(videoFile);
     }
 
-    private void updateFolderPath(String folderName) {
-        folderPath.setText(String.format(Locale.US, "%1$s/%2$s",
-                videoFolder.folderPath.getParent(), folderName));
+    private void updateFolderPath() {
+        folderPath.setText(videoFolder.getPath());
     }
 
     private void calculateValues(List<VideoFile> videoFiles) {
@@ -162,23 +156,22 @@ public class VideoFolderDetailsDialog extends MediaFolderDetailsDialog {
     }
 
     private void changeHiddenFolderState(boolean hidden) {
-        disposable = repository.getVideoFiles(videoFolder.getId())
+        disposable = updateHiddenVideoFolder(hidden)
                 .subscribeOn(Schedulers.io())
-                .doOnNext(videoFiles -> updateHiddenVideoFolder(hidden))
-                .doOnNext(videoFiles -> updateHiddenVideoFiles(videoFiles, hidden))
+                .flatMap(object -> repository.getVideoFiles(videoFolder.getId()))
+                .flatMap(Observable::fromIterable)
+                .flatMap(videoFile -> updateHiddenVideoFile(videoFile, hidden))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(videoFiles -> refreshCache());
     }
 
-    private void updateHiddenVideoFiles(List<VideoFile> videoFiles, boolean hidden) {
-        for (VideoFile videoFile : videoFiles) {
-            videoFile.isHidden = hidden;
-            repository.updateVideoFile(videoFile);
-        }
+    private Observable<Object> updateHiddenVideoFile(VideoFile videoFile, boolean hidden) {
+        videoFile.isHidden = hidden;
+        return repository.updateVideoFile(videoFile);
     }
 
-    private void updateHiddenVideoFolder(boolean hidden) {
+    private Observable<Object> updateHiddenVideoFolder(boolean hidden) {
         videoFolder.isHidden = hidden;
-        repository.updateVideoFolder(videoFolder);
+        return repository.updateVideoFolder(videoFolder);
     }
 }

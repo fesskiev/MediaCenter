@@ -103,10 +103,7 @@ public class VideoFileDetailsDialog extends DialogFragment implements TextWatche
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if (videoFile != null) {
-
             filerName = view.findViewById(R.id.fileName);
-            filerName.addTextChangedListener(this);
-
             cover = view.findViewById(R.id.fileCover);
             filePath = view.findViewById(R.id.filePath);
             fileSize = view.findViewById(R.id.fileSize);
@@ -128,18 +125,16 @@ public class VideoFileDetailsDialog extends DialogFragment implements TextWatche
 
     private void renameFile() {
         if (!TextUtils.isEmpty(folderNameChanged)) {
-            if (!TextUtils.isEmpty(folderNameChanged)) {
-                subscription = Observable.just(folderNameChanged)
-                        .subscribeOn(Schedulers.io())
-                        .flatMap(toDir -> Observable.just(renameFile(toDir)))
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .doOnNext(this::updateFilePath)
-                        .subscribe(audioFiles -> refreshCache(), Throwable::printStackTrace);
-            }
+            subscription = Observable.just(folderNameChanged)
+                    .subscribeOn(Schedulers.io())
+                    .flatMap(this::renameFile)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnNext(object -> updateFilePath())
+                    .subscribe(audioFiles -> refreshCache(), Throwable::printStackTrace);
         }
     }
 
-    private String renameFile(String toDir) {
+    private Observable<Object> renameFile(String toDir) {
         File toPath = new File(videoFile.filePath.getParent() + "/" + toDir);
         try {
             FileUtils.moveFile(videoFile.filePath, toPath);
@@ -147,18 +142,16 @@ public class VideoFileDetailsDialog extends DialogFragment implements TextWatche
             videoFile.filePath = toPath;
             videoFile.description = toPath.getName();
 
-            repository.updateVideoFile(videoFile);
-
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return toDir;
+
+        return repository.updateVideoFile(videoFile);
     }
 
-    private void updateFilePath(String fileName) {
-        filerName.setText(fileName);
+    private void updateFilePath() {
+        filerName.setText(videoFile.getFilePath());
     }
-
 
     @Override
     public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -187,8 +180,9 @@ public class VideoFileDetailsDialog extends DialogFragment implements TextWatche
         subscription = Observable.just(videoFile.fetchVideoData())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(videoFile -> repository.updateVideoFile(videoFile))
                 .doOnNext(this::updateDialog)
+                .flatMap(videoFile -> repository.updateVideoFile(videoFile).subscribeOn(Schedulers.io()))
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(aBoolean -> refreshCache());
     }
 
@@ -196,7 +190,7 @@ public class VideoFileDetailsDialog extends DialogFragment implements TextWatche
 
         filerName.setText(videoFile.description);
         filerName.addTextChangedListener(this);
-
+        filerName.setSelection(videoFile.getFileName().length());
 
         filePath.setText(String.format(Locale.US, "%1$s %2$s", getString(R.string.folder_details_path),
                 videoFile.filePath.getAbsolutePath()));
@@ -224,7 +218,7 @@ public class VideoFileDetailsDialog extends DialogFragment implements TextWatche
     private void changeHiddenFleState(boolean hide) {
         subscription = Observable.just(hide)
                 .subscribeOn(Schedulers.io())
-                .doOnNext(this::updateHiddenVideoFilesState)
+                .flatMap(this::updateHiddenVideoFilesState)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(aBoolean -> refreshCache(), Throwable::printStackTrace);
     }
@@ -235,9 +229,9 @@ public class VideoFileDetailsDialog extends DialogFragment implements TextWatche
         }
     }
 
-    private void updateHiddenVideoFilesState(boolean hidden) {
+    private Observable<Object> updateHiddenVideoFilesState(boolean hidden) {
         videoFile.isHidden = hidden;
-        repository.updateVideoFile(videoFile);
+        return repository.updateVideoFile(videoFile);
     }
 
     @Override
