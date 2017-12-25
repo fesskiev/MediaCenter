@@ -38,7 +38,6 @@ public class AudioPlayer implements Playable {
     private SchedulerProvider provider;
     private FFmpegHelper fFmpegHelper;
 
-
     private TrackListIterator trackListIterator;
     private List<AudioFile> currentTrackList;
     private AudioFile currentTrack;

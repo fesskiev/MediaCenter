@@ -28,7 +28,9 @@ public class PlayersModule {
 
     @Provides
     @Singleton
-    VideoPlayer provideVideoPlayer(RxBus rxBus) {
-        return new VideoPlayer(rxBus);
+    VideoPlayer provideVideoPlayer(RxBus rxBus,
+                                   DataRepository dataRepository,
+                                   SchedulerProvider schedulerProvider) {
+        return new VideoPlayer(rxBus, dataRepository, schedulerProvider);
     }
 }

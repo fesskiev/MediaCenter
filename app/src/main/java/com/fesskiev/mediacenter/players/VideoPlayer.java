@@ -3,22 +3,31 @@ package com.fesskiev.mediacenter.players;
 
 import com.fesskiev.mediacenter.data.model.MediaFile;
 import com.fesskiev.mediacenter.data.model.VideoFile;
+import com.fesskiev.mediacenter.data.model.VideoFolder;
+import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.ui.Playable;
 import com.fesskiev.mediacenter.utils.RxBus;
+import com.fesskiev.mediacenter.utils.schedulers.SchedulerProvider;
 
 import java.util.List;
 import java.util.ListIterator;
 
 public class VideoPlayer implements Playable {
 
+    private RxBus rxBus;
+    private DataRepository repository;
+    private SchedulerProvider provider;
+
     private VideoFilesIterator videoFilesIterator;
-    private List<VideoFile> videoFiles;
+    private List<VideoFile> currentVideoFiles;
     private VideoFile currentVideoFile;
     private int position;
-    private RxBus rxBus;
 
-    public VideoPlayer(RxBus rxBus) {
+
+    public VideoPlayer(RxBus rxBus, DataRepository repository, SchedulerProvider schedulerProvider) {
         this.rxBus = rxBus;
+        this.repository = repository;
+        this.provider = schedulerProvider;
         videoFilesIterator = new VideoFilesIterator();
     }
 
@@ -44,7 +53,11 @@ public class VideoPlayer implements Playable {
             VideoFile videoFile = videoFilesIterator.next();
             if (videoFile != null) {
                 currentVideoFile = videoFile;
-                notifyCurrentVideoFile();
+                videoFile.isSelected = true;
+                repository.updateSelectedVideoFile(videoFile)
+                        .subscribeOn(provider.computation())
+                        .observeOn(provider.ui())
+                        .subscribe(Void -> notifyCurrentVideoFile());
             }
         }
     }
@@ -55,13 +68,21 @@ public class VideoPlayer implements Playable {
             VideoFile videoFile = videoFilesIterator.previous();
             if (videoFile != null) {
                 currentVideoFile = videoFile;
-                notifyCurrentVideoFile();
+                videoFile.isSelected = true;
+                repository.updateSelectedVideoFile(videoFile)
+                        .subscribeOn(provider.computation())
+                        .observeOn(provider.ui())
+                        .subscribe(Void -> notifyCurrentVideoFile());
             }
         }
     }
 
-    private void notifyCurrentVideoFile(){
+    private void notifyCurrentVideoFile() {
         rxBus.sendCurrentVideoFileEvent(currentVideoFile);
+    }
+
+    private void notifyCurrentVideoFiles() {
+        rxBus.sendCurrentVideoFilesEvent(currentVideoFiles);
     }
 
     @Override
@@ -74,13 +95,37 @@ public class VideoPlayer implements Playable {
         return videoFilesIterator.lastVideo();
     }
 
-    public void setVideoFiles(List<VideoFile> videoFiles) {
-        this.videoFiles = videoFiles;
+    public void setCurrentVideoFiles(List<VideoFile> currentVideoFiles) {
+        this.currentVideoFiles = currentVideoFiles;
     }
 
     public void setCurrentVideoFile(VideoFile videoFile) {
         this.currentVideoFile = videoFile;
         videoFilesIterator.findPosition();
+    }
+
+    public void updateCurrentVideoFile(VideoFile videoFile) {
+        currentVideoFile = videoFile;
+        videoFilesIterator.findPosition();
+
+        videoFile.isSelected = true;
+        repository.updateSelectedVideoFile(videoFile)
+                .subscribeOn(provider.computation())
+                .observeOn(provider.ui())
+                .subscribe(Void -> notifyCurrentVideoFile());
+    }
+
+    public void updateCurrentVideoFolders(VideoFolder videoFolder, List<VideoFile> videoFiles) {
+        if (videoFiles != null) {
+            currentVideoFiles = videoFiles;
+        }
+        if (videoFolder != null) {
+            videoFolder.isSelected = true;
+            repository.updateSelectedVideoFolder(videoFolder)
+                    .subscribeOn(provider.computation())
+                    .observeOn(provider.ui())
+                    .subscribe(Void -> notifyCurrentVideoFiles());
+        }
     }
 
     private class VideoFilesIterator implements ListIterator<VideoFile> {
@@ -102,13 +147,13 @@ public class VideoPlayer implements Playable {
         @Override
         public VideoFile next() {
             nextIndex();
-            return videoFiles.get(position);
+            return currentVideoFiles.get(position);
         }
 
         @Override
         public VideoFile previous() {
             previousIndex();
-            return videoFiles.get(position);
+            return currentVideoFiles.get(position);
         }
 
         @Override
@@ -137,22 +182,22 @@ public class VideoPlayer implements Playable {
         }
 
         private boolean firstVideo() {
-            if (videoFiles == null) {
+            if (currentVideoFiles == null) {
                 return true;
             }
             return position == 0;
         }
 
         private boolean lastVideo() {
-            if (videoFiles == null) {
+            if (currentVideoFiles == null) {
                 return true;
             }
-            return position == (videoFiles.size() - 1);
+            return position == (currentVideoFiles.size() - 1);
         }
 
         public void findPosition() {
-            if (videoFiles != null && videoFiles.contains(currentVideoFile)) {
-                position = videoFiles.indexOf(currentVideoFile);
+            if (currentVideoFiles != null && currentVideoFiles.contains(currentVideoFile)) {
+                position = currentVideoFiles.indexOf(currentVideoFile);
             }
         }
     }

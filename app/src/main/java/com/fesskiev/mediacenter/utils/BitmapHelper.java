@@ -194,6 +194,7 @@ public class BitmapHelper {
                 Bitmap bitmap = getNoCoverFolderBitmap();
                 e.onNext(bitmap);
             }
+            e.onComplete();
         });
     }
 

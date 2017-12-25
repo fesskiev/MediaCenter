@@ -30,16 +30,10 @@ public class FetchContentViewModel extends ViewModel {
     private final SingleLiveEvent<FileSystemService.FetchFolderCreated> audioFoldersCreatedLiveData = new SingleLiveEvent<>();
     private final SingleLiveEvent<FileSystemService.FetchFolderCreated> videoFoldersCreatedLiveData = new SingleLiveEvent<>();
 
-    private final static int DELAY = 3;
-
     @Inject
     RxBus rxBus;
 
     private Disposable disposable;
-
-    private int folderAudioCount;
-    private int folderVideoCount;
-
 
     public FetchContentViewModel() {
         MediaApplication.getInstance().getAppComponent().inject(this);
@@ -76,15 +70,6 @@ public class FetchContentViewModel extends ViewModel {
     }
 
     private void scanning(FileSystemService fileSystemService) {
-
-        FileSystemService.FetchDescription fetchDescription = fileSystemService.getFetchDescription();
-        if (fetchDescription != null) {
-            FileSystemService.FetchDescription lastFetchDescription = fetchDescriptionLiveData.getValue();
-            if (lastFetchDescription == null || lastFetchDescription != fetchDescription) {
-                fetchDescriptionLiveData.setValue(fetchDescription);
-            }
-        }
-
         FileSystemService.FetchFolderCreated fetchFolderCreated = fileSystemService.getFolderCreated();
         if (fetchFolderCreated != null) {
             int type = fetchFolderCreated.getType();
@@ -93,24 +78,24 @@ public class FetchContentViewModel extends ViewModel {
                     FileSystemService.FetchFolderCreated lastAudioFetchFolderCreated = audioFoldersCreatedLiveData.getValue();
                     if (lastAudioFetchFolderCreated == null || lastAudioFetchFolderCreated != fetchFolderCreated) {
                         audioFoldersCreatedLiveData.setValue(fetchFolderCreated);
-                        folderAudioCount++;
-                        if (folderAudioCount == DELAY) {
-                            folderAudioCount = 0;
-                            audioFoldersCreatedLiveData.call();
-                        }
+                        audioFoldersCreatedLiveData.call();
                     }
                     break;
                 case VIDEO:
                     FileSystemService.FetchFolderCreated lastVideoFetchFolderCreated = audioFoldersCreatedLiveData.getValue();
                     if (lastVideoFetchFolderCreated == null || lastVideoFetchFolderCreated != fetchFolderCreated) {
                         videoFoldersCreatedLiveData.setValue(fetchFolderCreated);
-                        folderVideoCount++;
-                        if (folderVideoCount == DELAY) {
-                            folderVideoCount = 0;
-                            videoFoldersCreatedLiveData.call();
-                        }
+                        videoFoldersCreatedLiveData.call();
                     }
                     break;
+            }
+        }
+
+        FileSystemService.FetchDescription fetchDescription = fileSystemService.getFetchDescription();
+        if (fetchDescription != null) {
+            FileSystemService.FetchDescription lastFetchDescription = fetchDescriptionLiveData.getValue();
+            if (lastFetchDescription == null || lastFetchDescription != fetchDescription) {
+                fetchDescriptionLiveData.setValue(fetchDescription);
             }
         }
 
@@ -122,8 +107,6 @@ public class FetchContentViewModel extends ViewModel {
     }
 
     private void finish() {
-        folderVideoCount = 0;
-        folderAudioCount = 0;
         finishFetchLiveData.call();
     }
 

@@ -247,6 +247,11 @@ public class ExoPlayerWrapper implements Player.EventListener {
         this.tracksChangedListener = listener;
     }
 
+    public void setPlaybackSpeed(float speed) {
+        PlaybackParameters playbackParameters = new PlaybackParameters(speed, 1.0f);
+        exoPlayer.setPlaybackParameters(playbackParameters);
+    }
+
     public void seekTo(long seek) {
         exoPlayer.seekTo(seek);
     }

@@ -8,7 +8,6 @@ import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.model.VideoFolder;
 import com.fesskiev.mediacenter.data.source.DataRepository;
-import com.fesskiev.mediacenter.players.AudioPlayer;
 import com.fesskiev.mediacenter.players.VideoPlayer;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
@@ -34,8 +33,6 @@ public class VideoFilesViewModel extends ViewModel {
 
     @Inject
     VideoPlayer videoPlayer;
-    @Inject
-    AudioPlayer audioPlayer;
     @Inject
     DataRepository repository;
     @Inject
@@ -91,14 +88,19 @@ public class VideoFilesViewModel extends ViewModel {
 
     public boolean checkVideoFileExist(VideoFile videoFile) {
         if (videoFile.exists()) {
-            videoPlayer.setVideoFiles(videoFilesLiveData.getValue());
-            videoPlayer.setCurrentVideoFile(videoFile);
-
-//            audioPlayer.pause();
+            videoPlayer.setCurrentVideoFiles(videoFilesLiveData.getValue());
             return true;
         }
         notExistFileLiveData.call();
         return false;
+    }
+
+    public void updateCurrentVideoFiles(VideoFolder videoFolder, List<VideoFile> videoFiles) {
+        videoPlayer.updateCurrentVideoFolders(videoFolder, videoFiles);
+    }
+
+    public void updateCurrentVideoFile(VideoFile videoFile) {
+        videoPlayer.updateCurrentVideoFile(videoFile);
     }
 
     private void notifyDeletedFile(int position) {
@@ -128,4 +130,5 @@ public class VideoFilesViewModel extends ViewModel {
     public SingleLiveEvent<Void> getNotExistFileLiveData() {
         return notExistFileLiveData;
     }
+
 }

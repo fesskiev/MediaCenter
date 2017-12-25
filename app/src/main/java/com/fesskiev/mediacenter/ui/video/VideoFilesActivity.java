@@ -191,8 +191,10 @@ public class VideoFilesActivity extends AnalyticsActivity {
         }
     }
 
-    public void startExoPlayerActivity(VideoFile videoFile) {
+    public void startExoPlayerActivity(VideoFile videoFile, List<VideoFile> videoFiles) {
         if (viewModel.checkVideoFileExist(videoFile)) {
+            viewModel.updateCurrentVideoFile(videoFile);
+            viewModel.updateCurrentVideoFiles(videoFolder, videoFiles);
             Intent intent = new Intent(this, VideoExoPlayerActivity.class);
             intent.putExtra(VideoExoPlayerActivity.URI_EXTRA, videoFile.getFilePath());
             intent.putExtra(VideoExoPlayerActivity.VIDEO_NAME_EXTRA, videoFile.getFileName());
@@ -253,7 +255,7 @@ public class VideoFilesActivity extends AnalyticsActivity {
             if (act != null) {
                 VideoFile videoFile = videoFiles.get(position);
                 if (videoFile != null) {
-                    act.startExoPlayerActivity(videoFile);
+                    act.startExoPlayerActivity(videoFile, videoFiles);
                 }
             }
         }

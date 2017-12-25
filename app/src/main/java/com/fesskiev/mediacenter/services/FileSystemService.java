@@ -447,7 +447,6 @@ public class FileSystemService extends Service {
             videoFolder.id = UUID.randomUUID().toString();
             videoFolder.timestamp = System.currentTimeMillis();
 
-
             sendFolderDescription(videoFolder.folderName);
 
             repository.insertVideoFolder(videoFolder);
@@ -458,7 +457,6 @@ public class FileSystemService extends Service {
                 sendFileDescription(videoFile.description);
             }
             sendFolderCreated(FetchFolderCreated.VIDEO);
-
         }
     }
 
@@ -877,6 +875,16 @@ public class FileSystemService extends Service {
         return fetchDescription;
     }
 
+    public static boolean isVideoFile(String path) {
+        String mimeType = URLConnection.guessContentTypeFromName(path);
+        return mimeType != null && mimeType.startsWith("video");
+    }
+
+    public static boolean isAudioFile(String path) {
+        String mimeType = URLConnection.guessContentTypeFromName(path);
+        return mimeType != null && mimeType.startsWith("audio");
+    }
+
     public static class FetchDescription {
 
         private String folderName;
@@ -894,16 +902,6 @@ public class FileSystemService extends Service {
         public String getFileName() {
             return fileName;
         }
-    }
-
-    public static boolean isVideoFile(String path) {
-        String mimeType = URLConnection.guessContentTypeFromName(path);
-        return mimeType != null && mimeType.startsWith("video");
-    }
-
-    public static boolean isAudioFile(String path) {
-        String mimeType = URLConnection.guessContentTypeFromName(path);
-        return mimeType != null && mimeType.startsWith("audio");
     }
 
     public static class FetchFolderCreated {

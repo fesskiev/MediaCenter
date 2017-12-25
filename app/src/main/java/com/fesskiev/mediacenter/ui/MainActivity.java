@@ -243,6 +243,9 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         }
 
+        observeData();
+        observeFetchData();
+
         setEffectsNavView();
         setMainNavView();
         registerRefreshFragmentsReceiver();
@@ -252,8 +255,6 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
 
         showEmptyTrackCard();
         showEmptyFolderCard();
-        observeData();
-        observeFetchData();
         bindFileSystemService();
     }
 
@@ -268,6 +269,12 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
             adapter.notifyDataSetChanged();
             hideEmptyTrackCard();
             startForegroundService();
+        });
+        mainViewModel.getCurrentVideoFilesLiveData().observe(this, videoFiles -> {
+            AppLog.ERROR("current video files: " + videoFiles.size());
+        });
+        mainViewModel.getCurrentVideoFileLiveData().observe(this, videoFile -> {
+            AppLog.ERROR("current video file: " + videoFile.toString());
         });
 
         mainViewModel.getConvertingLiveData().observe(this, this::setConvertingView);
@@ -286,7 +293,6 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
         FetchContentViewModel viewModel = ViewModelProviders.of(this).get(FetchContentViewModel.class);
         viewModel.getPrepareFetchLiveData().observe(this, Void -> fetchContentScreen.prepareFetch());
         viewModel.getFinishFetchLiveData().observe(this, Void -> {
-            ;
             fetchContentScreen.finishFetch();
             animationUtils.animateBottomSheet(bottomSheet, true);
 
@@ -916,6 +922,7 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
 
     private void addAudioFragment() {
         selectedState = SELECTED_AUDIO;
+        mainViewModel.getCurrentTrackAndTrackList();
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
@@ -935,6 +942,8 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
 
     private void addVideoFragment() {
         selectedState = SELECTED_VIDEO;
+        mainViewModel.getCurrentVideoFileAndVideoFilesList();
+
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 

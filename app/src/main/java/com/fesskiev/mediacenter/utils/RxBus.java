@@ -22,6 +22,7 @@ public final class RxBus {
     private final PublishSubject<AudioFile> busCurrentTrack = PublishSubject.create();
 
     private final PublishSubject<VideoFile> busCurrentVideoFile = PublishSubject.create();
+    private final PublishSubject<List<VideoFile>> busCurrentVideoFiles = PublishSubject.create();
 
     public void sendFileSystemEvent(final FileSystemService event) {
         if (busFileSystem.hasObservers()) {
@@ -44,6 +45,12 @@ public final class RxBus {
     public void sendCurrentVideoFileEvent(final VideoFile event) {
         if (busCurrentVideoFile.hasObservers()) {
             busCurrentVideoFile.onNext(event);
+        }
+    }
+
+    public void sendCurrentVideoFilesEvent(final List<VideoFile> event) {
+        if (busCurrentVideoFiles.hasObservers()) {
+            busCurrentVideoFiles.onNext(event);
         }
     }
 

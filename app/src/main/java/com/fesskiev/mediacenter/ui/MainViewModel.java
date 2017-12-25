@@ -8,11 +8,12 @@ import android.graphics.Bitmap;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.data.model.AudioFile;
+import com.fesskiev.mediacenter.data.model.VideoFile;
 import com.fesskiev.mediacenter.data.source.DataRepository;
 import com.fesskiev.mediacenter.players.AudioPlayer;
+import com.fesskiev.mediacenter.players.VideoPlayer;
 import com.fesskiev.mediacenter.services.FileSystemService;
 import com.fesskiev.mediacenter.services.AudioPlaybackService;
-import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.AppSettingsManager;
 import com.fesskiev.mediacenter.utils.BitmapHelper;
 import com.fesskiev.mediacenter.utils.CacheManager;
@@ -37,6 +38,9 @@ public class MainViewModel extends ViewModel {
     private final MutableLiveData<AudioFile> currentTrackLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<AudioFile>> currentTrackListLiveData = new MutableLiveData<>();
 
+    private final MutableLiveData<VideoFile> currentVideoFileLiveData = new MutableLiveData<>();
+    private final MutableLiveData<List<VideoFile>> currentVideoFilesLiveData = new MutableLiveData<>();
+
     private final MutableLiveData<Integer> positionLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> playingLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> convertingLiveData = new MutableLiveData<>();
@@ -52,6 +56,8 @@ public class MainViewModel extends ViewModel {
 
     @Inject
     AudioPlayer audioPlayer;
+    @Inject
+    VideoPlayer videoPlayer;
     @Inject
     AppSettingsManager settingsManager;
     @Inject
@@ -72,7 +78,6 @@ public class MainViewModel extends ViewModel {
         MediaApplication.getInstance().getAppComponent().inject(this);
         disposables = new CompositeDisposable();
         observeEvents();
-        getCurrentTrackAndTrackList();
     }
 
     public void getCurrentTrackAndTrackList() {
@@ -87,7 +92,6 @@ public class MainViewModel extends ViewModel {
                 .flatMap(audioFiles -> repository.getSelectedAudioFile().subscribeOn(Schedulers.io()))
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(audioFile -> {
-                    AppLog.ERROR("current track : " + audioFile.toString());
                     audioPlayer.setCurrentAudioFile(audioFile);
                     notifyCurrentTrack(audioFile);
                 })
@@ -102,12 +106,14 @@ public class MainViewModel extends ViewModel {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(videoFiles -> {
-
+                    videoPlayer.setCurrentVideoFiles(videoFiles);
+                    notifyCurrentVideoFiles(videoFiles);
                 })
                 .flatMap(videoFiles -> repository.getSelectedVideoFile().subscribeOn(Schedulers.io()))
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(videoFile -> {
-
+                    videoPlayer.setCurrentVideoFile(videoFile);
+                    notifyCurrentVideoFile(videoFile);
                 })
                 .subscribe(object -> {
                 }, Throwable::printStackTrace));
@@ -221,6 +227,14 @@ public class MainViewModel extends ViewModel {
         currentTrackListLiveData.setValue(audioFiles);
     }
 
+    private void notifyCurrentVideoFile(VideoFile videoFile) {
+        currentVideoFileLiveData.postValue(videoFile);
+    }
+
+    private void notifyCurrentVideoFiles(List<VideoFile> videoFiles) {
+        currentVideoFilesLiveData.postValue(videoFiles);
+    }
+
     @Override
     protected void onCleared() {
         super.onCleared();
@@ -279,14 +293,6 @@ public class MainViewModel extends ViewModel {
         settingsManager.setNeedMainActivityGuide(false);
     }
 
-    public MutableLiveData<AudioFile> getCurrentTrackLiveData() {
-        return currentTrackLiveData;
-    }
-
-    public MutableLiveData<List<AudioFile>> getCurrentTrackListLiveData() {
-        return currentTrackListLiveData;
-    }
-
     public void setWhooshEnable(boolean enable) {
         AudioPlaybackService.changeWhooshEnable(context, enable);
         settingsManager.setWhooshEnable(enable);
@@ -305,6 +311,22 @@ public class MainViewModel extends ViewModel {
     public void setEchoEnable(boolean enable) {
         AudioPlaybackService.changeEchoEnable(context, enable);
         settingsManager.setEchoEnable(enable);
+    }
+
+    public MutableLiveData<AudioFile> getCurrentTrackLiveData() {
+        return currentTrackLiveData;
+    }
+
+    public MutableLiveData<List<AudioFile>> getCurrentTrackListLiveData() {
+        return currentTrackListLiveData;
+    }
+
+    public MutableLiveData<VideoFile> getCurrentVideoFileLiveData() {
+        return currentVideoFileLiveData;
+    }
+
+    public MutableLiveData<List<VideoFile>> getCurrentVideoFilesLiveData() {
+        return currentVideoFilesLiveData;
     }
 
     public MutableLiveData<Integer> getPositionLiveData() {

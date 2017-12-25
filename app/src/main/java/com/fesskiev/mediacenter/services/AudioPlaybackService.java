@@ -615,7 +615,9 @@ public class AudioPlaybackService extends Service {
                 .subscribe(audioFile -> {
                     this.currentTrack = audioFile;
                     updateNotification(currentTrack);
-                    wearHelper.updateTrack(currentTrack);
+                    if (wearHelper != null) {
+                        wearHelper.updateTrack(currentTrack);
+                    }
                 }, Throwable::printStackTrace);
 
         rxBus.toCurrentTrackListObservable()
