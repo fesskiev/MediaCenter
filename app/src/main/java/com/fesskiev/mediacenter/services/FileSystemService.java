@@ -106,7 +106,6 @@ public class FileSystemService extends Service {
     private SCAN_STATE scanState;
 
     private float progress;
-    private FetchFolderCreated folderCreated;
     private FetchDescription fetchDescription;
 
     public static void stopFileSystemService(Context context) {
@@ -312,7 +311,6 @@ public class FileSystemService extends Service {
     private void finishScan() {
         progress = 0f;
         fetchDescription = null;
-        folderCreated = null;
         scanState = SCAN_STATE.FINISHED;
         sendFetchEvent();
     }
@@ -431,10 +429,6 @@ public class FileSystemService extends Service {
         sendFetchEvent();
     }
 
-    private void sendFolderCreated(int type) {
-        folderCreated = new FetchFolderCreated(type);
-        sendFetchEvent();
-    }
 
     private void filterVideoFolders(File directoryFile) {
         File[] videoPaths = directoryFile.listFiles(videoFilter());
@@ -456,7 +450,6 @@ public class FileSystemService extends Service {
                 repository.insertVideoFile(videoFile);
                 sendFileDescription(videoFile.description);
             }
-            sendFolderCreated(FetchFolderCreated.VIDEO);
         }
     }
 
@@ -489,7 +482,6 @@ public class FileSystemService extends Service {
                 repository.insertAudioFile(audioFile);
                 sendFileDescription(audioFile.artist + "-" + audioFile.title);
             }
-            sendFolderCreated(FetchFolderCreated.AUDIO);
         }
     }
 
@@ -904,22 +896,6 @@ public class FileSystemService extends Service {
         }
     }
 
-    public static class FetchFolderCreated {
-
-        public static final int AUDIO = 0;
-        public static final int VIDEO = 1;
-
-        private int type;
-
-        public FetchFolderCreated(int type) {
-            this.type = type;
-        }
-
-        public int getType() {
-            return type;
-        }
-    }
-
     private class MediaFileNotification {
 
         private int notificationId;
@@ -978,9 +954,5 @@ public class FileSystemService extends Service {
 
     public float getProgress() {
         return progress;
-    }
-
-    public FetchFolderCreated getFolderCreated() {
-        return folderCreated;
     }
 }

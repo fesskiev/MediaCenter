@@ -5,19 +5,17 @@ import android.arch.lifecycle.ViewModel;
 
 import com.fesskiev.mediacenter.MediaApplication;
 import com.fesskiev.mediacenter.services.FileSystemService;
-import com.fesskiev.mediacenter.utils.AppLog;
 import com.fesskiev.mediacenter.utils.RxBus;
 import com.fesskiev.mediacenter.utils.RxUtils;
 import com.fesskiev.mediacenter.utils.events.SingleLiveEvent;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.inject.Inject;
 
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-
-import static com.fesskiev.mediacenter.services.FileSystemService.FetchFolderCreated.AUDIO;
-import static com.fesskiev.mediacenter.services.FileSystemService.FetchFolderCreated.VIDEO;
-
 
 public class FetchContentViewModel extends ViewModel {
 
@@ -27,13 +25,14 @@ public class FetchContentViewModel extends ViewModel {
     private final SingleLiveEvent<Void> finishFetchLiveData = new SingleLiveEvent<>();
     private final SingleLiveEvent<Void> fetchAudioStartLiveData = new SingleLiveEvent<>();
     private final SingleLiveEvent<Void> fetchVideoStartLiveData = new SingleLiveEvent<>();
-    private final SingleLiveEvent<FileSystemService.FetchFolderCreated> audioFoldersCreatedLiveData = new SingleLiveEvent<>();
-    private final SingleLiveEvent<FileSystemService.FetchFolderCreated> videoFoldersCreatedLiveData = new SingleLiveEvent<>();
+    private final SingleLiveEvent<Void> audioFoldersCreatedLiveData = new SingleLiveEvent<>();
+    private final SingleLiveEvent<Void> videoFoldersCreatedLiveData = new SingleLiveEvent<>();
 
     @Inject
     RxBus rxBus;
 
     private Disposable disposable;
+    private Disposable timerDisposable;
 
     public FetchContentViewModel() {
         MediaApplication.getInstance().getAppComponent().inject(this);
@@ -57,12 +56,14 @@ public class FetchContentViewModel extends ViewModel {
         if (scanState != null) {
             switch (scanState) {
                 case PREPARE:
+                    addTimerCheckFolders(fileSystemService);
                     prepare(fileSystemService);
                     break;
                 case SCANNING:
                     scanning(fileSystemService);
                     break;
                 case FINISHED:
+                    clearTimer();
                     finish();
                     break;
             }
@@ -70,27 +71,6 @@ public class FetchContentViewModel extends ViewModel {
     }
 
     private void scanning(FileSystemService fileSystemService) {
-        FileSystemService.FetchFolderCreated fetchFolderCreated = fileSystemService.getFolderCreated();
-        if (fetchFolderCreated != null) {
-            int type = fetchFolderCreated.getType();
-            switch (type) {
-                case AUDIO:
-                    FileSystemService.FetchFolderCreated lastAudioFetchFolderCreated = audioFoldersCreatedLiveData.getValue();
-                    if (lastAudioFetchFolderCreated == null || lastAudioFetchFolderCreated != fetchFolderCreated) {
-                        audioFoldersCreatedLiveData.setValue(fetchFolderCreated);
-                        audioFoldersCreatedLiveData.call();
-                    }
-                    break;
-                case VIDEO:
-                    FileSystemService.FetchFolderCreated lastVideoFetchFolderCreated = audioFoldersCreatedLiveData.getValue();
-                    if (lastVideoFetchFolderCreated == null || lastVideoFetchFolderCreated != fetchFolderCreated) {
-                        videoFoldersCreatedLiveData.setValue(fetchFolderCreated);
-                        videoFoldersCreatedLiveData.call();
-                    }
-                    break;
-            }
-        }
-
         FileSystemService.FetchDescription fetchDescription = fileSystemService.getFetchDescription();
         if (fetchDescription != null) {
             FileSystemService.FetchDescription lastFetchDescription = fetchDescriptionLiveData.getValue();
@@ -127,6 +107,27 @@ public class FetchContentViewModel extends ViewModel {
         }
     }
 
+    private void addTimerCheckFolders(FileSystemService fileSystemService) {
+        timerDisposable = Observable.interval(5, 5, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
+                .subscribe(aLong -> {
+                    FileSystemService.SCAN_TYPE scanType = fileSystemService.getScanType();
+                    switch (scanType) {
+                        case AUDIO:
+                            audioFoldersCreatedLiveData.call();
+                            break;
+                        case VIDEO:
+                            videoFoldersCreatedLiveData.call();
+                            break;
+                    }
+                }, Throwable::printStackTrace);
+    }
+
+    private void clearTimer() {
+        if (timerDisposable != null && !timerDisposable.isDisposed()) {
+            timerDisposable.dispose();
+        }
+    }
+
     public MutableLiveData<Float> getPercentLiveData() {
         return percentLiveData;
     }
@@ -151,11 +152,11 @@ public class FetchContentViewModel extends ViewModel {
         return fetchVideoStartLiveData;
     }
 
-    public SingleLiveEvent<FileSystemService.FetchFolderCreated> getAudioFoldersCreatedLiveData() {
+    public SingleLiveEvent<Void> getAudioFoldersCreatedLiveData() {
         return audioFoldersCreatedLiveData;
     }
 
-    public SingleLiveEvent<FileSystemService.FetchFolderCreated> getVideoFoldersCreatedLiveData() {
+    public SingleLiveEvent<Void> getVideoFoldersCreatedLiveData() {
         return videoFoldersCreatedLiveData;
     }
 
