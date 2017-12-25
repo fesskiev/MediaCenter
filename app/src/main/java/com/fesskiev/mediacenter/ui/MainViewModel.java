@@ -160,7 +160,7 @@ public class MainViewModel extends ViewModel {
 
     private void notifyPlayback(AudioPlaybackService playbackService) {
         if (playbackService.isFinish()) {
-            finishPlaybackLiveData.call();
+            processFinish();
             return;
         }
 
@@ -211,6 +211,17 @@ public class MainViewModel extends ViewModel {
         if (lastEnableEcho != enableEcho) {
             echoLiveData.setValue(enableEcho);
         }
+    }
+
+    public void processFinish() {
+        disposables.add(CacheManager.clearTempDir()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(aBoolean -> {
+                    dropEffects();
+                    killFFmpeg();
+                })
+                .subscribe(aBoolean -> finishPlaybackLiveData.call()));
     }
 
     public void killFFmpeg() {

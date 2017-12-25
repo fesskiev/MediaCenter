@@ -427,7 +427,7 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
         }
     }
 
-    private void stopPlayBackService() {
+    private void stopPlaybackService() {
         if (startForeground) {
             AudioPlaybackService.stopPlaybackForegroundService(getApplicationContext());
             startForeground = false;
@@ -906,17 +906,11 @@ public class MainActivity extends AnalyticsActivity implements NavigationView.On
                     R.drawable.icon_exit);
         }
         exitDialog.show(transaction, SimpleDialog.class.getName());
-        exitDialog.setPositiveListener(this::processFinishPlayback);
+        exitDialog.setPositiveListener(() -> mainViewModel.processFinish());
     }
 
     private void processFinishPlayback() {
-        stopPlayBackService();
-
-        CacheManager.clearTempDir();
-
-        mainViewModel.dropEffects();
-        mainViewModel.killFFmpeg();
-
+        stopPlaybackService();
         finish();
     }
 
